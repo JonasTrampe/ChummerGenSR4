@@ -73,6 +73,12 @@ namespace Chummer
 			lstAccessory.DataSource = lstAccessories;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void lstAccessory_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			// Retireve the information for the selected Accessory.
@@ -279,5 +285,6 @@ namespace Chummer
 			lblSource.Left = lblSourceLabel.Left + lblSourceLabel.Width + 6;
 		}
 		#endregion
+
 	}
 }

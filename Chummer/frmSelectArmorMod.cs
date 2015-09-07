@@ -74,6 +74,12 @@ namespace Chummer
 			lstMod.DataSource = lstMods;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void lstMod_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			UpdateSelectedArmor();
@@ -335,5 +341,6 @@ namespace Chummer
 			lblSource.Left = lblSourceLabel.Left + lblSourceLabel.Width + 6;
 		}
 		#endregion
+
 	}
 }

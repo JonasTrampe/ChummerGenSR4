@@ -155,6 +155,12 @@ namespace Chummer
 				chkTransgenic.Visible = false;
         }
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
         private void cboGrade_SelectedIndexChanged(object sender, EventArgs e)
         {
 			if (cboGrade.SelectedValue == null)
@@ -1019,5 +1025,6 @@ namespace Chummer
 			lblSearchLabel.Left = txtSearch.Left - 6 - lblSearchLabel.Width;
 		}
 		#endregion
+
     }
 }

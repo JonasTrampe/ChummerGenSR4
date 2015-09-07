@@ -7,6 +7,7 @@ namespace Chummer
 	public partial class frmDiceRoller : Form
 	{
 		private readonly frmMain _frmMain;
+        private MTRNG _RNG;
 
 		#region Control Events
 		public frmDiceRoller(frmMain frmMainForm, List<Quality> lstQualities = null, int intDice = 1)
@@ -14,6 +15,7 @@ namespace Chummer
 			InitializeComponent();
 			LanguageManager.Instance.Load(GlobalOptions.Instance.Language, this);
 			_frmMain = frmMainForm;
+            _RNG = new MTRNG();
 			nudDice.Value = intDice;
 			if (lstQualities != null)
 			{
@@ -53,7 +55,6 @@ namespace Chummer
 
 		private void cmdRollDice_Click(object sender, EventArgs e)
 		{
-			Random objRandom = new Random();
 			List<int> lstRandom = new List<int>();
 			int intHitCount = 0;
 			int intGlitchCount = 0;
@@ -79,13 +80,13 @@ namespace Chummer
 					int intResult = 0;
 					do
 					{
-						intResult = objRandom.Next(1, 7);
+						intResult = _RNG.Next(1, 7);
 						lstRandom.Add(intResult);
 					} while (intResult == 6);
 				}
 				else
 				{
-					int intResult = objRandom.Next(1, 7);
+                    int intResult = _RNG.Next(1, 7);
 					lstRandom.Add(intResult);
 				}
 			}
@@ -186,7 +187,6 @@ namespace Chummer
 					lstHits.Add(intResult);
 			}
 
-			Random objRandom = new Random();
 			List<int> lstRandom = new List<int>();
 			int intHitCount = lstHits.Count;
 			int intGlitchCount = 0;
@@ -211,13 +211,13 @@ namespace Chummer
 					int intResult = 0;
 					do
 					{
-						intResult = objRandom.Next(1, 7);
+                        intResult = _RNG.Next(1, 7);
 						lstRandom.Add(intResult);
 					} while (intResult == 6);
 				}
 				else
 				{
-					int intResult = objRandom.Next(1, 7);
+                    int intResult = _RNG.Next(1, 7);
 					lstRandom.Add(intResult);
 				}
 			}

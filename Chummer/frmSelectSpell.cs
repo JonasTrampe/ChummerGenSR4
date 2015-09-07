@@ -112,6 +112,12 @@ namespace Chummer
 				txtSearch.Enabled = false;
         }
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
         private void treSpells_AfterSelect(object sender, TreeViewEventArgs e)
         {
             // Only attempt to retrieve Spell information if a child node is selected.
@@ -544,5 +550,6 @@ namespace Chummer
 			lblSearchLabel.Left = txtSearch.Left - 6 - lblSearchLabel.Width;
 		}
 		#endregion
+
 	}
 }

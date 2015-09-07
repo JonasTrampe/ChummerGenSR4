@@ -72,6 +72,12 @@ namespace Chummer
 			}
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void cmdOK_Click(object sender, EventArgs e)
 		{
 			if (lstLifestyles.Text != "")
@@ -202,5 +208,6 @@ namespace Chummer
 			nudPercentage.Left = lblPercentage.Left + intWidth + 6;
 		}
 		#endregion
+
 	}
 }

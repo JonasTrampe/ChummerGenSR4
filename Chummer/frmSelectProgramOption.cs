@@ -68,6 +68,12 @@ namespace Chummer
 			lstOptions.DataSource = lstOption;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void lstOptions_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			// Display the Program information.
@@ -183,5 +189,6 @@ namespace Chummer
 			lblSource.Left = lblSourceLabel.Left + lblSourceLabel.Width + 6;
 		}
 		#endregion
+
 	}
 }

@@ -74,6 +74,12 @@ namespace Chummer
 				cboCategory.SelectedIndex = 0;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void cmdOK_Click(object sender, EventArgs e)
 		{
 			AcceptForm();
@@ -317,5 +323,6 @@ namespace Chummer
 			}
 		}
 		#endregion
+
 	}
 }

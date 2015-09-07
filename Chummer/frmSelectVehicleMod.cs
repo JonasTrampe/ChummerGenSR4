@@ -56,6 +56,12 @@ namespace Chummer
 				this.Text = LanguageManager.Instance.GetString("Title_SelectVehicleMod_Weapon");
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void lstMod_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			UpdateGearInfo();
@@ -658,5 +664,6 @@ namespace Chummer
 			lblSearchLabel.Left = txtSearch.Left - 6 - lblSearchLabel.Width;
 		}
 		#endregion
+
 	}
 }

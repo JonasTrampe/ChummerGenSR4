@@ -56,6 +56,12 @@ namespace Chummer
 			lstManeuvers.DataSource = lstManeuver;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void cmdOK_Click(object sender, EventArgs e)
 		{
 			if (lstManeuvers.Text != "")
@@ -128,5 +134,6 @@ namespace Chummer
 			this.DialogResult = DialogResult.OK;
 		}
 		#endregion
+
 	}
 }

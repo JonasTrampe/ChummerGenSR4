@@ -59,6 +59,12 @@ namespace Chummer
 			BuildMetamagicList();
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void lstMetamagic_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (lstMetamagic.Text == "")
@@ -398,5 +404,6 @@ namespace Chummer
 			return true;
 		}
 		#endregion
+
 	}
 }

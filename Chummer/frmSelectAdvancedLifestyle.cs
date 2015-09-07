@@ -258,6 +258,12 @@ namespace Chummer
 			CalculateValues();
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void cmdOK_Click(object sender, EventArgs e)
 		{
 			if (txtLifestyleName.Text == "")
@@ -674,5 +680,6 @@ namespace Chummer
 			cboSecurity.Left = intLeft + 6;
 		}
 		#endregion
+
 	}
 }

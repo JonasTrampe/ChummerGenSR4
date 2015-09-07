@@ -77,6 +77,12 @@ namespace Chummer
 				cboCategory.SelectedIndex = 0;
 		}
 
+        private void lblSource_Click(object sender, EventArgs e)
+        {
+            CommonFunctions objCommon = new CommonFunctions(_objCharacter);
+            objCommon.OpenPDF(lblSource.Text);
+        }
+
 		private void cboCategory_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			// Update the list of Vehicles based on the selected Category.
@@ -448,5 +454,6 @@ namespace Chummer
 			lblSearchLabel.Left = txtSearch.Left - 6 - lblSearchLabel.Width;
 		}
 		#endregion
+
 	}
 }

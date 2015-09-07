@@ -100,6 +100,9 @@ namespace Chummer
 			if (cboXSLT.Text == "")
 				cboXSLT.SelectedValue = "Shadowrun 4";
 			GenerateOutput();
+            this.Text = _lstCharacters[0].Alias;
+            if (this.Text == "")
+                this.Text = _lstCharacters[0].FileName;
 			_blnLoading = false;
 		}
 
