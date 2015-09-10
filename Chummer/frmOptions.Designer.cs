@@ -101,6 +101,8 @@
 			this.tabGeneral = new System.Windows.Forms.TabPage();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabGlobal = new System.Windows.Forms.TabPage();
+			this.lblPDFArgumentStyle = new System.Windows.Forms.Label();
+			this.cboPDFArgumentStyle = new System.Windows.Forms.ComboBox();
 			this.chkLocalisedUpdatesOnly = new System.Windows.Forms.CheckBox();
 			this.chkDatesIncludeTime = new System.Windows.Forms.CheckBox();
 			this.cmdPDFTest = new System.Windows.Forms.Button();
@@ -1060,6 +1062,8 @@
 			// tabGlobal
 			// 
 			this.tabGlobal.BackColor = System.Drawing.SystemColors.Control;
+			this.tabGlobal.Controls.Add(this.lblPDFArgumentStyle);
+			this.tabGlobal.Controls.Add(this.cboPDFArgumentStyle);
 			this.tabGlobal.Controls.Add(this.chkLocalisedUpdatesOnly);
 			this.tabGlobal.Controls.Add(this.chkDatesIncludeTime);
 			this.tabGlobal.Controls.Add(this.cmdPDFTest);
@@ -1087,6 +1091,25 @@
 			this.tabGlobal.TabIndex = 0;
 			this.tabGlobal.Tag = "Tab_Options_Global";
 			this.tabGlobal.Text = "Global";
+			// 
+			// lblPDFArgumentStyle
+			// 
+			this.lblPDFArgumentStyle.AutoSize = true;
+			this.lblPDFArgumentStyle.Location = new System.Drawing.Point(6, 281);
+			this.lblPDFArgumentStyle.Name = "lblPDFArgumentStyle";
+			this.lblPDFArgumentStyle.Size = new System.Drawing.Size(105, 13);
+			this.lblPDFArgumentStyle.TabIndex = 20;
+			this.lblPDFArgumentStyle.Tag = "Label_Options_PDFArgumentStyle";
+			this.lblPDFArgumentStyle.Text = "PDF Argument Style:";
+			// 
+			// cboPDFArgumentStyle
+			// 
+			this.cboPDFArgumentStyle.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboPDFArgumentStyle.FormattingEnabled = true;
+			this.cboPDFArgumentStyle.Location = new System.Drawing.Point(136, 278);
+			this.cboPDFArgumentStyle.Name = "cboPDFArgumentStyle";
+			this.cboPDFArgumentStyle.Size = new System.Drawing.Size(266, 21);
+			this.cboPDFArgumentStyle.TabIndex = 21;
 			// 
 			// chkLocalisedUpdatesOnly
 			// 
@@ -3087,7 +3110,7 @@
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.cmdOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.MinimumSize = new System.Drawing.Size(6, 667);
+			this.MinimumSize = new System.Drawing.Size(16, 667);
 			this.Name = "frmOptions";
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -3430,5 +3453,7 @@
 		private System.Windows.Forms.CheckBox chkPrintToFileFirst;
 		private System.Windows.Forms.CheckBox chkLocalisedUpdatesOnly;
 		private System.Windows.Forms.CheckBox chkSpecialKarmaCost;
+		private System.Windows.Forms.Label lblPDFArgumentStyle;
+		private System.Windows.Forms.ComboBox cboPDFArgumentStyle;
 	}
 }

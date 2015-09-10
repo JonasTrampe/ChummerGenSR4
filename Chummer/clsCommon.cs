@@ -1331,7 +1331,19 @@ namespace Chummer
 			// Open the PDF.
 			// acrord32 /A "page=123" "D:\foo\bar.pdf"
 			//string strFilePath = "C:\\Gaming\\Shadowrun\\Books\\Shadowrun 4th ed Anniverary.pdf";
-			string strParams = " /n /A \"page=" + intPage.ToString() +"\" \"" + strPath + "\"";
+
+			string strParams;
+			switch(GlobalOptions.Instance.PDFArgumentStyle)
+			{
+				case "SumatraPDF":
+					strParams = " -page " + intPage.ToString() + " \"" + strPath + "\"";
+					break;
+				case "Adobe/Foxit":
+				default:
+					strParams = " /n /A \"page=" + intPage.ToString() + "\" \"" + strPath + "\"";
+					break;
+			}
+
 			Process.Start(GlobalOptions.Instance.PDFAppPath, strParams);
 		}
 		#endregion

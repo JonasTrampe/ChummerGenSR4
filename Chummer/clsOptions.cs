@@ -89,6 +89,7 @@ namespace Chummer
 		private static bool _blnSingleDiceRoller = true;
 		private static string _strLanguage = "en-us";
 		private static string _strDefaultCharacterSheet = "Shadowrun 4";
+		private static string _strPDFArgumentStyle = "Adobe/Foxit";
 		private static bool _blnDatesIncludeTime = true;
 		private static bool _blnPrintToFileFirst = false;
 
@@ -153,6 +154,14 @@ namespace Chummer
 			try
 			{
 				_strDefaultCharacterSheet = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("defaultsheet").ToString();
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				_strPDFArgumentStyle = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("pdfargumentstyle").ToString();
 			}
 			catch
 			{
@@ -492,6 +501,21 @@ namespace Chummer
 			set
 			{
 				_strPDFAppPath = value;
+			}
+		}
+
+		/// <summary>
+		/// PDF Argument Style to use when opening a particular page
+		/// </summary>
+		public string PDFArgumentStyle
+		{
+			get
+			{
+				return _strPDFArgumentStyle;
+			}
+			set
+			{
+				_strPDFArgumentStyle = value;
 			}
 		}
 

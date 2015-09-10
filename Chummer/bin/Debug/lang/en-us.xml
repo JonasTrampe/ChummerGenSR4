@@ -4901,6 +4901,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Default Character Sheet:</text>
 		</string>
 		<string>
+			<key>Label_Options_PDFArgumentStyle</key>
+			<text>PDF Argument Style:</text>
+		</string>
+		<string>
 			<key>Tab_Options_General</key>
 			<text>General</text>
 		</string>
