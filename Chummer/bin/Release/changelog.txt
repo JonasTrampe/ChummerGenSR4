@@ -1,3 +1,8 @@
+Build 491
+- added pdf links to all source labels
+- changed .net Random by Mersenne Twister
+- added support for multiple pdf arguments
+
 Build 490
 - corrected how Essence information is stored in regions that use something other than "." to separate decimal places would cause an error to be thrown
 - fixed an issue where ammoreplace values for Weapons were not being handled correctly
