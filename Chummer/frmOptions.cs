@@ -274,6 +274,20 @@ namespace Chummer
 			cboXSLT.DataSource = lstFiles;
 
 			cboXSLT.SelectedValue = GlobalOptions.Instance.DefaultCharacterSheet;
+
+
+			List<ListItem> lstPDFArgumentStyles = new List<ListItem>();
+			foreach(string styleName in new string[] { "Adobe/Foxit", "SumatraPDF" })
+			{
+				ListItem pdfArgumentStyle = new ListItem();
+				pdfArgumentStyle.Value = styleName;
+				pdfArgumentStyle.Name = styleName;
+				lstPDFArgumentStyles.Add(pdfArgumentStyle);
+			}
+			cboPDFArgumentStyle.ValueMember = "Value";
+			cboPDFArgumentStyle.DisplayMember = "Name";
+			cboPDFArgumentStyle.DataSource = lstPDFArgumentStyles;
+			cboPDFArgumentStyle.SelectedValue = GlobalOptions.Instance.PDFArgumentStyle;
 		}
 		#endregion
 
@@ -1651,6 +1665,7 @@ namespace Chummer
 			GlobalOptions.Instance.DatesIncludeTime = chkDatesIncludeTime.Checked;
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
+			GlobalOptions.Instance.PDFArgumentStyle = cboPDFArgumentStyle.SelectedValue.ToString();
 			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer");
 			objRegistry.SetValue("autoupdate", chkAutomaticUpdate.Checked.ToString());
 			objRegistry.SetValue("localisedupdatesonly", chkLocalisedUpdatesOnly.Checked.ToString());
@@ -1658,6 +1673,7 @@ namespace Chummer
 			objRegistry.SetValue("startupfullscreen", chkStartupFullscreen.Checked.ToString());
 			objRegistry.SetValue("singlediceroller", chkSingleDiceRoller.Checked.ToString());
 			objRegistry.SetValue("defaultsheet", cboXSLT.SelectedValue.ToString());
+			objRegistry.SetValue("pdfargumentstyle", cboPDFArgumentStyle.SelectedValue.ToString());
 			objRegistry.SetValue("datesincludetime", chkDatesIncludeTime.Checked.ToString());
 			objRegistry.SetValue("printtofilefirst", chkPrintToFileFirst.Checked.ToString());
 
