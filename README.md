@@ -10,6 +10,6 @@ support for critters and is useful for players and Game Masters alike!
 It also supports four languages: English, French, German, and Japanese.
 
 Chummer is continuously updated to address bugs and introduce new and interesting features suggested by the community.
-If you have a bug to report or idea to suggest, please report them on the Dumpshock forums by using the link in the menu."
+If you have a bug to report or idea to suggest, please report them on the issue section by using the link in the menu."
 
-This text is a copy from http://chummergen.com/
+This text is a copy (slightly modified) from http://chummergen.com/
