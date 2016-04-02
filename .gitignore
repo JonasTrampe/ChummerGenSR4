@@ -1,12 +1,29 @@
-
 *.vshost.exe*
+
+### Local Directories and Subdirectories ###
+[Oo]bj/
 
 # Visual Studio 2015 cache/options directory
 .vs/
 
-## Ignore Visual Studio temporary files
-[Oo]bj/
+### Global File Patterns ###
+*.exe
+*.exe.config
+*.dll
+*.pdf
+*.7z
+*.zip
 
+### Visual Studio specific files ###
+*.VC.opendb
+*.VC.db
+*.csproj.user
+*.sdf
+*.suo
+*.pdb
+*.pro.user
+*.log
+*.deps
 *_i.c
 *_p.c
 *_i.h
@@ -31,3 +48,4 @@
 *.pidb
 *.svclog
 *.scc
+

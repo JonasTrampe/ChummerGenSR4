@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Chummer")]
-[assembly: AssemblyDescription("Character generator for Shadowrun 4th Edition")]
+[assembly: AssemblyTitle("ChummerGenSR4")]
+[assembly: AssemblyDescription("ChummerGen is a SR4 character generator and career manager")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Keith Rudolph")]
-[assembly: AssemblyProduct("Chummer")]
+[assembly: AssemblyProduct("ChummerGenSR4")]
 [assembly: AssemblyCopyright("Copyright © Keith Rudolph 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

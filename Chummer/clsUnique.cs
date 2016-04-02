@@ -4320,7 +4320,6 @@ namespace Chummer
 			get
 			{
 				int intReturn = 0;
-				string strPoolTip = "";
 				foreach (Skill objSkill in _objCharacter.Skills)
 				{
 					if (objSkill.Name == "Spellcasting")

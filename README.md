@@ -1,4 +1,4 @@
-Chummer
+ChummerGen
 -------
 
 "Chummer is a character generator for Shadowrun 4th Edition.
