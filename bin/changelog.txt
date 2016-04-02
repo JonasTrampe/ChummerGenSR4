@@ -1,3 +1,9 @@
+Build 492
+- changed the platform target from x86 to AnyCPU
+- updated the data files to the latest respective versions
+- changed the string of the old forum button to reflect its change into a link to the new github issue tracker
+- fixed a localization related bug which prevented non english users from accessing all weapon fire modes of a gun in career mode
+
 Build 491
 - added pdf links to all source labels
 - changed .net Random by Mersenne Twister

@@ -22423,11 +22423,11 @@ namespace Chummer
 					lblWeaponAmmoRemaining.Text = objWeapon.AmmoRemaining.ToString();
 					//lblWeaponAmmoType.Text = "External Source";
 
-					cmsAmmoSingleShot.Enabled = objWeapon.AllowMode("SS") || objWeapon.AllowMode("SA");
-					cmsAmmoShortBurst.Enabled = objWeapon.AllowMode("BF") || objWeapon.AllowMode("FA");
-					cmsAmmoLongBurst.Enabled = objWeapon.AllowMode("FA");
-					cmsAmmoFullBurst.Enabled = objWeapon.AllowMode("FA");
-					cmsAmmoSuppressiveFire.Enabled = objWeapon.AllowMode("FA");
+					cmsAmmoSingleShot.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSingleShot")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSemiAutomatic"));
+					cmsAmmoShortBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeBurstFire")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoLongBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoFullBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoSuppressiveFire.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
 
 					// Melee Weapons with Ammo are considered to be Single Shot.
 					if (objWeapon.WeaponType == "Melee" && objWeapon.Ammo != "0")
@@ -22574,11 +22574,11 @@ namespace Chummer
 					tipTooltip.SetToolTip(lblWeaponDicePool, objWeapon.DicePoolTooltip);
 					UpdateCharacterInfo();
 
-					cmsAmmoSingleShot.Enabled = objWeapon.AllowMode("SS") || objWeapon.AllowMode("SA");
-					cmsAmmoShortBurst.Enabled = objWeapon.AllowMode("BF") || objWeapon.AllowMode("FA");
-					cmsAmmoLongBurst.Enabled = objWeapon.AllowMode("FA");
-					cmsAmmoFullBurst.Enabled = objWeapon.AllowMode("FA");
-					cmsAmmoSuppressiveFire.Enabled = objWeapon.AllowMode("FA");
+					cmsAmmoSingleShot.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSingleShot")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSemiAutomatic"));
+					cmsAmmoShortBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeBurstFire")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoLongBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoFullBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+					cmsAmmoSuppressiveFire.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
 
 					// Melee Weapons with Ammo are considered to be Single Shot.
 					if (objWeapon.WeaponType == "Melee" && objWeapon.Ammo != "0")
@@ -24493,11 +24493,11 @@ namespace Chummer
 							cmdReloadVehicleWeapon.Enabled = true;
 							lblVehicleWeaponAmmoRemaining.Text = objWeapon.AmmoRemaining.ToString();
 
-							cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode("SS") || objWeapon.AllowMode("SA");
-							cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode("BF");
-							cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode("FA");
-							cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode("FA");
-							cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode("FA");
+							cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSingleShot")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSemiAutomatic"));
+							cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeBurstFire"));
+							cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+							cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+							cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
 
 							// Melee Weapons with Ammo are considered to be Single Shot.
 							if (objWeapon.WeaponType == "Melee" && objWeapon.Ammo != "0")
@@ -24699,11 +24699,11 @@ namespace Chummer
 							cmdReloadVehicleWeapon.Enabled = true;
 							lblVehicleWeaponAmmoRemaining.Text = objWeapon.AmmoRemaining.ToString();
 
-							cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode("SS") || objWeapon.AllowMode("SA");
-							cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode("BF");
-							cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode("FA");
-							cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode("FA");
-							cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode("FA");
+							cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSingleShot")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSemiAutomatic"));
+							cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeBurstFire"));
+							cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+							cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+							cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
 							if (cmsVehicleAmmoFullBurst.Enabled)
 								cmsVehicleAmmoFullBurst.Text = LanguageManager.Instance.GetString("String_FullBurst").Replace("{0}", objWeapon.FullBurst.ToString());
 							if (cmsVehicleAmmoSuppressiveFire.Enabled)
@@ -25033,11 +25033,11 @@ namespace Chummer
 								cmdReloadVehicleWeapon.Enabled = true;
 								lblVehicleWeaponAmmoRemaining.Text = objWeapon.AmmoRemaining.ToString();
 
-								cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode("SS") || objWeapon.AllowMode("SA");
-								cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode("BF");
-								cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode("FA");
-								cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode("FA");
-								cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode("FA");
+								cmsVehicleAmmoSingleShot.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSingleShot")) || objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeSemiAutomatic"));
+								cmsVehicleAmmoShortBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeBurstFire"));
+								cmsVehicleAmmoLongBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+								cmsVehicleAmmoFullBurst.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
+								cmsVehicleAmmoSuppressiveFire.Enabled = objWeapon.AllowMode(LanguageManager.Instance.GetString("String_ModeFullAutomatic"));
 								if (cmsVehicleAmmoFullBurst.Enabled)
 									cmsVehicleAmmoFullBurst.Text = LanguageManager.Instance.GetString("String_FullBurst").Replace("{0}", objWeapon.FullBurst.ToString());
 								if (cmsVehicleAmmoSuppressiveFire.Enabled)
