@@ -2,7 +2,7 @@
 <!-- この言語ファイルは AhonokoP が作成しました。連絡を取りたいときは"Dumpshock Forum"でAhonokoPにメッセージを送ってください -->
 <!-- Translated by AhonokoP. Contact me at "Dumpshock Forum" -->
 <chummer>
-	<version>-996</version>
+	<version>-995</version>
 	<name>日本語 (JP)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -208,7 +208,7 @@
 		</string>
 		<string>
 			<key>Label_DV</key>
-			<text>ドレイン値:</text>
+			<text>DV:</text>
 		</string>
 		<string>
 			<key>Label_RC</key>
@@ -628,7 +628,7 @@
 		</string>
 		<string>
 			<key>Menu_Main_DumpshockThread</key>
-			<text>&amp;Dumpshock Thread</text>
+			<text>&amp;エラートラッカー</text>
 		</string>
 		<string>
 			<key>Menu_Main_About</key>
@@ -717,7 +717,7 @@
 		</string>
 		<string>
 			<key>Menu_SpecialPossessInanimate</key>
-			<text>動かぬ(無生物の)器への憑依/侵蝕</text>
+			<text>動かぬ器への憑依/侵蝕</text>
 		</string>
 		<string>
 			<key>Menu_SpecialBPAvailLimit</key>
@@ -729,7 +729,7 @@
 		</string>
 		<string>
 			<key>Menu_AddAsPlugin</key>
-			<text>プラグインとして追加 (&amp;A)</text>
+			<text>内部に追加 (&amp;A)</text>
 		</string>
 		<string>
 			<key>Menu_AddNaturalWeapon</key>
@@ -861,7 +861,7 @@
 		</string>
 		<string>
 			<key>Tab_MartialArts</key>
-			<text>Martial Arts</text>
+			<text>格闘技</text>
 		</string>
 		<string>
 			<key>Tab_Magician</key>
@@ -1085,7 +1085,7 @@
 		</string>
 		<string>
 			<key>Message_DeleteMartialArt</key>
-			<text>Are you sure you want to delete this Martial Art/Maneuver?</text>
+			<text>この格闘技/格闘動作を削除してもよろしいですか?</text>
 		</string>
 		<string>
 			<key>Message_DeleteMetamagic</key>
@@ -1161,27 +1161,27 @@
 		</string>
 		<string>
 			<key>Message_MartialArtAdvantageLimit</key>
-			<text>You may only have 1 Advantage per Rating of {0}.</text>
+			<text>{0} のレーティング1につき選択できる利点は1つのみです.</text>
 		</string>
 		<string>
 			<key>MessageTitle_MartialArtAdvantageLimit</key>
-			<text>Maximum Number of Advantages</text>
+			<text>利点の最大数</text>
 		</string>
 		<string>
 			<key>Message_MartialArtManeuverLimit</key>
-			<text>You may only have 2 Maneuvers per Martial Art Rating.</text>
+			<text>「格闘技」のレーティング1につき習得できる格闘動作は2つまでです.</text>
 		</string>
 		<string>
 			<key>MessageTitle_MartialArtManeuverLimit</key>
-			<text>Maximum Number of Maneuvers</text>
+			<text>格闘動作の最大数</text>
 		</string>
 		<string>
 			<key>Message_SelectMartialArtAdvantage</key>
-			<text>You must select a Martial Art to add an Advantage to.</text>
+			<text>利点を追加する格闘技を先に選択してください.</text>
 		</string>
 		<string>
 			<key>MessageTitle_SelectMartialArtAdvantage</key>
-			<text>Select Martial Art</text>
+			<text>格闘技の選択</text>
 		</string>
 		<string>
 			<key>Message_PositiveQualityLimit</key>
@@ -1421,7 +1421,7 @@
 		</string>
 		<string>
 			<key>Message_SelectGear</key>
-			<text>プラグインを追加する装備を先に選択してください.</text>
+			<text>装備を追加する装備を先に選択してください.</text>
 		</string>
 		<string>
 			<key>Message_SelectGearName</key>
@@ -1993,7 +1993,7 @@
 		</string>
 		<string>
 			<key>String_ExpenseMartialArt</key>
-			<text>Martial Art</text>
+			<text>格闘技</text>
 		</string>
 		<string>
 			<key>String_ExpenseLearnSpell</key>
@@ -2149,11 +2149,11 @@
 		</string>
 		<string>
 			<key>String_ExpenseLearnMartialArt</key>
-			<text>Learned Martial Art</text>
+			<text>格闘技の習得</text>
 		</string>
 		<string>
 			<key>String_ExpenseLearnManeuver</key>
-			<text>Learned Maneuver</text>
+			<text>格闘動作の習得</text>
 		</string>
 		<string>
 			<key>String_ExpenseLearnMetamagic</key>
@@ -2241,7 +2241,7 @@
 		</string>
 		<string>
 			<key>String_CloningMachineNumber</key>
-			<text>クローンを何対作成しいますか?</text>
+			<text>クローンを何対作成しますか?</text>
 		</string>
 		<string>
 			<key>String_QuickeningKarma</key>
@@ -2345,7 +2345,7 @@
 		</string>
 		<string>
 			<key>String_DamageMortar</key>
-			<text>Mortar</text>
+			<text>迫撃砲弾</text>
 		</string>
 		<string>
 			<key>String_DamageRocket</key>
@@ -2369,7 +2369,7 @@
 		</string>
 		<string>
 			<key>String_Or</key>
-			<text>or</text>
+			<text>または</text>
 		</string>
 		<string>
 			<key>String_AmmoBreakAction</key>
@@ -2401,7 +2401,7 @@
 		</string>
 		<string>
 			<key>String_AmmoExternalSource</key>
-			<text>external source</text>
+			<text>外部電源</text>
 		</string>
 		<string>
 			<key>String_AmmoMagazine</key>
@@ -2609,11 +2609,11 @@
 		</string>
 		<string>
 			<key>String_ActionFree</key>
-			<text>Free</text>
+			<text>簡易</text>
 		</string>
 		<string>
 			<key>String_ActionSimple</key>
-			<text>基本的</text>
+			<text>単純</text>
 		</string>
 		<string>
 			<key>String_ActionComplex</key>
@@ -2804,19 +2804,19 @@
 		<!-- Martial Arts Tab -->
 		<string>
 			<key>Button_AddMartialArt</key>
-			<text>&amp;Add Martial Art</text>
+			<text>格闘技を追加 (&amp;A)</text>
 		</string>
 		<string>
 			<key>Button_AddManeuver</key>
-			<text>A&amp;dd Maneuver</text>
+			<text>格闘動作を追加 (&amp;A)</text>
 		</string>
 		<string>
 			<key>Node_SelectedMartialArts</key>
-			<text>Selected Martial Arts</text>
+			<text>習得した格闘技</text>
 		</string>
 		<string>
 			<key>Node_SelectedManeuvers</key>
-			<text>Selected Maneuvers</text>
+			<text>習得した格闘動作</text>
 		</string>
 		<!-- Spells Tab -->
 		<string>
@@ -3625,11 +3625,11 @@
 		</string>
 		<string>
 			<key>Label_SummaryInitiation</key>
-			<text>ｲﾆｼｴｰｼｮﾝ/ｻﾌﾞﾏｰｼﾞｮﾝ</text>
+			<text>イニシエーションﾝ</text>
 		</string>
 		<string>
 			<key>Label_SummaryManeuvers</key>
-			<text>M.A. Maneuvers</text>
+			<text>格闘動作</text>
 		</string>
 		<string>
 			<key>Tip_BuildSpecialAttributes</key>
@@ -3649,7 +3649,7 @@
 		</string>
 		<string>
 			<key>Tip_BuildManeuvers</key>
-			<text>Each Martial Art Maneuver costs {0} BP.</text>
+			<text>格闘動作は1つにつき {0} BP必要です.</text>
 		</string>
 		<!-- Other Info Tab -->
 		<string>
@@ -4029,7 +4029,7 @@
 		<!-- Skills -->
 		<string>
 			<key>Tip_Skill_ChangeSpecialization</key>
-			<text>{0} カルマ消費して専門家を変更する</text>
+			<text>{0} カルマ消費して専門化を変更する</text>
 		</string>
 		<string>
 			<key>Tip_Skill_SkillsoftRating</key>
@@ -4318,7 +4318,7 @@
 		</string>
 		<string>
 			<key>Checkbox_DiceRoller_RushedJob</key>
-			<text>作業を急ぐ (1 か 2 でグリッジ)</text>
+			<text>作業を急ぐ (1 か 2 でグリッチ)</text>
 		</string>
 		<string>
 			<key>Label_DiceRoller_Result</key>
@@ -4334,11 +4334,11 @@
 		</string>
 		<string>
 			<key>String_DiceRoller_Glitch</key>
-			<text>{0} ヒットとグリッジ</text>
+			<text>{0} ヒットとグリッチ</text>
 		</string>
 		<string>
 			<key>String_DiceRoller_CriticalGlitch</key>
-			<text>クリティカル・グリッジ</text>
+			<text>クリティカル・グリッチ</text>
 		</string>
 		<string>
 			<key>String_DiceRoller_Hits</key>
@@ -5003,11 +5003,11 @@
 		</string>
 		<string>
 			<key>Label_Options_BPMartialArt</key>
-			<text>Martial Art Rating</text>
+			<text>格闘技</text>
 		</string>
 		<string>
 			<key>Label_Options_BPMartialArtManeuver</key>
-			<text>Martial Art Maneuver</text>
+			<text>格闘動作</text>
 		</string>
 		<string>
 			<key>Label_Options_BPSkillGroup</key>
@@ -5107,7 +5107,7 @@
 		</string>
 		<string>
 			<key>Label_Options_ImproveSkillGroup</key>
-			<text>技能グループを1成長</text>
+			<text>技能グループ1成長</text>
 		</string>
 		<string>
 			<key>Label_Options_ImproveAttribute</key>
@@ -5143,7 +5143,7 @@
 		</string>
 		<string>
 			<key>Label_Options_CombatManeuver</key>
-			<text>Combat Maneuver</text>
+			<text>格闘動作</text>
 		</string>
 		<string>
 			<key>Label_Options_Nuyen</key>
@@ -5155,11 +5155,11 @@
 		</string>
 		<string>
 			<key>Label_Options_Carryover</key>
-			<text>新規キャラクターの持ち越し</text>
+			<text>作成時の持ち越し</text>
 		</string>
 		<string>
 			<key>Label_Options_Initiation</key>
-			<text>ｲﾆｼｴｰｼｮﾝ/ｻﾌﾞﾏｰｼﾞｮﾝ</text>
+			<text>イニシエーション</text>
 		</string>
 		<string>
 			<key>Label_Options_Metamagics</key>
@@ -5340,6 +5340,10 @@
 		<string>
 			<key>Checkbox_Options_ErgonomicProgramLimit</key>
 			<text>エルゴノミック・プログラムはコムリンクの【レスポンス】に影響しない (UN)</text>
+		</string>
+		<string>
+			<key>Checkbox_Options_SpecialKarmaCost</key>
+			<text>特殊能力値を成長させる際のカルマは、【エッセンス】の減少に基づいて削減される</text>
 		</string>
 		<string>
 			<key>Checkbox_Options_UseRestrictionsToRecoilCompensation</key>
@@ -5791,17 +5795,17 @@
 		<!-- Select Martial Art Window -->
 		<string>
 			<key>Title_SelectMartialArt</key>
-			<text>Select a Martial Art</text>
+			<text>格闘技を選択</text>
 		</string>
 		<!-- Select Martial Art Advantage Window -->
 		<string>
 			<key>Title_SelectMartialArtAdvantage</key>
-			<text>Select an Advantage</text>
+			<text>利点を選択</text>
 		</string>
 		<!-- Select Martial Art Maneuver Window -->
 		<string>
 			<key>Title_SelectMartialArtManeuver</key>
-			<text>Select a Maneuver</text>
+			<text>格闘動作を選択</text>
 		</string>
 		<!-- Select Mentor Spirit Window -->
 		<string>
@@ -5918,11 +5922,11 @@
 		</string>
 		<string>
 			<key>String_SelectPACKSKit_SelectMartialArt</key>
-			<text>Select Martial Art</text>
+			<text>格闘技を選択</text>
 		</string>
 		<string>
 			<key>String_SelectPACKSKit_MartialArts</key>
-			<text>Martial Arts</text>
+			<text>格闘技</text>
 		</string>
 		<string>
 			<key>String_SelectPACKSKit_Powers</key>

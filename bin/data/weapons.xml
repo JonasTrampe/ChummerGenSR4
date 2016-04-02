@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-845</version>
+	<version>-844</version>
 	<categories>
 		<category>Blades</category>
 		<category>Clubs</category>
@@ -2687,7 +2687,7 @@
 			<ap>-</ap>
 			<mode>SA</mode>
 			<rc>0</rc>
-			<ammo>10(c)/15(c)</ammo>
+			<ammo>10(c) or 15(c)</ammo>
 			<conceal>-2</conceal>
 			<avail>9R</avail>
 			<cost>400</cost>
@@ -7492,7 +7492,7 @@
 			<category>Gear</category>
 			<type>Ranged</type>
 			<reach>0</reach>
-			<damage>8P/4P (-1/m)</damage>
+			<damage>8P then 4P (-1/m)</damage>
 			<ap>-half</ap>
 			<mode>0</mode>
 			<rc>0</rc>
@@ -15724,6 +15724,839 @@
 			<source>EWA</source>
 			<page>92</page>
 		</weapon>
+		<weapon>
+			<name>Colt New Model Revolver</name>
+			<category>Light Pistols</category>
+			<type>Ranged</type>
+			<spec>Revolvers</spec>
+			<reach>0</reach>
+			<damage>4P</damage>
+			<ap>+1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>5(cy)</ammo>
+			<conceal>-2</conceal>
+			<avail>6R</avail>
+			<cost>150</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<source>GH3</source>
+			<page>4</page>
+		</weapon>
+		<weapon>
+			<name>Colt Agent Special</name>
+			<category>Light Pistols</category>
+			<type>Ranged</type>
+			<spec>Semi-Automatics</spec>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>+1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>8(c)</ammo>
+			<conceal>-2</conceal>
+			<avail>7R</avail>
+			<cost>350</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<range>Tasers</range>
+			<source>GH3</source>
+			<page>5</page>
+		</weapon>
+		<weapon>
+			<name>Colt Future Frontier</name>
+			<category>Heavy Pistols</category>
+			<type>Ranged</type>
+			<spec>Revolvers</spec>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>7(cy)</ammo>
+			<conceal>0</conceal>
+			<avail>4R</avail>
+			<cost>300</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Melee Hardening</mod>
+			</mods>
+			<source>GH3</source>
+			<page>6</page>
+		</weapon>
+		<weapon>
+			<name>Fianchetti Military 100</name>
+			<category>Machine Pistols</category>
+			<type>Ranged</type>
+			<spec>Semi-Automatics</spec>
+			<reach>0</reach>
+			<damage>4P</damage>
+			<ap>+1</ap>
+			<mode>SA/BF/FA</mode>
+			<rc>0</rc>
+			<ammo>20(c)</ammo>
+			<conceal>2</conceal>
+			<avail>8R</avail>
+			<cost>800</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Smartgun System</mod>
+			</mods>
+			<source>GH3</source>
+			<page>7</page>
+		</weapon>
+		<weapon>
+			<name>Cavalier Evanator</name>
+			<category>Machine Pistols</category>
+			<type>Ranged</type>
+			<spec>Semi-Automatics</spec>
+			<reach>0</reach>
+			<damage>4P</damage>
+			<ap>+1</ap>
+			<mode>BF/FA</mode>
+			<rc>0</rc>
+			<ammo>20(c)</ammo>
+			<conceal>2</conceal>
+			<avail>10R</avail>
+			<cost>700</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Electronic Firing</mod>
+				<mod>Folding Stock</mod>
+				<mod>Laser Sight</mod>
+			</mods>
+			<source>GH3</source>
+			<page>8</page>
+		</weapon>
+		<weapon>
+			<name>Remington Suppressor</name>
+			<category>Machine Pistols</category>
+			<type>Ranged</type>
+			<spec>Semi-Automatics</spec>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>-1</ap>
+			<mode>SA/BF</mode>
+			<rc>0</rc>
+			<ammo>15(c)</ammo>
+			<conceal>2</conceal>
+			<avail>15R</avail>
+			<cost>850</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Sound Suppressor</mod>
+			</mods>
+			<source>GH3</source>
+			<page>9</page>
+		</weapon>
+		<weapon>
+			<name>Krime Spree</name>
+			<category>Submachine Guns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>-</ap>
+			<mode>FA</mode>
+			<rc>1</rc>
+			<ammo>30(c)</ammo>
+			<conceal>4</conceal>
+			<avail>8R</avail>
+			<cost>750</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Metahuman Customization</mod>
+			</mods>
+			<source>GH3</source>
+			<page>10</page>
+		</weapon>
+		<weapon>
+			<name>Ares SIGMA 3</name>
+			<category>Submachine Guns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>-</ap>
+			<mode>SA/BF/FA</mode>
+			<rc>0</rc>
+			<ammo>50(d)</ammo>
+			<conceal>4</conceal>
+			<avail>9R</avail>
+			<cost>1100</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Folding Stock</mod>
+				<mod>Foregrip</mod>
+				<mod rating="2">Powered Slide Mount</mod>
+				<mod>Smartgun System</mod>
+			</mods>
+			<source>GH3</source>
+			<page>11</page>
+		</weapon>
+		<weapon>
+			<name>Cavalier Arms Gladius</name>
+			<category>Submachine Guns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>-</ap>
+			<mode>BF/FA</mode>
+			<rc>1</rc>
+			<ammo>32(c)</ammo>
+			<conceal>4</conceal>
+			<avail>8R</avail>
+			<cost>900</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Folding Stock</mod>
+				<mod>Laser Sight</mod>
+			</mods>
+			<source>GH3</source>
+			<page>12</page>
+		</weapon>
+		<weapon>
+			<name>Shiawase Arms Monsoon</name>
+			<category>Assault Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>SA/FA</mode>
+			<rc>0</rc>
+			<ammo>6x20(ml)</ammo>
+			<conceal>6</conceal>
+			<avail>8R</avail>
+			<cost>1100</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Electronic Firing</mod>
+				<mod>Melee Hardening</mod>
+				<mod>Smartgun System</mod>
+			</mods>
+			<source>GH3</source>
+			<page>13</page>
+		</weapon>
+		<weapon>
+			<name>Colt Inception</name>
+			<category>Assault Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>SA/FA</mode>
+			<rc>0</rc>
+			<ammo>36(c)</ammo>
+			<conceal>6</conceal>
+			<avail>8R</avail>
+			<cost>1000</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Bipod</accessory>
+			</accessories>
+			<mods>
+				<mod>Electronic Firing</mod>
+				<mod>Laser Sight</mod>
+				<mod>Melee Hardening</mod>
+			</mods>
+			<source>GH3</source>
+			<page>14</page>
+		</weapon>
+		<weapon>
+			<name>Krupp Arms Kriegfaust</name>
+			<category>Assault Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>SA/BF</mode>
+			<rc>1</rc>
+			<ammo>25(d)</ammo>
+			<conceal>6</conceal>
+			<avail>6R</avail>
+			<cost>800</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<mods>
+				<mod>Metahuman Customization</mod>
+				<mod>Melee Hardening</mod>
+			</mods>
+			<source>GH3</source>
+			<page>15</page>
+		</weapon>
+		<weapon>
+			<name>SBd-44</name>
+			<category>Assault Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>SA/BF/FA</mode>
+			<rc>0</rc>
+			<ammo>32(c)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>490</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Vintage</mod>
+			</mods>
+			<source>GH3</source>
+			<page>16</page>
+		</weapon>
+		<weapon>
+			<name>Krime Boss</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>8P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>1</rc>
+			<ammo>15(d)</ammo>
+			<conceal>6</conceal>
+			<avail>11R</avail>
+			<cost>1050</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Metahuman Customization</mod>
+			</mods>
+			<source>GH3</source>
+			<page>17</page>
+		</weapon>
+		<weapon>
+			<name>Winchester Model 201</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>2(b)</ammo>
+			<conceal>6</conceal>
+			<avail>3R</avail>
+			<cost>500</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<source>GH3</source>
+			<page>18</page>
+		</weapon>
+		<weapon>
+			<name>Winchester Model 2066</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>5(m)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>1050</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<source>GH3</source>
+			<page>19</page>
+		</weapon>
+		<weapon>
+			<name>Winchester Model 2054</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>7(m)</ammo>
+			<conceal>6</conceal>
+			<avail>6R</avail>
+			<cost>1150</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Folding Stock</mod>
+				<mod>Laser Sight</mod>
+			</mods>
+			<source>GH3</source>
+			<page>20</page>
+		</weapon>
+		<weapon>
+			<name>Shiawase Arms Rain</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>5(ml)</ammo>
+			<conceal>6</conceal>
+			<avail>3R</avail>
+			<cost>650</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Folding Stock</mod>
+			</mods>
+			<source>GH3</source>
+			<page>21</page>
+		</weapon>
+		<weapon>
+			<name>Cavalier Falchion</name>
+			<category>Shotguns</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>8(m)</ammo>
+			<conceal>6</conceal>
+			<avail>6R</avail>
+			<cost>1100</cost>
+			<allowaccessory>true</allowaccessory>
+			<mods>
+				<mod>Advanced Safety, Basic System</mod>
+				<mod>Melee Hardening</mod>
+				<mod>Smartgun System</mod>
+				<mod>Trigger Removal</mod>
+			</mods>
+			<source>GH3</source>
+			<page>22</page>
+		</weapon>
+		<weapon>
+			<name>Springfield 2003</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-2</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>5(m)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>700</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Vintage</mod>
+			</mods>
+			<source>GH3</source>
+			<page>23</page>
+		</weapon>
+		<weapon>
+			<name>Winchester Model 2024</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>7(m)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>435</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<source>GH3</source>
+			<page>24</page>
+		</weapon>
+		<weapon>
+			<name>Marlin 3468SS</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>4(m)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>500</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<source>GH3</source>
+			<page>25</page>
+		</weapon>
+		<weapon>
+			<name>Springfield M1A</name>
+			<category>Sporting Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>20(c)</ammo>
+			<conceal>6</conceal>
+			<avail>6R</avail>
+			<cost>950</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<source>GH3</source>
+			<page>26</page>
+		</weapon>
+		<weapon>
+			<name>M1 Garand</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>8(c)</ammo>
+			<conceal>6</conceal>
+			<avail>5R</avail>
+			<cost>650</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Vintage</mod>
+			</mods>
+			<source>GH3</source>
+			<page>27</page>
+		</weapon>
+		<weapon>
+			<name>Springfield Model 1855 Reproduction</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>+2</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>1(cb)</ammo>
+			<conceal>6</conceal>
+			<avail>2R</avail>
+			<cost>800</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Vintage</mod>
+			</mods>
+			<source>GH3</source>
+			<page>28</page>
+		</weapon>
+		<weapon>
+			<name>Marlin 3041 BL</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>6(m)</ammo>
+			<conceal>6</conceal>
+			<avail>4R</avail>
+			<cost>425</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<source>GH3</source>
+			<page>29</page>
+		</weapon>
+		<weapon>
+			<name>Marlin X71</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>7P</damage>
+			<ap>-1</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>5(m)</ammo>
+			<conceal>6</conceal>
+			<avail>5R</avail>
+			<cost>950</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<mods>
+				<mod>Extreme Environment Mod Rating 1</mod>
+			</mods>
+			<source>GH3</source>
+			<page>30</page>
+		</weapon>
+		<weapon>
+			<name>Marlin 79S</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>4P</damage>
+			<ap>-</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>10(c)</ammo>
+			<conceal>6</conceal>
+			<avail>3R</avail>
+			<cost>250</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<source>GH3</source>
+			<page>31</page>
+		</weapon>
+		<weapon>
+			<name>Ultimax Rain Forest Carbine </name>
+			<category>Assault Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>8P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>18(c)</ammo>
+			<conceal>6</conceal>
+			<avail>12R</avail>
+			<cost>4000</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Imaging Scope</accessory>
+			</accessories>
+			<mods>
+				<mod>Folding Stock</mod>
+			</mods>
+			<source>GH3</source>
+			<page>32</page>
+		</weapon>
+		<weapon>
+			<name>Winchester Model 2067</name>
+			<category>Sports Rifles</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>5P</damage>
+			<ap>-1</ap>
+			<mode>SA</mode>
+			<rc>0</rc>
+			<ammo>15(m)</ammo>
+			<conceal>6</conceal>
+			<avail>5R</avail>
+			<cost>650</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Vintage</mod>
+			</mods>
+			<range>Submachine Guns</range>
+			<source>GH3</source>
+			<page>33</page>
+		</weapon>
+		<weapon>
+			<name>Krime Wave</name>
+			<category>Light Machine Guns</category>
+			<type>Ranged</type>
+			<spec>Machine Guns</spec>
+			<reach>0</reach>
+			<damage>6P</damage>
+			<ap>-1</ap>
+			<mode>FA</mode>
+			<rc>0</rc>
+			<ammo>50(c) or 100(belt)</ammo>
+			<conceal>6</conceal>
+			<avail>12F</avail>
+			<cost>1700</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<accessories>
+				<accessory>Bipod</accessory>
+			</accessories>
+			<mods>
+				<mod>Metahuman Customization</mod>
+			</mods>
+			<source>GH3</source>
+			<page>34</page>
+		</weapon>
+		<weapon>
+			<name>Krime Bomb</name>
+			<category>Assault Cannons</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>10P</damage>
+			<ap>-4</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>4(m)</ammo>
+			<conceal>6</conceal>
+			<avail>18F</avail>
+			<cost>4150</cost>
+			<allowaccessory>true</allowaccessory>
+			<accessorymounts>
+				<mount>Barrel</mount>
+				<mount>Top</mount>
+				<mount>Under</mount>
+			</accessorymounts>
+			<mods>
+				<mod>Laser Sight</mod>
+				<mod rating="2">Powered Slide Mount</mod>
+			</mods>
+			<source>GH3</source>
+			<page>35</page>
+		</weapon>
+		<weapon>
+			<name>Shiawase Arms Incinerator</name>
+			<category>Flamethrowers</category>
+			<type>Ranged</type>
+			<reach>0</reach>
+			<damage>8P</damage>
+			<ap>-half</ap>
+			<mode>SS</mode>
+			<rc>0</rc>
+			<ammo>6(c)</ammo>
+			<conceal>6</conceal>
+			<avail>16F</avail>
+			<cost>1700</cost>
+			<allowaccessory>true</allowaccessory>
+			<mods>
+				<mod>Reduced Weight</mod>
+				<mod rating="1">Powered Slide Mount</mod>
+			</mods>
+			<range>Light Pistols</range>
+			<source>GH3</source>
+			<page>36</page>
+		</weapon>
 	</weapons>
 	<accessories>
 		<accessory>
@@ -16829,7 +17662,7 @@
 			<name>Extended Clip, 50 Drum</name>
 			<category>Weapon Mod</category>
 			<rating>0</rating>
-			<slots>1</slots>
+			<slots>2</slots>
 			<conceal>2</conceal>
 			<avail>6R</avail>
 			<cost>1000</cost>
@@ -16841,7 +17674,7 @@
 			<name>Extended Clip, 100 Drum</name>
 			<category>Weapon Mod</category>
 			<rating>0</rating>
-			<slots>1</slots>
+			<slots>2</slots>
 			<conceal>4</conceal>
 			<avail>6R</avail>
 			<cost>1000</cost>

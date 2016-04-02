@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-906</version>
+	<version>-905</version>
 	<books>
 		<book>
 			<name>Arsenal</name>
@@ -57,6 +57,10 @@
 		<book>
 			<name>Gun Heaven 2</name>
 			<code>GH2</code>
+		</book>
+		<book>
+			<name>Gun Heaven 3</name>
+			<code>GH3</code>
 		</book>
 		<book>
 			<name>Hazard Pay</name>
