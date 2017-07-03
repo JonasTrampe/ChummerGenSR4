@@ -1716,6 +1716,7 @@ namespace Chummer
 
 			// Load Books.
 			_lstBooks.Clear();
+			_strBookXPath = string.Empty;
 			foreach (XmlNode objXmlBook in objXmlDocument.SelectNodes("/settings/books/book"))
 				_lstBooks.Add(objXmlBook.InnerText);
 
