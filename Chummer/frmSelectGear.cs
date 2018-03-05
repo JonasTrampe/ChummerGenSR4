@@ -868,7 +868,8 @@ namespace Chummer
 				try
 				{
 					xprAvail = nav.Compile(strAvailExpr.Replace("Rating", nudRating.Value.ToString()));
-					lblAvail.Text = (Convert.ToInt32(nav.Evaluate(xprAvail)) + _intAvailModifier).ToString() + strAvail;
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                    lblAvail.Text = (Convert.ToInt32(temp) + _intAvailModifier).ToString() + strAvail;
 				}
 				catch
 				{
@@ -887,7 +888,8 @@ namespace Chummer
 					{
 						XPathExpression xprCost = nav.Compile(objXmlGear["cost"].InnerText.Replace("Rating", nudRating.Value.ToString()));
 						double dblCost = 0.0;
-						dblCost = Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo) * dblMultiplier;
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        dblCost = Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) * dblMultiplier;
 						dblCost *= 1 + (Convert.ToDouble(nudMarkup.Value, GlobalOptions.Instance.CultureInfo) / 100.0);
 						if (chkHacked.Checked)
 							dblCost *= 0.1;
@@ -937,7 +939,8 @@ namespace Chummer
 					{
 						XPathExpression xprCost = nav.Compile(objXmlGear["cost3"].InnerText.Replace("Rating", nudRating.Value.ToString()));
 						double dblCost = 0.0;
-						dblCost = Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo) * dblMultiplier;
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        dblCost = Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) * dblMultiplier;
 						dblCost *= 1 + (Convert.ToDouble(nudMarkup.Value, GlobalOptions.Instance.CultureInfo) / 100.0);
 						if (chkHacked.Checked)
 							dblCost *= 0.1;
@@ -948,7 +951,8 @@ namespace Chummer
 					{
 						XPathExpression xprCost = nav.Compile(objXmlGear["cost6"].InnerText.Replace("Rating", nudRating.Value.ToString()));
 						double dblCost = 0.0;
-						dblCost = Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo) * dblMultiplier;
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        dblCost = Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) * dblMultiplier;
 						dblCost *= 1 + (Convert.ToDouble(nudMarkup.Value, GlobalOptions.Instance.CultureInfo) / 100.0);
 						if (chkHacked.Checked)
 							dblCost *= 0.1;
@@ -959,7 +963,8 @@ namespace Chummer
 					{
 						XPathExpression xprCost = nav.Compile(objXmlGear["cost10"].InnerText.Replace("Rating", nudRating.Value.ToString()));
 						double dblCost = 0.0;
-						dblCost = Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo) * dblMultiplier;
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        dblCost = Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) * dblMultiplier;
 						dblCost *= 1 + (Convert.ToDouble(nudMarkup.Value, GlobalOptions.Instance.CultureInfo) / 100.0);
 						if (chkHacked.Checked)
 							dblCost *= 0.1;
@@ -1019,7 +1024,9 @@ namespace Chummer
 										lblCapacity.Text = strValues[Convert.ToInt32(nudRating.Value) - 1];
 									}
 									else
-										lblCapacity.Text = nav.Evaluate(xprCapacity).ToString();
+									{
+                                        lblCapacity.Text = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+									}
 								}
 								if (blnSquareBrackets)
 									lblCapacity.Text = "[" + lblCapacity.Text + "]";
@@ -1057,7 +1064,8 @@ namespace Chummer
 									}
 									else
 									{
-										string strCalculatedCapacity = nav.Evaluate(xprCapacity).ToString();
+									    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                                        string strCalculatedCapacity = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", temp);
 										if (strCalculatedCapacity.Contains('.'))
 										{
 											decimal decCalculatedCapacity = Convert.ToDecimal(strCalculatedCapacity, GlobalOptions.Instance.CultureInfo);
@@ -1067,7 +1075,9 @@ namespace Chummer
 											lblCapacity.Text = intCalculatedCapacity.ToString();
 										}
 										else
-											lblCapacity.Text = nav.Evaluate(xprCapacity).ToString();
+										{
+										    lblCapacity.Text = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                                        }
 									}
 								}
 								if (blnSquareBrackets)

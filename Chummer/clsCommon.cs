@@ -52,8 +52,7 @@ namespace Chummer
 				}
 			}
 
-			objReturn = null;
-			return objReturn;
+			return null;
 		}
 
 		/// <summary>
@@ -81,8 +80,7 @@ namespace Chummer
 				}
 			}
 
-			objReturn = null;
-			return objReturn;
+			return null;
 		}
 
 		/// <summary>

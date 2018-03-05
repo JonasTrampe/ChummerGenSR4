@@ -111,7 +111,8 @@ namespace Chummer
 
 			XPathNavigator nav = _objXmlDocument.CreateNavigator();
 			XPathExpression xprCost = nav.Compile(strCost);
-			int intCost = Convert.ToInt32(Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo));
+		    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+            int intCost = Convert.ToInt32(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo));
 
 			// Apply any markup.
 			double dblCost = Convert.ToDouble(intCost, GlobalOptions.Instance.CultureInfo);

@@ -548,8 +548,9 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					return nav.Evaluate(xprCost).ToString();
-				}
+
+                    return string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost).ToString());
+                }
 				else
 				{
 					// Just a straight cost, so return the value.
@@ -721,7 +722,8 @@ namespace Chummer
 						strAvailExpr = strAvailExpr.Substring(0, strAvailExpr.Length - 1);
 					}
 					XPathExpression xprAvail = nav.Compile(strAvailExpr.Replace("Rating", _intRating.ToString()));
-					strCalculated = Convert.ToInt32(nav.Evaluate(xprAvail)).ToString() + strAvail;
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                    strCalculated = Convert.ToInt32(temp, GlobalOptions.Instance.CultureInfo).ToString() + strAvail;
 				}
 				else
 				{
@@ -799,7 +801,9 @@ namespace Chummer
 								strReturn = strValues[Convert.ToInt32(_intRating) - 1];
 							}
 							else
-								strReturn = nav.Evaluate(xprCapacity).ToString();
+							{
+							    strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+							}
 						}
 						if (blnSquareBrackets)
 							strReturn = "[" + strCapacity + "]";
@@ -824,8 +828,8 @@ namespace Chummer
 						strCapacity = strCapacity.Substring(1, strCapacity.Length - 2);
 					XPathExpression xprCapacity = nav.Compile(strCapacity.Replace("Rating", _intRating.ToString()));
 
-					string strReturn = nav.Evaluate(xprCapacity).ToString();
-					if (blnSquareBrackets)
+					string strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                    if (blnSquareBrackets)
 						strReturn = "[" + strReturn + "]";
 
 					return strReturn;
@@ -862,7 +866,9 @@ namespace Chummer
 
 					string strCostExpr = _strCost.Replace("Armor Cost", _objParent.Cost.ToString());
 					XPathExpression xprCost = nav.Compile(strCostExpr);
-					intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCost).ToString(), GlobalOptions.Instance.CultureInfo)));
+
+                    string tempStr = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost)); 
+                    intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(tempStr, GlobalOptions.Instance.CultureInfo)));
 				}
 				else if (_strCost.Contains("Rating"))
 				{
@@ -871,7 +877,8 @@ namespace Chummer
 
 					string strCostExpr = _strCost.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCostExpr);
-					intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCost).ToString(), GlobalOptions.Instance.CultureInfo)));
+				    string tempStr = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(tempStr, GlobalOptions.Instance.CultureInfo)));
 				}
 				else
 					intReturn = Convert.ToInt32(_strCost);
@@ -3400,7 +3407,8 @@ namespace Chummer
 							strAvailExpr = strAvailExpr.Substring(0, strAvailExpr.Length - 1);
 						}
 						XPathExpression xprAvail = nav.Compile(strAvailExpr.Replace("Rating", _intRating.ToString()));
-						return "+" + nav.Evaluate(xprAvail) + strAvail;
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                        return "+" + temp + strAvail;
 					}
 					else
 						return _strAvail;
@@ -3431,7 +3439,8 @@ namespace Chummer
 						strAvailExpr = strAvailExpr.Substring(0, strAvailExpr.Length - 1);
 					}
 					XPathExpression xprAvail = nav.Compile(strAvailExpr.Replace("Rating", _intRating.ToString()));
-					strCalculated = (Convert.ToInt32(nav.Evaluate(xprAvail)) + intAvailModifier).ToString() + strAvail;
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                    strCalculated = (Convert.ToInt32(temp) + intAvailModifier).ToString() + strAvail;
 				}
 				else
 				{
@@ -3488,7 +3497,8 @@ namespace Chummer
 
 							// Remove the "+" since the expression can't be evaluated if it starts with this.
 							XPathExpression xprAvail = nav.Compile(strChildAvailExpr.Replace("+", ""));
-							strChildAvail = "+" + nav.Evaluate(xprAvail);
+						    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                            strChildAvail = "+" + temp;
 							if (strChildAvailText != "")
 								strChildAvail += strChildAvailText;
 						}
@@ -3561,7 +3571,9 @@ namespace Chummer
 								strReturn = strValues[Convert.ToInt32(_intRating) - 1];
 							}
 							else
-								strReturn = nav.Evaluate(xprCapacity).ToString();
+							{
+                                strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+							}
 						}
 						if (blnSquareBrackets)
 							strReturn = "[" + strCapacity + "]";
@@ -3575,7 +3587,8 @@ namespace Chummer
 					{
 						strSecondHalf = strSecondHalf.Replace("[", string.Empty).Replace("]", string.Empty);
 						xprCapacity = nav.Compile(strSecondHalf.Replace("Rating", _intRating.ToString()));
-						strSecondHalf = "[" + nav.Evaluate(xprCapacity).ToString() + "]";
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                        strSecondHalf = "[" + temp + "]";
 					}
 
 					strReturn += "/" + strSecondHalf;
@@ -3594,7 +3607,7 @@ namespace Chummer
 						strCapacity = strCapacity.Substring(1, strCapacity.Length - 2);
 					XPathExpression xprCapacity = nav.Compile(strCapacity.Replace("Rating", _intRating.ToString()));
 
-					string strReturn = nav.Evaluate(xprCapacity).ToString();
+                    string strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
 					if (blnSquareBrackets)
 						strReturn = "[" + strReturn + "]";
 					
@@ -3637,7 +3650,8 @@ namespace Chummer
 
 					strEss = strEssExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprEss = nav.Compile(strEss);
-					decReturn = Convert.ToDecimal(nav.Evaluate(xprEss), GlobalOptions.Instance.CultureInfo);
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprEss));
+                    decReturn = Convert.ToDecimal(temp, GlobalOptions.Instance.CultureInfo);
 				}
 				else
 				{
@@ -3759,7 +3773,8 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					intCost = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    intCost = Convert.ToInt32(temp);
 				}
 				else
 				{
@@ -3877,7 +3892,8 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					intCost = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    intCost = Convert.ToInt32(temp);
 				}
 				else
 				{
@@ -3936,7 +3952,8 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					intCost = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    intCost = Convert.ToInt32(temp);
 				}
 				else
 				{
@@ -5793,9 +5810,10 @@ namespace Chummer
 
 				if (!blnDamageReplaced)
 				{
-					xprDamage = nav.Compile(strDamage);
-					double dblDamage = 0;
-					dblDamage = Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprDamage), GlobalOptions.Instance.CultureInfo) + intBonus);
+				    double dblDamage = 0;
+                    xprDamage = nav.Compile(strDamage);
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDamage));
+                    dblDamage = Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) + intBonus);
 					if (_strName == "Unarmed Attack (Smashing Blow)")
 						dblDamage *= 2.0;
 					strReturn = dblDamage.ToString() + strDamageType + strDamageExtra;
@@ -5834,10 +5852,10 @@ namespace Chummer
 					}
 					// Replace the division sign with "div" since we're using XPath.
 					strDamage = strDamage.Replace("/", " div ");
-
-					xprDamage = nav.Compile(strDamage);
-					double dblDamage = 0;
-					dblDamage = Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprDamage), GlobalOptions.Instance.CultureInfo) + intBonus);
+				    double dblDamage = 0;
+                    xprDamage = nav.Compile(strDamage);
+                    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDamage));
+                    dblDamage = Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) + intBonus);
 					if (_strName == "Unarmed Attack (Smashing Blow)")
 						dblDamage *= 2.0;
 					strReturn = dblDamage.ToString() + strDamageType + strDamageExtra;
@@ -6597,8 +6615,8 @@ namespace Chummer
 			strRange = strRange.Replace("BOD", intBOD.ToString());
 
 			XPathExpression xprRange = nav.Compile(strRange);
-
-			double dblReturn = Convert.ToDouble(nav.Evaluate(xprRange).ToString(), GlobalOptions.Instance.CultureInfo) * _dblRangeMultiplier;
+		    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprRange));
+            double dblReturn = Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo) * _dblRangeMultiplier;
 			int intReturn = Convert.ToInt32(Math.Floor(dblReturn));
 
 			return intReturn;
@@ -8764,7 +8782,8 @@ namespace Chummer
 					strCost = strCostExpression.Replace("Weapon Cost", _objParent.Cost.ToString());
 					strCost = strCost.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					intReturn = (Convert.ToInt32(nav.Evaluate(xprCost).ToString()) * _objParent.CostMultiplier);
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    intReturn = (Convert.ToInt32(temp) * _objParent.CostMultiplier);
 				}
 
 				if (DiscountCost)
@@ -11196,7 +11215,8 @@ namespace Chummer
 					strAvailExpr = strAvailExpr.Substring(0, strAvailExpr.Length - 1);
 				}
 				XPathExpression xprAvail = nav.Compile(strAvailExpr.Replace("Rating", _intRating.ToString()));
-				strCalculated = Convert.ToInt32(nav.Evaluate(xprAvail)).ToString() + strAvail;
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                strCalculated = Convert.ToInt32(temp).ToString() + strAvail;
 			}
 			else
 			{
@@ -11299,7 +11319,9 @@ namespace Chummer
 								strReturn = strValues[Convert.ToInt32(_intRating) - 1];
 							}
 							else
-								strReturn = nav.Evaluate(xprCapacity).ToString();
+							{
+                                strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+							}
 						}
 						if (blnSquareBrackets)
 							strReturn = "[" + strCapacity + "]";
@@ -11326,8 +11348,9 @@ namespace Chummer
 
 					string strReturn = "";
 
-					// This has resulted in a non-whole number, so round it (minimum of 1).
-					decimal decNumber = Convert.ToDecimal(nav.Evaluate(xprCapacity), GlobalOptions.Instance.CultureInfo);
+                    // This has resulted in a non-whole number, so round it (minimum of 1).
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                    decimal decNumber = Convert.ToDecimal(temp, GlobalOptions.Instance.CultureInfo);
 					int intNumber = Convert.ToInt32(Math.Floor(decNumber));
 					if (intNumber < 1)
 						intNumber = 1;
@@ -11392,7 +11415,9 @@ namespace Chummer
 								strReturn = strValues[Convert.ToInt32(_intRating) - 1];
 							}
 							else
-								strReturn = nav.Evaluate(xprCapacity).ToString();
+							{
+							    strReturn = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+							}
 						}
 						if (blnSquareBrackets)
 							strReturn = "[" + strCapacity + "]";
@@ -11416,8 +11441,8 @@ namespace Chummer
 					if (blnSquareBrackets)
 						strCapacity = strCapacity.Substring(1, strCapacity.Length - 2);
 					XPathExpression xprCapacity = nav.Compile(strCapacity.Replace("Rating", _intRating.ToString()));
-
-					string strReturn = nav.Evaluate(xprCapacity).ToString();
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                    string strReturn = temp;
 					if (blnSquareBrackets)
 						strReturn = "[" + strReturn + "]";
 
@@ -11466,7 +11491,8 @@ namespace Chummer
 						string strCost = "";
 						strCost = strCostExpression.Replace("Gear Cost", _objParent.CalculatedCost.ToString());
 						XPathExpression xprCost = nav.Compile(strCost);
-						intReturn = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        intReturn = Convert.ToInt32(temp);
 					}
 					else
 						intReturn = 0;
@@ -11494,8 +11520,9 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					// This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
-					double dblCost = Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo));
+                    // This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    double dblCost = Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo));
 					intReturn = Convert.ToInt32(dblCost);
 				}
 				else
@@ -11542,7 +11569,8 @@ namespace Chummer
 						string strCost = "";
 						strCost = strCostExpression.Replace("Gear Cost", _objParent.CalculatedCost.ToString());
 						XPathExpression xprCost = nav.Compile(strCost);
-						intReturn = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        intReturn = Convert.ToInt32(temp);
 					}
 					else
 						intReturn = 0;
@@ -11570,8 +11598,9 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					// This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
-					double dblCost = Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo));
+                    // This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    double dblCost = Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo));
 					intReturn = Convert.ToInt32(dblCost);
 				}
 				else
@@ -11638,7 +11667,8 @@ namespace Chummer
 						string strCost = "";
 						strCost = strCostExpression.Replace("Gear Cost", _objParent.CalculatedCost.ToString());
 						XPathExpression xprCost = nav.Compile(strCost);
-						intReturn = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                        intReturn = Convert.ToInt32(temp);
 					}
 					else
 						intReturn = 0;
@@ -11666,8 +11696,9 @@ namespace Chummer
 
 					strCost = strCostExpression.Replace("Rating", _intRating.ToString());
 					XPathExpression xprCost = nav.Compile(strCost);
-					// This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
-					double dblCost = Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo));
+                    // This is first converted to a double and rounded up since some items have a multiplier that is not a whole number, such as 2.5.
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    double dblCost = Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo));
 					intReturn = Convert.ToInt32(dblCost);
 				}
 				else
@@ -14161,7 +14192,8 @@ namespace Chummer
 						strAvailExpr = strAvailExpr.Substring(0, strAvailExpr.Length - 1);
 					}
 					XPathExpression xprAvail = nav.Compile(strAvailExpr.Replace("Rating", _intRating.ToString()));
-					strCalculated = Convert.ToInt32(nav.Evaluate(xprAvail)).ToString() + strAvail;
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                    strCalculated = Convert.ToInt32(temp).ToString() + strAvail;
 				}
 				else
 				{
@@ -14224,7 +14256,8 @@ namespace Chummer
 				strCost = strCost.Replace("Accel(Running)", _intAccelRunning.ToString());
 				strCost = strCost.Replace("Accel", _intAccelWalking.ToString());
 				XPathExpression xprCost = nav.Compile(strCost);
-				intReturn = Convert.ToInt32(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo);
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                intReturn = Convert.ToInt32(temp, GlobalOptions.Instance.CultureInfo);
 
 				if (DiscountCost)
 					intReturn = Convert.ToInt32(Convert.ToDouble(intReturn, GlobalOptions.Instance.CultureInfo) * 0.9);
@@ -14271,7 +14304,8 @@ namespace Chummer
 				strCost = strCost.Replace("Accel(Running)", _intAccelRunning.ToString());
 				strCost = strCost.Replace("Accel", _intAccelWalking.ToString());
 				XPathExpression xprCost = nav.Compile(strCost);
-				intReturn = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                intReturn = Convert.ToInt32(temp);
 
 				if (DiscountCost)
 					intReturn = Convert.ToInt32(Convert.ToDouble(intReturn, GlobalOptions.Instance.CultureInfo) * 0.9);

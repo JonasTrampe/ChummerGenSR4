@@ -13686,7 +13686,8 @@ namespace Chummer
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.TotalValue.ToString());
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeMAGShort"), _objCharacter.MAG.TotalValue.ToString());
 						XPathExpression xprDrain = nav.Compile(strDrain);
-						int intDrain = Convert.ToInt32(nav.Evaluate(xprDrain).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDrain));
+                        int intDrain = Convert.ToInt32(temp);
 						intDrain += _objImprovementManager.ValueOf(Improvement.ImprovementType.DrainResistance);
 
 						strTip = lblDrainAttributes.Text.Replace(LanguageManager.Instance.GetString("String_AttributeBODShort"), LanguageManager.Instance.GetString("String_AttributeBODShort") + " (" + _objCharacter.BOD.TotalValue.ToString() + ")");
@@ -16494,7 +16495,8 @@ namespace Chummer
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.TotalValue.ToString());
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeMAGShort"), _objCharacter.MAG.TotalValue.ToString());
 						XPathExpression xprDrain = nav.Compile(strDrain);
-						int intDrain = Convert.ToInt32(nav.Evaluate(xprDrain).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDrain));
+                        int intDrain = Convert.ToInt32(temp);
 						intDrain += _objImprovementManager.ValueOf(Improvement.ImprovementType.DrainResistance);
 						lblDrainAttributesValue.Text = intDrain.ToString();
 					}
@@ -16520,7 +16522,8 @@ namespace Chummer
 						strFading = strFading.Replace("WIL", _objCharacter.WIL.TotalValue.ToString());
 						strFading = strFading.Replace("RES", _objCharacter.RES.TotalValue.ToString());
 						XPathExpression xprFading = nav.Compile(strFading);
-						int intFading = Convert.ToInt32(nav.Evaluate(xprFading).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprFading));
+                        int intFading = Convert.ToInt32(temp);
 						intFading += _objImprovementManager.ValueOf(Improvement.ImprovementType.FadingResistance);
 						lblFadingAttributesValue.Text = intFading.ToString();
 

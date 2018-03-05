@@ -253,8 +253,9 @@ namespace Chummer
 			}
 			try
 			{
-				xprAvail = nav.Compile(strAvailExpr.Replace("Rating", nudRating.Value.ToString()));
-				lblAvail.Text = (Convert.ToInt32(nav.Evaluate(xprAvail))).ToString() + strAvail;
+                xprAvail = nav.Compile(strAvailExpr.Replace("Rating", nudRating.Value.ToString()));
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                lblAvail.Text = (Convert.ToInt32(temp)).ToString() + strAvail;
 			}
 			catch
 			{
@@ -268,7 +269,8 @@ namespace Chummer
 			XPathExpression xprCost = nav.Compile(strCost);
 
 			// Apply any markup.
-			double dblCost = Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo);
+            string temp1 = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+			double dblCost = Convert.ToDouble(temp1, GlobalOptions.Instance.CultureInfo);
 			dblCost *= 1 + (Convert.ToDouble(nudMarkup.Value, GlobalOptions.Instance.CultureInfo) / 100.0);
 
 			lblCost.Text = String.Format("{0:###,###,##0¥}", dblCost);
@@ -289,12 +291,20 @@ namespace Chummer
 			strCapacity = strCapacity.Substring(1, strCapacity.Length - 2);
 			XPathExpression xprCapacity = nav.Compile(strCapacity.Replace("Rating", nudRating.Value.ToString()));
 
-			if (_objCapacityStyle == CapacityStyle.Standard)
-				lblCapacity.Text = "[" + nav.Evaluate(xprCapacity) + "]";
+		    if (_objCapacityStyle == CapacityStyle.Standard)
+		    {
+		        string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+		        lblCapacity.Text = "[" + temp + "]";
+            }
 			else if (_objCapacityStyle == CapacityStyle.PerRating)
-				lblCapacity.Text = "[" + nudRating.Value.ToString() + "]";
+		    {
+		        string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nudRating.Value);
+                lblCapacity.Text = "[" + temp + "]";
+		    }
 			else if (_objCapacityStyle == CapacityStyle.Zero)
-				lblCapacity.Text = "[0]";
+		    {
+		        lblCapacity.Text = "[0]";
+		    }
 
 			if (chkFreeItem.Checked)
 				lblCost.Text = String.Format("{0:###,###,##0¥}", 0);

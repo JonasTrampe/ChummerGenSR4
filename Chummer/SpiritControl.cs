@@ -837,7 +837,8 @@ namespace Chummer
 			// This statement is wrapped in a try/catch since trying 1 div 2 results in an error with XSLT.
 			try
 			{
-				intValue = Convert.ToInt32(nav.Evaluate(xprAttribute).ToString());
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAttribute));
+                intValue = Convert.ToInt32(temp);
 			}
 			catch
 			{

@@ -482,7 +482,8 @@ namespace Chummer
 				try
 				{
 					xprAvail = nav.Compile(strAvailExpr.Replace("Rating", nudRating.Value.ToString()));
-					lblAvail.Text = (Convert.ToInt32(nav.Evaluate(xprAvail))).ToString() + strAvail;
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAvail));
+                    lblAvail.Text = (Convert.ToInt32(temp)).ToString() + strAvail;
 				}
 				catch
 				{
@@ -531,7 +532,8 @@ namespace Chummer
 						strCost = "0";
 
 					XPathExpression xprCost = nav.Compile(strCost);
-					int intCost = Convert.ToInt32(Convert.ToDouble(nav.Evaluate(xprCost), GlobalOptions.Instance.CultureInfo));
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                    int intCost = Convert.ToInt32(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo));
 					intCost *= _intModMultiplier;
 
 					// Apply any markup.
@@ -576,8 +578,8 @@ namespace Chummer
 				// Slots.
 				string strSlots = objXmlMod["slots"].InnerText;
 				strSlots = strSlots.Replace("Rating", nudRating.Value.ToString());
-				XPathExpression xprSlots = nav.Compile(strSlots);
-				lblSlots.Text = nav.Evaluate(xprSlots).ToString();
+				XPathExpression xprSlots = nav.Compile(strSlots); 
+                lblSlots.Text = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprSlots));
 
 				try
 				{

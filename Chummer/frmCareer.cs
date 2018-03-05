@@ -999,7 +999,8 @@ namespace Chummer
 					strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.Value.ToString());
 					strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeMAGShort"), _objCharacter.MAG.TotalValue.ToString());
 					XPathExpression xprDrain = nav.Compile(strDrain);
-					int intDrain = Convert.ToInt32(nav.Evaluate(xprDrain).ToString());
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDrain));
+                    int intDrain = Convert.ToInt32(temp);
 					intDrain += _objImprovementManager.ValueOf(Improvement.ImprovementType.DrainResistance);
 					lblDrainAttributesValue.Text = intDrain.ToString();
 				}
@@ -1028,7 +1029,8 @@ namespace Chummer
 					strFading = strFading.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.Value.ToString());
 					strFading = strFading.Replace(LanguageManager.Instance.GetString("String_AttributeRESShort"), _objCharacter.RES.TotalValue.ToString());
 					XPathExpression xprFading = nav.Compile(strFading);
-					int intFading = Convert.ToInt32(nav.Evaluate(xprFading).ToString());
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprFading));
+                    int intFading = Convert.ToInt32(temp);
 					intFading += _objImprovementManager.ValueOf(Improvement.ImprovementType.FadingResistance);
 					lblFadingAttributesValue.Text = intFading.ToString();
 				}
@@ -7761,16 +7763,16 @@ namespace Chummer
 
 		private void cmdGearSplitQty_Click(object sender, EventArgs e)
 		{
-			// This can only be done with the first level of Nodes.
-			try
-			{
-				if (treGear.SelectedNode.Level != 1)
-					return;
-			}
-			catch
-			{
-				return;
-			}
+			//// This can only be done with the first level of Nodes.
+			//try
+			//{
+			//	if (treGear.SelectedNode.Level != 1)
+			//		return;
+			//}
+			//catch
+			//{
+			//	return;
+			//}
 
 			Gear objSelectedGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
 
@@ -19119,7 +19121,8 @@ namespace Chummer
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.TotalValue.ToString());
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeMAGShort"), _objCharacter.MAG.TotalValue.ToString());
 						XPathExpression xprDrain = nav.Compile(strDrain);
-						int intDrain = Convert.ToInt32(nav.Evaluate(xprDrain).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDrain));
+                        int intDrain = Convert.ToInt32(xprDrain);
 						intDrain += _objImprovementManager.ValueOf(Improvement.ImprovementType.DrainResistance);
 
 						strTip = lblDrainAttributes.Text.Replace(LanguageManager.Instance.GetString("String_AttributeBODShort"), LanguageManager.Instance.GetString("String_AttributeBODShort") + " (" + _objCharacter.BOD.TotalValue.ToString() + ")");
@@ -21975,7 +21978,8 @@ namespace Chummer
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.TotalValue.ToString());
 						strDrain = strDrain.Replace(LanguageManager.Instance.GetString("String_AttributeMAGShort"), _objCharacter.MAG.TotalValue.ToString());
 						XPathExpression xprDrain = nav.Compile(strDrain);
-						int intDrain = Convert.ToInt32(nav.Evaluate(xprDrain).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDrain));
+                        int intDrain = Convert.ToInt32(temp);
 						intDrain += _objImprovementManager.ValueOf(Improvement.ImprovementType.DrainResistance);
 						lblDrainAttributesValue.Text = intDrain.ToString();
 					}
@@ -22012,7 +22016,8 @@ namespace Chummer
 						strFading = strFading.Replace(LanguageManager.Instance.GetString("String_AttributeWILShort"), _objCharacter.WIL.TotalValue.ToString());
 						strFading = strFading.Replace(LanguageManager.Instance.GetString("String_AttributeRESShort"), _objCharacter.RES.TotalValue.ToString());
 						XPathExpression xprFading = nav.Compile(strFading);
-						int intFading = Convert.ToInt32(nav.Evaluate(xprFading).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprFading));
+                        int intFading = Convert.ToInt32(temp);
 						intFading += _objImprovementManager.ValueOf(Improvement.ImprovementType.FadingResistance);
 						lblFadingAttributesValue.Text = intFading.ToString();
 
@@ -23106,21 +23111,12 @@ namespace Chummer
 			}
 
 			// Enable or disable the Split/Merge buttons as needed.
-			if (treGear.SelectedNode.Level == 1)
-			{
-				cmdGearSplitQty.Enabled = true;
-				cmdGearMergeQty.Enabled = true;
-				if (_objCharacter.Vehicles.Count > 0)
-					cmdGearMoveToVehicle.Enabled = true;
-				else
-					cmdGearMoveToVehicle.Enabled = false;
-			}
+			cmdGearSplitQty.Enabled = true;
+			cmdGearMergeQty.Enabled = true;
+			if (_objCharacter.Vehicles.Count > 0)
+				cmdGearMoveToVehicle.Enabled = true;
 			else
-			{
-				cmdGearSplitQty.Enabled = false;
-				cmdGearMergeQty.Enabled = false;
 				cmdGearMoveToVehicle.Enabled = false;
-			}
 		}
 
 		/// <summary>
@@ -23618,7 +23614,8 @@ namespace Chummer
 				XPathNavigator nav = objXmlDocument.CreateNavigator();
 				string strCost = objNewGear.Cost.Replace("Gear Cost", objSelectedGear.CalculatedCost.ToString());
 				XPathExpression xprCost = nav.Compile(strCost);
-				intCost = Convert.ToInt32(nav.Evaluate(xprCost).ToString());
+			    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCost));
+                intCost = Convert.ToInt32(temp);
 			}
 			else
 			{

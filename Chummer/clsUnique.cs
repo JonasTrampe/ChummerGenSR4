@@ -4017,7 +4017,8 @@ namespace Chummer
 					{
 						// Calculate the Spell's Drain for the current Force.
 						xprDV = nav.Compile(_strDV.Replace("F", i.ToString()).Replace("/", " div "));
-						decimal decDV = Convert.ToDecimal(nav.Evaluate(xprDV).ToString());
+					    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprDV));
+                        decimal decDV = Convert.ToDecimal(temp);
 						decDV = Math.Floor(decDV);
 						int intDV = Convert.ToInt32(decDV);
 						// Drain cannot be lower than 1.
@@ -6122,8 +6123,8 @@ namespace Chummer
 						strCapacity = strCapacity.Substring(1, strCapacity.Length - 2);
 					strCapacity = strCapacity.Replace("/", " div ");
 					XPathExpression xprCapacity = nav.Compile(strCapacity.Replace("Rating", _intRating.ToString()));
-
-					int intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(nav.Evaluate(xprCapacity).ToString(), GlobalOptions.Instance.CultureInfo)));
+				    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprCapacity));
+                    int intReturn = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(temp, GlobalOptions.Instance.CultureInfo)));
 
 					return intReturn;
 				}

@@ -682,8 +682,11 @@ namespace Chummer
 							XmlDocument objXmlDocument = new XmlDocument();
 							XPathNavigator nav = objXmlDocument.CreateNavigator();
 							XPathExpression xprAttributes = nav.Compile(strAttributes);
-							if (Convert.ToInt32(nav.Evaluate(xprAttributes)) >= Convert.ToInt32(objXmlRequired["val"].InnerText))
-								blnOneOfMet = true;
+						    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAttributes));
+                            if (Convert.ToInt32(temp) >= Convert.ToInt32(objXmlRequired["val"].InnerText))
+						    {
+						        blnOneOfMet = true;
+						    }
 						}
 						else if (objXmlRequired.Name == "skillgrouptotal")
 						{
@@ -987,8 +990,11 @@ namespace Chummer
 							XmlDocument objXmlDocument = new XmlDocument();
 							XPathNavigator nav = objXmlDocument.CreateNavigator();
 							XPathExpression xprAttributes = nav.Compile(strAttributes);
-							if (Convert.ToInt32(nav.Evaluate(xprAttributes)) >= Convert.ToInt32(objXmlRequired["val"].InnerText))
-								blnFound = true;
+						    string temp = string.Format(GlobalOptions.Instance.CultureInfo, "{0}", nav.Evaluate(xprAttributes));
+						    if (Convert.ToInt32(temp) >= Convert.ToInt32(objXmlRequired["val"].InnerText))
+						    {
+						        blnFound = true;
+						    }
 						}
 						else if (objXmlRequired.Name == "skillgrouptotal")
 						{
