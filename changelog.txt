@@ -1,0 +1,4 @@
+Changes since the archived version on Chummer:
+
+* Gun Heaven 3 
+* Build improvements
