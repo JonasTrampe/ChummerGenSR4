@@ -12,4 +12,4 @@ It also supports four languages: English, French, German, and Japanese.
 Chummer is continuously updated to address bugs and introduce new and interesting features suggested by the community.
 If you have a bug to report or idea to suggest, please report them on the issue section by using the link in the menu."
 
-This text is a copy (slightly modified) from http://chummergen.com/
+This text is a copy (slightly modified) from [Chummergen](https://web.archive.org/web/20191219091138/http://chummergen.com/) (original site directs to spam, this links to web archive). 
