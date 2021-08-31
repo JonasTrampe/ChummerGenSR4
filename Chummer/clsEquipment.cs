@@ -11244,13 +11244,16 @@ namespace Chummer
 			// Run through the child items and increase the Avail by any Mod whose Avail contains "+".
 			foreach (Gear objChild in _objChildren)
 			{
-				if (objChild.Avail.StartsWith("+"))
+                string childAvail = objChild.Avail.Replace("(Rating)", objChild.Rating.ToString());
+
+                if (childAvail.StartsWith("+"))
 				{
-					if (objChild.Avail.Contains("R") || objChild.Avail.Contains("F"))
+					if (childAvail.EndsWith("R") || childAvail.EndsWith("F"))
 					{
 						if (strAvailText != "F")
 							strAvailText = objChild.Avail.Substring(objChild.Avail.Length - 1);
-						intAvail += Convert.ToInt32(objChild.Avail.Replace("F", string.Empty).Replace("R", string.Empty));
+                        char[] toTrim = {'R', 'F'};
+                        intAvail += Convert.ToInt32(childAvail.TrimEnd(toTrim));
 					}
 					else
 						intAvail += Convert.ToInt32(objChild.Avail);
