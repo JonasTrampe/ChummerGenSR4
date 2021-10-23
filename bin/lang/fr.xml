@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-949</version>
+	<version>-950</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6563,6 +6563,14 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string>
 			<key>String_SkillMetamagic</key>
 			<text>Métamagie</text>
+		</string>
+		<string>
+			<key>Label_AddRemoveQuanity_Quantity</key>
+			<text>Quantity:</text>
+		</string>
+		<string>
+			<key>Title_AddRemoveQuantity</key>
+			<text>Add/Remove quantity</text>
 		</string>
 	</strings>
 </chummer>

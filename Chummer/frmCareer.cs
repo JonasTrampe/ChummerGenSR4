@@ -7706,61 +7706,6 @@ namespace Chummer
 			UpdateWindowTitle();
 		}
 
-		private void cmdGearReduceQty_Click(object sender, EventArgs e)
-		{
-			Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
-			Gear objParent = _objFunctions.FindGear(treGear.SelectedNode.Parent.Tag.ToString(), _objCharacter.Gear);
-
-			if (!_objFunctions.ConfirmDelete(LanguageManager.Instance.GetString("Message_ReduceQty")))
-				return;
-				
-			objGear.Quantity -= 1;
-
-			if (objGear.Quantity > 0)
-			{
-				treGear.SelectedNode.Text = objGear.DisplayName;
-				RefreshSelectedGear();
-			}
-			else
-			{
-				// Remove the Gear if its quantity has been reduced to 0.
-				if (objParent == null)
-				{
-					_objCharacter.Gear.Remove(objGear);
-					treGear.SelectedNode.Remove();
-				}
-				else
-				{
-					objParent.Children.Remove(objGear);
-					treGear.SelectedNode.Remove();
-				}
-
-				// Remove any Weapons that came with it.
-				if (objGear.WeaponID != Guid.Empty.ToString())
-				{
-					foreach (Weapon objWeapon in _objCharacter.Weapons)
-					{
-						if (objWeapon.InternalId == objGear.WeaponID)
-						{
-							_objCharacter.Weapons.Remove(objWeapon);
-							break;
-						}
-					}
-				}
-				foreach (TreeNode nodWeapon in treWeapons.Nodes[0].Nodes)
-				{
-					if (nodWeapon.Tag.ToString() == objGear.WeaponID)
-					{
-						nodWeapon.Remove();
-						break;
-					}
-				}
-			}
-
-			_blnIsDirty = true;
-			UpdateWindowTitle();
-		}
-
 		private void cmdGearSplitQty_Click(object sender, EventArgs e)
 		{
 			//// This can only be done with the first level of Nodes.
@@ -8275,15 +8220,135 @@ namespace Chummer
 		private void cmdGearIncreaseQty_Click(object sender, EventArgs e)
 		{
 			Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+            ExpenseUndo objUndo = new ExpenseUndo();
 
-			// Select the root Gear node then open the Select Gear window.
-			bool blnAddAgain = PickGear(true, objGear);
-			if (blnAddAgain)
-				cmdGearIncreaseQty_Click(sender, e);
-			_objController.PopulateFocusList(treFoci);
-		}
+            frmSelectQuantity frmSelectQuantity = new frmSelectQuantity(frmSelectQuantity.Operation.Add, Int32.MaxValue);
 
-		private void cmdVehicleGearReduceQty_Click(object sender, EventArgs e)
+            if (frmSelectQuantity.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            int intCost = Convert.ToInt32(objGear.TotalCost / objGear.Quantity);
+
+            intCost *= frmSelectQuantity.Quantity;
+
+            // Apply a markup if applicable.
+            if (frmSelectQuantity.Markup != 0)
+            {
+                double dblCost = Convert.ToDouble(intCost, GlobalOptions.Instance.CultureInfo);
+                dblCost *= 1 + (Convert.ToDouble(frmSelectQuantity.Markup, GlobalOptions.Instance.CultureInfo) / 100.0);
+                intCost = Convert.ToInt32(dblCost);
+            }
+
+            // Multiply the cost if applicable.
+            if (objGear.TotalAvail().EndsWith(LanguageManager.Instance.GetString("String_AvailRestricted")) && _objOptions.MultiplyRestrictedCost)
+                intCost *= _objOptions.RestrictedCostMultiplier;
+            if (objGear.TotalAvail().EndsWith(LanguageManager.Instance.GetString("String_AvailForbidden")) && _objOptions.MultiplyForbiddenCost)
+                intCost *= _objOptions.ForbiddenCostMultiplier;
+
+            try
+            {
+                if (_objOptions.EnforceCapacity && objGear.Parent != null && (objGear.Parent.CapacityRemaining - objGear.PluginCapacity) < 0)
+                    {
+                        MessageBox.Show(LanguageManager.Instance.GetString("Message_CapacityReached"), LanguageManager.Instance.GetString("MessageTitle_CapacityReached"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+            }
+            catch
+            {
+            }
+
+            // Check the item's Cost and make sure the character can afford it.
+            if (!frmSelectQuantity.FreeCost)
+            {
+                if (intCost > _objCharacter.Nuyen)
+                {
+                    MessageBox.Show(LanguageManager.Instance.GetString("Message_NotEnoughNuyen"), LanguageManager.Instance.GetString("MessageTitle_NotEnoughNuyen"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Remove any Improvements created by the Gear.
+                    _objImprovementManager.RemoveImprovements(Improvement.ImprovementSource.Gear, objGear.InternalId);
+                    return;
+                }
+                else
+                {
+                    // Create the Expense Log Entry.
+                    ExpenseLogEntry objExpense = new ExpenseLogEntry();
+                    objExpense.Create(intCost * -1, LanguageManager.Instance.GetString("String_ExpensePurchaseGear") + " " + objGear.DisplayNameShort, ExpenseType.Nuyen, DateTime.Now);
+                    _objCharacter.ExpenseEntries.Add(objExpense);
+                    _objCharacter.Nuyen -= intCost;
+
+                    objUndo.CreateNuyen(NuyenExpenseType.AddGear, objGear.InternalId, objGear.Quantity);
+                    objExpense.Undo = objUndo;
+                }
+            }
+
+            objGear.Quantity += frmSelectQuantity.Quantity;
+
+            UpdateCharacterInfo();
+            RefreshSelectedGear();
+            _objController.PopulateFocusList(treFoci);
+            _blnIsDirty = true;
+            UpdateWindowTitle();
+        }
+
+        private void cmdGearReduceQty_Click(object sender, EventArgs e)
+        {
+            Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+            Gear objParent = _objFunctions.FindGear(treGear.SelectedNode.Parent.Tag.ToString(), _objCharacter.Gear);
+
+            frmSelectQuantity frmSelectQuantity = new frmSelectQuantity(frmSelectQuantity.Operation.Remove, objGear.Quantity);
+
+            if (frmSelectQuantity.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            objGear.Quantity -= frmSelectQuantity.Quantity;
+
+            if (objGear.Quantity > 0)
+            {
+                treGear.SelectedNode.Text = objGear.DisplayName;
+                RefreshSelectedGear();
+            }
+            else
+            {
+                // Remove the Gear if its quantity has been reduced to 0.
+                if (objParent == null)
+                {
+                    _objCharacter.Gear.Remove(objGear);
+                    treGear.SelectedNode.Remove();
+                }
+                else
+                {
+                    objParent.Children.Remove(objGear);
+                    treGear.SelectedNode.Remove();
+                }
+
+                // Remove any Weapons that came with it.
+                if (objGear.WeaponID != Guid.Empty.ToString())
+                {
+                    foreach (Weapon objWeapon in _objCharacter.Weapons)
+                    {
+                        if (objWeapon.InternalId == objGear.WeaponID)
+                        {
+                            _objCharacter.Weapons.Remove(objWeapon);
+                            break;
+                        }
+                    }
+                }
+                foreach (TreeNode nodWeapon in treWeapons.Nodes[0].Nodes)
+                {
+                    if (nodWeapon.Tag.ToString() == objGear.WeaponID)
+                    {
+                        nodWeapon.Remove();
+                        break;
+                    }
+                }
+            }
+
+            _blnIsDirty = true;
+            UpdateWindowTitle();
+        }
+
+
+
+        private void cmdVehicleGearReduceQty_Click(object sender, EventArgs e)
 		{
 			Gear objGear = new Gear(_objCharacter);
 			Gear objParent = new Gear(_objCharacter);
@@ -22996,8 +23061,7 @@ namespace Chummer
 				lblGearSource.Text = strBook + " " + strPage;
 				tipTooltip.SetToolTip(lblGearSource, _objOptions.LanguageBookLong(objGear.Source) + " " + LanguageManager.Instance.GetString("String_Page") + " " + objGear.Page);
 
-				if (objGear.Category == "Ammunition")
-					cmdGearIncreaseQty.Enabled = true;
+                cmdGearIncreaseQty.Enabled = true;
 
 				if (objGear.GetType() == typeof(Commlink))
 				{

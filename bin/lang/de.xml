@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-944</version>
+	<version>-945</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6638,6 +6638,14 @@
 		<string>
 			<key>Tip_SelectSpell_ExtendedSpell</key>
 			<text>Sprüche mit ausgedehnter Reichweite haben eine Reichweite von (Kraft x MAG x 10) Metern aber einen um +2 erhöten Entzugswert.</text>
+		</string>
+		<string>
+			<key>Label_AddRemoveQuanity_Quantity</key>
+			<text>Anzahl:</text>
+		</string>
+		<string>
+			<key>Title_AddRemoveQuantity</key>
+			<text>Anzahl hinzufügen/entfernen</text>
 		</string>
 	</strings>
 </chummer>
