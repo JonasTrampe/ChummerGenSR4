@@ -23636,7 +23636,15 @@ namespace Chummer
 				{
 					foreach (Gear objCharacterGear in _objCharacter.Gear)
 					{
-						if (objCharacterGear.Name == objNewGear.Name && objCharacterGear.Category == objNewGear.Category && objCharacterGear.Rating == objNewGear.Rating && objCharacterGear.Extra == objNewGear.Extra)
+						if (objCharacterGear.Name == objNewGear.Name &&
+                            objCharacterGear.Category == objNewGear.Category &&
+                            objCharacterGear.Rating == objNewGear.Rating &&
+                            objCharacterGear.Extra == objNewGear.Extra &&
+                            // if we are about to add some element and stack it with some
+                            // identical items, make sure that they do not have any children,
+                            // so that we are able to stack new magazines and
+                            // not add only to the first found/filled one
+                            objCharacterGear.Children.Count > 0)
 						{
 							blnMatchFound = true;
 							objStackWith = objCharacterGear;
@@ -23644,7 +23652,7 @@ namespace Chummer
 							break;
 						}
 					}
-				}
+                }
 			}
 			
 			if (blnMatchFound)
