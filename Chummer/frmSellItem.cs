@@ -39,13 +39,8 @@ namespace Chummer
 		/// <summary>
 		/// The percentage the item will be sold at.
 		/// </summary>
-		public double SellPercent
-		{
-			get
-			{
-				return Convert.ToDouble(nudPercent.Value / 100, GlobalOptions.Instance.CultureInfo);
-			}
-		}
-		#endregion
+		public double SellPercent => Convert.ToDouble(nudPercent.Value / 100, GlobalOptions.Instance.CultureInfo);
+
+        #endregion
 	}
 }
