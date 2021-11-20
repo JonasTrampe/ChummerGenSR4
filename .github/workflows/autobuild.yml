@@ -35,4 +35,15 @@ jobs:
         run: nuget restore ChummerGenSR4.sln
         
       - name: Build the solution
-        run: msbuild ChummerGenSR4.sln
+        run: msbuild ChummerGenSR4.sln /p:Configuration=Release
+        
+      - name: Zip Release
+        uses: TheDoctor0/zip-release@0.6.0
+        with:
+          filename: "ChummerGenSR4.zip"
+          directory: "bin"
+          
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: "ChummerGenSR4.zip"
