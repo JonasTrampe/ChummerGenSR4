@@ -41,9 +41,11 @@ jobs:
         uses: TheDoctor0/zip-release@0.6.0
         with:
           filename: "ChummerGenSR4.zip"
-          directory: "bin"
+          directory: "."
+          path: "bin"
           
       - name: Upload build artifact
         uses: actions/upload-artifact@v2.2.4
         with:
           name: "ChummerGenSR4.zip"
+          path: "ChummerGenSR4.zip"
