@@ -15759,22 +15759,30 @@ namespace Chummer
 						// Multiply the Vehicle's base Accel by the Modification's Accel multiplier.
 						if (objMod.Bonus.InnerXml.Contains("<accel>"))
 						{
-							if (objMod.Bonus["accel"].InnerText.Contains("+"))
-							{
-								string[] strAccel = objMod.Bonus["accel"].InnerText.Split('/');
+                            if (objMod.Bonus["accel"].InnerText.Contains("+") ||
+                                objMod.Bonus["accel"].InnerText.Contains("-"))
+                            {
+                                XmlDocument objXmlDocument = new XmlDocument();
+                                XPathNavigator nav = objXmlDocument.CreateNavigator();
 
-								XmlDocument objXmlDocument = new XmlDocument();
-								XPathNavigator nav = objXmlDocument.CreateNavigator();
+                                string[] strAccel = objMod.Bonus["accel"].InnerText.Split('/');
+                                XPathExpression xprWalking = nav.Compile(strAccel[0]
+                                    .Replace("Rating", objMod.Rating.ToString()).Replace("+", string.Empty));
+                                decAccelWalking += Convert.ToDecimal(nav.Evaluate(xprWalking),
+                                    GlobalOptions.Instance.CultureInfo);
 
-								XPathExpression xprWalking = nav.Compile(strAccel[0].Replace("Rating", objMod.Rating.ToString()).Replace("+", string.Empty));
-								XPathExpression xprRunning = nav.Compile(strAccel[1].Replace("Rating", objMod.Rating.ToString()).Replace("+", string.Empty));
-
-								decAccelWalking += Convert.ToDecimal(nav.Evaluate(xprWalking), GlobalOptions.Instance.CultureInfo);
-								decAccelRunning += Convert.ToDecimal(nav.Evaluate(xprRunning), GlobalOptions.Instance.CultureInfo);
-							}
-							else
-							{
-								decAccelWalking += (Convert.ToDecimal(AccelWalking, GlobalOptions.Instance.CultureInfo) * Convert.ToDecimal(objMod.Bonus["accel"].InnerText, GlobalOptions.Instance.CultureInfo));
+                                if (objMod.Bonus["accel"].InnerText.Contains('/'))
+                                {
+                                    XPathExpression xprRunning = nav.Compile(strAccel[1]
+                                        .Replace("Rating", objMod.Rating.ToString()).Replace("+", string.Empty));
+                                    decAccelRunning += Convert.ToDecimal(nav.Evaluate(xprRunning),
+                                        GlobalOptions.Instance.CultureInfo);
+                                }
+                            }
+                            else
+                            {
+								// TODO: Merge with existing code above, as values might be modified this way
+                                decAccelWalking += (Convert.ToDecimal(AccelWalking, GlobalOptions.Instance.CultureInfo) * Convert.ToDecimal(objMod.Bonus["accel"].InnerText, GlobalOptions.Instance.CultureInfo));
 								decAccelRunning += (Convert.ToDecimal(AccelRunning, GlobalOptions.Instance.CultureInfo) * Convert.ToDecimal(objMod.Bonus["accel"].InnerText, GlobalOptions.Instance.CultureInfo));
 							}
 						}
