@@ -8248,10 +8248,10 @@ namespace Chummer
             try
             {
                 if (_objOptions.EnforceCapacity && objGear.Parent != null && (objGear.Parent.CapacityRemaining - objGear.PluginCapacity) < 0)
-                    {
-                        MessageBox.Show(LanguageManager.Instance.GetString("Message_CapacityReached"), LanguageManager.Instance.GetString("MessageTitle_CapacityReached"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        return;
-                    }
+                {
+                    MessageBox.Show(LanguageManager.Instance.GetString("Message_CapacityReached"), LanguageManager.Instance.GetString("MessageTitle_CapacityReached"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
             }
             catch
             {
