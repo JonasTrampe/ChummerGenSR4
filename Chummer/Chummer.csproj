@@ -31,7 +31,7 @@
     <StartupObject>Chummer.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>chummer.ico</ApplicationIcon>
+    <ApplicationIcon>code\chummer.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,444 +73,449 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clsCommon.cs" />
-    <Compile Include="clsEquipment.cs" />
-    <Compile Include="clsCharacter.cs" />
-    <Compile Include="clsImprovement.cs" />
-    <Compile Include="clsExpenses.cs" />
-    <Compile Include="clsLanguageManager.cs" />
-    <Compile Include="clsListItems.cs" />
-    <Compile Include="clsMTRNG.cs" />
-    <Compile Include="clsOmaeHelper.cs" />
-    <Compile Include="clsOptions.cs" />
-    <Compile Include="clsUnique.cs" />
-    <Compile Include="clsXmlManager.cs" />
-    <Compile Include="ContactControl.cs">
+    <Compile Include="code\clsCommon.cs" />
+    <Compile Include="code\clsEquipment.cs" />
+    <Compile Include="code\clsCharacter.cs" />
+    <Compile Include="code\clsImprovement.cs" />
+    <Compile Include="code\clsExpenses.cs" />
+    <Compile Include="code\clsLanguageManager.cs" />
+    <Compile Include="code\clsListItems.cs" />
+    <Compile Include="code\clsMTRNG.cs" />
+    <Compile Include="code\clsOmaeHelper.cs" />
+    <Compile Include="code\clsOptions.cs" />
+    <Compile Include="code\clsUnique.cs" />
+    <Compile Include="code\clsXmlManager.cs" />
+    <Compile Include="code\ContactControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ContactControl.Designer.cs">
+    <Compile Include="code\ContactControl.Designer.cs">
       <DependentUpon>ContactControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="controllers\clsMainController.cs" />
-    <Compile Include="frmCareer.cs">
+    <Compile Include="code\controllers\clsMainController.cs" />
+    <Compile Include="code\frmCareer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCareer.Designer.cs">
+    <Compile Include="code\frmCareer.Designer.cs">
       <DependentUpon>frmCareer.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmAbout.cs">
+    <Compile Include="code\frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmAbout.Designer.cs">
+    <Compile Include="code\frmAbout.Designer.cs">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmCreateCyberwareSuite.cs">
+    <Compile Include="code\frmCreateCyberwareSuite.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCreateCyberwareSuite.Designer.cs">
+    <Compile Include="code\frmCreateCyberwareSuite.Designer.cs">
       <DependentUpon>frmCreateCyberwareSuite.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmCreateImprovement.cs">
+    <Compile Include="code\frmCreateImprovement.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCreateImprovement.Designer.cs">
+    <Compile Include="code\frmCreateImprovement.Designer.cs">
       <DependentUpon>frmCreateImprovement.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmCreatePACKSKit.cs">
+    <Compile Include="code\frmCreatePACKSKit.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCreatePACKSKit.Designer.cs">
+    <Compile Include="code\frmCreatePACKSKit.Designer.cs">
       <DependentUpon>frmCreatePACKSKit.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmCreateSpell.cs">
+    <Compile Include="code\frmCreateSpell.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCreateSpell.Designer.cs">
+    <Compile Include="code\frmCreateSpell.Designer.cs">
       <DependentUpon>frmCreateSpell.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmDiceHits.cs">
+    <Compile Include="code\frmDiceHits.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmDiceHits.Designer.cs">
+    <Compile Include="code\frmDiceHits.Designer.cs">
       <DependentUpon>frmDiceHits.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmDiceRoller.cs">
+    <Compile Include="code\frmDiceRoller.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmDiceRoller.Designer.cs">
+    <Compile Include="code\frmDiceRoller.Designer.cs">
       <DependentUpon>frmDiceRoller.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmExpense.cs">
+    <Compile Include="code\frmExpense.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmExpense.Designer.cs">
+    <Compile Include="code\frmExpense.Designer.cs">
       <DependentUpon>frmExpense.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmExport.cs">
+    <Compile Include="code\frmExport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmExport.Designer.cs">
+    <Compile Include="code\frmExport.Designer.cs">
       <DependentUpon>frmExport.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmHistory.cs">
+    <Compile Include="code\frmHistory.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmHistory.Designer.cs">
+    <Compile Include="code\frmHistory.Designer.cs">
       <DependentUpon>frmHistory.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmLifestyleNuyen.cs">
+    <Compile Include="code\frmLifestyleNuyen.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmLifestyleNuyen.Designer.cs">
+    <Compile Include="code\frmLifestyleNuyen.Designer.cs">
       <DependentUpon>frmLifestyleNuyen.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmNaturalWeapon.cs">
+    <Compile Include="code\frmNaturalWeapon.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmNaturalWeapon.Designer.cs">
+    <Compile Include="code\frmNaturalWeapon.Designer.cs">
       <DependentUpon>frmNaturalWeapon.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmNotes.cs">
+    <Compile Include="code\frmNotes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmNotes.Designer.cs">
+    <Compile Include="code\frmNotes.Designer.cs">
       <DependentUpon>frmNotes.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmae.cs">
+    <Compile Include="code\frmOmae.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmae.Designer.cs">
+    <Compile Include="code\frmOmae.Designer.cs">
       <DependentUpon>frmOmae.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeAccount.cs">
+    <Compile Include="code\frmOmaeAccount.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeAccount.Designer.cs">
+    <Compile Include="code\frmOmaeAccount.Designer.cs">
       <DependentUpon>frmOmaeAccount.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeCompress.cs">
+    <Compile Include="code\frmOmaeCompress.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeCompress.Designer.cs">
+    <Compile Include="code\frmOmaeCompress.Designer.cs">
       <DependentUpon>frmOmaeCompress.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeUpload.cs">
+    <Compile Include="code\frmOmaeUpload.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeUpload.Designer.cs">
+    <Compile Include="code\frmOmaeUpload.Designer.cs">
       <DependentUpon>frmOmaeUpload.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeUploadData.cs">
+    <Compile Include="code\frmOmaeUploadData.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeUploadData.Designer.cs">
+    <Compile Include="code\frmOmaeUploadData.Designer.cs">
       <DependentUpon>frmOmaeUploadData.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeUploadLanguage.cs">
+    <Compile Include="code\frmOmaeUploadLanguage.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeUploadLanguage.Designer.cs">
+    <Compile Include="code\frmOmaeUploadLanguage.Designer.cs">
       <DependentUpon>frmOmaeUploadLanguage.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOmaeUploadSheet.cs">
+    <Compile Include="code\frmOmaeUploadSheet.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOmaeUploadSheet.Designer.cs">
+    <Compile Include="code\frmOmaeUploadSheet.Designer.cs">
       <DependentUpon>frmOmaeUploadSheet.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmPrintMultiple.cs">
+    <Compile Include="code\frmPrintMultiple.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmPrintMultiple.Designer.cs">
+    <Compile Include="code\frmPrintMultiple.Designer.cs">
       <DependentUpon>frmPrintMultiple.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmReload.cs">
+    <Compile Include="code\frmReload.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmReload.Designer.cs">
+    <Compile Include="code\frmReload.Designer.cs">
       <DependentUpon>frmReload.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectAdvancedLifestyle.cs">
+    <Compile Include="code\frmSelectAdvancedLifestyle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectAdvancedLifestyle.designer.cs">
+    <Compile Include="code\frmSelectAdvancedLifestyle.designer.cs">
       <DependentUpon>frmSelectAdvancedLifestyle.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectArmorMod.cs">
+    <Compile Include="code\frmSelectArmorMod.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectArmorMod.Designer.cs">
+    <Compile Include="code\frmSelectArmorMod.Designer.cs">
       <DependentUpon>frmSelectArmorMod.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectCalendarStart.cs">
+    <Compile Include="code\frmSelectCalendarStart.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectCalendarStart.Designer.cs">
+    <Compile Include="code\frmSelectCalendarStart.Designer.cs">
       <DependentUpon>frmSelectCalendarStart.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectContactConnection.cs">
+    <Compile Include="code\frmSelectContactConnection.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectContactConnection.Designer.cs">
+    <Compile Include="code\frmSelectContactConnection.Designer.cs">
       <DependentUpon>frmSelectContactConnection.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectCritterPower.cs">
+    <Compile Include="code\frmSelectCritterPower.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectCritterPower.Designer.cs">
+    <Compile Include="code\frmSelectCritterPower.Designer.cs">
       <DependentUpon>frmSelectCritterPower.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectCyberwareSuite.cs">
+    <Compile Include="code\frmSelectCyberwareSuite.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectCyberwareSuite.Designer.cs">
+    <Compile Include="code\frmSelectCyberwareSuite.Designer.cs">
       <DependentUpon>frmSelectCyberwareSuite.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectExoticSkill.cs">
+    <Compile Include="code\frmSelectExoticSkill.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectExoticSkill.Designer.cs">
+    <Compile Include="code\frmSelectExoticSkill.Designer.cs">
       <DependentUpon>frmSelectExoticSkill.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectGear.cs">
+    <Compile Include="code\frmSelectGear.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectGear.Designer.cs">
+    <Compile Include="code\frmSelectGear.Designer.cs">
       <DependentUpon>frmSelectGear.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectItem.cs">
+    <Compile Include="code\frmSelectItem.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectItem.Designer.cs">
+    <Compile Include="code\frmSelectItem.Designer.cs">
       <DependentUpon>frmSelectItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectLifestyle.cs">
+    <Compile Include="code\frmSelectLifestyle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectLifestyle.Designer.cs">
+    <Compile Include="code\frmSelectLifestyle.Designer.cs">
       <DependentUpon>frmSelectLifestyle.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectMartialArt.cs">
+    <Compile Include="code\frmSelectMartialArt.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectMartialArt.Designer.cs">
+    <Compile Include="code\frmSelectMartialArt.Designer.cs">
       <DependentUpon>frmSelectMartialArt.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectMartialArtAdvantage.cs">
+    <Compile Include="code\frmSelectMartialArtAdvantage.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectMartialArtAdvantage.Designer.cs">
+    <Compile Include="code\frmSelectMartialArtAdvantage.Designer.cs">
       <DependentUpon>frmSelectMartialArtAdvantage.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectMartialArtManeuver.cs">
+    <Compile Include="code\frmSelectMartialArtManeuver.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectMartialArtManeuver.Designer.cs">
+    <Compile Include="code\frmSelectMartialArtManeuver.Designer.cs">
       <DependentUpon>frmSelectMartialArtManeuver.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectMentorSpirit.cs">
+    <Compile Include="code\frmSelectMentorSpirit.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectMentorSpirit.Designer.cs">
+    <Compile Include="code\frmSelectMentorSpirit.Designer.cs">
       <DependentUpon>frmSelectMentorSpirit.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectMetamagic.cs">
+    <Compile Include="code\frmSelectMetamagic.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectMetamagic.Designer.cs">
+    <Compile Include="code\frmSelectMetamagic.Designer.cs">
       <DependentUpon>frmSelectMetamagic.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectNexus.cs">
+    <Compile Include="code\frmSelectNexus.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectNexus.Designer.cs">
+    <Compile Include="code\frmSelectNexus.Designer.cs">
       <DependentUpon>frmSelectNexus.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectNumber.cs">
+    <Compile Include="code\frmSelectNumber.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectNumber.Designer.cs">
+    <Compile Include="code\frmSelectNumber.Designer.cs">
       <DependentUpon>frmSelectNumber.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectPACKSKit.cs">
+    <Compile Include="code\frmSelectPACKSKit.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectPACKSKit.Designer.cs">
+    <Compile Include="code\frmSelectPACKSKit.Designer.cs">
       <DependentUpon>frmSelectPACKSKit.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectProgramOption.cs">
+    <Compile Include="code\frmSelectProgramOption.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectProgramOption.Designer.cs">
+    <Compile Include="code\frmSelectProgramOption.Designer.cs">
       <DependentUpon>frmSelectProgramOption.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectQuality.cs">
+    <Compile Include="code\frmSelectQuality.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectQuality.Designer.cs">
+    <Compile Include="code\frmSelectQuality.Designer.cs">
       <DependentUpon>frmSelectQuality.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectQuantity.cs">
+    <Compile Include="code\frmSelectQuantity.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectQuantity.Designer.cs">
+    <Compile Include="code\frmSelectQuantity.Designer.cs">
       <DependentUpon>frmSelectQuantity.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSetting.cs">
+    <Compile Include="code\frmSelectSetting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSetting.Designer.cs">
+    <Compile Include="code\frmSelectSetting.Designer.cs">
       <DependentUpon>frmSelectSetting.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSide.cs">
+    <Compile Include="code\frmSelectSide.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSide.Designer.cs">
+    <Compile Include="code\frmSelectSide.Designer.cs">
       <DependentUpon>frmSelectSide.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSkillCategory.cs">
+    <Compile Include="code\frmSelectSkillCategory.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSkillCategory.Designer.cs">
+    <Compile Include="code\frmSelectSkillCategory.Designer.cs">
       <DependentUpon>frmSelectSkillCategory.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSpellCategory.cs">
+    <Compile Include="code\frmSelectSpellCategory.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSpellCategory.Designer.cs">
+    <Compile Include="code\frmSelectSpellCategory.Designer.cs">
       <DependentUpon>frmSelectSpellCategory.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectVehicle.cs">
+    <Compile Include="code\frmSelectVehicle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectVehicle.Designer.cs">
+    <Compile Include="code\frmSelectVehicle.Designer.cs">
       <DependentUpon>frmSelectVehicle.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectVehicleMod.cs">
+    <Compile Include="code\frmSelectVehicleMod.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectVehicleMod.Designer.cs">
+    <Compile Include="code\frmSelectVehicleMod.Designer.cs">
       <DependentUpon>frmSelectVehicleMod.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectWeapon.cs">
+    <Compile Include="code\frmSelectWeapon.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectWeapon.Designer.cs">
+    <Compile Include="code\frmSelectWeapon.Designer.cs">
       <DependentUpon>frmSelectWeapon.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSkillGroup.cs">
+    <Compile Include="code\frmSelectSkillGroup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSkillGroup.Designer.cs">
+    <Compile Include="code\frmSelectSkillGroup.Designer.cs">
       <DependentUpon>frmSelectSkillGroup.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmOptions.cs">
+    <Compile Include="code\frmOptions.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmOptions.Designer.cs">
+    <Compile Include="code\frmOptions.Designer.cs">
       <DependentUpon>frmOptions.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectArmor.cs">
+    <Compile Include="code\frmSelectArmor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectArmor.Designer.cs">
+    <Compile Include="code\frmSelectArmor.Designer.cs">
       <DependentUpon>frmSelectArmor.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectBP.cs">
+    <Compile Include="code\frmSelectBP.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectBP.Designer.cs">
+    <Compile Include="code\frmSelectBP.Designer.cs">
       <DependentUpon>frmSelectBP.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectCyberware.cs">
+    <Compile Include="code\frmSelectCyberware.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectCyberware.Designer.cs">
+    <Compile Include="code\frmSelectCyberware.Designer.cs">
       <DependentUpon>frmSelectCyberware.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectPower.cs">
+    <Compile Include="code\frmSelectPower.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectPower.Designer.cs">
+    <Compile Include="code\frmSelectPower.Designer.cs">
       <DependentUpon>frmSelectPower.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectProgram.cs">
+    <Compile Include="code\frmSelectProgram.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectProgram.Designer.cs">
+    <Compile Include="code\frmSelectProgram.Designer.cs">
       <DependentUpon>frmSelectProgram.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSpell.cs">
+    <Compile Include="code\frmSelectSpell.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSpell.Designer.cs">
+    <Compile Include="code\frmSelectSpell.Designer.cs">
       <DependentUpon>frmSelectSpell.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectText.cs">
+    <Compile Include="code\frmSelectText.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectText.Designer.cs">
+    <Compile Include="code\frmSelectText.Designer.cs">
       <DependentUpon>frmSelectText.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmMain.cs">
+    <Compile Include="code\frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.Designer.cs">
+    <Compile Include="code\frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectWeaponAccessory.cs">
+    <Compile Include="code\frmSelectWeaponAccessory.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectWeaponAccessory.Designer.cs">
+    <Compile Include="code\frmSelectWeaponAccessory.Designer.cs">
       <DependentUpon>frmSelectWeaponAccessory.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectWeaponCategory.cs">
+    <Compile Include="code\frmSelectWeaponCategory.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectWeaponCategory.Designer.cs">
+    <Compile Include="code\frmSelectWeaponCategory.Designer.cs">
       <DependentUpon>frmSelectWeaponCategory.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSellItem.cs">
+    <Compile Include="code\frmSellItem.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSellItem.Designer.cs">
+    <Compile Include="code\frmSellItem.Designer.cs">
       <DependentUpon>frmSellItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmTest.cs">
+    <Compile Include="code\frmTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmTest.Designer.cs">
+    <Compile Include="code\frmTest.Designer.cs">
       <DependentUpon>frmTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmUpdate.cs">
+    <Compile Include="code\frmUpdate.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmUpdate.Designer.cs">
+    <Compile Include="code\frmUpdate.Designer.cs">
       <DependentUpon>frmUpdate.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmViewer.cs">
+    <Compile Include="code\frmViewer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmViewer.Designer.cs">
+    <Compile Include="code\frmViewer.Designer.cs">
       <DependentUpon>frmViewer.cs</DependentUpon>
     </Compile>
-    <Compile Include="OmaeRecord.cs">
+    <Compile Include="code\OmaeRecord.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="OmaeRecord.Designer.cs">
+    <Compile Include="code\OmaeRecord.Designer.cs">
       <DependentUpon>OmaeRecord.cs</DependentUpon>
     </Compile>
-    <Compile Include="PetControl.cs">
+    <Compile Include="code\PetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PetControl.Designer.cs">
+    <Compile Include="code\PetControl.Designer.cs">
       <DependentUpon>PetControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="PowerControl.cs">
+    <Compile Include="code\PowerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="PowerControl.Designer.cs">
+    <Compile Include="code\PowerControl.Designer.cs">
       <DependentUpon>PowerControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Service References\OmaeService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -522,300 +527,726 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
-    <Compile Include="SkillGroupControl.cs">
+    <Compile Include="code\Settings.cs" />
+    <Compile Include="code\SkillGroupControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SkillGroupControl.Designer.cs">
+    <Compile Include="code\SkillGroupControl.Designer.cs">
       <DependentUpon>SkillGroupControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmCreate.cs">
+    <Compile Include="code\frmCreate.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmCreate.Designer.cs">
+    <Compile Include="code\frmCreate.Designer.cs">
       <DependentUpon>frmCreate.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmMetatype.cs">
+    <Compile Include="code\frmMetatype.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMetatype.Designer.cs">
+    <Compile Include="code\frmMetatype.Designer.cs">
       <DependentUpon>frmMetatype.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectAttribute.cs">
+    <Compile Include="code\frmSelectAttribute.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectAttribute.Designer.cs">
+    <Compile Include="code\frmSelectAttribute.Designer.cs">
       <DependentUpon>frmSelectAttribute.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSelectSkill.cs">
+    <Compile Include="code\frmSelectSkill.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSelectSkill.Designer.cs">
+    <Compile Include="code\frmSelectSkill.Designer.cs">
       <DependentUpon>frmSelectSkill.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="code\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SkillControl.cs">
+    <Compile Include="code\SkillControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SkillControl.Designer.cs">
+    <Compile Include="code\SkillControl.Designer.cs">
       <DependentUpon>SkillControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="SpiritControl.cs">
+    <Compile Include="code\SpiritControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SpiritControl.Designer.cs">
+    <Compile Include="code\SpiritControl.Designer.cs">
       <DependentUpon>SpiritControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="SplitButton.cs">
+    <Compile Include="code\SplitButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="ContactControl.resx">
+    <EmbeddedResource Include="code\ContactControl.resx">
       <DependentUpon>ContactControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCareer.resx">
+    <EmbeddedResource Include="code\frmCareer.resx">
       <DependentUpon>frmCareer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmAbout.resx">
+    <EmbeddedResource Include="code\frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCreateCyberwareSuite.resx">
+    <EmbeddedResource Include="code\frmCreateCyberwareSuite.resx">
       <DependentUpon>frmCreateCyberwareSuite.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCreateImprovement.resx">
+    <EmbeddedResource Include="code\frmCreateImprovement.resx">
       <DependentUpon>frmCreateImprovement.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCreatePACKSKit.resx">
+    <EmbeddedResource Include="code\frmCreatePACKSKit.resx">
       <DependentUpon>frmCreatePACKSKit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCreateSpell.resx">
+    <EmbeddedResource Include="code\frmCreateSpell.resx">
       <DependentUpon>frmCreateSpell.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmDiceHits.resx">
+    <EmbeddedResource Include="code\frmDiceHits.resx">
       <DependentUpon>frmDiceHits.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmDiceRoller.resx">
+    <EmbeddedResource Include="code\frmDiceRoller.resx">
       <DependentUpon>frmDiceRoller.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmExpense.resx">
+    <EmbeddedResource Include="code\frmExpense.resx">
       <DependentUpon>frmExpense.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmExport.resx">
+    <EmbeddedResource Include="code\frmExport.resx">
       <DependentUpon>frmExport.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmHistory.resx">
+    <EmbeddedResource Include="code\frmHistory.resx">
       <DependentUpon>frmHistory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmLifestyleNuyen.resx">
+    <EmbeddedResource Include="code\frmLifestyleNuyen.resx">
       <DependentUpon>frmLifestyleNuyen.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmNaturalWeapon.resx">
+    <EmbeddedResource Include="code\frmNaturalWeapon.resx">
       <DependentUpon>frmNaturalWeapon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmNotes.resx">
+    <EmbeddedResource Include="code\frmNotes.resx">
       <DependentUpon>frmNotes.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmae.resx">
+    <EmbeddedResource Include="code\frmOmae.resx">
       <DependentUpon>frmOmae.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeAccount.resx">
+    <EmbeddedResource Include="code\frmOmaeAccount.resx">
       <DependentUpon>frmOmaeAccount.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeCompress.resx">
+    <EmbeddedResource Include="code\frmOmaeCompress.resx">
       <DependentUpon>frmOmaeCompress.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeUpload.resx">
+    <EmbeddedResource Include="code\frmOmaeUpload.resx">
       <DependentUpon>frmOmaeUpload.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeUploadData.resx">
+    <EmbeddedResource Include="code\frmOmaeUploadData.resx">
       <DependentUpon>frmOmaeUploadData.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeUploadLanguage.resx">
+    <EmbeddedResource Include="code\frmOmaeUploadLanguage.resx">
       <DependentUpon>frmOmaeUploadLanguage.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOmaeUploadSheet.resx">
+    <EmbeddedResource Include="code\frmOmaeUploadSheet.resx">
       <DependentUpon>frmOmaeUploadSheet.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmPrintMultiple.resx">
+    <EmbeddedResource Include="code\frmPrintMultiple.resx">
       <DependentUpon>frmPrintMultiple.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmReload.resx">
+    <EmbeddedResource Include="code\frmReload.resx">
       <DependentUpon>frmReload.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectAdvancedLifestyle.resx">
+    <EmbeddedResource Include="code\frmSelectAdvancedLifestyle.resx">
       <DependentUpon>frmSelectAdvancedLifestyle.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectArmorMod.resx">
+    <EmbeddedResource Include="code\frmSelectArmorMod.resx">
       <DependentUpon>frmSelectArmorMod.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectCalendarStart.resx">
+    <EmbeddedResource Include="code\frmSelectCalendarStart.resx">
       <DependentUpon>frmSelectCalendarStart.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectContactConnection.resx">
+    <EmbeddedResource Include="code\frmSelectContactConnection.resx">
       <DependentUpon>frmSelectContactConnection.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectCritterPower.resx">
+    <EmbeddedResource Include="code\frmSelectCritterPower.resx">
       <DependentUpon>frmSelectCritterPower.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectCyberwareSuite.resx">
+    <EmbeddedResource Include="code\frmSelectCyberwareSuite.resx">
       <DependentUpon>frmSelectCyberwareSuite.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectExoticSkill.resx">
+    <EmbeddedResource Include="code\frmSelectExoticSkill.resx">
       <DependentUpon>frmSelectExoticSkill.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectGear.resx">
+    <EmbeddedResource Include="code\frmSelectGear.resx">
       <DependentUpon>frmSelectGear.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectItem.resx">
+    <EmbeddedResource Include="code\frmSelectItem.resx">
       <DependentUpon>frmSelectItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectLifestyle.resx">
+    <EmbeddedResource Include="code\frmSelectLifestyle.resx">
       <DependentUpon>frmSelectLifestyle.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectMartialArt.resx">
+    <EmbeddedResource Include="code\frmSelectMartialArt.resx">
       <DependentUpon>frmSelectMartialArt.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectMartialArtAdvantage.resx">
+    <EmbeddedResource Include="code\frmSelectMartialArtAdvantage.resx">
       <DependentUpon>frmSelectMartialArtAdvantage.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectMartialArtManeuver.resx">
+    <EmbeddedResource Include="code\frmSelectMartialArtManeuver.resx">
       <DependentUpon>frmSelectMartialArtManeuver.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectMentorSpirit.resx">
+    <EmbeddedResource Include="code\frmSelectMentorSpirit.resx">
       <DependentUpon>frmSelectMentorSpirit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectMetamagic.resx">
+    <EmbeddedResource Include="code\frmSelectMetamagic.resx">
       <DependentUpon>frmSelectMetamagic.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectNexus.resx">
+    <EmbeddedResource Include="code\frmSelectNexus.resx">
       <DependentUpon>frmSelectNexus.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectNumber.resx">
+    <EmbeddedResource Include="code\frmSelectNumber.resx">
       <DependentUpon>frmSelectNumber.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectPACKSKit.resx">
+    <EmbeddedResource Include="code\frmSelectPACKSKit.resx">
       <DependentUpon>frmSelectPACKSKit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectProgramOption.resx">
+    <EmbeddedResource Include="code\frmSelectProgramOption.resx">
       <DependentUpon>frmSelectProgramOption.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectQuality.resx">
+    <EmbeddedResource Include="code\frmSelectQuality.resx">
       <DependentUpon>frmSelectQuality.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectQuantity.resx">
+    <EmbeddedResource Include="code\frmSelectQuantity.resx">
       <DependentUpon>frmSelectQuantity.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSetting.resx">
+    <EmbeddedResource Include="code\frmSelectSetting.resx">
       <DependentUpon>frmSelectSetting.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSide.resx">
+    <EmbeddedResource Include="code\frmSelectSide.resx">
       <DependentUpon>frmSelectSide.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSkillCategory.resx">
+    <EmbeddedResource Include="code\frmSelectSkillCategory.resx">
       <DependentUpon>frmSelectSkillCategory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSpellCategory.resx">
+    <EmbeddedResource Include="code\frmSelectSpellCategory.resx">
       <DependentUpon>frmSelectSpellCategory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectVehicle.resx">
+    <EmbeddedResource Include="code\frmSelectVehicle.resx">
       <DependentUpon>frmSelectVehicle.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectVehicleMod.resx">
+    <EmbeddedResource Include="code\frmSelectVehicleMod.resx">
       <DependentUpon>frmSelectVehicleMod.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectWeapon.resx">
+    <EmbeddedResource Include="code\frmSelectWeapon.resx">
       <DependentUpon>frmSelectWeapon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSkillGroup.resx">
+    <EmbeddedResource Include="code\frmSelectSkillGroup.resx">
       <DependentUpon>frmSelectSkillGroup.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmOptions.resx">
+    <EmbeddedResource Include="code\frmOptions.resx">
       <DependentUpon>frmOptions.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectArmor.resx">
+    <EmbeddedResource Include="code\frmSelectArmor.resx">
       <DependentUpon>frmSelectArmor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectBP.resx">
+    <EmbeddedResource Include="code\frmSelectBP.resx">
       <DependentUpon>frmSelectBP.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectCyberware.resx">
+    <EmbeddedResource Include="code\frmSelectCyberware.resx">
       <DependentUpon>frmSelectCyberware.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectPower.resx">
+    <EmbeddedResource Include="code\frmSelectPower.resx">
       <DependentUpon>frmSelectPower.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectProgram.resx">
+    <EmbeddedResource Include="code\frmSelectProgram.resx">
       <DependentUpon>frmSelectProgram.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSpell.resx">
+    <EmbeddedResource Include="code\frmSelectSpell.resx">
       <DependentUpon>frmSelectSpell.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectText.resx">
+    <EmbeddedResource Include="code\frmSelectText.resx">
       <DependentUpon>frmSelectText.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain.resx">
+    <EmbeddedResource Include="code\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectWeaponAccessory.resx">
+    <EmbeddedResource Include="code\frmSelectWeaponAccessory.resx">
       <DependentUpon>frmSelectWeaponAccessory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectWeaponCategory.resx">
+    <EmbeddedResource Include="code\frmSelectWeaponCategory.resx">
       <DependentUpon>frmSelectWeaponCategory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSellItem.resx">
+    <EmbeddedResource Include="code\frmSellItem.resx">
       <DependentUpon>frmSellItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmTest.resx">
+    <EmbeddedResource Include="code\frmTest.resx">
       <DependentUpon>frmTest.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmUpdate.resx">
+    <EmbeddedResource Include="code\frmUpdate.resx">
       <DependentUpon>frmUpdate.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmViewer.resx">
+    <EmbeddedResource Include="code\frmViewer.resx">
       <DependentUpon>frmViewer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OmaeRecord.resx">
+    <EmbeddedResource Include="code\OmaeRecord.resx">
       <DependentUpon>OmaeRecord.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PetControl.resx">
+    <EmbeddedResource Include="code\PetControl.resx">
       <DependentUpon>PetControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PowerControl.resx">
+    <EmbeddedResource Include="code\PowerControl.resx">
       <DependentUpon>PowerControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SkillGroupControl.resx">
+    <EmbeddedResource Include="code\SkillGroupControl.resx">
       <DependentUpon>SkillGroupControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmCreate.resx">
+    <EmbeddedResource Include="code\frmCreate.resx">
       <DependentUpon>frmCreate.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMetatype.resx">
+    <EmbeddedResource Include="code\frmMetatype.resx">
       <DependentUpon>frmMetatype.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectAttribute.resx">
+    <EmbeddedResource Include="code\frmSelectAttribute.resx">
       <DependentUpon>frmSelectAttribute.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSelectSkill.resx">
+    <EmbeddedResource Include="code\frmSelectSkill.resx">
       <DependentUpon>frmSelectSkill.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <EmbeddedResource Include="SkillControl.resx">
+    <EmbeddedResource Include="code\SkillControl.resx">
       <DependentUpon>SkillControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SpiritControl.resx">
+    <EmbeddedResource Include="code\SpiritControl.resx">
       <DependentUpon>SpiritControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
+    <None Include="code\app.config" />
+    <None Include="data\data\armor.xsd" />
+    <None Include="data\data\bioware.xsd" />
+    <None Include="data\data\books.xsd" />
+    <None Include="data\data\character.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="data\data\critterpowers.xsd" />
+    <None Include="data\data\critters.xsd" />
+    <None Include="data\data\cyberware.xsd" />
+    <None Include="data\data\echoes.xsd" />
+    <None Include="data\data\gear.xsd" />
+    <None Include="data\data\lifestyles.xsd" />
+    <None Include="data\data\martialarts.xsd" />
+    <None Include="data\data\mentors.xsd" />
+    <None Include="data\data\metamagic.xsd" />
+    <None Include="data\data\metatypes.xsd" />
+    <None Include="data\data\packs.xsd" />
+    <None Include="data\data\paragons.xsd" />
+    <None Include="data\data\powers.xsd" />
+    <None Include="data\data\programs.xsd" />
+    <None Include="data\data\qualities.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="data\data\ranges.xsd" />
+    <None Include="data\data\skills.xsd" />
+    <None Include="data\data\spells.xsd" />
+    <None Include="data\data\streams.xsd" />
+    <None Include="data\data\traditions.xsd" />
+    <None Include="data\data\vehicles.xsd" />
+    <None Include="data\data\vessels.xsd" />
+    <None Include="data\data\weapons.xsd" />
+    <None Include="data\lang\language.xsd" />
+    <None Include="data\saves\10 Mercs\180th Independent Air Regiment\Airbase Security Officer.chum" />
+    <None Include="data\saves\10 Mercs\180th Independent Air Regiment\Brigadier General Erika von Braun.chum" />
+    <None Include="data\saves\10 Mercs\180th Independent Air Regiment\Combat Rigger Pilot.chum" />
+    <None Include="data\saves\10 Mercs\180th Independent Air Regiment\Master Sergeant Clayton Dex.chum" />
+    <None Include="data\saves\10 Mercs\180th Independent Air Regiment\Pararescue Jumper.chum" />
+    <None Include="data\saves\10 Mercs\Bravo Company\Adept Operator.chum" />
+    <None Include="data\saves\10 Mercs\Bravo Company\Augmented Operator.chum" />
+    <None Include="data\saves\10 Mercs\Bravo Company\Mystic Adept Combat Medic.chum" />
+    <None Include="data\saves\10 Mercs\Bravo Company\Rifleman.chum" />
+    <None Include="data\saves\10 Mercs\Fifty-Eighth Battle Brigade\Colonel Zhang Mao.chum" />
+    <None Include="data\saves\10 Mercs\Fifty-Eighth Battle Brigade\General Zhang Chin.chum" />
+    <None Include="data\saves\10 Mercs\Fifty-Eighth Battle Brigade\Standard Officer.chum" />
+    <None Include="data\saves\10 Mercs\Fifty-Eighth Battle Brigade\Standard Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Free Marine Corps\Fire Team Trooper.chum" />
+    <None Include="data\saves\10 Mercs\Free Marine Corps\Gunnery Sergeant Marion J. Wayne.chum" />
+    <None Include="data\saves\10 Mercs\Free Marine Corps\Scout Sniper.chum" />
+    <None Include="data\saves\10 Mercs\Iron Cavalry\Centaur Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Iron Cavalry\Changeling Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Iron Cavalry\The Iron Horse.chum" />
+    <None Include="data\saves\10 Mercs\New Assets\Azadeh.chum" />
+    <None Include="data\saves\10 Mercs\New Assets\Drake Operator.chum" />
+    <None Include="data\saves\10 Mercs\New Assets\Quicksilver.chum" />
+    <None Include="data\saves\10 Mercs\New Assets\Rainwalker.chum" />
+    <None Include="data\saves\10 Mercs\Seventy-Seventh Independent Rangers\Combat Hacker.chum" />
+    <None Include="data\saves\10 Mercs\Seventy-Seventh Independent Rangers\Line Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Seventy-Seventh Independent Rangers\Picador.chum" />
+    <None Include="data\saves\10 Mercs\Seventy-Seventh Independent Rangers\Veteran Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Task Force Magus\Combat Bodyguard.chum" />
+    <None Include="data\saves\10 Mercs\Task Force Magus\Combat Mage.chum" />
+    <None Include="data\saves\10 Mercs\Task Force Magus\General Simon Greenfield.chum" />
+    <None Include="data\saves\10 Mercs\Team Zero\Lt. Commander Mark Helm Jr..chum" />
+    <None Include="data\saves\10 Mercs\Team Zero\Team Zero Hacker.chum" />
+    <None Include="data\saves\10 Mercs\Team Zero\Team Zero Magician.chum" />
+    <None Include="data\saves\10 Mercs\Team Zero\Team Zero Operator.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Colonel Tamara Pitt.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\General Adam Darnell.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Infantry Soldier.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Major Andrew de la Mar.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Major Kenji Sato.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Major Ricardo Flores.chum" />
+    <None Include="data\saves\10 Mercs\Thunder Corps\Vehicle Rigger.chum" />
+    <None Include="data\saves\Another Rainy Night\Alice Bujold.chum" />
+    <None Include="data\saves\Another Rainy Night\Lydia Bowden.chum" />
+    <None Include="data\saves\Another Rainy Night\Teresa Castillo.chum" />
+    <None Include="data\saves\Another Rainy Night\Thomas McAllister.chum" />
+    <None Include="data\saves\backup\Vorschlag6 %28Erstellungsmodus%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Armorer %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Armorer %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Armorer %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Armorer %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Armorer %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Bodyguard %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Bodyguard %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Bodyguard %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Bodyguard %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Bodyguard %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Club Owner %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Club Owner %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Club Owner %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Club Owner %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Club Owner %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Manager %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Manager %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Manager %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Manager %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Manager %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Scientist %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Scientist %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Scientist %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Scientist %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Scientist %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Secretary %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Secretary %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Secretary %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Secretary %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Corporate Secretary %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Gambler %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Gambler %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Gambler %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Gambler %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Gambler %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Go-Ganger %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Go-Ganger %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Go-Ganger %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Go-Ganger %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Go-Ganger %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Grassroots Politician %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Grassroots Politician %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Grassroots Politician %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Grassroots Politician %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Grassroots Politician %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Hate Group Member %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Hate Group Member %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Hate Group Member %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Hate Group Member %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Hate Group Member %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\ID Manufacturer %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\ID Manufacturer %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\ID Manufacturer %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\ID Manufacturer %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\ID Manufacturer %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Janitor %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Janitor %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Janitor %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Janitor %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Janitor %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Nomad %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Nomad %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Nomad %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Nomad %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Nomad %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Paramed %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Paramed %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Paramed %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Paramed %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Paramed %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Parasecurity Expert %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Parasecurity Expert %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Parasecurity Expert %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Parasecurity Expert %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Parasecurity Expert %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pawn Broker %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pawn Broker %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pawn Broker %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pawn Broker %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pawn Broker %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pirate %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pirate %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pirate %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pirate %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Pirate %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Political Intern %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Political Intern %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Political Intern %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Political Intern %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Political Intern %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Radical %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Radical %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Radical %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Radical %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Radical %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Rent-a-Cop %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Rent-a-Cop %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Rent-a-Cop %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Rent-a-Cop %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Rent-a-Cop %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Slum Lord %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Slum Lord %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Slum Lord %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Slum Lord %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Slum Lord %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Snitch %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Snitch %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Snitch %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Snitch %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Snitch %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Spider %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Spider %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Spider %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Spider %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Spider %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Stripper %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Stripper %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Stripper %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Stripper %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Stripper %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Talent Scout %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Talent Scout %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Talent Scout %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Talent Scout %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Talent Scout %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Tamanous Member %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Tamanous Member %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Tamanous Member %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Tamanous Member %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Tamanous Member %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Taxi Driver %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Taxi Driver %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Taxi Driver %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Taxi Driver %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Taxi Driver %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Trid Pirate %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Trid Pirate %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Trid Pirate %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Trid Pirate %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Trid Pirate %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Urban Anthropologist %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Urban Anthropologist %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Urban Anthropologist %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Urban Anthropologist %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Urban Anthropologist %28Troll%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Vory Shestiorka %28Dwarf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Vory Shestiorka %28Elf%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Vory Shestiorka %28Human%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Vory Shestiorka %28Ork%29.chum" />
+    <None Include="data\saves\Contacts and Adventures\Vory Shestiorka %28Troll%29.chum" />
+    <None Include="data\saves\examples\Bounty Hunter.chum" />
+    <None Include="data\saves\examples\Combat Mage.chum" />
+    <None Include="data\saves\examples\Covert Ops Specialist.chum" />
+    <None Include="data\saves\examples\Drone Rigger.chum" />
+    <None Include="data\saves\examples\Enforcer.chum" />
+    <None Include="data\saves\examples\Face.chum" />
+    <None Include="data\saves\examples\Gunslinger Adept.chum" />
+    <None Include="data\saves\examples\Hacker.chum" />
+    <None Include="data\saves\examples\Occult Investigator.chum" />
+    <None Include="data\saves\examples\Radical Eco-Shaman.chum" />
+    <None Include="data\saves\examples\Smuggler.chum" />
+    <None Include="data\saves\examples\Sprawl Ganger.chum" />
+    <None Include="data\saves\examples\Street Samurai.chum" />
+    <None Include="data\saves\examples\Street Shaman.chum" />
+    <None Include="data\saves\examples\Technomancer.chum" />
+    <None Include="data\saves\examples\Weapon Specialist.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Boomer.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Bragg.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Daitaro Donny.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Gangers.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Horizon Security Forces.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Jane.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Jimmy the Fist.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Kane Kobayashi.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Kiyoshi Takahashi.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Mitsuhama Handlers.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Mr. Johnson.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Namika.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Ripper.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Security Chief Tanaka.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Stock Security Agents.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Teiko Ikemoto.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Three-Two.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Tokyo Metro Heiken Security Officers.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Tokyo Metro Saino Security Officers.chum" />
+    <None Include="data\saves\Horizon Adventures\Anarchy Subsidized\Toshiro.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Agent 211983.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Amazonia Guerilla Cell Fighter %28Naga%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Amazonia Guerilla Cell Fighters %28Jaguar Shapeshifters%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Amazonia Guerilla Cell Fighters %28Troll Drake%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Aztlan Guard Tower Guards.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Aztlan Lieutenants.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Aztlan Mages.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Aztlan Military Patrol Soldiers.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Aztlan Prison Guards.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Dominic Martin.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Esmeralda Mendez.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Leopard Guards.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Nahimana Three-Fires.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Peter Hunt.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Raul Javier.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Stone Homunculi.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\The Vicar General.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Vampire Adepts.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Warform Cheetahs.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Xavier Ortiz.chum" />
+    <None Include="data\saves\Horizon Adventures\Columbian Subterfuge\Yesenia Sanchez.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\A-Kidz Gangers.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Abel.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Andre Guiles.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Bacchus Gangers.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Bacchus.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Bandril.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Big Ben Howard.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Cain.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Chimeric Dobermans.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Christy Daee.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Crazed Fan.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Derma Club Security.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Derma Spider.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Desperado.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Diable Verde.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\End of the World Security %28Bodyguards%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\End of the World Security Troll Doormen %28Duke%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\End of the World Security Troll Doormen %28Teddy%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Human Runners %28Harris%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Human Runners %28Utah%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Leo.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Ork Runners %28Nilsson%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Ork Runners %28Redfoot%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Pandora.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Richard Fermin.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Runner Hacker %28Sanchez%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Runner Mage %28Pusher%29.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Slade.chum" />
+    <None Include="data\saves\Horizon Adventures\Fistful of Credsticks\Warform Mastiff %28Spike%29.chum" />
+    <None Include="data\saves\Montreal 2074\Black Mass Fixer.chum" />
+    <None Include="data\saves\Montreal 2074\CDQ Resource Adjuster.chum" />
+    <None Include="data\saves\Montreal 2074\Corporate Prospector.chum" />
+    <None Include="data\saves\Montreal 2074\Fallen.chum" />
+    <None Include="data\saves\Montreal 2074\Frere-Chasseur.chum" />
+    <None Include="data\saves\Montreal 2074\Gendarmerie Detective.chum" />
+    <None Include="data\saves\Montreal 2074\Hellsoul Full-Patch.chum" />
+    <None Include="data\saves\Montreal 2074\Neo-Anarchist Activist.chum" />
+    <None Include="data\saves\Montreal 2074\Vagabond Crew Ganger.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Amerindian Tribesperson.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Antiquities and Oddities Dealer.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Bookie.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Club Hopper.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Company Man.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Corporate Headhunter.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Corporate Wage Slave.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Cult Member.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Dockworker.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Firefighter.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Forensics Expert.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Freedom Fighter.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Gang Leader.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Hermetic Academic.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\High Stakes Negotiator.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Ork Nation Organizer.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Paramed Shaman.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Pimp.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Police Chief.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Shark Lawyer.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Simsense Star.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Squatter.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Street Vendor.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Supply Sergeant.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Talislegger.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Terrafirst! Activist.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Troll Street Dealer.chum" />
+    <None Include="data\saves\Runner%27s Companion Contacts\Wiz Kid Ganger.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Coal Ember.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Corporate Receptionist.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Corporate Security.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Government Security.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Low-Level Runners.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Mr. Johnson %28Corporate%29.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Mr. Johnson %28Government%29.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Mr. Johnson %28Subtle%29.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Security Mage.chum" />
+    <None Include="data\saves\Sprawl Sites - High Society and Low Life\Top-Shelf Bodyguard.chum" />
+    <None Include="data\saves\SR4 Contacts\Bartender.chum" />
+    <None Include="data\saves\SR4 Contacts\Beat Cop.chum" />
+    <None Include="data\saves\SR4 Contacts\Blogger.chum" />
+    <None Include="data\saves\SR4 Contacts\Fixer.chum" />
+    <None Include="data\saves\SR4 Contacts\Mechanic.chum" />
+    <None Include="data\saves\SR4 Contacts\Mrs Johnson.chum" />
+    <None Include="data\saves\SR4 Contacts\Street Doc.chum" />
+    <None Include="data\saves\SR4 Contacts\Talismonger.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit Lieutenant %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit Lieutenant %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit Lieutenant %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit Lieutenant %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Corporate Security Unit Lieutenant %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang Lieutenant %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang Lieutenant %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang Lieutenant %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang Lieutenant %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Halloweeners Street Gang Lieutenant %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Humanis Policlub Goon Squad Lieutenant.chum" />
+    <None Include="data\saves\SR4 NPCs\Humanis Policlub Goon Squad.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad Lieutenant %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad Lieutenant %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad Lieutenant %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad Lieutenant %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Lone Star Police Squad Lieutenant %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment Lieutenant %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment Lieutenant %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment Lieutenant %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment Lieutenant %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Red Samurai Detachment Lieutenant %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Tir Ghost Lieutenant.chum" />
+    <None Include="data\saves\SR4 NPCs\Tir Ghost.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse %28Troll%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse Lieutenant %28Dwarf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse Lieutenant %28Elf%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse Lieutenant %28Human%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse Lieutenant %28Ork%29.chum" />
+    <None Include="data\saves\SR4 NPCs\Triad Posse Lieutenant %28Troll%29.chum" />
+    <None Include="data\saves\The Land of Promise\Paladins of the Great Hunt.chum" />
+    <None Include="data\saves\The Land of Promise\Tír Peace Force, Police Patrol.chum" />
+    <None Include="data\saves\The Land of Promise\Tír Police Force, Constabulary Division.chum" />
+    <None Include="data\saves\The Way of the Samurai\Dwarf Samurai.chum" />
+    <None Include="data\saves\The Way of the Samurai\Elf Street Samurai.chum" />
+    <None Include="data\saves\The Way of the Samurai\Human Street Samurai.chum" />
+    <None Include="data\saves\The Way of the Samurai\Ork Street Samurai.chum" />
+    <None Include="data\saves\The Way of the Samurai\Troll Samurai.chum" />
     <None Include="Properties\DataSources\System.Xml.Linq.XElement.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -852,7 +1283,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="chummer.ico" />
+    <None Include="code\chummer.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icons\disk.png" />
@@ -1057,11 +1488,102 @@
     <None Include="icons\emoticon_waii.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="settings\Darkness_in_the_heart_of_texas.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="data\data\armor.xml" />
+    <Content Include="data\data\bioware.xml" />
+    <Content Include="data\data\books.xml" />
+    <Content Include="data\data\critterpowers.xml" />
+    <Content Include="data\data\critters.xml" />
+    <Content Include="data\data\custom content\Another Rainy Night\custom_another_rainy_night_books.xml" />
+    <Content Include="data\data\custom content\Another Rainy Night\custom_another_rainy_night_gear.xml" />
+    <Content Include="data\data\custom content\Another Rainy Night\custom_another_rainy_night_vehicles.xml" />
+    <Content Include="data\data\custom content\April Fool%27s Day Dragon PCs\custom_aprilfools_books.xml" />
+    <Content Include="data\data\custom content\April Fool%27s Day Dragon PCs\custom_aprilfools_metamagic.xml" />
+    <Content Include="data\data\custom content\April Fool%27s Day Dragon PCs\custom_aprilfools_metatypes.xml" />
+    <Content Include="data\data\custom content\April Fool%27s Day Dragon PCs\custom_aprilfools_traditions.xml" />
+    <Content Include="data\data\custom content\Audio and Vision Enhancement Options\override_audioandvisionenhancements_gear.xml" />
+    <Content Include="data\data\custom content\Audio and Vision Enhancement Options\override_audioenhancements_gear.xml" />
+    <Content Include="data\data\custom content\Audio and Vision Enhancement Options\override_visionenhancements_gear.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 1\custom_datahaven1_armor.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 1\custom_datahaven1_books.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 1\custom_datahaven1_critters.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 1\custom_datahaven1_vehicles.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 1\custom_datahaven1_weapons.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 2\custom_datahaven2_books.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 2\custom_datahaven2_vehicles.xml" />
+    <Content Include="data\data\custom content\Dumpshock Datahaven Issue 2\custom_datahaven2_weapons.xml" />
+    <Content Include="data\data\custom content\Rigger 4\custom_rigger4_books.xml" />
+    <Content Include="data\data\custom content\Rigger 4\custom_rigger4_critterpowers.xml" />
+    <Content Include="data\data\custom content\Rigger 4\custom_rigger4_cyberware.xml" />
+    <Content Include="data\data\custom content\Rigger 4\custom_rigger4_gear.xml" />
+    <Content Include="data\data\custom content\Rigger 4\custom_rigger4_vehicles.xml" />
+    <Content Include="data\data\cyberware.xml" />
+    <Content Include="data\data\echoes.xml" />
+    <Content Include="data\data\gear.xml" />
+    <Content Include="data\data\improvements.xml" />
+    <Content Include="data\data\lifestyles.xml" />
+    <Content Include="data\data\martialarts.xml" />
+    <Content Include="data\data\mentors.xml" />
+    <Content Include="data\data\metamagic.xml" />
+    <Content Include="data\data\metatypes.xml" />
+    <Content Include="data\data\packs.xml" />
+    <Content Include="data\data\paragons.xml" />
+    <Content Include="data\data\powers.xml" />
+    <Content Include="data\data\programs.xml" />
+    <Content Include="data\data\qualities.xml" />
+    <Content Include="data\data\ranges.xml" />
+    <Content Include="data\data\skills.xml" />
+    <Content Include="data\data\spells.xml" />
+    <Content Include="data\data\streams.xml" />
+    <Content Include="data\data\traditions.xml" />
+    <Content Include="data\data\vehicles.xml" />
+    <Content Include="data\data\vessels.xml" />
+    <Content Include="data\data\weapons.xml" />
+    <Content Include="data\export\Squad Manager.xsl" />
+    <Content Include="data\lang\de.xml" />
+    <Content Include="data\lang\de_data.xml" />
+    <Content Include="data\lang\en-us.xml" />
+    <Content Include="data\lang\fr.xml" />
+    <Content Include="data\lang\fr_data.xml" />
+    <Content Include="data\lang\jp.xml" />
+    <Content Include="data\lang\jp_data.xml" />
+    <Content Include="data\manifestdata.xml" />
+    <Content Include="data\manifestlang.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_armor.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_books.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_gear.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_traditions.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_vehicles.xml" />
+    <Content Include="data\saves\10 Mercs\custom_10mercs_weapons.xml" />
+    <Content Include="data\settings\Darkness_in_the_heart_of_texas.xml" />
+    <Content Include="data\settings\default.xml" />
+    <Content Include="data\sheets\Commlinks.xsl" />
+    <Content Include="data\sheets\ConditionMonitor.xslt" />
+    <Content Include="data\sheets\de\Commlinks.xsl" />
+    <Content Include="data\sheets\de\ConditionMonitor.xslt" />
+    <Content Include="data\sheets\de\Game Master Summary.xsl" />
+    <Content Include="data\sheets\de\Shadowrun 4 %28Grouped Skills by Name%29.xsl" />
+    <Content Include="data\sheets\de\Shadowrun 4 %28Grouped Skills by Rating%29.xsl" />
+    <Content Include="data\sheets\de\Shadowrun 4 Base.xslt" />
+    <Content Include="data\sheets\de\Shadowrun 4.xsl" />
+    <Content Include="data\sheets\de\Text-Only.xsl" />
+    <Content Include="data\sheets\de\Vehicle Block.xsl" />
+    <Content Include="data\sheets\Dossier.xsl" />
+    <Content Include="data\sheets\fr\Text-Only.xsl" />
+    <Content Include="data\sheets\Game Master Summary.xsl" />
+    <Content Include="data\sheets\Shadowrun 4 %28Grouped Skills by Name%29.xsl" />
+    <Content Include="data\sheets\Shadowrun 4 %28Grouped Skills by Rating%29.xsl" />
+    <Content Include="data\sheets\Shadowrun 4 Base.xslt" />
+    <Content Include="data\sheets\Shadowrun 4.xsl" />
+    <Content Include="data\sheets\Text-Only.xsl" />
+    <Content Include="data\sheets\Vehicle Block.xsl" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>echo "Postbuild Step: Copying datafiles to output folder:"
+xcopy /E /I /Y "$(ProjectDir)data" "$(TargetDir)"
+copy "$(SolutionDir)changelog.txt" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
