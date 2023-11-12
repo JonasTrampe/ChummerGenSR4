@@ -1,3 +1,6 @@
+Build 495
+- bump to dotnet 4.8
+
 Build 494
 - Commlinks in cyberware
   - can be activated/deactivated
