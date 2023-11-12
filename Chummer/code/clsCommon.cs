@@ -8,6 +8,7 @@ using System.Xml;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Drawing;
+using System.Linq;
 
 namespace Chummer
 {
@@ -739,6 +740,39 @@ namespace Chummer
 				}
 			}
 			return null;
+		}
+
+		public Commlink FindCommlink(string strGuid, List<Commlink> lstCommlinks)
+		{
+			foreach (var objCommlink in lstCommlinks)
+			{
+				if (objCommlink.InternalId == strGuid)
+					return objCommlink;
+			}
+			return null;
+		}
+
+		public List<Commlink> FindCommlinks(List<Gear> lstGear, List<Cyberware> lstCyberware)
+		{
+			List<Commlink> lstReturn = new List<Commlink>();
+			lstReturn.AddRange(FindCharacterCommlinks(lstGear));
+			lstReturn.AddRange(FindCyberwareCommlinks(lstCyberware));
+			return lstReturn;
+		}
+
+		public List<Commlink> FindCyberwareCommlinks(List<Cyberware> lstCyberware)
+		{
+			List<Commlink> lstReturn = new List<Commlink>();
+
+			foreach (var ware in lstCyberware)
+			{
+				foreach (Commlink objCommlink in ware.Gear.OfType<Commlink>())
+				{
+					lstReturn.Add(objCommlink);
+				}
+			}
+
+			return lstReturn;
 		}
 
 		/// <summary>
