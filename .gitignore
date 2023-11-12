@@ -49,3 +49,6 @@
 *.svclog
 *.scc
 
+### remvoe output directory ###
+/bin
+
