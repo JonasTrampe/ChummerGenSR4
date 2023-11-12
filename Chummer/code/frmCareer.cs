@@ -17440,6 +17440,39 @@ namespace Chummer
 		{
 			RefreshSelectedCyberware();
 		}
+
+		private void chkActiveCyberCommlink_CheckedChanged(object sender, EventArgs e)
+		{
+			if (_blnSkipRefresh)
+				return;
+
+			Gear objSelectedGear = new Gear(_objCharacter);
+
+			// Attempt to locate the selected piece of Gear.
+			try
+			{
+				var commlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware);
+				objSelectedGear = _objFunctions.FindCommlink(treCyberware.SelectedNode.Tag.ToString(), commlinks);
+
+				if (objSelectedGear.GetType() != typeof(Commlink))
+					return;
+
+				Commlink objCommlink = (Commlink)objSelectedGear;
+				objCommlink.IsActive = chkActiveCyberCommlink.Checked;
+
+				ChangeActiveCommlink(objCommlink);
+
+				RefreshSelectedGear();
+				RefreshSelectedCyberware();
+				UpdateCharacterInfo();
+
+				_blnIsDirty = true;
+				UpdateWindowTitle();
+			}
+			catch
+			{
+			}
+		}
 		#endregion
 
 		#region Additional Street Gear Tab Control Events
@@ -18681,6 +18714,7 @@ namespace Chummer
 				ChangeActiveCommlink(objCommlink);
 
 				RefreshSelectedGear();
+				RefreshSelectedCyberware();
 				UpdateCharacterInfo();
 
 				_blnIsDirty = true;
@@ -22351,6 +22385,14 @@ namespace Chummer
 				lblCyberwareCapacity.Text = "";
 				lblCyberwareEssence.Text = "";
 				lblCyberwareSource.Text = "";
+				lblCyberwareResponse.Visible = false;
+				lblCyberwareResponseLabel.Visible = false;
+				lblCyberwareSystem.Visible = false;
+				lblCyberwareSystemLabel.Visible = false;
+				lblCyberwareFirewall.Visible = false;
+				lblCyberwareFirewallLabel.Visible = false;
+				lblCyberwareSignal.Visible = false;
+				lblCyberwareSignalLabel.Visible = false;
 				tipTooltip.SetToolTip(lblCyberwareSource, null);
 				return;
 			}
@@ -22358,8 +22400,10 @@ namespace Chummer
 			// Locate the selected piece of Cyberware.
 			bool blnFound = false;
 			Cyberware objCyberware = _objFunctions.FindCyberware(treCyberware.SelectedNode.Tag.ToString(), _objCharacter.Cyberware);
+
 			if (objCyberware != null)
 				blnFound = true;
+
 
 			if (blnFound)
 			{
@@ -22380,7 +22424,17 @@ namespace Chummer
 				lblCyberwareCost.Text = String.Format("{0:###,###,##0¥}", objCyberware.TotalCost);
 				lblCyberwareCapacity.Text = objCyberware.CalculatedCapacity + " (" + objCyberware.CapacityRemaining.ToString() + " " + LanguageManager.Instance.GetString("String_Remaining") + ")";
 				lblCyberwareEssence.Text = objCyberware.CalculatedESS.ToString();
-				UpdateCharacterInfo();
+
+				lblCyberwareResponse.Visible = false;
+				lblCyberwareResponseLabel.Visible = false;
+				lblCyberwareSystem.Visible = false;
+				lblCyberwareSystemLabel.Visible = false;
+				lblCyberwareFirewall.Visible = false;
+				lblCyberwareFirewallLabel.Visible = false;
+				lblCyberwareSignal.Visible = false;
+				lblCyberwareSignalLabel.Visible = false;
+				chkActiveCyberCommlink.Visible = false;
+
 			}
 			else
 			{
@@ -22401,7 +22455,63 @@ namespace Chummer
 				string strPage = objGear.Page;
 				lblCyberwareSource.Text = strBook + " " + strPage;
 				tipTooltip.SetToolTip(lblCyberwareSource, _objOptions.LanguageBookLong(objGear.Source) + " " + LanguageManager.Instance.GetString("String_Page") + " " + objGear.Page);
+
+				if (objGear != null)
+				{
+					lblCyberwareResponse.Visible = true;
+					lblCyberwareResponseLabel.Visible = true;
+					lblCyberwareSystem.Visible = true;
+					lblCyberwareSystemLabel.Visible = true;
+					lblCyberwareFirewall.Visible = true;
+					lblCyberwareFirewallLabel.Visible = true;
+					lblCyberwareSignal.Visible = true;
+					lblCyberwareSignalLabel.Visible = true;
+
+					if (objGear.GetType() == typeof(Commlink))
+					{
+						Commlink objCommlink = (Commlink)objGear;
+						lblCyberwareResponse.Text = objCommlink.TotalResponse.ToString();
+						lblCyberwareSignal.Text = objCommlink.TotalSignal.ToString();
+						if (objCommlink.Category != "Commlink Upgrade")
+						{
+							lblCyberwareSystem.Text = objCommlink.TotalSystem.ToString();
+							lblCyberwareFirewall.Text = objCommlink.TotalFirewall.ToString();
+						}
+						else
+						{
+							lblCyberwareSystem.Text = "";
+							lblCyberwareFirewall.Text = "";
+						}
+
+						_blnSkipRefresh = true;
+						chkActiveCyberCommlink.Visible = true;
+						chkActiveCyberCommlink.Checked = objCommlink.IsActive;
+						_blnSkipRefresh = false;
+
+						if (objCommlink.Category == "Commlink Upgrade")
+							chkActiveCyberCommlink.Visible = false;
+					}
+					else if (objGear.GetType() == typeof(OperatingSystem))
+					{
+						OperatingSystem objOS = (OperatingSystem)objGear;
+						lblCyberwareResponse.Text = "";
+						lblCyberwareSignal.Text = "";
+						lblCyberwareSystem.Text = objOS.System.ToString();
+						lblCyberwareFirewall.Text = objOS.Firewall.ToString();
+						chkActiveCyberCommlink.Visible = false;
+					}
+					else
+					{
+						lblCyberwareResponse.Text = objGear.Response.ToString();
+						lblCyberwareSignal.Text = objGear.Signal.ToString();
+						lblCyberwareSystem.Text = objGear.System.ToString();
+						lblCyberwareFirewall.Text = objGear.Firewall.ToString();
+						chkActiveCyberCommlink.Visible = false;
+					}
+				}
 			}
+
+			UpdateCharacterInfo();
 		}
 
 		/// <summary>
@@ -23562,7 +23672,7 @@ namespace Chummer
 						frmPickGear.CommlinkSystem = objCommlink.System;
 
 						// If a Commlink has just been added, see if the character already has one. If not, make it the active Commlink.
-						if (_objFunctions.FindCharacterCommlinks(_objCharacter.Gear).Count == 0)
+						if (_objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware).Count == 0)
 							objCommlink.IsActive = true;
 					}
 					if (objSelectedGear.Category == "Commlink Operating System")
@@ -26888,7 +26998,7 @@ namespace Chummer
 		/// <param name="objActiveCommlink"></param>
 		private void ChangeActiveCommlink(Commlink objActiveCommlink)
 		{
-			List<Commlink> lstCommlinks = _objFunctions.FindCharacterCommlinks(_objCharacter.Gear);
+			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware);
 
 			foreach (Commlink objCommlink in lstCommlinks)
 			{
@@ -27015,6 +27125,8 @@ namespace Chummer
 			UpdateWindowTitle();
 			UpdateCharacterInfo();
 		}
-		#endregion
-	}
+        #endregion
+
+
+    }
 }
