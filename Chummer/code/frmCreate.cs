@@ -18145,7 +18145,7 @@ namespace Chummer
 					objNode.Text = objCommlink.DisplayName;
 
 					// If a Commlink has just been added, see if the character already has one. If not, make it the active Commlink.
-					if (_objFunctions.FindCharacterCommlinks(_objCharacter.Gear).Count == 0 && frmPickGear.SelectedCategory == "Commlink")
+					if (_objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware).Count == 0 && frmPickGear.SelectedCategory == "Commlink")
 						objCommlink.IsActive = true;
 
 					objNewGear = objCommlink;
@@ -23113,7 +23113,7 @@ namespace Chummer
 		/// <param name="objActiveCommlink"></param>
 		private void ChangeActiveCommlink(Commlink objActiveCommlink)
 		{
-			List<Commlink> lstCommlinks = _objFunctions.FindCharacterCommlinks(_objCharacter.Gear);
+			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware);
 
 			foreach (Commlink objCommlink in lstCommlinks)
 			{

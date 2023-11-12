@@ -48,6 +48,7 @@ namespace Chummer
 	{
 		private readonly ImprovementManager _objImprovementManager;
 		private readonly CharacterOptions _objOptions = new CharacterOptions();
+		private CommonFunctions _commonFunctions;
 
 		private string _strFileName = "";
 		private string _strSettingsFileName = "default.xml";
@@ -218,6 +219,7 @@ namespace Chummer
 			_attRES._objCharacter = this;
 			_attESS._objCharacter = this;
 			_objImprovementManager = new ImprovementManager(this);
+			_commonFunctions = new CommonFunctions(this);
 		}
 
 		/// <summary>
@@ -3807,11 +3809,17 @@ namespace Chummer
 					intMatrixInit = _attINT.TotalValue;
 					int intCommlinkResponse = 0;
 
-					// Retrieve the Response for the character's active Commlink.
-					foreach (Commlink objCommlink in _lstGear.OfType<Commlink>())
+					var commlinks = new List<Commlink>();
+
+					commlinks.AddRange(_commonFunctions.FindCommlinks(_lstGear, _lstCyberware));
+
+					foreach (var commlink in commlinks)
 					{
-						if (objCommlink.IsActive)
-							intCommlinkResponse = objCommlink.TotalResponse;
+						if (commlink.IsActive)
+						{
+							intCommlinkResponse = commlink.TotalResponse;
+							break;
+						}
 					}
 					intMatrixInit += intCommlinkResponse;
 
