@@ -1,3 +1,16 @@
+Build 494
+- Commlinks in cyberware
+  - can be activated/deactivated
+  - will change matrix inititive if activated
+  - will disable gear commlinks if activated
+  - gear commlinks will disable implated ones if activated
+  - stats will be show in cyberwear if selected
+
+Changes since the archived version on Chummer:
+
+* Gun Heaven 3 
+* Build improvements
+
 Build 492
 - changed the platform target from x86 to AnyCPU
 - updated the data files to the latest respective versions
