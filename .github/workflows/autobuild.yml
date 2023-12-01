@@ -9,6 +9,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types: [created, edited]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -46,7 +48,7 @@ jobs:
         with:
           auto-increment: patch
           build-metadata: ${{ steps.short-sha.outputs.sha }}
-          default-pre-release-phase: preview
+          default-pre-release-phase: beta
           minimum-major-minor: 0.1
           tag-prefix: v
 
