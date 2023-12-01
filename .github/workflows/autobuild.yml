@@ -47,7 +47,7 @@ jobs:
           auto-increment: patch
           build-metadata: ${{ steps.short-sha.outputs.sha }}
           default-pre-release-phase: preview
-          minimum-major-minor: 1.0
+          minimum-major-minor: 0.1
           tag-prefix: v
 
       - name: Set project versions
@@ -71,5 +71,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: "ChummerGenSR4.zip"
+          name: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
           path: "ChummerGenSR4.zip"
