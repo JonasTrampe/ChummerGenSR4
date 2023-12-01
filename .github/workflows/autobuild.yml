@@ -13,18 +13,19 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: [windows-latest]
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@master
-      
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
 
@@ -33,7 +34,30 @@ jobs:
 
       - name: Restore NuGet packages
         run: nuget restore ChummerGenSR4.sln
-        
+
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 6
+
+      - name: run minver
+        id: version
+        uses: Stelzi79/action-minver@3.0.1
+        with:
+          auto-increment: patch
+          build-metadata: ${{ steps.short-sha.outputs.sha }}
+          default-pre-release-phase: preview
+          minimum-major-minor: 1.0
+          tag-prefix: v
+
+      - name: Set project versions
+        id: update
+        uses: vers-one/dotnet-project-version-updater@v1.3
+        with:
+          file: |
+            "**/AssemblyInfo.cs"
+          version: ${{ steps.version.outputs.version }}
+
       - name: Build the solution
         run: msbuild ChummerGenSR4.sln /p:Configuration=Release
         
