@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-905</version>
+	<version>-906</version>
 	<categories>
 		<category>A.I.s</category>
 		<category>Dracoforms</category>
@@ -13328,6 +13328,7 @@
 					<name>critter</name>
 				</enabletab>
 				<initiativepass>1</initiativepass>
+                <essencemax>11</essencemax>
 			</bonus>
 			<powers>
 				<power select="Hearing, Smell, Thermographic Vision">Enhanced Senses</power>
@@ -13413,6 +13414,7 @@
 					<name>critter</name>
 				</enabletab>
 				<initiativepass>1</initiativepass>
+                <essencemax>11</essencemax>
 			</bonus>
 			<powers>
 				<power select="Hearing, Low-Light Vision, Smell, Visual Acuity">Enhanced Senses</power>
@@ -15420,6 +15422,7 @@
 				<enabletab>
 					<name>critter</name>
 				</enabletab>
+                <essencemax>11</essencemax>
 			</bonus>
 			<powers>
 				<power>Binding</power>
@@ -29371,6 +29374,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29463,6 +29467,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29555,6 +29560,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29647,6 +29653,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29739,6 +29746,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29833,6 +29841,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -29927,6 +29936,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -30021,6 +30031,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>2</reach>
+                <essencemax>12</essencemax>
 			</bonus>
 			<powers>
 				<power>Dragonspeech</power>
@@ -34812,6 +34823,7 @@
 					<name>critter</name>
 				</enabletab>
 				<initiativepass>1</initiativepass>
+                <essencemax>11</essencemax>
 			</bonus>
 			<powers>
 				<power select="Hearing, Low-Light Vision, Smell">Enhanced Senses</power>
@@ -35034,6 +35046,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>1</reach>
+                <essencemax>11</essencemax>
 			</bonus>
 			<powers>
 				<power rating="4">Armor (Ballistic)</power>
@@ -35559,6 +35572,7 @@
 				</enabletab>
 				<initiativepass>1</initiativepass>
 				<reach>1</reach>
+                <essencemax>15</essencemax>
 			</bonus>
 			<powers>
 				<power rating="4">Armor (Ballistic)</power>
@@ -35651,6 +35665,7 @@
 					<name>critter</name>
 				</enabletab>
 				<initiativepass>1</initiativepass>
+                <essencemax>17</essencemax>
 			</bonus>
 			<powers>
 				<power>Compulsion</power>
