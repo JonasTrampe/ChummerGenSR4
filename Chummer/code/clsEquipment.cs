@@ -198,7 +198,8 @@ namespace Chummer
 			_intI = Convert.ToInt32(objNode["i"].InnerText);
 			try
 			{
-				_strArmorCapacity = objNode["armorcapacity"].InnerText;
+				if (objNode["armorcapacity"] != null)
+					_strArmorCapacity = objNode["armorcapacity"].InnerText;
 			}
 			catch
 			{
@@ -209,7 +210,8 @@ namespace Chummer
 			_strCost = objNode["cost"].InnerText;
 			try
 			{
-				_nodBonus = objNode["bonus"];
+				if (objNode["bonus"] != null)
+					_nodBonus = objNode["bonus"];
 			}
 			catch
 			{
@@ -217,42 +219,48 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
-				_strPage = objNode["page"].InnerText;
+				if (objNode["page"] != null)
+					_strPage = objNode["page"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnIncludedInArmor = Convert.ToBoolean(objNode["included"].InnerText);
+				if (objNode["included"] != null)
+					_blnIncludedInArmor = Convert.ToBoolean(objNode["included"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
+				if (objNode["equipped"] != null)
+					_blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strExtra = objNode["extra"].InnerText;
+				if (objNode["extra"] != null)
+					_strExtra = objNode["extra"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
+				if (objNode["weaponguid"] != null)
+					_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{
@@ -260,7 +268,8 @@ namespace Chummer
 
 			try
 			{
-				_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
+				if (objNode["discountedcost"] != null)
+					_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
 			}
 			catch
 			{
@@ -1180,7 +1189,8 @@ namespace Chummer
 			_strI = objNode["i"].InnerText;
 			try
 			{
-				_strArmorCapacity = objNode["armorcapacity"].InnerText;
+				if (objNode["armorcapacity"] != null)
+					_strArmorCapacity = objNode["armorcapacity"].InnerText;
 			}
 			catch
 			{
@@ -1190,6 +1200,7 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
+			if (objNode["page"] != null)
 				_strPage = objNode["page"].InnerText;
 			}
 			catch
@@ -1198,7 +1209,17 @@ namespace Chummer
 
 			try
 			{
-				_strArmorName = objNode["armorname"].InnerText;
+			    if (objNode["armorname"] != null)
+				    _strArmorName = objNode["armorname"].InnerText;
+			}
+			catch
+			{
+			}
+
+			try
+            {
+                if (objNode["equipped"] != null)
+	               _blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
 			}
 			catch
 			{
@@ -1206,14 +1227,8 @@ namespace Chummer
 
 			try
 			{
-				_blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
-			}
-			catch
-			{
-			}
 
-			try
-			{
+			if (objNode["extra"] != null)
 				_strExtra = objNode["extra"].InnerText;
 			}
 			catch
@@ -1222,13 +1237,18 @@ namespace Chummer
 
 			try
 			{
+
+			if (objNode["bdamage"] != null)
 				_intBDamage = Convert.ToInt32(objNode["bdamage"].InnerText);
+
 			}
 			catch
 			{
 			}
+
 			try
 			{
+			if (objNode["idamage"] != null)
 				_intIDamage = Convert.ToInt32(objNode["idamage"].InnerText);
 			}
 			catch
@@ -1273,37 +1293,20 @@ namespace Chummer
 					}
 				}
 			}
-			try
-			{
+
+			if (objNode["bonus"] != null)
 				_nodBonus = objNode["bonus"];
-			}
-			catch
-			{
-			}
 
-			try
-			{
+
+			if (objNode["location"] != null)
 				_strLocation = objNode["location"].InnerText;
-			}
-			catch
-			{
-			}
 
-			try
-			{
+			if (objNode["notes"] != null)
 				_strNotes = objNode["notes"].InnerText;
-			}
-			catch
-			{
-			}
 
-			try
-			{
+			if (objNode["discountedcost"] != null)
 				_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
-			}
-			catch
-			{
-			}
+
 
 			if (GlobalOptions.Instance.Language != "en-us")
 			{
@@ -2404,7 +2407,8 @@ namespace Chummer
 			}
 			try
 			{
-				_strForceGrade = objXmlCyberware["forcegrade"].InnerText;
+				if (objXmlCyberware["forcegrade"] != null)
+					_strForceGrade = objXmlCyberware["forcegrade"].InnerText;
 			}
 			catch
 			{
@@ -2553,7 +2557,8 @@ namespace Chummer
 					objSubsystem.Bonus = objXmlSubsystem["bonus"];
 					try
 					{
-						objSubsystem.MaxRating = Convert.ToInt32(objXmlCyberware["rating"].InnerText);
+						if (objXmlCyberware["rating"] != null)
+							objSubsystem.MaxRating = Convert.ToInt32(objXmlCyberware["rating"].InnerText);
 					}
 					catch
 					{
@@ -2668,7 +2673,8 @@ namespace Chummer
 			_strCategory = objNode["category"].InnerText;
 			try
 			{
-				_strLimbSlot = objNode["limbslot"].InnerText;
+				if (objNode["limbslot"] != null)
+					_strLimbSlot = objNode["limbslot"].InnerText;
 			}
 			catch
 			{
@@ -2680,7 +2686,8 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
-				_strPage = objNode["page"].InnerText;
+				if (objNode["page"] != null)
+					_strPage = objNode["page"].InnerText;
 			}
 			catch
 			{
@@ -2689,7 +2696,8 @@ namespace Chummer
 			_intRating = Convert.ToInt32(objNode["rating"].InnerText);
 			try
 			{
-				_intMinRating = Convert.ToInt32(objNode["minrating"].InnerText);
+				if (objNode["minrating"] != null)
+					_intMinRating = Convert.ToInt32(objNode["minrating"].InnerText);
 			}
 			catch
 			{
@@ -2699,28 +2707,32 @@ namespace Chummer
 			_objGrade = ConvertToCyberwareGrade(objNode["grade"].InnerText, _objImprovementSource);
 			try
 			{
-				_strLocation = objNode["location"].InnerText;
+				if (objNode["location"] != null)
+					_strLocation = objNode["location"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnSuite = Convert.ToBoolean(objNode["suite"].InnerText);
+				if (objNode["suite"] != null)
+					_blnSuite = Convert.ToBoolean(objNode["suite"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intEssenceDiscount = Convert.ToInt32(objNode["essdiscount"].InnerText);
+				if (objNode["essdiscount"] != null)
+					_intEssenceDiscount = Convert.ToInt32(objNode["essdiscount"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strForceGrade = objNode["forcegrade"].InnerText;
+				if (objNode["forcegrade"] != null)
+					_strForceGrade = objNode["forcegrade"].InnerText;
 			}
 			catch
 			{
@@ -2728,7 +2740,8 @@ namespace Chummer
 			_nodBonus = objNode["bonus"];
 			try
 			{
-				_nodAllowGear = objNode["allowgear"];
+				if (objNode["allowgear"] != null)
+					_nodAllowGear = objNode["allowgear"];
 			}
 			catch
 			{
@@ -2736,7 +2749,8 @@ namespace Chummer
 			_objImprovementSource = objImprovement.ConvertToImprovementSource(objNode["improvementsource"].InnerText);
 			try
 			{
-				_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
+				if (objNode["weaponguid"] != null)
+					_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
 			}
 			catch
 			{
@@ -4259,7 +4273,8 @@ namespace Chummer
 			_strAmmo = objXmlWeapon["ammo"].InnerText;
 			try
 			{
-				_strAmmoCategory = objXmlWeapon["ammocategory"].InnerText;
+				if (objXmlWeapon["ammocategory"] != null)
+					_strAmmoCategory = objXmlWeapon["ammocategory"].InnerText;
 			}
 			catch
 			{
@@ -4267,7 +4282,8 @@ namespace Chummer
 			_strRC = objXmlWeapon["rc"].InnerText;
 			try
 			{
-				_intConceal = Convert.ToInt32(objXmlWeapon["conceal"].InnerText);
+				if (objXmlWeapon["conceal"] != null)
+					_intConceal = Convert.ToInt32(objXmlWeapon["conceal"].InnerText);
 			}
 			catch
 			{
@@ -4308,30 +4324,52 @@ namespace Chummer
 
 			try
 			{
-				_intFullBurst = Convert.ToInt32(objXmlWeapon["fullburst"].InnerText);
+				if (objXmlWeapon["fullburst"] != null)
+					_intFullBurst = Convert.ToInt32(objXmlWeapon["fullburst"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intSuppressive = Convert.ToInt32(objXmlWeapon["suppressive"].InnerText);
+				if (objXmlWeapon["suppressive"] != null)
+					_intSuppressive = Convert.ToInt32(objXmlWeapon["suppressive"].InnerText);
 			}
 			catch
 			{
 			}
-
-			if (objXmlWeapon["useskill"] != null)
-				_strUseSkill = objXmlWeapon["useskill"].InnerText;
-
-			if (objXmlWeapon["requireammo"] != null)
-				_blnRequireAmmo = Convert.ToBoolean(objXmlWeapon["requireammo"].InnerText);
-
-			if (objXmlWeapon["spec"] != null)
-				_strSpec = objXmlWeapon["spec"].InnerText;
-
-			if (objXmlDocument["spec2"] != null)
-				_strSpec2 = objXmlWeapon["spec2"].InnerText;
+			try
+			{
+				if (objXmlWeapon["useskill"] != null)
+					_strUseSkill = objXmlWeapon["useskill"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				if (objXmlWeapon["requireammo"] != null)
+					_blnRequireAmmo = Convert.ToBoolean(objXmlWeapon["requireammo"].InnerText);
+			}
+			catch
+			{
+			}
+			try
+			{
+				if (objXmlWeapon["spec"] != null)
+					_strSpec = objXmlWeapon["spec"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				if (objXmlDocument["spec2"] != null)
+					_strSpec2 = objXmlWeapon["spec2"].InnerText;
+			}
+			catch
+			{
+			}
 
 			objNode.Text = DisplayName;
 			objNode.Tag = _guiID.ToString();
@@ -6592,7 +6630,17 @@ namespace Chummer
 			string strRange = "";
 			try
 			{
-				strRange = objXmlDocument.SelectSingleNode("/chummer/ranges/range[category = \"" + strRangeCategory + "\"]")[strFindRange].InnerText;
+				var rangeNode = objXmlDocument.SelectSingleNode("/chummer/ranges/range[category = \"" + strRangeCategory + "\"]");
+				if (rangeNode != null)
+				{
+					strRange = rangeNode[strFindRange].InnerText;
+					if (String.IsNullOrWhiteSpace(strRange))
+						return -1;
+				}
+				else
+				{
+					return -1;
+				}
 			}
 			catch
 			{
@@ -7364,14 +7412,16 @@ namespace Chummer
 			_strRC = objNode["rc"].InnerText;
 			try
 			{
-				_intRCGroup = Convert.ToInt32(objNode["rcgroup"].InnerText);
+				if (objNode["rcgroup"] != null)
+					_intRCGroup = Convert.ToInt32(objNode["rcgroup"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intConceal = Convert.ToInt32(objNode["conceal"].InnerText);
+				if (objNode["conceal"] != null)
+					_intConceal = Convert.ToInt32(objNode["conceal"].InnerText);
 			}
 			catch
 			{
@@ -7381,14 +7431,16 @@ namespace Chummer
 			_blnIncludedInWeapon = Convert.ToBoolean(objNode["included"].InnerText);
 			try
 			{
-				_blnInstalled = Convert.ToBoolean(objNode["installed"].InnerText);
+				if (objNode["installed"] != null)
+					_blnInstalled = Convert.ToBoolean(objNode["installed"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_nodAllowGear = objNode["allowgear"];
+				if (objNode["allowgear"] != null)
+					_nodAllowGear = objNode["allowgear"];
 			}
 			catch
 			{
@@ -7396,14 +7448,16 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
-				_strPage = objNode["page"].InnerText;
+				if (objNode["page"] != null)
+					_strPage = objNode["page"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strDicePool = objNode["dicepool"].InnerText;
+				if (objNode["dicepool"] != null)
+					_strDicePool = objNode["dicepool"].InnerText;
 			}
 			catch
 			{
@@ -7439,7 +7493,8 @@ namespace Chummer
 
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{
@@ -7447,7 +7502,8 @@ namespace Chummer
 
 			try
 			{
-				_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
+				if (objNode["discountedcost"] != null)
+					_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
 			}
 			catch
 			{
@@ -8106,21 +8162,24 @@ namespace Chummer
 			_strAvail = objNode["avail"].InnerText;
 			try
 			{
-				_strRC = objNode["rc"].InnerText;
+				if (objNode["rc"] != null)
+					_strRC = objNode["rc"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intRCGroup = Convert.ToInt32(objNode["rcgroup"].InnerText);
+				if (objNode["rcgroup"] != null)
+					_intRCGroup = Convert.ToInt32(objNode["rcgroup"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intConceal = Convert.ToInt32(objNode["conceal"].InnerText);
+				if (objNode["conceal"] != null)
+					_intConceal = Convert.ToInt32(objNode["conceal"].InnerText);
 			}
 			catch
 			{
@@ -8129,14 +8188,16 @@ namespace Chummer
 			_blnIncludedInWeapon = Convert.ToBoolean(objNode["included"].InnerText);
 			try
 			{
-				_blnInstalled = Convert.ToBoolean(objNode["installed"].InnerText);
+				if (objNode["installed"] != null)
+					_blnInstalled = Convert.ToBoolean(objNode["installed"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intRating = Convert.ToInt32(objNode["rating"].InnerText);
+				if (objNode["rating"] != null)
+					_intRating = Convert.ToInt32(objNode["rating"].InnerText);
 			}
 			catch
 			{
@@ -8144,105 +8205,120 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
-				_strPage = objNode["page"].InnerText;
+				if (objNode["page"] != null)
+					_strPage = objNode["page"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intAmmoBonus = Convert.ToInt32(objNode["ammobonus"].InnerText);
+				if (objNode["ammobonus"] != null)
+					_intAmmoBonus = Convert.ToInt32(objNode["ammobonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAmmoReplace = objNode["ammoreplace"].InnerText;
+				if (objNode["ammoreplace"] != null)
+					_strAmmoReplace = objNode["ammoreplace"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intAccessoryCostMultiplier = Convert.ToInt32(objNode["accessorycostmultiplier"].InnerText);
+				if (objNode["accessorycostmultiplier"] != null)
+					_intAccessoryCostMultiplier = Convert.ToInt32(objNode["accessorycostmultiplier"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intModCostMultiplier = Convert.ToInt32(objNode["modcostmultiplier"].InnerText);
+				if (objNode["modcostmultiplier"] != null)
+					_intModCostMultiplier = Convert.ToInt32(objNode["modcostmultiplier"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAddMode = objNode["addmode"].InnerText;
+				if (objNode["addmode"] != null)
+					_strAddMode = objNode["addmode"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
+				if (objNode["discountedcost"] != null)
+					_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intFullBurst = Convert.ToInt32(objNode["fullburst"].InnerText);
+				if (objNode["fullburst"] != null)
+					_intFullBurst = Convert.ToInt32(objNode["fullburst"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intSuppressive = Convert.ToInt32(objNode["suppressive"].InnerText);
+				if (objNode["suppressive"] != null)
+					_intSuppressive = Convert.ToInt32(objNode["suppressive"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intDVBonus = Convert.ToInt32(objNode["dvbonus"].InnerText);
+				if (objNode["dvbonus"] != null)
+					_intDVBonus = Convert.ToInt32(objNode["dvbonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intAPBonus = Convert.ToInt32(objNode["apbonus"].InnerText);
+				if (objNode["apbonus"] != null)
+					_intAPBonus = Convert.ToInt32(objNode["apbonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intRangeBonus = Convert.ToInt32(objNode["rangebonus"].InnerText);
+				if (objNode["rangebonus"] != null)
+					_intRangeBonus = Convert.ToInt32(objNode["rangebonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strExtra = objNode["extra"].InnerText;
+				if (objNode["extra"] != null)
+					_strExtra = objNode["extra"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strDicePool = objNode["dicepool"].InnerText;
+				if (objNode["dicepool"] != null)
+					_strDicePool = objNode["dicepool"].InnerText;
 			}
 			catch
 			{
@@ -10170,28 +10246,32 @@ namespace Chummer
 			_strAvail = objNode["avail"].InnerText;
 			try
 			{
-				_strAvail3 = objNode["avail3"].InnerText;
+				if (objNode["avail3"] != null)
+					_strAvail3 = objNode["avail3"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAvail6 = objNode["avail6"].InnerText;
+				if (objNode["avail6"] != null)
+					_strAvail6 = objNode["avail6"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAvail10 = objNode["avail10"].InnerText;
+				if (objNode["avail10"] != null)
+					_strAvail10 = objNode["avail10"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intCostFor = Convert.ToInt32(objNode["costfor"].InnerText);
+				if (objNode["costfor"] != null)
+					_intCostFor = Convert.ToInt32(objNode["costfor"].InnerText);
 			}
 			catch
 			{
@@ -10201,7 +10281,8 @@ namespace Chummer
 			_strCost6 = objNode["cost6"].InnerText;
 			try
 			{
-				_strCost10 = objNode["cost10"].InnerText;
+				if (objNode["cost10"] != null)
+					_strCost10 = objNode["cost10"].InnerText;
 			}
 			catch
 			{
@@ -10211,21 +10292,24 @@ namespace Chummer
 			_strExtra = objNode["extra"].InnerText;
 			try
 			{
-				_blnBonded = Convert.ToBoolean(objNode["bonded"].InnerText);
+				if (objNode["bonded"] != null)
+					_blnBonded = Convert.ToBoolean(objNode["bonded"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
+				if (objNode["equipped"] != null)
+					_blnEquipped = Convert.ToBoolean(objNode["equipped"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnHomeNode = Convert.ToBoolean(objNode["homenode"].InnerText);
+				if (objNode["homenode"] != null)
+					_blnHomeNode = Convert.ToBoolean(objNode["homenode"].InnerText);
 			}
 			catch
 			{
@@ -10233,7 +10317,8 @@ namespace Chummer
 			_nodBonus = objNode["bonus"];
 			try
 			{
-				_nodWeaponBonus = objNode["weaponbonus"];
+				if (objNode["weaponbonus"] != null)
+					_nodWeaponBonus = objNode["weaponbonus"];
 			}
 			catch
 			{
@@ -10241,58 +10326,40 @@ namespace Chummer
 			_strSource = objNode["source"].InnerText;
 			try
 			{
-				_strPage = objNode["page"].InnerText;
+				if (objNode["page"] != null)
+					_strPage = objNode["page"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intSignal = Convert.ToInt32(objNode["signal"].InnerText);
+				if (objNode["signal"] != null)
+					_intSignal = Convert.ToInt32(objNode["signal"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intSystem = Convert.ToInt32(objNode["system"].InnerText);
+				if (objNode["system"] != null)
+					_intSystem = Convert.ToInt32(objNode["system"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intFirewall = Convert.ToInt32(objNode["firewall"].InnerText);
+				if (objNode["firewall"] != null)
+					_intFirewall = Convert.ToInt32(objNode["firewall"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intResponse = Convert.ToInt32(objNode["response"].InnerText);
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				_intChildCostMultiplier = Convert.ToInt32(objNode["childcostmultiplier"].InnerText);
-			}
-			catch
-			{
-			}
-			try
-			{
-				_intChildAvailModifier = Convert.ToInt32(objNode["childavailmodifier"].InnerText);
+				if (objNode["response"] != null)
+					_intResponse = Convert.ToInt32(objNode["response"].InnerText);
 			}
 			catch
 			{
@@ -10300,7 +10367,8 @@ namespace Chummer
 
 			try
 			{
-				_strGearName = objNode["gearname"].InnerText;
+				if (objNode["weaponguid"] != null)
+					_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
 			}
 			catch
 			{
@@ -10308,7 +10376,34 @@ namespace Chummer
 
 			try
 			{
-				_blnIncludedInParent = Convert.ToBoolean(objNode["includedinparent"].InnerText);
+				if (objNode["childcostmultiplier"] != null)
+					_intChildCostMultiplier = Convert.ToInt32(objNode["childcostmultiplier"].InnerText);
+			}
+			catch
+			{
+			}
+			try
+			{
+				if (objNode["childavailmodifier"] != null)
+					_intChildAvailModifier = Convert.ToInt32(objNode["childavailmodifier"].InnerText);
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				if (objNode["gearname"] != null)
+					_strGearName = objNode["gearname"].InnerText;
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				if (objNode["includedinparent"] != null)
+					_blnIncludedInParent = Convert.ToBoolean(objNode["includedinparent"].InnerText);
 			}
 			catch
 			{
@@ -10347,7 +10442,8 @@ namespace Chummer
 
 			try
 			{
-				_strLocation = objNode["location"].InnerText;
+				if (objNode["location"] != null)
+					_strLocation = objNode["location"].InnerText;
 			}
 			catch
 			{
@@ -10355,7 +10451,8 @@ namespace Chummer
 
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{
@@ -10363,7 +10460,8 @@ namespace Chummer
 
 			try
 			{
-				_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
+				if (objNode["discountedcost"] != null)
+					_blnDiscountCost = Convert.ToBoolean(objNode["discountedcost"].InnerText);
 			}
 			catch
 			{

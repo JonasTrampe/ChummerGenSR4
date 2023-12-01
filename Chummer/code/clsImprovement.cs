@@ -452,7 +452,8 @@ namespace Chummer
 		{
 			try
 			{
-				_strUniqueName = objNode["unique"].InnerText;
+				if (objNode["unique"] != null)
+					_strUniqueName = objNode["unique"].InnerText;
 			}
 			catch
 			{
@@ -461,7 +462,8 @@ namespace Chummer
 			_strSourceName = objNode["sourcename"].InnerText;
 			try
 			{
-				_intMin = Convert.ToInt32(objNode["min"].InnerText);
+				if (objNode["min"] != null)
+					_intMin = Convert.ToInt32(objNode["min"].InnerText);
 			}
 			catch
 			{
@@ -478,42 +480,48 @@ namespace Chummer
 			_strCustomName = objNode["customname"].InnerText;
 			try
 			{
-				_strCustomId = objNode["customid"].InnerText;
+				if (objNode["customid"] != null)
+					_strCustomId = objNode["customid"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strCustomGroup = objNode["customgroup"].InnerText;
+				if (objNode["customgroup"] != null)
+					_strCustomGroup = objNode["customgroup"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnAddToRating = Convert.ToBoolean(objNode["addtorating"].InnerText);
+				if (objNode["addtorating"] != null)
+					_blnAddToRating = Convert.ToBoolean(objNode["addtorating"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_blnEnabled = Convert.ToBoolean(objNode["enabled"].InnerText);
+				if (objNode["enabled"] != null)
+					_blnEnabled = Convert.ToBoolean(objNode["enabled"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intOrder = Convert.ToInt32(objNode["order"].InnerText);
+				if (objNode["order"] != null)
+					_intOrder = Convert.ToInt32(objNode["order"].InnerText);
 			}
 			catch
 			{
