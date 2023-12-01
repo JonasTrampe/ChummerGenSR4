@@ -1,10 +1,6 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Automated build
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master ]
   pull_request:
@@ -12,13 +8,10 @@ on:
   release:
     types: [created, edited]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: [windows-latest]
 
     steps:
@@ -69,14 +62,39 @@ jobs:
           type: 'zip'
           filename: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
           path: "bin/*"
-          
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
-        if: github.event_name != 'release'
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
           path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
-       
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: run minver
+        id: version
+        uses: Stelzi79/action-minver@3.0.1
+        with:
+          auto-increment: patch
+          build-metadata: ${{ steps.short-sha.outputs.sha }}
+          default-pre-release-phase: beta
+          minimum-major-minor: 0.1
+          tag-prefix: v
+
+      - name: Download release version
+        uses: actions/download-artifact@v2.0.10
+        with:
+          name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
+
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
         if: github.event_name == 'release' && github.event.action == 'created'
