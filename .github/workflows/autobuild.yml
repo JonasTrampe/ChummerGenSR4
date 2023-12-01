@@ -67,11 +67,20 @@ jobs:
         uses: TheDoctor0/zip-release@0.7.5
         with:
           type: 'zip'
-          filename: "ChummerGenSR4.zip"
-          path: "bin"
+          filename: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
+          path: "bin/*"
           
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
+        if: github.event_name != 'release'
         with:
-          name: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
-          path: "ChummerGenSR4.zip"
+          name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
+          path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
+       
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        if: github.event_name == 'release' && github.event.action == 'created'
+        with:
+          args: ./ChummerGenSR4-${{steps.version.outputs.version}}.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
