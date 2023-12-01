@@ -9767,6 +9767,12 @@ namespace Chummer
 			// Locate the Weapon that is selected in the Tree.
 			Weapon objWeapon = _objFunctions.FindWeapon(treWeapons.SelectedNode.Tag.ToString(), _objCharacter.Weapons);
 
+			if (treWeapons.SelectedNode.Level > 1 && objWeapon == null)
+            {
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_CannotModifyWeaponMod"), LanguageManager.Instance.GetString("MessageTitle_CannotModifyWeapon"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
 			// Accessories cannot be added to Cyberweapons.
 			if (objWeapon.Category.StartsWith("Cyberware"))
 			{
@@ -9895,6 +9901,12 @@ namespace Chummer
 
 			// Locate the Weapon that is selected in the Tree.
 			Weapon objWeapon = _objFunctions.FindWeapon(treWeapons.SelectedNode.Tag.ToString(), _objCharacter.Weapons);
+
+			if (treWeapons.SelectedNode.Level > 1 && objWeapon == null)
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_CannotModifyWeaponMod"), LanguageManager.Instance.GetString("MessageTitle_CannotModifyWeapon"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
 
 			frmSelectVehicleMod frmPickVehicleMod = new frmSelectVehicleMod(_objCharacter, true);
 

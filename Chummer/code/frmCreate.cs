@@ -8685,19 +8685,20 @@ namespace Chummer
 			// Locate the Weapon that is selected in the Tree.
 			Weapon objWeapon = _objFunctions.FindWeapon(treWeapons.SelectedNode.Tag.ToString(), _objCharacter.Weapons);
 
+            if (objWeapon == null)
+            {
+                MessageBox.Show(LanguageManager.Instance.GetString("Message_CannotModifyWeaponMod"), LanguageManager.Instance.GetString("MessageTitle_CannotModifyWeapon"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
 			frmSelectVehicleMod frmPickVehicleMod = new frmSelectVehicleMod(_objCharacter);
 
 			// Make sure the Weapon allows Modifications to be added to it.
 			// Open the Weapons XML file and locate the selected Weapon.
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("weapons.xml");
+
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objWeapon.Name + "\"]");
-
-			if (objXmlWeapon == null)
-			{
-				MessageBox.Show(LanguageManager.Instance.GetString("Message_CannotModifyWeaponMod"), LanguageManager.Instance.GetString("MessageTitle_CannotModifyWeapon"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-				return;
-			}
-
+			
 			if (objXmlWeapon["allowmod"] != null)
 			{
 				if (objXmlWeapon["allowmod"].InnerText == "false")
@@ -22571,9 +22572,12 @@ namespace Chummer
 					try
 					{
 						Armor objArmor = new Armor(_objCharacter);
-						Gear objGear = _objFunctions.FindArmorGear(treArmor.SelectedNode.Tag.ToString(), _objCharacter.Armor, out objArmor);
-						if (objGear != null)
-							blnCopyEnabled = true;
+                        if (treArmor.SelectedNode != null)
+                        {
+						    Gear objGear = _objFunctions.FindArmorGear(treArmor.SelectedNode.Tag.ToString(), _objCharacter.Armor, out objArmor);
+						    if (objGear != null)
+							    blnCopyEnabled = true;
+                        }
 					}
 					catch
 					{
@@ -22648,31 +22652,37 @@ namespace Chummer
 						}
 					}
 
-					try
-					{
-						foreach (Weapon objWeapon in _objCharacter.Weapons)
-						{
-							if (objWeapon.InternalId == treWeapons.SelectedNode.Tag.ToString())
-							{
-								blnCopyEnabled = true;
-								break;
-							}
-						}
-					}
-					catch
-					{
-					}
-					try
-					{
-						WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-						Gear objGear = _objFunctions.FindWeaponGear(treWeapons.SelectedNode.Tag.ToString(), _objCharacter.Weapons, out objAccessory);
-						if (objGear != null)
-							blnCopyEnabled = true;
-					}
-					catch
-					{
-					}
-				}
+                    if (treWeapons.SelectedNode != null)
+                    {
+                        try
+                        {
+                            foreach (Weapon objWeapon in _objCharacter.Weapons)
+                            {
+
+                                if (objWeapon.InternalId == treWeapons.SelectedNode.Tag.ToString())
+                                {
+                                    blnCopyEnabled = true;
+                                    break;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
+                            Gear objGear = _objFunctions.FindWeaponGear(treWeapons.SelectedNode.Tag.ToString(),
+                                _objCharacter.Weapons, out objAccessory);
+                            if (objGear != null)
+                                blnCopyEnabled = true;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
 
 				// Gear Tab.
 				if (tabStreetGearTabs.SelectedTab == tabGear)
@@ -22680,15 +22690,18 @@ namespace Chummer
 					if (GlobalOptions.Instance.ClipboardContentType == ClipboardContentType.Gear || GlobalOptions.Instance.ClipboardContentType == ClipboardContentType.Commlink || GlobalOptions.Instance.ClipboardContentType == ClipboardContentType.OperatingSystem)
 						blnPasteEnabled = true;
 
-					try
-					{
-						Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
-						if (objGear != null)
-							blnCopyEnabled = true;
-					}
-					catch
-					{
-					}
+					if (treGear.SelectedNode != null)
+                    {
+                        try
+					    {
+						    Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+						    if (objGear != null)
+							    blnCopyEnabled = true;
+					    }
+					    catch
+					    {
+					    }
+                    }
 				}
 			}
 
