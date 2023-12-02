@@ -900,7 +900,8 @@ namespace Chummer
 
 			try
 			{
-				_blnIsCritter = Convert.ToBoolean(objXmlCharacter["iscritter"].InnerText);
+				if (objXmlCharacter["iscritter"] != null)
+					_blnIsCritter = Convert.ToBoolean(objXmlCharacter["iscritter"].InnerText);
 			}
 			catch
 			{
@@ -908,7 +909,8 @@ namespace Chummer
 
 			try
 			{
-				_blnPossessed = Convert.ToBoolean(objXmlCharacter["possessed"].InnerText);
+				if (objXmlCharacter["possessed"] != null)
+					_blnPossessed = Convert.ToBoolean(objXmlCharacter["possessed"].InnerText);
 			}
 			catch
 			{
@@ -916,7 +918,8 @@ namespace Chummer
 
 			try
 			{
-				_blnOverrideSpecialAttributeESSLoss = Convert.ToBoolean(objXmlCharacter["overridespecialattributeessloss"].InnerText);
+				if (objXmlCharacter["overridespecialattributeessloss"] != null)
+					_blnOverrideSpecialAttributeESSLoss = Convert.ToBoolean(objXmlCharacter["overridespecialattributeessloss"].InnerText);
 			}
 			catch
 			{
@@ -924,14 +927,16 @@ namespace Chummer
 			
 			try
 			{
-				_intKarma = Convert.ToInt32(objXmlCharacter["karma"].InnerText);
+				if (objXmlCharacter["karma"] != null)
+					_intKarma = Convert.ToInt32(objXmlCharacter["karma"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intTotalKarma = Convert.ToInt32(objXmlCharacter["totalkarma"].InnerText);
+				if (objXmlCharacter["totalkarma"] != null)
+					_intTotalKarma = Convert.ToInt32(objXmlCharacter["totalkarma"].InnerText);
 			}
 			catch
 			{
@@ -1136,8 +1141,10 @@ namespace Chummer
 			// A.I. Attributes.
 			try
 			{
-				_intSignal = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/signal").InnerText);
-				_intResponse = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/response").InnerText);
+				if (objXmlDocument.SelectSingleNode("/character/attributes/signal") != null)
+					_intSignal = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/signal").InnerText);
+				if (objXmlDocument.SelectSingleNode("/character/attributes/response") != null)
+					_intResponse = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/response").InnerText);
 			}
 			catch
 			{
@@ -1146,7 +1153,8 @@ namespace Chummer
 			// Force.
 			try
 			{
-				_intMaxSkillRating = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/maxskillrating").InnerText);
+				if (objXmlDocument.SelectSingleNode("/character/attributes/maxskillrating") != null)
+					_intMaxSkillRating = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/attributes/maxskillrating").InnerText);
 			}
 			catch
 			{
@@ -1157,8 +1165,10 @@ namespace Chummer
 			{
 				try
 				{
-					_intMAGAdept = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/magsplitadept").InnerText);
-					_intMAGMagician = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/magsplitmagician").InnerText);
+					if (objXmlDocument.SelectSingleNode("/character/attributes/magsplitadept") != null)
+						_intMAGAdept = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/magsplitadept").InnerText);
+					if (objXmlDocument.SelectSingleNode("/character/attributes/magsplitmagician") != null)
+						_intMAGMagician = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/magsplitmagician").InnerText);
 				}
 				catch
 				{
@@ -1168,7 +1178,8 @@ namespace Chummer
 			// Attempt to load the Magic Tradition.
 			try
 			{
-				_strMagicTradition = objXmlDocument.SelectSingleNode("/character/tradition").InnerText;
+				if (objXmlDocument.SelectSingleNode("character/tradition") != null)
+					_strMagicTradition = objXmlDocument.SelectSingleNode("/character/tradition").InnerText;
 			}
 			catch
 			{
@@ -1176,7 +1187,8 @@ namespace Chummer
 			// Attempt to load the Technomancer Stream.
 			try
 			{
-				_strTechnomancerStream = objXmlDocument.SelectSingleNode("/character/stream").InnerText;
+				if (objXmlDocument.SelectSingleNode("character/stream") != null)
+					_strTechnomancerStream = objXmlDocument.SelectSingleNode("/character/stream").InnerText;
 			}
 			catch
 			{
@@ -1185,8 +1197,10 @@ namespace Chummer
 			// Attempt to load Condition Monitor Progress.
 			try
 			{
-				_intPhysicalCMFilled = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/physicalcmfilled").InnerText);
-				_intStunCMFilled = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/stuncmfilled").InnerText);
+				if (objXmlDocument.SelectSingleNode("character/physicalcmfilled") != null)
+					_intPhysicalCMFilled = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/physicalcmfilled").InnerText);
+				if (objXmlDocument.SelectSingleNode("character/stuncmfilled") != null)
+					_intStunCMFilled = Convert.ToInt32(objXmlDocument.SelectSingleNode("/character/stuncmfilled").InnerText);
 			}
 			catch
 			{
@@ -2691,7 +2705,8 @@ namespace Chummer
 				_strName = value;
 				try
 				{
-					CharacterNameChanged(this);
+					if (CharacterNameChanged != null)
+						CharacterNameChanged(this);
 				}
 				catch
 				{
@@ -2923,7 +2938,8 @@ namespace Chummer
 				_strAlias = value;
 				try
 				{
-					CharacterNameChanged(this);
+					if (CharacterNameChanged != null)
+						CharacterNameChanged(this);
 				}
 				catch
 				{

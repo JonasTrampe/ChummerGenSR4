@@ -1156,7 +1156,8 @@ namespace Chummer
 			_objQualitySource = ConvertToQualitySource(objNode["qualitysource"].InnerText);
 			try
 			{
-				_strMutant = objNode["mutant"].InnerText;
+				if ( objNode["mutant"] != null )
+					_strMutant = objNode["mutant"].InnerText;
 			}
 			catch
 			{
@@ -1166,14 +1167,16 @@ namespace Chummer
 			_nodBonus = objNode["bonus"];
 			try
 			{
-				_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
+				if (objNode["weaponguid"] != null)
+					_guiWeaponID = Guid.Parse(objNode["weaponguid"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strNotes = objNode["notes"].InnerText;
+				if (objNode["notes"] != null)
+					_strNotes = objNode["notes"].InnerText;
 			}
 			catch
 			{

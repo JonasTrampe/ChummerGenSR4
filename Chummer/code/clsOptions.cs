@@ -108,6 +108,38 @@ namespace Chummer
 		public static string _strPDFAppPath = "";
 		public static List<SourcebookInfo> _lstSourcebookInfo = new List<SourcebookInfo>();
 
+		#region Helper
+		static string CheckAndGetRegistryKey(string baseSubkey, string value)
+        {
+			var data = Registry.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
+			if (data != null)
+				return data.ToString();
+			return null;
+        }
+
+		static List<string> ReadRegistryFileListing(string baseSubkey, string baseValue, int min, int max)
+        {
+			var list = new List<string>();
+			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey(baseSubkey);
+
+			for (int i = min; i <= max; i++)
+			{
+				try
+				{
+					var entry = objRegistry.GetValue(baseValue + i.ToString());
+
+					if (entry != null)
+						list.Add(entry.ToString());
+				}
+				catch
+				{
+				}
+			}
+
+			return list;
+        }
+		#endregion
+
 		#region Constructor and Instance
 		static GlobalOptions()
 		{
@@ -117,7 +149,7 @@ namespace Chummer
 			// Automatic Update.
 			try
 			{
-				_blnAutomaticUpdate = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("autoupdate").ToString());
+				_blnAutomaticUpdate = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "autoupdate"));
 			}
 			catch
 			{
@@ -126,7 +158,7 @@ namespace Chummer
 			// Whether or not the app should only download localised files in the user's selected language.
 			try
 			{
-				_blnLocalisedUpdatesOnly = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("localisedupdatesonly").ToString());
+				_blnLocalisedUpdatesOnly = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "localisedupdatesonly"));
 			}
 			catch
 			{
@@ -135,7 +167,7 @@ namespace Chummer
 			// Whether or not dates should include the time.
 			try
 			{
-				_blnDatesIncludeTime = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("datesincludetime").ToString());
+				_blnDatesIncludeTime = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "datesincludetime"));
 			}
 			catch
 			{
@@ -144,7 +176,7 @@ namespace Chummer
 			// Whether or not printouts should be sent to a file before loading them in the browser. This is a fix for getting printing to work properly on Linux using Wine.
 			try
 			{
-				_blnPrintToFileFirst = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("printtofilefirst").ToString());
+				_blnPrintToFileFirst = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "printtofilefirst"));
 			}
 			catch
 			{
@@ -153,7 +185,7 @@ namespace Chummer
 			// Default character sheet.
 			try
 			{
-				_strDefaultCharacterSheet = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("defaultsheet").ToString();
+				_strDefaultCharacterSheet = CheckAndGetRegistryKey("Software\\Chummer", "defaultsheet");
 			}
 			catch
 			{
@@ -161,7 +193,7 @@ namespace Chummer
 
 			try
 			{
-				_strPDFArgumentStyle = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("pdfargumentstyle").ToString();
+				_strPDFArgumentStyle = CheckAndGetRegistryKey("Software\\Chummer", "pdfargumentstyle");
 			}
 			catch
 			{
@@ -171,7 +203,7 @@ namespace Chummer
 			// Username.
 			try
 			{
-				_strOmaeUserName = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("omaeusername").ToString();
+				_strOmaeUserName = CheckAndGetRegistryKey("Software\\Chummer", "omaeusername");
 			}
 			catch
 			{
@@ -179,7 +211,7 @@ namespace Chummer
 			// Password.
 			try
 			{
-				_strOmaePassword = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("omaepassword").ToString();
+				_strOmaePassword = CheckAndGetRegistryKey("Software\\Chummer", "omaepassword");
 			}
 			catch
 			{
@@ -187,7 +219,7 @@ namespace Chummer
 			// AutoLogin.
 			try
 			{
-				_blnOmaeAutoLogin = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("omaeautologin").ToString());
+				_blnOmaeAutoLogin = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "omaeautologin"));
 			}
 			catch
 			{
@@ -195,7 +227,7 @@ namespace Chummer
 			// Language.
 			try
 			{
-				_strLanguage = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("language").ToString();
+				_strLanguage = CheckAndGetRegistryKey("Software\\Chummer", "language");
 			}
 			catch
 			{
@@ -203,7 +235,7 @@ namespace Chummer
 			// Startup in Fullscreen mode.
 			try
 			{
-				_blnStartupFullscreen = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("startupfullscreen").ToString());
+				_blnStartupFullscreen = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "startupfullscreen"));
 			}
 			catch
 			{
@@ -211,7 +243,7 @@ namespace Chummer
 			// Single instace of the Dice Roller window.
 			try
 			{
-				_blnSingleDiceRoller = Convert.ToBoolean(Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("singlediceroller").ToString());
+				_blnSingleDiceRoller = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "singlediceroller"));
 			}
 			catch
 			{
@@ -220,7 +252,7 @@ namespace Chummer
 			// PDF application path.
 			try
 			{
-				_strPDFAppPath = Registry.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("pdfapppath").ToString();
+				_strPDFAppPath = CheckAndGetRegistryKey("Software\\Chummer", "pdfapppath");
 			}
 			catch
 			{
@@ -234,7 +266,9 @@ namespace Chummer
 				try
 				{
 					SourcebookInfo objSource = new SourcebookInfo();
-					string strTemp = Registry.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook").GetValue(objXmlBook["code"].InnerText).ToString();
+					string strTemp = CheckAndGetRegistryKey("Software\\Chummer", objXmlBook["code"].InnerText);
+					if (strTemp == null)
+						continue;
 					string[] strParts = strTemp.Split('|');
 					objSource.Code = objXmlBook["code"].InnerText;
 					objSource.Path = strParts[0];
@@ -613,21 +647,7 @@ namespace Chummer
 		/// </summary>
 		public List<string> ReadMRUList()
 		{
-			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer");
-			List<string> lstFiles = new List<string>();
-
-			for (int i = 1; i <= 10; i++)
-			{
-				try
-				{
-					lstFiles.Add(objRegistry.GetValue("mru" + i.ToString()).ToString());
-				}
-				catch
-				{
-				}
-			}
-
-			return lstFiles;
+			return ReadRegistryFileListing("Software\\Chummer", "mru", 1, 10);
 		}
 
 		/// <summary>
@@ -702,21 +722,8 @@ namespace Chummer
 		/// </summary>
 		public List<string> ReadStickyMRUList()
 		{
-			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer");
-			List<string> lstFiles = new List<string>();
+			return ReadRegistryFileListing("Software\\Chummer", "stickymru", 1, 10);
 
-			for (int i = 1; i <= 10; i++)
-			{
-				try
-				{
-					lstFiles.Add(objRegistry.GetValue("stickymru" + i.ToString()).ToString());
-				}
-				catch
-				{
-				}
-			}
-
-			return lstFiles;
 		}
 		#endregion
 	}
