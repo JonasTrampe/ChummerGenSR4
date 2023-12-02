@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ master ]
   release:
-    types: [created, edited]
 
   workflow_dispatch:
 
@@ -102,7 +101,7 @@ jobs:
 
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
-        if: github.event_name == 'release' && github.event.action == 'created'
+        if: github.event_name == 'release'
         with:
           args: ./ChummerGenSR4-${{steps.version.outputs.version}}.zip application/zip
         env:
