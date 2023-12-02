@@ -80,6 +80,11 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 6
+
       - name: run minver
         id: version
         uses: Stelzi79/action-minver@3.0.1
