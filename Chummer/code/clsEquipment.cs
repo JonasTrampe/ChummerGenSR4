@@ -6212,11 +6212,7 @@ namespace Chummer
 					strAP = "0";
 				int intAP = 0;
 
-				try
-				{
-					intAP = Convert.ToInt32(strAP);
-				}
-				catch
+                if (! Int32.TryParse(strAP, out intAP))
 				{
 					// If AP is not numeric (for example "-half"), do do anything and just return the weapon's AP.
 					return _strAP.Replace("-half", LanguageManager.Instance.GetString("String_APHalf"));
@@ -7324,7 +7320,8 @@ namespace Chummer
 			_nodAllowGear = objXmlAccessory["allowgear"];
 			try
 			{
-				_strDicePool = objXmlAccessory["dicepool"].InnerText;
+                if (objXmlAccessory["dicepool"] != null)
+				    _strDicePool = objXmlAccessory["dicepool"].InnerText;
 			}
 			catch
 			{
@@ -8012,64 +8009,56 @@ namespace Chummer
 			_strPage = objXmlMod["page"].InnerText;
 			try
 			{
-				_intAmmoBonus = Convert.ToInt32(objXmlMod["ammobonus"].InnerText);
+                if (objXmlMod["ammobonus"] != null)
+				    _intAmmoBonus = Convert.ToInt32(objXmlMod["ammobonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAmmoReplace = objXmlMod["ammoreplace"].InnerText;
+                if (objXmlMod["ammoreplace"] != null)
+					_strAmmoReplace = objXmlMod["ammoreplace"].InnerText;
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intAccessoryCostMultiplier = Convert.ToInt32(objXmlMod["accessorycostmultiplier"].InnerText);
+                if (objXmlMod["accessorycostmultiplier"] != null)
+					_intAccessoryCostMultiplier = Convert.ToInt32(objXmlMod["accessorycostmultiplier"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intModCostMultiplier = Convert.ToInt32(objXmlMod["modcostmultiplier"].InnerText);
+                if (objXmlMod["modcostmultiplier"] != null)
+					_intModCostMultiplier = Convert.ToInt32(objXmlMod["modcostmultiplier"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strAddMode = objXmlMod["addmode"].InnerText;
+                if (objXmlMod["addmode"] != null)
+					_strAddMode = objXmlMod["addmode"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+            {
+                if (objXmlMod["fullburst"] != null)
+					_intFullBurst = Convert.ToInt32(objXmlMod["fullburst"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_intFullBurst = Convert.ToInt32(objXmlMod["fullburst"].InnerText);
-			}
-			catch
-			{
-			}
-			try
-			{
-				_intSuppressive = Convert.ToInt32(objXmlMod["suppressive"].InnerText);
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				_intDVBonus = Convert.ToInt32(objXmlMod["dvbonus"].InnerText);
-			}
-			catch
-			{
-			}
-			try
-			{
-				_intAPBonus = Convert.ToInt32(objXmlMod["apbonus"].InnerText);
+                if (objXmlMod["suppressive"] != null)
+					_intSuppressive = Convert.ToInt32(objXmlMod["suppressive"].InnerText);
 			}
 			catch
 			{
@@ -8077,14 +8066,33 @@ namespace Chummer
 
 			try
 			{
-				_intRangeBonus = Convert.ToInt32(objXmlMod["rangebonus"].InnerText);
+                if (objXmlMod["dvbonus"] != null)
+					_intDVBonus = Convert.ToInt32(objXmlMod["dvbonus"].InnerText);
 			}
 			catch
 			{
 			}
 			try
 			{
-				_strDicePool = objXmlMod["dicepool"].InnerText;
+                if (objXmlMod["apbonus"] != null)
+					_intAPBonus = Convert.ToInt32(objXmlMod["apbonus"].InnerText);
+			}
+			catch
+			{
+			}
+
+			try
+			{
+                if (objXmlMod["rangebonus"] != null)
+					_intRangeBonus = Convert.ToInt32(objXmlMod["rangebonus"].InnerText);
+			}
+			catch
+			{
+			}
+			try
+			{
+                if (objXmlMod["dicepool"] != null)
+					_strDicePool = objXmlMod["dicepool"].InnerText;
 			}
 			catch
 			{
