@@ -109,6 +109,14 @@ namespace Chummer
 		public static List<SourcebookInfo> _lstSourcebookInfo = new List<SourcebookInfo>();
 
 		#region Helper
+		static string CheckAndGetRegistryKeyWithFallback(string baseSubkey, string value, string fallback)
+		{
+			var data = Registry.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
+			if (data != null)
+				return data.ToString();
+			return fallback;
+		}
+
 		static string CheckAndGetRegistryKey(string baseSubkey, string value)
         {
 			var data = Registry.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
@@ -185,7 +193,7 @@ namespace Chummer
 			// Default character sheet.
 			try
 			{
-				_strDefaultCharacterSheet = CheckAndGetRegistryKey("Software\\Chummer", "defaultsheet");
+				_strDefaultCharacterSheet = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "defaultsheet", "Shadowrun 4");
 			}
 			catch
 			{
@@ -193,7 +201,7 @@ namespace Chummer
 
 			try
 			{
-				_strPDFArgumentStyle = CheckAndGetRegistryKey("Software\\Chummer", "pdfargumentstyle");
+				_strPDFArgumentStyle = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "pdfargumentstyle", "Adobe/Foxit");
 			}
 			catch
 			{
@@ -227,7 +235,7 @@ namespace Chummer
 			// Language.
 			try
 			{
-				_strLanguage = CheckAndGetRegistryKey("Software\\Chummer", "language");
+				_strLanguage = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "language", "en-us");
 			}
 			catch
 			{
