@@ -1,3 +1,8 @@
+Version 0.1.497
+ - Fix initial startup without registry entries
+   - added default entries for language, pdfargumentstyle and pdfargumentstyle
+   - keeps it from crashing
+
 Version 0.1.496
 - New versioning, updated from the buildsystem
 - Fixed "Unhandled exception error when trying to add a weapon modification to a weapon modification" - JonasTrampe/ChummerGenSR4/issues/10
