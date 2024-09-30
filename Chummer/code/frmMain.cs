@@ -134,12 +134,12 @@ namespace Chummer
 
 		private void contentsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("http://www.chummergen.com/chummer/wiki/");
+			System.Diagnostics.Process.Start("https://github.com/JonasTrampe/ChummerGenSR4");
 		}
 
 		private void mnuHelpDumpshock_Click(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("https://github.com/Agorath/ChummerGenSR4/issues");
+			System.Diagnostics.Process.Start("https://github.com/JonasTrampe/ChummerGenSR4/issues");
 		}
 
 		private void mnuFilePrintMultiple_Click(object sender, EventArgs e)
