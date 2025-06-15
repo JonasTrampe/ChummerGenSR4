@@ -386,9 +386,9 @@ namespace Chummer
 					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
 					{
 						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 					}
 
 					// Set the control's vertical position and add it to the Skills Panel.
@@ -498,9 +498,9 @@ namespace Chummer
 					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
 					{
 						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 					}
 
 					// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -509,9 +509,9 @@ namespace Chummer
 					foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 					{
 						if (objXmlWeapon["translate"] != null)
-							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 						else
-							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 					}
 
 					// Set the control's vertical position and add it to the Skills Panel.
@@ -7426,9 +7426,9 @@ namespace Chummer
 			foreach (XmlNode objXmlSpecialization in nodSkill.SelectNodes("specs/spec"))
 			{
 				if (objXmlSpecialization.Attributes["translate"] != null)
-					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 				else
-					objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 			}
 
 			// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -7437,9 +7437,9 @@ namespace Chummer
 			foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 			{
 				if (objXmlWeapon["translate"] != null)
-					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 				else
-					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 			}
 
 			objSkillControl.SkillRatingMaximum = 6;

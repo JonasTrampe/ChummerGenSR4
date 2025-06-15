@@ -276,6 +276,12 @@
 			<cost>Rating * 1000</cost>
 			<source>SR4</source>
 			<page>339</page>
+			<bonus>
+				<specificskill>
+					<name>Perception (Smell)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 		</cyberware>
 		<cyberware>
 			<name>Orientation System</name>
@@ -355,6 +361,12 @@
 			<cost>Rating * 1500</cost>
 			<source>SR4</source>
 			<page>339</page>
+			<bonus>
+				<specificskill>
+					<name>Perception (Taste)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 		</cyberware>
 		<cyberware>
 			<name>Tooth Storage Compartment</name>
@@ -641,6 +653,12 @@
 			<cost>Rating * 1500</cost>
 			<source>SR4</source>
 			<page>340</page>
+			<bonus>
+				<specificskill>
+					<name>Perception (Visual)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 		</cyberware>
 		<cyberware>
 			<name>Vision Magnification</name>
@@ -677,6 +695,12 @@
 			<cost>Rating * 1500</cost>
 			<source>SR4</source>
 			<page>341</page>
+			<bonus>
+				<specificskill>
+					<name>Perception (Audio)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 		</cyberware>
 		<cyberware>
 			<name>Balance Augmenter</name>

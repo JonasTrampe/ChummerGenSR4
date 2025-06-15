@@ -21663,6 +21663,31 @@
 				</specs>
 			</skill>
 			<skill>
+				<name>Perception (Audio)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Hören)</translate>
+			</skill>
+			<skill>
+				<name>Perception (Smell)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Riechen)</translate>
+			</skill>
+			<skill>
+				<name>Perception (Taste)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Schmecken)</translate>
+			</skill>
+			<skill>
+				<name>Perception (Touch)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Tasten)</translate>
+			</skill>
+			<skill>
+				<name>Perception (Visual)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Sehen)</translate>
+			</skill>
+			<skill>
 				<name>Pilot Aerospace</name>
 				<page>154</page>
 				<translate>Raumfahrzeuge</translate>

@@ -92,316 +92,351 @@ namespace Chummer
 			//}
 		}
 
-		private void frmCreate_Load(object sender, EventArgs e)
-		{
-			_blnLoading = true;
-			if (!_objCharacter.IsCritter && (_objCharacter.BuildMethod == CharacterBuildMethod.BP && _objCharacter.BuildPoints == 0) || (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objCharacter.BuildKarma == 0))
-			{
-				_blnFreestyle = true;
-				tssBPRemain.Visible = false;
-				tssBPRemainLabel.Visible = false;
-			}
+        private void frmCreate_Load(object sender, EventArgs e)
+        {
+            _blnLoading = true;
+            if (!_objCharacter.IsCritter &&
+                (_objCharacter.BuildMethod == CharacterBuildMethod.BP && _objCharacter.BuildPoints == 0) ||
+                (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objCharacter.BuildKarma == 0))
+            {
+                _blnFreestyle = true;
+                tssBPRemain.Visible = false;
+                tssBPRemainLabel.Visible = false;
+            }
 
-			// Set the Statusbar Labels if we're using Karma to build.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma)
-			{
-				tssBPLabel.Text = LanguageManager.Instance.GetString("Label_Karma");
-				tssBPRemainLabel.Text = LanguageManager.Instance.GetString("Label_KarmaRemaining");
-				tabBPSummary.Text = LanguageManager.Instance.GetString("Tab_BPSummary_Karma");
-				lblQualityBPLabel.Text = LanguageManager.Instance.GetString("Label_Karma");
-			}
+            // Set the Statusbar Labels if we're using Karma to build.
+            if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma)
+            {
+                tssBPLabel.Text = LanguageManager.Instance.GetString("Label_Karma");
+                tssBPRemainLabel.Text = LanguageManager.Instance.GetString("Label_KarmaRemaining");
+                tabBPSummary.Text = LanguageManager.Instance.GetString("Tab_BPSummary_Karma");
+                lblQualityBPLabel.Text = LanguageManager.Instance.GetString("Label_Karma");
+            }
 
-			// Remove the Magician, Adept, and Technomancer tabs since they are not in use until the appropriate Quality is selected.
-			if (!_objCharacter.MagicianEnabled)
-				tabCharacterTabs.TabPages.Remove(tabMagician);
-			if (!_objCharacter.AdeptEnabled)
-				tabCharacterTabs.TabPages.Remove(tabAdept);
-			if (!_objCharacter.TechnomancerEnabled)
-				tabCharacterTabs.TabPages.Remove(tabTechnomancer);
-			if (!_objCharacter.CritterEnabled)
-				tabCharacterTabs.TabPages.Remove(tabCritter);
+            // Remove the Magician, Adept, and Technomancer tabs since they are not in use until the appropriate Quality is selected.
+            if (!_objCharacter.MagicianEnabled)
+                tabCharacterTabs.TabPages.Remove(tabMagician);
+            if (!_objCharacter.AdeptEnabled)
+                tabCharacterTabs.TabPages.Remove(tabAdept);
+            if (!_objCharacter.TechnomancerEnabled)
+                tabCharacterTabs.TabPages.Remove(tabTechnomancer);
+            if (!_objCharacter.CritterEnabled)
+                tabCharacterTabs.TabPages.Remove(tabCritter);
 
-			// Set the visibility of the Bioware Suites menu options.
-			mnuSpecialAddBiowareSuite.Visible = _objCharacter.Options.AllowBiowareSuites;
-			mnuSpecialCreateBiowareSuite.Visible = _objCharacter.Options.AllowBiowareSuites;
+            // Set the visibility of the Bioware Suites menu options.
+            mnuSpecialAddBiowareSuite.Visible = _objCharacter.Options.AllowBiowareSuites;
+            mnuSpecialCreateBiowareSuite.Visible = _objCharacter.Options.AllowBiowareSuites;
 
-			if (_objCharacter.BlackMarket)
-			{
-				chkCyberwareBlackMarketDiscount.Visible = true;
-				chkArmorBlackMarketDiscount.Visible = true;
-				chkWeaponBlackMarketDiscount.Visible = true;
-				chkGearBlackMarketDiscount.Visible = true;
-				chkVehicleBlackMarketDiscount.Visible = true;
-			}
+            if (_objCharacter.BlackMarket)
+            {
+                chkCyberwareBlackMarketDiscount.Visible = true;
+                chkArmorBlackMarketDiscount.Visible = true;
+                chkWeaponBlackMarketDiscount.Visible = true;
+                chkGearBlackMarketDiscount.Visible = true;
+                chkVehicleBlackMarketDiscount.Visible = true;
+            }
 
-			// Remove the Improvements Tab.
-			tabCharacterTabs.TabPages.Remove(tabImprovements);
+            // Remove the Improvements Tab.
+            tabCharacterTabs.TabPages.Remove(tabImprovements);
 
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma)
-			{
-				if (!_objCharacter.MAGEnabled && !_objCharacter.RESEnabled)
-					tabCharacterTabs.TabPages.Remove(tabInitiation);
-				else
-				{
-					if (_objCharacter.MAGEnabled)
-					{
-						tabInitiation.Text = LanguageManager.Instance.GetString("Tab_Initiation");
-						lblInitiateGradeLabel.Text = LanguageManager.Instance.GetString("Label_InitiationGrade");
-						cmdAddMetamagic.Text = LanguageManager.Instance.GetString("Button_AddMetamagic");
-						chkInitiationGroup.Text = LanguageManager.Instance.GetString("Checkbox_GroupInitiation");
-						chkInitiationOrdeal.Text = LanguageManager.Instance.GetString("Checkbox_InitiationOrdeal");
-						chkJoinGroup.Text = LanguageManager.Instance.GetString("Checkbox_JoinedGroup");
-						chkJoinGroup.Checked = _objCharacter.GroupMember;
-						txtGroupName.Text = _objCharacter.GroupName;
-						txtGroupNotes.Text = _objCharacter.GroupNotes;
-					}
-					else
-					{
-						tabInitiation.Text = LanguageManager.Instance.GetString("Tab_Submersion");
-						lblInitiateGradeLabel.Text = LanguageManager.Instance.GetString("Label_SubmersionGrade");
-						cmdAddMetamagic.Text = LanguageManager.Instance.GetString("Button_AddEcho");
-						chkInitiationGroup.Text = LanguageManager.Instance.GetString("Checkbox_NetworkSubmersion");
-						chkInitiationOrdeal.Text = LanguageManager.Instance.GetString("Checkbox_SubmersionTask");
-						chkJoinGroup.Text = LanguageManager.Instance.GetString("Checkbox_JoinedNetwork");
-						chkJoinGroup.Checked = _objCharacter.GroupMember;
-						txtGroupName.Text = _objCharacter.GroupName;
-						txtGroupNotes.Text = _objCharacter.GroupNotes;
-					}
-				}
-			}
-			else
-			{
-				if (!_objCharacter.InitiationEnabled)
-					tabCharacterTabs.TabPages.Remove(tabInitiation);
-			}
+            if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma)
+            {
+                if (!_objCharacter.MAGEnabled && !_objCharacter.RESEnabled)
+                    tabCharacterTabs.TabPages.Remove(tabInitiation);
+                else
+                {
+                    if (_objCharacter.MAGEnabled)
+                    {
+                        tabInitiation.Text = LanguageManager.Instance.GetString("Tab_Initiation");
+                        lblInitiateGradeLabel.Text = LanguageManager.Instance.GetString("Label_InitiationGrade");
+                        cmdAddMetamagic.Text = LanguageManager.Instance.GetString("Button_AddMetamagic");
+                        chkInitiationGroup.Text = LanguageManager.Instance.GetString("Checkbox_GroupInitiation");
+                        chkInitiationOrdeal.Text = LanguageManager.Instance.GetString("Checkbox_InitiationOrdeal");
+                        chkJoinGroup.Text = LanguageManager.Instance.GetString("Checkbox_JoinedGroup");
+                        chkJoinGroup.Checked = _objCharacter.GroupMember;
+                        txtGroupName.Text = _objCharacter.GroupName;
+                        txtGroupNotes.Text = _objCharacter.GroupNotes;
+                    }
+                    else
+                    {
+                        tabInitiation.Text = LanguageManager.Instance.GetString("Tab_Submersion");
+                        lblInitiateGradeLabel.Text = LanguageManager.Instance.GetString("Label_SubmersionGrade");
+                        cmdAddMetamagic.Text = LanguageManager.Instance.GetString("Button_AddEcho");
+                        chkInitiationGroup.Text = LanguageManager.Instance.GetString("Checkbox_NetworkSubmersion");
+                        chkInitiationOrdeal.Text = LanguageManager.Instance.GetString("Checkbox_SubmersionTask");
+                        chkJoinGroup.Text = LanguageManager.Instance.GetString("Checkbox_JoinedNetwork");
+                        chkJoinGroup.Checked = _objCharacter.GroupMember;
+                        txtGroupName.Text = _objCharacter.GroupName;
+                        txtGroupNotes.Text = _objCharacter.GroupNotes;
+                    }
+                }
+            }
+            else
+            {
+                if (!_objCharacter.InitiationEnabled)
+                    tabCharacterTabs.TabPages.Remove(tabInitiation);
+            }
 
-			// If the character has a mugshot, decode it and put it in the PictureBox.
-			if (_objCharacter.Mugshot != "")
-			{
-				byte[] bytImage = Convert.FromBase64String(_objCharacter.Mugshot);
-				MemoryStream objStream = new MemoryStream(bytImage, 0, bytImage.Length);
-				objStream.Write(bytImage, 0, bytImage.Length);
-				Image imgMugshot = Image.FromStream(objStream, true);
-				picMugshot.Image = imgMugshot;
-			}
+            // If the character has a mugshot, decode it and put it in the PictureBox.
+            if (_objCharacter.Mugshot != "")
+            {
+                byte[] bytImage = Convert.FromBase64String(_objCharacter.Mugshot);
+                MemoryStream objStream = new MemoryStream(bytImage, 0, bytImage.Length);
+                objStream.Write(bytImage, 0, bytImage.Length);
+                Image imgMugshot = Image.FromStream(objStream, true);
+                picMugshot.Image = imgMugshot;
+            }
 
-			// Populate character information fields.
-			XmlDocument objMetatypeDoc = new XmlDocument();
-			XmlNode objMetatypeNode;
-			string strMetatype = "";
-			string strBook = "";
-			string strPage = "";
+            // Populate character information fields.
+            XmlDocument objMetatypeDoc = new XmlDocument();
+            XmlNode objMetatypeNode;
+            string strMetatype = "";
+            string strBook = "";
+            string strPage = "";
 
-			objMetatypeDoc = XmlManager.Instance.Load("metatypes.xml");
-			{
-				objMetatypeNode = objMetatypeDoc.SelectSingleNode("/chummer/metatypes/metatype[name = \"" + _objCharacter.Metatype + "\"]");
-				if (objMetatypeNode == null)
-					objMetatypeDoc = XmlManager.Instance.Load("critters.xml");
-				objMetatypeNode = objMetatypeDoc.SelectSingleNode("/chummer/metatypes/metatype[name = \"" + _objCharacter.Metatype + "\"]");
+            objMetatypeDoc = XmlManager.Instance.Load("metatypes.xml");
+            {
+                objMetatypeNode =
+                    objMetatypeDoc.SelectSingleNode("/chummer/metatypes/metatype[name = \"" + _objCharacter.Metatype +
+                                                    "\"]");
+                if (objMetatypeNode == null)
+                    objMetatypeDoc = XmlManager.Instance.Load("critters.xml");
+                objMetatypeNode =
+                    objMetatypeDoc.SelectSingleNode("/chummer/metatypes/metatype[name = \"" + _objCharacter.Metatype +
+                                                    "\"]");
 
-				if (objMetatypeNode["translate"] != null)
-					strMetatype = objMetatypeNode["translate"].InnerText;
-				else
-					strMetatype = _objCharacter.Metatype;
+                if (objMetatypeNode["translate"] != null)
+                    strMetatype = objMetatypeNode["translate"].InnerText;
+                else
+                    strMetatype = _objCharacter.Metatype;
 
-				strBook = _objOptions.LanguageBookShort(objMetatypeNode["source"].InnerText);
-				if (objMetatypeNode["altpage"] != null)
-					strPage = objMetatypeNode["altpage"].InnerText;
-				else
-					strPage = objMetatypeNode["page"].InnerText;
+                strBook = _objOptions.LanguageBookShort(objMetatypeNode["source"].InnerText);
+                if (objMetatypeNode["altpage"] != null)
+                    strPage = objMetatypeNode["altpage"].InnerText;
+                else
+                    strPage = objMetatypeNode["page"].InnerText;
 
-				if (_objCharacter.Metavariant != "")
-				{
-					objMetatypeNode = objMetatypeNode.SelectSingleNode("metavariants/metavariant[name = \"" + _objCharacter.Metavariant + "\"]");
+                if (_objCharacter.Metavariant != "")
+                {
+                    objMetatypeNode =
+                        objMetatypeNode.SelectSingleNode("metavariants/metavariant[name = \"" +
+                                                         _objCharacter.Metavariant + "\"]");
 
-					if (objMetatypeNode["translate"] != null)
-						strMetatype += " (" + objMetatypeNode["translate"].InnerText + ")";
-					else
-						strMetatype += " (" + _objCharacter.Metavariant + ")";
+                    if (objMetatypeNode["translate"] != null)
+                        strMetatype += " (" + objMetatypeNode["translate"].InnerText + ")";
+                    else
+                        strMetatype += " (" + _objCharacter.Metavariant + ")";
 
-					strBook = _objOptions.LanguageBookShort(objMetatypeNode["source"].InnerText);
-					if (objMetatypeNode["altpage"] != null)
-						strPage = objMetatypeNode["altpage"].InnerText;
-					else
-						strPage = objMetatypeNode["page"].InnerText;
-				}
-			}
-			lblMetatype.Text = strMetatype;
-			lblMetatypeSource.Text = strBook + " " + strPage;
-			txtCharacterName.Text = _objCharacter.Name;
-			txtSex.Text = _objCharacter.Sex;
-			txtAge.Text = _objCharacter.Age;
-			txtEyes.Text = _objCharacter.Eyes;
-			txtHeight.Text = _objCharacter.Height;
-			txtWeight.Text = _objCharacter.Weight;
-			txtSkin.Text = _objCharacter.Skin;
-			txtHair.Text = _objCharacter.Hair;
-			txtDescription.Text = _objCharacter.Description;
-			txtBackground.Text = _objCharacter.Background;
-			txtConcept.Text = _objCharacter.Concept;
-			txtNotes.Text = _objCharacter.Notes;
-			txtAlias.Text = _objCharacter.Alias;
-			txtPlayerName.Text = _objCharacter.PlayerName;
+                    strBook = _objOptions.LanguageBookShort(objMetatypeNode["source"].InnerText);
+                    if (objMetatypeNode["altpage"] != null)
+                        strPage = objMetatypeNode["altpage"].InnerText;
+                    else
+                        strPage = objMetatypeNode["page"].InnerText;
+                }
+            }
+            lblMetatype.Text = strMetatype;
+            lblMetatypeSource.Text = strBook + " " + strPage;
+            txtCharacterName.Text = _objCharacter.Name;
+            txtSex.Text = _objCharacter.Sex;
+            txtAge.Text = _objCharacter.Age;
+            txtEyes.Text = _objCharacter.Eyes;
+            txtHeight.Text = _objCharacter.Height;
+            txtWeight.Text = _objCharacter.Weight;
+            txtSkin.Text = _objCharacter.Skin;
+            txtHair.Text = _objCharacter.Hair;
+            txtDescription.Text = _objCharacter.Description;
+            txtBackground.Text = _objCharacter.Background;
+            txtConcept.Text = _objCharacter.Concept;
+            txtNotes.Text = _objCharacter.Notes;
+            txtAlias.Text = _objCharacter.Alias;
+            txtPlayerName.Text = _objCharacter.PlayerName;
 
-			// Check for Special Attributes.
-			lblMAGLabel.Enabled = _objCharacter.MAGEnabled;
-			lblMAGAug.Enabled = _objCharacter.MAGEnabled;
-			nudMAG.Enabled = _objCharacter.MAGEnabled;
-			lblMAGMetatype.Enabled = _objCharacter.MAGEnabled;
-			lblFoci.Visible = _objCharacter.MAGEnabled;
-			treFoci.Visible = _objCharacter.MAGEnabled;
-			cmdCreateStackedFocus.Visible = _objCharacter.MAGEnabled;
+            // Check for Special Attributes.
+            lblMAGLabel.Enabled = _objCharacter.MAGEnabled;
+            lblMAGAug.Enabled = _objCharacter.MAGEnabled;
+            nudMAG.Enabled = _objCharacter.MAGEnabled;
+            lblMAGMetatype.Enabled = _objCharacter.MAGEnabled;
+            lblFoci.Visible = _objCharacter.MAGEnabled;
+            treFoci.Visible = _objCharacter.MAGEnabled;
+            cmdCreateStackedFocus.Visible = _objCharacter.MAGEnabled;
 
-			lblRESLabel.Enabled = _objCharacter.RESEnabled;
-			lblRESAug.Enabled = _objCharacter.RESEnabled;
-			nudRES.Enabled = _objCharacter.RESEnabled;
-			lblRESMetatype.Enabled = _objCharacter.RESEnabled;
+            lblRESLabel.Enabled = _objCharacter.RESEnabled;
+            lblRESAug.Enabled = _objCharacter.RESEnabled;
+            nudRES.Enabled = _objCharacter.RESEnabled;
+            lblRESMetatype.Enabled = _objCharacter.RESEnabled;
 
-			// Define the XML objects that will be used.
-			XmlDocument objXmlDocument = new XmlDocument();
+            // Define the XML objects that will be used.
+            XmlDocument objXmlDocument = new XmlDocument();
 
-			// Populate the Qualities list.
-			foreach (Quality objQuality in _objCharacter.Qualities)
-			{
-				TreeNode objNode = new TreeNode();
-				objNode.Text = objQuality.DisplayName;
-				objNode.Tag = objQuality.InternalId;
-				objNode.ContextMenuStrip = cmsQuality;
+            // Populate the Qualities list.
+            foreach (Quality objQuality in _objCharacter.Qualities)
+            {
+                TreeNode objNode = new TreeNode();
+                objNode.Text = objQuality.DisplayName;
+                objNode.Tag = objQuality.InternalId;
+                objNode.ContextMenuStrip = cmsQuality;
 
-				if (objQuality.Notes != string.Empty)
-					objNode.ForeColor = Color.SaddleBrown;
-				else
-				{
-					if (objQuality.OriginSource == QualitySource.Metatype || objQuality.OriginSource == QualitySource.MetatypeRemovable)
-						objNode.ForeColor = SystemColors.GrayText;
-				}
-				objNode.ToolTipText = objQuality.Notes;
+                if (objQuality.Notes != string.Empty)
+                    objNode.ForeColor = Color.SaddleBrown;
+                else
+                {
+                    if (objQuality.OriginSource == QualitySource.Metatype ||
+                        objQuality.OriginSource == QualitySource.MetatypeRemovable)
+                        objNode.ForeColor = SystemColors.GrayText;
+                }
 
-				if (objQuality.Type == QualityType.Positive)
-				{
-					treQualities.Nodes[0].Nodes.Add(objNode);
-					treQualities.Nodes[0].Expand();
-				}
-				else
-				{
-					treQualities.Nodes[1].Nodes.Add(objNode);
-					treQualities.Nodes[1].Expand();
-				}
-			}
+                objNode.ToolTipText = objQuality.Notes;
 
-			// Populate the Magician Traditions list.
-			objXmlDocument = XmlManager.Instance.Load("traditions.xml");
-			List<ListItem> lstTraditions = new List<ListItem>();
-			ListItem objBlank = new ListItem();
-			objBlank.Value = "";
-			objBlank.Name = "";
-			lstTraditions.Add(objBlank);
-			foreach (XmlNode objXmlTradition in objXmlDocument.SelectNodes("/chummer/traditions/tradition[" + _objOptions.BookXPath() + "]"))
-			{
-				ListItem objItem = new ListItem();
-				objItem.Value = objXmlTradition["name"].InnerText;
-				if (objXmlTradition["translate"] != null)
-					objItem.Name = objXmlTradition["translate"].InnerText;
-				else
-					objItem.Name = objXmlTradition["name"].InnerText;
-				lstTraditions.Add(objItem);
-			}
-			SortListItem objSort = new SortListItem();
-			lstTraditions.Sort(objSort.Compare);
-			cboTradition.ValueMember = "Value";
-			cboTradition.DisplayMember = "Name";
-			cboTradition.DataSource = lstTraditions;
+                if (objQuality.Type == QualityType.Positive)
+                {
+                    treQualities.Nodes[0].Nodes.Add(objNode);
+                    treQualities.Nodes[0].Expand();
+                }
+                else
+                {
+                    treQualities.Nodes[1].Nodes.Add(objNode);
+                    treQualities.Nodes[1].Expand();
+                }
+            }
 
-			// Populate the Technomancer Streams list.
-			objXmlDocument = XmlManager.Instance.Load("streams.xml");
-			List<ListItem> lstStreams = new List<ListItem>();
-			lstStreams.Add(objBlank);
-			foreach (XmlNode objXmlTradition in objXmlDocument.SelectNodes("/chummer/traditions/tradition[" + _objOptions.BookXPath() + "]"))
-			{
-				ListItem objItem = new ListItem();
-				objItem.Value = objXmlTradition["name"].InnerText;
-				if (objXmlTradition["translate"] != null)
-					objItem.Name = objXmlTradition["translate"].InnerText;
-				else
-					objItem.Name = objXmlTradition["name"].InnerText;
-				lstStreams.Add(objItem);
-			}
-			lstStreams.Sort(objSort.Compare);
-			cboStream.ValueMember = "Value";
-			cboStream.DisplayMember = "Name";
-			cboStream.DataSource = lstStreams;
+            // Populate the Magician Traditions list.
+            objXmlDocument = XmlManager.Instance.Load("traditions.xml");
+            List<ListItem> lstTraditions = new List<ListItem>();
+            ListItem objBlank = new ListItem();
+            objBlank.Value = "";
+            objBlank.Name = "";
+            lstTraditions.Add(objBlank);
+            foreach (XmlNode objXmlTradition in objXmlDocument.SelectNodes("/chummer/traditions/tradition[" +
+                                                                           _objOptions.BookXPath() + "]"))
+            {
+                ListItem objItem = new ListItem();
+                objItem.Value = objXmlTradition["name"].InnerText;
+                if (objXmlTradition["translate"] != null)
+                    objItem.Name = objXmlTradition["translate"].InnerText;
+                else
+                    objItem.Name = objXmlTradition["name"].InnerText;
+                lstTraditions.Add(objItem);
+            }
 
-			// Load the Metatype information before going anywhere else. Doing this later causes the Attributes to get messed up because of calls
-			// to UpdateCharacterInformation();
-			MetatypeSelected();
+            SortListItem objSort = new SortListItem();
+            lstTraditions.Sort(objSort.Compare);
+            cboTradition.ValueMember = "Value";
+            cboTradition.DisplayMember = "Name";
+            cboTradition.DataSource = lstTraditions;
 
-			// If the character is a Mystic Adept, set the values for the Mystic Adept NUD.
-			if (_objCharacter.AdeptEnabled && _objCharacter.MagicianEnabled)
-			{
-				nudMysticAdeptMAGMagician.Maximum = _objCharacter.MAG.TotalValue;
-				nudMysticAdeptMAGMagician.Value = _objCharacter.MAGMagician;
-				lblMysticAdeptMAGAdept.Text = _objCharacter.MAGAdept.ToString();
+            // Populate the Technomancer Streams list.
+            objXmlDocument = XmlManager.Instance.Load("streams.xml");
+            List<ListItem> lstStreams = new List<ListItem>();
+            lstStreams.Add(objBlank);
+            foreach (XmlNode objXmlTradition in objXmlDocument.SelectNodes("/chummer/traditions/tradition[" +
+                                                                           _objOptions.BookXPath() + "]"))
+            {
+                ListItem objItem = new ListItem();
+                objItem.Value = objXmlTradition["name"].InnerText;
+                if (objXmlTradition["translate"] != null)
+                    objItem.Name = objXmlTradition["translate"].InnerText;
+                else
+                    objItem.Name = objXmlTradition["name"].InnerText;
+                lstStreams.Add(objItem);
+            }
 
-				lblMysticAdeptAssignment.Visible = true;
-				lblMysticAdeptAssignmentAdept.Visible = true;
-				lblMysticAdeptAssignmentMagician.Visible = true;
-				lblMysticAdeptMAGAdept.Visible = true;
-				nudMysticAdeptMAGMagician.Visible = true;
-			}
+            lstStreams.Sort(objSort.Compare);
+            cboStream.ValueMember = "Value";
+            cboStream.DisplayMember = "Name";
+            cboStream.DataSource = lstStreams;
 
-			// Nuyen can be affected by Qualities, so adjust the total amount available to the character.
-			if (!_objCharacter.IgnoreRules)
-				nudNuyen.Maximum = _objCharacter.NuyenMaximumBP;
-			else
-				nudNuyen.Maximum = 100000;
+            // Load the Metatype information before going anywhere else. Doing this later causes the Attributes to get messed up because of calls
+            // to UpdateCharacterInformation();
+            MetatypeSelected();
 
-			// Nuyen.
-			nudNuyen.Value = _objCharacter.NuyenBP;
+            // If the character is a Mystic Adept, set the values for the Mystic Adept NUD.
+            if (_objCharacter.AdeptEnabled && _objCharacter.MagicianEnabled)
+            {
+                nudMysticAdeptMAGMagician.Maximum = _objCharacter.MAG.TotalValue;
+                nudMysticAdeptMAGMagician.Value = _objCharacter.MAGMagician;
+                lblMysticAdeptMAGAdept.Text = _objCharacter.MAGAdept.ToString();
 
-			// Load the Skills information.
-			objXmlDocument = XmlManager.Instance.Load("skills.xml");
+                lblMysticAdeptAssignment.Visible = true;
+                lblMysticAdeptAssignmentAdept.Visible = true;
+                lblMysticAdeptAssignmentMagician.Visible = true;
+                lblMysticAdeptMAGAdept.Visible = true;
+                nudMysticAdeptMAGMagician.Visible = true;
+            }
 
-			// Populate the Skills Controls.
-			XmlNodeList objXmlNodeList = objXmlDocument.SelectNodes("/chummer/skills/skill[" + _objCharacter.Options.BookXPath() + "]");
-			// Counter to keep track of the number of Controls that have been added to the Panel so we can determine their vertical positioning.
-			int i = -1;
-			foreach (Skill objSkill in _objCharacter.Skills)
-			{
-				if (!objSkill.KnowledgeSkill && !objSkill.ExoticSkill)
-				{
-					i++;
-					SkillControl objSkillControl = new SkillControl();
-					objSkillControl.SkillObject = objSkill;
+            // Nuyen can be affected by Qualities, so adjust the total amount available to the character.
+            if (!_objCharacter.IgnoreRules)
+                nudNuyen.Maximum = _objCharacter.NuyenMaximumBP;
+            else
+                nudNuyen.Maximum = 100000;
 
-					// Attach an EventHandler for the RatingChanged and SpecializationChanged Events.
-					objSkillControl.RatingChanged += objActiveSkill_RatingChanged;
-					objSkillControl.SpecializationChanged += objSkill_SpecializationChanged;
-					objSkillControl.BreakGroupClicked += objSkill_BreakGroupClicked;
+            // Nuyen.
+            nudNuyen.Value = _objCharacter.NuyenBP;
 
-					objSkillControl.SkillName = objSkill.Name;
-					objSkillControl.SkillCategory = objSkill.SkillCategory;
-					objSkillControl.SkillGroup = objSkill.SkillGroup;
-					objSkillControl.SkillRatingMaximum = objSkill.RatingMaximum;
-					objSkillControl.SkillRating = objSkill.Rating;
-					objSkillControl.SkillSpec = objSkill.Specialization;
+            // Load the Skills information.
+            objXmlDocument = XmlManager.Instance.Load("skills.xml");
 
-					XmlNode objXmlSkill = objXmlDocument.SelectSingleNode("/chummer/skills/skill[name = \"" + objSkill.Name + "\"]");
-					// Populate the Skill's Specializations (if any).
-					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
-					{
-						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
-						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
-					}
+            // Populate the Skills Controls.
+            XmlNodeList objXmlNodeList =
+                objXmlDocument.SelectNodes("/chummer/skills/skill[" + _objCharacter.Options.BookXPath() + "]");
+            // Counter to keep track of the number of Controls that have been added to the Panel so we can determine their vertical positioning.
+            int i = -1;
+            foreach (Skill objSkill in _objCharacter.Skills)
+            {
+                if (!objSkill.KnowledgeSkill && !objSkill.ExoticSkill)
+                {
+                    i++;
+                    SkillControl objSkillControl = new SkillControl();
+                    objSkillControl.SkillObject = objSkill;
 
-					// Set the control's vertical position and add it to the Skills Panel.
-					objSkillControl.Top = i * objSkillControl.Height;
-					objSkillControl.Width = 510;
-					objSkillControl.AutoScroll = false;
-					panActiveSkills.Controls.Add(objSkillControl);
-				}
-			}
+                    // Attach an EventHandler for the RatingChanged and SpecializationChanged Events.
+                    objSkillControl.RatingChanged += objActiveSkill_RatingChanged;
+
+                    objSkillControl.SpecializationChanged += objSkill_SpecializationChanged;
+                    objSkillControl.BreakGroupClicked += objSkill_BreakGroupClicked;
+
+                    objSkillControl.SkillName = objSkill.Name;
+                    objSkillControl.SkillCategory = objSkill.SkillCategory;
+                    objSkillControl.SkillGroup = objSkill.SkillGroup;
+                    objSkillControl.SkillRatingMaximum = objSkill.RatingMaximum;
+                    objSkillControl.SkillRating = objSkill.Rating;
+                    objSkillControl.SkillSpec = objSkill.Specialization;
+
+                    XmlNode objXmlSkill =
+                        objXmlDocument.SelectSingleNode("/chummer/skills/skill[name = \"" + objSkill.Name + "\"]");
+                    // Populate the Skill's Specializations (if any).
+                    foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
+                    {
+                        if (objXmlSpecialization.Attributes["translate"] != null)
+                            objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
+                        else
+                            objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
+                    }
+
+                    // Set the control's vertical position and add it to the Skills Panel.
+                    objSkillControl.Top = i * objSkillControl.Height;
+                    objSkillControl.Width = 510;
+                    objSkillControl.AutoScroll = false;
+                    panActiveSkills.Controls.Add(objSkillControl);
+                }
+            }
+
+			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+            {
+                if (objSkillControl.SkillObject.IsMeta)
+                {
+                    foreach (SkillControl skillControlMetaBase in panActiveSkills.Controls)
+                    {
+                        Console.WriteLine(skillControlMetaBase.Name);
+                        if (skillControlMetaBase.Name == objSkillControl.SkillObject.MetaBase)
+                        {
+                            skillControlMetaBase.MetaTalents.Add(objSkillControl);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            UpdateMetaSkills();
 
 			// Exotic Skills.
 			foreach (Skill objSkill in _objCharacter.Skills)
@@ -429,9 +464,9 @@ namespace Chummer
 					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
 					{
 						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 					}
 
 					// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -440,9 +475,9 @@ namespace Chummer
 					foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 					{
 						if (objXmlWeapon["translate"] != null)
-							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 						else
-							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 					}
 
 					// Set the control's vertical position and add it to the Skills Panel.
@@ -1188,6 +1223,9 @@ namespace Chummer
 			_objFunctions.SortTree(treQualities);
 			_objFunctions.SortTree(treCritterPowers);
 			_objFunctions.SortTree(treMartialArts);
+
+            UpdateMetaSkills();
+
 			UpdateMentorSpirits();
 			UpdateInitiationGradeList();
 
@@ -1197,6 +1235,8 @@ namespace Chummer
 			UpdateWindowTitle(false);
 			RefreshPasteStatus();
 
+			frmCreate_Resize(sender, e);
+			
 			// Stupid hack to get the MDI icon to show up properly.
 			this.Icon = this.Icon.Clone() as System.Drawing.Icon;
 		}
@@ -1226,7 +1266,15 @@ namespace Chummer
 			if (!e.Cancel)
 			{
 				if (!_blnSkipToolStripRevert)
-					ToolStripManager.RevertMerge("toolStrip");
+				{
+					try
+					{
+						ToolStripManager.RevertMerge("toolStrip");
+					}
+					catch (Exception exception)
+					{
+					}
+				}
 
 				// Unsubscribe from events.
 				_objCharacter.MAGEnabledChanged -= objCharacter_MAGEnabledChanged;
@@ -1342,8 +1390,20 @@ namespace Chummer
 		private void frmCreate_Activated(object sender, EventArgs e)
 		{
 			// Merge the ToolStrips.
-			ToolStripManager.RevertMerge("toolStrip");
-			ToolStripManager.Merge(toolStrip, "toolStrip");
+			try
+			{
+				ToolStripManager.RevertMerge("toolStrip");
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				ToolStripManager.Merge(toolStrip, "toolStrip");
+			}
+			catch (Exception ex)
+			{
+			}
 		}
 
 		private void frmCreate_Shown(object sender, EventArgs e)
@@ -4540,7 +4600,7 @@ namespace Chummer
 						objSpriteControl.ServicesOwed = objSkillControl.SkillRating;
 				}
 			}
-
+			
 			UpdateCharacterInfo();
 
 			_blnIsDirty = true;
@@ -7481,9 +7541,9 @@ namespace Chummer
 			foreach (XmlNode objXmlSpecialization in nodSkill.SelectNodes("specs/spec"))
 			{
 				if (objXmlSpecialization.Attributes["translate"] != null)
-					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 				else
-					objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 			}
 
 			// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -7492,9 +7552,9 @@ namespace Chummer
 			foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 			{
 				if (objXmlWeapon["translate"] != null)
-					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 				else
-					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 			}
 
 			objSkillControl.SkillRatingMaximum = 6;
@@ -14626,6 +14686,7 @@ namespace Chummer
 		private void tabCharacterTabs_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			RefreshPasteStatus();
+			frmCreate_Resize(this, e);
 		}
 
 		private void tabStreetGearTabs_SelectedIndexChanged(object sender, EventArgs e)
@@ -15458,7 +15519,10 @@ namespace Chummer
 			// Calculate the BP used by Active Skills.
 			intPointsUsed = 0;
 			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
-			{
+            {
+                if (objSkillControl.SkillIsMeta)
+                {continue;}
+
 				if (objSkillControl.SkillRating > 0 && !objSkillControl.IsGrouped)
 				{
 					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
@@ -18043,11 +18107,19 @@ namespace Chummer
 			_blnIsDirty = true;
 			PopulateGearList();
 			UpdateWindowTitle();
-
+   
 			return frmPickCyberware.AddAgain;
 		}
 
-		/// <summary>
+        private void UpdateMetaSkills()
+        {
+            foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+            {
+                objSkillControl.UpdateMetas();
+            }
+        }
+
+        /// <summary>
 		/// Select a piece of Gear to be added to the character.
 		/// </summary>
 		private bool PickGear()
@@ -22519,7 +22591,7 @@ namespace Chummer
 					{
 						foreach (Lifestyle objLifestyle in _objCharacter.Lifestyles)
 						{
-							if (objLifestyle.InternalId == treLifestyles.SelectedNode.Tag.ToString())
+							if (treLifestyles.SelectedNode != null && objLifestyle.InternalId == treLifestyles.SelectedNode.Tag.ToString())
 							{
 								blnCopyEnabled = true;
 								break;
@@ -22559,7 +22631,7 @@ namespace Chummer
 					{
 						foreach (Armor objArmor in _objCharacter.Armor)
 						{
-							if (objArmor.InternalId == treArmor.SelectedNode.Tag.ToString())
+							if (treArmor.SelectedNode != null && objArmor.InternalId == treArmor.SelectedNode.Tag.ToString())
 							{
 								blnCopyEnabled = true;
 								break;

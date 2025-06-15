@@ -2665,6 +2665,10 @@
 			<armorcapacity>[1]</armorcapacity>
 			<avail>+2</avail>
 			<cost>Rating * 100</cost>
+			<specificskill>
+				<name>Perception (Audio)</name>
+				<bonus>Rating</bonus>
+			</specificskill>
 			<source>SR4</source>
 			<page>333</page>
 		</gear>
@@ -2807,6 +2811,12 @@
 			<armorcapacity>[Rating]</armorcapacity>
 			<avail>+4</avail>
 			<cost>Rating * 100</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception (Visual)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 			<source>SR4</source>
 			<page>333</page>
 		</gear>
