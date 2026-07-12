@@ -1529,7 +1529,7 @@
 			// lblMemoryLabel
 			// 
 			this.lblMemoryLabel.AutoSize = true;
-			this.lblMemoryLabel.Location = new System.Drawing.Point(6, 371);
+			this.lblMemoryLabel.Location = new System.Drawing.Point(6, 394);
 			this.lblMemoryLabel.Name = "lblMemoryLabel";
 			this.lblMemoryLabel.Size = new System.Drawing.Size(47, 13);
 			this.lblMemoryLabel.TabIndex = 50;
@@ -1540,7 +1540,7 @@
 			// lblLiftCarryLabel
 			// 
 			this.lblLiftCarryLabel.AutoSize = true;
-			this.lblLiftCarryLabel.Location = new System.Drawing.Point(6, 348);
+			this.lblLiftCarryLabel.Location = new System.Drawing.Point(6, 371);
 			this.lblLiftCarryLabel.Name = "lblLiftCarryLabel";
 			this.lblLiftCarryLabel.Size = new System.Drawing.Size(72, 13);
 			this.lblLiftCarryLabel.TabIndex = 48;
@@ -1551,7 +1551,7 @@
 			// lblJudgeIntentionsLabel
 			// 
 			this.lblJudgeIntentionsLabel.AutoSize = true;
-			this.lblJudgeIntentionsLabel.Location = new System.Drawing.Point(6, 325);
+			this.lblJudgeIntentionsLabel.Location = new System.Drawing.Point(6, 348);
 			this.lblJudgeIntentionsLabel.Name = "lblJudgeIntentionsLabel";
 			this.lblJudgeIntentionsLabel.Size = new System.Drawing.Size(88, 13);
 			this.lblJudgeIntentionsLabel.TabIndex = 46;
@@ -1562,7 +1562,7 @@
 			// lblComposureLabel
 			// 
 			this.lblComposureLabel.AutoSize = true;
-			this.lblComposureLabel.Location = new System.Drawing.Point(6, 302);
+			this.lblComposureLabel.Location = new System.Drawing.Point(6, 325);
 			this.lblComposureLabel.Name = "lblComposureLabel";
 			this.lblComposureLabel.Size = new System.Drawing.Size(63, 13);
 			this.lblComposureLabel.TabIndex = 44;
@@ -1573,7 +1573,7 @@
 			// lblAstralIPLabel
 			// 
 			this.lblAstralIPLabel.AutoSize = true;
-			this.lblAstralIPLabel.Location = new System.Drawing.Point(6, 189);
+			this.lblAstralIPLabel.Location = new System.Drawing.Point(6, 212);
 			this.lblAstralIPLabel.Name = "lblAstralIPLabel";
 			this.lblAstralIPLabel.Size = new System.Drawing.Size(115, 13);
 			this.lblAstralIPLabel.TabIndex = 40;
@@ -1584,7 +1584,7 @@
 			// lblMatrixIPLabel
 			// 
 			this.lblMatrixIPLabel.AutoSize = true;
-			this.lblMatrixIPLabel.Location = new System.Drawing.Point(6, 143);
+			this.lblMatrixIPLabel.Location = new System.Drawing.Point(6, 166);
 			this.lblMatrixIPLabel.Name = "lblMatrixIPLabel";
 			this.lblMatrixIPLabel.Size = new System.Drawing.Size(117, 13);
 			this.lblMatrixIPLabel.TabIndex = 38;
@@ -1596,7 +1596,7 @@
 			// lblRemainingNuyenLabel
 			// 
 			this.lblRemainingNuyenLabel.AutoSize = true;
-			this.lblRemainingNuyenLabel.Location = new System.Drawing.Point(6, 279);
+			this.lblRemainingNuyenLabel.Location = new System.Drawing.Point(6, 302);
 			this.lblRemainingNuyenLabel.Name = "lblRemainingNuyenLabel";
 			this.lblRemainingNuyenLabel.Size = new System.Drawing.Size(94, 13);
 			this.lblRemainingNuyenLabel.TabIndex = 36;
@@ -1607,7 +1607,7 @@
 			// lblESS
 			// 
 			this.lblESS.AutoSize = true;
-			this.lblESS.Location = new System.Drawing.Point(6, 256);
+			this.lblESS.Location = new System.Drawing.Point(6, 279);
 			this.lblESS.Name = "lblESS";
 			this.lblESS.Size = new System.Drawing.Size(51, 13);
 			this.lblESS.TabIndex = 34;
@@ -1619,7 +1619,7 @@
 			// lblImpactArmorLabel
 			// 
 			this.lblImpactArmorLabel.AutoSize = true;
-			this.lblImpactArmorLabel.Location = new System.Drawing.Point(6, 233);
+			this.lblImpactArmorLabel.Location = new System.Drawing.Point(6, 256);
 			this.lblImpactArmorLabel.Name = "lblImpactArmorLabel";
 			this.lblImpactArmorLabel.Size = new System.Drawing.Size(72, 13);
 			this.lblImpactArmorLabel.TabIndex = 32;
@@ -1630,7 +1630,7 @@
 			// lblBallisticArmorLabel
 			// 
 			this.lblBallisticArmorLabel.AutoSize = true;
-			this.lblBallisticArmorLabel.Location = new System.Drawing.Point(6, 212);
+			this.lblBallisticArmorLabel.Location = new System.Drawing.Point(6, 235);
 			this.lblBallisticArmorLabel.Name = "lblBallisticArmorLabel";
 			this.lblBallisticArmorLabel.Size = new System.Drawing.Size(75, 13);
 			this.lblBallisticArmorLabel.TabIndex = 30;
@@ -1641,7 +1641,7 @@
 			// lblAstralINILabel
 			// 
 			this.lblAstralINILabel.AutoSize = true;
-			this.lblAstralINILabel.Location = new System.Drawing.Point(6, 166);
+			this.lblAstralINILabel.Location = new System.Drawing.Point(6, 189);
 			this.lblAstralINILabel.Name = "lblAstralINILabel";
 			this.lblAstralINILabel.Size = new System.Drawing.Size(78, 13);
 			this.lblAstralINILabel.TabIndex = 23;
@@ -1652,7 +1652,7 @@
 			// lblMatrixINILabel
 			// 
 			this.lblMatrixINILabel.AutoSize = true;
-			this.lblMatrixINILabel.Location = new System.Drawing.Point(6, 120);
+			this.lblMatrixINILabel.Location = new System.Drawing.Point(6, 143);
 			this.lblMatrixINILabel.Name = "lblMatrixINILabel";
 			this.lblMatrixINILabel.Size = new System.Drawing.Size(80, 13);
 			this.lblMatrixINILabel.TabIndex = 22;
@@ -9036,7 +9036,7 @@
 			// lblMemory
 			// 
 			this.lblMemory.AutoSize = true;
-			this.lblMemory.Location = new System.Drawing.Point(139, 371);
+			this.lblMemory.Location = new System.Drawing.Point(139, 394);
 			this.lblMemory.Name = "lblMemory";
 			this.lblMemory.Size = new System.Drawing.Size(13, 13);
 			this.lblMemory.TabIndex = 51;
@@ -9045,7 +9045,7 @@
 			// lblLiftCarry
 			// 
 			this.lblLiftCarry.AutoSize = true;
-			this.lblLiftCarry.Location = new System.Drawing.Point(139, 348);
+			this.lblLiftCarry.Location = new System.Drawing.Point(139, 371);
 			this.lblLiftCarry.Name = "lblLiftCarry";
 			this.lblLiftCarry.Size = new System.Drawing.Size(13, 13);
 			this.lblLiftCarry.TabIndex = 49;
@@ -9054,7 +9054,7 @@
 			// lblJudgeIntentions
 			// 
 			this.lblJudgeIntentions.AutoSize = true;
-			this.lblJudgeIntentions.Location = new System.Drawing.Point(139, 325);
+			this.lblJudgeIntentions.Location = new System.Drawing.Point(139, 348);
 			this.lblJudgeIntentions.Name = "lblJudgeIntentions";
 			this.lblJudgeIntentions.Size = new System.Drawing.Size(13, 13);
 			this.lblJudgeIntentions.TabIndex = 47;
@@ -9063,7 +9063,7 @@
 			// lblComposure
 			// 
 			this.lblComposure.AutoSize = true;
-			this.lblComposure.Location = new System.Drawing.Point(139, 302);
+			this.lblComposure.Location = new System.Drawing.Point(139, 325);
 			this.lblComposure.Name = "lblComposure";
 			this.lblComposure.Size = new System.Drawing.Size(13, 13);
 			this.lblComposure.TabIndex = 45;
@@ -9072,7 +9072,7 @@
 			// lblMovement
 			// 
 			this.lblMovement.AutoSize = true;
-			this.lblMovement.Location = new System.Drawing.Point(139, 394);
+			this.lblMovement.Location = new System.Drawing.Point(139, 417);
 			this.lblMovement.Name = "lblMovement";
 			this.lblMovement.Size = new System.Drawing.Size(13, 13);
 			this.lblMovement.TabIndex = 43;
@@ -9081,7 +9081,7 @@
 			// lblMovementLabel
 			// 
 			this.lblMovementLabel.AutoSize = true;
-			this.lblMovementLabel.Location = new System.Drawing.Point(6, 394);
+			this.lblMovementLabel.Location = new System.Drawing.Point(6, 417);
 			this.lblMovementLabel.Name = "lblMovementLabel";
 			this.lblMovementLabel.Size = new System.Drawing.Size(60, 13);
 			this.lblMovementLabel.TabIndex = 42;
@@ -9091,7 +9091,7 @@
 			// lblAstralIP
 			// 
 			this.lblAstralIP.AutoSize = true;
-			this.lblAstralIP.Location = new System.Drawing.Point(139, 189);
+			this.lblAstralIP.Location = new System.Drawing.Point(139, 212);
 			this.lblAstralIP.Name = "lblAstralIP";
 			this.lblAstralIP.Size = new System.Drawing.Size(13, 13);
 			this.lblAstralIP.TabIndex = 41;
@@ -9100,7 +9100,7 @@
 			// lblMatrixIP
 			// 
 			this.lblMatrixIP.AutoSize = true;
-			this.lblMatrixIP.Location = new System.Drawing.Point(139, 143);
+			this.lblMatrixIP.Location = new System.Drawing.Point(139, 166);
 			this.lblMatrixIP.Name = "lblMatrixIP";
 			this.lblMatrixIP.Size = new System.Drawing.Size(13, 13);
 			this.lblMatrixIP.TabIndex = 39;
@@ -9109,7 +9109,7 @@
 			// lblRemainingNuyen
 			// 
 			this.lblRemainingNuyen.AutoSize = true;
-			this.lblRemainingNuyen.Location = new System.Drawing.Point(139, 279);
+			this.lblRemainingNuyen.Location = new System.Drawing.Point(139, 302);
 			this.lblRemainingNuyen.Name = "lblRemainingNuyen";
 			this.lblRemainingNuyen.Size = new System.Drawing.Size(13, 13);
 			this.lblRemainingNuyen.TabIndex = 37;
@@ -9118,7 +9118,7 @@
 			// lblESSMax
 			// 
 			this.lblESSMax.AutoSize = true;
-			this.lblESSMax.Location = new System.Drawing.Point(139, 256);
+			this.lblESSMax.Location = new System.Drawing.Point(139, 279);
 			this.lblESSMax.Name = "lblESSMax";
 			this.lblESSMax.Size = new System.Drawing.Size(13, 13);
 			this.lblESSMax.TabIndex = 35;
@@ -9127,7 +9127,7 @@
 			// lblImpactArmor
 			// 
 			this.lblImpactArmor.AutoSize = true;
-			this.lblImpactArmor.Location = new System.Drawing.Point(139, 233);
+			this.lblImpactArmor.Location = new System.Drawing.Point(139, 256);
 			this.lblImpactArmor.Name = "lblImpactArmor";
 			this.lblImpactArmor.Size = new System.Drawing.Size(13, 13);
 			this.lblImpactArmor.TabIndex = 33;
@@ -9136,7 +9136,7 @@
 			// lblBallisticArmor
 			// 
 			this.lblBallisticArmor.AutoSize = true;
-			this.lblBallisticArmor.Location = new System.Drawing.Point(139, 212);
+			this.lblBallisticArmor.Location = new System.Drawing.Point(139, 235);
 			this.lblBallisticArmor.Name = "lblBallisticArmor";
 			this.lblBallisticArmor.Size = new System.Drawing.Size(13, 13);
 			this.lblBallisticArmor.TabIndex = 31;
@@ -9145,7 +9145,7 @@
 			// lblAstralINI
 			// 
 			this.lblAstralINI.AutoSize = true;
-			this.lblAstralINI.Location = new System.Drawing.Point(139, 166);
+			this.lblAstralINI.Location = new System.Drawing.Point(139, 189);
 			this.lblAstralINI.Name = "lblAstralINI";
 			this.lblAstralINI.Size = new System.Drawing.Size(13, 13);
 			this.lblAstralINI.TabIndex = 29;
@@ -9154,7 +9154,7 @@
 			// lblMatrixINI
 			// 
 			this.lblMatrixINI.AutoSize = true;
-			this.lblMatrixINI.Location = new System.Drawing.Point(139, 120);
+			this.lblMatrixINI.Location = new System.Drawing.Point(139, 143);
 			this.lblMatrixINI.Name = "lblMatrixINI";
 			this.lblMatrixINI.Size = new System.Drawing.Size(13, 13);
 			this.lblMatrixINI.TabIndex = 28;
@@ -9173,10 +9173,12 @@
 			// cboActiveCommlink
 			//
 			this.cboActiveCommlink.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboActiveCommlink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
 			this.cboActiveCommlink.FormattingEnabled = true;
-			this.cboActiveCommlink.Location = new System.Drawing.Point(139, 94);
+			this.cboActiveCommlink.Location = new System.Drawing.Point(6, 116);
 			this.cboActiveCommlink.Name = "cboActiveCommlink";
-			this.cboActiveCommlink.Size = new System.Drawing.Size(260, 21);
+			this.cboActiveCommlink.MinimumSize = new System.Drawing.Size(30, 0);
+			this.cboActiveCommlink.Size = new System.Drawing.Size(167, 21);
 			this.cboActiveCommlink.TabIndex = 121;
 			this.cboActiveCommlink.SelectedIndexChanged += new System.EventHandler(this.cboActiveCommlink_SelectedIndexChanged);
 			// 

@@ -254,7 +254,7 @@
 			this.chkTechnomancerAllowAutosoft = new System.Windows.Forms.CheckBox();
 			this.chkTechnomancerAllowCommlink = new System.Windows.Forms.CheckBox();
 			this.chkRestrictStickNShock = new System.Windows.Forms.CheckBox();
-			this.clbStickNShockWeaponCategories = new System.Windows.Forms.CheckedListBox();
+			this.cmdSelectStickNShockWeaponCategories = new System.Windows.Forms.Button();
 			this.chkSpecialAttributeKarmaLimit = new System.Windows.Forms.CheckBox();
 			this.chkFreeSpiritsPowerPointsMAG = new System.Windows.Forms.CheckBox();
 			this.chkAllowBiowareSuites = new System.Windows.Forms.CheckBox();
@@ -2737,10 +2737,12 @@
 			// tabHouseRules
 			// 
 			this.tabHouseRules.BackColor = System.Drawing.SystemColors.Control;
+			this.tabHouseRules.AutoScroll = true;
+			this.tabHouseRules.AutoScrollMinSize = new System.Drawing.Size(0, 640);
 			this.tabHouseRules.Controls.Add(this.chkTechnomancerAllowAutosoft);
 			this.tabHouseRules.Controls.Add(this.chkTechnomancerAllowCommlink);
 			this.tabHouseRules.Controls.Add(this.chkRestrictStickNShock);
-			this.tabHouseRules.Controls.Add(this.clbStickNShockWeaponCategories);
+			this.tabHouseRules.Controls.Add(this.cmdSelectStickNShockWeaponCategories);
 			this.tabHouseRules.Controls.Add(this.chkSpecialAttributeKarmaLimit);
 			this.tabHouseRules.Controls.Add(this.chkFreeSpiritsPowerPointsMAG);
 			this.tabHouseRules.Controls.Add(this.chkAllowBiowareSuites);
@@ -2778,7 +2780,7 @@
 			// chkTechnomancerAllowCommlink
 			//
 			this.chkTechnomancerAllowCommlink.AutoSize = true;
-			this.chkTechnomancerAllowCommlink.Location = new System.Drawing.Point(440, 8);
+			this.chkTechnomancerAllowCommlink.Location = new System.Drawing.Point(8, 558);
 			this.chkTechnomancerAllowCommlink.Name = "chkTechnomancerAllowCommlink";
 			this.chkTechnomancerAllowCommlink.Size = new System.Drawing.Size(320, 17);
 			this.chkTechnomancerAllowCommlink.TabIndex = 28;
@@ -2789,7 +2791,7 @@
 			// chkRestrictStickNShock
 			//
 			this.chkRestrictStickNShock.AutoSize = true;
-			this.chkRestrictStickNShock.Location = new System.Drawing.Point(440, 31);
+			this.chkRestrictStickNShock.Location = new System.Drawing.Point(8, 581);
 			this.chkRestrictStickNShock.Name = "chkRestrictStickNShock";
 			this.chkRestrictStickNShock.Size = new System.Drawing.Size(320, 17);
 			this.chkRestrictStickNShock.TabIndex = 28;
@@ -2798,14 +2800,16 @@
 			this.chkRestrictStickNShock.UseVisualStyleBackColor = true;
 			this.chkRestrictStickNShock.CheckedChanged += new System.EventHandler(this.chkRestrictStickNShock_CheckedChanged);
 			//
-			// clbStickNShockWeaponCategories
+			// cmdSelectStickNShockWeaponCategories
 			//
-			this.clbStickNShockWeaponCategories.CheckOnClick = true;
-			this.clbStickNShockWeaponCategories.FormattingEnabled = true;
-			this.clbStickNShockWeaponCategories.Location = new System.Drawing.Point(440, 54);
-			this.clbStickNShockWeaponCategories.Name = "clbStickNShockWeaponCategories";
-			this.clbStickNShockWeaponCategories.Size = new System.Drawing.Size(350, 484);
-			this.clbStickNShockWeaponCategories.TabIndex = 29;
+			this.cmdSelectStickNShockWeaponCategories.Location = new System.Drawing.Point(25, 604);
+			this.cmdSelectStickNShockWeaponCategories.Name = "cmdSelectStickNShockWeaponCategories";
+			this.cmdSelectStickNShockWeaponCategories.Size = new System.Drawing.Size(180, 23);
+			this.cmdSelectStickNShockWeaponCategories.TabIndex = 29;
+			this.cmdSelectStickNShockWeaponCategories.Tag = "Button_SelectWeaponCategories";
+			this.cmdSelectStickNShockWeaponCategories.Text = "Select categories...";
+			this.cmdSelectStickNShockWeaponCategories.UseVisualStyleBackColor = true;
+			this.cmdSelectStickNShockWeaponCategories.Click += new System.EventHandler(this.cmdSelectStickNShockWeaponCategories_Click);
 			// 
 			// chkTechnomancerAllowAutosoft
 			// 
@@ -3471,7 +3475,7 @@
 		private System.Windows.Forms.CheckBox chkTechnomancerAllowAutosoft;
 		private System.Windows.Forms.CheckBox chkTechnomancerAllowCommlink;
 		private System.Windows.Forms.CheckBox chkRestrictStickNShock;
-		private System.Windows.Forms.CheckedListBox clbStickNShockWeaponCategories;
+		private System.Windows.Forms.Button cmdSelectStickNShockWeaponCategories;
 		private System.Windows.Forms.CheckBox chkErgonomicProgramLimit;
 		private System.Windows.Forms.ComboBox cboEssenceDecimals;
 		private System.Windows.Forms.Label lblEssenceDecimals;

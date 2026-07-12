@@ -27256,6 +27256,11 @@ namespace Chummer
 			cboActiveCommlink.ValueMember = "Value";
 			cboActiveCommlink.DataSource = lstCommlinks;
 			cboActiveCommlink.SelectedValue = strSelectedValue;
+			int intDropDownWidth = cboActiveCommlink.Width;
+			foreach (ListItem objItem in lstCommlinks)
+				intDropDownWidth = Math.Max(intDropDownWidth, TextRenderer.MeasureText(objItem.Name, cboActiveCommlink.Font).Width + 24);
+			cboActiveCommlink.DropDownWidth = Math.Min(600, intDropDownWidth);
+			tipTooltip.SetToolTip(cboActiveCommlink, cboActiveCommlink.Text);
 			_blnSkipRefresh = blnOldSkipRefresh;
 		}
 

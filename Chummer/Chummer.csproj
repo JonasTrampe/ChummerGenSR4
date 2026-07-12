@@ -282,6 +282,7 @@
     <Compile Include="code\frmSelectItem.cs">
       <SubType>Form</SubType>
     </Compile>
+	<Compile Include="code\frmSelectWeaponCategories.cs" />
     <Compile Include="code\frmSelectItem.Designer.cs">
       <DependentUpon>frmSelectItem.cs</DependentUpon>
     </Compile>

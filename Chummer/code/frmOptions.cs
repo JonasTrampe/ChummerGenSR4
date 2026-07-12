@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
 using Microsoft.Win32;
@@ -10,6 +11,8 @@ namespace Chummer
 	public partial class frmOptions : Form
 	{
 		private readonly CharacterOptions _objOptions = new CharacterOptions();
+		private readonly List<ListItem> _lstStickNShockWeaponCategories = new List<ListItem>();
+		private readonly HashSet<string> _setStickNShockExcludedWeaponCategories = new HashSet<string>();
 		private bool _blnSkipRefresh = false;
 
 		#region Form Events
@@ -384,8 +387,8 @@ namespace Chummer
 			_objOptions.TechnomancerAllowCommlink = chkTechnomancerAllowCommlink.Checked;
 			_objOptions.RestrictStickNShock = chkRestrictStickNShock.Checked;
 			_objOptions.StickNShockExcludedWeaponCategories.Clear();
-			foreach (ListItem objItem in clbStickNShockWeaponCategories.CheckedItems)
-				_objOptions.StickNShockExcludedWeaponCategories.Add(objItem.Value);
+			foreach (string strCategory in _setStickNShockExcludedWeaponCategories)
+				_objOptions.StickNShockExcludedWeaponCategories.Add(strCategory);
 			_objOptions.AllowSkillDiceRolling = chkAllowSkillDiceRolling.Checked;
 			_objOptions.CreateBackupOnCareer = chkCreateBackupOnCareer.Checked;
 			_objOptions.PrintLeadershipAlternates = chkPrintLeadershipAlternates.Checked;
@@ -914,7 +917,21 @@ namespace Chummer
 		/// </summary>
 		private void chkRestrictStickNShock_CheckedChanged(object sender, EventArgs e)
 		{
-			clbStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
+			cmdSelectStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
+		}
+
+		private void cmdSelectStickNShockWeaponCategories_Click(object sender, EventArgs e)
+		{
+			HashSet<string> setAllowedCategories = new HashSet<string>();
+			foreach (ListItem objItem in _lstStickNShockWeaponCategories)
+				if (!_setStickNShockExcludedWeaponCategories.Contains(objItem.Value)) setAllowedCategories.Add(objItem.Value);
+			frmSelectWeaponCategories frmSelectCategories = new frmSelectWeaponCategories(_lstStickNShockWeaponCategories, setAllowedCategories);
+			frmSelectCategories.ShowDialog(this);
+			if (frmSelectCategories.DialogResult != DialogResult.OK) return;
+			HashSet<string> setSelectedCategories = new HashSet<string>(frmSelectCategories.SelectedCategories);
+			_setStickNShockExcludedWeaponCategories.Clear();
+			foreach (ListItem objItem in _lstStickNShockWeaponCategories)
+				if (!setSelectedCategories.Contains(objItem.Value)) _setStickNShockExcludedWeaponCategories.Add(objItem.Value);
 		}
 
 		private void PopulateOptions()
@@ -1582,19 +1599,28 @@ namespace Chummer
 			chkTechnomancerAllowCommlink.Checked = _objOptions.TechnomancerAllowCommlink;
 
 			chkRestrictStickNShock.Checked = _objOptions.RestrictStickNShock;
-			clbStickNShockWeaponCategories.Items.Clear();
+			_lstStickNShockWeaponCategories.Clear();
+			_setStickNShockExcludedWeaponCategories.Clear();
+			foreach (string strCategory in _objOptions.StickNShockExcludedWeaponCategories)
+				_setStickNShockExcludedWeaponCategories.Add(strCategory);
 			XmlDocument objWeaponsDocument = XmlManager.Instance.Load("weapons.xml");
 			SortedSet<string> setCategories = new SortedSet<string>();
-			foreach (XmlNode objCategory in objWeaponsDocument.SelectNodes("/chummer/weapons/weapon[ammo and ammo != '0']/category"))
-				setCategories.Add(objCategory.InnerText);
+			string[] astrUnsupportedCategories =
+			{
+				"Bows", "Clubs", "Crossbows", "Flamethrowers", "Grenade Launchers", "Laser Weapons",
+				"Missile Launchers", "Mortar Launchers", "Tasers", "Throwing Weapons"
+			};
+			foreach (XmlNode objCategory in objWeaponsDocument.SelectNodes("/chummer/weapons/weapon[ammo and ammo != '0' and mode and mode != '0']/category"))
+				if (!astrUnsupportedCategories.Any(strCategory => objCategory.InnerText == strCategory || objCategory.InnerText.EndsWith(" " + strCategory))) setCategories.Add(objCategory.InnerText);
+			_setStickNShockExcludedWeaponCategories.RemoveWhere(strCategory => !setCategories.Contains(strCategory));
 			foreach (string strCategory in setCategories)
 			{
 				ListItem objItem = new ListItem();
 				objItem.Name = strCategory;
 				objItem.Value = strCategory;
-				clbStickNShockWeaponCategories.Items.Add(objItem, _objOptions.StickNShockExcludedWeaponCategories.Contains(strCategory));
+				_lstStickNShockWeaponCategories.Add(objItem);
 			}
-			clbStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
+			cmdSelectStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
 
 			if (_objOptions.LimbCount == 6)
 				cboLimbCount.SelectedValue = "all";

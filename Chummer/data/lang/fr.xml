@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-956</version>
+	<version>-958</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5432,6 +5432,8 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Munitions restreintes</text></string>
 		<string><key>Label_ActiveCommlink</key><text>Commlink actif :</text></string>
 		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Les technomanciens peuvent utiliser un commlink au lieu de leur persona émergente</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>Sélectionner les catégories...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>Sélectionner les catégories d’armes autorisées à utiliser Stick-n-Shock</text></string>
 		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>Ceci va réinitialiser les totaux de cet onglet à leur valeur par défaut. Êtes-vous sûr de vouloir faire ça?</text>

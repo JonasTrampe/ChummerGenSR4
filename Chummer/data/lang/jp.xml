@@ -2,7 +2,7 @@
 <!-- この言語ファイルは AhonokoP が作成しました。連絡を取りたいときは"Dumpshock Forum"でAhonokoPにメッセージを送ってください -->
 <!-- Translated by AhonokoP. Contact me at "Dumpshock Forum" -->
 <chummer>
-	<version>-1002</version>
+	<version>-1004</version>
 	<name>日本語 (JP)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5473,6 +5473,8 @@
 		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>制限された弾薬</text></string>
 		<string><key>Label_ActiveCommlink</key><text>アクティブなコムリンク：</text></string>
 		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>テクノマンサーはリビング・ペルソナの代わりにコムリンクを使用できる</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>カテゴリを選択...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>スティック・ン・ショックを使用できる武器カテゴリを選択</text></string>
 		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>このタブの内容をすべてデフォルトに戻します. 本当に実行しますか?</text>
