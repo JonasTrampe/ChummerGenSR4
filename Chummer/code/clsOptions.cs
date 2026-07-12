@@ -798,6 +798,7 @@ namespace Chummer
 		private bool _blnFreeSpiritPowerPointsMAG = false;
 		private bool _blnSpecialAttributeKarmaLimit = false;
 		private bool _blnTechnomancerAllowAutosoft = false;
+		private bool _blnTechnomancerAllowCommlink = false;
 		private bool _blnRestrictStickNShock = false;
 		private readonly HashSet<string> _setStickNShockExcludedWeaponCategories = new HashSet<string>();
 		private string _strBookXPath = "";
@@ -1054,6 +1055,7 @@ namespace Chummer
 			objWriter.WriteElementString("specialattributekarmalimit", _blnSpecialAttributeKarmaLimit.ToString());
 			// <technomancerallowautosoft />
 			objWriter.WriteElementString("technomancerallowautosoft", _blnTechnomancerAllowAutosoft.ToString());
+			objWriter.WriteElementString("technomancerallowcommlink", _blnTechnomancerAllowCommlink.ToString());
 			objWriter.WriteStartElement("sticknshockweaponrestrictions");
 			objWriter.WriteAttributeString("enabled", _blnRestrictStickNShock.ToString());
 			foreach (string strCategory in _setStickNShockExcludedWeaponCategories)
@@ -1648,6 +1650,13 @@ namespace Chummer
 			try
 			{
 				_blnTechnomancerAllowAutosoft = Convert.ToBoolean(objXmlDocument.SelectSingleNode("/settings/technomancerallowautosoft").InnerText);
+			}
+			catch
+			{
+			}
+			try
+			{
+				_blnTechnomancerAllowCommlink = Convert.ToBoolean(objXmlDocument.SelectSingleNode("/settings/technomancerallowcommlink").InnerText);
 			}
 			catch
 			{
@@ -3155,6 +3164,12 @@ namespace Chummer
 			{
 				_blnTechnomancerAllowAutosoft = value;
 			}
+		}
+
+		public bool TechnomancerAllowCommlink
+		{
+			get { return _blnTechnomancerAllowCommlink; }
+			set { _blnTechnomancerAllowCommlink = value; }
 		}
 
 		public bool RestrictStickNShock

@@ -3864,25 +3864,14 @@ namespace Chummer
 				string strReturn = "";
 				int intMatrixInit = 0;
 
-				// This is always calculated since characters can have a Matrix Initiative without actually being a Technomancer.
-				if (!TechnomancerEnabled)
+				List<Commlink> commlinks = _commonFunctions.FindCommlinks(_lstGear, _lstCyberware, _lstVehicles);
+				Commlink objActiveCommlink = commlinks.FirstOrDefault(objCommlink => objCommlink.IsActive);
+
+				// Technomancers normally use their Living Persona, but an optional house rule lets them use an active Commlink instead.
+				if (!TechnomancerEnabled || (_objOptions.TechnomancerAllowCommlink && objActiveCommlink != null))
 				{
 					intMatrixInit = _attINT.TotalValue;
-					int intCommlinkResponse = 0;
-
-					var commlinks = new List<Commlink>();
-
-					commlinks.AddRange(_commonFunctions.FindCommlinks(_lstGear, _lstCyberware));
-
-					foreach (var commlink in commlinks)
-					{
-						if (commlink.IsActive)
-						{
-							intCommlinkResponse = commlink.TotalResponse;
-							break;
-						}
-					}
-					intMatrixInit += intCommlinkResponse;
+					if (objActiveCommlink != null) intMatrixInit += objActiveCommlink.TotalResponse;
 
 					// Add in any Matrix Initiative Improvements.
 					intMatrixInit += _objImprovementManager.ValueOf(Improvement.ImprovementType.MatrixInitiative);

@@ -381,6 +381,7 @@ namespace Chummer
 			_objOptions.FreeSpiritPowerPointsMAG = chkFreeSpiritsPowerPointsMAG.Checked;
 			_objOptions.SpecialAttributeKarmaLimit = chkSpecialAttributeKarmaLimit.Checked;
 			_objOptions.TechnomancerAllowAutosoft = chkTechnomancerAllowAutosoft.Checked;
+			_objOptions.TechnomancerAllowCommlink = chkTechnomancerAllowCommlink.Checked;
 			_objOptions.RestrictStickNShock = chkRestrictStickNShock.Checked;
 			_objOptions.StickNShockExcludedWeaponCategories.Clear();
 			foreach (ListItem objItem in clbStickNShockWeaponCategories.CheckedItems)
@@ -1578,6 +1579,7 @@ namespace Chummer
 			{
 			}
 			chkTechnomancerAllowAutosoft.Checked = blnTechnomancerAllowAutosoft;
+			chkTechnomancerAllowCommlink.Checked = _objOptions.TechnomancerAllowCommlink;
 
 			chkRestrictStickNShock.Checked = _objOptions.RestrictStickNShock;
 			clbStickNShockWeaponCategories.Items.Clear();

@@ -22408,16 +22408,20 @@ namespace Chummer
 				// This is always calculated since characters can have a Matrix Initiative without actually being a Technomancer.
 				int intCommlinkResponse = 0;
 
-				// Retrieve the highest Response in case the Character has more than 1 Commlink.
-				foreach (Commlink objCommlink in _objCharacter.Gear.OfType<Commlink>())
+				// Retrieve the Response of the active Commlink.
+				foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
 				{
-					if (objCommlink.TotalResponse > intCommlinkResponse)
+					if (objCommlink.IsActive)
+					{
 						intCommlinkResponse = objCommlink.TotalResponse;
+						break;
+					}
 				}
 
 				lblMatrixINI.Text = _objCharacter.MatrixInitiative;
 				lblMatrixIP.Text = _objCharacter.MatrixInitiativePasses;
-				if (!_objCharacter.TechnomancerEnabled)
+				RefreshActiveCommlinkSelector();
+				if (!_objCharacter.TechnomancerEnabled || (_objOptions.TechnomancerAllowCommlink && _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles).Any(objCommlink => objCommlink.IsActive)))
 				{
 					tipTooltip.SetToolTip(lblMatrixINI, "INT (" + _objCharacter.INT.TotalValue.ToString() + ") + " + LanguageManager.Instance.GetString("Tip_CommlinkResponse") + " (" + intCommlinkResponse.ToString() + ")");
 					strIPTip = "1";
@@ -27214,13 +27218,75 @@ namespace Chummer
 			}
 		}
 
+				private void RefreshActiveCommlinkSelector()
+		{
+			bool blnOldSkipRefresh = _blnSkipRefresh;
+			_blnSkipRefresh = true;
+			List<ListItem> lstCommlinks = new List<ListItem>();
+			string strSelectedValue = string.Empty;
+			if (_objCharacter.TechnomancerEnabled)
+			{
+				ListItem objLivingPersona = new ListItem();
+				objLivingPersona.Value = "Living Persona";
+				objLivingPersona.Name = LanguageManager.Instance.GetString("String_LivingPersona") + " (" + (_objCharacter.INT.TotalValue + _objImprovementManager.ValueOf(Improvement.ImprovementType.LivingPersonaResponse)).ToString() + ")";
+				lstCommlinks.Add(objLivingPersona);
+				strSelectedValue = objLivingPersona.Value;
+			}
+			else
+			{
+				ListItem objNone = new ListItem();
+				objNone.Value = string.Empty;
+				objNone.Name = LanguageManager.Instance.GetString("String_None");
+				lstCommlinks.Add(objNone);
+			}
+			bool blnAllowCommlink = !_objCharacter.TechnomancerEnabled || _objOptions.TechnomancerAllowCommlink;
+			if (blnAllowCommlink)
+			{
+				foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
+				{
+					ListItem objItem = new ListItem();
+					objItem.Value = objCommlink.InternalId;
+					objItem.Name = "[" + GetCommlinkLocationName(objCommlink) + "] " + objCommlink.DisplayName + " (" + objCommlink.TotalResponse.ToString() + ")";
+					lstCommlinks.Add(objItem);
+					if (objCommlink.IsActive) strSelectedValue = objCommlink.InternalId;
+				}
+			}
+			cboActiveCommlink.Enabled = blnAllowCommlink;
+			cboActiveCommlink.DisplayMember = "Name";
+			cboActiveCommlink.ValueMember = "Value";
+			cboActiveCommlink.DataSource = lstCommlinks;
+			cboActiveCommlink.SelectedValue = strSelectedValue;
+			_blnSkipRefresh = blnOldSkipRefresh;
+		}
+
+		private string GetCommlinkLocationName(Commlink objCommlink)
+		{
+			foreach (Vehicle objVehicle in _objCharacter.Vehicles)
+				if (_objFunctions.FindCharacterCommlinks(objVehicle.Gear).Any(objItem => objItem.InternalId == objCommlink.InternalId)) return objVehicle.DisplayName;
+			if (_objFunctions.FindCyberwareCommlinks(_objCharacter.Cyberware).Any(objItem => objItem.InternalId == objCommlink.InternalId)) return LanguageManager.Instance.GetString("Tab_Cyberware");
+			return LanguageManager.Instance.GetString("Tab_StreeGear");
+		}
+
+		private void cboActiveCommlink_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (_blnSkipRefresh || (_objCharacter.TechnomancerEnabled && !_objOptions.TechnomancerAllowCommlink) || cboActiveCommlink.SelectedValue == null) return;
+			string strSelectedValue = cboActiveCommlink.SelectedValue.ToString();
+			foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
+				objCommlink.IsActive = objCommlink.InternalId == strSelectedValue;
+			RefreshSelectedGear();
+			RefreshSelectedCyberware();
+			UpdateCharacterInfo();
+			_blnIsDirty = true;
+			UpdateWindowTitle();
+		}
+
 		/// <summary>
 		/// Change the active Commlink for the Character.
 		/// </summary>
 		/// <param name="objActiveCommlink"></param>
 		private void ChangeActiveCommlink(Commlink objActiveCommlink)
 		{
-			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware);
+			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles);
 
 			foreach (Commlink objCommlink in lstCommlinks)
 			{

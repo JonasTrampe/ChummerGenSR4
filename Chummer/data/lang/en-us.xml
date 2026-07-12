@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-910</version>
+	<version>-911</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5474,6 +5474,8 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		</string>
 		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock is not allowed for the {0} weapon category.</text></string>
 		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Restricted Ammunition</text></string>
+		<string><key>Label_ActiveCommlink</key><text>Active Commlink:</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Technomancers may use a Commlink instead of their Living Persona</text></string>
 		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>This will reset the totals on this tab back to their default value. Are you sure you want to do this?</text>

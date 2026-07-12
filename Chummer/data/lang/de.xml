@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-950</version>
+	<version>-951</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6485,6 +6485,8 @@
 		</string>
 		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock ist für die Waffenkategorie {0} nicht erlaubt.</text></string>
 		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Eingeschränkte Munition</text></string>
+		<string><key>Label_ActiveCommlink</key><text>Aktiver Kommlink:</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Technomancer dürfen statt ihrer Lebenden Persona einen Kommlink verwenden</text></string>
 		<!-- Version 425 -->
 		<string>
 			<key>Checkbox_Commlinks</key>
