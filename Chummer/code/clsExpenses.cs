@@ -58,6 +58,8 @@ namespace Chummer
 		AddVehicleModCyberware = 17,
 		AddCyberwareGear = 18,
 		AddWeaponGear = 19,
+		CredstickDeposit = 20,
+		CredstickWithdrawal = 21,
 	}
 
 	/// <summary>
@@ -177,6 +179,10 @@ namespace Chummer
 					return NuyenExpenseType.AddCyberwareGear;
 				case "AddWeaponGear":
 					return NuyenExpenseType.AddWeaponGear;
+				case "CredstickDeposit":
+					return NuyenExpenseType.CredstickDeposit;
+				case "CredstickWithdrawal":
+					return NuyenExpenseType.CredstickWithdrawal;
 				default:
 					return NuyenExpenseType.ManualAdd;
 			}

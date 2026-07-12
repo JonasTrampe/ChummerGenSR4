@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-951</version>
+	<version>-952</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6572,5 +6572,13 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<key>Title_AddRemoveQuantity</key>
 			<text>Add/Remove quantity</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Déposer des nuyens...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Retirer des nuyens...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Montant à déposer sur {0} :</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Montant à retirer de {0} :</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Dépôt sur {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Retrait de {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>La transaction ne peut pas être annulée : le créditube est absent, sa capacité est insuffisante ou le personnage ne possède pas assez de nuyens.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Transaction de créditube</text></string>
 	</strings>
 </chummer>

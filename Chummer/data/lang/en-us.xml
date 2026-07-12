@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-906</version>
+	<version>-907</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6624,5 +6624,13 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<key>Title_AddRemoveQuantity</key>
 			<text>Add/Remove quantity</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Deposit Nuyen...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Withdraw Nuyen...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Amount to deposit into {0}:</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Amount to withdraw from {0}:</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Deposit into {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Withdrawal from {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>The credstick transaction cannot be undone because the credstick is missing, lacks capacity, or the character does not have enough Nuyen.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick Transfer</text></string>
 	</strings>
 </chummer>

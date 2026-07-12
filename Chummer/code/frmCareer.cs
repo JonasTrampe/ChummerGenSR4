@@ -32,6 +32,9 @@ namespace Chummer
 		private int _intDragLevel = 0;
 		private MouseButtons _objDragButton = new MouseButtons();
 		private bool _blnDraggingGear = false;
+		private ToolStripMenuItem _tsCredstickDeposit;
+		private ToolStripMenuItem _tsCredstickWithdraw;
+		private ToolStripSeparator _tsCredstickSeparator;
 
 		private readonly ListViewColumnSorter _lvwKarmaColumnSorter;
 		private readonly ListViewColumnSorter _lvwNuyenColumnSorter;
@@ -51,6 +54,15 @@ namespace Chummer
 			_objImprovementManager = new ImprovementManager(_objCharacter);
 			_objController = new MainController(_objCharacter);
 			InitializeComponent();
+			_tsCredstickDeposit = new ToolStripMenuItem("Deposit Nuyen") { Tag = "Menu_CredstickDeposit" };
+			_tsCredstickWithdraw = new ToolStripMenuItem("Withdraw Nuyen") { Tag = "Menu_CredstickWithdraw" };
+			_tsCredstickDeposit.Click += tsCredstickDeposit_Click;
+			_tsCredstickWithdraw.Click += tsCredstickWithdraw_Click;
+			_tsCredstickSeparator = new ToolStripSeparator();
+			cmsGear.Items.Add(_tsCredstickSeparator);
+			cmsGear.Items.Add(_tsCredstickDeposit);
+			cmsGear.Items.Add(_tsCredstickWithdraw);
+			cmsGear.Opening += cmsGear_Opening;
 
 			// Add EventHandlers for the MAG and RES enabled events and tab enabled events.
 			_objCharacter.MAGEnabledChanged += objCharacter_MAGEnabledChanged;
@@ -13026,6 +13038,76 @@ namespace Chummer
 			UpdateWindowTitle();
 		}
 
+		private Gear SelectedCertifiedCredstick()
+		{
+			if (treGear.SelectedNode == null || treGear.SelectedNode.Tag == null)
+				return null;
+			Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+			if (objGear == null || objGear.Category != "ID/Credsticks" || !objGear.Name.StartsWith("Certified Credstick,") || objGear.MinRating != 0)
+				return null;
+			return objGear;
+		}
+
+		private void cmsGear_Opening(object sender, CancelEventArgs e)
+		{
+			Gear objCredstick = SelectedCertifiedCredstick();
+			_tsCredstickSeparator.Visible = objCredstick != null;
+			_tsCredstickDeposit.Visible = objCredstick != null;
+			_tsCredstickWithdraw.Visible = objCredstick != null;
+			_tsCredstickDeposit.Enabled = objCredstick != null && objCredstick.Rating < objCredstick.MaxRating && _objCharacter.Nuyen > 0;
+			_tsCredstickWithdraw.Enabled = objCredstick != null && objCredstick.Rating > 0;
+		}
+
+		private void tsCredstickDeposit_Click(object sender, EventArgs e)
+		{
+			TransferCredstickMoney(true);
+		}
+
+		private void tsCredstickWithdraw_Click(object sender, EventArgs e)
+		{
+			TransferCredstickMoney(false);
+		}
+
+		private void TransferCredstickMoney(bool blnDeposit)
+		{
+			Gear objCredstick = SelectedCertifiedCredstick();
+			if (objCredstick == null)
+				return;
+
+			int intMaximum = blnDeposit
+				? Math.Min(_objCharacter.Nuyen, objCredstick.MaxRating - objCredstick.Rating)
+				: objCredstick.Rating;
+			if (intMaximum <= 0)
+				return;
+
+			frmSelectNumber frmAmount = new frmSelectNumber();
+			frmAmount.Minimum = 1;
+			frmAmount.Maximum = intMaximum;
+			frmAmount.Description = LanguageManager.Instance.GetString(blnDeposit ? "String_CredstickDepositPrompt" : "String_CredstickWithdrawPrompt").Replace("{0}", objCredstick.DisplayNameShort);
+			frmAmount.ShowDialog(this);
+			if (frmAmount.DialogResult == DialogResult.Cancel)
+				return;
+
+			int intAmount = frmAmount.SelectedValue;
+			objCredstick.Rating += blnDeposit ? intAmount : -intAmount;
+			_objCharacter.Nuyen += blnDeposit ? -intAmount : intAmount;
+
+			ExpenseLogEntry objEntry = new ExpenseLogEntry();
+			objEntry.Create(blnDeposit ? -intAmount : intAmount,
+				LanguageManager.Instance.GetString(blnDeposit ? "String_CredstickDepositReason" : "String_CredstickWithdrawReason").Replace("{0}", objCredstick.DisplayNameShort),
+				ExpenseType.Nuyen, DateTime.Now);
+			ExpenseUndo objUndo = new ExpenseUndo();
+			objUndo.CreateNuyen(blnDeposit ? NuyenExpenseType.CredstickDeposit : NuyenExpenseType.CredstickWithdrawal, objCredstick.InternalId);
+			objEntry.Undo = objUndo;
+			_objCharacter.ExpenseEntries.Add(objEntry);
+
+			treGear.SelectedNode.Text = objCredstick.DisplayName;
+			RefreshSelectedGear();
+			UpdateCharacterInfo();
+			_blnIsDirty = true;
+			UpdateWindowTitle();
+		}
+
 		private void tsWeaponAddUnderbarrel_Click(object sender, EventArgs e)
 		{
 			// Make sure a parent item is selected, then open the Select Accessory window.
@@ -14954,6 +15036,24 @@ namespace Chummer
 						objFoundAccGear.Parent.Children.Remove(objFoundAccGear);
 					TreeNode objFoundAccNode = _objFunctions.FindNode(objFoundAccGear.InternalId, treWeapons);
 					objFoundAccNode.Remove();
+					break;
+				case NuyenExpenseType.CredstickDeposit:
+					Gear objDepositCredstick = _objFunctions.FindGear(objEntry.Undo.ObjectId, _objCharacter.Gear);
+					if (objDepositCredstick == null || objDepositCredstick.Rating < Math.Abs(objEntry.Amount))
+					{
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_CredstickUndoFailed"), LanguageManager.Instance.GetString("MessageTitle_CredstickTransfer"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+						return;
+					}
+					objDepositCredstick.Rating -= Math.Abs(objEntry.Amount);
+					break;
+				case NuyenExpenseType.CredstickWithdrawal:
+					Gear objWithdrawalCredstick = _objFunctions.FindGear(objEntry.Undo.ObjectId, _objCharacter.Gear);
+					if (objWithdrawalCredstick == null || _objCharacter.Nuyen < objEntry.Amount || objWithdrawalCredstick.Rating + objEntry.Amount > objWithdrawalCredstick.MaxRating)
+					{
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_CredstickUndoFailed"), LanguageManager.Instance.GetString("MessageTitle_CredstickTransfer"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+						return;
+					}
+					objWithdrawalCredstick.Rating += objEntry.Amount;
 					break;
 				case NuyenExpenseType.ManualAdd:
 				case NuyenExpenseType.ManualSubtract:

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-946</version>
+	<version>-947</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6647,5 +6647,13 @@
 			<key>Title_AddRemoveQuantity</key>
 			<text>Anzahl hinzufügen/entfernen</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Nuyen einzahlen...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Nuyen auszahlen...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Betrag für die Einzahlung auf {0}:</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Betrag für die Auszahlung von {0}:</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Einzahlung auf {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Auszahlung von {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>Die Credstick-Transaktion kann nicht rückgängig gemacht werden, weil der Credstick fehlt, nicht genug Kapazität hat oder der Charakter nicht genug Nuyen besitzt.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick-Transaktion</text></string>
 	</strings>
 </chummer>
