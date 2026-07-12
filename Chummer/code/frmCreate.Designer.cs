@@ -2373,7 +2373,7 @@
 			this.mnuSpecialReapplyImprovements.Name = "mnuSpecialReapplyImprovements";
 			this.mnuSpecialReapplyImprovements.Size = new System.Drawing.Size(208, 22);
 			this.mnuSpecialReapplyImprovements.Tag = "Menu_SpecialReapplyImprovements";
-			this.mnuSpecialReapplyImprovements.Text = "Re-apply Improvements";
+			this.mnuSpecialReapplyImprovements.Text = "Reload All Data from XML Files";
 			this.mnuSpecialReapplyImprovements.Click += new System.EventHandler(this.mnuSpecialReapplyImprovements_Click);
 			// 
 			// mnuSpecialBPAvailLimit

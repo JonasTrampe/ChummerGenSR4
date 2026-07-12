@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-945</version>
+	<version>-944</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -5776,15 +5776,15 @@
 		</string>
 		<string>
 			<key>Menu_SpecialReapplyImprovements</key>
-			<text>Verbesserung nochmal anwenden</text>
+			<text>Alle Daten aus XML-Dateien neu laden</text>
 		</string>
 		<string>
 			<key>Message_ConfirmReapplyImprovements</key>
-			<text>Chummer wird versuchen alle verbesserbaren Gegenstände zu finden um die erlaubten Verbesserungen wieder anzuwenden.Dieses bedeutet, dass sich Attribute, Fertigkeiten oder andere Werte verändern können, wenn die Gegenstände so etwas mit bringen. Es wird empfohlen den Charakter vorher zu speichern, bevor sie diese Operation durchführen. Wollen Sie wirklich die Verbesserungen erneut anwenden?</text>
+			<text>Chummer lädt alle unterstützten Charakterdaten und Verbesserungen aus den aktuellen XML-Dateien des Programms neu. Attribute, Fertigkeiten, Ausrüstungsboni und andere Werte können sich ändern, wenn die XML-Daten geändert wurden. Speichere den Charakter vorher, wenn du den aktuellen Stand behalten möchtest. Sollen wirklich alle Daten aus den XML-Dateien neu geladen werden?</text>
 		</string>
 		<string>
 			<key>MessageTitle_ConfirmReapplyImprovements</key>
-			<text>Verbesserung nochmal anwenden</text>
+			<text>Alle Daten aus XML-Dateien neu laden</text>
 		</string>
 		<string>
 			<key>Title_SelectSpellCategory</key>
