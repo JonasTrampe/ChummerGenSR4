@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-950</version>
+	<version>-951</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -614,7 +614,7 @@
 		</string>
 		<string>
 			<key>Menu_Main_ChummerWiki</key>
-			<text>&amp;Wiki de Chummer (anglais)</text>
+			<text>Github Repo (anglais)</text>
 		</string>
 		<string>
 			<key>Menu_Main_RevisionHistory</key>
