@@ -878,6 +878,12 @@
 			<capacity>0</capacity>
 			<avail>8</avail>
 			<cost>4000</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception (Touch)</name>
+					<bonus>2</bonus>
+				</specificskill>
+			</bonus>
 			<source>AU</source>
 			<page>67</page>
 		</bioware>
