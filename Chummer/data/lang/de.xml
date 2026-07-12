@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-948</version>
+	<version>-950</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6479,6 +6479,12 @@
 			<key>Checkbox_Option_TechnomancerAllowAutosoft</key>
 			<text>Technomancer dürfen Autosofts als Komplexe Form wählen</text>
 		</string>
+		<string>
+			<key>Checkbox_Option_RestrictStickNShock</key>
+			<text>Stick-n-Shock nach Waffenkategorie einschränken</text>
+		</string>
+		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock ist für die Waffenkategorie {0} nicht erlaubt.</text></string>
+		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Eingeschränkte Munition</text></string>
 		<!-- Version 425 -->
 		<string>
 			<key>Checkbox_Commlinks</key>

@@ -252,6 +252,8 @@
 			this.chkNoSingleArmorEncumbrance = new System.Windows.Forms.CheckBox();
 			this.tabHouseRules = new System.Windows.Forms.TabPage();
 			this.chkTechnomancerAllowAutosoft = new System.Windows.Forms.CheckBox();
+			this.chkRestrictStickNShock = new System.Windows.Forms.CheckBox();
+			this.clbStickNShockWeaponCategories = new System.Windows.Forms.CheckedListBox();
 			this.chkSpecialAttributeKarmaLimit = new System.Windows.Forms.CheckBox();
 			this.chkFreeSpiritsPowerPointsMAG = new System.Windows.Forms.CheckBox();
 			this.chkAllowBiowareSuites = new System.Windows.Forms.CheckBox();
@@ -2735,6 +2737,8 @@
 			// 
 			this.tabHouseRules.BackColor = System.Drawing.SystemColors.Control;
 			this.tabHouseRules.Controls.Add(this.chkTechnomancerAllowAutosoft);
+			this.tabHouseRules.Controls.Add(this.chkRestrictStickNShock);
+			this.tabHouseRules.Controls.Add(this.clbStickNShockWeaponCategories);
 			this.tabHouseRules.Controls.Add(this.chkSpecialAttributeKarmaLimit);
 			this.tabHouseRules.Controls.Add(this.chkFreeSpiritsPowerPointsMAG);
 			this.tabHouseRules.Controls.Add(this.chkAllowBiowareSuites);
@@ -2768,6 +2772,27 @@
 			this.tabHouseRules.TabIndex = 3;
 			this.tabHouseRules.Tag = "Tab_Options_HouseRules";
 			this.tabHouseRules.Text = "House Rules";
+			//
+			// chkRestrictStickNShock
+			//
+			this.chkRestrictStickNShock.AutoSize = true;
+			this.chkRestrictStickNShock.Location = new System.Drawing.Point(440, 8);
+			this.chkRestrictStickNShock.Name = "chkRestrictStickNShock";
+			this.chkRestrictStickNShock.Size = new System.Drawing.Size(320, 17);
+			this.chkRestrictStickNShock.TabIndex = 28;
+			this.chkRestrictStickNShock.Tag = "Checkbox_Option_RestrictStickNShock";
+			this.chkRestrictStickNShock.Text = "Restrict Stick-n-Shock by weapon category";
+			this.chkRestrictStickNShock.UseVisualStyleBackColor = true;
+			this.chkRestrictStickNShock.CheckedChanged += new System.EventHandler(this.chkRestrictStickNShock_CheckedChanged);
+			//
+			// clbStickNShockWeaponCategories
+			//
+			this.clbStickNShockWeaponCategories.CheckOnClick = true;
+			this.clbStickNShockWeaponCategories.FormattingEnabled = true;
+			this.clbStickNShockWeaponCategories.Location = new System.Drawing.Point(440, 31);
+			this.clbStickNShockWeaponCategories.Name = "clbStickNShockWeaponCategories";
+			this.clbStickNShockWeaponCategories.Size = new System.Drawing.Size(350, 514);
+			this.clbStickNShockWeaponCategories.TabIndex = 29;
 			// 
 			// chkTechnomancerAllowAutosoft
 			// 
@@ -3431,6 +3456,8 @@
 		private System.Windows.Forms.CheckBox chkFreeSpiritsPowerPointsMAG;
 		private System.Windows.Forms.CheckBox chkSpecialAttributeKarmaLimit;
 		private System.Windows.Forms.CheckBox chkTechnomancerAllowAutosoft;
+		private System.Windows.Forms.CheckBox chkRestrictStickNShock;
+		private System.Windows.Forms.CheckedListBox clbStickNShockWeaponCategories;
 		private System.Windows.Forms.CheckBox chkErgonomicProgramLimit;
 		private System.Windows.Forms.ComboBox cboEssenceDecimals;
 		private System.Windows.Forms.Label lblEssenceDecimals;

@@ -798,6 +798,8 @@ namespace Chummer
 		private bool _blnFreeSpiritPowerPointsMAG = false;
 		private bool _blnSpecialAttributeKarmaLimit = false;
 		private bool _blnTechnomancerAllowAutosoft = false;
+		private bool _blnRestrictStickNShock = false;
+		private readonly HashSet<string> _setStickNShockExcludedWeaponCategories = new HashSet<string>();
 		private string _strBookXPath = "";
 		private int _intNuyenPerBP = 5000;
 		private int _intFreeContactsMultiplier = 2;
@@ -1052,6 +1054,11 @@ namespace Chummer
 			objWriter.WriteElementString("specialattributekarmalimit", _blnSpecialAttributeKarmaLimit.ToString());
 			// <technomancerallowautosoft />
 			objWriter.WriteElementString("technomancerallowautosoft", _blnTechnomancerAllowAutosoft.ToString());
+			objWriter.WriteStartElement("sticknshockweaponrestrictions");
+			objWriter.WriteAttributeString("enabled", _blnRestrictStickNShock.ToString());
+			foreach (string strCategory in _setStickNShockExcludedWeaponCategories)
+				objWriter.WriteElementString("category", strCategory);
+			objWriter.WriteEndElement();
 
 			// <bpcost>
 			objWriter.WriteStartElement("bpcost");
@@ -1644,6 +1651,14 @@ namespace Chummer
 			}
 			catch
 			{
+			}
+			XmlNode objStickNShockRestrictions = objXmlDocument.SelectSingleNode("/settings/sticknshockweaponrestrictions");
+			if (objStickNShockRestrictions != null)
+			{
+				bool.TryParse(objStickNShockRestrictions.Attributes?["enabled"]?.InnerText, out _blnRestrictStickNShock);
+				_setStickNShockExcludedWeaponCategories.Clear();
+				foreach (XmlNode objCategory in objStickNShockRestrictions.SelectNodes("category"))
+					_setStickNShockExcludedWeaponCategories.Add(objCategory.InnerText);
 			}
 
 			// Attempt to populate the BP vlaues.
@@ -3141,6 +3156,14 @@ namespace Chummer
 				_blnTechnomancerAllowAutosoft = value;
 			}
 		}
+
+		public bool RestrictStickNShock
+		{
+			get { return _blnRestrictStickNShock; }
+			set { _blnRestrictStickNShock = value; }
+		}
+
+		public HashSet<string> StickNShockExcludedWeaponCategories => _setStickNShockExcludedWeaponCategories;
 		#endregion
 
 		#region BP

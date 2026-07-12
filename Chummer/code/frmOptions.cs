@@ -381,6 +381,10 @@ namespace Chummer
 			_objOptions.FreeSpiritPowerPointsMAG = chkFreeSpiritsPowerPointsMAG.Checked;
 			_objOptions.SpecialAttributeKarmaLimit = chkSpecialAttributeKarmaLimit.Checked;
 			_objOptions.TechnomancerAllowAutosoft = chkTechnomancerAllowAutosoft.Checked;
+			_objOptions.RestrictStickNShock = chkRestrictStickNShock.Checked;
+			_objOptions.StickNShockExcludedWeaponCategories.Clear();
+			foreach (ListItem objItem in clbStickNShockWeaponCategories.CheckedItems)
+				_objOptions.StickNShockExcludedWeaponCategories.Add(objItem.Value);
 			_objOptions.AllowSkillDiceRolling = chkAllowSkillDiceRolling.Checked;
 			_objOptions.CreateBackupOnCareer = chkCreateBackupOnCareer.Checked;
 			_objOptions.PrintLeadershipAlternates = chkPrintLeadershipAlternates.Checked;
@@ -907,6 +911,11 @@ namespace Chummer
 		/// <summary>
 		/// Set the values for all of the controls based on the Options for the selected Setting.
 		/// </summary>
+		private void chkRestrictStickNShock_CheckedChanged(object sender, EventArgs e)
+		{
+			clbStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
+		}
+
 		private void PopulateOptions()
 		{
 			// Load the Sourcebook information.
@@ -1569,6 +1578,21 @@ namespace Chummer
 			{
 			}
 			chkTechnomancerAllowAutosoft.Checked = blnTechnomancerAllowAutosoft;
+
+			chkRestrictStickNShock.Checked = _objOptions.RestrictStickNShock;
+			clbStickNShockWeaponCategories.Items.Clear();
+			XmlDocument objWeaponsDocument = XmlManager.Instance.Load("weapons.xml");
+			SortedSet<string> setCategories = new SortedSet<string>();
+			foreach (XmlNode objCategory in objWeaponsDocument.SelectNodes("/chummer/weapons/weapon[ammo and ammo != '0']/category"))
+				setCategories.Add(objCategory.InnerText);
+			foreach (string strCategory in setCategories)
+			{
+				ListItem objItem = new ListItem();
+				objItem.Name = strCategory;
+				objItem.Value = strCategory;
+				clbStickNShockWeaponCategories.Items.Add(objItem, _objOptions.StickNShockExcludedWeaponCategories.Contains(strCategory));
+			}
+			clbStickNShockWeaponCategories.Enabled = chkRestrictStickNShock.Checked;
 
 			if (_objOptions.LimbCount == 6)
 				cboLimbCount.SelectedValue = "all";

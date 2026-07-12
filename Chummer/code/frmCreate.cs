@@ -9651,6 +9651,7 @@ namespace Chummer
 		private bool IsAmmunitionCompatible(string strAmmoName, string strAmmoCategory)
 		{
 			if (strAmmoCategory == string.Empty) return false;
+			if (strAmmoName == "Ammo: Stick-n-Shock" && _objOptions.RestrictStickNShock && _objOptions.StickNShockExcludedWeaponCategories.Contains(strAmmoCategory)) return false;
 			if (strAmmoName.Contains("Arrow")) return strAmmoCategory == "Bows";
 			if (strAmmoName.Contains("Bolt")) return strAmmoCategory == "Crossbows";
 			if (strAmmoName.Contains("Assault Cannon")) return strAmmoCategory == "Assault Cannons";
@@ -18263,6 +18264,11 @@ namespace Chummer
 			// Open the Cyberware XML file and locate the selected piece.
 			objXmlDocument = XmlManager.Instance.Load("gear.xml");
 			objXmlGear = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + frmPickGear.SelectedGear + "\" and category = \"" + frmPickGear.SelectedCategory + "\"]");
+			if (frmPickGear.SelectedGear == "Ammo: Stick-n-Shock" && _objOptions.RestrictStickNShock && _objOptions.StickNShockExcludedWeaponCategories.Contains(strForceItemValue))
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_StickNShockWeaponCategoryRestricted").Replace("{0}", strForceItemValue), LanguageManager.Instance.GetString("MessageTitle_StickNShockWeaponCategoryRestricted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return false;
+			}
 			if (objSelectedGear.Name.StartsWith("Spare Clip") && !IsAmmunitionCompatible(frmPickGear.SelectedGear, strForceItemValue))
 			{
 				MessageBox.Show(LanguageManager.Instance.GetString("Message_SpareClipAmmoMismatch").Replace("{0}", frmPickGear.SelectedGear).Replace("{1}", objSelectedGear.DisplayNameShort), LanguageManager.Instance.GetString("MessageTitle_SpareClipAmmoMismatch"), MessageBoxButtons.OK, MessageBoxIcon.Information);
