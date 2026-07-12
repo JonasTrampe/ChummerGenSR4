@@ -709,17 +709,22 @@ namespace Chummer
 			XmlNode objXmlCharacter = objXmlDocument.SelectSingleNode("/character");
 			XmlNodeList objXmlNodeList;
 
-			try
-			{
-				_blnIgnoreRules = Convert.ToBoolean(objXmlCharacter["ignorerules"].InnerText);
+            try
+            {
+                if (objXmlCharacter["ignorerules"] != null)
+                    _blnIgnoreRules = Convert.ToBoolean(objXmlCharacter["ignorerules"].InnerText);
+                else
+                    _blnIgnoreRules = false;
+            }
+            catch
+            {
+                _blnIgnoreRules = false;
 			}
-			catch
+
+            try
 			{
-				_blnIgnoreRules = false;
-			}
-			try
-			{
-				_blnCreated = Convert.ToBoolean(objXmlCharacter["created"].InnerText);
+                if (objXmlCharacter["created"].InnerText != null)
+					_blnCreated = Convert.ToBoolean(objXmlCharacter["created"].InnerText);
 			}
 			catch
 			{
@@ -2421,6 +2426,21 @@ namespace Chummer
 					objSkill.Source = objXmlSkill["source"].InnerText;
 				if (objXmlSkill["page"] != null)
 					objSkill.Page = objXmlSkill["page"].InnerText;
+				if (objXmlSkill["isMeta"] != null && objXmlSkill["isMeta"].InnerText.Equals("true"))
+				{
+					objSkill.IsMeta = true;
+					if (objXmlSkill["metaBase"] == null)
+					{
+						throw new NotSupportedException("Metaskill without metabase");
+					}
+
+					objSkill.MetaBase = objXmlSkill["metaBase"].InnerText;
+
+                    if (objXmlSkill["metaSpec"] != null)
+                    {
+                        objSkill.MetaSpec = objXmlSkill["metaSpec"].InnerText;
+					}
+				}
 				_lstSkills.Add(objSkill);
 			}
 		}
@@ -2438,12 +2458,36 @@ namespace Chummer
 				case Improvement.ImprovementSource.Cyberware:
 					foreach (Cyberware objCyberware in _lstCyberware)
 					{
-						if (objCyberware.InternalId == objImprovement.SourceName)
-						{
-							strReturn = objCyberware.DisplayNameShort;
-							break;
-						}
+                        if (objCyberware.InternalId == objImprovement.SourceName)
+                        {
+                            strReturn = objCyberware.DisplayNameShort;
+                            break;
+                        }
+                        else
+                        {
+                            foreach (Cyberware objChild in objCyberware.Children)
+                            {
+                                if (objChild.InternalId == objImprovement.SourceName)
+                                {
+                                    strReturn = objChild.DisplayNameShort;
+                                    break;
+                                }
+                                else
+                                {
+                                    foreach (Cyberware objSubChild in objChild.Children)
+                                    {
+                                        if (objSubChild.InternalId == objImprovement.SourceName)
+                                        {
+                                            strReturn = objSubChild.DisplayNameShort;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
 					}
+
+                    strReturn = "(" + LanguageManager.Instance.GetString("Tab_Cyberware") + ") " + strReturn;
 					break;
 				case Improvement.ImprovementSource.Gear:
 					foreach (Gear objGear in _lstGear)
@@ -2476,6 +2520,7 @@ namespace Chummer
 							}
 						}
 					}
+                    strReturn = "(" + LanguageManager.Instance.GetString("Tab_Gear") + ") " + strReturn;
 					break;
 				case Improvement.ImprovementSource.Spell:
 					foreach (Spell objSpell in _lstSpells)

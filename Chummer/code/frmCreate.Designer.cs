@@ -9289,6 +9289,7 @@
 			this.splitSkills.Panel2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitSkills)).EndInit();
 			this.splitSkills.ResumeLayout(false);
+			this.splitSkills.PerformLayout();
 			this.tabMartialArts.ResumeLayout(false);
 			this.tabMartialArts.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMartialArtsRating)).EndInit();

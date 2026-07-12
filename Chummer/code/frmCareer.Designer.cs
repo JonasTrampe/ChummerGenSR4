@@ -374,6 +374,15 @@
             this.cmdAddMetamagic = new System.Windows.Forms.Button();
             this.lblInitiateGradeLabel = new System.Windows.Forms.Label();
             this.tabCyberware = new System.Windows.Forms.TabPage();
+            this.chkActiveCyberCommlink = new System.Windows.Forms.CheckBox();
+            this.lblCyberwareFirewall = new System.Windows.Forms.Label();
+            this.lblCyberwareFirewallLabel = new System.Windows.Forms.Label();
+            this.lblCyberwareSystem = new System.Windows.Forms.Label();
+            this.lblCyberwareSystemLabel = new System.Windows.Forms.Label();
+            this.lblCyberwareSignal = new System.Windows.Forms.Label();
+            this.lblCyberwareSignalLabel = new System.Windows.Forms.Label();
+            this.lblCyberwareResponse = new System.Windows.Forms.Label();
+            this.lblCyberwareResponseLabel = new System.Windows.Forms.Label();
             this.lblEssenceHoleESS = new System.Windows.Forms.Label();
             this.lblEssenceHoleESSLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -763,16 +772,16 @@
             this.cmdKarmaEdit = new System.Windows.Forms.Button();
             this.cmdKarmaGained = new System.Windows.Forms.Button();
             this.lstKarma = new System.Windows.Forms.ListView();
-            this.colKarmaDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colKarmaAmount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colKarmaReason = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colKarmaDate = new System.Windows.Forms.ColumnHeader();
+            this.colKarmaAmount = new System.Windows.Forms.ColumnHeader();
+            this.colKarmaReason = new System.Windows.Forms.ColumnHeader();
             this.cmdKarmaSpent = new System.Windows.Forms.Button();
             this.chtNuyen = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.cmdNuyenEdit = new System.Windows.Forms.Button();
             this.lstNuyen = new System.Windows.Forms.ListView();
-            this.colNuyenDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colNuyenAmount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colNuyenReason = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colNuyenDate = new System.Windows.Forms.ColumnHeader();
+            this.colNuyenAmount = new System.Windows.Forms.ColumnHeader();
+            this.colNuyenReason = new System.Windows.Forms.ColumnHeader();
             this.cmdNuyenSpent = new System.Windows.Forms.Button();
             this.cmdNuyenGained = new System.Windows.Forms.Button();
             this.tabCalendar = new System.Windows.Forms.TabPage();
@@ -780,8 +789,8 @@
             this.cmdEditWeek = new System.Windows.Forms.Button();
             this.cmdAddWeek = new System.Windows.Forms.Button();
             this.lstCalendar = new System.Windows.Forms.ListView();
-            this.colCalendarDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colCalendarNotes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colCalendarDate = new System.Windows.Forms.ColumnHeader();
+            this.colCalendarNotes = new System.Windows.Forms.ColumnHeader();
             this.tabNotes = new System.Windows.Forms.TabPage();
             this.txtGameNotes = new System.Windows.Forms.TextBox();
             this.tabImprovements = new System.Windows.Forms.TabPage();
@@ -975,15 +984,6 @@
             this.tsVehicleWeaponModNotes = new System.Windows.Forms.ToolStripMenuItem();
             this.cmsWeaponLocation = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsWeaponRenameLocation = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkActiveCyberCommlink = new System.Windows.Forms.CheckBox();
-            this.lblCyberwareFirewall = new System.Windows.Forms.Label();
-            this.lblCyberwareFirewallLabel = new System.Windows.Forms.Label();
-            this.lblCyberwareSystem = new System.Windows.Forms.Label();
-            this.lblCyberwareSystemLabel = new System.Windows.Forms.Label();
-            this.lblCyberwareSignal = new System.Windows.Forms.Label();
-            this.lblCyberwareSignalLabel = new System.Windows.Forms.Label();
-            this.lblCyberwareResponse = new System.Windows.Forms.Label();
-            this.lblCyberwareResponseLabel = new System.Windows.Forms.Label();
             this.StatusStrip.SuspendLayout();
             this.panAttributes.SuspendLayout();
             this.tabCharacterTabs.SuspendLayout();
@@ -1093,14 +1093,7 @@
             // 
             // StatusStrip
             // 
-            this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tssKarmaLabel,
-            this.tssKarma,
-            this.toolStripStatusLabel3,
-            this.tssEssence,
-            this.toolStripStatusLabel4,
-            this.tssNuyen,
-            this.pgbProgress});
+            this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tssKarmaLabel, this.tssKarma, this.toolStripStatusLabel3, this.tssEssence, this.toolStripStatusLabel4, this.tssNuyen, this.pgbProgress });
             this.StatusStrip.Location = new System.Drawing.Point(0, 640);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(1040, 24);
@@ -1940,8 +1933,7 @@
             this.chkArmorEquipped.TabIndex = 78;
             this.chkArmorEquipped.Tag = "Checkbox_Equipped";
             this.chkArmorEquipped.Text = "Equipped";
-            this.tipTooltip.SetToolTip(this.chkArmorEquipped, "Equipped Armor and Armor Mods are factored into Armor Encumbrance and a character" +
-        "\'s highest Armor Ratings.");
+            this.tipTooltip.SetToolTip(this.chkArmorEquipped, "Equipped Armor and Armor Mods are factored into Armor Encumbrance and a character" + "\'s highest Armor Ratings.");
             this.chkArmorEquipped.UseVisualStyleBackColor = true;
             this.chkArmorEquipped.CheckedChanged += new System.EventHandler(this.chkArmorEquipped_CheckedChanged);
             // 
@@ -1965,8 +1957,7 @@
             this.lblMatrixIPLabel.TabIndex = 38;
             this.lblMatrixIPLabel.Tag = "Label_OtherMatrixIP";
             this.lblMatrixIPLabel.Text = "Matrix Initiative Passes:";
-            this.tipTooltip.SetToolTip(this.lblMatrixIPLabel, "Characters have 1 Matrix Initiative Pass unless increased through a Cold or Hit S" +
-        "im.");
+            this.tipTooltip.SetToolTip(this.lblMatrixIPLabel, "Characters have 1 Matrix Initiative Pass unless increased through a Cold or Hit S" + "im.");
             // 
             // lblRemainingNuyenLabel
             // 
@@ -1988,8 +1979,7 @@
             this.lblESS.TabIndex = 34;
             this.lblESS.Tag = "Label_OtherEssence";
             this.lblESS.Text = "Essence:";
-            this.tipTooltip.SetToolTip(this.lblESS, "Characters start with 6 Essence which is decreased by adding Cyberware and Biowar" +
-        "e.");
+            this.tipTooltip.SetToolTip(this.lblESS, "Characters start with 6 Essence which is decreased by adding Cyberware and Biowar" + "e.");
             // 
             // lblIPLabel
             // 
@@ -2253,8 +2243,7 @@
             this.lblPublicAware.TabIndex = 75;
             this.lblPublicAware.Tag = "Label_PublicAwareness";
             this.lblPublicAware.Text = "Public Aware:";
-            this.tipTooltip.SetToolTip(this.lblPublicAware, "Public Awareness is calculated as (Street Cred + Notoriety) ÷ 3, rounded down, an" +
-        "d can be further adjusted by Game Masters.");
+            this.tipTooltip.SetToolTip(this.lblPublicAware, "Public Awareness is calculated as (Street Cred + Notoriety) ÷ 3, rounded down, an" + "d can be further adjusted by Game Masters.");
             // 
             // lblNotoriety
             // 
@@ -2265,9 +2254,7 @@
             this.lblNotoriety.TabIndex = 73;
             this.lblNotoriety.Tag = "Label_Notoriety";
             this.lblNotoriety.Text = "Notoriety:";
-            this.tipTooltip.SetToolTip(this.lblNotoriety, "Notoriety is typically gained through Qualities and can be further adjusted by Ga" +
-        "me Masters. Notoriety can be reduced by 1 point by burning 2 points of Street Cr" +
-        "ed.");
+            this.tipTooltip.SetToolTip(this.lblNotoriety, "Notoriety is typically gained through Qualities and can be further adjusted by Ga" + "me Masters. Notoriety can be reduced by 1 point by burning 2 points of Street Cr" + "ed.");
             // 
             // lblStreetCred
             // 
@@ -2278,8 +2265,7 @@
             this.lblStreetCred.TabIndex = 71;
             this.lblStreetCred.Tag = "Label_StreetCred";
             this.lblStreetCred.Text = "Street Cred:";
-            this.tipTooltip.SetToolTip(this.lblStreetCred, "Street Cred is calculated as Career Karma ÷ 10, rounded up, and can be further ad" +
-        "justed by Game Masters.");
+            this.tipTooltip.SetToolTip(this.lblStreetCred, "Street Cred is calculated as Career Karma ÷ 10, rounded up, and can be further ad" + "justed by Game Masters.");
             // 
             // cmdImproveMartialArtsRating
             // 
@@ -2676,9 +2662,7 @@
             // 
             // tabCharacterTabs
             // 
-            this.tabCharacterTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabCharacterTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.tabCharacterTabs.Controls.Add(this.tabCommon);
             this.tabCharacterTabs.Controls.Add(this.tabSkills);
             this.tabCharacterTabs.Controls.Add(this.tabMartialArts);
@@ -2800,24 +2784,12 @@
             // 
             this.nudSignal.Enabled = false;
             this.nudSignal.Location = new System.Drawing.Point(712, 209);
-            this.nudSignal.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.nudSignal.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudSignal.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            this.nudSignal.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudSignal.Name = "nudSignal";
             this.nudSignal.Size = new System.Drawing.Size(40, 20);
             this.nudSignal.TabIndex = 85;
-            this.nudSignal.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudSignal.Value = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudSignal.Visible = false;
             this.nudSignal.ValueChanged += new System.EventHandler(this.nudSignal_ValueChanged);
             // 
@@ -2825,24 +2797,12 @@
             // 
             this.nudResponse.Enabled = false;
             this.nudResponse.Location = new System.Drawing.Point(712, 183);
-            this.nudResponse.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.nudResponse.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudResponse.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            this.nudResponse.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudResponse.Name = "nudResponse";
             this.nudResponse.Size = new System.Drawing.Size(40, 20);
             this.nudResponse.TabIndex = 76;
-            this.nudResponse.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudResponse.Value = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudResponse.Visible = false;
             this.nudResponse.ValueChanged += new System.EventHandler(this.nudResponse_ValueChanged);
             // 
@@ -2957,8 +2917,7 @@
             // 
             // treQualities
             // 
-            this.treQualities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treQualities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treQualities.Indent = 15;
             this.treQualities.Location = new System.Drawing.Point(6, 38);
             this.treQualities.Name = "treQualities";
@@ -2968,9 +2927,7 @@
             treeNode2.Name = "nodNegativeQualityRoot";
             treeNode2.Tag = "Node_SelectedNegativeQualities";
             treeNode2.Text = "Selected Negative Qualities";
-            this.treQualities.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2});
+            this.treQualities.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode1, treeNode2 });
             this.treQualities.ShowNodeToolTips = true;
             this.treQualities.ShowPlusMinus = false;
             this.treQualities.ShowRootLines = false;
@@ -2982,9 +2939,7 @@
             // 
             // splitContacts
             // 
-            this.splitContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContacts.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.splitContacts.Location = new System.Drawing.Point(288, 345);
             this.splitContacts.Name = "splitContacts";
@@ -3094,9 +3049,7 @@
             // 
             // splitSkills
             // 
-            this.splitSkills.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitSkills.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.splitSkills.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.splitSkills.Location = new System.Drawing.Point(0, 0);
             this.splitSkills.Name = "splitSkills";
@@ -3137,8 +3090,7 @@
             // 
             // panActiveSkills
             // 
-            this.panActiveSkills.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panActiveSkills.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.panActiveSkills.AutoScroll = true;
             this.panActiveSkills.Location = new System.Drawing.Point(273, 23);
             this.panActiveSkills.Margin = new System.Windows.Forms.Padding(0);
@@ -3148,8 +3100,7 @@
             // 
             // panSkillGroups
             // 
-            this.panSkillGroups.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panSkillGroups.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.panSkillGroups.AutoScroll = true;
             this.panSkillGroups.Location = new System.Drawing.Point(6, 23);
             this.panSkillGroups.Name = "panSkillGroups";
@@ -3223,9 +3174,7 @@
             // 
             // cmsMartialArts
             // 
-            this.cmsMartialArts.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsMartialArtsAddAdvantage,
-            this.tsMartialArtsNotes});
+            this.cmsMartialArts.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsMartialArtsAddAdvantage, this.tsMartialArtsNotes });
             this.cmsMartialArts.Name = "cmsWeapon";
             this.cmsMartialArts.Size = new System.Drawing.Size(157, 48);
             this.cmsMartialArts.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -3301,8 +3250,7 @@
             // 
             // treMartialArts
             // 
-            this.treMartialArts.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treMartialArts.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treMartialArts.HideSelection = false;
             this.treMartialArts.Location = new System.Drawing.Point(8, 35);
             this.treMartialArts.Name = "treMartialArts";
@@ -3312,9 +3260,7 @@
             treeNode4.Name = "nodMartialArtManeuvers";
             treeNode4.Tag = "Node_SelectedManeuvers";
             treeNode4.Text = "Selected Maneuvers";
-            this.treMartialArts.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode3,
-            treeNode4});
+            this.treMartialArts.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode3, treeNode4 });
             this.treMartialArts.ShowNodeToolTips = true;
             this.treMartialArts.ShowPlusMinus = false;
             this.treMartialArts.ShowRootLines = false;
@@ -3669,13 +3615,7 @@
             treeNode10.Name = "nodSpellGeomancyRoot";
             treeNode10.Tag = "Node_SelectedGeomancyRituals";
             treeNode10.Text = "Selected Geomancy Rituals";
-            this.treSpells.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode5,
-            treeNode6,
-            treeNode7,
-            treeNode8,
-            treeNode9,
-            treeNode10});
+            this.treSpells.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode5, treeNode6, treeNode7, treeNode8, treeNode9, treeNode10 });
             this.treSpells.ShowNodeToolTips = true;
             this.treSpells.ShowRootLines = false;
             this.treSpells.Size = new System.Drawing.Size(295, 333);
@@ -3709,8 +3649,7 @@
             // 
             // panSpirits
             // 
-            this.panSpirits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panSpirits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.panSpirits.AutoScroll = true;
             this.panSpirits.Location = new System.Drawing.Point(11, 449);
             this.panSpirits.Name = "panSpirits";
@@ -3761,8 +3700,7 @@
             // 
             // cmsSpellButton
             // 
-            this.cmsSpellButton.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCreateSpell});
+            this.cmsSpellButton.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCreateSpell });
             this.cmsSpellButton.Name = "cmsSpellButton";
             this.cmsSpellButton.Size = new System.Drawing.Size(137, 26);
             this.cmsSpellButton.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -3791,9 +3729,7 @@
             // 
             // panPowers
             // 
-            this.panPowers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panPowers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.panPowers.Location = new System.Drawing.Point(11, 54);
             this.panPowers.Name = "panPowers";
             this.panPowers.Size = new System.Drawing.Size(827, 554);
@@ -4219,16 +4155,7 @@
             treeNode19.Name = "nodProgramTacticaARRoot";
             treeNode19.Tag = "Node_SelectedTacticalARComplexForms";
             treeNode19.Text = "Select Tactical AR Complex Forms";
-            this.treComplexForms.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode11,
-            treeNode12,
-            treeNode13,
-            treeNode14,
-            treeNode15,
-            treeNode16,
-            treeNode17,
-            treeNode18,
-            treeNode19});
+            this.treComplexForms.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode11, treeNode12, treeNode13, treeNode14, treeNode15, treeNode16, treeNode17, treeNode18, treeNode19 });
             this.treComplexForms.ShowNodeToolTips = true;
             this.treComplexForms.ShowRootLines = false;
             this.treComplexForms.Size = new System.Drawing.Size(295, 333);
@@ -4262,8 +4189,7 @@
             // 
             // panSprites
             // 
-            this.panSprites.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panSprites.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.panSprites.AutoScroll = true;
             this.panSprites.Location = new System.Drawing.Point(8, 445);
             this.panSprites.Name = "panSprites";
@@ -4273,19 +4199,11 @@
             // nudComplexFormRating
             // 
             this.nudComplexFormRating.Location = new System.Drawing.Point(391, 51);
-            this.nudComplexFormRating.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudComplexFormRating.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudComplexFormRating.Name = "nudComplexFormRating";
             this.nudComplexFormRating.Size = new System.Drawing.Size(34, 20);
             this.nudComplexFormRating.TabIndex = 133;
-            this.nudComplexFormRating.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.nudComplexFormRating.Value = new decimal(new int[] { 1, 0, 0, 0 });
             this.nudComplexFormRating.Visible = false;
             this.nudComplexFormRating.ValueChanged += new System.EventHandler(this.nudComplexFormRating_ValueChanged);
             // 
@@ -4305,9 +4223,7 @@
             // 
             // cmsComplexForm
             // 
-            this.cmsComplexForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsAddComplexFormOption,
-            this.tsComplexFormNotes});
+            this.cmsComplexForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsAddComplexFormOption, this.tsComplexFormNotes });
             this.cmsComplexForm.Name = "cmsComplexForm";
             this.cmsComplexForm.Size = new System.Drawing.Size(137, 48);
             this.cmsComplexForm.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -4576,8 +4492,7 @@
             // 
             // treCritterPowers
             // 
-            this.treCritterPowers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treCritterPowers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treCritterPowers.HideSelection = false;
             this.treCritterPowers.Location = new System.Drawing.Point(8, 32);
             this.treCritterPowers.Name = "treCritterPowers";
@@ -4587,9 +4502,7 @@
             treeNode21.Name = "nodCritterWeaknessRoot";
             treeNode21.Tag = "Node_CritterWeaknesses";
             treeNode21.Text = "Weaknesses";
-            this.treCritterPowers.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode20,
-            treeNode21});
+            this.treCritterPowers.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode20, treeNode21 });
             this.treCritterPowers.ShowNodeToolTips = true;
             this.treCritterPowers.ShowPlusMinus = false;
             this.treCritterPowers.ShowRootLines = false;
@@ -4641,8 +4554,7 @@
             // 
             // txtGroupNotes
             // 
-            this.txtGroupNotes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtGroupNotes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.txtGroupNotes.Location = new System.Drawing.Point(421, 299);
             this.txtGroupNotes.Multiline = true;
             this.txtGroupNotes.Name = "txtGroupNotes";
@@ -4751,8 +4663,7 @@
             // 
             // treMetamagic
             // 
-            this.treMetamagic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treMetamagic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treMetamagic.HideSelection = false;
             this.treMetamagic.Location = new System.Drawing.Point(8, 35);
             this.treMetamagic.Name = "treMetamagic";
@@ -4847,6 +4758,95 @@
             this.tabCyberware.TabIndex = 4;
             this.tabCyberware.Tag = "Tab_Cyberware";
             this.tabCyberware.Text = "Cyberware and Bioware";
+            // 
+            // chkActiveCyberCommlink
+            // 
+            this.chkActiveCyberCommlink.AutoSize = true;
+            this.chkActiveCyberCommlink.Location = new System.Drawing.Point(312, 210);
+            this.chkActiveCyberCommlink.Name = "chkActiveCyberCommlink";
+            this.chkActiveCyberCommlink.Size = new System.Drawing.Size(104, 17);
+            this.chkActiveCyberCommlink.TabIndex = 144;
+            this.chkActiveCyberCommlink.Tag = "Checkbox_ActiveCommlink";
+            this.chkActiveCyberCommlink.Text = "Active Commlink";
+            this.chkActiveCyberCommlink.UseVisualStyleBackColor = true;
+            this.chkActiveCyberCommlink.Visible = false;
+            this.chkActiveCyberCommlink.CheckedChanged += new System.EventHandler(this.chkActiveCyberCommlink_CheckedChanged);
+            // 
+            // lblCyberwareFirewall
+            // 
+            this.lblCyberwareFirewall.AutoSize = true;
+            this.lblCyberwareFirewall.Location = new System.Drawing.Point(624, 189);
+            this.lblCyberwareFirewall.Name = "lblCyberwareFirewall";
+            this.lblCyberwareFirewall.Size = new System.Drawing.Size(19, 13);
+            this.lblCyberwareFirewall.TabIndex = 143;
+            this.lblCyberwareFirewall.Text = "[0]";
+            // 
+            // lblCyberwareFirewallLabel
+            // 
+            this.lblCyberwareFirewallLabel.AutoSize = true;
+            this.lblCyberwareFirewallLabel.Location = new System.Drawing.Point(573, 189);
+            this.lblCyberwareFirewallLabel.Name = "lblCyberwareFirewallLabel";
+            this.lblCyberwareFirewallLabel.Size = new System.Drawing.Size(45, 13);
+            this.lblCyberwareFirewallLabel.TabIndex = 142;
+            this.lblCyberwareFirewallLabel.Tag = "Label_Firewall";
+            this.lblCyberwareFirewallLabel.Text = "Firewall:";
+            // 
+            // lblCyberwareSystem
+            // 
+            this.lblCyberwareSystem.AutoSize = true;
+            this.lblCyberwareSystem.Location = new System.Drawing.Point(538, 189);
+            this.lblCyberwareSystem.Name = "lblCyberwareSystem";
+            this.lblCyberwareSystem.Size = new System.Drawing.Size(19, 13);
+            this.lblCyberwareSystem.TabIndex = 141;
+            this.lblCyberwareSystem.Text = "[0]";
+            // 
+            // lblCyberwareSystemLabel
+            // 
+            this.lblCyberwareSystemLabel.AutoSize = true;
+            this.lblCyberwareSystemLabel.Location = new System.Drawing.Point(488, 189);
+            this.lblCyberwareSystemLabel.Name = "lblCyberwareSystemLabel";
+            this.lblCyberwareSystemLabel.Size = new System.Drawing.Size(44, 13);
+            this.lblCyberwareSystemLabel.TabIndex = 140;
+            this.lblCyberwareSystemLabel.Tag = "Label_System";
+            this.lblCyberwareSystemLabel.Text = "System:";
+            // 
+            // lblCyberwareSignal
+            // 
+            this.lblCyberwareSignal.AutoSize = true;
+            this.lblCyberwareSignal.Location = new System.Drawing.Point(453, 189);
+            this.lblCyberwareSignal.Name = "lblCyberwareSignal";
+            this.lblCyberwareSignal.Size = new System.Drawing.Size(19, 13);
+            this.lblCyberwareSignal.TabIndex = 139;
+            this.lblCyberwareSignal.Text = "[0]";
+            // 
+            // lblCyberwareSignalLabel
+            // 
+            this.lblCyberwareSignalLabel.AutoSize = true;
+            this.lblCyberwareSignalLabel.Location = new System.Drawing.Point(408, 189);
+            this.lblCyberwareSignalLabel.Name = "lblCyberwareSignalLabel";
+            this.lblCyberwareSignalLabel.Size = new System.Drawing.Size(39, 13);
+            this.lblCyberwareSignalLabel.TabIndex = 138;
+            this.lblCyberwareSignalLabel.Tag = "Label_Signal";
+            this.lblCyberwareSignalLabel.Text = "Signal:";
+            // 
+            // lblCyberwareResponse
+            // 
+            this.lblCyberwareResponse.AutoSize = true;
+            this.lblCyberwareResponse.Location = new System.Drawing.Point(373, 189);
+            this.lblCyberwareResponse.Name = "lblCyberwareResponse";
+            this.lblCyberwareResponse.Size = new System.Drawing.Size(19, 13);
+            this.lblCyberwareResponse.TabIndex = 137;
+            this.lblCyberwareResponse.Text = "[0]";
+            // 
+            // lblCyberwareResponseLabel
+            // 
+            this.lblCyberwareResponseLabel.AutoSize = true;
+            this.lblCyberwareResponseLabel.Location = new System.Drawing.Point(309, 189);
+            this.lblCyberwareResponseLabel.Name = "lblCyberwareResponseLabel";
+            this.lblCyberwareResponseLabel.Size = new System.Drawing.Size(58, 13);
+            this.lblCyberwareResponseLabel.TabIndex = 136;
+            this.lblCyberwareResponseLabel.Tag = "Label_Response";
+            this.lblCyberwareResponseLabel.Text = "Response:";
             // 
             // lblEssenceHoleESS
             // 
@@ -5101,8 +5101,7 @@
             // 
             // treCyberware
             // 
-            this.treCyberware.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treCyberware.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treCyberware.HideSelection = false;
             this.treCyberware.Location = new System.Drawing.Point(8, 36);
             this.treCyberware.Name = "treCyberware";
@@ -5112,9 +5111,7 @@
             treeNode23.Name = "nodBioware";
             treeNode23.Tag = "Node_SelectedBioware";
             treeNode23.Text = "Selected Bioware";
-            this.treCyberware.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode22,
-            treeNode23});
+            this.treCyberware.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode22, treeNode23 });
             this.treCyberware.ShowNodeToolTips = true;
             this.treCyberware.ShowRootLines = false;
             this.treCyberware.Size = new System.Drawing.Size(295, 572);
@@ -5139,10 +5136,7 @@
             // 
             // cmsCyberware
             // 
-            this.cmsCyberware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCyberwareAddAsPlugin,
-            this.tsCyberwareAddGear,
-            this.tsCyberwareNotes});
+            this.cmsCyberware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCyberwareAddAsPlugin, this.tsCyberwareAddGear, this.tsCyberwareNotes });
             this.cmsCyberware.Name = "cmsCyberware";
             this.cmsCyberware.Size = new System.Drawing.Size(148, 70);
             this.cmsCyberware.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -5190,8 +5184,7 @@
             // 
             // cmsDeleteCyberware
             // 
-            this.cmsDeleteCyberware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCyberwareSell});
+            this.cmsDeleteCyberware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCyberwareSell });
             this.cmsDeleteCyberware.Name = "cmsCyberware";
             this.cmsDeleteCyberware.Size = new System.Drawing.Size(120, 26);
             this.cmsDeleteCyberware.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -5218,9 +5211,7 @@
             // 
             // tabStreetGearTabs
             // 
-            this.tabStreetGearTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabStreetGearTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.tabStreetGearTabs.Controls.Add(this.tabLifestyle);
             this.tabStreetGearTabs.Controls.Add(this.tabArmor);
             this.tabStreetGearTabs.Controls.Add(this.tabWeapons);
@@ -5396,10 +5387,7 @@
             // 
             // cmsLifestyle
             // 
-            this.cmsLifestyle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsAdvancedLifestyle,
-            this.tsBoltHole,
-            this.tsSafehouse});
+            this.cmsLifestyle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsAdvancedLifestyle, this.tsBoltHole, this.tsSafehouse });
             this.cmsLifestyle.Name = "cmsLifestyle";
             this.cmsLifestyle.Size = new System.Drawing.Size(174, 70);
             this.cmsLifestyle.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -5471,16 +5459,14 @@
             // treLifestyles
             // 
             this.treLifestyles.AllowDrop = true;
-            this.treLifestyles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treLifestyles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treLifestyles.HideSelection = false;
             this.treLifestyles.Location = new System.Drawing.Point(6, 36);
             this.treLifestyles.Name = "treLifestyles";
             treeNode24.Name = "nodLifestylesRoot";
             treeNode24.Tag = "Node_SelectedLifestyles";
             treeNode24.Text = "Selected Lifestyles";
-            this.treLifestyles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode24});
+            this.treLifestyles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode24 });
             this.treLifestyles.ShowNodeToolTips = true;
             this.treLifestyles.ShowRootLines = false;
             this.treLifestyles.Size = new System.Drawing.Size(295, 537);
@@ -5721,16 +5707,14 @@
             // treArmor
             // 
             this.treArmor.AllowDrop = true;
-            this.treArmor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treArmor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treArmor.HideSelection = false;
             this.treArmor.Location = new System.Drawing.Point(6, 36);
             this.treArmor.Name = "treArmor";
             treeNode25.Name = "nodArmorRoot";
             treeNode25.Tag = "Node_SelectedArmor";
             treeNode25.Text = "Selected Armor";
-            this.treArmor.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode25});
+            this.treArmor.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode25 });
             this.treArmor.ShowNodeToolTips = true;
             this.treArmor.Size = new System.Drawing.Size(295, 537);
             this.treArmor.TabIndex = 69;
@@ -5803,11 +5787,7 @@
             // 
             // cmsArmor
             // 
-            this.cmsArmor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsAddArmorMod,
-            this.tsAddArmorGear,
-            this.tsArmorName,
-            this.tsArmorNotes});
+            this.cmsArmor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsAddArmorMod, this.tsAddArmorGear, this.tsArmorName, this.tsArmorNotes });
             this.cmsArmor.Name = "cmsWeapon";
             this.cmsArmor.Size = new System.Drawing.Size(162, 92);
             this.cmsArmor.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -5864,8 +5844,7 @@
             // 
             // cmsDeleteArmor
             // 
-            this.cmsDeleteArmor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsArmorSell});
+            this.cmsDeleteArmor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsArmorSell });
             this.cmsDeleteArmor.Name = "cmsDeleteArmor";
             this.cmsDeleteArmor.Size = new System.Drawing.Size(120, 26);
             this.cmsDeleteArmor.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -6206,16 +6185,14 @@
             // treWeapons
             // 
             this.treWeapons.AllowDrop = true;
-            this.treWeapons.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treWeapons.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treWeapons.HideSelection = false;
             this.treWeapons.Location = new System.Drawing.Point(6, 36);
             this.treWeapons.Name = "treWeapons";
             treeNode26.Name = "nodWeaponsRoot";
             treeNode26.Tag = "Node_SelectedWeapons";
             treeNode26.Text = "Selected Weapons";
-            this.treWeapons.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode26});
+            this.treWeapons.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode26 });
             this.treWeapons.ShowNodeToolTips = true;
             this.treWeapons.Size = new System.Drawing.Size(295, 540);
             this.treWeapons.TabIndex = 29;
@@ -6425,13 +6402,7 @@
             // 
             // cmsWeapon
             // 
-            this.cmsWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCreateNaturalWeapon,
-            this.tsWeaponAddAccessory,
-            this.tsWeaponAddModification,
-            this.tsWeaponAddUnderbarrel,
-            this.tsWeaponName,
-            this.tsWeaponNotes});
+            this.cmsWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCreateNaturalWeapon, this.tsWeaponAddAccessory, this.tsWeaponAddModification, this.tsWeaponAddUnderbarrel, this.tsWeaponName, this.tsWeaponNotes });
             this.cmsWeapon.Name = "cmsWeapon";
             this.cmsWeapon.Size = new System.Drawing.Size(209, 136);
             this.cmsWeapon.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -6506,8 +6477,7 @@
             // 
             // cmsDeleteWeapon
             // 
-            this.cmsDeleteWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsWeaponSell});
+            this.cmsDeleteWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsWeaponSell });
             this.cmsDeleteWeapon.Name = "cmsDeleteWeapon";
             this.cmsDeleteWeapon.Size = new System.Drawing.Size(120, 26);
             this.cmsDeleteWeapon.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -6538,12 +6508,7 @@
             // 
             // cmsAmmoExpense
             // 
-            this.cmsAmmoExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cmsAmmoSingleShot,
-            this.cmsAmmoShortBurst,
-            this.cmsAmmoLongBurst,
-            this.cmsAmmoFullBurst,
-            this.cmsAmmoSuppressiveFire});
+            this.cmsAmmoExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.cmsAmmoSingleShot, this.cmsAmmoShortBurst, this.cmsAmmoLongBurst, this.cmsAmmoFullBurst, this.cmsAmmoSuppressiveFire });
             this.cmsAmmoExpense.Name = "cmsAmmoExpense";
             this.cmsAmmoExpense.Size = new System.Drawing.Size(220, 114);
             this.cmsAmmoExpense.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -6760,8 +6725,7 @@
             // 
             // treFoci
             // 
-            this.treFoci.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treFoci.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treFoci.CheckBoxes = true;
             this.treFoci.Location = new System.Drawing.Point(310, 348);
             this.treFoci.Name = "treFoci";
@@ -6987,16 +6951,14 @@
             // treGear
             // 
             this.treGear.AllowDrop = true;
-            this.treGear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treGear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treGear.HideSelection = false;
             this.treGear.Location = new System.Drawing.Point(6, 36);
             this.treGear.Name = "treGear";
             treeNode27.Name = "nodGearRoot";
             treeNode27.Tag = "Node_SelectedGear";
             treeNode27.Text = "Selected Gear";
-            this.treGear.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode27});
+            this.treGear.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode27 });
             this.treGear.ShowNodeToolTips = true;
             this.treGear.Size = new System.Drawing.Size(295, 540);
             this.treGear.TabIndex = 49;
@@ -7021,9 +6983,7 @@
             // 
             // cmsGearButton
             // 
-            this.cmsGearButton.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsGearButtonAddAccessory,
-            this.tsGearAddNexus});
+            this.cmsGearButton.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsGearButtonAddAccessory, this.tsGearAddNexus });
             this.cmsGearButton.Name = "cmsGearButton";
             this.cmsGearButton.Size = new System.Drawing.Size(153, 48);
             this.cmsGearButton.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -7062,8 +7022,7 @@
             // 
             // cmsDeleteGear
             // 
-            this.cmsDeleteGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sellItemToolStripMenuItem});
+            this.cmsDeleteGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.sellItemToolStripMenuItem });
             this.cmsDeleteGear.Name = "cmsDeleteGear";
             this.cmsDeleteGear.Size = new System.Drawing.Size(120, 26);
             this.cmsDeleteGear.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -7092,9 +7051,7 @@
             // 
             // panPets
             // 
-            this.panPets.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panPets.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.panPets.AutoScroll = true;
             this.panPets.Location = new System.Drawing.Point(6, 36);
             this.panPets.Margin = new System.Windows.Forms.Padding(0);
@@ -8438,16 +8395,14 @@
             // treVehicles
             // 
             this.treVehicles.AllowDrop = true;
-            this.treVehicles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treVehicles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treVehicles.HideSelection = false;
             this.treVehicles.Location = new System.Drawing.Point(8, 36);
             this.treVehicles.Name = "treVehicles";
             treeNode28.Name = "nodVehiclesRoot";
             treeNode28.Tag = "Node_SelectedVehicles";
             treeNode28.Text = "Selected Vehicles";
-            this.treVehicles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode28});
+            this.treVehicles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode28 });
             this.treVehicles.ShowNodeToolTips = true;
             this.treVehicles.ShowRootLines = false;
             this.treVehicles.Size = new System.Drawing.Size(403, 572);
@@ -8487,13 +8442,7 @@
             // 
             // cmsVehicle
             // 
-            this.cmsVehicle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleAddMod,
-            this.tsVehicleAddCyberware,
-            this.tsVehicleAddSensor,
-            this.tsVehicleAddWeapon,
-            this.tsVehicleName,
-            this.tsVehicleNotes});
+            this.cmsVehicle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleAddMod, this.tsVehicleAddCyberware, this.tsVehicleAddSensor, this.tsVehicleAddWeapon, this.tsVehicleName, this.tsVehicleNotes });
             this.cmsVehicle.Name = "cmsWeapon";
             this.cmsVehicle.Size = new System.Drawing.Size(193, 136);
             this.cmsVehicle.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -8518,10 +8467,7 @@
             // 
             // tsVehicleAddSensor
             // 
-            this.tsVehicleAddSensor.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleAddGear,
-            this.tsVehicleSensorAddAsPlugin,
-            this.tsVehicleAddNexus});
+            this.tsVehicleAddSensor.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleAddGear, this.tsVehicleSensorAddAsPlugin, this.tsVehicleAddNexus });
             this.tsVehicleAddSensor.Image = global::Chummer.Properties.Resources.camera_add;
             this.tsVehicleAddSensor.Name = "tsVehicleAddSensor";
             this.tsVehicleAddSensor.Size = new System.Drawing.Size(192, 22);
@@ -8558,11 +8504,7 @@
             // 
             // tsVehicleAddWeapon
             // 
-            this.tsVehicleAddWeapon.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleAddWeaponWeapon,
-            this.tsVehicleAddWeaponAccessory,
-            this.tsVehicleAddWeaponModification,
-            this.tsVehicleAddUnderbarrelWeapon});
+            this.tsVehicleAddWeapon.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleAddWeaponWeapon, this.tsVehicleAddWeaponAccessory, this.tsVehicleAddWeaponModification, this.tsVehicleAddUnderbarrelWeapon });
             this.tsVehicleAddWeapon.Image = global::Chummer.Properties.Resources.award_star_add;
             this.tsVehicleAddWeapon.Name = "tsVehicleAddWeapon";
             this.tsVehicleAddWeapon.Size = new System.Drawing.Size(192, 22);
@@ -8641,14 +8583,9 @@
             // 
             // cmdVehicleAmmoExpense
             // 
-            this.cmdVehicleAmmoExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cmsVehicleAmmoSingleShot,
-            this.cmsVehicleAmmoShortBurst,
-            this.cmsVehicleAmmoLongBurst,
-            this.cmsVehicleAmmoFullBurst,
-            this.cmsVehicleAmmoSuppressiveFire});
+            this.cmdVehicleAmmoExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.cmsVehicleAmmoSingleShot, this.cmsVehicleAmmoShortBurst, this.cmsVehicleAmmoLongBurst, this.cmsVehicleAmmoFullBurst, this.cmsVehicleAmmoSuppressiveFire });
             this.cmdVehicleAmmoExpense.Name = "contextMenuStrip1";
-            this.cmdVehicleAmmoExpense.Size = new System.Drawing.Size(220, 114);
+            this.cmdVehicleAmmoExpense.Size = new System.Drawing.Size(220, 136);
             this.cmdVehicleAmmoExpense.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
             // 
             // cmsVehicleAmmoSingleShot
@@ -8705,8 +8642,7 @@
             // 
             // cmsDeleteVehicle
             // 
-            this.cmsDeleteVehicle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleSell});
+            this.cmsDeleteVehicle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleSell });
             this.cmsDeleteVehicle.Name = "cmsDeleteVehicle";
             this.cmsDeleteVehicle.Size = new System.Drawing.Size(120, 26);
             this.cmsDeleteVehicle.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -9120,9 +9056,7 @@
             // 
             // splitKarmaNuyen
             // 
-            this.splitKarmaNuyen.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitKarmaNuyen.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.splitKarmaNuyen.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.splitKarmaNuyen.Location = new System.Drawing.Point(3, 3);
             this.splitKarmaNuyen.Name = "splitKarmaNuyen";
@@ -9187,12 +9121,8 @@
             // 
             // lstKarma
             // 
-            this.lstKarma.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.lstKarma.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colKarmaDate,
-            this.colKarmaAmount,
-            this.colKarmaReason});
+            this.lstKarma.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
+            this.lstKarma.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { this.colKarmaDate, this.colKarmaAmount, this.colKarmaReason });
             this.lstKarma.FullRowSelect = true;
             this.lstKarma.GridLines = true;
             this.lstKarma.HideSelection = false;
@@ -9262,12 +9192,8 @@
             // 
             // lstNuyen
             // 
-            this.lstNuyen.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.lstNuyen.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colNuyenDate,
-            this.colNuyenAmount,
-            this.colNuyenReason});
+            this.lstNuyen.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
+            this.lstNuyen.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { this.colNuyenDate, this.colNuyenAmount, this.colNuyenReason });
             this.lstNuyen.FullRowSelect = true;
             this.lstNuyen.GridLines = true;
             this.lstNuyen.HideSelection = false;
@@ -9378,12 +9304,8 @@
             // 
             // lstCalendar
             // 
-            this.lstCalendar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstCalendar.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colCalendarDate,
-            this.colCalendarNotes});
+            this.lstCalendar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstCalendar.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { this.colCalendarDate, this.colCalendarNotes });
             this.lstCalendar.FullRowSelect = true;
             this.lstCalendar.GridLines = true;
             this.lstCalendar.HideSelection = false;
@@ -9422,9 +9344,7 @@
             // 
             // txtGameNotes
             // 
-            this.txtGameNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtGameNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.txtGameNotes.Location = new System.Drawing.Point(8, 9);
             this.txtGameNotes.Multiline = true;
             this.txtGameNotes.Name = "txtGameNotes";
@@ -9559,16 +9479,14 @@
             // treImprovements
             // 
             this.treImprovements.AllowDrop = true;
-            this.treImprovements.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treImprovements.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.treImprovements.HideSelection = false;
             this.treImprovements.Location = new System.Drawing.Point(8, 35);
             this.treImprovements.Name = "treImprovements";
             treeNode29.Name = "nodImprovementsRoot";
             treeNode29.Tag = "Node_SelectedImprovements";
             treeNode29.Text = "Selected Improvements";
-            this.treImprovements.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode29});
+            this.treImprovements.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode29 });
             this.treImprovements.ShowNodeToolTips = true;
             this.treImprovements.Size = new System.Drawing.Size(295, 573);
             this.treImprovements.TabIndex = 81;
@@ -10170,9 +10088,7 @@
             // 
             // tabInfo
             // 
-            this.tabInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.tabInfo.Controls.Add(this.tabOtherInfo);
             this.tabInfo.Controls.Add(this.tabConditionMonitor);
             this.tabInfo.Location = new System.Drawing.Point(0, 0);
@@ -10526,10 +10442,7 @@
             // 
             // mnuCreateMenu
             // 
-            this.mnuCreateMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuCreateFile,
-            this.mnuCreateEdit,
-            this.mnuCreateSpecial});
+            this.mnuCreateMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.mnuCreateFile, this.mnuCreateEdit, this.mnuCreateSpecial });
             this.mnuCreateMenu.Location = new System.Drawing.Point(0, 0);
             this.mnuCreateMenu.Name = "mnuCreateMenu";
             this.mnuCreateMenu.Size = new System.Drawing.Size(1040, 24);
@@ -10539,14 +10452,7 @@
             // 
             // mnuCreateFile
             // 
-            this.mnuCreateFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFileSave,
-            this.mnuFileSaveAs,
-            this.toolStripSeparator1,
-            this.mnuFileClose,
-            this.toolStripSeparator2,
-            this.mnuFilePrint,
-            this.mnuFileExport});
+            this.mnuCreateFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.mnuFileSave, this.mnuFileSaveAs, this.toolStripSeparator1, this.mnuFileClose, this.toolStripSeparator2, this.mnuFilePrint, this.mnuFileExport });
             this.mnuCreateFile.MergeAction = System.Windows.Forms.MergeAction.MatchOnly;
             this.mnuCreateFile.Name = "mnuCreateFile";
             this.mnuCreateFile.Size = new System.Drawing.Size(37, 20);
@@ -10625,8 +10531,7 @@
             // 
             // mnuCreateEdit
             // 
-            this.mnuCreateEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuEditCopy});
+            this.mnuCreateEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.mnuEditCopy });
             this.mnuCreateEdit.MergeAction = System.Windows.Forms.MergeAction.Insert;
             this.mnuCreateEdit.MergeIndex = 1;
             this.mnuCreateEdit.Name = "mnuCreateEdit";
@@ -10647,16 +10552,7 @@
             // 
             // mnuCreateSpecial
             // 
-            this.mnuCreateSpecial.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuSpecialAddCyberwareSuite,
-            this.mnuSpecialAddBiowareSuite,
-            this.mnuSpecialCyberzombie,
-            this.mnuSpecialConvertToFreeSprite,
-            this.mnuSpecialReduceAttribute,
-            this.mnuSpecialPossess,
-            this.mnuSpecialPossessInanimate,
-            this.mnuSpecialReapplyImprovements,
-            this.mnuSpecialCloningMachine});
+            this.mnuCreateSpecial.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.mnuSpecialAddCyberwareSuite, this.mnuSpecialAddBiowareSuite, this.mnuSpecialCyberzombie, this.mnuSpecialConvertToFreeSprite, this.mnuSpecialReduceAttribute, this.mnuSpecialPossess, this.mnuSpecialPossessInanimate, this.mnuSpecialReapplyImprovements, this.mnuSpecialCloningMachine });
             this.mnuCreateSpecial.MergeAction = System.Windows.Forms.MergeAction.Insert;
             this.mnuCreateSpecial.MergeIndex = 3;
             this.mnuCreateSpecial.Name = "mnuCreateSpecial";
@@ -10749,11 +10645,7 @@
             // 
             // toolStrip
             // 
-            this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbSave,
-            this.tsbPrint,
-            this.tsbSeparator,
-            this.tsbCopy});
+            this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsbSave, this.tsbPrint, this.tsbSeparator, this.tsbCopy });
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(1040, 25);
@@ -10807,10 +10699,7 @@
             // 
             // cmsGear
             // 
-            this.cmsGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsGearAddAsPlugin,
-            this.tsGearName,
-            this.tsGearNotes});
+            this.cmsGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsGearAddAsPlugin, this.tsGearName, this.tsGearNotes });
             this.cmsGear.Name = "cmsWeapon";
             this.cmsGear.Size = new System.Drawing.Size(148, 70);
             this.cmsGear.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -10844,11 +10733,7 @@
             // 
             // cmsVehicleWeapon
             // 
-            this.cmsVehicleWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleAddWeaponAccessoryAlt,
-            this.tsVehicleAddWeaponModificationAlt,
-            this.tsVehicleAddUnderbarrelWeaponAlt,
-            this.tsVehicleWeaponNotes});
+            this.cmsVehicleWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleAddWeaponAccessoryAlt, this.tsVehicleAddWeaponModificationAlt, this.tsVehicleAddUnderbarrelWeaponAlt, this.tsVehicleWeaponNotes });
             this.cmsVehicleWeapon.Name = "cmsWeapon";
             this.cmsVehicleWeapon.Size = new System.Drawing.Size(209, 92);
             this.cmsVehicleWeapon.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -10891,9 +10776,7 @@
             // 
             // cmsVehicleGear
             // 
-            this.cmsVehicleGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleGearAddAsPlugin,
-            this.tsVehicleGearNotes});
+            this.cmsVehicleGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleGearAddAsPlugin, this.tsVehicleGearNotes });
             this.cmsVehicleGear.Name = "cmsWeapon";
             this.cmsVehicleGear.Size = new System.Drawing.Size(148, 48);
             this.cmsVehicleGear.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -10918,18 +10801,16 @@
             // 
             // cmsUndoKarmaExpense
             // 
-            this.cmsUndoKarmaExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsUndoKarmaExpense,
-            this.tsEditKarmaExpense});
+            this.cmsUndoKarmaExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsUndoKarmaExpense, this.tsEditKarmaExpense });
             this.cmsUndoKarmaExpense.Name = "contextMenuStrip1";
-            this.cmsUndoKarmaExpense.Size = new System.Drawing.Size(150, 48);
+            this.cmsUndoKarmaExpense.Size = new System.Drawing.Size(149, 48);
             this.cmsUndoKarmaExpense.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
             // 
             // tsUndoKarmaExpense
             // 
             this.tsUndoKarmaExpense.Image = global::Chummer.Properties.Resources.arrow_undo;
             this.tsUndoKarmaExpense.Name = "tsUndoKarmaExpense";
-            this.tsUndoKarmaExpense.Size = new System.Drawing.Size(149, 22);
+            this.tsUndoKarmaExpense.Size = new System.Drawing.Size(148, 22);
             this.tsUndoKarmaExpense.Tag = "Menu_UndoExpense";
             this.tsUndoKarmaExpense.Text = "Undo Expense";
             this.tsUndoKarmaExpense.Click += new System.EventHandler(this.tsUndoKarmaExpense_Click);
@@ -10938,25 +10819,23 @@
             // 
             this.tsEditKarmaExpense.Image = global::Chummer.Properties.Resources.pencil;
             this.tsEditKarmaExpense.Name = "tsEditKarmaExpense";
-            this.tsEditKarmaExpense.Size = new System.Drawing.Size(149, 22);
+            this.tsEditKarmaExpense.Size = new System.Drawing.Size(148, 22);
             this.tsEditKarmaExpense.Tag = "Button_EditExpense";
             this.tsEditKarmaExpense.Text = "Edit Expense";
             this.tsEditKarmaExpense.Click += new System.EventHandler(this.tsEditKarmaExpense_Click);
             // 
             // cmsUndoNuyenExpense
             // 
-            this.cmsUndoNuyenExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsUndoNuyenExpense,
-            this.tsEditNuyenExpense});
+            this.cmsUndoNuyenExpense.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsUndoNuyenExpense, this.tsEditNuyenExpense });
             this.cmsUndoNuyenExpense.Name = "cmsUndoNuyenExpense";
-            this.cmsUndoNuyenExpense.Size = new System.Drawing.Size(150, 48);
+            this.cmsUndoNuyenExpense.Size = new System.Drawing.Size(149, 48);
             this.cmsUndoNuyenExpense.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
             // 
             // tsUndoNuyenExpense
             // 
             this.tsUndoNuyenExpense.Image = global::Chummer.Properties.Resources.arrow_undo;
             this.tsUndoNuyenExpense.Name = "tsUndoNuyenExpense";
-            this.tsUndoNuyenExpense.Size = new System.Drawing.Size(149, 22);
+            this.tsUndoNuyenExpense.Size = new System.Drawing.Size(148, 22);
             this.tsUndoNuyenExpense.Tag = "Menu_UndoExpense";
             this.tsUndoNuyenExpense.Text = "Undo Expense";
             this.tsUndoNuyenExpense.Click += new System.EventHandler(this.tsUndoNuyenExpense_Click);
@@ -10965,16 +10844,14 @@
             // 
             this.tsEditNuyenExpense.Image = global::Chummer.Properties.Resources.pencil;
             this.tsEditNuyenExpense.Name = "tsEditNuyenExpense";
-            this.tsEditNuyenExpense.Size = new System.Drawing.Size(149, 22);
+            this.tsEditNuyenExpense.Size = new System.Drawing.Size(148, 22);
             this.tsEditNuyenExpense.Tag = "Button_EditExpense";
             this.tsEditNuyenExpense.Text = "Edit Expense";
             this.tsEditNuyenExpense.Click += new System.EventHandler(this.tsEditNuyenExpense_Click);
             // 
             // cmsArmorGear
             // 
-            this.cmsArmorGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsArmorGearAddAsPlugin,
-            this.tsArmorGearNotes});
+            this.cmsArmorGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsArmorGearAddAsPlugin, this.tsArmorGearNotes });
             this.cmsArmorGear.Name = "cmsWeapon";
             this.cmsArmorGear.Size = new System.Drawing.Size(148, 48);
             this.cmsArmorGear.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -10999,8 +10876,7 @@
             // 
             // cmsArmorMod
             // 
-            this.cmsArmorMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsArmorModNotes});
+            this.cmsArmorMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsArmorModNotes });
             this.cmsArmorMod.Name = "cmsArmorMod";
             this.cmsArmorMod.Size = new System.Drawing.Size(106, 26);
             this.cmsArmorMod.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11016,8 +10892,7 @@
             // 
             // cmsQuality
             // 
-            this.cmsQuality.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsQualityNotes});
+            this.cmsQuality.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsQualityNotes });
             this.cmsQuality.Name = "cmsQuality";
             this.cmsQuality.Size = new System.Drawing.Size(106, 26);
             this.cmsQuality.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11033,8 +10908,7 @@
             // 
             // cmsMartialArtManeuver
             // 
-            this.cmsMartialArtManeuver.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsMartialArtManeuverNotes});
+            this.cmsMartialArtManeuver.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsMartialArtManeuverNotes });
             this.cmsMartialArtManeuver.Name = "cmsMartialArtManeuver";
             this.cmsMartialArtManeuver.Size = new System.Drawing.Size(106, 26);
             this.cmsMartialArtManeuver.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11050,8 +10924,7 @@
             // 
             // cmsSpell
             // 
-            this.cmsSpell.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsSpellNotes});
+            this.cmsSpell.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsSpellNotes });
             this.cmsSpell.Name = "cmsSpell";
             this.cmsSpell.Size = new System.Drawing.Size(106, 26);
             this.cmsSpell.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11067,8 +10940,7 @@
             // 
             // cmsCritterPowers
             // 
-            this.cmsCritterPowers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCritterPowersNotes});
+            this.cmsCritterPowers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCritterPowersNotes });
             this.cmsCritterPowers.Name = "cmsCritterPowers";
             this.cmsCritterPowers.Size = new System.Drawing.Size(106, 26);
             this.cmsCritterPowers.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11084,8 +10956,7 @@
             // 
             // cmsMetamagic
             // 
-            this.cmsMetamagic.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsMetamagicNotes});
+            this.cmsMetamagic.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsMetamagicNotes });
             this.cmsMetamagic.Name = "cmsMetamagic";
             this.cmsMetamagic.Size = new System.Drawing.Size(106, 26);
             this.cmsMetamagic.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11101,10 +10972,7 @@
             // 
             // cmsLifestyleNotes
             // 
-            this.cmsLifestyleNotes.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsEditLifestyle,
-            this.tsLifestyleName,
-            this.tsLifestyleNotes});
+            this.cmsLifestyleNotes.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsEditLifestyle, this.tsLifestyleName, this.tsLifestyleNotes });
             this.cmsLifestyleNotes.Name = "cmsLifestyleNotes";
             this.cmsLifestyleNotes.Size = new System.Drawing.Size(153, 70);
             this.cmsLifestyleNotes.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11138,8 +11006,7 @@
             // 
             // cmsWeaponMod
             // 
-            this.cmsWeaponMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsWeaponModNotes});
+            this.cmsWeaponMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsWeaponModNotes });
             this.cmsWeaponMod.Name = "cmsWeaponMod";
             this.cmsWeaponMod.Size = new System.Drawing.Size(106, 26);
             this.cmsWeaponMod.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11155,9 +11022,7 @@
             // 
             // cmsWeaponAccessory
             // 
-            this.cmsWeaponAccessory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsWeaponAccessoryAddGear,
-            this.tsWeaponAccessoryNotes});
+            this.cmsWeaponAccessory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsWeaponAccessoryAddGear, this.tsWeaponAccessoryNotes });
             this.cmsWeaponAccessory.Name = "cmsWeaponAccessory";
             this.cmsWeaponAccessory.Size = new System.Drawing.Size(124, 48);
             this.cmsWeaponAccessory.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11182,8 +11047,7 @@
             // 
             // cmsGearPlugin
             // 
-            this.cmsGearPlugin.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsGearPluginNotes});
+            this.cmsGearPlugin.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsGearPluginNotes });
             this.cmsGearPlugin.Name = "cmsGearPlugin";
             this.cmsGearPlugin.Size = new System.Drawing.Size(106, 26);
             this.cmsGearPlugin.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11199,8 +11063,7 @@
             // 
             // cmsComplexFormPlugin
             // 
-            this.cmsComplexFormPlugin.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsComplexFormPluginNotes});
+            this.cmsComplexFormPlugin.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsComplexFormPluginNotes });
             this.cmsComplexFormPlugin.Name = "cmsComplexFormPlugin";
             this.cmsComplexFormPlugin.Size = new System.Drawing.Size(106, 26);
             this.cmsComplexFormPlugin.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11216,9 +11079,7 @@
             // 
             // splitMain
             // 
-            this.splitMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.splitMain.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.splitMain.Location = new System.Drawing.Point(0, 0);
             this.splitMain.Name = "splitMain";
@@ -11239,8 +11100,7 @@
             // 
             // cmsBioware
             // 
-            this.cmsBioware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsBiowareNotes});
+            this.cmsBioware.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsBiowareNotes });
             this.cmsBioware.Name = "cmsBioware";
             this.cmsBioware.Size = new System.Drawing.Size(106, 26);
             this.cmsBioware.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11256,9 +11116,7 @@
             // 
             // cmsAdvancedLifestyle
             // 
-            this.cmsAdvancedLifestyle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsEditAdvancedLifestyle,
-            this.tsAdvancedLifestyleNotes});
+            this.cmsAdvancedLifestyle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsEditAdvancedLifestyle, this.tsAdvancedLifestyleNotes });
             this.cmsAdvancedLifestyle.Name = "cmsAdvancedLifestyle";
             this.cmsAdvancedLifestyle.Size = new System.Drawing.Size(197, 48);
             this.cmsAdvancedLifestyle.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11282,8 +11140,7 @@
             // 
             // cmsGearLocation
             // 
-            this.cmsGearLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsGearRenameLocation});
+            this.cmsGearLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsGearRenameLocation });
             this.cmsGearLocation.Name = "cmsGearLocation";
             this.cmsGearLocation.Size = new System.Drawing.Size(167, 26);
             this.cmsGearLocation.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11299,8 +11156,7 @@
             // 
             // cmsImprovement
             // 
-            this.cmsImprovement.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsImprovementNotes});
+            this.cmsImprovement.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsImprovementNotes });
             this.cmsImprovement.Name = "cmsImprovement";
             this.cmsImprovement.Size = new System.Drawing.Size(106, 26);
             // 
@@ -11315,8 +11171,7 @@
             // 
             // cmsArmorLocation
             // 
-            this.cmsArmorLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsArmorRenameLocation});
+            this.cmsArmorLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsArmorRenameLocation });
             this.cmsArmorLocation.Name = "cmsGearLocation";
             this.cmsArmorLocation.Size = new System.Drawing.Size(167, 26);
             this.cmsArmorLocation.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu_Opening);
@@ -11332,8 +11187,7 @@
             // 
             // cmsImprovementLocation
             // 
-            this.cmsImprovementLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsImprovementRenameLocation});
+            this.cmsImprovementLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsImprovementRenameLocation });
             this.cmsImprovementLocation.Name = "cmsImprovementLocation";
             this.cmsImprovementLocation.Size = new System.Drawing.Size(167, 26);
             this.cmsImprovementLocation.Tag = "";
@@ -11350,8 +11204,7 @@
             // 
             // cmsCyberwareGear
             // 
-            this.cmsCyberwareGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCyberwareGearMenuAddAsPlugin});
+            this.cmsCyberwareGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsCyberwareGearMenuAddAsPlugin });
             this.cmsCyberwareGear.Name = "cmsCyberwareGear";
             this.cmsCyberwareGear.Size = new System.Drawing.Size(148, 26);
             // 
@@ -11366,8 +11219,7 @@
             // 
             // cmsWeaponAccessoryGear
             // 
-            this.cmsWeaponAccessoryGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsWeaponAccessoryGearMenuAddAsPlugin});
+            this.cmsWeaponAccessoryGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsWeaponAccessoryGearMenuAddAsPlugin });
             this.cmsWeaponAccessoryGear.Name = "cmsCyberwareGear";
             this.cmsWeaponAccessoryGear.Size = new System.Drawing.Size(148, 26);
             // 
@@ -11382,8 +11234,7 @@
             // 
             // cmsVehicleLocation
             // 
-            this.cmsVehicleLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleRenameLocation});
+            this.cmsVehicleLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleRenameLocation });
             this.cmsVehicleLocation.Name = "cmsGearLocation";
             this.cmsVehicleLocation.Size = new System.Drawing.Size(167, 26);
             // 
@@ -11398,9 +11249,7 @@
             // 
             // cmsVehicleWeaponAccessory
             // 
-            this.cmsVehicleWeaponAccessory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleWeaponAccessoryAddGear,
-            this.tsVehicleWeaponAccessoryNotes});
+            this.cmsVehicleWeaponAccessory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleWeaponAccessoryAddGear, this.tsVehicleWeaponAccessoryNotes });
             this.cmsVehicleWeaponAccessory.Name = "cmsWeaponAccessory";
             this.cmsVehicleWeaponAccessory.Size = new System.Drawing.Size(124, 48);
             // 
@@ -11424,8 +11273,7 @@
             // 
             // cmsVehicleWeaponAccessoryGear
             // 
-            this.cmsVehicleWeaponAccessoryGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleWeaponAccessoryGearMenuAddAsPlugin});
+            this.cmsVehicleWeaponAccessoryGear.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleWeaponAccessoryGearMenuAddAsPlugin });
             this.cmsVehicleWeaponAccessoryGear.Name = "cmsCyberwareGear";
             this.cmsVehicleWeaponAccessoryGear.Size = new System.Drawing.Size(148, 26);
             // 
@@ -11440,8 +11288,7 @@
             // 
             // cmsVehicleWeaponMod
             // 
-            this.cmsVehicleWeaponMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsVehicleWeaponModNotes});
+            this.cmsVehicleWeaponMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsVehicleWeaponModNotes });
             this.cmsVehicleWeaponMod.Name = "cmsWeaponMod";
             this.cmsVehicleWeaponMod.Size = new System.Drawing.Size(106, 26);
             // 
@@ -11456,8 +11303,7 @@
             // 
             // cmsWeaponLocation
             // 
-            this.cmsWeaponLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsWeaponRenameLocation});
+            this.cmsWeaponLocation.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.tsWeaponRenameLocation });
             this.cmsWeaponLocation.Name = "cmsGearLocation";
             this.cmsWeaponLocation.Size = new System.Drawing.Size(167, 26);
             // 
@@ -11469,95 +11315,6 @@
             this.tsWeaponRenameLocation.Tag = "Menu_RenameLocation";
             this.tsWeaponRenameLocation.Text = "&Rename Location";
             this.tsWeaponRenameLocation.Click += new System.EventHandler(this.tsWeaponRenameLocation_Click);
-            // 
-            // chkActiveCyberCommlink
-            // 
-            this.chkActiveCyberCommlink.AutoSize = true;
-            this.chkActiveCyberCommlink.Location = new System.Drawing.Point(312, 210);
-            this.chkActiveCyberCommlink.Name = "chkActiveCyberCommlink";
-            this.chkActiveCyberCommlink.Size = new System.Drawing.Size(104, 17);
-            this.chkActiveCyberCommlink.TabIndex = 144;
-            this.chkActiveCyberCommlink.Tag = "Checkbox_ActiveCommlink";
-            this.chkActiveCyberCommlink.Text = "Active Commlink";
-            this.chkActiveCyberCommlink.UseVisualStyleBackColor = true;
-            this.chkActiveCyberCommlink.Visible = false;
-            this.chkActiveCyberCommlink.CheckedChanged += new System.EventHandler(this.chkActiveCyberCommlink_CheckedChanged);
-            // 
-            // lblCyberwareFirewall
-            // 
-            this.lblCyberwareFirewall.AutoSize = true;
-            this.lblCyberwareFirewall.Location = new System.Drawing.Point(624, 189);
-            this.lblCyberwareFirewall.Name = "lblCyberwareFirewall";
-            this.lblCyberwareFirewall.Size = new System.Drawing.Size(19, 13);
-            this.lblCyberwareFirewall.TabIndex = 143;
-            this.lblCyberwareFirewall.Text = "[0]";
-            // 
-            // lblCyberwareFirewallLabel
-            // 
-            this.lblCyberwareFirewallLabel.AutoSize = true;
-            this.lblCyberwareFirewallLabel.Location = new System.Drawing.Point(573, 189);
-            this.lblCyberwareFirewallLabel.Name = "lblCyberwareFirewallLabel";
-            this.lblCyberwareFirewallLabel.Size = new System.Drawing.Size(45, 13);
-            this.lblCyberwareFirewallLabel.TabIndex = 142;
-            this.lblCyberwareFirewallLabel.Tag = "Label_Firewall";
-            this.lblCyberwareFirewallLabel.Text = "Firewall:";
-            // 
-            // lblCyberwareSystem
-            // 
-            this.lblCyberwareSystem.AutoSize = true;
-            this.lblCyberwareSystem.Location = new System.Drawing.Point(538, 189);
-            this.lblCyberwareSystem.Name = "lblCyberwareSystem";
-            this.lblCyberwareSystem.Size = new System.Drawing.Size(19, 13);
-            this.lblCyberwareSystem.TabIndex = 141;
-            this.lblCyberwareSystem.Text = "[0]";
-            // 
-            // lblCyberwareSystemLabel
-            // 
-            this.lblCyberwareSystemLabel.AutoSize = true;
-            this.lblCyberwareSystemLabel.Location = new System.Drawing.Point(488, 189);
-            this.lblCyberwareSystemLabel.Name = "lblCyberwareSystemLabel";
-            this.lblCyberwareSystemLabel.Size = new System.Drawing.Size(44, 13);
-            this.lblCyberwareSystemLabel.TabIndex = 140;
-            this.lblCyberwareSystemLabel.Tag = "Label_System";
-            this.lblCyberwareSystemLabel.Text = "System:";
-            // 
-            // lblCyberwareSignal
-            // 
-            this.lblCyberwareSignal.AutoSize = true;
-            this.lblCyberwareSignal.Location = new System.Drawing.Point(453, 189);
-            this.lblCyberwareSignal.Name = "lblCyberwareSignal";
-            this.lblCyberwareSignal.Size = new System.Drawing.Size(19, 13);
-            this.lblCyberwareSignal.TabIndex = 139;
-            this.lblCyberwareSignal.Text = "[0]";
-            // 
-            // lblCyberwareSignalLabel
-            // 
-            this.lblCyberwareSignalLabel.AutoSize = true;
-            this.lblCyberwareSignalLabel.Location = new System.Drawing.Point(408, 189);
-            this.lblCyberwareSignalLabel.Name = "lblCyberwareSignalLabel";
-            this.lblCyberwareSignalLabel.Size = new System.Drawing.Size(39, 13);
-            this.lblCyberwareSignalLabel.TabIndex = 138;
-            this.lblCyberwareSignalLabel.Tag = "Label_Signal";
-            this.lblCyberwareSignalLabel.Text = "Signal:";
-            // 
-            // lblCyberwareResponse
-            // 
-            this.lblCyberwareResponse.AutoSize = true;
-            this.lblCyberwareResponse.Location = new System.Drawing.Point(373, 189);
-            this.lblCyberwareResponse.Name = "lblCyberwareResponse";
-            this.lblCyberwareResponse.Size = new System.Drawing.Size(19, 13);
-            this.lblCyberwareResponse.TabIndex = 137;
-            this.lblCyberwareResponse.Text = "[0]";
-            // 
-            // lblCyberwareResponseLabel
-            // 
-            this.lblCyberwareResponseLabel.AutoSize = true;
-            this.lblCyberwareResponseLabel.Location = new System.Drawing.Point(309, 189);
-            this.lblCyberwareResponseLabel.Name = "lblCyberwareResponseLabel";
-            this.lblCyberwareResponseLabel.Size = new System.Drawing.Size(58, 13);
-            this.lblCyberwareResponseLabel.TabIndex = 136;
-            this.lblCyberwareResponseLabel.Tag = "Label_Response";
-            this.lblCyberwareResponseLabel.Text = "Response:";
             // 
             // frmCareer
             // 
@@ -11718,7 +11475,6 @@
             this.cmsWeaponLocation.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

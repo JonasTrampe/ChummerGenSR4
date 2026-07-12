@@ -816,6 +816,71 @@
 			<page>124</page>
 		</skill>
 		<skill>
+			<name>Perception (Audio)</name>
+			<attribute>INT</attribute>
+			<category>Physical Active</category>
+			<default>Yes</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Hearing</metaSpec>
+		</skill>
+		<skill>
+			<name>Perception (Smell)</name>
+			<attribute>INT</attribute>
+			<category>Physical Active</category>
+			<default>Yes</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Scent</metaSpec>
+		</skill>
+		<skill>
+			<name>Perception (Taste)</name>
+			<attribute>INT</attribute>
+			<category>Physical Active</category>
+			<default>Yes</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Taste</metaSpec>
+		</skill>
+		<skill>
+			<name>Perception (Touch)</name>
+			<attribute>INT</attribute>
+			<category>Physical Active</category>
+			<default>Yes</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Touch</metaSpec>
+		</skill>
+		<skill>
+			<name>Perception (Visual)</name>
+			<attribute>INT</attribute>
+			<category>Physical Active</category>
+			<default>Yes</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Visual</metaSpec>
+		</skill>
+		<skill>
 			<name>Pilot Aerospace</name>
 			<attribute>REA</attribute>
 			<category>Vehicle Active</category>

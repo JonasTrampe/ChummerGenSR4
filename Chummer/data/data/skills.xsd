@@ -25,6 +25,9 @@
         </xs:element>
         <xs:element name="source" type="xs:string" minOccurs="0" maxOccurs="1" />
         <xs:element name="page" type="xs:string" minOccurs="0" maxOccurs="1" />
+        <xs:element name="isMeta" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
+        <xs:element name="metaBase" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="metaSpec" type="xs:string" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

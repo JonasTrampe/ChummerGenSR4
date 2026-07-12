@@ -339,8 +339,12 @@ namespace Chummer
 					return ImprovementType.CyborgEssence;
 				case "EssenceMax":
 					return ImprovementType.EssenceMax;
+				case "Skill":
+                    return ImprovementType.Skill;
+				case "Concealability":
+                    return ImprovementType.Concealability;
 				default:
-					return ImprovementType.Skill;
+                    throw new NotSupportedException("Type " + strValue + " is not supported right now.");
 			}
 		}
 

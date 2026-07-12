@@ -1783,7 +1783,8 @@ namespace Chummer
 		private bool _blnIsGrouped = false;
 		private bool _blnDefault = false;
 		private string _strName = "";
-		private int _intRating = 0;
+        private string StrInternalName => ((_isMeta) ? MetaBase : _strName);
+        private int _intRating = 0;
 		private int _intRatingMaximum = 6;
 		private bool _blnKnowledgeSkill = false;
 		private bool _blnExoticSkill = false;
@@ -1792,10 +1793,14 @@ namespace Chummer
 		private string _strAttribute = "";
 		private string _strSource = "";
 		private string _strPage = "";
+		private bool _isMeta = false;
+		private string _metaBase = "";
+        private string _metaSpec = "";
+        private int _metaRatingModifier = 0;
 
 		private readonly Character _objCharacter;
 
-		#region Constructor, Create, Save, Load, and Print Methods
+        #region Constructor, Create, Save, Load, and Print Methods
 		public Skill(Character objCharacter)
 		{
 			_objCharacter = objCharacter;
@@ -1822,6 +1827,8 @@ namespace Chummer
 			objWriter.WriteElementString("attribute", _strAttribute);
 			objWriter.WriteElementString("source", _strSource);
 			objWriter.WriteElementString("page", _strPage);
+			objWriter.WriteElementString("isMeta", _isMeta.ToString());
+			objWriter.WriteElementString("metaBase", _metaBase);
 			// External reader friendly stuff.
 			objWriter.WriteElementString("totalvalue", TotalRating.ToString());
 			objWriter.WriteEndElement();
@@ -1861,6 +1868,31 @@ namespace Chummer
 			catch
 			{
 			}
+
+			if (objNode["isMeta"] != null)
+			{
+				try {
+					_isMeta = Convert.ToBoolean(objNode["isMeta"].InnerText);
+				}
+				catch
+				{
+					_isMeta = false;
+				}
+
+				if (_isMeta)
+				{
+					if (objNode["metaBase"] == null)
+					{
+						throw new NotSupportedException("A Metaskill without a base is not supported!");
+					}
+
+					_metaBase = objNode["metaBase"].InnerText;
+				}
+			}
+
+				
+	
+
 		}
 
 		/// <summary>
@@ -1917,6 +1949,8 @@ namespace Chummer
 				objWriter.WriteElementString("attributemod", _objCharacter.MAGMagician.ToString());
 			else
 				objWriter.WriteElementString("attributemod", _objCharacter.GetAttribute(Attribute).TotalValue.ToString());
+			objWriter.WriteElementString("isMeta", _isMeta.ToString());
+			objWriter.WriteElementString("metaBase", _metaBase);
 			objWriter.WriteElementString("ratingmod", RatingModifiers.ToString());
 			objWriter.WriteElementString("poolmod", DicePoolModifiers.ToString());
 			objWriter.WriteElementString("islanguage", (_strSkillCategory == "Language").ToString());
@@ -2066,6 +2100,42 @@ namespace Chummer
 			set
 			{
 				_blnIsGrouped = value;
+			}
+		}
+		
+		/// <summary>
+		/// Whether the skill is an meta/virtual skill, which does not exist on it's own
+		/// </summary>
+		public bool IsMeta
+		{
+			get => _isMeta;
+            set => _isMeta = value;
+        }
+
+        public string MetaSpec
+        {
+            get => _metaSpec;
+            set => _metaSpec = value;
+        }
+        public int MetaRatingModifier
+        {
+            get => _metaRatingModifier;
+            set => _metaRatingModifier = value;
+        }
+
+
+		/// <summary>
+		/// Whether or not the Skill is currently rolled into its Skill Group.
+		/// </summary>
+		public string MetaBase
+		{
+			get
+			{
+				return _metaBase;
+			}
+			set
+			{
+				_metaBase = value;
 			}
 		}
 
@@ -2248,7 +2318,7 @@ namespace Chummer
 					foreach (Gear objGear in _objCharacter.Gear)
 					{
 						// Look for any Skillsoft that would conflict with the Skill's Rating.
-						if (objGear.Equipped && objGear.Category == "Skillsofts" && (objGear.Extra == _strName || objGear.Extra == _strName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
+						if (objGear.Equipped && objGear.Category == "Skillsofts" && (objGear.Extra == StrInternalName || objGear.Extra == StrInternalName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
 						{
 							if (objGear.Rating > _intRating)
 							{
@@ -2264,7 +2334,7 @@ namespace Chummer
 
 						foreach (Gear objChild in objGear.Children)
 						{
-							if (objChild.Equipped && objChild.Category == "Skillsofts" && (objChild.Extra == _strName || objChild.Extra == _strName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
+							if (objChild.Equipped && objChild.Category == "Skillsofts" && (objChild.Extra == StrInternalName|| objChild.Extra == StrInternalName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
 							{
 								if (objChild.Rating > _intRating)
 								{
@@ -2283,7 +2353,7 @@ namespace Chummer
 					foreach (TechProgram objProgram in _objCharacter.TechPrograms)
 					{
 						// Look for any Skillsoft Complex Forms that would conflict with the Skill's Rating.
-						if (objProgram.Category == "Skillsofts" && (objProgram.Extra == _strName || objProgram.Extra == _strName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
+						if (objProgram.Category == "Skillsofts" && (objProgram.Extra == StrInternalName || objProgram.Extra == StrInternalName + ", " + LanguageManager.Instance.GetString("Label_SelectGear_Hacked")))
 						{
 							if (objProgram.Rating > _intRating)
 							{
@@ -2400,7 +2470,7 @@ namespace Chummer
 				if (intTotal < 0)
 					intTotal = 0;
 
-				return intTotal;
+				return intTotal + MetaRatingModifier;
 			}
 		}
 
@@ -2430,31 +2500,31 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName)
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
 								intModifier += objImprovement.Value;
 						}
 						else
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName + " (" + _strSkillSpec + ")")
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName + " (" + _strSkillSpec + ")")
 								intModifier += objImprovement.Value;
 						}
 
 						// Improvement for a Skill Group.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillGroup && objImprovement.ImprovedName == _strSkillGroup)
 						{
-							if (!objImprovement.Exclude.Contains(_strName) && !objImprovement.Exclude.Contains(_strSkillCategory))
+							if (!objImprovement.Exclude.Contains(StrInternalName) && !objImprovement.Exclude.Contains(_strSkillCategory))
 								intModifier += objImprovement.Value;
 						}
 						// Improvement for a Skill Category.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillCategory && objImprovement.ImprovedName == _strSkillCategory)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intModifier += objImprovement.Value;
 						}
 						// Improvement for a Skill linked to an Attribute.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillAttribute && objImprovement.ImprovedName == _strAttribute)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intModifier += objImprovement.Value;
 						}
 						// Improvement for Enhanced Articulation
@@ -2488,7 +2558,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName)
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2515,21 +2585,21 @@ namespace Chummer
 						}
 						else
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName + " (" + _strSkillSpec + ")")
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName + " (" + _strSkillSpec + ")")
 								intModifier += objImprovement.Value;
 						}
 
 						// Improvement for a Skill Group.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillGroup && objImprovement.ImprovedName == _strSkillGroup)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intModifier += objImprovement.Value;
 						}
 
 						// Improvement for a Skill Category.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillCategory && objImprovement.ImprovedName == _strSkillCategory)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2558,7 +2628,7 @@ namespace Chummer
 						// Improvement for a Skill linked to an Attribute.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillAttribute && objImprovement.ImprovedName == _strAttribute)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2663,7 +2733,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName)
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName ))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2690,26 +2760,26 @@ namespace Chummer
 						}
 						else
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName + " (" + _strSkillSpec + ")")
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName + " (" + _strSkillSpec + ")")
 								intCustomModifier += objImprovement.Value;
 						}
 
 						// Improvement for a Skill Group.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillGroup && objImprovement.ImprovedName == _strSkillGroup)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intCustomModifier += objImprovement.Value;
 						}
 						// Improvement for a Skill Category.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillCategory && objImprovement.ImprovedName == _strSkillCategory)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intCustomModifier += objImprovement.Value;
 						}
 						// Improvement for a Skill linked to an Attribute.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillAttribute && objImprovement.ImprovedName == _strAttribute)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 								intCustomModifier += objImprovement.Value;
 						}
 
@@ -2762,7 +2832,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName)
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2793,7 +2863,7 @@ namespace Chummer
 						}
 						else
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName + " (" + _strSkillSpec + ")")
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName + " (" + _strSkillSpec + ")")
 							{
 								intModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -2804,7 +2874,7 @@ namespace Chummer
 						// Improvement for a Skill Group.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillGroup && objImprovement.ImprovedName == _strSkillGroup)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								intModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -2815,7 +2885,7 @@ namespace Chummer
 						// Improvement for a Skill Category.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillCategory && objImprovement.ImprovedName == _strSkillCategory)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2848,7 +2918,7 @@ namespace Chummer
 						// Improvement for a Skill linked to an Attribute.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillAttribute && objImprovement.ImprovedName == _strAttribute)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								intModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -2989,7 +3059,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName)
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -3020,7 +3090,7 @@ namespace Chummer
 						}
 						else
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName + " (" + _strSkillSpec + ")")
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName + " (" + _strSkillSpec + ")")
 							{
 								intCustomModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -3031,7 +3101,7 @@ namespace Chummer
 						// Improvement for a Skill Group.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillGroup && objImprovement.ImprovedName == _strSkillGroup)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								intCustomModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -3041,7 +3111,7 @@ namespace Chummer
 						// Improvement for a Skill Category.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillCategory && objImprovement.ImprovedName == _strSkillCategory)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								intCustomModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -3051,7 +3121,7 @@ namespace Chummer
 						// Improvement for a Skill linked to an Attribute.
 						if (objImprovement.ImproveType == Improvement.ImprovementType.SkillAttribute && objImprovement.ImprovedName == _strAttribute)
 						{
-							if (!objImprovement.Exclude.Contains(_strName))
+							if (!objImprovement.Exclude.Contains(StrInternalName))
 							{
 								intCustomModifier += objImprovement.Value;
 								if (objImprovement.Value != 0)
@@ -3119,7 +3189,7 @@ namespace Chummer
 				int intModifier = 0;
 				foreach (Improvement objImprovement in _objCharacter.Improvements)
 				{
-					if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == _strName && objImprovement.Enabled)
+					if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && objImprovement.ImprovedName == StrInternalName && objImprovement.Enabled)
 						intModifier += objImprovement.Maximum;
 				}
 				return _intRatingMaximum + intModifier;
@@ -3143,7 +3213,8 @@ namespace Chummer
 				return strReturn;
 			}
 		}
-		#endregion
+
+        #endregion
 
 		#region Methods
 		/// <summary>
@@ -3152,6 +3223,11 @@ namespace Chummer
 		private int CalculatedBP()
 		{
 			int intBP = 0;
+
+            if (IsMeta)
+            {
+                return 0;
+            }
 
 			if (_intRating > 0 && !_blnIsGrouped)
 			{

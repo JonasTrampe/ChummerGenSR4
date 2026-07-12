@@ -17,6 +17,29 @@ public delegate void DiceRollerHandler(Object sender);
 
 namespace Chummer
 {
+    public class TranslationTuple
+    {
+        private readonly string _baseName;
+        private readonly string _transName;
+
+        public TranslationTuple(string baseName, string transName)
+        {
+            _baseName = baseName;
+			_transName = transName;
+        }
+
+        public string BaseName => _baseName;
+
+        public string TransName => _transName;
+
+
+        public override string ToString()
+        {
+            return _transName;
+        }
+    }
+
+
     public partial class SkillControl : UserControl
     {
 		private Skill _objSkill;
@@ -29,6 +52,8 @@ namespace Chummer
 		public event SkillKaramClickHandler SkillKarmaClicked;
 		public event DiceRollerHandler DiceRollerClicked;
 		public event BreakGroupHandler BreakGroupClicked;
+
+        public List<SkillControl> MetaTalents = new List<SkillControl>();
 
 		private string _strOldSpec = "";
 		private bool _blnSkipRefresh = false;
@@ -119,6 +144,13 @@ namespace Chummer
 			else
 				this.Width = cmdChangeSpec.Left + cmdChangeSpec.Width;
 
+			if (SkillIsMeta)
+			{
+				cmdImproveSkill.Visible = false;
+				nudSkill.Visible = false;
+				cboSpec.Visible = false;
+			}
+			
 			lblAttribute.Text = _objSkill.DisplayAttribute;
 
 			RefreshControl();
@@ -130,8 +162,41 @@ namespace Chummer
             // Raise the RatingChanged Event when the NumericUpDown's Value changes.
             // The entire SkillControl is passed as an argument so the handling event can evaluate its contents.
 			_objSkill.Rating = Convert.ToInt32(nudSkill.Value);
-			RefreshControl();
-			RatingChanged(this);
+            if (!SkillIsMeta)
+            {
+                UpdateMetas();
+                RefreshControl();
+                RatingChanged(this);
+			}
+		}
+
+        public void UpdateMetas()
+        {
+            if (MetaTalents.Count > 0)
+            {
+                foreach (SkillControl metaTalent in MetaTalents)
+                {
+                    metaTalent.SkillRating = SkillRating;
+
+                    string baseSpecName = "";
+                    foreach (TranslationTuple tup in cboSpec.Items)
+                    {
+                        if (tup.TransName == SkillSpec)
+                            baseSpecName = tup.BaseName;
+                    }
+
+                    if (metaTalent._objSkill.MetaSpec == baseSpecName || metaTalent._objSkill.MetaSpec == SkillSpec)
+                    {
+                        metaTalent._objSkill.MetaRatingModifier = 2;
+                    }
+                    else
+                    {
+                        metaTalent._objSkill.MetaRatingModifier = 0;
+                    }
+                }
+
+				SpecializationChanged(this);
+			}
         }
 
         private void cboSpec_TextChanged(object sender, EventArgs e)
@@ -144,6 +209,7 @@ namespace Chummer
 				cboSpec.Text = "";
 				_objSkill.Specialization = "";
 			}
+			UpdateMetas();
 			SpecializationChanged(this);
         }
 
@@ -191,6 +257,7 @@ namespace Chummer
 						cboSpec.Items.Add(objXmlSpecialization.InnerText);
 				}
 			}
+
 		}
 
 		private void cboSkillName_TextChanged(object sender, EventArgs e)
@@ -260,6 +327,7 @@ namespace Chummer
             set
             {
 				_objSkill.Name = value;
+				Name = value;
 				lblSkillName.Text = _objSkill.DisplayName;
 
 				if (!KnowledgeSkill)
@@ -278,11 +346,19 @@ namespace Chummer
             }
             set
             {
+                if (nudSkill.Value == value)
+                    return;
+
 				if (value > _objSkill.RatingMaximum)
 					value = _objSkill.RatingMaximum;
                 nudSkill.Value = value;
 				lblSkillRating.Text = value.ToString();
 				_objSkill.Rating = value;
+
+                if (SkillIsMeta)
+                {
+					return;
+                }
 
 				if (value < _objSkill.RatingMaximum)
 				{
@@ -305,11 +381,13 @@ namespace Chummer
 					}
 					else
 					{
-						if (value == 0)
-							intKarmaCost = _objSkill.CharacterObject.Options.KarmaNewKnowledgeSkill;
-						else
-							intKarmaCost = (value + 1) * _objSkill.CharacterObject.Options.KarmaImproveKnowledgeSkill;
-					}
+							if (value == 0)
+								intKarmaCost = _objSkill.CharacterObject.Options.KarmaNewKnowledgeSkill;
+							else
+								intKarmaCost = (value + 1) *
+								               _objSkill.CharacterObject.Options.KarmaImproveKnowledgeSkill;
+
+                    }
 					
 					// Double the Karma cost if the character is Uneducated and is a Technica Active, Academic, or Professional Skill.
 					if (_objSkill.CharacterObject.Uneducated && (SkillCategory == "Technical Active" || SkillCategory == "Academic" || SkillCategory == "Professional"))
@@ -422,6 +500,38 @@ namespace Chummer
 			}
         }
 
+        /// <summary>
+        /// Specialization.
+        /// </summary>
+        public bool SkillIsMeta
+        {
+	        get
+	        {
+		        return _objSkill.IsMeta;
+	        }
+	        set
+	        {
+		        _objSkill.IsMeta = value;
+		        nudSkill.Visible = !value;
+		        cboSpec.Visible = !value;
+	        }
+        }
+        
+        /// <summary>
+        /// Specialization.
+        /// </summary>
+        public string SkillMetaBase
+        {
+	        get
+	        {
+		        return _objSkill.MetaBase;
+	        }
+	        set
+	        {
+		        _objSkill.MetaBase = value;
+	        }
+        }
+        
 		/// <summary>
         /// Name of the Skill Group the Skill is currently a part of (blank for no group).
         /// </summary>
@@ -554,9 +664,9 @@ namespace Chummer
 		/// Add a string to the Specialization list.
 		/// </summary>
 		/// <param name="strSpec">String to add.</param>
-        public void AddSpec(string strSpec)
+        public void AddSpec(string strSpec, string strBase)
         {
-            cboSpec.Items.Add(strSpec);
+            cboSpec.Items.Add(new TranslationTuple(strBase, strSpec));
         }
 
 		/// <summary>
@@ -627,7 +737,7 @@ namespace Chummer
 				}
 			}
 
-			if (cboSpec.Text != "" && !_objSkill.ExoticSkill)
+			if (cboSpec.Text != "" && !_objSkill.ExoticSkill && MetaTalents.Count == 0)
 				lblModifiedRating.Text += " (" + (intRating + 2).ToString() + ")";
 
 			lblAttribute.Text = _objSkill.DisplayAttribute;
@@ -681,6 +791,13 @@ namespace Chummer
 				//if (_objSkill.DicePoolModifiers != 0)
 				//	strTooltip += " + " + LanguageManager.Instance.GetString("Tip_Skill_DicePoolModifiers") + " (" + _objSkill.DicePoolModifiers.ToString() + ")";
 				strTooltip += _objSkill.DicePoolModifiersTooltip;
+
+                if (SkillIsMeta && _objSkill.MetaRatingModifier != 0)
+                {
+					// TODO: add string!
+                    strTooltip += " + Specialisation " + " (" + _objSkill.MetaRatingModifier.ToString() + ")";
+                }
+
 			}
 
 			if (_objSkill.SkillCategory == "Language" && _objSkill.KnowledgeSkill && intSkillRating == 0)
@@ -709,7 +826,7 @@ namespace Chummer
 			}
 
 			// Specializations should not be enabled for Active Skills in Create Mode if their Rating is 0.
-			if (!_objSkill.KnowledgeSkill && !_objSkill.ExoticSkill && !_objSkill.CharacterObject.Created)
+			if (!_objSkill.KnowledgeSkill && !_objSkill.ExoticSkill && !_objSkill.CharacterObject.Created && !SkillIsMeta)
 			{
 				if (_objSkill.Rating > 0 && !_objSkill.IsGrouped)
 					cboSpec.Enabled = true;
@@ -719,7 +836,7 @@ namespace Chummer
 					cboSpec.Text = "";
 				}
 			}
-			if (!_objSkill.KnowledgeSkill && !_objSkill.ExoticSkill && _objSkill.CharacterObject.Created)
+			if (!_objSkill.KnowledgeSkill && !_objSkill.ExoticSkill && _objSkill.CharacterObject.Created && !SkillIsMeta)
 			{
 				if (_objSkill.Rating > 0)
 					cmdChangeSpec.Enabled = true;
@@ -727,7 +844,7 @@ namespace Chummer
 					cmdChangeSpec.Enabled = false;
 			}
 
-			if (_objSkill.CharacterObject.Created)
+			if (_objSkill.CharacterObject.Created && !SkillIsMeta)
 			{
 				lblSkillRating.Text = _objSkill.Rating.ToString();
 				// Enable or disable the Improve Skill button as necessary.
@@ -735,6 +852,13 @@ namespace Chummer
 					cmdImproveSkill.Enabled = true;
 				else
 					cmdImproveSkill.Enabled = false;
+			}
+			
+			if (SkillIsMeta)
+			{
+				cmdImproveSkill.Visible = false;
+				nudSkill.Visible = false;
+				cboSpec.Visible = false;
 			}
 		}
 		#endregion

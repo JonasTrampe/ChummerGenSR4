@@ -561,9 +561,7 @@
     </Compile>
     <Compile Include="code\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="code\SkillControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="code\SkillControl.cs" />
     <Compile Include="code\SkillControl.Designer.cs">
       <DependentUpon>SkillControl.cs</DependentUpon>
     </Compile>

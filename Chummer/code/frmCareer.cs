@@ -386,9 +386,9 @@ namespace Chummer
 					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
 					{
 						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 					}
 
 					// Set the control's vertical position and add it to the Skills Panel.
@@ -410,6 +410,23 @@ namespace Chummer
 					}
 				}
 			}
+
+			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+			{
+				if (!objSkillControl.SkillObject.IsMeta)
+					continue;
+
+				foreach (SkillControl objMetaBaseControl in panActiveSkills.Controls)
+				{
+					if (objMetaBaseControl.SkillObject.Name == objSkillControl.SkillObject.MetaBase)
+					{
+						objMetaBaseControl.MetaTalents.Add(objSkillControl);
+						break;
+					}
+				}
+			}
+
+			UpdateMetaSkills();
 
 			if (_objOptions.AlternateMatrixAttribute)
 			{
@@ -498,9 +515,9 @@ namespace Chummer
 					foreach (XmlNode objXmlSpecialization in objXmlSkill.SelectNodes("specs/spec"))
 					{
 						if (objXmlSpecialization.Attributes["translate"] != null)
-							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 						else
-							objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+							objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 					}
 
 					// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -509,9 +526,9 @@ namespace Chummer
 					foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 					{
 						if (objXmlWeapon["translate"] != null)
-							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 						else
-							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+							objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 					}
 
 					// Set the control's vertical position and add it to the Skills Panel.
@@ -1287,6 +1304,7 @@ namespace Chummer
 			_objFunctions.SortTree(treQualities);
 			_objFunctions.SortTree(treCritterPowers);
 			_objFunctions.SortTree(treMartialArts);
+			UpdateMetaSkills();
 			UpdateMentorSpirits();
 			UpdateInitiationGradeList();
 			PopulateCalendar();
@@ -7426,9 +7444,9 @@ namespace Chummer
 			foreach (XmlNode objXmlSpecialization in nodSkill.SelectNodes("specs/spec"))
 			{
 				if (objXmlSpecialization.Attributes["translate"] != null)
-					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.Attributes["translate"].InnerText, objXmlSpecialization.InnerText);
 				else
-					objSkillControl.AddSpec(objXmlSpecialization.InnerText);
+					objSkillControl.AddSpec(objXmlSpecialization.InnerText, objXmlSpecialization.InnerText);
 			}
 
 			// Look through the Weapons file and grab the names of items that are part of the appropriate Exotic Category or use the matching Exoctic Skill.
@@ -7437,9 +7455,9 @@ namespace Chummer
 			foreach (XmlNode objXmlWeapon in objXmlWeaponList)
 			{
 				if (objXmlWeapon["translate"] != null)
-					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["translate"].InnerText, objXmlWeapon["name"].InnerText);
 				else
-					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText);
+					objSkillControl.AddSpec(objXmlWeapon["name"].InnerText, objXmlWeapon["name"].InnerText);
 			}
 
 			objSkillControl.SkillRatingMaximum = 6;
@@ -21045,6 +21063,12 @@ namespace Chummer
 		#endregion
 
 		#region Clear Tab Contents
+		private void UpdateMetaSkills()
+		{
+			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+				objSkillControl.UpdateMetas();
+		}
+
 		/// <summary>
 		/// Clear the contents of the Spells and Spirits Tab.
 		/// </summary>
