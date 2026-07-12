@@ -157,14 +157,14 @@
 	<file>
 		<name>data/armor.xml</name>
 		<type>Data Files</type>
-		<version>-881</version>
+		<version>-882</version>
 		<description>Armor</description>
 		<notes>- Armor data file</notes>
 	</file>
 	<file>
 		<name>data/bioware.xml</name>
 		<type>Data Files</type>
-		<version>-905</version>
+		<version>-906</version>
 		<description>Bioware</description>
 		<notes>- Bioware data file</notes>
 	</file>
@@ -192,7 +192,7 @@
 	<file>
 		<name>data/cyberware.xml</name>
 		<type>Data Files</type>
-		<version>-890</version>
+		<version>-891</version>
 		<description>Cyberware</description>
 		<notes>- Cyberware data file</notes>
 	</file>
@@ -206,7 +206,7 @@
 	<file>
 		<name>data/gear.xml</name>
 		<type>Data Files</type>
-		<version>-818</version>
+		<version>-819</version>
 		<description>Gear</description>
 		<notes>- Gear data file</notes>
 	</file>
@@ -297,14 +297,14 @@
 	<file>
 		<name>data/skills.xml</name>
 		<type>Data Files</type>
-		<version>-913</version>
+		<version>-914</version>
 		<description>Skills</description>
 		<notes>- Skills data file</notes>
 	</file>
 	<file>
 		<name>data/spells.xml</name>
 		<type>Data Files</type>
-		<version>-917</version>
+		<version>-918</version>
 		<description>Spells</description>
 		<notes>- Spells data file</notes>
 	</file>
