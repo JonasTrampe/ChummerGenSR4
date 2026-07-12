@@ -74,7 +74,7 @@ jobs:
           path: "bin/*"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
           path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
@@ -106,7 +106,7 @@ jobs:
           tag-prefix: v
 
       - name: Download release version
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v4
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
 
