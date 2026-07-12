@@ -800,7 +800,7 @@ namespace Chummer
 
 			}
 
-			if (_objSkill.SkillCategory == "Language" && _objSkill.KnowledgeSkill && intSkillRating == 0)
+			if (_objSkill.IsNativeLanguage)
 			{
 				lblModifiedRating.Text = "N";
 				strTooltip = LanguageManager.Instance.GetString("Tip_Skill_NativeLanguage");
