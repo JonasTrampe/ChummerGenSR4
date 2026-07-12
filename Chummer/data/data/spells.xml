@@ -966,6 +966,12 @@
 			<dv>(F/2)-1</dv>
 			<source>SM</source>
 			<page>167</page>
+			<bonus>
+				<specificskill>
+					<name>Perception (Visual)</name>
+					<bonus>Rating</bonus>
+				</specificskill>
+			</bonus>
 		</spell>
 		<spell>
 			<name>Mana Window</name>

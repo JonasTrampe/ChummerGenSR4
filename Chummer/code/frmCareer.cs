@@ -411,6 +411,23 @@ namespace Chummer
 				}
 			}
 
+			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+			{
+				if (!objSkillControl.SkillObject.IsMeta)
+					continue;
+
+				foreach (SkillControl objMetaBaseControl in panActiveSkills.Controls)
+				{
+					if (objMetaBaseControl.SkillObject.Name == objSkillControl.SkillObject.MetaBase)
+					{
+						objMetaBaseControl.MetaTalents.Add(objSkillControl);
+						break;
+					}
+				}
+			}
+
+			UpdateMetaSkills();
+
 			if (_objOptions.AlternateMatrixAttribute)
 			{
 				List<ListItem> lstComplexFormAttributes = new List<ListItem>();
@@ -1287,6 +1304,7 @@ namespace Chummer
 			_objFunctions.SortTree(treQualities);
 			_objFunctions.SortTree(treCritterPowers);
 			_objFunctions.SortTree(treMartialArts);
+			UpdateMetaSkills();
 			UpdateMentorSpirits();
 			UpdateInitiationGradeList();
 			PopulateCalendar();
@@ -21045,6 +21063,12 @@ namespace Chummer
 		#endregion
 
 		#region Clear Tab Contents
+		private void UpdateMetaSkills()
+		{
+			foreach (SkillControl objSkillControl in panActiveSkills.Controls)
+				objSkillControl.UpdateMetas();
+		}
+
 		/// <summary>
 		/// Clear the contents of the Spells and Spirits Tab.
 		/// </summary>
