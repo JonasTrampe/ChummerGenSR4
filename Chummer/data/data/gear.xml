@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-817</version>
+	<version>-816</version>
 	<categories>
 		<category show="false">Altskin Function</category>
 		<category>Ammunition</category>
@@ -5508,14 +5508,14 @@
 			<category>Spy Toys</category>
 			<rating>6</rating>
 			<avail>Rating + 5</avail>
-			<cost>150</cost>
+			<cost>Rating * 150</cost>
 			<source>SG</source>
 			<page>149</page>
 		</gear>
 		<gear>
 			<name>Screen Capture Spray</name>
 			<category>Spy Toys</category>
-			<rating>0</rating>
+			<rating>6</rating>
 			<avail>Rating + 8</avail>
 			<cost>Rating * 200</cost>
 			<source>SG</source>
