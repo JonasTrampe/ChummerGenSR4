@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-947</version>
+	<version>-948</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6655,5 +6655,7 @@
 		<string><key>String_CredstickWithdrawReason</key><text>Auszahlung von {0}</text></string>
 		<string><key>Message_CredstickUndoFailed</key><text>Die Credstick-Transaktion kann nicht rückgängig gemacht werden, weil der Credstick fehlt, nicht genug Kapazität hat oder der Charakter nicht genug Nuyen besitzt.</text></string>
 		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick-Transaktion</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} ist nicht mit {1} kompatibel. Die Munition wurde nicht eingebaut.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Inkompatible Munition</text></string>
 	</strings>
 </chummer>

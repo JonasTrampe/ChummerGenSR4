@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-952</version>
+	<version>-953</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6580,5 +6580,7 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string><key>String_CredstickWithdrawReason</key><text>Retrait de {0}</text></string>
 		<string><key>Message_CredstickUndoFailed</key><text>La transaction ne peut pas être annulée : le créditube est absent, sa capacité est insuffisante ou le personnage ne possède pas assez de nuyens.</text></string>
 		<string><key>MessageTitle_CredstickTransfer</key><text>Transaction de créditube</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} n'est pas compatible avec {1}. Les munitions n'ont pas été ajoutées.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Munitions incompatibles</text></string>
 	</strings>
 </chummer>

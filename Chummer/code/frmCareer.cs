@@ -6230,7 +6230,9 @@ namespace Chummer
 		{
 			// Select the root Gear node then open the Select Gear window.
 			treGear.SelectedNode = treGear.Nodes[0];
-			bool blnAddAgain = PickGear();
+			Gear objParentGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+			string strWeaponType = GetSpareClipAmmoCategory(objParentGear);
+			bool blnAddAgain = PickGear(false, null, strWeaponType);
 			if (blnAddAgain)
 				cmdAddGear_Click(sender, e);
 			_objController.PopulateFocusList(treFoci);
@@ -18499,7 +18501,38 @@ namespace Chummer
 					_objController.MoveGearRoot(intNewIndex, nodDestination, treGear);
 			}
 			if (_objDragButton == MouseButtons.Right)
-				_objController.MoveGearParent(intNewIndex, nodDestination, treGear, cmsGear);
+			{
+				Gear objMovedGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+				Gear objDestinationGear = nodDestination.Level > 0 ? _objFunctions.FindGear(nodDestination.Tag.ToString(), _objCharacter.Gear) : null;
+				if (objMovedGear != null && objMovedGear.Category == "Ammunition" && objDestinationGear != null && objDestinationGear.Name.StartsWith("Spare Clip") && !IsAmmunitionCompatible(objMovedGear.Name, GetSpareClipAmmoCategory(objDestinationGear)))
+				{
+					MessageBox.Show(LanguageManager.Instance.GetString("Message_SpareClipAmmoMismatch").Replace("{0}", objMovedGear.DisplayNameShort).Replace("{1}", objDestinationGear.DisplayNameShort), LanguageManager.Instance.GetString("MessageTitle_SpareClipAmmoMismatch"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					_objFunctions.ClearNodeBackground(treGear, null);
+					_objDragButton = MouseButtons.None;
+					return;
+				}
+				int intCapacity = GetSpareClipCapacity(objDestinationGear);
+				int intFreeCapacity = intCapacity - (objDestinationGear == null ? 0 : objDestinationGear.Children.Where(objGear => objGear.Category == "Ammunition").Sum(objGear => objGear.Quantity));
+				if (objMovedGear != null && objMovedGear.Category == "Ammunition" && objDestinationGear != null && objDestinationGear.Name.StartsWith("Spare Clip") && intCapacity > 0 && objMovedGear.Quantity > intFreeCapacity)
+				{
+					if (intFreeCapacity > 0)
+					{
+						TreeNode objAmmoNode = new TreeNode();
+						Gear objAmmo = new Gear(_objCharacter);
+						objAmmo.Copy(objMovedGear, objAmmoNode, new List<Weapon>(), new List<TreeNode>());
+						objAmmo.Quantity = intFreeCapacity;
+						objAmmo.Parent = objDestinationGear;
+						objMovedGear.Quantity -= intFreeCapacity;
+						objDestinationGear.Children.Add(objAmmo);
+						objAmmoNode.Text = objAmmo.DisplayName;
+						objAmmoNode.ContextMenuStrip = cmsGear;
+						nodDestination.Nodes.Add(objAmmoNode);
+						treGear.SelectedNode.Text = objMovedGear.DisplayName;
+					}
+				}
+				else
+					_objController.MoveGearParent(intNewIndex, nodDestination, treGear, cmsGear);
+			}
 
 			// Clear the background color for all Nodes.
 			_objFunctions.ClearNodeBackground(treGear, null);
@@ -23840,6 +23873,11 @@ namespace Chummer
 			// Open the Cyberware XML file and locate the selected piece.
 			objXmlDocument = XmlManager.Instance.Load("gear.xml");
 			objXmlGear = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + frmPickGear.SelectedGear + "\" and category = \"" + frmPickGear.SelectedCategory + "\"]");
+			if (objSelectedGear.Name.StartsWith("Spare Clip") && !IsAmmunitionCompatible(frmPickGear.SelectedGear, strForceItemValue))
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_SpareClipAmmoMismatch").Replace("{0}", frmPickGear.SelectedGear).Replace("{1}", objSelectedGear.DisplayNameShort), LanguageManager.Instance.GetString("MessageTitle_SpareClipAmmoMismatch"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return false;
+			}
 
 			// Create the new piece of Gear.
 			Gear objNewGear = new Gear(_objCharacter);
@@ -24105,6 +24143,45 @@ namespace Chummer
 			}
 
 			return frmPickGear.AddAgain;
+		}
+
+		private string GetSpareClipAmmoCategory(Gear objGear)
+		{
+			if (objGear == null || !objGear.Name.StartsWith("Spare Clip")) return string.Empty;
+			foreach (Weapon objWeapon in _objCharacter.Weapons)
+				if (objWeapon.Name == objGear.Extra) return objWeapon.AmmoCategory;
+			return string.Empty;
+		}
+
+		private int GetSpareClipCapacity(Gear objGear)
+		{
+			if (objGear == null || !objGear.Name.StartsWith("Spare Clip")) return 0;
+			foreach (Weapon objWeapon in _objCharacter.Weapons)
+			{
+				if (objWeapon.Name != objGear.Extra) continue;
+				string strAmmo = objWeapon.CalculatedAmmo(true);
+				int intStart = strAmmo.IndexOf('x') + 1;
+				while (intStart < strAmmo.Length && !char.IsDigit(strAmmo[intStart])) intStart++;
+				int intEnd = intStart;
+				while (intEnd < strAmmo.Length && char.IsDigit(strAmmo[intEnd])) intEnd++;
+				int intCapacity;
+				return intStart < intEnd && int.TryParse(strAmmo.Substring(intStart, intEnd - intStart), out intCapacity) ? intCapacity : 0;
+			}
+			return 0;
+		}
+
+		private bool IsAmmunitionCompatible(string strAmmoName, string strAmmoCategory)
+		{
+			if (strAmmoCategory == string.Empty) return false;
+			if (strAmmoName.Contains("Arrow")) return strAmmoCategory == "Bows";
+			if (strAmmoName.Contains("Bolt")) return strAmmoCategory == "Crossbows";
+			if (strAmmoName.Contains("Assault Cannon")) return strAmmoCategory == "Assault Cannons";
+			if (strAmmoName.Contains("Taser Dart")) return strAmmoCategory == "Tasers";
+			if (strAmmoName.Contains("Gauss Rifle")) return strAmmoCategory == "Gauss Rifles";
+			if (strAmmoName.Contains("Grenade") || strAmmoName.Contains("Minigrenade")) return strAmmoCategory == "Grenade Launchers";
+			if (strAmmoName.Contains("Missile") || strAmmoName.Contains("Rocket")) return strAmmoCategory == "Missile Launchers";
+			if (strAmmoName.Contains("Mortar")) return strAmmoCategory == "Mortar Launchers";
+			return strAmmoCategory != "Bows" && strAmmoCategory != "Crossbows" && strAmmoCategory != "Grenade Launchers" && strAmmoCategory != "Missile Launchers" && strAmmoCategory != "Mortar Launchers";
 		}
 
 		/// <summary>

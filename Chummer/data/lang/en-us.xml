@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-907</version>
+	<version>-908</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6632,5 +6632,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		<string><key>String_CredstickWithdrawReason</key><text>Withdrawal from {0}</text></string>
 		<string><key>Message_CredstickUndoFailed</key><text>The credstick transaction cannot be undone because the credstick is missing, lacks capacity, or the character does not have enough Nuyen.</text></string>
 		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick Transfer</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} is not compatible with {1}. The ammunition was not added.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Incompatible Ammunition</text></string>
 	</strings>
 </chummer>

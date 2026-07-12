@@ -2,7 +2,7 @@
 <!-- この言語ファイルは AhonokoP が作成しました。連絡を取りたいときは"Dumpshock Forum"でAhonokoPにメッセージを送ってください -->
 <!-- Translated by AhonokoP. Contact me at "Dumpshock Forum" -->
 <chummer>
-	<version>-998</version>
+	<version>-999</version>
 	<name>日本語 (JP)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -6629,5 +6629,7 @@
 		<string><key>String_CredstickWithdrawReason</key><text>{0}からの出金</text></string>
 		<string><key>Message_CredstickUndoFailed</key><text>クレッドスティックが見つからない、容量が不足している、または所持金が不足しているため、取引を元に戻せません。</text></string>
 		<string><key>MessageTitle_CredstickTransfer</key><text>クレッドスティック取引</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0}は{1}と互換性がありません。弾薬は追加されませんでした。</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>互換性のない弾薬</text></string>
 	</strings>
 </chummer>
