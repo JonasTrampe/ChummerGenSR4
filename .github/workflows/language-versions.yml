@@ -1,0 +1,69 @@
+name: Language versions
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "Chummer/data/lang/*.xml"
+      - "Chummer/data/manifestlang.xml"
+      - ".github/scripts/Update-LanguageVersions.ps1"
+  push:
+    branches: [ main ]
+    paths:
+      - "Chummer/data/lang/*.xml"
+      - "Chummer/data/manifestlang.xml"
+      - ".github/scripts/Update-LanguageVersions.ps1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: windows-latest
+    steps:
+      - name: Check out pull request branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Check out branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        run: git fetch https://github.com/${{ github.repository }} ${{ github.event.pull_request.base.sha }}
+
+      - name: Update internal pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        shell: pwsh
+        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Update
+
+      - name: Check fork pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        shell: pwsh
+        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Check
+
+      - name: Update direct push
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef HEAD^ -Mode Update
+
+      - name: Commit automatic updates
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        shell: pwsh
+        run: |
+          if (git status --porcelain) {
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add Chummer/data/lang Chummer/data/manifestlang.xml
+            git commit -m "Update language versions [skip ci]"
+            git push
+          }

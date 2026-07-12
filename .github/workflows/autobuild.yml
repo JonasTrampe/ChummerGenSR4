@@ -2,9 +2,9 @@ name: Automated build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   release:
     type: [ released ]
 
@@ -53,6 +53,16 @@ jobs:
             "**/AssemblyInfo.cs"
           version: ${{ steps.version.outputs.version }}
 
+      - name: Update language versions for release artifacts
+        if: github.event_name == 'release'
+        shell: pwsh
+        run: |
+          $baseRef = git describe --tags --abbrev=0 HEAD^ 2>$null
+          if (-not $baseRef) {
+            $baseRef = git rev-list --max-parents=0 HEAD
+          }
+          .github/scripts/Update-LanguageVersions.ps1 -BaseRef $baseRef -Mode Update
+
       - name: Build the solution
         run: msbuild ChummerGenSR4.sln /p:Configuration=Release
         
@@ -64,7 +74,7 @@ jobs:
           path: "bin/*"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
           path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
@@ -96,7 +106,7 @@ jobs:
           tag-prefix: v
 
       - name: Download release version
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v4
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
 
