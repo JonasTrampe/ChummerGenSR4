@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- translated by AhonokoP. If you want to sent me a message, contact me at "Dumpshock Forum" -->
 <chummer>
-	<version>-996</version>
+	<version>-995</version>
 	<chummer file="armor.xml">
 		<categories>
 			<category translate="防具">Armor</category>
@@ -10996,6 +10996,31 @@
 					<spec translate="触覚">Touch</spec>
 					<spec translate="視覚">Visual</spec>
 				</specs>
+				<page>147</page>
+			</skill>
+			<skill>
+				<name>Perception (Audio)</name>
+				<translate>知覚 (聴覚)</translate>
+				<page>147</page>
+			</skill>
+			<skill>
+				<name>Perception (Smell)</name>
+				<translate>知覚 (嗅覚)</translate>
+				<page>147</page>
+			</skill>
+			<skill>
+				<name>Perception (Taste)</name>
+				<translate>知覚 (味覚)</translate>
+				<page>147</page>
+			</skill>
+			<skill>
+				<name>Perception (Touch)</name>
+				<translate>知覚 (触覚)</translate>
+				<page>147</page>
+			</skill>
+			<skill>
+				<name>Perception (Visual)</name>
+				<translate>知覚 (視覚)</translate>
 				<page>147</page>
 			</skill>
 			<skill>

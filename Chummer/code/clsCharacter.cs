@@ -46,6 +46,8 @@ namespace Chummer
 	/// </summary>
 	public class Character
 	{
+		public const int CurrentDataVersion = 1;
+		private int _intDataVersion;
 		private readonly ImprovementManager _objImprovementManager;
 		private readonly CharacterOptions _objOptions = new CharacterOptions();
 		private CommonFunctions _commonFunctions;
@@ -240,6 +242,8 @@ namespace Chummer
 
 			// <appversion />
 			objWriter.WriteElementString("appversion", Application.ProductVersion.ToString().Replace("0.0.0.", string.Empty));
+			// <dataversion />
+			objWriter.WriteElementString("dataversion", CurrentDataVersion.ToString());
 			// <gameedition />
 			objWriter.WriteElementString("gameedition", "SR4");
 
@@ -731,6 +735,10 @@ namespace Chummer
 			}
 
 			ResetCharacter();
+
+			_intDataVersion = 0;
+			if (objXmlCharacter["dataversion"] != null)
+				Int32.TryParse(objXmlCharacter["dataversion"].InnerText, out _intDataVersion);
 
 			// Get the game edition of the file if possible and make sure it's intended to be used with this version of the application.
 			try
@@ -1495,6 +1503,16 @@ namespace Chummer
 				Save();
 
 			return true;
+		}
+
+		public void MarkDataVersionCurrent()
+		{
+			_intDataVersion = CurrentDataVersion;
+		}
+
+		public bool NeedsDataUpdate
+		{
+			get { return _intDataVersion < CurrentDataVersion; }
 		}
 
 		/// <summary>

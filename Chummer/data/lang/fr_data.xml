@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-977</version>
+	<version>-976</version>
 	<chummer file="armor.xml">
 		<categories>
 			<category translate="Armures">Armor</category>
@@ -15685,6 +15685,31 @@
 					<spec translate="Tactile">Touch</spec>
 					<spec translate="Visuelle">Visual</spec>
 				</specs>
+				<page>124</page>
+			</skill>
+			<skill>
+				<name>Perception (Audio)</name>
+				<translate>Perception (Auditive)</translate>
+				<page>124</page>
+			</skill>
+			<skill>
+				<name>Perception (Smell)</name>
+				<translate>Perception (Olfactive)</translate>
+				<page>124</page>
+			</skill>
+			<skill>
+				<name>Perception (Taste)</name>
+				<translate>Perception (Gustative)</translate>
+				<page>124</page>
+			</skill>
+			<skill>
+				<name>Perception (Touch)</name>
+				<translate>Perception (Tactile)</translate>
+				<page>124</page>
+			</skill>
+			<skill>
+				<name>Perception (Visual)</name>
+				<translate>Perception (Visuelle)</translate>
 				<page>124</page>
 			</skill>
 			<skill>
