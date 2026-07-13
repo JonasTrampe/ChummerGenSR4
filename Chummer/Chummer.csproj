@@ -84,6 +84,7 @@
     <Compile Include="code\clsMTRNG.cs" />
     <Compile Include="code\clsOmaeHelper.cs" />
     <Compile Include="code\clsOptions.cs" />
+    <Compile Include="code\clsRuntimeInfo.cs" />
     <Compile Include="code\clsUnique.cs" />
     <Compile Include="code\clsXmlManager.cs" />
     <Compile Include="code\ContactControl.cs">
