@@ -13,47 +13,65 @@ on:
 jobs:
   build:
     runs-on: [windows-latest]
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           filter: tree:0
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v3
 
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1
+        uses: NuGet/setup-nuget@v4
 
       - name: Restore NuGet packages
         run: nuget restore ChummerGenSR4.sln
 
-      - uses: benjlevesque/short-sha@v1.2
+      - name: Get short commit SHA
         id: short-sha
-        with:
-          length: 6
+        shell: pwsh
+        run: |
+          $sha = git rev-parse --short=6 HEAD
+          "sha=$sha" >> $env:GITHUB_OUTPUT
 
-      - name: run minver
+      - name: Calculate version
         id: version
-        uses: Stelzi79/action-minver@3.0.1
-        with:
-          auto-increment: patch
-          build-metadata: ${{ steps.short-sha.outputs.sha }}
-          default-pre-release-phase: beta
-          minimum-major-minor: 0.1
-          tag-prefix: v
+        shell: pwsh
+        run: |
+          # Keep the version used by the former action so version strings remain unchanged.
+          dotnet tool install --global minver-cli --version 4.2.0
+          $version = minver `
+            --auto-increment patch `
+            --build-metadata "${{ steps.short-sha.outputs.sha }}" `
+            --default-pre-release-phase beta `
+            --minimum-major-minor 0.1 `
+            --tag-prefix v
+          $semanticVersion = $version.Trim()
+          $versionParts = $semanticVersion.Split('+')[0].Split('-', 2)
+          $coreParts = $versionParts[0].Split('.')
+          $revision = 0
+          if ($versionParts.Count -gt 1) {
+            $candidateRevision = $versionParts[1].Split('.')[-1]
+            [void] [int]::TryParse($candidateRevision, [ref] $revision)
+          }
+          $assemblyVersion = "$($coreParts[0]).$($coreParts[1]).$($coreParts[2]).$revision"
+          "version=$semanticVersion" >> $env:GITHUB_OUTPUT
+          "assembly-version=$assemblyVersion" >> $env:GITHUB_OUTPUT
 
       - name: Set project versions
         id: update
-        uses: vers-one/dotnet-project-version-updater@v1.3
+        uses: vers-one/dotnet-project-version-updater@v1.8
         with:
           file: |
             "**/AssemblyInfo.cs"
-          version: ${{ steps.version.outputs.version }}
+          version: ${{ steps.version.outputs.assembly-version }}
 
-      - name: Update language versions for release artifacts
+      - name: Update XML data versions for release artifacts
         if: github.event_name == 'release'
         shell: pwsh
         run: |
@@ -62,6 +80,7 @@ jobs:
             $baseRef = git rev-list --max-parents=0 HEAD
           }
           .github/scripts/Update-LanguageVersions.ps1 -BaseRef $baseRef -Mode Update
+          .github/scripts/Update-DataVersions.ps1 -BaseRef $baseRef -Mode Update
 
       - name: Build the solution
         run: msbuild ChummerGenSR4.sln /p:Configuration=Release
@@ -74,7 +93,7 @@ jobs:
           path: "bin/*"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
           path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
@@ -84,36 +103,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          filter: tree:0
-
-      - uses: benjlevesque/short-sha@v1.2
-        id: short-sha
-        with:
-          length: 6
-
-      - name: run minver
-        id: version
-        uses: Stelzi79/action-minver@3.0.1
-        with:
-          auto-increment: patch
-          build-metadata: ${{ steps.short-sha.outputs.sha }}
-          default-pre-release-phase: beta
-          minimum-major-minor: 0.1
-          tag-prefix: v
-
       - name: Download release version
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
-          name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
+          name: "ChummerGenSR4-${{ needs.build.outputs.version }}"
 
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
         if: github.event_name == 'release'
         with:
-          args: ./ChummerGenSR4-${{steps.version.outputs.version}}.zip application/zip
+          args: ./ChummerGenSR4-${{ needs.build.outputs.version }}.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

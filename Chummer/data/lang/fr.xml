@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-951</version>
+	<version>-958</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5425,6 +5425,16 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<text>Les Technomancien peuvent sélectionner les Autosofts en tant que Formes complexes</text>
 		</string>
 		<string>
+			<key>Checkbox_Option_RestrictStickNShock</key>
+			<text>Limiter Stick-n-Shock selon la catégorie d’arme</text>
+		</string>
+		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock n’est pas autorisé pour la catégorie d’arme {0}.</text></string>
+		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Munitions restreintes</text></string>
+		<string><key>Label_ActiveCommlink</key><text>Commlink actif :</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Les technomanciens peuvent utiliser un commlink au lieu de leur persona émergente</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>Sélectionner les catégories...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>Sélectionner les catégories d’armes autorisées à utiliser Stick-n-Shock</text></string>
+		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>Ceci va réinitialiser les totaux de cet onglet à leur valeur par défaut. Êtes-vous sûr de vouloir faire ça?</text>
 		</string>
@@ -6572,5 +6582,15 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<key>Title_AddRemoveQuantity</key>
 			<text>Add/Remove quantity</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Déposer des nuyens...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Retirer des nuyens...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Montant à déposer sur {0} :</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Montant à retirer de {0} :</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Dépôt sur {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Retrait de {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>La transaction ne peut pas être annulée : le créditube est absent, sa capacité est insuffisante ou le personnage ne possède pas assez de nuyens.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Transaction de créditube</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} n'est pas compatible avec {1}. Les munitions n'ont pas été ajoutées.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Munitions incompatibles</text></string>
 	</strings>
 </chummer>

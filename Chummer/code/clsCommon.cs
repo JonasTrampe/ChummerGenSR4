@@ -752,11 +752,16 @@ namespace Chummer
 			return null;
 		}
 
-		public List<Commlink> FindCommlinks(List<Gear> lstGear, List<Cyberware> lstCyberware)
+		public List<Commlink> FindCommlinks(List<Gear> lstGear, List<Cyberware> lstCyberware, List<Vehicle> lstVehicles = null)
 		{
 			List<Commlink> lstReturn = new List<Commlink>();
 			lstReturn.AddRange(FindCharacterCommlinks(lstGear));
 			lstReturn.AddRange(FindCyberwareCommlinks(lstCyberware));
+			if (lstVehicles != null)
+			{
+				foreach (Vehicle objVehicle in lstVehicles)
+					lstReturn.AddRange(FindCharacterCommlinks(objVehicle.Gear));
+			}
 			return lstReturn;
 		}
 
@@ -764,12 +769,11 @@ namespace Chummer
 		{
 			List<Commlink> lstReturn = new List<Commlink>();
 
-			foreach (var ware in lstCyberware)
+			foreach (Cyberware objCyberware in lstCyberware)
 			{
-				foreach (Commlink objCommlink in ware.Gear.OfType<Commlink>())
-				{
-					lstReturn.Add(objCommlink);
-				}
+				lstReturn.AddRange(FindCharacterCommlinks(objCyberware.Gear));
+				if (objCyberware.Children.Count > 0)
+					lstReturn.AddRange(FindCyberwareCommlinks(objCyberware.Children));
 			}
 
 			return lstReturn;

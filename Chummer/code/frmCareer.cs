@@ -32,6 +32,9 @@ namespace Chummer
 		private int _intDragLevel = 0;
 		private MouseButtons _objDragButton = new MouseButtons();
 		private bool _blnDraggingGear = false;
+		private ToolStripMenuItem _tsCredstickDeposit;
+		private ToolStripMenuItem _tsCredstickWithdraw;
+		private ToolStripSeparator _tsCredstickSeparator;
 
 		private readonly ListViewColumnSorter _lvwKarmaColumnSorter;
 		private readonly ListViewColumnSorter _lvwNuyenColumnSorter;
@@ -51,6 +54,15 @@ namespace Chummer
 			_objImprovementManager = new ImprovementManager(_objCharacter);
 			_objController = new MainController(_objCharacter);
 			InitializeComponent();
+			_tsCredstickDeposit = new ToolStripMenuItem("Deposit Nuyen") { Tag = "Menu_CredstickDeposit" };
+			_tsCredstickWithdraw = new ToolStripMenuItem("Withdraw Nuyen") { Tag = "Menu_CredstickWithdraw" };
+			_tsCredstickDeposit.Click += tsCredstickDeposit_Click;
+			_tsCredstickWithdraw.Click += tsCredstickWithdraw_Click;
+			_tsCredstickSeparator = new ToolStripSeparator();
+			cmsGear.Items.Add(_tsCredstickSeparator);
+			cmsGear.Items.Add(_tsCredstickDeposit);
+			cmsGear.Items.Add(_tsCredstickWithdraw);
+			cmsGear.Opening += cmsGear_Opening;
 
 			// Add EventHandlers for the MAG and RES enabled events and tab enabled events.
 			_objCharacter.MAGEnabledChanged += objCharacter_MAGEnabledChanged;
@@ -6218,7 +6230,9 @@ namespace Chummer
 		{
 			// Select the root Gear node then open the Select Gear window.
 			treGear.SelectedNode = treGear.Nodes[0];
-			bool blnAddAgain = PickGear();
+			Gear objParentGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+			string strWeaponType = GetSpareClipAmmoCategory(objParentGear);
+			bool blnAddAgain = PickGear(false, null, strWeaponType);
 			if (blnAddAgain)
 				cmdAddGear_Click(sender, e);
 			_objController.PopulateFocusList(treFoci);
@@ -13026,6 +13040,76 @@ namespace Chummer
 			UpdateWindowTitle();
 		}
 
+		private Gear SelectedCertifiedCredstick()
+		{
+			if (treGear.SelectedNode == null || treGear.SelectedNode.Tag == null)
+				return null;
+			Gear objGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+			if (objGear == null || objGear.Category != "ID/Credsticks" || !objGear.Name.StartsWith("Certified Credstick,") || objGear.MinRating != 0)
+				return null;
+			return objGear;
+		}
+
+		private void cmsGear_Opening(object sender, CancelEventArgs e)
+		{
+			Gear objCredstick = SelectedCertifiedCredstick();
+			_tsCredstickSeparator.Visible = objCredstick != null;
+			_tsCredstickDeposit.Visible = objCredstick != null;
+			_tsCredstickWithdraw.Visible = objCredstick != null;
+			_tsCredstickDeposit.Enabled = objCredstick != null && objCredstick.Rating < objCredstick.MaxRating && _objCharacter.Nuyen > 0;
+			_tsCredstickWithdraw.Enabled = objCredstick != null && objCredstick.Rating > 0;
+		}
+
+		private void tsCredstickDeposit_Click(object sender, EventArgs e)
+		{
+			TransferCredstickMoney(true);
+		}
+
+		private void tsCredstickWithdraw_Click(object sender, EventArgs e)
+		{
+			TransferCredstickMoney(false);
+		}
+
+		private void TransferCredstickMoney(bool blnDeposit)
+		{
+			Gear objCredstick = SelectedCertifiedCredstick();
+			if (objCredstick == null)
+				return;
+
+			int intMaximum = blnDeposit
+				? Math.Min(_objCharacter.Nuyen, objCredstick.MaxRating - objCredstick.Rating)
+				: objCredstick.Rating;
+			if (intMaximum <= 0)
+				return;
+
+			frmSelectNumber frmAmount = new frmSelectNumber();
+			frmAmount.Minimum = 1;
+			frmAmount.Maximum = intMaximum;
+			frmAmount.Description = LanguageManager.Instance.GetString(blnDeposit ? "String_CredstickDepositPrompt" : "String_CredstickWithdrawPrompt").Replace("{0}", objCredstick.DisplayNameShort);
+			frmAmount.ShowDialog(this);
+			if (frmAmount.DialogResult == DialogResult.Cancel)
+				return;
+
+			int intAmount = frmAmount.SelectedValue;
+			objCredstick.Rating += blnDeposit ? intAmount : -intAmount;
+			_objCharacter.Nuyen += blnDeposit ? -intAmount : intAmount;
+
+			ExpenseLogEntry objEntry = new ExpenseLogEntry();
+			objEntry.Create(blnDeposit ? -intAmount : intAmount,
+				LanguageManager.Instance.GetString(blnDeposit ? "String_CredstickDepositReason" : "String_CredstickWithdrawReason").Replace("{0}", objCredstick.DisplayNameShort),
+				ExpenseType.Nuyen, DateTime.Now);
+			ExpenseUndo objUndo = new ExpenseUndo();
+			objUndo.CreateNuyen(blnDeposit ? NuyenExpenseType.CredstickDeposit : NuyenExpenseType.CredstickWithdrawal, objCredstick.InternalId);
+			objEntry.Undo = objUndo;
+			_objCharacter.ExpenseEntries.Add(objEntry);
+
+			treGear.SelectedNode.Text = objCredstick.DisplayName;
+			RefreshSelectedGear();
+			UpdateCharacterInfo();
+			_blnIsDirty = true;
+			UpdateWindowTitle();
+		}
+
 		private void tsWeaponAddUnderbarrel_Click(object sender, EventArgs e)
 		{
 			// Make sure a parent item is selected, then open the Select Accessory window.
@@ -14954,6 +15038,24 @@ namespace Chummer
 						objFoundAccGear.Parent.Children.Remove(objFoundAccGear);
 					TreeNode objFoundAccNode = _objFunctions.FindNode(objFoundAccGear.InternalId, treWeapons);
 					objFoundAccNode.Remove();
+					break;
+				case NuyenExpenseType.CredstickDeposit:
+					Gear objDepositCredstick = _objFunctions.FindGear(objEntry.Undo.ObjectId, _objCharacter.Gear);
+					if (objDepositCredstick == null || objDepositCredstick.Rating < Math.Abs(objEntry.Amount))
+					{
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_CredstickUndoFailed"), LanguageManager.Instance.GetString("MessageTitle_CredstickTransfer"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+						return;
+					}
+					objDepositCredstick.Rating -= Math.Abs(objEntry.Amount);
+					break;
+				case NuyenExpenseType.CredstickWithdrawal:
+					Gear objWithdrawalCredstick = _objFunctions.FindGear(objEntry.Undo.ObjectId, _objCharacter.Gear);
+					if (objWithdrawalCredstick == null || _objCharacter.Nuyen < objEntry.Amount || objWithdrawalCredstick.Rating + objEntry.Amount > objWithdrawalCredstick.MaxRating)
+					{
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_CredstickUndoFailed"), LanguageManager.Instance.GetString("MessageTitle_CredstickTransfer"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+						return;
+					}
+					objWithdrawalCredstick.Rating += objEntry.Amount;
 					break;
 				case NuyenExpenseType.ManualAdd:
 				case NuyenExpenseType.ManualSubtract:
@@ -18086,6 +18188,9 @@ namespace Chummer
 				}
 			}
 
+			if (_objOptions.RestrictStickNShock && _objOptions.StickNShockExcludedWeaponCategories.Contains(objWeapon.AmmoCategory))
+				lstAmmo.RemoveAll(objAmmo => objAmmo.Name == "Ammo: Stick-n-Shock");
+
 			// If the Weapon is allowed to use an External Source, put in an External Source item.
 			if (blnExternalSource)
 				lstAmmo.Add(objExternalSource);
@@ -18399,7 +18504,38 @@ namespace Chummer
 					_objController.MoveGearRoot(intNewIndex, nodDestination, treGear);
 			}
 			if (_objDragButton == MouseButtons.Right)
-				_objController.MoveGearParent(intNewIndex, nodDestination, treGear, cmsGear);
+			{
+				Gear objMovedGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+				Gear objDestinationGear = nodDestination.Level > 0 ? _objFunctions.FindGear(nodDestination.Tag.ToString(), _objCharacter.Gear) : null;
+				if (objMovedGear != null && objMovedGear.Category == "Ammunition" && objDestinationGear != null && objDestinationGear.Name.StartsWith("Spare Clip") && !IsAmmunitionCompatible(objMovedGear.Name, GetSpareClipAmmoCategory(objDestinationGear)))
+				{
+					MessageBox.Show(LanguageManager.Instance.GetString("Message_SpareClipAmmoMismatch").Replace("{0}", objMovedGear.DisplayNameShort).Replace("{1}", objDestinationGear.DisplayNameShort), LanguageManager.Instance.GetString("MessageTitle_SpareClipAmmoMismatch"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					_objFunctions.ClearNodeBackground(treGear, null);
+					_objDragButton = MouseButtons.None;
+					return;
+				}
+				int intCapacity = GetSpareClipCapacity(objDestinationGear);
+				int intFreeCapacity = intCapacity - (objDestinationGear == null ? 0 : objDestinationGear.Children.Where(objGear => objGear.Category == "Ammunition").Sum(objGear => objGear.Quantity));
+				if (objMovedGear != null && objMovedGear.Category == "Ammunition" && objDestinationGear != null && objDestinationGear.Name.StartsWith("Spare Clip") && intCapacity > 0 && objMovedGear.Quantity > intFreeCapacity)
+				{
+					if (intFreeCapacity > 0)
+					{
+						TreeNode objAmmoNode = new TreeNode();
+						Gear objAmmo = new Gear(_objCharacter);
+						objAmmo.Copy(objMovedGear, objAmmoNode, new List<Weapon>(), new List<TreeNode>());
+						objAmmo.Quantity = intFreeCapacity;
+						objAmmo.Parent = objDestinationGear;
+						objMovedGear.Quantity -= intFreeCapacity;
+						objDestinationGear.Children.Add(objAmmo);
+						objAmmoNode.Text = objAmmo.DisplayName;
+						objAmmoNode.ContextMenuStrip = cmsGear;
+						nodDestination.Nodes.Add(objAmmoNode);
+						treGear.SelectedNode.Text = objMovedGear.DisplayName;
+					}
+				}
+				else
+					_objController.MoveGearParent(intNewIndex, nodDestination, treGear, cmsGear);
+			}
 
 			// Clear the background color for all Nodes.
 			_objFunctions.ClearNodeBackground(treGear, null);
@@ -22272,16 +22408,20 @@ namespace Chummer
 				// This is always calculated since characters can have a Matrix Initiative without actually being a Technomancer.
 				int intCommlinkResponse = 0;
 
-				// Retrieve the highest Response in case the Character has more than 1 Commlink.
-				foreach (Commlink objCommlink in _objCharacter.Gear.OfType<Commlink>())
+				// Retrieve the Response of the active Commlink.
+				foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
 				{
-					if (objCommlink.TotalResponse > intCommlinkResponse)
+					if (objCommlink.IsActive)
+					{
 						intCommlinkResponse = objCommlink.TotalResponse;
+						break;
+					}
 				}
 
 				lblMatrixINI.Text = _objCharacter.MatrixInitiative;
 				lblMatrixIP.Text = _objCharacter.MatrixInitiativePasses;
-				if (!_objCharacter.TechnomancerEnabled)
+				RefreshActiveCommlinkSelector();
+				if (!_objCharacter.TechnomancerEnabled || (_objOptions.TechnomancerAllowCommlink && _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles).Any(objCommlink => objCommlink.IsActive)))
 				{
 					tipTooltip.SetToolTip(lblMatrixINI, "INT (" + _objCharacter.INT.TotalValue.ToString() + ") + " + LanguageManager.Instance.GetString("Tip_CommlinkResponse") + " (" + intCommlinkResponse.ToString() + ")");
 					strIPTip = "1";
@@ -23740,6 +23880,16 @@ namespace Chummer
 			// Open the Cyberware XML file and locate the selected piece.
 			objXmlDocument = XmlManager.Instance.Load("gear.xml");
 			objXmlGear = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + frmPickGear.SelectedGear + "\" and category = \"" + frmPickGear.SelectedCategory + "\"]");
+			if (frmPickGear.SelectedGear == "Ammo: Stick-n-Shock" && _objOptions.RestrictStickNShock && _objOptions.StickNShockExcludedWeaponCategories.Contains(strForceItemValue))
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_StickNShockWeaponCategoryRestricted").Replace("{0}", strForceItemValue), LanguageManager.Instance.GetString("MessageTitle_StickNShockWeaponCategoryRestricted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return false;
+			}
+			if (objSelectedGear.Name.StartsWith("Spare Clip") && !IsAmmunitionCompatible(frmPickGear.SelectedGear, strForceItemValue))
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_SpareClipAmmoMismatch").Replace("{0}", frmPickGear.SelectedGear).Replace("{1}", objSelectedGear.DisplayNameShort), LanguageManager.Instance.GetString("MessageTitle_SpareClipAmmoMismatch"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return false;
+			}
 
 			// Create the new piece of Gear.
 			Gear objNewGear = new Gear(_objCharacter);
@@ -24005,6 +24155,46 @@ namespace Chummer
 			}
 
 			return frmPickGear.AddAgain;
+		}
+
+		private string GetSpareClipAmmoCategory(Gear objGear)
+		{
+			if (objGear == null || !objGear.Name.StartsWith("Spare Clip")) return string.Empty;
+			foreach (Weapon objWeapon in _objCharacter.Weapons)
+				if (objWeapon.Name == objGear.Extra) return objWeapon.AmmoCategory;
+			return string.Empty;
+		}
+
+		private int GetSpareClipCapacity(Gear objGear)
+		{
+			if (objGear == null || !objGear.Name.StartsWith("Spare Clip")) return 0;
+			foreach (Weapon objWeapon in _objCharacter.Weapons)
+			{
+				if (objWeapon.Name != objGear.Extra) continue;
+				string strAmmo = objWeapon.CalculatedAmmo(true);
+				int intStart = strAmmo.IndexOf('x') + 1;
+				while (intStart < strAmmo.Length && !char.IsDigit(strAmmo[intStart])) intStart++;
+				int intEnd = intStart;
+				while (intEnd < strAmmo.Length && char.IsDigit(strAmmo[intEnd])) intEnd++;
+				int intCapacity;
+				return intStart < intEnd && int.TryParse(strAmmo.Substring(intStart, intEnd - intStart), out intCapacity) ? intCapacity : 0;
+			}
+			return 0;
+		}
+
+		private bool IsAmmunitionCompatible(string strAmmoName, string strAmmoCategory)
+		{
+			if (strAmmoCategory == string.Empty) return false;
+			if (strAmmoName == "Ammo: Stick-n-Shock" && _objOptions.RestrictStickNShock && _objOptions.StickNShockExcludedWeaponCategories.Contains(strAmmoCategory)) return false;
+			if (strAmmoName.Contains("Arrow")) return strAmmoCategory == "Bows";
+			if (strAmmoName.Contains("Bolt")) return strAmmoCategory == "Crossbows";
+			if (strAmmoName.Contains("Assault Cannon")) return strAmmoCategory == "Assault Cannons";
+			if (strAmmoName.Contains("Taser Dart")) return strAmmoCategory == "Tasers";
+			if (strAmmoName.Contains("Gauss Rifle")) return strAmmoCategory == "Gauss Rifles";
+			if (strAmmoName.Contains("Grenade") || strAmmoName.Contains("Minigrenade")) return strAmmoCategory == "Grenade Launchers";
+			if (strAmmoName.Contains("Missile") || strAmmoName.Contains("Rocket")) return strAmmoCategory == "Missile Launchers";
+			if (strAmmoName.Contains("Mortar")) return strAmmoCategory == "Mortar Launchers";
+			return strAmmoCategory != "Bows" && strAmmoCategory != "Crossbows" && strAmmoCategory != "Grenade Launchers" && strAmmoCategory != "Missile Launchers" && strAmmoCategory != "Mortar Launchers";
 		}
 
 		/// <summary>
@@ -27028,13 +27218,80 @@ namespace Chummer
 			}
 		}
 
+				private void RefreshActiveCommlinkSelector()
+		{
+			bool blnOldSkipRefresh = _blnSkipRefresh;
+			_blnSkipRefresh = true;
+			List<ListItem> lstCommlinks = new List<ListItem>();
+			string strSelectedValue = string.Empty;
+			if (_objCharacter.TechnomancerEnabled)
+			{
+				ListItem objLivingPersona = new ListItem();
+				objLivingPersona.Value = "Living Persona";
+				objLivingPersona.Name = LanguageManager.Instance.GetString("String_LivingPersona") + " (" + (_objCharacter.INT.TotalValue + _objImprovementManager.ValueOf(Improvement.ImprovementType.LivingPersonaResponse)).ToString() + ")";
+				lstCommlinks.Add(objLivingPersona);
+				strSelectedValue = objLivingPersona.Value;
+			}
+			else
+			{
+				ListItem objNone = new ListItem();
+				objNone.Value = string.Empty;
+				objNone.Name = LanguageManager.Instance.GetString("String_None");
+				lstCommlinks.Add(objNone);
+			}
+			bool blnAllowCommlink = !_objCharacter.TechnomancerEnabled || _objOptions.TechnomancerAllowCommlink;
+			if (blnAllowCommlink)
+			{
+				foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
+				{
+					ListItem objItem = new ListItem();
+					objItem.Value = objCommlink.InternalId;
+					objItem.Name = "[" + GetCommlinkLocationName(objCommlink) + "] " + objCommlink.DisplayName + " (" + objCommlink.TotalResponse.ToString() + ")";
+					lstCommlinks.Add(objItem);
+					if (objCommlink.IsActive) strSelectedValue = objCommlink.InternalId;
+				}
+			}
+			cboActiveCommlink.Enabled = blnAllowCommlink;
+			cboActiveCommlink.DisplayMember = "Name";
+			cboActiveCommlink.ValueMember = "Value";
+			cboActiveCommlink.DataSource = lstCommlinks;
+			cboActiveCommlink.SelectedValue = strSelectedValue;
+			int intDropDownWidth = cboActiveCommlink.Width;
+			foreach (ListItem objItem in lstCommlinks)
+				intDropDownWidth = Math.Max(intDropDownWidth, TextRenderer.MeasureText(objItem.Name, cboActiveCommlink.Font).Width + 24);
+			cboActiveCommlink.DropDownWidth = Math.Min(600, intDropDownWidth);
+			tipTooltip.SetToolTip(cboActiveCommlink, cboActiveCommlink.Text);
+			_blnSkipRefresh = blnOldSkipRefresh;
+		}
+
+		private string GetCommlinkLocationName(Commlink objCommlink)
+		{
+			foreach (Vehicle objVehicle in _objCharacter.Vehicles)
+				if (_objFunctions.FindCharacterCommlinks(objVehicle.Gear).Any(objItem => objItem.InternalId == objCommlink.InternalId)) return objVehicle.DisplayName;
+			if (_objFunctions.FindCyberwareCommlinks(_objCharacter.Cyberware).Any(objItem => objItem.InternalId == objCommlink.InternalId)) return LanguageManager.Instance.GetString("Tab_Cyberware");
+			return LanguageManager.Instance.GetString("Tab_StreeGear");
+		}
+
+		private void cboActiveCommlink_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (_blnSkipRefresh || (_objCharacter.TechnomancerEnabled && !_objOptions.TechnomancerAllowCommlink) || cboActiveCommlink.SelectedValue == null) return;
+			string strSelectedValue = cboActiveCommlink.SelectedValue.ToString();
+			foreach (Commlink objCommlink in _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles))
+				objCommlink.IsActive = objCommlink.InternalId == strSelectedValue;
+			RefreshSelectedGear();
+			RefreshSelectedCyberware();
+			UpdateCharacterInfo();
+			_blnIsDirty = true;
+			UpdateWindowTitle();
+		}
+
 		/// <summary>
 		/// Change the active Commlink for the Character.
 		/// </summary>
 		/// <param name="objActiveCommlink"></param>
 		private void ChangeActiveCommlink(Commlink objActiveCommlink)
 		{
-			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware);
+			List<Commlink> lstCommlinks = _objFunctions.FindCommlinks(_objCharacter.Gear, _objCharacter.Cyberware, _objCharacter.Vehicles);
 
 			foreach (Commlink objCommlink in lstCommlinks)
 			{

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-906</version>
+	<version>-913</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5469,6 +5469,16 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Technomancers may select Autosofts as Complex Forms</text>
 		</string>
 		<string>
+			<key>Checkbox_Option_RestrictStickNShock</key>
+			<text>Restrict Stick-n-Shock by weapon category</text>
+		</string>
+		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock is not allowed for the {0} weapon category.</text></string>
+		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Restricted Ammunition</text></string>
+		<string><key>Label_ActiveCommlink</key><text>Active Commlink:</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Technomancers may use a Commlink instead of their Living Persona</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>Select categories...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>Select weapon categories allowed to use Stick-n-Shock</text></string>
+		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>This will reset the totals on this tab back to their default value. Are you sure you want to do this?</text>
 		</string>
@@ -6624,5 +6634,15 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<key>Title_AddRemoveQuantity</key>
 			<text>Add/Remove quantity</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Deposit Nuyen...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Withdraw Nuyen...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Amount to deposit into {0}:</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Amount to withdraw from {0}:</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Deposit into {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Withdrawal from {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>The credstick transaction cannot be undone because the credstick is missing, lacks capacity, or the character does not have enough Nuyen.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick Transfer</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} is not compatible with {1}. The ammunition was not added.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Incompatible Ammunition</text></string>
 	</strings>
 </chummer>

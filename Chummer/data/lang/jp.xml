@@ -2,7 +2,7 @@
 <!-- この言語ファイルは AhonokoP が作成しました。連絡を取りたいときは"Dumpshock Forum"でAhonokoPにメッセージを送ってください -->
 <!-- Translated by AhonokoP. Contact me at "Dumpshock Forum" -->
 <chummer>
-	<version>-997</version>
+	<version>-1004</version>
 	<name>日本語 (JP)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5466,6 +5466,16 @@
 			<text>テクノマンサーはオートソフトを複合体として習得できる</text>
 		</string>
 		<string>
+			<key>Checkbox_Option_RestrictStickNShock</key>
+			<text>武器カテゴリ別にスティック・ン・ショックを制限する</text>
+		</string>
+		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>スティック・ン・ショックは武器カテゴリ「{0}」では使用できません。</text></string>
+		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>制限された弾薬</text></string>
+		<string><key>Label_ActiveCommlink</key><text>アクティブなコムリンク：</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>テクノマンサーはリビング・ペルソナの代わりにコムリンクを使用できる</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>カテゴリを選択...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>スティック・ン・ショックを使用できる武器カテゴリを選択</text></string>
+		<string>
 			<key>Message_Options_RestoreDefaults</key>
 			<text>このタブの内容をすべてデフォルトに戻します. 本当に実行しますか?</text>
 		</string>
@@ -6621,5 +6631,15 @@
 			<key>Title_AddRemoveQuantity</key>
 			<text>Add/Remove quantity</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>新円を入金...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>新円を出金...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>{0}への入金額:</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>{0}からの出金額:</text></string>
+		<string><key>String_CredstickDepositReason</key><text>{0}への入金</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>{0}からの出金</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>クレッドスティックが見つからない、容量が不足している、または所持金が不足しているため、取引を元に戻せません。</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>クレッドスティック取引</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0}は{1}と互換性がありません。弾薬は追加されませんでした。</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>互換性のない弾薬</text></string>
 	</strings>
 </chummer>

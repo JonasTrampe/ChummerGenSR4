@@ -1971,6 +1971,37 @@ namespace Chummer
 			}
 		}
 
+		public bool IsNativeLanguage
+		{
+			get
+			{
+				if (!_blnKnowledgeSkill || _strSkillCategory != "Language" || _intRating != 0)
+					return false;
+
+				int intNativeLanguages = 1;
+				foreach (Quality objQuality in _objCharacter.Qualities)
+				{
+					if (objQuality.Name == "Bilingual")
+					{
+						intNativeLanguages = 2;
+						break;
+					}
+				}
+
+				int intLanguageIndex = 0;
+				foreach (Skill objSkill in _objCharacter.Skills)
+				{
+					if (objSkill.KnowledgeSkill && objSkill.SkillCategory == "Language" && objSkill.Rating == 0)
+					{
+						if (objSkill == this)
+							return intLanguageIndex < intNativeLanguages;
+						intLanguageIndex++;
+					}
+				}
+				return false;
+			}
+		}
+
 		/// <summary>
 		/// Skill's name.
 		/// </summary>

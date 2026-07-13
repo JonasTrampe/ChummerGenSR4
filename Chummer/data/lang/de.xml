@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-946</version>
+	<version>-953</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -6479,6 +6479,16 @@
 			<key>Checkbox_Option_TechnomancerAllowAutosoft</key>
 			<text>Technomancer dürfen Autosofts als Komplexe Form wählen</text>
 		</string>
+		<string>
+			<key>Checkbox_Option_RestrictStickNShock</key>
+			<text>Stick-n-Shock nach Waffenkategorie einschränken</text>
+		</string>
+		<string><key>Message_StickNShockWeaponCategoryRestricted</key><text>Stick-n-Shock ist für die Waffenkategorie {0} nicht erlaubt.</text></string>
+		<string><key>MessageTitle_StickNShockWeaponCategoryRestricted</key><text>Eingeschränkte Munition</text></string>
+		<string><key>Label_ActiveCommlink</key><text>Aktiver Kommlink:</text></string>
+		<string><key>Checkbox_Option_TechnomancerAllowCommlink</key><text>Technomancer dürfen statt ihrer Lebenden Persona einen Kommlink verwenden</text></string>
+		<string><key>Button_SelectWeaponCategories</key><text>Kategorien auswählen...</text></string>
+		<string><key>Title_SelectWeaponCategories</key><text>Waffenkategorien auswählen, die Stick-n-Shock verwenden dürfen</text></string>
 		<!-- Version 425 -->
 		<string>
 			<key>Checkbox_Commlinks</key>
@@ -6647,5 +6657,15 @@
 			<key>Title_AddRemoveQuantity</key>
 			<text>Anzahl hinzufügen/entfernen</text>
 		</string>
+		<string><key>Menu_CredstickDeposit</key><text>Nuyen einzahlen...</text></string>
+		<string><key>Menu_CredstickWithdraw</key><text>Nuyen auszahlen...</text></string>
+		<string><key>String_CredstickDepositPrompt</key><text>Betrag für die Einzahlung auf {0}:</text></string>
+		<string><key>String_CredstickWithdrawPrompt</key><text>Betrag für die Auszahlung von {0}:</text></string>
+		<string><key>String_CredstickDepositReason</key><text>Einzahlung auf {0}</text></string>
+		<string><key>String_CredstickWithdrawReason</key><text>Auszahlung von {0}</text></string>
+		<string><key>Message_CredstickUndoFailed</key><text>Die Credstick-Transaktion kann nicht rückgängig gemacht werden, weil der Credstick fehlt, nicht genug Kapazität hat oder der Charakter nicht genug Nuyen besitzt.</text></string>
+		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick-Transaktion</text></string>
+		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} ist nicht mit {1} kompatibel. Die Munition wurde nicht eingebaut.</text></string>
+		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Inkompatible Munition</text></string>
 	</strings>
 </chummer>

@@ -1,4 +1,4 @@
-name: Language versions
+name: XML data versions
 
 on:
   pull_request:
@@ -7,12 +7,18 @@ on:
       - "Chummer/data/lang/*.xml"
       - "Chummer/data/manifestlang.xml"
       - ".github/scripts/Update-LanguageVersions.ps1"
+      - "Chummer/data/data/*.xml"
+      - "Chummer/data/manifestdata.xml"
+      - ".github/scripts/Update-DataVersions.ps1"
   push:
     branches: [ main ]
     paths:
       - "Chummer/data/lang/*.xml"
       - "Chummer/data/manifestlang.xml"
       - ".github/scripts/Update-LanguageVersions.ps1"
+      - "Chummer/data/data/*.xml"
+      - "Chummer/data/manifestdata.xml"
+      - ".github/scripts/Update-DataVersions.ps1"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +30,7 @@ jobs:
     steps:
       - name: Check out pull request branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
@@ -32,7 +38,7 @@ jobs:
 
       - name: Check out branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -44,17 +50,23 @@ jobs:
       - name: Update internal pull request
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         shell: pwsh
-        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Update
+        run: |
+          .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Update
+          .github/scripts/Update-DataVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Update
 
       - name: Check fork pull request
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
         shell: pwsh
-        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Check
+        run: |
+          .github/scripts/Update-LanguageVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Check
+          .github/scripts/Update-DataVersions.ps1 -BaseRef ${{ github.event.pull_request.base.sha }} -Mode Check
 
       - name: Update direct push
         if: github.event_name != 'pull_request'
         shell: pwsh
-        run: .github/scripts/Update-LanguageVersions.ps1 -BaseRef HEAD^ -Mode Update
+        run: |
+          .github/scripts/Update-LanguageVersions.ps1 -BaseRef HEAD^ -Mode Update
+          .github/scripts/Update-DataVersions.ps1 -BaseRef HEAD^ -Mode Update
 
       - name: Commit automatic updates
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -63,7 +75,7 @@ jobs:
           if (git status --porcelain) {
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add Chummer/data/lang Chummer/data/manifestlang.xml
-            git commit -m "Update language versions [skip ci]"
+            git add Chummer/data/lang Chummer/data/data Chummer/data/manifestlang.xml Chummer/data/manifestdata.xml
+            git commit -m "Update XML data versions [skip ci]"
             git push
           }
