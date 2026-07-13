@@ -1,3 +1,17 @@
+Version 0.1.500
+- Updated Help menu links and captions to point to the GitHub Pages documentation
+- Added perception meta skills and missing perception enhancement bonuses
+- Added credstick money transfers
+- Limited native languages so only valid cases can be marked as native without Bilingual
+- Fixed scan gear ratings and costs
+- Spare clip ammunition now derives the weapon type automatically
+- Added a configurable Stick-n-Shock house rule
+- Fixed commlink discovery inside nested cyberware and gear
+- Improved commlink and house rule layouts
+- Automated XML and language version maintenance for pull requests and releases
+- Added XML version checks to pull requests and releases
+- Updated artifact workflow actions
+
 Version 0.1.497
  - Fix initial startup without registry entries
    - added default entries for language, pdfargumentstyle and pdfargumentstyle
