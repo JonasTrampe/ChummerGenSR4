@@ -2531,7 +2531,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)))
 								intModifier += objImprovement.Value;
 						}
 						else
@@ -2589,7 +2589,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2764,7 +2764,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName ))
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -2863,7 +2863,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)))
 							{
 								if (objImprovement.UniqueName != "")
 								{
@@ -3090,7 +3090,7 @@ namespace Chummer
 						// Improvement for an individual Skill.
 						if (!_blnExoticSkill)
 						{
-							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == MetaBase || objImprovement.ImprovedName == _strName))
+							if (objImprovement.ImproveType == Improvement.ImprovementType.Skill && (objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)))
 							{
 								if (objImprovement.UniqueName != "")
 								{

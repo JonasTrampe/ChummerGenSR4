@@ -29,6 +29,7 @@ namespace Chummer
 		private bool _blnIsDirty = false;
 		private bool _blnSkipToolStripRevert = false;
 		private bool _blnReapplyImprovements = false;
+		private bool _blnAutomaticDataUpdate = false;
 		private int _intDragLevel = 0;
 		private MouseButtons _objDragButton = new MouseButtons();
 		private bool _blnDraggingGear = false;
@@ -1323,6 +1324,12 @@ namespace Chummer
 			RefreshImprovements();
 
 			UpdateCharacterInfo();
+			if (_objCharacter.NeedsDataUpdate)
+			{
+				_blnAutomaticDataUpdate = true;
+				mnuSpecialReapplyImprovements_Click(this, EventArgs.Empty);
+				_blnAutomaticDataUpdate = false;
+			}
 
 			_blnIsDirty = false;
 			UpdateWindowTitle(false);
@@ -2199,7 +2206,7 @@ namespace Chummer
 		{
 			// This only re-applies the Improvements for everything the character has. If a match is not found in the data files, the current Improvement information is left as-is.
 			// Verify that the user wants to go through with it.
-			if (MessageBox.Show(LanguageManager.Instance.GetString("Message_ConfirmReapplyImprovements"), LanguageManager.Instance.GetString("MessageTitle_ConfirmReapplyImprovements"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+			if (!_blnAutomaticDataUpdate && MessageBox.Show(LanguageManager.Instance.GetString("Message_ConfirmReapplyImprovements"), LanguageManager.Instance.GetString("MessageTitle_ConfirmReapplyImprovements"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
 				return;
 
 			// Record the status of any flags that normally trigger character events.
@@ -2716,6 +2723,7 @@ namespace Chummer
 				}
 			}
 
+			_objCharacter.MarkDataVersionCurrent();
 			_blnReapplyImprovements = false;
 
 			// If the status of any Character Event flags has changed, manually trigger those events.

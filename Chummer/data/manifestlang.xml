@@ -3,49 +3,49 @@
 	<file>
 		<name>lang/en-us.xml</name>
 		<type>Language File</type>
-		<version>-913</version>
+		<version>-914</version>
 		<description>English (US) language file</description>
 		<notes>- English (US) language file</notes>
 	</file>
 	<file>
 		<name>lang/fr.xml</name>
 		<type>Language File</type>
-		<version>-958</version>
+		<version>-959</version>
 		<description>French language file</description>
 		<notes>- French language file</notes>
 	</file>
 	<file>
 		<name>lang/fr_data.xml</name>
 		<type>Language File</type>
-		<version>-977</version>
+		<version>-978</version>
 		<description>French language data file</description>
 		<notes>- French language data file</notes>
 	</file>
 	<file>
 		<name>lang/de.xml</name>
 		<type>Language File</type>
-		<version>-953</version>
+		<version>-954</version>
 		<description>German language file</description>
 		<notes>German language file</notes>
 	</file>
 	<file>
 		<name>lang/de_data.xml</name>
 		<type>Language File</type>
-		<version>-977</version>
+		<version>-978</version>
 		<description>de_data language file</description>
 		<notes>de_data language file</notes>
 	</file>
 	<file>
 		<name>lang/jp_data.xml</name>
 		<type>Language File</type>
-		<version>-996</version>
+		<version>-997</version>
 		<description>jp_data language file</description>
 		<notes>jp_data language file</notes>
 	</file>
 	<file>
 		<name>lang/jp.xml</name>
 		<type>Language File</type>
-		<version>-1004</version>
+		<version>-1005</version>
 		<description>jp language file</description>
 		<notes>jp language file</notes>
 	</file>

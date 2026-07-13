@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-913</version>
+	<version>-914</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -707,7 +707,7 @@
 		</string>
 		<string>
 			<key>Menu_SpecialReapplyImprovements</key>
-			<text>Re-apply Improvements</text>
+			<text>Reload All Data from XML Files</text>
 		</string>
 		<string>
 			<key>Menu_SpecialPossessLiving</key>
@@ -1871,11 +1871,11 @@
 		</string>
 		<string>
 			<key>Message_ConfirmReapplyImprovements</key>
-			<text>Chummer will attempt to re-locate your characters Improvable items and re-apply any Improvements they grant. This may result in your character's Attributes, Skills, and other numbers changing if any of the Improvements these items grant have changed. It is recommended that you save your character before performing this action in case you are not satisfied with the changes. Are you sure you want to re-apply Improvements?</text>
+			<text>Chummer will reload all supported character data and Improvements from the program's current XML files. Attributes, Skills, equipment bonuses, and other values may change when the XML data has changed. Save the character first if you want to preserve its current state. Do you want to reload all data from the XML files?</text>
 		</string>
 		<string>
 			<key>MessageTitle_ConfirmReapplyImprovements</key>
-			<text>Re-apply Improvements</text>
+			<text>Reload All Data from XML Files</text>
 		</string>
 		<string>
 			<key>MessageTitle_Possession</key>

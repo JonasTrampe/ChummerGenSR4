@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-958</version>
+	<version>-959</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -699,7 +699,7 @@
 		</string>
 		<string>
 			<key>Menu_SpecialReapplyImprovements</key>
-			<text>Ré-appliquer les améliorations</text>
+			<text>Recharger toutes les données depuis les fichiers XML</text>
 		</string>
 		<string>
 			<key>Menu_SpecialPossessLiving</key>
@@ -1867,11 +1867,11 @@
 		</string>
 		<string>
 			<key>Message_ConfirmReapplyImprovements</key>
-			<text>Chummer va tenter de rechercher toutes les possessions de votre personnage et ré-apliquer toutes les améliorations qu'elles fournissent. Cette action peut résulter en une modification des attributs et compétences de votre personnage, ainsi qu'une modification d'autre nombres en fonction des améliorations fournies. Il est donc fortement recommandé de faire une sauvegarde de votre personnage avant d'effectuer cette action au cas où vous seriez insatisfait des changements apportés. Etes-vous sûr de vouloir ré-appliquer les améliorations ?</text>
+			<text>Chummer va recharger toutes les données de personnage prises en charge et les améliorations depuis les fichiers XML actuels du programme. Les attributs, compétences, bonus d'équipement et autres valeurs peuvent changer si les données XML ont été modifiées. Enregistrez d'abord le personnage si vous souhaitez conserver son état actuel. Voulez-vous recharger toutes les données depuis les fichiers XML ?</text>
 		</string>
 		<string>
 			<key>MessageTitle_ConfirmReapplyImprovements</key>
-			<text>Ré-appliquer les améliorations</text>
+			<text>Recharger toutes les données depuis les fichiers XML</text>
 		</string>
 		<string>
 			<key>MessageTitle_Possession</key>
