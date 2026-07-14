@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.AvaloniaSpike.Controls.InfoRow"
+             x:Name="root">
+	<!-- One "Label:   Value" line, used for the sidebar (Weitere Informationen/Zustandsmonitor)
+	     and detail panels (Cyberware/Fahrzeuge). Each instance is a self-contained row with a
+	     fixed label-column width, so a stack of these always lines up in a clean second column
+	     regardless of label length - this replaced a single giant shared Grid whose Auto-sized
+	     rows would silently overlap whenever a label wrapped to two lines. -->
+	<Grid ColumnDefinitions="190,*" DataContext="{Binding ElementName=root}" MinHeight="18">
+		<TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding Label}" TextWrapping="Wrap" />
+		<TextBlock Grid.Column="1" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="SemiBold" />
+	</Grid>
+</UserControl>

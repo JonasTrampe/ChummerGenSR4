@@ -140,3 +140,51 @@ Worth flagging: in the old client (`frmOmae.cs`), the Omae password was only Bas
 - Packaging: AppImage is in scope from the start, alongside tar.gz – see Phase 4.
 - Omae replacement: build a full REST API (not just a read-only Gitea file share) – see Phase 5.
 - This plan document is committed to the repo at `docs/LINUX_PORT_PLAN.md`.
+
+## Addendum (2026-07-13): Mono vs. Avalonia is not fully settled – Spike Plan
+
+Discussion after the initial plan surfaced that the Mono-vs-Avalonia call, taken as settled above, deserves a second look: Mono is the pragmatic low-effort path but pins the app to a legacy, minimally-maintained runtime indefinitely; Avalonia is a real cross-platform, actively-maintained UI stack (and gets macOS for free) but requires a genuine UI rewrite. Given the fidelity/function bar for this decision is strict ("both equally, no compromise" per the project owner), this needs real evidence, not a judgment call from the code alone – hence a side-by-side spike before committing.
+
+### Avalonia risk audit (informs spike scope)
+
+A full audit of all 80 `*.Designer.cs` files was run to find WinForms patterns with no clean Avalonia equivalent. Ranked highest to lowest risk:
+
+| # | Risk area | Files | Scale | Avalonia concern |
+|---|---|---|---|---|
+| 1 | `WebBrowser` control (ActiveX/IE) | `frmUpdate`, `frmViewer` | ~9 hits | No Avalonia equivalent at all – used to preview/print the XSLT-rendered character sheet (`frmViewer.cs`); needs an embedded Chromium WebView replacement |
+| 2 | MDI (`IsMdiContainer`/`MdiParent`) | `frmMain` | 6 hits | No native MDI in Avalonia – main-window/child-character-window model needs re-architecting (tabs) |
+| 3 | `DataVisualization.Charting` | `frmCareer` | 7 hits | Bundled assembly, no Avalonia port – needs ScottPlot (already the plan's choice regardless of UI path) |
+| 4 | Custom GDI+ painting | `SplitButton.cs` | ~5 hits | Hand-rolled owner-draw button – needs re-authoring as an Avalonia custom control/template |
+| 5 | Custom `UserControl` subclasses | `ContactControl`, `PetControl`, `PowerControl`, `SkillControl`, `SkillGroupControl`, `SpiritControl`, `OmaeRecord` | 7 classes | Logic is portable; WinForms pixel/anchor layout needs re-expression in XAML per control |
+| 6 | Drag-and-drop | `frmCareer`, `frmCreate` | ~81 hits total | Concentrated in the 2 largest forms (gear/cyberware reordering); different API shape, same concept |
+| 7 | Layout containers (`SplitContainer`/`FlowLayoutPanel`/`TableLayoutPanel`) | `frmCareer`, `frmCreate`, `frmOmae`, `frmAbout` | 32 hits | Direct Avalonia equivalents exist (`Grid`/`StackPanel`/`WrapPanel`) but re-expression is tedious in the two largest forms |
+| 8 | `ToolStrip`/`MenuStrip`/`ContextMenuStrip`/`StatusStrip` | ~14-15 files | very high raw count, mostly designer boilerplate | Structurally different idioms in Avalonia, no direct `StatusStrip` equivalent – wide but shallow |
+| – | Owner-draw lists, `NotifyIcon`, `DataGridView`/`BindingSource`, `PrintDocument` | – | 0 hits | Non-issues |
+
+No third-party WinForms control libraries are referenced anywhere in the `.csproj` files – only stock `System.Windows.Forms`, `System.Drawing`, and the bundled `DataVisualization` assembly. That's the one piece of unambiguous good news for either path.
+
+### Decisions from this discussion (feed into the spike)
+
+- **MDI → tabs**: acceptable if done well; not a hard blocker for the Avalonia path.
+- **WebBrowser / sheet preview**: the feature is essential (not droppable). The Avalonia side of the spike must prototype an **embedded Chromium WebView** (e.g. a CEF-based Avalonia control), not the lighter system-browser/PDF-export alternative – accepting that this itself adds a native-dependency packaging concern to weigh against Mono's own packaging cost.
+- **Charts**: ScottPlot regardless of which UI path wins – it has both a WinForms/Mono control and an Avalonia control, so this choice isn't wasted either way.
+- **Phase 5 (Omae REST API)**: stays out of scope for this decision; noted only so the Avalonia/Mono client migration work in Phase 5 doesn't get blindsided later.
+
+### Spike scope
+
+Time-boxed to roughly half a day per side, both prototyping the same representative slice rather than a trivial "hello world," since the risk areas are specific and concentrated in a few forms:
+
+**Target: a slice of `frmCareer.cs`**, chosen because it alone exercises most of the highest-risk areas found above: the karma/nuyen chart (#3), drag-and-drop reordering (#6), `SplitContainer`/layout nesting (#7), and toolstrip/menu chrome (#8). It's the single most representative form in the app.
+
+1. **Mono side** (on the existing, already-set-up Linux/Mono machine):
+   - Build the current `frmCareer.cs` slice under Mono as-is.
+   - Measure: does it render correctly, any layout/font/DPI glitches, how long to get it running, any GDI+ edge cases.
+2. **Avalonia side**:
+   - Rewrite the same slice: the chart (via ScottPlot's Avalonia control), the drag-and-drop list reordering, the split/layout structure, and a minimal toolbar/menu.
+   - Additionally prototype the `frmMain` MDI→tabs replacement and an embedded Chromium WebView showing a sample XSLT-rendered character sheet (the frmViewer replacement), since both were flagged as essential, non-mechanical rework above.
+   - Measure: how much XAML/code, how alien it feels vs. WinForms, whether ScottPlot-Avalonia and the WebView control work cleanly, packaging weight of bundling a Chromium runtime.
+3. **Compare**: rendering fidelity, functional parity, packaging story (Mono runtime bundling vs. Chromium WebView bundling), and gut feel for long-term maintainability. Given the strict "no compromise" fidelity/function bar, be explicit about where each path falls short – neither is likely to be a clean pass.
+
+### Open question carried forward
+
+Pixel-perfect visual fidelity was set as a hard requirement alongside functional parity. Avalonia fundamentally cannot render pixel-identical to WinForms (different text rendering, control chrome, spacing) – this is a structural, not incidental, limitation. The spike should surface concretely how large that visual gap actually is in practice, since a strict no-compromise bar may end up favoring Mono by default regardless of Avalonia's other merits.

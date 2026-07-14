@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Chummer.AvaloniaSpike.Controls.SkillRow"
+             x:Name="root">
+    <!-- One Aktionsfertigkeiten row: Name | Attribut | Basis | [+] | Pool | Spezialisierung | [+].
+	     Every instance shares the exact same column widths, so a stack of these lines up in
+	     clean columns automatically - the previous version hand-repeated this Grid 18 times
+	     inside one shared multi-row Grid, which is exactly the kind of copy-paste that drifts
+	     out of alignment. Magic/Resonance skills the character can't use (IsDisabled) grey out
+	     and hide the interactive controls, matching the real app's disabled-skill rows. -->
+    <Grid ColumnDefinitions="150,30,20,16,40,160,16" DataContext="{Binding ElementName=root}" MinHeight="24">
+        <TextBlock Grid.Column="0" Classes="rowLabel" Classes.disabledRow="{Binding IsDisabled}"
+                   Text="{Binding SkillName}" />
+        <TextBlock Grid.Column="1" Classes="rowLabel" HorizontalAlignment="Center"
+                   Classes.disabledRow="{Binding IsDisabled}" Text="{Binding Attribute}" Foreground="#777777" />
+        <TextBlock Grid.Column="2" Classes="rowLabel" HorizontalAlignment="Center"
+                   Classes.disabledRow="{Binding IsDisabled}" Text="{Binding Rating}" />
+        <Button Grid.Column="3" Classes="iconButton" HorizontalAlignment="Center" IsVisible="{Binding !IsDisabled}">
+            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" Width="16" Height="16" />
+        </Button>
+        <TextBlock Grid.Column="4" Classes="rowLabel" HorizontalAlignment="Center"
+                   Classes.disabledRow="{Binding IsDisabled}" Text="{Binding Pool}" />
+        <ComboBox Grid.Column="5" Width="150" HorizontalAlignment="Left" IsVisible="{Binding !IsDisabled}" />
+        <Button Grid.Column="6" Classes="iconButton" HorizontalAlignment="Center" IsVisible="{Binding !IsDisabled}">
+            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" Width="16" Height="16" />
+        </Button>
+    </Grid>
+</UserControl>

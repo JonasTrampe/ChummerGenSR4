@@ -1,0 +1,356 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Chummer.AvaloniaSpike.Converters"
+             xmlns:controls="using:Chummer.AvaloniaSpike.Controls"
+             x:Class="Chummer.AvaloniaSpike.App"
+             RequestedThemeVariant="Light">
+    <!-- Chummer's WinForms UI inherits Windows' modern common-controls visual style
+         (UseVisualStyleBackColor=true throughout), so on Windows 10/11 it actually renders
+         flat and white/light-grey with a colored underline on the selected tab - NOT the
+         chunky beveled "classic Windows" look. Pinned to Light regardless of OS theme, since
+         the real app doesn't follow dark mode either. -->
+
+    <Application.Resources>
+        <!-- Fluent's default accent is purple; Windows' actual default accent is blue, and
+             it draws its OWN selection-indicator pipe on the selected TabItem regardless of
+             any Border/BorderBrush set directly on TabItem - overriding the accent color here
+             (rather than layering a second border on top of it) avoids a double underline. -->
+        <Color x:Key="SystemAccentColor">#0078D4</Color>
+        <Color x:Key="SystemAccentColorLight1">#429CE3</Color>
+        <Color x:Key="SystemAccentColorLight2">#6CB3EA</Color>
+        <Color x:Key="SystemAccentColorDark1">#005A9E</Color>
+        <Color x:Key="SystemAccentColorDark2">#003D6B</Color>
+
+        <!-- Classic Win32 TreeView look (TVS_HASLINES/TVS_LINESATROOT): dashed connector
+             lines from each item to its expander, and a small dashed-outline "+"/"-" box
+             instead of Fluent's rotating chevron. Keyed by {x:Type TreeViewItem} so it
+             replaces FluentTheme's own implicit TreeViewItem theme for every tree in the
+             app, rather than needing to be applied per-instance. Part names
+             (PART_LayoutRoot / PART_ExpandCollapseChevron / PART_ItemsPresenter) match what
+             Avalonia's TreeViewItem code-behind wires up automatically for expand/collapse,
+             selection and keyboard navigation - only the visuals around them changed. -->
+        <ControlTheme x:Key="{x:Type TreeViewItem}" TargetType="TreeViewItem">
+            <Setter Property="Padding" Value="2,0" />
+            <Setter Property="MinHeight" Value="18" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <StackPanel>
+                        <Border Name="PART_LayoutRoot"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid ColumnDefinitions="Auto,9,*">
+                                <!-- Connector gutter: draws one continuous dashed vertical line per
+                                     ANCESTOR level that still has more siblings below it (these are
+                                     the lines that run down past other items deeper in the tree,
+                                     not just this item's own column), plus this item's own elbow.
+                                     Indentation now comes entirely from this control's own width
+                                     growing with Level, instead of a separate Grid.Margin - that
+                                     margin-based approach could only ever draw this item's own
+                                     immediate level and had no way to also render its ancestors'
+                                     pass-through columns, which is what was still missing. See
+                                     Controls/TreeConnectorGutter.cs for the actual drawing logic. -->
+                                <controls:TreeConnectorGutter Grid.Column="0" Height="18">
+                                    <controls:TreeConnectorGutter.Width>
+                                        <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Converter="{x:Static conv:LevelToGutterWidthConverter.Instance}" />
+                                    </controls:TreeConnectorGutter.Width>
+                                </controls:TreeConnectorGutter>
+
+                                <ToggleButton Grid.Column="1" Name="PART_ExpandCollapseChevron"
+                                              Focusable="False"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Padding="0"
+                                              IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
+                                              IsVisible="{TemplateBinding ItemCount, Converter={x:Static conv:CountToBoolConverter.Instance}}"
+                                              VerticalAlignment="Center">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate>
+                                            <!-- +/- drawn as actual strokes (not a text glyph) so it's
+                                                 pixel-centered regardless of font metrics - a text "+"
+                                                 kept landing off-center depending on the font's own
+                                                 baseline/x-height, which is what looked "not well
+                                                 placed" before. The horizontal stroke always shows;
+                                                 the vertical stroke only shows while collapsed, which
+                                                 is what turns the "+" into a "-" on expand. -->
+                                            <Border Width="9" Height="9" Background="White"
+                                                    BorderBrush="#808080" BorderThickness="1">
+                                                <Grid>
+                                                    <Rectangle Width="5" Height="1" Fill="#000000"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    <Rectangle Width="1" Height="5" Fill="#000000"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               IsVisible="{TemplateBinding IsChecked, Converter={x:Static conv:InverseBoolConverter.Instance}}" />
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+
+                                <ContentPresenter Grid.Column="2" Name="PART_HeaderPresenter"
+                                                   Content="{TemplateBinding Header}"
+                                                   ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                   Margin="4,0,0,0"
+                                                   VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        IsVisible="{TemplateBinding IsExpanded}" />
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter>
+
+            <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="#CCE4F7" />
+            </Style>
+            <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="#E5F1FB" />
+            </Style>
+        </ControlTheme>
+
+        <!-- Classic small square checkbox (13x13, white/gray, black tick) instead of Fluent's
+             large rounded blue box - keyed globally like the TreeViewItem theme above so every
+             CheckBox in the app picks it up without per-instance styling. -->
+        <ControlTheme x:Key="{x:Type CheckBox}" TargetType="CheckBox">
+            <Setter Property="MinHeight" Value="16" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Padding" Value="4,0,0,0" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Name="PART_Box" Width="13" Height="13" VerticalAlignment="Center"
+                                Background="White" BorderBrush="#5B5B5B" BorderThickness="1">
+                            <Path Name="PART_CheckMark" Data="M 1,4.5 L 4,7.5 L 10,0.5"
+                                  Stroke="Black" StrokeThickness="1.5" IsVisible="False" />
+                        </Border>
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                           Margin="{TemplateBinding Padding}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:checked /template/ Path#PART_CheckMark">
+                <Setter Property="IsVisible" Value="True" />
+            </Style>
+        </ControlTheme>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- Safety net for the "overlapping elements" bug class: a fixed-width Grid column
+             (e.g. a left-hand tree/button panel next to a splitter) does NOT clip its content
+             in Avalonia by default - if a child (like a row of buttons) measures wider than
+             the column, it visually bleeds into the neighbouring column instead of being cut
+             off or wrapping. Concretely hit this on the Allgemein tab: "Gabe hinzufügen" /
+             "Gabe austauschen" / "Löschen" together measured wider than the 240px column they
+             were docked in, so "Löschen" rendered on top of the "Spitzname:" label in the pane
+             next to it.
+             Setting ClipToBounds on Grid only clips to the *Grid's own* overall bounds, not
+             per-column - it did nothing for a child that overflows from column 0 into column 2,
+             since both columns are still inside the grid's total bounds. Hit this again on the
+             Cyberware tab: the "Cyberware hinzufügen"/"Bioware hinzufügen"/"Löschen" row is
+             wrapped in a DockPanel that sits in column 0, and it was the DockPanel bleeding over,
+             not the Grid. Clipping DockPanel directly (it's the container actually arranged to
+             the column's width) is what actually stops the bleed at the cell boundary. -->
+        <Style Selector="Grid">
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="DockPanel">
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+
+        <!-- Light, thin-border, mostly-flat overrides - closer to Fluent defaults than the
+             first pass, since the real reference screenshots turned out to already look
+             fairly flat/modern (OS-themed common controls), not skeuomorphic classic WinForms.
+
+             All row-level input controls (Button/TextBox/ComboBox) share one height baseline
+             (MinHeight 24, matched Padding) so a row mixing e.g. a label + TextBox + Button
+             lines up instead of each control picking its own Fluent default height - that
+             mismatch was the main "inconsistent control size" problem. -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Padding" Value="8,2" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#D0D0D0" />
+            <Setter Property="Background" Value="#F5F5F5" />
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E5F1FB" />
+            <Setter Property="BorderBrush" Value="#0078D7" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#C0C0C0" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="MinHeight" Value="24" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#C0C0C0" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+        <Style Selector="NumericUpDown">
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#C0C0C0" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+        <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner">
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX=".6" ScaleY=".6"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="4,1" />
+            <Setter Property="MinHeight" Value="22" />
+        </Style>
+        <Style Selector="Border.groupBox">
+            <Setter Property="BorderBrush" Value="#D0D0D0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+        <Style Selector="Border.toolbarButton">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="26" />
+            <Setter Property="Height" Value="26" />
+        </Style>
+        <Style Selector="Border.toolbarButton:pointerover">
+            <Setter Property="BorderBrush" Value="#0078D7" />
+            <Setter Property="Background" Value="#E5F1FB" />
+        </Style>
+
+        <!-- Same look as Border.toolbarButton, but an actual Button - used where the toolbar
+             icon needs to be clickable (e.g. "Neu"), since a plain Border has no invoke
+             semantics for either real users relying on keyboard/screen readers or UI Automation. -->
+        <Style Selector="Button.toolbarButton">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="26" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="Button.toolbarButton:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#0078D7" />
+            <Setter Property="Background" Value="#E5F1FB" />
+        </Style>
+
+        <!-- Tab strip: white throughout, selected tab marked by a colored underline rather
+             than a background-color difference - matches the modern Windows visual style
+             the real screenshots show, not a classic grey/white tab contrast. -->
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1 1 1 1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style Selector="TabControl /template/ ContentPresenter#PART_SelectedContentHost">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#DCDCDC"/>
+            <Setter Property="BorderThickness" Value="0 1 0 0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        
+        <Style Selector="TabItem">
+            <Setter Property="Padding" Value="10,2,10,0" />
+            <Setter Property="Margin" Value="0,0,0,0" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Background" Value="#DCDCDC" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="BorderThickness" Value="0.5 1 1 1"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="CornerRadius" Value="4 4 0 0"/>
+        </Style>
+        <Style Selector="TabItem:selected">
+            <Setter Property="Background" Value="#EEEEEE" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        
+        <!-- Round green/red icon buttons, mirroring the real app's per-attribute "+"/"-"
+             controls (add.png / delete.png from Chummer/icons), instead of flat WinForms buttons.
+             One fixed size (20x20 container, always holding a 16x16 image) used everywhere an
+             inline icon-button appears - attribute/skill rows, connections, portrait controls -
+             instead of ad-hoc per-instance sizes, which was the other "inconsistent size" cause.
+             Selector has no element-type prefix so it applies equally whether the icon sits in
+             a Button (has hover/press feedback) or a plain Border (purely decorative wrapper). -->
+        <Style Selector="Button.iconButton">
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Border.iconButton">
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.iconButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E5F1FB" />
+        </Style>
+        <Style Selector="Border.iconButton:pointerover">
+            <Setter Property="Background" Value="#E5F1FB" />
+        </Style>
+
+        <!-- Data grid-ish header row used for the Attributes/Skills tables -->
+        <Style Selector="TextBlock.gridHeader">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#333333" />
+        </Style>
+
+        <!-- Tighter tabs for the narrow right sidebar (Weitere Informationen / Zustandsmonitor) -->
+        <Style Selector="TabControl.sidebar TabItem">
+            <Setter Property="Padding" Value="2,2" />
+            <Setter Property="FontSize" Value="10" />
+        </Style>
+
+
+
+        <!-- Small text used for the condition-monitor damage boxes -->
+        <Style Selector="Border.cmBox">
+            <Setter Property="BorderBrush" Value="#A0A0A0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Width" Value="18" />
+            <Setter Property="Height" Value="18" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+
+        <!-- Row density (Padding/MinHeight/FontSize) for TreeViewItem is now set directly in
+             its ControlTheme above, alongside the dashed-connector-line template. -->
+        <Style Selector="TreeView">
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <!-- Reusable-control styling (Controls/InfoRow, Controls/SkillRow, Controls/AttributeRow) -->
+        <Style Selector="TextBlock.rowLabel">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="TextBlock.rowValue">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style Selector="TextBlock.disabledRow">
+            <Setter Property="Foreground" Value="#BBBBBB" />
+        </Style>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.AvaloniaSpike.Dialogs.QualityDialog"
+        Width="520" Height="500" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Title="Gabe auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,140,Auto,*" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="Kategorie:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <ComboBox Grid.Column="1" SelectedIndex="0">
+                <ComboBoxItem Content="Gabe" />
+            </ComboBox>
+            <TextBlock Grid.Column="2" Text="Suche:" VerticalAlignment="Center" Margin="16,0,6,0" />
+            <TextBox Grid.Column="3" />
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,180">
+            <ListBox Grid.Column="0" Foreground="#1E5FA8">
+                <ListBoxItem Content="Abschluss einer Berufsfachschule" />
+                <ListBoxItem Content="Abwehrekret" />
+                <ListBoxItem Content="Adeliges Blut" />
+                <ListBoxItem Content="Adlerauge" />
+                <ListBoxItem Content="Adrenalinschub" />
+                <ListBoxItem Content="Affenfüße" />
+                <ListBoxItem Content="Analytischer Geist" />
+                <ListBoxItem Content="Angeborener Familienname" />
+                <ListBoxItem Content="Arkaner Blitzableiter" />
+                <ListBoxItem Content="Astrale Wahrnehmung" IsSelected="True" />
+                <ListBoxItem Content="Ätzender Speichel" />
+                <ListBoxItem Content="Aufmerksamkeit (+1 Bonus)" />
+                <ListBoxItem Content="Aufmerksamkeit (+2 Bonus)" />
+                <ListBoxItem Content="Außergewöhnliches Attribut" />
+                <ListBoxItem Content="Beidhändigkeit" />
+                <ListBoxItem Content="Berühmt (global)" />
+                <ListBoxItem Content="Berühmt (lokal)" />
+                <ListBoxItem Content="Berühmt (national)" />
+                <ListBoxItem Content="Beuteltiertasche" />
+                <ListBoxItem Content="Biokompatibilität (Bioware)" />
+                <ListBoxItem Content="Biokompatibilität (Cyberware)" />
+                <ListBoxItem Content="Biosonar" />
+                <ListBoxItem Content="Blitzreflexe" />
+                <ListBoxItem Content="Böse Ausstrahlung" />
+                <ListBoxItem Content="College-Abschluss" />
+                <ListBoxItem Content="Dermalablagerungen" />
+                <ListBoxItem Content="Die Harte Schule des Lebens" />
+                <ListBoxItem Content="Drake" />
+                <ListBoxItem Content="Drug Tolerant" />
+                <ListBoxItem Content="Dynamische Färbung" />
+                <ListBoxItem Content="Einziehbare Klauen" />
+            </ListBox>
+
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
+                <TextBlock Text="GP:" FontWeight="Bold" />
+                <TextBlock Text="5" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" />
+                <TextBlock Text="SM 24" />
+
+                <CheckBox Content="Nur Gaben/Handicaps, die ich auswählen" IsChecked="True" Margin="0,12,0,0"
+                          MaxWidth="160" />
+                <CheckBox Content="Nur metagenetische Gaben anzeigen" MaxWidth="160" />
+                <CheckBox Content="Kostenlos!" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="0" Content="Weitere" Width="80" />
+            <Button Grid.Column="2" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="3" Content="OK" Width="80" Click="OnOk" />
+        </Grid>
+    </Grid>
+</Window>

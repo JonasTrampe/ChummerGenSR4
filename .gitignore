@@ -4,6 +4,9 @@
 [Oo]bj/
 [Bb]in/
 
+### remove output directory ###
+bin/
+
 # Visual Studio 2015 cache/options directory
 .vs/
 
@@ -49,9 +52,8 @@
 *.pidb
 *.svclog
 *.scc
+.codex/
 
-### remvoe output directory ###
-/bin
 
 ### NuGet packages restored via packages.config ###
 /packages/
