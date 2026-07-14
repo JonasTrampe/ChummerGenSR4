@@ -52,3 +52,6 @@
 ### remvoe output directory ###
 /bin
 
+### NuGet packages restored via packages.config ###
+/packages/
+
