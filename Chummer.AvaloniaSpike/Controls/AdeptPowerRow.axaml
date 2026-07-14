@@ -11,7 +11,7 @@
         <TextBlock Grid.Row="0" Grid.Column="1" Text="Kraftstufe:" VerticalAlignment="Center" FontSize="10"
                    Foreground="#666666" />
         <NumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding PowerLevel}" Width="140"
-                       IsEnabled="{Binding IsNudEnabled}" NumberFormat="N0" />
+                       IsEnabled="{Binding IsNudEnabled}" FormatString="N0" />
         <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding PricePerLevel}" VerticalAlignment="Center" />
         <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding TotalCost}" VerticalAlignment="Center"
                    FontWeight="SemiBold" />

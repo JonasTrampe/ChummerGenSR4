@@ -43,16 +43,16 @@
                 <Button Name="NewCharacterButton" Classes="toolbarButton"
                         ToolTip.Tip="Neu (öffnet den Charaktererschaffungs-Assistenten)"
                         AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
-                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/page.png" Width="16" Height="16" />
+                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/page.png" />
                 </Button>
                 <Border Classes="toolbarButton" ToolTip.Tip="Öffnen">
-                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/folder_page.png" Width="16" Height="16" />
+                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/folder_page.png" />
                 </Border>
                 <Border Classes="toolbarButton" ToolTip.Tip="Speichern">
-                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/disk.png" Width="16" Height="16" />
+                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/disk.png" />
                 </Border>
                 <Border Classes="toolbarButton" ToolTip.Tip="Drucken">
-                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/printer.png" Width="16" Height="16" />
+                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/printer.png" />
                 </Border>
             </StackPanel>
         </Border>
@@ -81,13 +81,15 @@
                 <TabControl Grid.Column="0">
                     <!-- ================= Allgemein ================= -->
                     <TabItem Header="Allgemein">
-                        <Grid ColumnDefinitions="280,4,*">
-                            <DockPanel Grid.Column="0" Margin="2 8 2 4">
-                                <StackPanel DockPanel.Dock="Top" Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
+                        <controls:TreeDetailPane TreeWidth="280" ContentMargin="2 8 2 4">
+                            <controls:TreeDetailPane.HeaderContent>
+                                <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
                                     <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
                                     <Button Content="Gabe austauschen" />
                                     <Button Content="Löschen" />
                                 </StackPanel>
+                            </controls:TreeDetailPane.HeaderContent>
+                            <controls:TreeDetailPane.TreeContent>
                                 <TreeView>
                                     <TreeViewItem Header="Gabe auswählen">
                                         <TreeViewItem Header="Mehr als metamenschlich" />
@@ -100,11 +102,9 @@
                                         <TreeViewItem Header="Verschuldet (20.000¥)" />
                                     </TreeViewItem>
                                 </TreeView>
-                            </DockPanel>
-
-                            <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                            <ScrollViewer Grid.Column="2" Margin="2 8 2 4">
+                            </controls:TreeDetailPane.TreeContent>
+                            <controls:TreeDetailPane.DetailContent>
+                                <ScrollViewer Margin="2 8 2 4">
                                 <StackPanel Margin="4,0,4,0" Spacing="10">
                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,60,Auto,60">
                                         <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
@@ -189,9 +189,7 @@
                                                 <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="4" Text="2" VerticalAlignment="Center" />
                                                 <Border Classes="iconButton">
-                                                    <Image
-                                                        Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png"
-                                                        Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png" />
                                                 </Border>
                                                 <Button Grid.Column="6" Content="Lösch" />
                                             </Grid>
@@ -206,9 +204,7 @@
                                                 <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="4" Text="2" VerticalAlignment="Center" />
                                                 <Border Classes="iconButton">
-                                                    <Image
-                                                        Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png"
-                                                        Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png" />
                                                 </Border>
                                                 <Button Grid.Column="6" Content="Lösch" />
                                             </Grid>
@@ -220,8 +216,9 @@
                                         <Button Content="Feind hinzufügen" HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </StackPanel>
-                            </ScrollViewer>
-                        </Grid>
+                                </ScrollViewer>
+                            </controls:TreeDetailPane.DetailContent>
+                        </controls:TreeDetailPane>
                     </TabItem>
 
                     <!-- ================= Fertigkeiten ================= -->
@@ -257,76 +254,54 @@
                             <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
 
                             <DockPanel Grid.Row="0" Grid.Column="2" Margin="2 8 2 4">
-                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto, Auto" Margin="8,0,0,6">
-                                    <TextBlock Classes="gridHeader" Text="Aktionsfertigkeiten" />
-                                    <ComboBox Grid.Column="2" Width="220" HorizontalAlignment="Left" SelectedIndex="0">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,0,0,6">
+                                    <Button Grid.Column="0" Content="Exotische Fertigkeit hinzufügen" />
+                                    <TextBlock Grid.Column="2" Classes="gridHeader" Text="Aktionsfertigkeiten"
+                                               VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <ComboBox Grid.Column="3" Width="220" HorizontalAlignment="Right" SelectedIndex="0">
                                         <ComboBoxItem Content="Zeige alle aktiven Fertigkeiten" />
                                     </ComboBox>
-                                    <Button Grid.Column="3" Content="Exotische Fertigkeit hinzufügen" />
                                 </Grid>
 
                                 <ScrollViewer>
                                     <StackPanel>
 
-                                        <WrapPanel Margin="8,0,0,0">
+                                    <WrapPanel Margin="8,0,0,0">
 
-                                            <controls:SkillRow SkillName="Abrichten" Attribute="INT" Rating="0"
-                                                               Pool="4" />
-                                            <controls:SkillRow SkillName="Akrobatik" Attribute="GES" Rating="2"
-                                                               Pool="9" />
-                                            <controls:SkillRow SkillName="Antimagie" Attribute="MAG" Rating="0"
-                                                               Pool="0" IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Arcana" Attribute="LOG" Rating="0" Pool="0"
-                                                               IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Askennen" Attribute="INT" Rating="0" Pool="0" />
-                                            <controls:SkillRow SkillName="Astralkampf" Attribute="WIL" Rating="0"
-                                                               Pool="0" IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Ausweichen" Attribute="REA" Rating="4"
-                                                               Pool="11 (13)" />
-                                            <controls:SkillRow SkillName="Beschatten" Attribute="INT" Rating="2"
-                                                               Pool="7" />
-                                            <controls:SkillRow SkillName="Binden" Attribute="MAG" Rating="0" Pool="0"
-                                                               IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Bodenfahrzeuge" Attribute="REA" Rating="3"
-                                                               Pool="10" />
-                                            <controls:SkillRow SkillName="Chemie" Attribute="LOG" Rating="0" Pool="0" />
-                                            <controls:SkillRow SkillName="Computer" Attribute="LOG" Rating="4" Pool="9" />
-                                            <controls:SkillRow SkillName="Datensuche" Attribute="LOG" Rating="5"
-                                                               Pool="10" />
-                                            <controls:SkillRow SkillName="Dekompilieren" Attribute="RES" Rating="0"
-                                                               Pool="0" IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Einschüchtern" Attribute="CHA" Rating="0"
-                                                               Pool="1" />
-                                            <controls:SkillRow SkillName="Elektronische Kriegsführung" Attribute="LOG"
-                                                               Rating="2" Pool="7" />
-                                            <controls:SkillRow SkillName="Entfesseln" Attribute="GES" Rating="1"
-                                                               Pool="8" />
-                                            <controls:SkillRow SkillName="Fälschung" Attribute="LOG" Rating="0"
-                                                               Pool="0" />
-                                            <controls:SkillRow SkillName="Gerätschaft" Attribute="LOG" Rating="2"
-                                                               Pool="7" />
-                                            <controls:SkillRow SkillName="Kunstfertigkeit" Attribute="CHA" Rating="0"
-                                                               Pool="1" />
-                                            <controls:SkillRow SkillName="Medizin" Attribute="LOG" Rating="0" Pool="0"
-                                                               IsInactive="True" />
-                                            <controls:SkillRow SkillName="Navigation" Attribute="INT" Rating="0"
-                                                               Pool="5" />
-                                            <controls:SkillRow SkillName="Pistolen" Attribute="GES" Rating="0" Pool="6" />
-                                            <controls:SkillRow SkillName="Registrieren" Attribute="MAG" Rating="0"
-                                                               Pool="0" IsDisabled="True" />
-                                            <controls:SkillRow SkillName="Reiten" Attribute="REA" Rating="0" Pool="5" />
-                                            <controls:SkillRow SkillName="Schwere Waffen" Attribute="GES" Rating="0"
-                                                               Pool="6" />
-                                            <controls:SkillRow SkillName="Sprengstoffe" Attribute="LOG" Rating="0"
-                                                               Pool="0" />
-                                            <controls:SkillRow SkillName="Verhandlung" Attribute="CHA" Rating="0"
-                                                               Pool="1" />
-                                            <controls:SkillRow SkillName="Wahrnehmung" Attribute="INT" Rating="2"
-                                                               Pool="7" />
-                                            <controls:SkillRow SkillName="Werfen" Attribute="GES" Rating="0" Pool="6" />
-                                            <controls:SkillRow SkillName="Zauberei" Attribute="MAG" Rating="0" Pool="0"
-                                                               IsDisabled="True" />
-                                        </WrapPanel>
+                                        <controls:SkillRow SkillName="Abrichten" Attribute="INT" Rating="0" Pool="4" />
+                                        <controls:SkillRow SkillName="Akrobatik" Attribute="GES" Rating="2" Pool="9" />
+                                        <controls:SkillRow SkillName="Antimagie" Attribute="MAG" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Arcana" Attribute="LOG" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Askennen" Attribute="INT" Rating="0" Pool="0" />
+                                        <controls:SkillRow SkillName="Astralkampf" Attribute="WIL" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Ausweichen" Attribute="REA" Rating="4" Pool="11 (13)" Specialization="Kugeln" />
+                                        <controls:SkillRow SkillName="Beschatten" Attribute="INT" Rating="2" Pool="7" />
+                                        <controls:SkillRow SkillName="Binden" Attribute="MAG" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Bodenfahrzeuge" Attribute="REA" Rating="3" Pool="10" />
+                                        <controls:SkillRow SkillName="Chemie" Attribute="LOG" Rating="0" Pool="0" />
+                                        <controls:SkillRow SkillName="Computer" Attribute="LOG" Rating="4" Pool="9" />
+                                        <controls:SkillRow SkillName="Datensuche" Attribute="LOG" Rating="5" Pool="10" />
+                                        <controls:SkillRow SkillName="Dekompilieren" Attribute="RES" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Einschüchtern" Attribute="CHA" Rating="0" Pool="1" />
+                                        <controls:SkillRow SkillName="Elektronische Kriegsführung" Attribute="LOG" Rating="2" Pool="7" />
+                                        <controls:SkillRow SkillName="Entfesseln" Attribute="GES" Rating="1" Pool="8" />
+                                        <controls:SkillRow SkillName="Fälschung" Attribute="LOG" Rating="0" Pool="0" />
+                                        <controls:SkillRow SkillName="Gerätschaft" Attribute="LOG" Rating="2" Pool="7" />
+                                        <controls:SkillRow SkillName="Kunstfertigkeit" Attribute="CHA" Rating="0" Pool="1" />
+                                        <controls:SkillRow SkillName="Medizin" Attribute="LOG" Rating="2" Pool="7" IsGroupLocked="True" />
+                                        <controls:SkillRow SkillName="Navigation" Attribute="INT" Rating="0" Pool="5" />
+                                        <controls:SkillRow SkillName="Pistolen" Attribute="GES" Rating="0" Pool="6" />
+                                        <controls:SkillRow SkillName="Registrieren" Attribute="MAG" Rating="0" Pool="0" IsUnavailable="True" />
+                                        <controls:SkillRow SkillName="Reiten" Attribute="REA" Rating="0" Pool="5" />
+                                        <controls:SkillRow SkillName="Schwere Waffen" Attribute="GES" Rating="0" Pool="6" />
+                                        <controls:SkillRow SkillName="Sprengstoffe" Attribute="LOG" Rating="0" Pool="0" />
+                                        <controls:SkillRow SkillName="Verhandlung" Attribute="CHA" Rating="0" Pool="1" />
+                                        <controls:SkillRow SkillName="Wahrnehmung" Attribute="INT" Rating="2" Pool="7" />
+                                        <controls:SkillRow SkillName="Wahrnehmung (Sehen)" Attribute="INT" Rating="2" Pool="7" IsMetaskill="True" />
+                                        <controls:SkillRow SkillName="Wahrnehmung (Hören)" Attribute="INT" Rating="2" Pool="7" IsMetaskill="True" />
+                                        <controls:SkillRow SkillName="Werfen" Attribute="GES" Rating="0" Pool="6" />
+                                        <controls:SkillRow SkillName="Zauberei" Attribute="MAG" Rating="0" Pool="0" IsUnavailable="True" />
+                                    </WrapPanel>
                                     </StackPanel>
                                 </ScrollViewer>
                             </DockPanel>
@@ -348,14 +323,12 @@
                                         </ComboBox>
                                         <TextBlock Grid.Row="0" Grid.Column="1" Text="1" VerticalAlignment="Center" />
                                         <Button Grid.Row="0" Grid.Column="2" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <TextBlock Grid.Row="0" Grid.Column="3" Text="6" VerticalAlignment="Center" />
                                         <ComboBox Grid.Row="0" Grid.Column="4" Width="130" HorizontalAlignment="Left" />
                                         <Button Grid.Row="0" Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <ComboBox Grid.Row="0" Grid.Column="6" Width="100" HorizontalAlignment="Left"
                                                   SelectedIndex="0">
@@ -368,14 +341,12 @@
                                         </ComboBox>
                                         <TextBlock Grid.Row="1" Grid.Column="1" Text="2" VerticalAlignment="Center" />
                                         <Button Grid.Row="1" Grid.Column="2" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <TextBlock Grid.Row="1" Grid.Column="3" Text="7" VerticalAlignment="Center" />
                                         <ComboBox Grid.Row="1" Grid.Column="4" Width="130" HorizontalAlignment="Left" />
                                         <Button Grid.Row="1" Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <ComboBox Grid.Row="1" Grid.Column="6" Width="100" HorizontalAlignment="Left"
                                                   SelectedIndex="0">
@@ -388,14 +359,12 @@
                                         </ComboBox>
                                         <TextBlock Grid.Row="2" Grid.Column="1" Text="2" VerticalAlignment="Center" />
                                         <Button Grid.Row="2" Grid.Column="2" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <TextBlock Grid.Row="2" Grid.Column="3" Text="7" VerticalAlignment="Center" />
                                         <ComboBox Grid.Row="2" Grid.Column="4" Width="130" HorizontalAlignment="Left" />
                                         <Button Grid.Row="2" Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <ComboBox Grid.Row="2" Grid.Column="6" Width="100" HorizontalAlignment="Left"
                                                   SelectedIndex="0">
@@ -408,14 +377,12 @@
                                         </ComboBox>
                                         <TextBlock Grid.Row="3" Grid.Column="1" Text="2" VerticalAlignment="Center" />
                                         <Button Grid.Row="3" Grid.Column="2" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <TextBlock Grid.Row="3" Grid.Column="3" Text="7" VerticalAlignment="Center" />
                                         <ComboBox Grid.Row="3" Grid.Column="4" Width="130" HorizontalAlignment="Left" />
                                         <Button Grid.Row="3" Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <ComboBox Grid.Row="3" Grid.Column="6" Width="100" HorizontalAlignment="Left"
                                                   SelectedIndex="0">
@@ -428,14 +395,12 @@
                                         </ComboBox>
                                         <TextBlock Grid.Row="4" Grid.Column="1" Text="1" VerticalAlignment="Center" />
                                         <Button Grid.Row="4" Grid.Column="2" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <TextBlock Grid.Row="4" Grid.Column="3" Text="6" VerticalAlignment="Center" />
                                         <ComboBox Grid.Row="4" Grid.Column="4" Width="130" HorizontalAlignment="Left" />
                                         <Button Grid.Row="4" Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                         <ComboBox Grid.Row="4" Grid.Column="6" Width="100" HorizontalAlignment="Left"
                                                   SelectedIndex="0">
@@ -450,31 +415,32 @@
 
                     <!-- ================= Kampfkünste ================= -->
                     <TabItem Header="Kampfkünste">
-                        <DockPanel Margin="2 8 2 4">
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                                <Button Content="Kampfkunst hinzufügen" />
-                                <Button Content="Manöver hinzufügen" />
-                                <Button Content="Löschen" />
-                            </StackPanel>
-                            <Grid ColumnDefinitions="220,4,*">
-                                <ListBox Grid.Column="0">
-                                    <ListBoxItem Content="Ausgewählte Kampfkunst" FontStyle="Italic"
-                                                 Foreground="#888888" />
+                        <controls:TreeDetailPane TreeWidth="220" ContentMargin="2 8 2 4">
+                            <controls:TreeDetailPane.HeaderContent>
+                                <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                                    <Button Content="Kampfkunst hinzufügen" />
+                                    <Button Content="Manöver hinzufügen" />
+                                    <Button Content="Löschen" />
+                                </StackPanel>
+                            </controls:TreeDetailPane.HeaderContent>
+                            <controls:TreeDetailPane.TreeContent>
+                                <ListBox>
+                                    <ListBoxItem Content="Ausgewählte Kampfkunst" FontStyle="Italic" Foreground="#888888" />
                                     <ListBoxItem Content="Ausgewählte Manöver" FontStyle="Italic" Foreground="#888888" />
                                 </ListBox>
-                                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-                                <StackPanel Grid.Column="2" Margin="12,0,0,0" Spacing="6">
+                            </controls:TreeDetailPane.TreeContent>
+                            <controls:TreeDetailPane.DetailContent>
+                                <StackPanel Margin="12,0,0,0" Spacing="6">
                                     <Grid ColumnDefinitions="Auto,Auto">
                                         <TextBlock Text="Stufe:" VerticalAlignment="Center" Margin="0,0,6,0" />
                                         <Button Grid.Column="1" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Button>
                                     </Grid>
                                     <TextBlock Text="Quelle:" />
                                 </StackPanel>
-                            </Grid>
-                        </DockPanel>
+                            </controls:TreeDetailPane.DetailContent>
+                        </controls:TreeDetailPane>
                     </TabItem>
 
                     <!-- ================= Adeptenkräfte (conditional tab - Adept characters only) ================= -->
@@ -508,15 +474,15 @@
 
                     <!-- ================= Sprüche und Geister (conditional tab - Magician/Adept characters) ================= -->
                     <TabItem Header="Sprüche und Geister">
-                        <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto" Margin="8">
-                            <DockPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold"
-                                           Margin="0,0,0,4" />
-                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                                    <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
-                                    <Button Content="Löschen" />
-                                </StackPanel>
-                                <TreeView>
+                        <DockPanel Margin="8">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                                <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
+                                <Button Content="Löschen" />
+                            </StackPanel>
+                            <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto">
+                                <DockPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TreeView>
                                     <TreeViewItem Header="Kampfzauber auswählen" IsExpanded="True">
                                         <TreeViewItem Header="Bö" />
                                     </TreeViewItem>
@@ -525,12 +491,12 @@
                                     <TreeViewItem Header="Illusionszauber auswählen" />
                                     <TreeViewItem Header="Manipulationszauber auswählen" />
                                     <TreeViewItem Header="Ausgewählte Geomantie Rituale" />
-                                </TreeView>
-                            </DockPanel>
+                                    </TreeView>
+                                </DockPanel>
 
-                            <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
+                                <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
 
-                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+                                <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0,0,0" Spacing="6">
                                 <Grid ColumnDefinitions="*,*">
                                     <TextBlock Grid.Column="0" Text="Eigenschaften: Indirekt, Elementar" />
                                     <TextBlock Grid.Column="1" Text="Kategorie: Kampfzauber" />
@@ -573,14 +539,14 @@
                                         <TextBox Grid.Column="5" Text="0" />
                                         <CheckBox Grid.Column="6" Content="gebunden" IsChecked="True" />
                                         <Border Grid.Column="7" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png" />
                                         </Border>
                                         <Button Grid.Column="8" Content="Löschen" />
                                     </Grid>
                                 </StackPanel>
                             </Border>
-                        </Grid>
+                            </Grid>
+                        </DockPanel>
                     </TabItem>
 
                     <!-- ================= Initiation (conditional tab - Awakened characters only) ================= -->
@@ -600,8 +566,7 @@
                                     <TextBlock Grid.Column="0" Text="Initiatengrad:" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="1" VerticalAlignment="Center" />
                                     <Button Grid.Column="2" Classes="iconButton">
-                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" Width="16"
-                                               Height="16" />
+                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                     </Button>
                                     <CheckBox Grid.Column="3" Content="Gruppeninitiation (-20%)" Margin="16,0,0,0" />
                                 </Grid>
@@ -632,13 +597,15 @@
 
                     <!-- ================= Cyberware und Bioware ================= -->
                     <TabItem Header="Cyberware und Bioware">
-                        <Grid ColumnDefinitions="330,4,*" Margin="4">
-                            <DockPanel Grid.Column="0">
-                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                        <controls:TreeDetailPane TreeWidth="330" ContentMargin="4">
+                            <controls:TreeDetailPane.HeaderContent>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                                     <Button Content="Cyberware hinzufügen" />
                                     <Button Content="Bioware hinzufügen" />
                                     <Button Content="Löschen" />
                                 </StackPanel>
+                            </controls:TreeDetailPane.HeaderContent>
+                            <controls:TreeDetailPane.TreeContent>
                                 <TreeView>
                                     <TreeViewItem Header="Cyberware auswählen">
                                         <TreeViewItem Header="Cyberaugen-Basissystem (Stufe 4)" IsExpanded="True">
@@ -659,12 +626,9 @@
                                         <TreeViewItem Header="Muskelstraffung (Stufe 2)" />
                                     </TreeViewItem>
                                 </TreeView>
-
-                            </DockPanel>
-
-                            <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                            <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+                            </controls:TreeDetailPane.TreeContent>
+                            <controls:TreeDetailPane.DetailContent>
+                                <StackPanel Margin="8,0,0,0" Spacing="6">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Width="80" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Kategorie:" Width="80" />
@@ -688,8 +652,9 @@
                                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Verlorene Essenz:" />
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="0,00" />
                                 </Grid>
-                            </StackPanel>
-                        </Grid>
+                                </StackPanel>
+                            </controls:TreeDetailPane.DetailContent>
+                        </controls:TreeDetailPane>
                     </TabItem>
 
                     <!-- ================= Straßenausrüstung (nested sub-tabs) ================= -->
@@ -713,14 +678,15 @@
                                 </Grid>
                             </TabItem>
                             <TabItem Header="Panzerung">
-                                <Grid ColumnDefinitions="220,4,*" Margin="4">
-                                    <DockPanel Grid.Column="0">
-                                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,4"
-                                                    Spacing="2">
+                                <controls:TreeDetailPane TreeWidth="220" ContentMargin="4">
+                                    <controls:TreeDetailPane.HeaderContent>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                                             <Button Content="Panzerung hinzufügen" />
                                             <Button Content="Löschen" />
                                             <Button Content="Panzerungsset hinzufügen" />
                                         </StackPanel>
+                                    </controls:TreeDetailPane.HeaderContent>
+                                    <controls:TreeDetailPane.TreeContent>
                                         <TreeView>
                                             <TreeViewItem Header="Panzerung auswählen" />
                                             <TreeViewItem Header="Actioneer Geschäftsanzug" IsExpanded="True">
@@ -731,11 +697,9 @@
                                                 <TreeViewItem Header="Vitalmonitor" />
                                             </TreeViewItem>
                                         </TreeView>
-                                    </DockPanel>
-
-                                    <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                                    <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+                                    </controls:TreeDetailPane.TreeContent>
+                                    <controls:TreeDetailPane.DetailContent>
+                                        <StackPanel Margin="8,0,0,0" Spacing="6">
                                         <Grid ColumnDefinitions="Auto,60,Auto,60,Auto,60" RowSpacing="4">
                                             <TextBlock Grid.Column="0" Text="Ballistisch:" />
                                             <TextBlock Grid.Column="1" Text="0" />
@@ -762,19 +726,21 @@
                                         </Grid>
                                         <CheckBox Content="Teil der Standardrüstung" />
                                         <CheckBox Content="angelegt" IsChecked="True" />
-                                    </StackPanel>
-                                </Grid>
+                                        </StackPanel>
+                                    </controls:TreeDetailPane.DetailContent>
+                                </controls:TreeDetailPane>
                             </TabItem>
 
                             <TabItem Header="Waffen">
-                                <Grid ColumnDefinitions="300,4,*" Margin="4">
-                                    <DockPanel Grid.Column="0">
-                                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,4"
-                                                    Spacing="2">
+                                <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+                                    <controls:TreeDetailPane.HeaderContent>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                                             <Button Content="Waffe hinzufügen" />
                                             <Button Content="Löschen" />
                                             <Button Content="Ort hinzufügen" />
                                         </StackPanel>
+                                    </controls:TreeDetailPane.HeaderContent>
+                                    <controls:TreeDetailPane.TreeContent>
                                         <TreeView>
                                             <TreeViewItem Header="Ausgewählte Waffen" />
                                             <TreeViewItem Header="Waffenlos" />
@@ -802,12 +768,10 @@
                                             <TreeViewItem Header="Minigranate: IR-Rauch" />
                                             <TreeViewItem Header="Minigranate: Rauch" />
                                         </TreeView>
-                                    </DockPanel>
-
-                                    <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                                    <ScrollViewer Grid.Column="2">
-                                        <StackPanel Margin="8,0,0,0" Spacing="6">
+                                    </controls:TreeDetailPane.TreeContent>
+                                    <controls:TreeDetailPane.DetailContent>
+                                        <ScrollViewer>
+                                            <StackPanel Margin="8,0,0,0" Spacing="6">
                                             <Grid ColumnDefinitions="Auto,*">
                                                 <TextBlock Text="Name:" Width="90" />
                                                 <TextBlock Grid.Column="1" Text="HK MP-5 TX" FontWeight="SemiBold" />
@@ -840,9 +804,7 @@
                                                 <TextBlock Text="Quelle:" Width="90" />
                                                 <TextBlock Grid.Column="1" Text="SR4 363" />
                                                 <Border Grid.Column="2" Classes="iconButton">
-                                                    <Image
-                                                        Source="avares://Chummer.AvaloniaSpike/Assets/icons/page.png"
-                                                        Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/page.png" />
                                                 </Border>
                                             </Grid>
 
@@ -882,22 +844,24 @@
                                                 </ComboBox>
                                             </Grid>
                                             <controls:InfoRow Label="Würfelpool:" Value="13" />
-                                        </StackPanel>
-                                    </ScrollViewer>
-                                </Grid>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </controls:TreeDetailPane.DetailContent>
+                                </controls:TreeDetailPane>
                             </TabItem>
 
                             <TabItem Header="Ausrüstung">
-                                <DockPanel Margin="4">
-                                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,4"
-                                                Spacing="2">
-                                        <Button Content="Ausrüstung hinzufügen" />
-                                        <Button Content="Löschen" />
-                                        <Button Content="Ort hinzufügen" />
-                                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
-                                    </StackPanel>
-                                    <Grid ColumnDefinitions="300,4,*">
-                                        <TreeView Grid.Column="0">
+                                <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+                                    <controls:TreeDetailPane.HeaderContent>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                                            <Button Content="Ausrüstung hinzufügen" />
+                                            <Button Content="Löschen" />
+                                            <Button Content="Ort hinzufügen" />
+                                            <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
+                                        </StackPanel>
+                                    </controls:TreeDetailPane.HeaderContent>
+                                    <controls:TreeDetailPane.TreeContent>
+                                        <TreeView>
                                             <TreeViewItem Header="Ausrüstung wählen." IsExpanded="True">
                                                 <TreeViewItem Header="Untersuchungswerkzeug Kiste" />
                                                 <TreeViewItem Header="Custom Commlink (&quot;Schicke Armbanduhr&quot;)"
@@ -952,10 +916,9 @@
                                                 </TreeViewItem>
                                             </TreeViewItem>
                                         </TreeView>
-
-                                        <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                                        <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+                                    </controls:TreeDetailPane.TreeContent>
+                                    <controls:TreeDetailPane.DetailContent>
+                                        <StackPanel Margin="8,0,0,0" Spacing="6">
                                             <Grid ColumnDefinitions="Auto,*">
                                                 <TextBlock Text="Name:" Width="90" />
                                                 <TextBlock Grid.Column="1" Text="Custom Commlink" FontWeight="SemiBold" />
@@ -979,18 +942,13 @@
                                                 <TextBlock Grid.Column="0" Text="Menge:" Width="90" />
                                                 <TextBlock Grid.Column="1" Text="1" />
                                                 <Border Grid.Column="2" Classes="iconButton">
-                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                           Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                                 </Border>
                                                 <Border Grid.Column="3" Classes="iconButton">
-                                                    <Image
-                                                        Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png"
-                                                        Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png" />
                                                 </Border>
                                                 <Border Grid.Column="5" Classes="iconButton">
-                                                    <Image
-                                                        Source="avares://Chummer.AvaloniaSpike/Assets/icons/printer.png"
-                                                        Width="16" Height="16" />
+                                                    <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/printer.png" />
                                                 </Border>
                                             </Grid>
                                             <Grid ColumnDefinitions="*,*,*,*">
@@ -1010,8 +968,8 @@
                                             <Button Content="Mehrfachfoki herstellen" HorizontalAlignment="Left" />
                                             <Border Classes="groupBox" Height="200" />
                                         </StackPanel>
-                                    </Grid>
-                                </DockPanel>
+                                    </controls:TreeDetailPane.DetailContent>
+                                </controls:TreeDetailPane>
                             </TabItem>
 
                             <TabItem Header="Haustiere und Begleiter">
@@ -1022,12 +980,10 @@
                                         <TextBox Grid.Column="1" Text="asd" />
                                         <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center" />
                                         <Border Grid.Column="4" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/link.png" />
                                         </Border>
                                         <Border Grid.Column="5" Classes="iconButton">
-                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png"
-                                                   Width="16" Height="16" />
+                                            <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                         </Border>
                                         <Button Grid.Column="6" Content="Löschen" />
                                     </Grid>
@@ -1038,14 +994,16 @@
 
                     <!-- ================= Fahrzeuge und Drohnen ================= -->
                     <TabItem Header="Fahrzeuge und Drohnen">
-                        <DockPanel Margin="4">
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                                <Button Content="Fahrzeug hinzufügen" />
-                                <Button Content="Löschen" />
-                                <Button Content="Ort hinzufügen" />
-                            </StackPanel>
-                            <Grid ColumnDefinitions="300,4,*">
-                                <TreeView Grid.Column="0">
+                        <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+                            <controls:TreeDetailPane.HeaderContent>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                                    <Button Content="Fahrzeug hinzufügen" />
+                                    <Button Content="Löschen" />
+                                    <Button Content="Ort hinzufügen" />
+                                </StackPanel>
+                            </controls:TreeDetailPane.HeaderContent>
+                            <controls:TreeDetailPane.TreeContent>
+                                <TreeView>
                                     <TreeViewItem Header="GMC Bulldog Step-Van" IsExpanded="True">
                                         <TreeViewItem Header="Entfernung manueller Steuerung" />
                                         <TreeViewItem Header="Fahrgastsicherheitssystem (Stufe 4)" />
@@ -1076,10 +1034,9 @@
                                         <TreeViewItem Header="Waffenhalterung (normal, außen, drehbar, Fernsteuerung)" />
                                     </TreeViewItem>
                                 </TreeView>
-
-                                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                                <ScrollViewer Grid.Column="2">
+                            </controls:TreeDetailPane.TreeContent>
+                            <controls:TreeDetailPane.DetailContent>
+                                <ScrollViewer>
                                     <StackPanel Margin="8,0,0,0" Spacing="6">
                                         <Grid ColumnDefinitions="Auto,*">
                                             <TextBlock Text="Name:" Width="70" />
@@ -1152,8 +1109,8 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </ScrollViewer>
-                            </Grid>
-                        </DockPanel>
+                            </controls:TreeDetailPane.DetailContent>
+                        </controls:TreeDetailPane>
                     </TabItem>
 
                     <!-- ================= Charakter-Information ================= -->
@@ -1190,8 +1147,7 @@
                                     <TextBox Grid.Row="0" Grid.Column="1" Text="0" />
                                     <TextBlock Grid.Row="0" Grid.Column="2" Text="+ 2 = 2" VerticalAlignment="Center" />
                                     <Border Grid.Row="0" Grid.Column="3" Classes="iconButton">
-                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png"
-                                               Width="16" Height="16" />
+                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png" />
                                     </Border>
 
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Schlechter Ruf:"
@@ -1360,31 +1316,34 @@
 
                     <!-- ================= Verbesserungen ================= -->
                     <TabItem Header="Verbessern">
-                        <DockPanel Margin="8">
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                                <Button Content="Verbesserung hinzufügen" />
-                                <Button Content="Verbesserung bearbeiten" />
-                            </StackPanel>
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                                <Button Content="Löschen" />
-                                <Button Content="Gruppe hinzufügen" />
-                            </StackPanel>
-                            <Grid ColumnDefinitions="220,4,*">
-                                <TreeView Grid.Column="0">
+                        <controls:TreeDetailPane TreeWidth="220" ContentMargin="8">
+                            <controls:TreeDetailPane.HeaderContent>
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                                        <Button Content="Verbesserung hinzufügen" />
+                                        <Button Content="Verbesserung bearbeiten" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                                        <Button Content="Löschen" />
+                                        <Button Content="Gruppe hinzufügen" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </controls:TreeDetailPane.HeaderContent>
+                            <controls:TreeDetailPane.TreeContent>
+                                <TreeView>
                                     <TreeViewItem Header="Verbesserung auswählen" IsExpanded="True">
                                         <TreeViewItem Header="test" IsSelected="True" />
                                     </TreeViewItem>
                                 </TreeView>
-
-                                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-                                <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+                            </controls:TreeDetailPane.TreeContent>
+                            <controls:TreeDetailPane.DetailContent>
+                                <StackPanel Margin="8,0,0,0" Spacing="6">
                                     <controls:InfoRow Label="Typ:" Value="Concealability" />
                                     <controls:InfoRow Label="Wert:" Value="5" />
                                     <CheckBox Content="aktiv" IsChecked="True" />
                                 </StackPanel>
-                            </Grid>
-                        </DockPanel>
+                            </controls:TreeDetailPane.DetailContent>
+                        </controls:TreeDetailPane>
                     </TabItem>
 
                 </TabControl>
@@ -1473,12 +1432,10 @@
                                 <TextBlock Text="3 von 3 verbleibend" />
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <Button Classes="iconButton">
-                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" Width="16"
-                                               Height="16" />
+                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" />
                                     </Button>
                                     <Button Classes="iconButton">
-                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png"
-                                               Width="16" Height="16" />
+                                        <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/delete.png" />
                                     </Button>
                                 </StackPanel>
                             </StackPanel>

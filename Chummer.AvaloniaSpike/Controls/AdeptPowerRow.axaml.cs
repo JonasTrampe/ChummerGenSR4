@@ -3,7 +3,7 @@ using Avalonia.Controls;
 
 namespace Chummer.AvaloniaSpike.Controls;
 
-public class AdeptPowerRow : UserControl
+public partial class AdeptPowerRow : UserControl
 {
     public static readonly StyledProperty<string?> PowerNameProperty =
         AvaloniaProperty.Register<SkillRow, string?>(nameof(PowerName));

@@ -210,7 +210,7 @@
                 <ScaleTransform ScaleX=".6" ScaleY=".6"/>
             </Setter>
         </Style>
-        
+
         <Style Selector="ListBoxItem">
             <Setter Property="Padding" Value="4,1" />
             <Setter Property="MinHeight" Value="22" />
@@ -247,6 +247,10 @@
             <Setter Property="BorderBrush" Value="#0078D7" />
             <Setter Property="Background" Value="#E5F1FB" />
         </Style>
+        <Style Selector="Border.toolbarButton > Image, Button.toolbarButton > Image">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+        </Style>
 
         <!-- Tab strip: white throughout, selected tab marked by a colored underline rather
              than a background-color difference - matches the modern Windows visual style
@@ -266,7 +270,7 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
         </Style>
-        
+
         <Style Selector="TabItem">
             <Setter Property="Padding" Value="10,2,10,0" />
             <Setter Property="Margin" Value="0,0,0,0" />
@@ -284,7 +288,7 @@
             <Setter Property="Foreground" Value="#444444" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
-        
+
         <!-- Round green/red icon buttons, mirroring the real app's per-attribute "+"/"-"
              controls (add.png / delete.png from Chummer/icons), instead of flat WinForms buttons.
              One fixed size (20x20 container, always holding a 16x16 image) used everywhere an
@@ -311,6 +315,12 @@
         <Style Selector="Border.iconButton:pointerover">
             <Setter Property="Background" Value="#E5F1FB" />
         </Style>
+        <!-- Every icon inside one of these wrappers is 16x16 - previously repeated as explicit
+             Width/Height on each individual Image tag (two dozen+ times across MainWindow.axaml). -->
+        <Style Selector="Border.iconButton > Image, Button.iconButton > Image">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+        </Style>
 
         <!-- Data grid-ish header row used for the Attributes/Skills tables -->
         <Style Selector="TextBlock.gridHeader">
@@ -323,8 +333,6 @@
             <Setter Property="Padding" Value="2,2" />
             <Setter Property="FontSize" Value="10" />
         </Style>
-
-
 
         <!-- Small text used for the condition-monitor damage boxes -->
         <Style Selector="Border.cmBox">
@@ -351,6 +359,22 @@
         </Style>
         <Style Selector="TextBlock.disabledRow">
             <Setter Property="Foreground" Value="#BBBBBB" />
+        </Style>
+
+        <!-- SkillRow background per category: a plain skill with a real dice pool gets a faint
+             tint so it visually stands out from 0-pool rows; a skill locked by an active skill
+             group gets a distinct (slightly cooler) tint so it reads as "not directly editable"
+             rather than just "has a pool". Unavailable skills intentionally get neither - their
+             dimmed rowLabel text is already the signal, a background on top would be redundant. -->
+        <Style Selector="Border.skillRow">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="2,1" />
+        </Style>
+        <Style Selector="Border.skillRow.hasPool">
+            <Setter Property="Background" Value="#F3F8EE" />
+        </Style>
+        <Style Selector="Border.skillRow.groupLocked">
+            <Setter Property="Background" Value="#EEF2F8" />
         </Style>
     </Application.Styles>
 </Application>
