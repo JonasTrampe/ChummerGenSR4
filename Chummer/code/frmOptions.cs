@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
-using Microsoft.Win32;
 
 namespace Chummer
 {
@@ -1718,7 +1717,7 @@ namespace Chummer
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
 			GlobalOptions.Instance.PDFArgumentStyle = cboPDFArgumentStyle.SelectedValue.ToString();
-			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer");
+			SettingsRegistryKey objRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer");
 			objRegistry.SetValue("autoupdate", chkAutomaticUpdate.Checked.ToString());
 			objRegistry.SetValue("localisedupdatesonly", chkLocalisedUpdatesOnly.Checked.ToString());
 			objRegistry.SetValue("language", cboLanguage.SelectedValue.ToString());
@@ -1732,7 +1731,7 @@ namespace Chummer
 			objRegistry.SetValue("pdfapppath", txtPDFAppPath.Text);
 
 			// Save the SourcebookInfo.
-			RegistryKey objSourceRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");
+			SettingsRegistryKey objSourceRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");
 			foreach (SourcebookInfo objSource in GlobalOptions.Instance.SourcebookInfo)
 				objSourceRegistry.SetValue(objSource.Code, objSource.Path + "|" + objSource.Offset.ToString());
 		}
