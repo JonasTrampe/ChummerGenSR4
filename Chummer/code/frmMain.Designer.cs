@@ -67,7 +67,6 @@
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsUpdate = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuToolsOmae = new System.Windows.Forms.ToolStripMenuItem();
 			this.windowsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.newWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -433,8 +432,7 @@
             this.mnuToolsDiceRoller,
             this.toolStripSeparator5,
             this.optionsToolStripMenuItem,
-            this.mnuToolsUpdate,
-            this.mnuToolsOmae});
+            this.mnuToolsUpdate});
 			this.toolsMenu.Name = "toolsMenu";
 			this.toolsMenu.Size = new System.Drawing.Size(48, 20);
 			this.toolsMenu.Tag = "Menu_Main_Tools";
@@ -472,15 +470,7 @@
 			this.mnuToolsUpdate.Tag = "Menu_Main_Update";
 			this.mnuToolsUpdate.Text = "Check for Updates";
 			this.mnuToolsUpdate.Click += new System.EventHandler(this.mnuToolsUpdate_Click);
-			// 
-			// mnuToolsOmae
-			// 
-			this.mnuToolsOmae.Name = "mnuToolsOmae";
-			this.mnuToolsOmae.Size = new System.Drawing.Size(171, 22);
-			this.mnuToolsOmae.Tag = "Menu_Main_Omae";
-			this.mnuToolsOmae.Text = "Omae";
-			this.mnuToolsOmae.Click += new System.EventHandler(this.mnuToolsOmae_Click);
-			// 
+			//
 			// windowsMenu
 			// 
 			this.windowsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -752,7 +742,6 @@
 		private System.Windows.Forms.TabControl tabForms;
 		private System.Windows.Forms.ToolStripMenuItem mnuToolsDiceRoller;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-		private System.Windows.Forms.ToolStripMenuItem mnuToolsOmae;
 		private System.Windows.Forms.ToolStripMenuItem mnuHelpDumpshock;
 	}
 }

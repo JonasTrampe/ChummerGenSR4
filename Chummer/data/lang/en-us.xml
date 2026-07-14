@@ -6226,32 +6226,20 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Chummer Update</text>
 		</string>
 		<string>
-			<key>Button_Update_DownloadSelectedUpdates</key>
-			<text>&amp;Download Selected Updates</text>
+			<key>Label_Update_CurrentVersion</key>
+			<text>Current Version:</text>
 		</string>
 		<string>
-			<key>Button_Update_SelectAll</key>
-			<text>Select &amp;All</text>
+			<key>Label_Update_LatestVersion</key>
+			<text>Latest Version:</text>
 		</string>
 		<string>
-			<key>Button_Update_RestartChummer</key>
-			<text>Restart Chummer</text>
+			<key>Button_Update_Download</key>
+			<text>&amp;Download</text>
 		</string>
 		<string>
-			<key>Label_Update_OverallProgress</key>
-			<text>Overall Progress:</text>
-		</string>
-		<string>
-			<key>Label_Update_FileProgress</key>
-			<text>File Progress:</text>
-		</string>
-		<string>
-			<key>Label_Update_DownloadComplete</key>
-			<text>Download Complete</text>
-		</string>
-		<string>
-			<key>Message_Update_NoUpdatesSelected</key>
-			<text>No updates selected.</text>
+			<key>Button_Update_Close</key>
+			<text>&amp;Close</text>
 		</string>
 		<string>
 			<key>Message_Update_CannotConnect</key>
