@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="using:Chummer.AvaloniaSpike.Controls"
+        xmlns:sp="using:ScottPlot.Avalonia"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
         x:Class="Chummer.AvaloniaSpike.MainWindow"
         Width="1280" Height="745"
@@ -51,9 +52,10 @@
                 <Border Classes="toolbarButton" ToolTip.Tip="Speichern">
                     <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/disk.png" />
                 </Border>
-                <Border Classes="toolbarButton" ToolTip.Tip="Drucken">
+                <Button Classes="toolbarButton" ToolTip.Tip="Drucken"
+                        AutomationProperties.Name="Drucken" Click="OnPrintClick">
                     <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/printer.png" />
-                </Border>
+                </Button>
             </StackPanel>
         </Border>
 
@@ -861,7 +863,10 @@
                                         </StackPanel>
                                     </controls:TreeDetailPane.HeaderContent>
                                     <controls:TreeDetailPane.TreeContent>
-                                        <TreeView>
+                                        <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -
+                                             matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
+                                             one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
+                                        <TreeView Name="AusruestungTree">
                                             <TreeViewItem Header="Ausrüstung wählen." IsExpanded="True">
                                                 <TreeViewItem Header="Untersuchungswerkzeug Kiste" />
                                                 <TreeViewItem Header="Custom Commlink (&quot;Schicke Armbanduhr&quot;)"
@@ -1266,22 +1271,18 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Static approximation of the real ScottPlot-replacement charts - the real app
-						     already renders working area charts here via System.Windows.Forms.DataVisualization;
-						     this is just a shape, not a real chart control. -->
+                            <!-- Real ScottPlot.Avalonia charts (the actual replacement for the WinForms
+                                 System.Windows.Forms.DataVisualization area charts, per the Linux port plan's
+                                 Phase 2 chart decision) - populated from code-behind in MainWindow.axaml.cs
+                                 since ScottPlot's Plot API isn't XAML-bindable. -->
                             <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,8,0,0">
                                 <Border Grid.Column="0" BorderBrush="#D0D0D0" BorderThickness="1" Margin="0,0,4,0"
                                         Height="180">
-                                    <Canvas>
-                                        <Polygon Points="0,10 460,150 460,180 0,180" Fill="#3060C0" Opacity="0.85" />
-                                    </Canvas>
+                                    <sp:AvaPlot Name="KarmaChart" />
                                 </Border>
                                 <Border Grid.Column="1" BorderBrush="#D0D0D0" BorderThickness="1" Margin="4,0,0,0"
                                         Height="180">
-                                    <Canvas>
-                                        <Polygon Points="0,20 150,25 300,60 460,150 460,180 0,180" Fill="#2E8B2E"
-                                                 Opacity="0.85" />
-                                    </Canvas>
+                                    <sp:AvaPlot Name="NuyenChart" />
                                 </Border>
                             </Grid>
                         </Grid>
