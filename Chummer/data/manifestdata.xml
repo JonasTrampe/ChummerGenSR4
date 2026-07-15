@@ -164,7 +164,7 @@
 	<file>
 		<name>data/bioware.xml</name>
 		<type>Data Files</type>
-		<version>-906</version>
+		<version>-907</version>
 		<description>Bioware</description>
 		<notes>- Bioware data file</notes>
 	</file>
@@ -192,7 +192,7 @@
 	<file>
 		<name>data/cyberware.xml</name>
 		<type>Data Files</type>
-		<version>-891</version>
+		<version>-892</version>
 		<description>Cyberware</description>
 		<notes>- Cyberware data file</notes>
 	</file>
@@ -206,7 +206,7 @@
 	<file>
 		<name>data/gear.xml</name>
 		<type>Data Files</type>
-		<version>-819</version>
+		<version>-820</version>
 		<description>Gear</description>
 		<notes>- Gear data file</notes>
 	</file>
@@ -269,7 +269,7 @@
 	<file>
 		<name>data/powers.xml</name>
 		<type>Data Files</type>
-		<version>-901</version>
+		<version>-902</version>
 		<description>Powers</description>
 		<notes>- Powers data file</notes>
 	</file>
