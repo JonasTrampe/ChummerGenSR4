@@ -5298,6 +5298,10 @@
 			<text>サイバーウェアのエッセンスコストの軽減を認める</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_ImprovedSenseFullRating</key>
+			<text>「感覚拡張」で選択したサイバーウェアのレーティングを全て適用する</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_StrengthAffectsRecoil</key>
 			<text>高い【筋力】は武器の反動を軽減する (AR)</text>
 		</string>
@@ -6588,6 +6592,10 @@
 		<string>
 			<key>String_Improvement_SelectText</key>
 			<text>{0} の値を入力</text>
+		</string>
+		<string>
+			<key>String_Improvement_SelectSenseCyberware</key>
+			<text>{0} の感覚強化を選択してください。</text>
 		</string>
 		<!-- CharacterOptions Messages -->
 		<string>
