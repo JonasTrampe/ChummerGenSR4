@@ -4349,6 +4349,10 @@
 			<text>Vergünstigungen für Cyberware-Essenzkosten erlauben</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_ImprovedSenseFullRating</key>
+			<text>Verbesserter Sinn gewährt die volle Stufe der gewählten Cyberware</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_StrengthAffectsRecoil</key>
 			<text>Stärke reduziert den Rückstoß einer Waffe (AR 171)</text>
 		</string>
@@ -5101,6 +5105,10 @@
 		<string>
 			<key>String_Improvement_SelectText</key>
 			<text>Geben Sie einen Wert für {0} ein.</text>
+		</string>
+		<string>
+			<key>String_Improvement_SelectSenseCyberware</key>
+			<text>Wählen Sie eine Sinnesverbesserung für {0}.</text>
 		</string>
 		<string>
 			<key>Message_CharacterOptions_CannotLoadSetting</key>

@@ -5277,6 +5277,10 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<text>Réductions des coûts d'Essence du cyberware.</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_ImprovedSenseFullRating</key>
+			<text>Sens Amélioré confère le niveau complet du cyberware sélectionné</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_StrengthAffectsRecoil</key>
 			<text>Une FOR extraordinaire affecte les points de CR (Ars, 162)</text>
 		</string>
@@ -6539,6 +6543,10 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string>
 			<key>String_Improvement_SelectText</key>
 			<text>Entrer une valeur pour {0}.</text>
+		</string>
+		<string>
+			<key>String_Improvement_SelectSenseCyberware</key>
+			<text>Sélectionnez une amélioration sensorielle pour {0}.</text>
 		</string>
 		<!-- CharacterOptions Messages -->
 		<string>
