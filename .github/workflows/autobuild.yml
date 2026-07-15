@@ -120,7 +120,13 @@ jobs:
         run: nuget restore ChummerGenSR4.sln
 
       - name: Build the solution under Mono
-        run: msbuild ChummerGenSR4.sln /p:Configuration=Release
+        run: |
+          if command -v msbuild >/dev/null 2>&1; then
+            msbuild ChummerGenSR4.sln /p:Configuration=Release
+          else
+            echo "msbuild not found on PATH, falling back to xbuild"
+            xbuild ChummerGenSR4.sln /p:Configuration=Release
+          fi
 
       - name: Headless startup smoke test
         # Catches crash-on-startup regressions under Mono. Not a substitute for real UI testing,
