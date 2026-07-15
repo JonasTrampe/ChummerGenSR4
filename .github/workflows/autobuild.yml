@@ -60,7 +60,11 @@ jobs:
             [void] [int]::TryParse($candidateRevision, [ref] $revision)
           }
           $assemblyVersion = "$($coreParts[0]).$($coreParts[1]).$($coreParts[2]).$revision"
-          "version=$semanticVersion" >> $env:GITHUB_OUTPUT
+          # '+' is semver's build-metadata separator, but GitHub rejects it in release asset
+          # filenames (upload-to-release fails with HTTP 422). Use a dot there instead, matching
+          # the naming convention of previous releases (e.g. ChummerGenSR4-0.1.500.6b1453.zip).
+          $fileSafeVersion = $semanticVersion -replace '\+', '.'
+          "version=$fileSafeVersion" >> $env:GITHUB_OUTPUT
           "assembly-version=$assemblyVersion" >> $env:GITHUB_OUTPUT
 
       - name: Set project versions
