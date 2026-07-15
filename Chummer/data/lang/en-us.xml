@@ -5301,6 +5301,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Allow Cyberware Essence costs to be discounted</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_ImprovedSenseFullRating</key>
+			<text>Improved Sense grants the full Rating of the selected cyberware</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_StrengthAffectsRecoil</key>
 			<text>High Strength affects Weapon Recoil (AR 163)</text>
 		</string>
@@ -6579,6 +6583,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		<string>
 			<key>String_Improvement_SelectText</key>
 			<text>Enter a value for {0}.</text>
+		</string>
+		<string>
+			<key>String_Improvement_SelectSenseCyberware</key>
+			<text>Select a sense enhancement for {0}.</text>
 		</string>
 		<!-- CharacterOptions Messages -->
 		<string>

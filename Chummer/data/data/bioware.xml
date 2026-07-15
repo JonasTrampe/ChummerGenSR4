@@ -886,6 +886,7 @@
 			</bonus>
 			<source>AU</source>
 			<page>67</page>
+			<senseimprovement>yes</senseimprovement>
 		</bioware>
 		<bioware>
 			<name>Tailored Critter Pheromones</name>

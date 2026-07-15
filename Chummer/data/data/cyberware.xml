@@ -282,6 +282,7 @@
 					<bonus>Rating</bonus>
 				</specificskill>
 			</bonus>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Orientation System</name>
@@ -367,6 +368,7 @@
 					<bonus>Rating</bonus>
 				</specificskill>
 			</bonus>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Tooth Storage Compartment</name>
@@ -397,6 +399,7 @@
 			<cost>6000</cost>
 			<source>SR4</source>
 			<page>339</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Voice Mask</name>
@@ -540,6 +543,7 @@
 			<cost>750</cost>
 			<source>SR4</source>
 			<page>340</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Image Link</name>
@@ -560,6 +564,7 @@
 			<cost>1000</cost>
 			<source>SR4</source>
 			<page>340</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Microscopic Vision</name>
@@ -570,6 +575,7 @@
 			<cost>1300</cost>
 			<source>AU</source>
 			<page>38</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Ocular Drone</name>
@@ -642,6 +648,7 @@
 			<cost>1000</cost>
 			<source>SR4</source>
 			<page>340</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Vision Enhancement</name>
@@ -659,6 +666,7 @@
 					<bonus>Rating</bonus>
 				</specificskill>
 			</bonus>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Vision Magnification</name>
@@ -669,6 +677,7 @@
 			<cost>1000</cost>
 			<source>SR4</source>
 			<page>340</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Cyberears</name>
@@ -701,6 +710,7 @@
 					<bonus>Rating</bonus>
 				</specificskill>
 			</bonus>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Balance Augmenter</name>
@@ -711,6 +721,7 @@
 			<cost>5000</cost>
 			<source>SR4</source>
 			<page>341</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Damper</name>
@@ -721,6 +732,7 @@
 			<cost>750</cost>
 			<source>SR4</source>
 			<page>341</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Ear Recording Unit</name>
@@ -741,6 +753,7 @@
 			<cost>1000</cost>
 			<source>AU</source>
 			<page>37</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Select Sound Filter</name>
@@ -752,6 +765,7 @@
 			<cost>Rating * 1000</cost>
 			<source>SR4</source>
 			<page>341</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Sound Link</name>
@@ -772,6 +786,7 @@
 			<cost>750</cost>
 			<source>SR4</source>
 			<page>341</page>
+			<senseimprovement>yes</senseimprovement>
 		</cyberware>
 		<cyberware>
 			<name>Essence Hole</name>

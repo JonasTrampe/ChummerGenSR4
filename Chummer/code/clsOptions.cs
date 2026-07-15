@@ -760,6 +760,7 @@ namespace Chummer
 		private bool _blnAllowSkillRegrouping = false;
 		private bool _blnMetatypeCostsKarma = false;
 		private bool _blnAllowCyberwareESSDiscounts = false;
+		private bool _blnImprovedSenseFullRating = false;
 		private bool _blnStrengthAffectsRecoil = false;
 		private bool _blnMaximumArmorModifications = false;
 		private bool _blnArmorSuitCapacity = false;
@@ -974,6 +975,7 @@ namespace Chummer
 			objWriter.WriteElementString("excludelimbslot", _strExcludeLimbSlot);
 			// <allowcyberwareessdiscounts />
 			objWriter.WriteElementString("allowcyberwareessdiscounts", _blnAllowCyberwareESSDiscounts.ToString());
+			objWriter.WriteElementString("improvedsensefullrating", _blnImprovedSenseFullRating.ToString());
 			// <strengthaffectsrecoil />
 			objWriter.WriteElementString("strengthaffectsrecoil", _blnStrengthAffectsRecoil.ToString());
 			// <maximumarmormodifications />
@@ -1329,6 +1331,14 @@ namespace Chummer
 			try
 			{
 				_blnAllowCyberwareESSDiscounts = Convert.ToBoolean(objXmlDocument.SelectSingleNode("/settings/allowcyberwareessdiscounts").InnerText);
+			}
+			catch
+			{
+			}
+			// Improved Sense grants the full Rating of the selected cyberware instead of a flat Rating 1.
+			try
+			{
+				_blnImprovedSenseFullRating = Convert.ToBoolean(objXmlDocument.SelectSingleNode("/settings/improvedsensefullrating").InnerText);
 			}
 			catch
 			{
@@ -2561,6 +2571,21 @@ namespace Chummer
 			set
 			{
 				_blnAllowCyberwareESSDiscounts = value;
+			}
+		}
+
+		/// <summary>
+		/// Whether or not the Improved Sense power grants the full Rating of the selected cyberware's bonus instead of a flat Rating 1.
+		/// </summary>
+		public bool ImprovedSenseFullRating
+		{
+			get
+			{
+				return _blnImprovedSenseFullRating;
+			}
+			set
+			{
+				_blnImprovedSenseFullRating = value;
 			}
 		}
 

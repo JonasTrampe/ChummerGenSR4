@@ -10389,6 +10389,7 @@
 			<cost>8000</cost>
 			<source>SG</source>
 			<page>153</page>
+			<senseimprovement>no</senseimprovement>
 		</gear>
 		<gear>
 			<name>Scatter X-Ray</name>
@@ -10400,6 +10401,7 @@
 			<cost>8000</cost>
 			<source>SG</source>
 			<page>153</page>
+			<senseimprovement>no</senseimprovement>
 		</gear>
 		<gear>
 			<name>UV</name>
@@ -10411,6 +10413,7 @@
 			<cost>2000</cost>
 			<source>SG</source>
 			<page>153</page>
+			<senseimprovement>yes</senseimprovement>
 		</gear>
 		<gear>
 			<name>HyperSpectrum</name>
@@ -10422,6 +10425,7 @@
 			<cost>1500</cost>
 			<source>SG</source>
 			<page>153</page>
+			<senseimprovement>yes</senseimprovement>
 		</gear>
 		<gear>
 			<name>Cryptochromic</name>
@@ -10433,6 +10437,7 @@
 			<cost>1000</cost>
 			<source>SG</source>
 			<page>153</page>
+			<senseimprovement>yes</senseimprovement>
 		</gear>
 		<gear>
 			<name>UV Marker Smokes</name>

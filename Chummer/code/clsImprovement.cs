@@ -101,6 +101,7 @@ namespace Chummer
 			IgnoreCMPenaltyPhysical = 86,
 			CyborgEssence = 87,
 			EssenceMax = 88,
+			SelectSenseware = 89,
         }
 
         public enum ImprovementSource
@@ -339,8 +340,10 @@ namespace Chummer
 					return ImprovementType.CyborgEssence;
 				case "EssenceMax":
 					return ImprovementType.EssenceMax;
+				case "SelectSenseware":
+					return ImprovementType.SelectSenseware;
 				case "Skill":
-                    return ImprovementType.Skill;
+					return ImprovementType.Skill;
 				case "Concealability":
                     return ImprovementType.Concealability;
 				default:
@@ -1132,6 +1135,27 @@ namespace Chummer
 			}
 
 			return blnReturn;
+		}
+
+		/// <summary>
+		/// Load one of the data sources referenced by a selectsenseware bonus node (cyberware.xml, bioware.xml, gear.xml),
+		/// filtered to the categories listed in the given attribute, and append the result to lstSourceLists.
+		/// Does nothing if the attribute is absent (that source was not requested by the power).
+		/// </summary>
+		private void AddSensewareSource(XmlNode nodSelectSenseware, string strCategoryAttribute, string strDataFile, string strBasePath, List<XmlNodeList> lstSourceLists)
+		{
+			if (nodSelectSenseware.Attributes[strCategoryAttribute] == null)
+				return;
+
+			List<string> lstCategories = nodSelectSenseware.Attributes[strCategoryAttribute].InnerText.Split(',').Select(x => x.Trim()).ToList();
+			if (lstCategories.Count == 0)
+				return;
+
+			string strCategoryPredicate = string.Join(" or ", lstCategories.Select(x => "category=\"" + x + "\""));
+			XmlDocument objXmlDocument = XmlManager.Instance.Load(strDataFile);
+			XmlNodeList objXmlNodeList = objXmlDocument.SelectNodes(strBasePath + "[" + strCategoryPredicate + "]");
+			if (objXmlNodeList != null && objXmlNodeList.Count > 0)
+				lstSourceLists.Add(objXmlNodeList);
 		}
 		#endregion
 
@@ -2463,6 +2487,85 @@ namespace Chummer
 
 					// Create the Improvement.
 					CreateImprovement(strSelectedValue, objImprovementSource, strSourceName, Improvement.ImprovementType.Text, strUnique);
+				}
+
+				// Select Sense-granting ware (custom entry for things like Improved Sense). Pools eligible entries from
+				// cyberware.xml, bioware.xml, and gear.xml, each filtered by its own category attribute and the shared
+				// senseimprovement flag.
+				if (NodeExists(nodBonus, "selectsenseware"))
+				{
+					XmlNode nodSelectSenseware = nodBonus["selectsenseware"];
+
+					bool blnRequireSenseImprovement = false;
+					if (nodSelectSenseware.Attributes["requiresenseimprovement"] != null)
+						blnRequireSenseImprovement = nodSelectSenseware.Attributes["requiresenseimprovement"].InnerText == "yes";
+
+					// Each source file, paired with the category-list attribute that scopes it and the node path to its items.
+					List<XmlNodeList> lstSourceLists = new List<XmlNodeList>();
+					AddSensewareSource(nodSelectSenseware, "cyberwarecategory", "cyberware.xml", "/chummer/cyberwares/cyberware", lstSourceLists);
+					AddSensewareSource(nodSelectSenseware, "biowarecategory", "bioware.xml", "/chummer/biowares/bioware", lstSourceLists);
+					AddSensewareSource(nodSelectSenseware, "gearcategory", "gear.xml", "/chummer/gears/gear", lstSourceLists);
+
+					List<ListItem> lstSenseware = new List<ListItem>();
+					foreach (XmlNodeList objXmlItemList in lstSourceLists)
+					{
+						foreach (XmlNode objXmlItem in objXmlItemList)
+						{
+							bool blnIsSenseImprovement = (objXmlItem["senseimprovement"]?.InnerText ?? "") == "yes";
+							if (blnRequireSenseImprovement && !blnIsSenseImprovement)
+								continue;
+
+							string strName = objXmlItem["name"].InnerText;
+							if (lstSenseware.Any(x => x.Value == strName))
+								continue;
+
+							ListItem objItem = new ListItem();
+							objItem.Value = strName;
+							objItem.Name = objXmlItem["translate"]?.InnerText ?? strName;
+							lstSenseware.Add(objItem);
+						}
+					}
+					lstSenseware.Sort(new SortListItem().Compare);
+
+					frmSelectItem frmPickSenseware = new frmSelectItem();
+					frmPickSenseware.Description = LanguageManager.Instance.GetString("String_Improvement_SelectSenseCyberware").Replace("{0}", strFriendlyName);
+					frmPickSenseware.GeneralItems = lstSenseware;
+
+					if (_strLimitSelection != "")
+					{
+						frmPickSenseware.ForceItem = _strLimitSelection;
+						frmPickSenseware.Opacity = 0;
+					}
+
+					frmPickSenseware.ShowDialog();
+
+					// Make sure the dialogue window was not canceled.
+					if (frmPickSenseware.DialogResult == DialogResult.Cancel)
+					{
+						Rollback();
+						blnSuccess = false;
+						_strForcedValue = "";
+						_strLimitSelection = "";
+						return false;
+					}
+
+					_strSelectedValue = frmPickSenseware.SelectedItem;
+					if (blnConcatSelectedValue)
+						strSourceName += " (" + _strSelectedValue + ")";
+
+					// Record which item was selected for display and removal purposes.
+					CreateImprovement(_strSelectedValue, objImprovementSource, strSourceName, Improvement.ImprovementType.SelectSenseware, strUnique);
+
+					// Apply the sensory bonus of the selected item, without installing/purchasing it (no Essence/cost/capacity impact).
+					XmlNode objXmlSelectedSenseware = lstSourceLists.SelectMany(x => x.Cast<XmlNode>()).FirstOrDefault(x => x["name"].InnerText == _strSelectedValue);
+					if (objXmlSelectedSenseware != null && objXmlSelectedSenseware["bonus"] != null)
+					{
+						int intSensewareRating = 1;
+						if (_objCharacter.Options.ImprovedSenseFullRating && objXmlSelectedSenseware["rating"] != null)
+							intSensewareRating = Convert.ToInt32(objXmlSelectedSenseware["rating"].InnerText);
+
+						CreateImprovements(objImprovementSource, strSourceName, objXmlSelectedSenseware["bonus"], blnConcatSelectedValue, intSensewareRating, strFriendlyName);
+					}
 				}
 			}
 

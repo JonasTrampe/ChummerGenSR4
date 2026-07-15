@@ -346,6 +346,7 @@ namespace Chummer
 			_objOptions.IgnoreArmorEncumbrance = chkIgnoreArmorEncumbrance.Checked;
 			_objOptions.AlternateArmorEncumbrance = chkAlternateArmorEncumbrance.Checked;
 			_objOptions.AllowCyberwareESSDiscounts = chkAllowCyberwareESSDiscounts.Checked;
+			_objOptions.ImprovedSenseFullRating = chkImprovedSenseFullRating.Checked;
 			_objOptions.ESSLossReducesMaximumOnly = chkESSLossReducesMaximumOnly.Checked;
 			_objOptions.AllowSkillRegrouping = chkAllowSkillRegrouping.Checked;
 			_objOptions.MetatypeCostsKarma = chkMetatypeCostsKarma.Checked;
@@ -1172,6 +1173,16 @@ namespace Chummer
 			{
 			}
 			chkAllowCyberwareESSDiscounts.Checked = blnAllowCyberwareESSDiscounts;
+
+			bool blnImprovedSenseFullRating = false;
+			try
+			{
+				blnImprovedSenseFullRating = _objOptions.ImprovedSenseFullRating;
+			}
+			catch
+			{
+			}
+			chkImprovedSenseFullRating.Checked = blnImprovedSenseFullRating;
 
 			bool blnESSLossReducesMaximumOnly = false;
 			try
