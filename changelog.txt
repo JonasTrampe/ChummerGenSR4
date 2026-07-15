@@ -1,3 +1,11 @@
+Version 0.1.501
+- Reworked the Improved Sense adept power to select a real sense-granting cyberware/bioware/gear item instead of free text
+- Added an Improved Sense Full Rating house rule
+- Removed the dead WCF Omae feature and legacy update checker
+- Moved settings storage off the Windows Registry onto a config file (Mono/Linux support)
+- Added a Mono/Linux build and smoke-test job to CI
+- Various Mono compatibility fixes (expense charts, skill specialization sorting)
+
 Version 0.1.500
 - Updated Help menu links and captions to point to the GitHub Pages documentation
 - Added perception meta skills and missing perception enhancement bonuses
