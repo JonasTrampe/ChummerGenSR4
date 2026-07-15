@@ -17,7 +17,7 @@ public delegate void DiceRollerHandler(Object sender);
 
 namespace Chummer
 {
-    public class TranslationTuple
+    public class TranslationTuple : IComparable, IComparable<TranslationTuple>
     {
         private readonly string _baseName;
         private readonly string _transName;
@@ -36,6 +36,28 @@ namespace Chummer
         public override string ToString()
         {
             return _transName;
+        }
+
+        public int CompareTo(TranslationTuple other)
+        {
+            if (ReferenceEquals(other, null))
+                return 1;
+
+            return string.Compare(_transName, other._transName, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return 1;
+
+            if (obj is TranslationTuple tuple)
+                return CompareTo(tuple);
+
+            if (obj is string text)
+                return string.Compare(_transName, text, StringComparison.CurrentCultureIgnoreCase);
+
+            throw new ArgumentException("Object is not a comparable specialization entry.", nameof(obj));
         }
     }
 

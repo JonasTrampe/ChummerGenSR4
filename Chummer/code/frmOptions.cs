@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
-using Microsoft.Win32;
 
 namespace Chummer
 {
@@ -347,6 +346,7 @@ namespace Chummer
 			_objOptions.IgnoreArmorEncumbrance = chkIgnoreArmorEncumbrance.Checked;
 			_objOptions.AlternateArmorEncumbrance = chkAlternateArmorEncumbrance.Checked;
 			_objOptions.AllowCyberwareESSDiscounts = chkAllowCyberwareESSDiscounts.Checked;
+			_objOptions.ImprovedSenseFullRating = chkImprovedSenseFullRating.Checked;
 			_objOptions.ESSLossReducesMaximumOnly = chkESSLossReducesMaximumOnly.Checked;
 			_objOptions.AllowSkillRegrouping = chkAllowSkillRegrouping.Checked;
 			_objOptions.MetatypeCostsKarma = chkMetatypeCostsKarma.Checked;
@@ -1174,6 +1174,16 @@ namespace Chummer
 			}
 			chkAllowCyberwareESSDiscounts.Checked = blnAllowCyberwareESSDiscounts;
 
+			bool blnImprovedSenseFullRating = false;
+			try
+			{
+				blnImprovedSenseFullRating = _objOptions.ImprovedSenseFullRating;
+			}
+			catch
+			{
+			}
+			chkImprovedSenseFullRating.Checked = blnImprovedSenseFullRating;
+
 			bool blnESSLossReducesMaximumOnly = false;
 			try
 			{
@@ -1718,7 +1728,7 @@ namespace Chummer
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
 			GlobalOptions.Instance.PDFArgumentStyle = cboPDFArgumentStyle.SelectedValue.ToString();
-			RegistryKey objRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer");
+			SettingsRegistryKey objRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer");
 			objRegistry.SetValue("autoupdate", chkAutomaticUpdate.Checked.ToString());
 			objRegistry.SetValue("localisedupdatesonly", chkLocalisedUpdatesOnly.Checked.ToString());
 			objRegistry.SetValue("language", cboLanguage.SelectedValue.ToString());
@@ -1732,7 +1742,7 @@ namespace Chummer
 			objRegistry.SetValue("pdfapppath", txtPDFAppPath.Text);
 
 			// Save the SourcebookInfo.
-			RegistryKey objSourceRegistry = Registry.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");
+			SettingsRegistryKey objSourceRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");
 			foreach (SourcebookInfo objSource in GlobalOptions.Instance.SourcebookInfo)
 				objSourceRegistry.SetValue(objSource.Code, objSource.Path + "|" + objSource.Offset.ToString());
 		}

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-914</version>
+	<version>-915</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -5301,6 +5301,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Allow Cyberware Essence costs to be discounted</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_ImprovedSenseFullRating</key>
+			<text>Improved Sense grants the full Rating of the selected cyberware</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_StrengthAffectsRecoil</key>
 			<text>High Strength affects Weapon Recoil (AR 163)</text>
 		</string>
@@ -6226,32 +6230,20 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Chummer Update</text>
 		</string>
 		<string>
-			<key>Button_Update_DownloadSelectedUpdates</key>
-			<text>&amp;Download Selected Updates</text>
+			<key>Label_Update_CurrentVersion</key>
+			<text>Current Version:</text>
 		</string>
 		<string>
-			<key>Button_Update_SelectAll</key>
-			<text>Select &amp;All</text>
+			<key>Label_Update_LatestVersion</key>
+			<text>Latest Version:</text>
 		</string>
 		<string>
-			<key>Button_Update_RestartChummer</key>
-			<text>Restart Chummer</text>
+			<key>Button_Update_Download</key>
+			<text>&amp;Download</text>
 		</string>
 		<string>
-			<key>Label_Update_OverallProgress</key>
-			<text>Overall Progress:</text>
-		</string>
-		<string>
-			<key>Label_Update_FileProgress</key>
-			<text>File Progress:</text>
-		</string>
-		<string>
-			<key>Label_Update_DownloadComplete</key>
-			<text>Download Complete</text>
-		</string>
-		<string>
-			<key>Message_Update_NoUpdatesSelected</key>
-			<text>No updates selected.</text>
+			<key>Button_Update_Close</key>
+			<text>&amp;Close</text>
 		</string>
 		<string>
 			<key>Message_Update_CannotConnect</key>
@@ -6591,6 +6583,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		<string>
 			<key>String_Improvement_SelectText</key>
 			<text>Enter a value for {0}.</text>
+		</string>
+		<string>
+			<key>String_Improvement_SelectSenseCyberware</key>
+			<text>Select a sense enhancement for {0}.</text>
 		</string>
 		<!-- CharacterOptions Messages -->
 		<string>

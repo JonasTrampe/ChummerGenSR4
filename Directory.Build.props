@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <!-- Works around MSB3823 ("GenerateResourceUsePreserializedResources must be set to true")
+             thrown by Rider's bundled MSBuild when building this solution's mix of an old-style
+             .NET Framework 4.8 project (with many .resx translation files) and newer SDK-style
+             projects. Safe no-op for string resources; only affects binary resx handling. -->
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    </PropertyGroup>
+</Project>

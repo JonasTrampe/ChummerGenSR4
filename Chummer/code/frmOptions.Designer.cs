@@ -272,6 +272,7 @@
 			this.chkExceedNegativeQualities = new System.Windows.Forms.CheckBox();
 			this.chkExceedPositiveQualities = new System.Windows.Forms.CheckBox();
 			this.chkAllowCyberwareESSDiscounts = new System.Windows.Forms.CheckBox();
+			this.chkImprovedSenseFullRating = new System.Windows.Forms.CheckBox();
 			this.chkAlternateArmorEncumbrance = new System.Windows.Forms.CheckBox();
 			this.chkIgnoreArmorEncumbrance = new System.Windows.Forms.CheckBox();
 			this.nudFreeContactsFlatNumber = new System.Windows.Forms.NumericUpDown();
@@ -2760,6 +2761,7 @@
 			this.tabHouseRules.Controls.Add(this.chkExceedNegativeQualities);
 			this.tabHouseRules.Controls.Add(this.chkExceedPositiveQualities);
 			this.tabHouseRules.Controls.Add(this.chkAllowCyberwareESSDiscounts);
+			this.tabHouseRules.Controls.Add(this.chkImprovedSenseFullRating);
 			this.tabHouseRules.Controls.Add(this.chkAlternateArmorEncumbrance);
 			this.tabHouseRules.Controls.Add(this.chkIgnoreArmorEncumbrance);
 			this.tabHouseRules.Controls.Add(this.nudFreeContactsFlatNumber);
@@ -3033,7 +3035,18 @@
 			this.chkAllowCyberwareESSDiscounts.Tag = "Checkbox_Options_AllowCyberwareESSDiscounts";
 			this.chkAllowCyberwareESSDiscounts.Text = "Allow Cyberware Essence costs to be discounted";
 			this.chkAllowCyberwareESSDiscounts.UseVisualStyleBackColor = true;
-			// 
+			//
+			// chkImprovedSenseFullRating
+			//
+			this.chkImprovedSenseFullRating.AutoSize = true;
+			this.chkImprovedSenseFullRating.Location = new System.Drawing.Point(8, 627);
+			this.chkImprovedSenseFullRating.Name = "chkImprovedSenseFullRating";
+			this.chkImprovedSenseFullRating.Size = new System.Drawing.Size(258, 17);
+			this.chkImprovedSenseFullRating.TabIndex = 12;
+			this.chkImprovedSenseFullRating.Tag = "Checkbox_Options_ImprovedSenseFullRating";
+			this.chkImprovedSenseFullRating.Text = "Improved Sense grants the full Rating of the selected cyberware";
+			this.chkImprovedSenseFullRating.UseVisualStyleBackColor = true;
+			//
 			// chkAlternateArmorEncumbrance
 			// 
 			this.chkAlternateArmorEncumbrance.AutoSize = true;
@@ -3351,6 +3364,7 @@
 		private System.Windows.Forms.ComboBox cboLimbCount;
 		private System.Windows.Forms.Label lblLimbCount;
 		private System.Windows.Forms.CheckBox chkAllowCyberwareESSDiscounts;
+		private System.Windows.Forms.CheckBox chkImprovedSenseFullRating;
 		private System.Windows.Forms.Button cmdVerifyData;
 		private System.Windows.Forms.CheckBox chkStrengthAffectsRecoil;
 		private System.Windows.Forms.CheckBox chkArmorDegradation;

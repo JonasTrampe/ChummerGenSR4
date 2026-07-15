@@ -157,8 +157,21 @@
 		</xs:element>
 		<xs:element name="selectspell" minOccurs="0" maxOccurs="1" />
 		<xs:element name="selectsprite" minOccurs="0" maxOccurs="1" />
-		<xs:element name="selecttext" minOccurs="0" maxOccurs="1" />
-		<xs:element name="selectweapon" type="xs:string" minOccurs="0" maxOccurs="1" />
+		  <xs:element name="selecttext" minOccurs="0" maxOccurs="1" />
+		  <xs:element name="selectweapon" type="xs:string" minOccurs="0" maxOccurs="1" />
+		  <xs:element name="selectsenseware" minOccurs="0" maxOccurs="1">
+		  <xs:complexType>
+			<xs:sequence>
+			  <xs:element name="max" type="xs:string" minOccurs="0" maxOccurs="1" />
+			  <xs:element name="val" type="xs:string" minOccurs="0" maxOccurs="1" />
+			  <xs:element name="applytorating" type="xs:string" minOccurs="0" maxOccurs="1" />
+			</xs:sequence>
+			<xs:attribute name="cyberwarecategory" type="xs:string" use="optional" />
+			<xs:attribute name="biowarecategory" type="xs:string" use="optional" />
+			<xs:attribute name="gearcategory" type="xs:string" use="optional" />
+			<xs:attribute name="requiresenseimprovement" type="xs:string" use="optional" />
+		  </xs:complexType>
+		</xs:element>
 		<xs:element name="sensitivesystem" minOccurs="0" maxOccurs="1" />
 		<xs:element name="skillarticulation" minOccurs="0" maxOccurs="1">
 		  <xs:complexType>

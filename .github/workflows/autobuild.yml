@@ -98,8 +98,46 @@ jobs:
           name: "ChummerGenSR4-${{ steps.version.outputs.version }}"
           path: "ChummerGenSR4-${{ steps.version.outputs.version }}.zip"
 
+  build-mono:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Install Mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-complete libgdiplus xvfb
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v4
+
+      - name: Restore NuGet packages
+        run: nuget restore ChummerGenSR4.sln
+
+      - name: Build the solution under Mono
+        run: msbuild ChummerGenSR4.sln /p:Configuration=Release
+
+      - name: Headless startup smoke test
+        # Catches crash-on-startup regressions under Mono. Not a substitute for real UI testing,
+        # but it's the cheapest automated check we have without a full UI test framework.
+        run: |
+          export LANG=en_US.UTF-8
+          xvfb-run --auto-servernum mono bin/ChummerGenSR4.exe &
+          APP_PID=$!
+          sleep 10
+          if ! kill -0 $APP_PID 2>/dev/null; then
+            echo "ChummerGenSR4 exited within 10s of startup under Mono - treating as a crash."
+            exit 1
+          fi
+          kill $APP_PID
+
   release:
-    needs: build
+    needs: [build, build-mono]
     runs-on: ubuntu-latest
 
     steps:

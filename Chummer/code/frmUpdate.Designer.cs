@@ -1,4 +1,4 @@
-﻿namespace Chummer
+namespace Chummer
 {
 	partial class frmUpdate
 	{
@@ -28,143 +28,81 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.cmdSelectAll = new System.Windows.Forms.Button();
-			this.webNotes = new System.Windows.Forms.WebBrowser();
-			this.pgbOverallProgress = new System.Windows.Forms.ProgressBar();
-			this.cmdUpdate = new System.Windows.Forms.Button();
-			this.treeUpdate = new System.Windows.Forms.TreeView();
-			this.pgbFileProgress = new System.Windows.Forms.ProgressBar();
-			this.lblOverallProgress = new System.Windows.Forms.Label();
-			this.lblFileProgress = new System.Windows.Forms.Label();
-			this.cmdRestart = new System.Windows.Forms.Button();
-			this.lblDone = new System.Windows.Forms.Label();
+			this.lblCurrentVersion = new System.Windows.Forms.Label();
+			this.lblLatestVersion = new System.Windows.Forms.Label();
+			this.txtReleaseNotes = new System.Windows.Forms.TextBox();
+			this.cmdDownload = new System.Windows.Forms.Button();
+			this.cmdClose = new System.Windows.Forms.Button();
 			this.SuspendLayout();
-			// 
-			// cmdSelectAll
-			// 
-			this.cmdSelectAll.AutoSize = true;
-			this.cmdSelectAll.Location = new System.Drawing.Point(493, 13);
-			this.cmdSelectAll.Name = "cmdSelectAll";
-			this.cmdSelectAll.Size = new System.Drawing.Size(75, 23);
-			this.cmdSelectAll.TabIndex = 2;
-			this.cmdSelectAll.Tag = "Button_Update_SelectAll";
-			this.cmdSelectAll.Text = "Select &All";
-			this.cmdSelectAll.UseVisualStyleBackColor = true;
-			this.cmdSelectAll.Click += new System.EventHandler(this.cmdSelectAll_Click);
-			// 
-			// webNotes
-			// 
-			this.webNotes.AllowWebBrowserDrop = false;
-			this.webNotes.IsWebBrowserContextMenuEnabled = false;
-			this.webNotes.Location = new System.Drawing.Point(297, 100);
-			this.webNotes.MinimumSize = new System.Drawing.Size(20, 20);
-			this.webNotes.Name = "webNotes";
-			this.webNotes.Size = new System.Drawing.Size(630, 460);
-			this.webNotes.TabIndex = 7;
-			this.webNotes.WebBrowserShortcutsEnabled = false;
-			// 
-			// pgbOverallProgress
-			// 
-			this.pgbOverallProgress.Location = new System.Drawing.Point(389, 42);
-			this.pgbOverallProgress.Name = "pgbOverallProgress";
-			this.pgbOverallProgress.Size = new System.Drawing.Size(538, 23);
-			this.pgbOverallProgress.TabIndex = 4;
-			// 
-			// cmdUpdate
-			// 
-			this.cmdUpdate.AutoSize = true;
-			this.cmdUpdate.Location = new System.Drawing.Point(296, 12);
-			this.cmdUpdate.Name = "cmdUpdate";
-			this.cmdUpdate.Size = new System.Drawing.Size(160, 23);
-			this.cmdUpdate.TabIndex = 1;
-			this.cmdUpdate.Tag = "Button_Update_DownloadSelectedUpdates";
-			this.cmdUpdate.Text = "&Download Selected Updates";
-			this.cmdUpdate.UseVisualStyleBackColor = true;
-			this.cmdUpdate.Click += new System.EventHandler(this.cmdUpdate_Click);
-			// 
-			// treeUpdate
-			// 
-			this.treeUpdate.CheckBoxes = true;
-			this.treeUpdate.HotTracking = true;
-			this.treeUpdate.Location = new System.Drawing.Point(12, 12);
-			this.treeUpdate.Name = "treeUpdate";
-			this.treeUpdate.Size = new System.Drawing.Size(278, 548);
-			this.treeUpdate.TabIndex = 0;
-			this.treeUpdate.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeUpdate_AfterCheck);
-			this.treeUpdate.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeUpdate_AfterSelect);
-			// 
-			// pgbFileProgress
-			// 
-			this.pgbFileProgress.Location = new System.Drawing.Point(389, 71);
-			this.pgbFileProgress.Name = "pgbFileProgress";
-			this.pgbFileProgress.Size = new System.Drawing.Size(538, 23);
-			this.pgbFileProgress.TabIndex = 6;
-			// 
-			// lblOverallProgress
-			// 
-			this.lblOverallProgress.AutoSize = true;
-			this.lblOverallProgress.Location = new System.Drawing.Point(296, 46);
-			this.lblOverallProgress.Name = "lblOverallProgress";
-			this.lblOverallProgress.Size = new System.Drawing.Size(87, 13);
-			this.lblOverallProgress.TabIndex = 3;
-			this.lblOverallProgress.Tag = "Label_Update_OverallProgress";
-			this.lblOverallProgress.Text = "Overall Progress:";
-			// 
-			// lblFileProgress
-			// 
-			this.lblFileProgress.AutoSize = true;
-			this.lblFileProgress.Location = new System.Drawing.Point(296, 75);
-			this.lblFileProgress.Name = "lblFileProgress";
-			this.lblFileProgress.Size = new System.Drawing.Size(70, 13);
-			this.lblFileProgress.TabIndex = 5;
-			this.lblFileProgress.Tag = "Label_Update_FileProgress";
-			this.lblFileProgress.Text = "File Progress:";
-			// 
-			// cmdRestart
-			// 
-			this.cmdRestart.AutoSize = true;
-			this.cmdRestart.Location = new System.Drawing.Point(826, 12);
-			this.cmdRestart.Name = "cmdRestart";
-			this.cmdRestart.Size = new System.Drawing.Size(101, 23);
-			this.cmdRestart.TabIndex = 8;
-			this.cmdRestart.Tag = "Button_Update_RestartChummer";
-			this.cmdRestart.Text = "Restart Chummer";
-			this.cmdRestart.UseVisualStyleBackColor = true;
-			this.cmdRestart.Visible = false;
-			this.cmdRestart.Click += new System.EventHandler(this.cmdRestart_Click);
-			// 
-			// lblDone
-			// 
-			this.lblDone.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblDone.Location = new System.Drawing.Point(389, 42);
-			this.lblDone.Name = "lblDone";
-			this.lblDone.Size = new System.Drawing.Size(538, 52);
-			this.lblDone.TabIndex = 9;
-			this.lblDone.Tag = "Label_Update_DownloadComplete";
-			this.lblDone.Text = "Download Complete";
-			this.lblDone.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			this.lblDone.Visible = false;
-			// 
+			//
+			// lblCurrentVersion
+			//
+			this.lblCurrentVersion.AutoSize = true;
+			this.lblCurrentVersion.Location = new System.Drawing.Point(12, 15);
+			this.lblCurrentVersion.Name = "lblCurrentVersion";
+			this.lblCurrentVersion.Size = new System.Drawing.Size(120, 13);
+			this.lblCurrentVersion.TabIndex = 0;
+			this.lblCurrentVersion.Tag = "Label_Update_CurrentVersion";
+			this.lblCurrentVersion.Text = "Current Version:";
+			//
+			// lblLatestVersion
+			//
+			this.lblLatestVersion.AutoSize = true;
+			this.lblLatestVersion.Location = new System.Drawing.Point(12, 35);
+			this.lblLatestVersion.Name = "lblLatestVersion";
+			this.lblLatestVersion.Size = new System.Drawing.Size(120, 13);
+			this.lblLatestVersion.TabIndex = 1;
+			this.lblLatestVersion.Tag = "Label_Update_LatestVersion";
+			this.lblLatestVersion.Text = "Latest Version:";
+			//
+			// txtReleaseNotes
+			//
+			this.txtReleaseNotes.Location = new System.Drawing.Point(12, 60);
+			this.txtReleaseNotes.Multiline = true;
+			this.txtReleaseNotes.Name = "txtReleaseNotes";
+			this.txtReleaseNotes.ReadOnly = true;
+			this.txtReleaseNotes.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.txtReleaseNotes.Size = new System.Drawing.Size(560, 300);
+			this.txtReleaseNotes.TabIndex = 2;
+			//
+			// cmdDownload
+			//
+			this.cmdDownload.AutoSize = true;
+			this.cmdDownload.Location = new System.Drawing.Point(391, 366);
+			this.cmdDownload.Name = "cmdDownload";
+			this.cmdDownload.Size = new System.Drawing.Size(90, 23);
+			this.cmdDownload.TabIndex = 3;
+			this.cmdDownload.Tag = "Button_Update_Download";
+			this.cmdDownload.Text = "Download";
+			this.cmdDownload.UseVisualStyleBackColor = true;
+			this.cmdDownload.Click += new System.EventHandler(this.cmdDownload_Click);
+			//
+			// cmdClose
+			//
+			this.cmdClose.AutoSize = true;
+			this.cmdClose.Location = new System.Drawing.Point(487, 366);
+			this.cmdClose.Name = "cmdClose";
+			this.cmdClose.Size = new System.Drawing.Size(85, 23);
+			this.cmdClose.TabIndex = 4;
+			this.cmdClose.Tag = "Button_Update_Close";
+			this.cmdClose.Text = "Close";
+			this.cmdClose.UseVisualStyleBackColor = true;
+			this.cmdClose.Click += new System.EventHandler(this.cmdClose_Click);
+			//
 			// frmUpdate
-			// 
+			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(939, 572);
-			this.Controls.Add(this.cmdRestart);
-			this.Controls.Add(this.lblFileProgress);
-			this.Controls.Add(this.lblOverallProgress);
-			this.Controls.Add(this.pgbFileProgress);
-			this.Controls.Add(this.cmdSelectAll);
-			this.Controls.Add(this.webNotes);
-			this.Controls.Add(this.pgbOverallProgress);
-			this.Controls.Add(this.cmdUpdate);
-			this.Controls.Add(this.treeUpdate);
-			this.Controls.Add(this.lblDone);
+			this.ClientSize = new System.Drawing.Size(584, 401);
+			this.Controls.Add(this.cmdClose);
+			this.Controls.Add(this.cmdDownload);
+			this.Controls.Add(this.txtReleaseNotes);
+			this.Controls.Add(this.lblLatestVersion);
+			this.Controls.Add(this.lblCurrentVersion);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "frmUpdate";
-			this.Opacity = 0D;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Tag = "Title_Update";
 			this.Text = "Chummer Update";
@@ -176,15 +114,10 @@
 
 		#endregion
 
-		internal System.Windows.Forms.Button cmdSelectAll;
-		internal System.Windows.Forms.WebBrowser webNotes;
-		internal System.Windows.Forms.ProgressBar pgbOverallProgress;
-		internal System.Windows.Forms.Button cmdUpdate;
-		internal System.Windows.Forms.TreeView treeUpdate;
-		internal System.Windows.Forms.ProgressBar pgbFileProgress;
-		private System.Windows.Forms.Label lblOverallProgress;
-		private System.Windows.Forms.Label lblFileProgress;
-		internal System.Windows.Forms.Button cmdRestart;
-		private System.Windows.Forms.Label lblDone;
+		private System.Windows.Forms.Label lblCurrentVersion;
+		private System.Windows.Forms.Label lblLatestVersion;
+		internal System.Windows.Forms.TextBox txtReleaseNotes;
+		internal System.Windows.Forms.Button cmdDownload;
+		internal System.Windows.Forms.Button cmdClose;
 	}
 }

@@ -332,6 +332,7 @@
 					</xs:element>
 					<xs:element ref="bonus" minOccurs="0" maxOccurs="1" />
 					<xs:element name="forcegrade" minOccurs="0" maxOccurs="1" />
+					<xs:element name="senseimprovement" type="xs:string" minOccurs="0" maxOccurs="1" />
                     <xs:element name="subsystems" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>

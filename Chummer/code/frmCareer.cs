@@ -36,6 +36,7 @@ namespace Chummer
 		private ToolStripMenuItem _tsCredstickDeposit;
 		private ToolStripMenuItem _tsCredstickWithdraw;
 		private ToolStripSeparator _tsCredstickSeparator;
+		private bool _blnExpenseChartsAvailable = true;
 
 		private readonly ListViewColumnSorter _lvwKarmaColumnSorter;
 		private readonly ListViewColumnSorter _lvwNuyenColumnSorter;
@@ -126,6 +127,7 @@ namespace Chummer
 		private void frmCareer_Load(object sender, EventArgs e)
 		{
 			_blnLoading = true;
+			ConfigureExpenseChartSupport();
 
 			// Remove the Magician, Adept, and Technomancer tabs since they are not in use until the appropriate Quality is selected.
 			if (!_objCharacter.MagicianEnabled)
@@ -20940,10 +20942,17 @@ namespace Chummer
 		private void splitKarmaNuyen_Panel1_Resize(object sender, EventArgs e)
 		{
 			lstKarma.Width = splitKarmaNuyen.Panel1.Width;
-			chtKarma.Width = splitKarmaNuyen.Panel1.Width;
-			chtKarma.Height = 210;
-			chtKarma.Top = splitKarmaNuyen.Panel1.Height - 6 - chtKarma.Height;
-			lstKarma.Height = chtKarma.Top - 6 - lstKarma.Top;
+			if (_blnExpenseChartsAvailable)
+			{
+				chtKarma.Width = splitKarmaNuyen.Panel1.Width;
+				chtKarma.Height = 210;
+				chtKarma.Top = splitKarmaNuyen.Panel1.Height - 6 - chtKarma.Height;
+				lstKarma.Height = chtKarma.Top - 6 - lstKarma.Top;
+			}
+			else
+			{
+				lstKarma.Height = splitKarmaNuyen.Panel1.Height - 6 - lstKarma.Top;
+			}
 			try
 			{
 				if (lstKarma.Width > 409)
@@ -20959,10 +20968,17 @@ namespace Chummer
 		private void splitKarmaNuyen_Panel2_Resize(object sender, EventArgs e)
 		{
 			lstNuyen.Width = splitKarmaNuyen.Panel2.Width;
-			chtNuyen.Width = splitKarmaNuyen.Panel2.Width;
-			chtNuyen.Height = 210;
-			chtNuyen.Top = splitKarmaNuyen.Panel2.Height - 6 - chtNuyen.Height;
-			lstNuyen.Height = chtNuyen.Top - 6 - lstNuyen.Top;
+			if (_blnExpenseChartsAvailable)
+			{
+				chtNuyen.Width = splitKarmaNuyen.Panel2.Width;
+				chtNuyen.Height = 210;
+				chtNuyen.Top = splitKarmaNuyen.Panel2.Height - 6 - chtNuyen.Height;
+				lstNuyen.Height = chtNuyen.Top - 6 - lstNuyen.Top;
+			}
+			else
+			{
+				lstNuyen.Height = splitKarmaNuyen.Panel2.Height - 6 - lstNuyen.Top;
+			}
 			try
 			{
 				if (lstNuyen.Width > 409)
@@ -25815,64 +25831,92 @@ namespace Chummer
 			lstKarma.Sort();
 			lstNuyen.Sort();
 
+			if (!_blnExpenseChartsAvailable)
+				return;
+
 			// Charting test for Expenses.
-			chtKarma.Series.Clear();
-			chtNuyen.Series.Clear();
-
-			// Setup the series used for charts.
-			Series objKarmaSeries = new Series
+			try
 			{
-				Name = "Series1",
-				Color = System.Drawing.Color.Blue,
-				IsVisibleInLegend = false,
-				IsXValueIndexed = true,
-				ChartType = SeriesChartType.Area
-			};
-			Series objNuyenSeries = new Series
-			{
-				Name = "Series1",
-				Color = System.Drawing.Color.Green,
-				IsVisibleInLegend = false,
-				IsXValueIndexed = true,
-				ChartType = SeriesChartType.Area
-			};
+				chtKarma.Series.Clear();
+				chtNuyen.Series.Clear();
 
-			// Configure the Karma chart.
-			chtKarma.Series.Add(objKarmaSeries);
-			chtKarma.ChartAreas[0].AxisX.LabelStyle.Enabled = false;
-			chtKarma.ChartAreas[0].AxisY.Title = "Karma Remaining";
-			chtKarma.ChartAreas[0].AxisX.Minimum = 1;
-
-			// Configure the Nuyen chart.
-			chtNuyen.Series.Add(objNuyenSeries);
-			chtNuyen.ChartAreas[0].AxisX.LabelStyle.Enabled = false;
-			chtNuyen.ChartAreas[0].AxisY.Title = "Nuyen Remaining";
-			chtNuyen.ChartAreas[0].AxisX.Minimum = 1;
-
-			int intKarmaX = 0;
-			int intNuyenX = 0;
-			int intKarmaValue = 0;
-			int intNuyenValue = 0;
-			foreach (ExpenseLogEntry objExpense in _objCharacter.ExpenseEntries)
-			{
-				if (objExpense.Type == ExpenseType.Karma)
+				// Setup the series used for charts.
+				Series objKarmaSeries = new Series
 				{
-					intKarmaX++;
-					intKarmaValue += objExpense.Amount;
-					objKarmaSeries.Points.AddXY(intKarmaX, intKarmaValue);
-				}
-				else
+					Name = "Series1",
+					Color = System.Drawing.Color.Blue,
+					IsVisibleInLegend = false,
+					IsXValueIndexed = true,
+					ChartType = SeriesChartType.Area
+				};
+				Series objNuyenSeries = new Series
 				{
-					intNuyenX++;
-					intNuyenValue += objExpense.Amount;
-					objNuyenSeries.Points.AddXY(intNuyenX, intNuyenValue);
+					Name = "Series1",
+					Color = System.Drawing.Color.Green,
+					IsVisibleInLegend = false,
+					IsXValueIndexed = true,
+					ChartType = SeriesChartType.Area
+				};
+
+				// Configure the Karma chart.
+				chtKarma.Series.Add(objKarmaSeries);
+				chtKarma.ChartAreas[0].AxisX.LabelStyle.Enabled = false;
+				chtKarma.ChartAreas[0].AxisY.Title = "Karma Remaining";
+				chtKarma.ChartAreas[0].AxisX.Minimum = 1;
+
+				// Configure the Nuyen chart.
+				chtNuyen.Series.Add(objNuyenSeries);
+				chtNuyen.ChartAreas[0].AxisX.LabelStyle.Enabled = false;
+				chtNuyen.ChartAreas[0].AxisY.Title = "Nuyen Remaining";
+				chtNuyen.ChartAreas[0].AxisX.Minimum = 1;
+
+				int intKarmaX = 0;
+				int intNuyenX = 0;
+				int intKarmaValue = 0;
+				int intNuyenValue = 0;
+				foreach (ExpenseLogEntry objExpense in _objCharacter.ExpenseEntries)
+				{
+					if (objExpense.Type == ExpenseType.Karma)
+					{
+						intKarmaX++;
+						intKarmaValue += objExpense.Amount;
+						objKarmaSeries.Points.AddXY(intKarmaX, intKarmaValue);
+					}
+					else
+					{
+						intNuyenX++;
+						intNuyenValue += objExpense.Amount;
+						objNuyenSeries.Points.AddXY(intNuyenX, intNuyenValue);
+					}
 				}
+
+				chtKarma.ChartAreas[0].AxisX.Maximum = intKarmaX;
+				chtNuyen.ChartAreas[0].AxisX.Maximum = intNuyenX;
+				chtKarma.Invalidate();
+				chtNuyen.Invalidate();
 			}
-			chtKarma.ChartAreas[0].AxisX.Maximum = intKarmaX;
-			chtNuyen.ChartAreas[0].AxisX.Maximum = intNuyenX;
-			//chtKarma.ChartAreas[0].AxisX.MaximumAutoSize = 100;
-			chtKarma.Invalidate();
-			chtNuyen.Invalidate();
+			catch
+			{
+				DisableExpenseCharts();
+			}
+		}
+
+		private void ConfigureExpenseChartSupport()
+		{
+			if (RuntimeInfo.IsMono)
+				DisableExpenseCharts();
+		}
+
+		private void DisableExpenseCharts()
+		{
+			if (!_blnExpenseChartsAvailable)
+				return;
+
+			_blnExpenseChartsAvailable = false;
+			chtKarma.Visible = false;
+			chtNuyen.Visible = false;
+			splitKarmaNuyen_Panel1_Resize(this, EventArgs.Empty);
+			splitKarmaNuyen_Panel2_Resize(this, EventArgs.Empty);
 		}
 
 		/// <summary>

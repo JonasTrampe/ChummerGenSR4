@@ -322,6 +322,7 @@
 					<xs:element name="cost" type="xs:string" minOccurs="1" maxOccurs="1" />
 					<xs:element ref="bonus" minOccurs="0" maxOccurs="1" />
 					<xs:element name="forcegrade" minOccurs="0" maxOccurs="1" />
+					<xs:element name="senseimprovement" type="xs:string" minOccurs="0" maxOccurs="1" />
                     <xs:element name="source" type="xs:string" minOccurs="1" maxOccurs="1" />
                     <xs:element name="page" type="xs:string" minOccurs="1" maxOccurs="1" />
                   </xs:sequence>
