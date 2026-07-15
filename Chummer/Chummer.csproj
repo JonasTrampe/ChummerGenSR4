@@ -219,7 +219,7 @@
     <Compile Include="code\frmSelectAdvancedLifestyle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="code\frmSelectAdvancedLifestyle.designer.cs">
+    <Compile Include="code\frmSelectAdvancedLifestyle.Designer.cs">
       <DependentUpon>frmSelectAdvancedLifestyle.cs</DependentUpon>
     </Compile>
     <Compile Include="code\frmSelectArmorMod.cs">
@@ -1486,11 +1486,21 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>echo "Postbuild Step: Copying datafiles to output folder:"
-xcopy /E /I /Y "$(ProjectDir)data" "$(TargetDir)"
-copy "$(SolutionDir)changelog.txt" "$(TargetDir)"</PostBuildEvent>
-  </PropertyGroup>
+  <!-- Cross-platform replacement for the old xcopy/copy-based PostBuildEvent, which only worked
+       under Windows cmd.exe and broke the Mono/Linux build (no xcopy/copy there). MSBuild's Copy
+       task works identically on Windows MSBuild and Mono's xbuild. -->
+  <Target Name="CopyDataFilesAfterBuild" AfterTargets="Build">
+    <ItemGroup>
+      <DataFiles Include="$(ProjectDir)data\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DataFiles)"
+          DestinationFiles="@(DataFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(SolutionDir)changelog.txt"
+          DestinationFolder="$(TargetDir)"
+          Condition="Exists('$(SolutionDir)changelog.txt')"
+          SkipUnchangedFiles="true" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

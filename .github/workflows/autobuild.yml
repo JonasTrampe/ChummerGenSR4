@@ -120,7 +120,13 @@ jobs:
         run: nuget restore ChummerGenSR4.sln
 
       - name: Build the solution under Mono
-        run: msbuild ChummerGenSR4.sln /p:Configuration=Release
+        run: |
+          if command -v msbuild >/dev/null 2>&1; then
+            msbuild ChummerGenSR4.sln /p:Configuration=Release
+          else
+            echo "msbuild not found on PATH, falling back to xbuild"
+            xbuild ChummerGenSR4.sln /p:Configuration=Release
+          fi
 
       - name: Headless startup smoke test
         # Catches crash-on-startup regressions under Mono. Not a substitute for real UI testing,
@@ -136,8 +142,47 @@ jobs:
           fi
           kill $APP_PID
 
+  validate-xml:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+
+      - name: Install libxml2 tools
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      - name: Validate all data/lang XML files are well-formed
+        # Mandatory: catches broken tags, encoding issues, and other malformed-XML mistakes.
+        shell: bash
+        run: |
+          status=0
+          for xml in Chummer/data/data/*.xml Chummer/data/lang/*.xml; do
+            xmllint --noout "$xml" || status=1
+          done
+          exit $status
+
+      - name: Validate data XML files against their XSD schemas (informational)
+        # Not mandatory: several data files predate strict schema conformance and don't fully
+        # validate yet (tracked separately). This step surfaces schema drift in the log without
+        # blocking builds/PRs until that pre-existing drift is cleaned up.
+        continue-on-error: true
+        shell: bash
+        run: |
+          status=0
+          cd Chummer/data/data
+          for xml in *.xml; do
+            base="${xml%.xml}"
+            xsd="$base.xsd"
+            if [ -f "$xsd" ]; then
+              echo "Validating $xml against $xsd"
+              xmllint --noout --schema "$xsd" "$xml" || status=1
+            fi
+          done
+          exit $status
+
   release:
-    needs: [build, build-mono]
+    needs: [build, build-mono, validate-xml]
     runs-on: ubuntu-latest
 
     steps:
