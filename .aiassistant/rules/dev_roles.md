@@ -13,11 +13,12 @@ The roles are:
   - only allowed to edit the planning document, everything else is read-only
   - surveys the project code to gather all needed information to add the feature
   - must ask the user for clarifications and help if some parts are unclear
-  - update the planning document accordingöy
+  - update the planning document accordingly
+  - writes a design document for the developer to follow
   - might use several agents for survey
 - developer
   - is allowed to write other files
-  - reads the planning document and builds the feature
+  - reads the planning document and the design document and builds the feature
   - asks the user if some problems appear
   - makes commits regularly to make sure the process is captured
 - debugger
