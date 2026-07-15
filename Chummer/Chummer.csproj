@@ -219,7 +219,7 @@
     <Compile Include="code\frmSelectAdvancedLifestyle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="code\frmSelectAdvancedLifestyle.designer.cs">
+    <Compile Include="code\frmSelectAdvancedLifestyle.Designer.cs">
       <DependentUpon>frmSelectAdvancedLifestyle.cs</DependentUpon>
     </Compile>
     <Compile Include="code\frmSelectArmorMod.cs">
