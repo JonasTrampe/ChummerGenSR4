@@ -29,7 +29,7 @@ namespace Chummer
 		private const string ClientId = "chummer-desktop-TODO";
 		private const string AuthorizationUrl = "https://accounts.runnerspoint.example/oauth/authorize";
 		private const string TokenUrl = "https://accounts.runnerspoint.example/oauth/token";
-		private const string Scopes = "documents:read documents:write";
+		private const string Scopes = "documents:read documents:write shared_documents:read shared_documents:write";
 
 		private static string TokenFilePath
 		{

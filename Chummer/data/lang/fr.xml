@@ -633,6 +633,18 @@
 			<text>Archiver la sélection</text>
 		</string>
 		<string>
+			<key>Button_Cloud_PushShared</key>
+			<text>Envoyer la mise à jour de la sélection</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_MyDocuments</key>
+			<text>Mes documents</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_SharedWithMe</key>
+			<text>Partagés avec moi</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>Non connecté. Cliquez sur Connexion pour lier votre compte RunnersPoint.</text>
 		</string>

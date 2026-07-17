@@ -639,6 +639,18 @@
 			<text>選択項目をアーカイブ</text>
 		</string>
 		<string>
+			<key>Button_Cloud_PushShared</key>
+			<text>選択項目に更新をプッシュ</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_MyDocuments</key>
+			<text>マイドキュメント</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_SharedWithMe</key>
+			<text>共有されたドキュメント</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>ログインしていません。RunnersPointアカウントに接続するには「ログイン」をクリックしてください。</text>
 		</string>

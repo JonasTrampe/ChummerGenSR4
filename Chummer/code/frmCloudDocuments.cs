@@ -7,9 +7,10 @@ namespace Chummer
 {
 	/// <summary>
 	/// Personal cloud storage/sync against the RunnersPoint Character Document Storage API. Replaces
-	/// the old Omae online-sharing feature - sharing/discovery of other users' content is explicitly
-	/// out of scope here (see docs/api/open-questions-character-document-storage-v1.md upstream), this
-	/// is purely "back up and recover my own characters."
+	/// the old Omae online-sharing feature. Covers two surfaces: the user's own documents
+	/// (create/push/download/archive), and documents explicitly shared with the user by someone else
+	/// (browse/download, and push an update if the grant is read-write) - there is no public
+	/// marketplace/discovery here, that lives on the RunnersPoint website.
 	/// </summary>
 	public partial class frmCloudDocuments : Form
 	{
@@ -18,6 +19,8 @@ namespace Chummer
 		private readonly Character _objActiveCharacter;
 		private string _strGameProfileId = "";
 		private string _strGameProfileFormat = "";
+
+		private bool SharedMode => rdoSharedWithMe.Checked;
 
 		public frmCloudDocuments(Character objActiveCharacter)
 		{
@@ -30,6 +33,7 @@ namespace Chummer
 		{
 			_objApiClient = new RunnersPointApiClient(_objAuth);
 			cmdPushCurrent.Enabled = _objActiveCharacter != null;
+			UpdateSelectionButtons();
 
 			if (!_objAuth.HasStoredLogin())
 			{
@@ -61,6 +65,18 @@ namespace Chummer
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotLoggedIn"));
 		}
 
+		private async void rdoDocumentMode_CheckedChanged(object sender, EventArgs e)
+		{
+			// CheckedChanged fires for both the radio button losing and gaining the check - only react once.
+			if (sender is RadioButton radio && !radio.Checked)
+				return;
+
+			cmdPushCurrent.Enabled = !SharedMode && _objActiveCharacter != null;
+			cmdArchive.Visible = !SharedMode;
+			cmdPushShared.Visible = SharedMode;
+			await RefreshAsync();
+		}
+
 		private async System.Threading.Tasks.Task RefreshAsync()
 		{
 			try
@@ -85,29 +101,51 @@ namespace Chummer
 
 				lstDocuments.Items.Clear();
 				string strCursor = null;
-				do
+				if (SharedMode)
 				{
-					RunnersPointDocumentPage objPage = await _objApiClient.ListDocumentsAsync(_strGameProfileId, strCursor);
-					foreach (RunnersPointDocument objDocument in objPage.Items)
+					do
 					{
-						ListViewItem objItem = new ListViewItem(new[]
-						{
-							string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName,
-							objDocument.ValidationState,
-							objDocument.UpdatedAt.ToString("g"),
-						});
-						objItem.Tag = objDocument;
-						lstDocuments.Items.Add(objItem);
-					}
-					strCursor = objPage.NextCursor;
-				} while (!string.IsNullOrEmpty(strCursor));
+						RunnersPointSharedDocumentPage objPage = await _objApiClient.ListSharedDocumentsAsync(_strGameProfileId, strCursor);
+						foreach (RunnersPointSharedDocument objDocument in objPage.Items)
+							lstDocuments.Items.Add(BuildListItem(objDocument));
+						strCursor = objPage.NextCursor;
+					} while (!string.IsNullOrEmpty(strCursor));
+				}
+				else
+				{
+					do
+					{
+						RunnersPointDocumentPage objPage = await _objApiClient.ListDocumentsAsync(_strGameProfileId, strCursor);
+						foreach (RunnersPointDocument objDocument in objPage.Items)
+							lstDocuments.Items.Add(BuildListItem(objDocument));
+						strCursor = objPage.NextCursor;
+					} while (!string.IsNullOrEmpty(strCursor));
+				}
 
+				UpdateSelectionButtons();
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
 			catch (Exception ex)
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
+		}
+
+		private static ListViewItem BuildListItem(RunnersPointDocument objDocument)
+		{
+			string strShare = "";
+			if (objDocument is RunnersPointSharedDocument objShared)
+				strShare = objShared.Permission + " (" + objShared.ShareStatus + ")";
+
+			ListViewItem objItem = new ListViewItem(new[]
+			{
+				string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName,
+				objDocument.ValidationState,
+				objDocument.UpdatedAt.ToString("g"),
+				strShare,
+			});
+			objItem.Tag = objDocument;
+			return objItem;
 		}
 
 		private async void cmdRefresh_Click(object sender, EventArgs e)
@@ -117,7 +155,7 @@ namespace Chummer
 
 		// States in which a document's most recent revision hasn't finished the async quarantine/
 		// validation pipeline yet. Pushing on top of one of these would race the in-flight validation.
-		private static readonly string[] s_astrInFlightStates = { "quarantined", "scanning", "validating", "processing" };
+		private static readonly string[] s_astrInFlightStates = { "quarantined", "processing" };
 
 		private async void cmdPushCurrent_Click(object sender, EventArgs e)
 		{
@@ -167,12 +205,55 @@ namespace Chummer
 			}
 		}
 
-		// Whether downloadRevision is expected to work for a given document.validationState. The API
-		// doesn't currently document this (see open-questions doc: "whether warning-state revisions
-		// are downloadable" is unresolved) - "valid" and "warning" are the conservative assumption;
-		// "processing"/"rejected"/"archived" are blocked client-side with an explanation instead of
-		// just letting the download call fail with an unclear server error.
-		private static readonly string[] s_astrDownloadableStates = { "valid", "warning" };
+		private async void cmdPushShared_Click(object sender, EventArgs e)
+		{
+			if (_objActiveCharacter == null || lstDocuments.SelectedItems.Count == 0)
+				return;
+			if (!(lstDocuments.SelectedItems[0].Tag is RunnersPointSharedDocument objDocument))
+				return;
+			if (objDocument.Permission != "write" || objDocument.ShareStatus != "active")
+				return;
+
+			try
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Pushing"));
+				byte[] bytContent = File.ReadAllBytes(_objActiveCharacter.FileName);
+
+				Tuple<RunnersPointSharedDocument, string> objCurrent = await _objApiClient.GetSharedDocumentAsync(objDocument.Id);
+				if (s_astrInFlightStates.Contains(objCurrent.Item1.ValidationState))
+				{
+					UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushInFlight"));
+					return;
+				}
+
+				RunnersPointRevisionStatus objStatus = await _objApiClient.PushSharedDocumentRevisionAsync(
+					objDocument.Id, bytContent, objCurrent.Item2, _strGameProfileId, _strGameProfileFormat);
+
+				string strAccepted = LanguageManager.Instance.GetString("String_Cloud_PushAccepted");
+				if (objStatus.Messages.Count > 0)
+					strAccepted += " " + string.Join(" ", objStatus.Messages);
+				UpdateStatus(strAccepted);
+				await RefreshAsync();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushIdempotencyConflict"));
+			}
+			catch (Exception ex)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
+		}
+
+		// Whether downloadRevision is expected to work for a given document.validationState - "accepted"
+		// is the only state with a validated, servable revision; everything else (quarantined/processing/
+		// rejected/archived) is blocked client-side with an explanation instead of letting the download
+		// call fail with an unclear server error.
+		private static readonly string[] s_astrDownloadableStates = { "accepted" };
 
 		private async void cmdDownload_Click(object sender, EventArgs e)
 		{
@@ -195,7 +276,9 @@ namespace Chummer
 			try
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Downloading"));
-				byte[] bytContent = await _objApiClient.DownloadRevisionAsync(objDocument.Id, objDocument.CurrentRevision);
+				byte[] bytContent = objDocument is RunnersPointSharedDocument
+					? await _objApiClient.DownloadSharedDocumentRevisionAsync(objDocument.Id, objDocument.CurrentRevision)
+					: await _objApiClient.DownloadRevisionAsync(objDocument.Id, objDocument.CurrentRevision);
 				File.WriteAllBytes(objDialog.FileName, bytContent);
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
@@ -207,7 +290,7 @@ namespace Chummer
 
 		private async void cmdArchive_Click(object sender, EventArgs e)
 		{
-			if (lstDocuments.SelectedItems.Count == 0)
+			if (SharedMode || lstDocuments.SelectedItems.Count == 0)
 				return;
 			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
 
@@ -225,6 +308,28 @@ namespace Chummer
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
+		}
+
+		private void lstDocuments_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			UpdateSelectionButtons();
+		}
+
+		private void UpdateSelectionButtons()
+		{
+			if (lstDocuments.SelectedItems.Count == 0)
+			{
+				cmdDownload.Enabled = false;
+				cmdArchive.Enabled = false;
+				cmdPushShared.Enabled = false;
+				return;
+			}
+
+			object objTag = lstDocuments.SelectedItems[0].Tag;
+			cmdDownload.Enabled = true;
+			cmdArchive.Enabled = !SharedMode;
+			cmdPushShared.Enabled = SharedMode && _objActiveCharacter != null && objTag is RunnersPointSharedDocument objShared
+				&& objShared.Permission == "write" && objShared.ShareStatus == "active";
 		}
 
 		private void UpdateStatus(string strText)

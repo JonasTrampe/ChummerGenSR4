@@ -576,6 +576,18 @@
 			<text>Auswahl archivieren</text>
 		</string>
 		<string>
+			<key>Button_Cloud_PushShared</key>
+			<text>Aktualisierung für Auswahl senden</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_MyDocuments</key>
+			<text>Meine Dokumente</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_SharedWithMe</key>
+			<text>Mit mir geteilt</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>Nicht angemeldet. Klicken Sie auf Anmelden, um Ihr RunnersPoint-Konto zu verbinden.</text>
 		</string>

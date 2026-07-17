@@ -637,6 +637,18 @@
 			<text>Archive Selected</text>
 		</string>
 		<string>
+			<key>Button_Cloud_PushShared</key>
+			<text>Push Update to Selected</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_MyDocuments</key>
+			<text>My Documents</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_SharedWithMe</key>
+			<text>Shared With Me</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>Not logged in. Click Log In to connect your RunnersPoint account.</text>
 		</string>

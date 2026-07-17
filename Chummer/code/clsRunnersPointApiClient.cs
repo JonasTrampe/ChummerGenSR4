@@ -62,7 +62,28 @@ namespace Chummer
 		public string ApiVersion { get; set; }
 		public List<RunnersPointGameProfile> GameProfiles { get; set; } = new List<RunnersPointGameProfile>();
 		public List<string> Formats { get; set; } = new List<string>();
-		public long MaximumUploadBytes { get; set; }
+		public long MaxUploadBytes { get; set; }
+	}
+
+	/// <summary>
+	/// A document explicitly shared with the authenticated user by another user (e.g. a GM sharing a
+	/// character, or a document originating from a marketplace on the RunnersPoint website). Chummer
+	/// never sees a public listing - only documents an active share grant actually covers.
+	/// </summary>
+	public class RunnersPointSharedDocument : RunnersPointDocument
+	{
+		public string Permission { get; set; }
+		public string ShareStatus { get; set; }
+		public DateTime? ExpiresAt { get; set; }
+	}
+
+	/// <summary>
+	/// A page of SharedDocuments from listSharedDocuments, plus the cursor needed to keep paging.
+	/// </summary>
+	public class RunnersPointSharedDocumentPage
+	{
+		public List<RunnersPointSharedDocument> Items { get; set; } = new List<RunnersPointSharedDocument>();
+		public string NextCursor { get; set; }
 	}
 
 	/// <summary>
@@ -86,10 +107,10 @@ namespace Chummer
 	}
 
 	/// <summary>
-	/// Thin wrapper over the RunnersPoint Character Document Storage API (v1, draft.2). Only implements
-	/// the operations the Chummer client actually uses - personal storage/sync of `character` documents.
-	/// Sharing/discovery and non-character document types are out of scope for this client (see
-	/// docs/api/open-questions-character-document-storage-v1.md in the RunnersPoint repo).
+	/// Thin wrapper over the RunnersPoint Character Document Storage API (v1, draft.6). Covers personal
+	/// storage/sync of `character` documents, plus read-only-or-write access to documents explicitly
+	/// shared with the authenticated user via `/shared/documents/*` (per-document grants only - there is
+	/// no public marketplace/discovery surface in this API; that lives on the RunnersPoint website).
 	/// </summary>
 	public class RunnersPointApiClient
 	{
@@ -178,7 +199,7 @@ namespace Chummer
 
 			RunnersPointCapabilities objCapabilities = new RunnersPointCapabilities();
 			objCapabilities.ApiVersion = objJson.ContainsKey("apiVersion") ? objJson["apiVersion"].ToString() : "";
-			objCapabilities.MaximumUploadBytes = objJson.ContainsKey("maximumUploadBytes") ? Convert.ToInt64(objJson["maximumUploadBytes"]) : 0;
+			objCapabilities.MaxUploadBytes = objJson.ContainsKey("maxUploadBytes") ? Convert.ToInt64(objJson["maxUploadBytes"]) : 0;
 
 			if (objJson.ContainsKey("formats"))
 			{
@@ -253,9 +274,41 @@ namespace Chummer
 				if (objMetadata.ContainsKey("displayName"))
 					objDocument.DisplayName = objMetadata["displayName"].ToString();
 			}
-			if (objJson.ContainsKey("updatedAt"))
-				DateTime.TryParse(objJson["updatedAt"].ToString(), out DateTime datUpdatedAt);
+			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out DateTime datUpdatedAt))
+				objDocument.UpdatedAt = datUpdatedAt;
 			return objDocument;
+		}
+
+		/// <summary>
+		/// Parses a SharedDocument - the same envelope as Document, plus a required `share` grant
+		/// (permission/status/expiresAt) describing what the authenticated user is allowed to do with it.
+		/// </summary>
+		private static RunnersPointSharedDocument ParseSharedDocument(Dictionary<string, object> objJson)
+		{
+			RunnersPointDocument objBase = ParseDocument(objJson);
+			RunnersPointSharedDocument objShared = new RunnersPointSharedDocument
+			{
+				Id = objBase.Id,
+				Type = objBase.Type,
+				GameProfileId = objBase.GameProfileId,
+				Format = objBase.Format,
+				SchemaVersion = objBase.SchemaVersion,
+				CurrentRevision = objBase.CurrentRevision,
+				ValidationState = objBase.ValidationState,
+				DisplayName = objBase.DisplayName,
+				UpdatedAt = objBase.UpdatedAt
+			};
+
+			if (objJson.ContainsKey("share") && objJson["share"] is Dictionary<string, object> objShare)
+			{
+				objShared.Permission = objShare.ContainsKey("permission") ? objShare["permission"].ToString() : "";
+				objShared.ShareStatus = objShare.ContainsKey("status") ? objShare["status"].ToString() : "";
+				if (objShare.ContainsKey("expiresAt") && objShare["expiresAt"] != null
+					&& DateTime.TryParse(objShare["expiresAt"].ToString(), out DateTime datExpiresAt))
+					objShared.ExpiresAt = datExpiresAt;
+			}
+
+			return objShared;
 		}
 
 		/// <summary>
@@ -283,6 +336,7 @@ namespace Chummer
 		{
 			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/documents");
 			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
+			objRequest.Headers.Add("X-Document-Type", "character");
 			objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
 			objRequest.Headers.Add("X-Document-Format", strFormat);
 			objRequest.Content = new ByteArrayContent(bytContent);
@@ -431,6 +485,97 @@ namespace Chummer
 
 			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
 			await ThrowIfProblemAsync(objResponse);
+		}
+
+		/// <summary>
+		/// GET /shared/documents. Documents explicitly shared with the authenticated user by another
+		/// user - e.g. a GM sharing a character back, or a document someone picked up from a marketplace
+		/// on the RunnersPoint website. Chummer only ever sees the individual grant; there is no public
+		/// browsing here.
+		/// </summary>
+		public async Task<RunnersPointSharedDocumentPage> ListSharedDocumentsAsync(string strGameProfileId, string strCursor = null, int intPageSize = 25)
+		{
+			string strPath = "/shared/documents?gameProfileId=" + Uri.EscapeDataString(strGameProfileId) + "&pageSize=" + intPageSize;
+			if (!string.IsNullOrEmpty(strCursor))
+				strPath += "&cursor=" + Uri.EscapeDataString(strCursor);
+
+			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, strPath);
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objJson = objSerializer.Deserialize<Dictionary<string, object>>(strBody);
+
+			RunnersPointSharedDocumentPage objPage = new RunnersPointSharedDocumentPage();
+			objPage.NextCursor = objJson.ContainsKey("nextCursor") && objJson["nextCursor"] != null ? objJson["nextCursor"].ToString() : null;
+
+			if (objJson.ContainsKey("items"))
+			{
+				foreach (object objItemObj in (object[])objJson["items"])
+					objPage.Items.Add(ParseSharedDocument((Dictionary<string, object>)objItemObj));
+			}
+
+			return objPage;
+		}
+
+		/// <summary>
+		/// GET /shared/documents/{documentId}. Same ETag contract as GetDocumentAsync - needed before
+		/// calling PushSharedDocumentRevisionAsync.
+		/// </summary>
+		public async Task<Tuple<RunnersPointSharedDocument, string>> GetSharedDocumentAsync(string strDocumentId)
+		{
+			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId);
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			RunnersPointSharedDocument objDocument = ParseSharedDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+			string strETag = objResponse.Headers.ETag != null ? objResponse.Headers.ETag.Tag : null;
+			return new Tuple<RunnersPointSharedDocument, string>(objDocument, strETag);
+		}
+
+		/// <summary>
+		/// PUT /shared/documents/{documentId}. Requires an active write grant on the document - archive
+		/// and delete are never available through shared access, only through the owner's own /documents.
+		/// </summary>
+		public async Task<RunnersPointRevisionStatus> PushSharedDocumentRevisionAsync(string strDocumentId, byte[] bytContent, string strIfMatch, string strGameProfileId, string strFormat)
+		{
+			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId);
+			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
+			objRequest.Headers.Add("If-Match", strIfMatch);
+			objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
+			objRequest.Headers.Add("X-Document-Format", strFormat);
+			objRequest.Content = new ByteArrayContent(bytContent);
+			objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			await ThrowIfProblemAsync(objResponse);
+			return await ParseRevisionStatusAsync(objResponse);
+		}
+
+		/// <summary>
+		/// GET /shared/documents/{documentId}/revisions/{revisionId}/content. Same Digest verification
+		/// as DownloadRevisionAsync - a shared download is downloaded from someone else's storage, so
+		/// verifying it wasn't corrupted or truncated in transit matters at least as much here.
+		/// </summary>
+		public async Task<byte[]> DownloadSharedDocumentRevisionAsync(string strDocumentId, string strRevisionId)
+		{
+			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			await ThrowIfProblemAsync(objResponse);
+			byte[] bytContent = await objResponse.Content.ReadAsByteArrayAsync();
+
+			IEnumerable<string> lstDigestValues;
+			if (objResponse.Headers.TryGetValues("Digest", out lstDigestValues))
+			{
+				string strDigestHeader = lstDigestValues.FirstOrDefault();
+				if (!string.IsNullOrEmpty(strDigestHeader) && !VerifyDigest(bytContent, strDigestHeader))
+					throw new InvalidOperationException("Downloaded content for shared revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
+			}
+
+			return bytContent;
 		}
 	}
 }
