@@ -605,6 +605,90 @@
 			<text>Check for Updates</text>
 		</string>
 		<string>
+			<key>Menu_Main_CloudDocuments</key>
+			<text>Cloud Documents...</text>
+		</string>
+		<string>
+			<key>Title_CloudDocuments</key>
+			<text>Cloud Documents</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Login</key>
+			<text>Log In</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Logout</key>
+			<text>Log Out</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Refresh</key>
+			<text>Refresh</text>
+		</string>
+		<string>
+			<key>Button_Cloud_PushCurrent</key>
+			<text>Push Current Character</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Download</key>
+			<text>Download Selected</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Archive</key>
+			<text>Archive Selected</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotLoggedIn</key>
+			<text>Not logged in. Click Log In to connect your RunnersPoint account.</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoggingIn</key>
+			<text>Opening browser to log in...</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoginFailed</key>
+			<text>Login failed: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_Refreshing</key>
+			<text>Refreshing...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Ready</key>
+			<text>Ready.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NoGameProfile</key>
+			<text>No matching Shadowrun 4th Edition game profile was found on the server.</text>
+		</string>
+		<string>
+			<key>String_Cloud_Pushing</key>
+			<text>Pushing character...</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushAccepted</key>
+			<text>Upload accepted - validation is running in the background.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushStale</key>
+			<text>Your local copy is out of date with the cloud version. Download the latest version before pushing again.</text>
+		</string>
+		<string>
+			<key>String_Cloud_Downloading</key>
+			<text>Downloading...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Error</key>
+			<text>Error: {0}</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmArchive</key>
+			<text>Archive "{0}" in the cloud? This does not delete your local file.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmArchive</key>
+			<text>Archive Document</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae</text>
 		</string>

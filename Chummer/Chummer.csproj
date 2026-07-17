@@ -76,6 +76,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -101,6 +103,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="code\clsCommon.cs" />
+    <Compile Include="code\clsRunnersPointApiClient.cs" />
+    <Compile Include="code\clsRunnersPointAuth.cs" />
+    <Compile Include="code\frmCloudDocuments.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="code\frmCloudDocuments.Designer.cs">
+      <DependentUpon>frmCloudDocuments.cs</DependentUpon>
+    </Compile>
     <Compile Include="code\clsEquipment.cs" />
     <Compile Include="code\clsCharacter.cs" />
     <Compile Include="code\clsImprovement.cs" />

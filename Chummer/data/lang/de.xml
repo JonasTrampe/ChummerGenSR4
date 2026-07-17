@@ -544,6 +544,90 @@
 			<text>Nach Updates suchen</text>
 		</string>
 		<string>
+			<key>Menu_Main_CloudDocuments</key>
+			<text>Cloud-Dokumente...</text>
+		</string>
+		<string>
+			<key>Title_CloudDocuments</key>
+			<text>Cloud-Dokumente</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Login</key>
+			<text>Anmelden</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Logout</key>
+			<text>Abmelden</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Refresh</key>
+			<text>Aktualisieren</text>
+		</string>
+		<string>
+			<key>Button_Cloud_PushCurrent</key>
+			<text>Aktuellen Charakter hochladen</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Download</key>
+			<text>Auswahl herunterladen</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Archive</key>
+			<text>Auswahl archivieren</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotLoggedIn</key>
+			<text>Nicht angemeldet. Klicken Sie auf Anmelden, um Ihr RunnersPoint-Konto zu verbinden.</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoggingIn</key>
+			<text>Browser wird zur Anmeldung geöffnet...</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoginFailed</key>
+			<text>Anmeldung fehlgeschlagen: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_Refreshing</key>
+			<text>Wird aktualisiert...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Ready</key>
+			<text>Bereit.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NoGameProfile</key>
+			<text>Es wurde kein passendes Shadowrun-4th-Edition-Spielprofil auf dem Server gefunden.</text>
+		</string>
+		<string>
+			<key>String_Cloud_Pushing</key>
+			<text>Charakter wird hochgeladen...</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushAccepted</key>
+			<text>Upload akzeptiert - die Validierung läuft im Hintergrund.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushStale</key>
+			<text>Ihre lokale Kopie ist veraltet gegenüber der Cloud-Version. Laden Sie die aktuelle Version herunter, bevor Sie erneut hochladen.</text>
+		</string>
+		<string>
+			<key>String_Cloud_Downloading</key>
+			<text>Wird heruntergeladen...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Error</key>
+			<text>Fehler: {0}</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmArchive</key>
+			<text>"{0}" in der Cloud archivieren? Ihre lokale Datei wird dadurch nicht gelöscht.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmArchive</key>
+			<text>Dokument archivieren</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae</text>
 		</string>

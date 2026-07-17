@@ -54,6 +54,7 @@ namespace Chummer
 
 		private string _strFileName = "";
 		private string _strSettingsFileName = "default.xml";
+		private string _strCloudDocumentId = "";
 		private bool _blnIgnoreRules = false;
 		private int _intKarma = 0;
 		private int _intTotalKarma = 0;
@@ -298,6 +299,8 @@ namespace Chummer
 			objWriter.WriteElementString("playername", _strPlayerName);
 			// <gamenotes />
 			objWriter.WriteElementString("gamenotes", _strGameNotes);
+			// <clouddocumentid />
+			objWriter.WriteElementString("clouddocumentid", _strCloudDocumentId);
 
 			// <ignorerules />
 			if (_blnIgnoreRules)
@@ -892,6 +895,13 @@ namespace Chummer
 			try
 			{
 				_strAlias = objXmlCharacter["alias"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				_strCloudDocumentId = objXmlCharacter["clouddocumentid"].InnerText;
 			}
 			catch
 			{
@@ -2724,7 +2734,23 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Name of the settings file the Character uses. 
+		/// Id of the RunnersPoint cloud document this character is linked to, if any. Cleared on Save As
+		/// so a copy of a character becomes its own independent cloud document on first push.
+		/// </summary>
+		public string CloudDocumentId
+		{
+			get
+			{
+				return _strCloudDocumentId;
+			}
+			set
+			{
+				_strCloudDocumentId = value;
+			}
+		}
+
+		/// <summary>
+		/// Name of the settings file the Character uses.
 		/// </summary>
 		public string SettingsFile
 		{

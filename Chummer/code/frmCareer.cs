@@ -21,6 +21,14 @@ namespace Chummer
 		private Character _objCharacter;
 		private MainController _objController;
 
+		/// <summary>
+		/// The Character open in this window.
+		/// </summary>
+		public Character CharacterObject
+		{
+			get { return _objCharacter; }
+		}
+
 		private CharacterOptions _objOptions;
 		private CommonFunctions _objFunctions;
 		private bool _blnSkipRefresh = false;
@@ -23554,6 +23562,9 @@ namespace Chummer
 			if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
 			{
 				string strFileName = saveFileDialog.FileName;
+				// A Save As copy is an independent character - it should get its own cloud document
+				// on next push, not silently push new revisions onto the original's document.
+				_objCharacter.CloudDocumentId = "";
 				_objCharacter.FileName = strFileName;
 				_objCharacter.Save();
 				_blnIsDirty = false;

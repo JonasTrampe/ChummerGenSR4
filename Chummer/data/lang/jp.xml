@@ -607,6 +607,90 @@
 			<text>アップデートを確認</text>
 		</string>
 		<string>
+			<key>Menu_Main_CloudDocuments</key>
+			<text>クラウドドキュメント...</text>
+		</string>
+		<string>
+			<key>Title_CloudDocuments</key>
+			<text>クラウドドキュメント</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Login</key>
+			<text>ログイン</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Logout</key>
+			<text>ログアウト</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Refresh</key>
+			<text>更新</text>
+		</string>
+		<string>
+			<key>Button_Cloud_PushCurrent</key>
+			<text>現在のキャラクターをアップロード</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Download</key>
+			<text>選択項目をダウンロード</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Archive</key>
+			<text>選択項目をアーカイブ</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotLoggedIn</key>
+			<text>ログインしていません。RunnersPointアカウントに接続するには「ログイン」をクリックしてください。</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoggingIn</key>
+			<text>ログイン用のブラウザを開いています...</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoginFailed</key>
+			<text>ログインに失敗しました: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_Refreshing</key>
+			<text>更新中...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Ready</key>
+			<text>準備完了。</text>
+		</string>
+		<string>
+			<key>String_Cloud_NoGameProfile</key>
+			<text>サーバー上に一致するShadowrun 4th Editionのゲームプロファイルが見つかりませんでした。</text>
+		</string>
+		<string>
+			<key>String_Cloud_Pushing</key>
+			<text>キャラクターをアップロード中...</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushAccepted</key>
+			<text>アップロードを受け付けました - 検証はバックグラウンドで実行されます。</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushStale</key>
+			<text>ローカルのコピーがクラウド上のバージョンより古くなっています。再度アップロードする前に最新版をダウンロードしてください。</text>
+		</string>
+		<string>
+			<key>String_Cloud_Downloading</key>
+			<text>ダウンロード中...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Error</key>
+			<text>エラー: {0}</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmArchive</key>
+			<text>「{0}」をクラウドでアーカイブしますか？ ローカルファイルは削除されません。</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmArchive</key>
+			<text>ドキュメントをアーカイブ</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae キャラクター交換</text>
 		</string>
