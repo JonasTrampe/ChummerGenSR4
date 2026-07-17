@@ -19,6 +19,10 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
+// Lets Chummer.Tests call internal helpers (JSON parsing, digest verification, etc.) directly
+// instead of only through the public async API methods that need a live HTTP server.
+[assembly: InternalsVisibleTo("Chummer.Tests")]
+
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("28a46ea3-4e45-4842-b8ae-313afde61173")]
 

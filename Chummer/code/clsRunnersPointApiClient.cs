@@ -307,7 +307,7 @@ namespace Chummer
 			return objPage;
 		}
 
-		private static RunnersPointDocument ParseDocument(Dictionary<string, object> objJson)
+		internal static RunnersPointDocument ParseDocument(Dictionary<string, object> objJson)
 		{
 			RunnersPointDocument objDocument = new RunnersPointDocument();
 			objDocument.Id = objJson.ContainsKey("id") ? objJson["id"].ToString() : "";
@@ -332,7 +332,7 @@ namespace Chummer
 		/// Parses a SharedDocument - the same envelope as Document, plus a required `share` grant
 		/// (permission/status/expiresAt) describing what the authenticated user is allowed to do with it.
 		/// </summary>
-		private static RunnersPointSharedDocument ParseSharedDocument(Dictionary<string, object> objJson)
+		internal static RunnersPointSharedDocument ParseSharedDocument(Dictionary<string, object> objJson)
 		{
 			RunnersPointDocument objBase = ParseDocument(objJson);
 			RunnersPointSharedDocument objShared = new RunnersPointSharedDocument
@@ -478,10 +478,16 @@ namespace Chummer
 		/// one - not all deployments do (it's an optional hint per the spec), so callers should fall back
 		/// to something derived from the document's own metadata when this returns null.
 		/// </summary>
-		private static string ParseSuggestedFileName(HttpResponseMessage objResponse)
+		internal static string ParseSuggestedFileName(HttpResponseMessage objResponse)
 		{
+			// Content-Disposition is a content header per RFC 7231, not a response header - HttpClient
+			// parses it onto Content.Headers, never onto the top-level Headers collection, so looking
+			// there would never find it even if the server sent one.
+			if (objResponse.Content == null)
+				return null;
+
 			IEnumerable<string> lstValues;
-			if (!objResponse.Headers.TryGetValues("Content-Disposition", out lstValues))
+			if (!objResponse.Content.Headers.TryGetValues("Content-Disposition", out lstValues))
 				return null;
 
 			string strHeader = lstValues.FirstOrDefault();
@@ -504,7 +510,7 @@ namespace Chummer
 		/// "SHA-256 digest of the response bytes" without nailing down RFC 3230's usual
 		/// "SHA-256=&lt;base64&gt;" framing vs. a bare hex string, so both are accepted.
 		/// </summary>
-		private static bool VerifyDigest(byte[] bytContent, string strDigestHeader)
+		internal static bool VerifyDigest(byte[] bytContent, string strDigestHeader)
 		{
 			string strValue = strDigestHeader;
 			int intEquals = strValue.IndexOf('=');
@@ -516,21 +522,24 @@ namespace Chummer
 				bytExpected = objSha256.ComputeHash(bytContent);
 
 			byte[] bytActual;
-			try
+			string strHex = strValue.Replace("-", "");
+			// A bare hex SHA-256 digest is 64 lowercase-hex characters - which is also, incidentally, a
+			// syntactically valid (if semantically wrong) base64 string, since the hex alphabet is a
+			// subset of base64's and 64 is a multiple of 4. Trying base64 first would silently decode
+			// that into 48 wrong bytes instead of throwing, so hex-shaped input has to be checked first.
+			if (strHex.Length % 2 == 0 && System.Text.RegularExpressions.Regex.IsMatch(strHex, "^[0-9a-fA-F]+$"))
 			{
-				// Try base64 first (RFC 3230 convention), fall back to hex.
-				bytActual = Convert.FromBase64String(strValue);
+				bytActual = new byte[strHex.Length / 2];
+				for (int i = 0; i < bytActual.Length; i++)
+					bytActual[i] = Convert.ToByte(strHex.Substring(i * 2, 2), 16);
 			}
-			catch (FormatException)
+			else
 			{
 				try
 				{
-					string strHex = strValue.Replace("-", "");
-					bytActual = new byte[strHex.Length / 2];
-					for (int i = 0; i < bytActual.Length; i++)
-						bytActual[i] = Convert.ToByte(strHex.Substring(i * 2, 2), 16);
+					bytActual = Convert.FromBase64String(strValue);
 				}
-				catch
+				catch (FormatException)
 				{
 					// Header present but not in a format we understand - don't fail the download over
 					// a format mismatch we can't parse, but don't pretend we verified it either.
