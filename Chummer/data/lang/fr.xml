@@ -677,6 +677,14 @@
 			<text>Aucun profil de jeu Shadowrun 4e édition correspondant n'a été trouvé sur le serveur.</text>
 		</string>
 		<string>
+			<key>String_Cloud_UnsupportedDocumentType</key>
+			<text>Le serveur n'annonce pas de prise en charge des documents de personnage dans un format que Chummer comprend.</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthExpired</key>
+			<text>Votre connexion RunnersPoint a expiré ou a été révoquée. Veuillez vous reconnecter ou coller un nouveau jeton API.</text>
+		</string>
+		<string>
 			<key>String_Cloud_Pushing</key>
 			<text>Envoi du personnage...</text>
 		</string>

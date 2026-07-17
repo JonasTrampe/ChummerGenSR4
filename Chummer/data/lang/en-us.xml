@@ -681,6 +681,14 @@
 			<text>No matching Shadowrun 4th Edition game profile was found on the server.</text>
 		</string>
 		<string>
+			<key>String_Cloud_UnsupportedDocumentType</key>
+			<text>The server doesn't advertise support for character documents in a format Chummer understands.</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthExpired</key>
+			<text>Your RunnersPoint login has expired or been revoked. Please log in again or paste a new API token.</text>
+		</string>
+		<string>
 			<key>String_Cloud_Pushing</key>
 			<text>Pushing character...</text>
 		</string>

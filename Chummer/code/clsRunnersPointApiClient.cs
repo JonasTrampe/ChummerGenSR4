@@ -57,10 +57,32 @@ namespace Chummer
 		public List<string> Formats { get; set; } = new List<string>();
 	}
 
+	/// <summary>
+	/// One media type a registered document type accepts (e.g. "application/xml" for "character"),
+	/// plus its own upload size ceiling.
+	/// </summary>
+	public class RunnersPointDocumentFormatCapability
+	{
+		public string MediaType { get; set; }
+		public long MaxUploadBytes { get; set; }
+	}
+
+	/// <summary>
+	/// One entry from Capabilities.documentTypes - the registered type id (e.g. "character") Chummer
+	/// sends as X-Document-Type, and the formats it accepts.
+	/// </summary>
+	public class RunnersPointDocumentTypeCapability
+	{
+		public string Id { get; set; }
+		public string DisplayName { get; set; }
+		public List<RunnersPointDocumentFormatCapability> Formats { get; set; } = new List<RunnersPointDocumentFormatCapability>();
+	}
+
 	public class RunnersPointCapabilities
 	{
 		public string ApiVersion { get; set; }
 		public List<RunnersPointGameProfile> GameProfiles { get; set; } = new List<RunnersPointGameProfile>();
+		public List<RunnersPointDocumentTypeCapability> DocumentTypes { get; set; } = new List<RunnersPointDocumentTypeCapability>();
 		public List<string> Formats { get; set; } = new List<string>();
 		public long MaxUploadBytes { get; set; }
 	}
@@ -226,6 +248,30 @@ namespace Chummer
 							objGameProfile.Formats.Add(objFormat.ToString());
 					}
 					objCapabilities.GameProfiles.Add(objGameProfile);
+				}
+			}
+
+			if (objJson.ContainsKey("documentTypes"))
+			{
+				foreach (object objTypeObj in (object[])objJson["documentTypes"])
+				{
+					Dictionary<string, object> objType = (Dictionary<string, object>)objTypeObj;
+					RunnersPointDocumentTypeCapability objTypeCapability = new RunnersPointDocumentTypeCapability();
+					objTypeCapability.Id = objType.ContainsKey("id") ? objType["id"].ToString() : "";
+					objTypeCapability.DisplayName = objType.ContainsKey("displayName") ? objType["displayName"].ToString() : "";
+					if (objType.ContainsKey("formats"))
+					{
+						foreach (object objFormatObj in (object[])objType["formats"])
+						{
+							Dictionary<string, object> objFormat = (Dictionary<string, object>)objFormatObj;
+							objTypeCapability.Formats.Add(new RunnersPointDocumentFormatCapability
+							{
+								MediaType = objFormat.ContainsKey("mediaType") ? objFormat["mediaType"].ToString() : "",
+								MaxUploadBytes = objFormat.ContainsKey("maxUploadBytes") ? Convert.ToInt64(objFormat["maxUploadBytes"]) : 0,
+							});
+						}
+					}
+					objCapabilities.DocumentTypes.Add(objTypeCapability);
 				}
 			}
 
@@ -409,7 +455,7 @@ namespace Chummer
 		/// since silently trusting an unverified download for a "store my character" feature is asking
 		/// for a corrupted/truncated file to go unnoticed.
 		/// </summary>
-		public async Task<byte[]> DownloadRevisionAsync(string strDocumentId, string strRevisionId)
+		public async Task<Tuple<byte[], string>> DownloadRevisionAsync(string strDocumentId, string strRevisionId)
 		{
 			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
 			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
@@ -424,7 +470,33 @@ namespace Chummer
 					throw new InvalidOperationException("Downloaded content for revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
 			}
 
-			return bytContent;
+			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+		}
+
+		/// <summary>
+		/// Extracts a suggested filename from a Content-Disposition response header, if the server sent
+		/// one - not all deployments do (it's an optional hint per the spec), so callers should fall back
+		/// to something derived from the document's own metadata when this returns null.
+		/// </summary>
+		private static string ParseSuggestedFileName(HttpResponseMessage objResponse)
+		{
+			IEnumerable<string> lstValues;
+			if (!objResponse.Headers.TryGetValues("Content-Disposition", out lstValues))
+				return null;
+
+			string strHeader = lstValues.FirstOrDefault();
+			if (string.IsNullOrEmpty(strHeader))
+				return null;
+
+			int intFilenameIndex = strHeader.IndexOf("filename=", StringComparison.OrdinalIgnoreCase);
+			if (intFilenameIndex < 0)
+				return null;
+
+			string strFileName = strHeader.Substring(intFilenameIndex + "filename=".Length).Trim();
+			int intSemicolon = strFileName.IndexOf(';');
+			if (intSemicolon >= 0)
+				strFileName = strFileName.Substring(0, intSemicolon);
+			return strFileName.Trim().Trim('"');
 		}
 
 		/// <summary>
@@ -563,7 +635,7 @@ namespace Chummer
 		/// as DownloadRevisionAsync - a shared download is downloaded from someone else's storage, so
 		/// verifying it wasn't corrupted or truncated in transit matters at least as much here.
 		/// </summary>
-		public async Task<byte[]> DownloadSharedDocumentRevisionAsync(string strDocumentId, string strRevisionId)
+		public async Task<Tuple<byte[], string>> DownloadSharedDocumentRevisionAsync(string strDocumentId, string strRevisionId)
 		{
 			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
 			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
@@ -578,7 +650,7 @@ namespace Chummer
 					throw new InvalidOperationException("Downloaded content for shared revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
 			}
 
-			return bytContent;
+			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
 		}
 	}
 }

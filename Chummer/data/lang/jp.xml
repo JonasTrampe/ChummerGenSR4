@@ -683,6 +683,14 @@
 			<text>サーバー上に一致するShadowrun 4th Editionのゲームプロファイルが見つかりませんでした。</text>
 		</string>
 		<string>
+			<key>String_Cloud_UnsupportedDocumentType</key>
+			<text>サーバーは Chummer が理解できる形式でのキャラクタードキュメントのサポートを提供していません。</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthExpired</key>
+			<text>RunnersPoint へのログインが期限切れになったか、取り消されました。再度ログインするか、新しい API トークンを貼り付けてください。</text>
+		</string>
+		<string>
 			<key>String_Cloud_Pushing</key>
 			<text>キャラクターをアップロード中...</text>
 		</string>

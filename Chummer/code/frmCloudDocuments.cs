@@ -14,6 +14,8 @@ namespace Chummer
 	/// </summary>
 	public partial class frmCloudDocuments : Form
 	{
+		private const string DocumentType = "character";
+
 		private readonly RunnersPointAuth _objAuth = new RunnersPointAuth();
 		private RunnersPointApiClient _objApiClient;
 		private readonly Character _objActiveCharacter;
@@ -79,6 +81,17 @@ namespace Chummer
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotLoggedIn"));
 		}
 
+		/// <summary>
+		/// Clears a stored login that the server no longer honors (expired or revoked) so the UI doesn't
+		/// just keep silently failing every call - the user needs to log in or paste a new token.
+		/// </summary>
+		private void HandleAuthExpired()
+		{
+			_objAuth.Logout();
+			lstDocuments.Items.Clear();
+			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthExpired"));
+		}
+
 		private async void rdoDocumentMode_CheckedChanged(object sender, EventArgs e)
 		{
 			// CheckedChanged fires for both the radio button losing and gaining the check - only react once.
@@ -109,8 +122,25 @@ namespace Chummer
 						UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NoGameProfile"));
 						return;
 					}
+					string strFormat = objProfile.Formats.FirstOrDefault(f => f == "application/xml") ?? objProfile.Formats.FirstOrDefault();
+					if (string.IsNullOrEmpty(strFormat))
+					{
+						UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NoGameProfile"));
+						return;
+					}
+
+					// The server advertises which document types/formats it actually accepts via
+					// Capabilities.documentTypes - verify "character"/strFormat is really one of them
+					// instead of just assuming it and letting create/pushRevision fail with a 422 later.
+					RunnersPointDocumentTypeCapability objCharacterType = objCapabilities.DocumentTypes.FirstOrDefault(t => t.Id == DocumentType);
+					if (objCharacterType == null || !objCharacterType.Formats.Any(f => f.MediaType == strFormat))
+					{
+						UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_UnsupportedDocumentType"));
+						return;
+					}
+
 					_strGameProfileId = objProfile.Id;
-					_strGameProfileFormat = objProfile.Formats.FirstOrDefault(f => f == "chum") ?? objProfile.Formats.FirstOrDefault() ?? "chum";
+					_strGameProfileFormat = strFormat;
 				}
 
 				lstDocuments.Items.Clear();
@@ -139,6 +169,10 @@ namespace Chummer
 				UpdateSelectionButtons();
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+			}
 			catch (Exception ex)
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
@@ -149,7 +183,12 @@ namespace Chummer
 		{
 			string strShare = "";
 			if (objDocument is RunnersPointSharedDocument objShared)
-				strShare = objShared.Permission + " (" + objShared.ShareStatus + ")";
+			{
+				strShare = objShared.Permission + " (" + objShared.ShareStatus;
+				if (objShared.ExpiresAt.HasValue)
+					strShare += ", expires " + objShared.ExpiresAt.Value.ToLocalTime().ToString("d");
+				strShare += ")";
+			}
 
 			ListViewItem objItem = new ListViewItem(new[]
 			{
@@ -205,6 +244,10 @@ namespace Chummer
 				UpdateStatus(strAccepted);
 				await RefreshAsync();
 			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+			}
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
@@ -253,6 +296,10 @@ namespace Chummer
 				UpdateStatus(strAccepted);
 				await RefreshAsync();
 			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+			}
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
@@ -285,19 +332,40 @@ namespace Chummer
 				return;
 			}
 
+			Tuple<byte[], string> objDownload;
+			try
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Downloading"));
+				objDownload = objDocument is RunnersPointSharedDocument
+					? await _objApiClient.DownloadSharedDocumentRevisionAsync(objDocument.Id, objDocument.CurrentRevision)
+					: await _objApiClient.DownloadRevisionAsync(objDocument.Id, objDocument.CurrentRevision);
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+				return;
+			}
+			catch (Exception ex)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+				return;
+			}
+
+			// Prefer the server's suggested filename (Content-Disposition) when it sent one; fall back to
+			// the document's own display name/id otherwise.
+			string strSuggestedFileName = !string.IsNullOrEmpty(objDownload.Item2)
+				? objDownload.Item2
+				: string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName;
+
 			SaveFileDialog objDialog = new SaveFileDialog();
 			objDialog.Filter = "Chummer Files (*.chum)|*.chum|All Files (*.*)|*.*";
-			objDialog.FileName = string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName;
+			objDialog.FileName = strSuggestedFileName;
 			if (objDialog.ShowDialog(this) != DialogResult.OK)
 				return;
 
 			try
 			{
-				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Downloading"));
-				byte[] bytContent = objDocument is RunnersPointSharedDocument
-					? await _objApiClient.DownloadSharedDocumentRevisionAsync(objDocument.Id, objDocument.CurrentRevision)
-					: await _objApiClient.DownloadRevisionAsync(objDocument.Id, objDocument.CurrentRevision);
-				File.WriteAllBytes(objDialog.FileName, bytContent);
+				File.WriteAllBytes(objDialog.FileName, objDownload.Item1);
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
 			catch (Exception ex)
@@ -321,6 +389,10 @@ namespace Chummer
 				Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(objDocument.Id);
 				await _objApiClient.ArchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
 				await RefreshAsync();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
 			}
 			catch (Exception ex)
 			{

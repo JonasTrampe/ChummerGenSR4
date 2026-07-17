@@ -620,6 +620,14 @@
 			<text>Es wurde kein passendes Shadowrun-4th-Edition-Spielprofil auf dem Server gefunden.</text>
 		</string>
 		<string>
+			<key>String_Cloud_UnsupportedDocumentType</key>
+			<text>Der Server unterstützt Charakterdokumente nicht in einem Format, das Chummer versteht.</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthExpired</key>
+			<text>Ihre RunnersPoint-Anmeldung ist abgelaufen oder wurde widerrufen. Bitte melden Sie sich erneut an oder fügen Sie ein neues API-Token ein.</text>
+		</string>
+		<string>
 			<key>String_Cloud_Pushing</key>
 			<text>Charakter wird hochgeladen...</text>
 		</string>
