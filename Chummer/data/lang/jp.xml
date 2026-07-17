@@ -619,6 +619,14 @@
 			<text>ログイン</text>
 		</string>
 		<string>
+			<key>Label_Cloud_ApiToken</key>
+			<text>API トークン:</text>
+		</string>
+		<string>
+			<key>Button_Cloud_UseApiToken</key>
+			<text>トークンを使用</text>
+		</string>
+		<string>
 			<key>Button_Cloud_Logout</key>
 			<text>ログアウト</text>
 		</string>

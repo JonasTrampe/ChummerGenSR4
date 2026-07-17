@@ -13,9 +13,17 @@ using System.Web.Script.Serialization;
 namespace Chummer
 {
 	/// <summary>
-	/// OAuth2 Authorization Code + PKCE flow for the RunnersPoint API, plus token persistence. Chummer
-	/// is distributed as a public client (no embeddable secret), so this uses PKCE with a loopback
-	/// redirect and the system browser - the standard pattern for native/desktop OAuth clients.
+	/// Authentication against the RunnersPoint API. Supports two mechanisms:
+	///
+	/// - apiToken: a long-lived bearer token (`rp_...`, minted server-side via `POST /api/v1/tokens`
+	///   while logged into the RunnersPoint website, up to a 90-day expiry) pasted into Chummer via
+	///   SetApiToken. This is what the real RunnersPoint server actually implements today - its
+	///   security firewall only wires up a custom ApiTokenAuthenticator, not an OAuth2 authorization
+	///   server - so this is the path that works right now.
+	/// - OAuth2 Authorization Code + PKCE via LoginAsync/the system browser: kept for if/when
+	///   RunnersPoint stands up a real authorization server. Chummer is a public client (no embeddable
+	///   secret), so PKCE with a loopback redirect is the standard pattern for that case. Untested
+	///   against a live server since none exists yet.
 	///
 	/// Token storage: DPAPI-protected on Windows (CurrentUser scope, so only the OS account that logged
 	/// in can decrypt it). On non-Windows platforms (Mono/Linux) there is currently no equivalent secret
@@ -47,6 +55,10 @@ namespace Chummer
 			public string AccessToken { get; set; }
 			public string RefreshToken { get; set; }
 			public DateTime ExpiresAtUtc { get; set; }
+			// True for a pasted apiToken (SetApiToken) - these have no refresh token and are used as-is
+			// until the server itself rejects them (expired or revoked), rather than tracked against a
+			// client-side expiry.
+			public bool IsApiToken { get; set; }
 		}
 
 		private TokenSet _objCachedTokens;
@@ -119,9 +131,33 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Returns a currently-valid access token, refreshing it first if it's expired. Throws if there's
-		/// no stored login or the refresh token has itself been revoked - callers should catch this and
-		/// prompt the user to LoginAsync() again.
+		/// Stores a pre-minted RunnersPoint apiToken (format "rp_...", from POST /api/v1/tokens on the
+		/// website) as the credential to use, replacing any existing OAuth or apiToken login. There is no
+		/// refresh for this path - once the server rejects it (expired or revoked), the caller needs a
+		/// fresh token pasted in again.
+		/// </summary>
+		public void SetApiToken(string strToken)
+		{
+			strToken = (strToken ?? "").Trim();
+			if (!strToken.StartsWith("rp_", StringComparison.Ordinal) || strToken.Length < 35)
+				throw new ArgumentException("That doesn't look like a RunnersPoint API token - it should start with \"rp_\".");
+
+			TokenSet objTokens = new TokenSet
+			{
+				AccessToken = strToken,
+				RefreshToken = null,
+				IsApiToken = true,
+				ExpiresAtUtc = DateTime.MaxValue,
+			};
+			SaveTokens(objTokens);
+			_objCachedTokens = objTokens;
+		}
+
+		/// <summary>
+		/// Returns a currently-valid access token. For a pasted apiToken, that's just the stored token -
+		/// there's no client-tracked expiry or refresh for it. For an OAuth login, refreshes first if
+		/// expired. Throws if there's no stored login or the refresh token has itself been revoked -
+		/// callers should catch this and prompt the user to log in again.
 		/// </summary>
 		public async Task<string> GetAccessTokenAsync()
 		{
@@ -129,7 +165,7 @@ namespace Chummer
 			if (objTokens == null)
 				throw new InvalidOperationException("Not logged in to RunnersPoint.");
 
-			if (DateTime.UtcNow < objTokens.ExpiresAtUtc)
+			if (objTokens.IsApiToken || DateTime.UtcNow < objTokens.ExpiresAtUtc)
 				return objTokens.AccessToken;
 
 			await RefreshTokensAsync(objTokens);
@@ -214,6 +250,7 @@ namespace Chummer
 			objTokens.AccessToken = objJson["accessToken"].ToString();
 			objTokens.RefreshToken = objJson.ContainsKey("refreshToken") ? objJson["refreshToken"].ToString() : null;
 			objTokens.ExpiresAtUtc = DateTime.Parse(objJson["expiresAtUtc"].ToString()).ToUniversalTime();
+			objTokens.IsApiToken = objJson.ContainsKey("isApiToken") && Convert.ToBoolean(objJson["isApiToken"]);
 
 			_objCachedTokens = objTokens;
 			return objTokens;
@@ -227,6 +264,7 @@ namespace Chummer
 				{ "accessToken", objTokens.AccessToken },
 				{ "refreshToken", objTokens.RefreshToken },
 				{ "expiresAtUtc", objTokens.ExpiresAtUtc.ToString("o") },
+				{ "isApiToken", objTokens.IsApiToken },
 			});
 			byte[] bytJson = Encoding.UTF8.GetBytes(strJson);
 

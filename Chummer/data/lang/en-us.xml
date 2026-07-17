@@ -617,6 +617,14 @@
 			<text>Log In</text>
 		</string>
 		<string>
+			<key>Label_Cloud_ApiToken</key>
+			<text>API Token:</text>
+		</string>
+		<string>
+			<key>Button_Cloud_UseApiToken</key>
+			<text>Use Token</text>
+		</string>
+		<string>
 			<key>Button_Cloud_Logout</key>
 			<text>Log Out</text>
 		</string>

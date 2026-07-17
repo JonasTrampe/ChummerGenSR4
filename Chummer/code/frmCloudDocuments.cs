@@ -58,6 +58,20 @@ namespace Chummer
 			}
 		}
 
+		private async void cmdUseApiToken_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				_objAuth.SetApiToken(txtApiToken.Text);
+				txtApiToken.Text = "";
+				await RefreshAsync();
+			}
+			catch (Exception ex)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_LoginFailed").Replace("{0}", ex.Message));
+			}
+		}
+
 		private void cmdLogout_Click(object sender, EventArgs e)
 		{
 			_objAuth.Logout();

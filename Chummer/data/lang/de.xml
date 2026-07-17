@@ -556,6 +556,14 @@
 			<text>Anmelden</text>
 		</string>
 		<string>
+			<key>Label_Cloud_ApiToken</key>
+			<text>API-Token:</text>
+		</string>
+		<string>
+			<key>Button_Cloud_UseApiToken</key>
+			<text>Token verwenden</text>
+		</string>
+		<string>
 			<key>Button_Cloud_Logout</key>
 			<text>Abmelden</text>
 		</string>
