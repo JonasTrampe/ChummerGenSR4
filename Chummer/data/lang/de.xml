@@ -6701,6 +6701,10 @@
 			<text>Pfad zur PDF-Betrachter:</text>
 		</string>
 		<string>
+			<key>Label_Options_CloudApiBaseUrl</key>
+			<text>Cloud-Dokumente-Server:</text>
+		</string>
+		<string>
 			<key>Label_Options_PDFLocation</key>
 			<text>Pfad zur PDF-Datei:</text>
 		</string>

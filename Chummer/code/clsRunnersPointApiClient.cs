@@ -114,8 +114,11 @@ namespace Chummer
 	/// </summary>
 	public class RunnersPointApiClient
 	{
-		// TODO: replace with the real base URL once RunnersPoint publishes one outside the example placeholder.
-		private const string BaseUrl = "https://api.runnerspoint.example/v1";
+		// Configurable via Options > Cloud Documents server (GlobalOptions.CloudApiBaseUrl), so it can
+		// point at a local dev server, a staging deployment, or eventually a real production host
+		// without a rebuild. Defaults to the local Symfony dev server's actual route prefix (/api/v1,
+		// not the /v1 the OpenAPI spec's example server URL still shows).
+		private static string BaseUrl => GlobalOptions.Instance.CloudApiBaseUrl;
 		private const string ClientName = "ChummerGenSR4";
 
 		private readonly HttpClient _objHttpClient;

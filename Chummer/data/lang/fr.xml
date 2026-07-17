@@ -5567,6 +5567,10 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<text>Emplacement de l'application PDF:</text>
 		</string>
 		<string>
+			<key>Label_Options_CloudApiBaseUrl</key>
+			<text>Serveur Cloud Documents:</text>
+		</string>
+		<string>
 			<key>Label_Options_PDFLocation</key>
 			<text>Emplacement du fichier PDF:</text>
 		</string>
