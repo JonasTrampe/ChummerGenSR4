@@ -713,6 +713,14 @@
 			<text>Archive Document</text>
 		</string>
 		<string>
+			<key>Message_Cloud_ConfirmPushShared</key>
+			<text>Push your current character's content to "{0}"? This overwrites the shared document for everyone it's shared with, not just you.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmPushShared</key>
+			<text>Push Update to Shared Document</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae</text>
 		</string>

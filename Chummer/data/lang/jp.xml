@@ -715,6 +715,14 @@
 			<text>ドキュメントをアーカイブ</text>
 		</string>
 		<string>
+			<key>Message_Cloud_ConfirmPushShared</key>
+			<text>現在のキャラクターの内容を「{0}」にプッシュしますか？ これはあなただけでなく、共有されている全員の共有ドキュメントを上書きします。</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmPushShared</key>
+			<text>共有ドキュメントに更新をプッシュ</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae キャラクター交換</text>
 		</string>

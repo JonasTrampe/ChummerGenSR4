@@ -709,6 +709,14 @@
 			<text>Archiver le document</text>
 		</string>
 		<string>
+			<key>Message_Cloud_ConfirmPushShared</key>
+			<text>Envoyer le contenu de votre personnage actuel vers « {0} » ? Cela écrase le document partagé pour tous ceux avec qui il est partagé, pas seulement pour vous.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmPushShared</key>
+			<text>Envoyer la mise à jour au document partagé</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae</text>
 		</string>

@@ -652,6 +652,14 @@
 			<text>Dokument archivieren</text>
 		</string>
 		<string>
+			<key>Message_Cloud_ConfirmPushShared</key>
+			<text>Inhalt Ihres aktuellen Charakters zu "{0}" senden? Dies überschreibt das geteilte Dokument für alle, mit denen es geteilt wurde, nicht nur für Sie.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmPushShared</key>
+			<text>Aktualisierung an geteiltes Dokument senden</text>
+		</string>
+		<string>
 			<key>Menu_Main_Omae</key>
 			<text>Omae</text>
 		</string>

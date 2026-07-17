@@ -214,6 +214,10 @@ namespace Chummer
 			if (objDocument.Permission != "write" || objDocument.ShareStatus != "active")
 				return;
 
+			if (MessageBox.Show(LanguageManager.Instance.GetString("Message_Cloud_ConfirmPushShared").Replace("{0}", objDocument.DisplayName ?? objDocument.Id),
+				LanguageManager.Instance.GetString("MessageTitle_Cloud_ConfirmPushShared"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+				return;
+
 			try
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Pushing"));
