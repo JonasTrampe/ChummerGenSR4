@@ -214,6 +214,11 @@ namespace Chummer
 		{
 			if (_objActiveCharacter == null)
 				return;
+			if (string.IsNullOrEmpty(_objActiveCharacter.FileName))
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotSavedLocally"));
+				return;
+			}
 
 			try
 			{
@@ -266,6 +271,11 @@ namespace Chummer
 		{
 			if (_objActiveCharacter == null || lstDocuments.SelectedItems.Count == 0)
 				return;
+			if (string.IsNullOrEmpty(_objActiveCharacter.FileName))
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotSavedLocally"));
+				return;
+			}
 			if (!(lstDocuments.SelectedItems[0].Tag is RunnersPointSharedDocument objDocument))
 				return;
 			if (objDocument.Permission != "write" || objDocument.ShareStatus != "active")

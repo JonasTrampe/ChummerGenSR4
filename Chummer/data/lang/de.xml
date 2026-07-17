@@ -644,6 +644,10 @@
 			<text>Der vorherige Upload wird noch validiert. Versuchen Sie es gleich noch einmal.</text>
 		</string>
 		<string>
+			<key>String_Cloud_NotSavedLocally</key>
+			<text>Speichern Sie diesen Charakter lokal (Datei > Speichern), bevor Sie ihn in die Cloud hochladen.</text>
+		</string>
+		<string>
 			<key>String_Cloud_PushIdempotencyConflict</key>
 			<text>Eine vorherige Anfrage mit derselben Anforderung wird noch verarbeitet. Warten Sie einen Moment und versuchen Sie es erneut.</text>
 		</string>

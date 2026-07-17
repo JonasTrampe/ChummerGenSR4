@@ -707,6 +707,10 @@
 			<text>前回のアップロードはまだ検証中です。しばらくしてから再試行してください。</text>
 		</string>
 		<string>
+			<key>String_Cloud_NotSavedLocally</key>
+			<text>クラウドにプッシュする前に、このキャラクターをローカルに保存してください（ファイル > 保存）。</text>
+		</string>
+		<string>
 			<key>String_Cloud_PushIdempotencyConflict</key>
 			<text>同じ内容の以前のリクエストがまだ処理中です。少し待ってから再試行してください。</text>
 		</string>

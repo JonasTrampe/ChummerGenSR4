@@ -705,6 +705,10 @@
 			<text>The previous push is still being validated. Try again shortly.</text>
 		</string>
 		<string>
+			<key>String_Cloud_NotSavedLocally</key>
+			<text>Save this character locally (File > Save) before pushing it to the cloud.</text>
+		</string>
+		<string>
 			<key>String_Cloud_PushIdempotencyConflict</key>
 			<text>A previous push with the same request is still being processed. Wait a moment and try again.</text>
 		</string>

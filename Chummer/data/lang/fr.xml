@@ -701,6 +701,10 @@
 			<text>L'envoi précédent est toujours en cours de validation. Réessayez dans un instant.</text>
 		</string>
 		<string>
+			<key>String_Cloud_NotSavedLocally</key>
+			<text>Enregistrez ce personnage localement (Fichier > Enregistrer) avant de l'envoyer vers le cloud.</text>
+		</string>
+		<string>
 			<key>String_Cloud_PushIdempotencyConflict</key>
 			<text>Une requête précédente identique est toujours en cours de traitement. Patientez un instant puis réessayez.</text>
 		</string>
