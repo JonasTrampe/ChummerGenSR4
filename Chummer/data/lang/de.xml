@@ -1156,6 +1156,30 @@
 			<text>Sie müssen erst eine Cyberware auswählen um einen Einbau hinzuzufügen.</text>
 		</string>
 		<string>
+			<key>Message_ForbiddenItemConflict</key>
+			<text>Dieser Gegenstand kann nicht mit {0} kombiniert werden, das Sie bereits besitzen.</text>
+		</string>
+		<string>
+			<key>MessageTitle_ForbiddenItemConflict</key>
+			<text>Widersprüchlicher Gegenstand</text>
+		</string>
+		<string>
+			<key>Message_NoDosesLeft</key>
+			<text>Sie haben keine Dosen dieser Droge mehr zum Einnehmen.</text>
+		</string>
+		<string>
+			<key>MessageTitle_NoDosesLeft</key>
+			<text>Keine Dosen mehr übrig</text>
+		</string>
+		<string>
+			<key>Message_AddictionTestReminder</key>
+			<text>Denken Sie daran, einen Abhängigkeitstest für {0} (Abhängigkeitswert {1}) durchzuführen - dies wird nicht automatisch gewürfelt.</text>
+		</string>
+		<string>
+			<key>MessageTitle_AddictionTestReminder</key>
+			<text>Erinnerung: Abhängigkeitstest</text>
+		</string>
+		<string>
 			<key>MessageTitle_SelectCyberware</key>
 			<text>Cyberware auswählen</text>
 		</string>
@@ -5516,6 +5540,14 @@
 		<string>
 			<key>Checkbox_SoftwareRunning</key>
 			<text>wird ausgeführt</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugTaken</key>
+			<text>Eingenommen</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugCrashing</key>
+			<text>Absturz</text>
 		</string>
 		<string>
 			<key>Checkbox_Option_CalculateCommlinkResponse</key>

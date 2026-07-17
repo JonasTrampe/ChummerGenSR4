@@ -960,6 +960,14 @@ namespace Chummer
 			if (lstCyberware.Text != "")
 			{
 				XmlNode objNode = _objXmlDocument.SelectSingleNode("/chummer/" + _strNode + "s/" + _strNode + "[name = \"" + lstCyberware.SelectedValue + "\"]");
+
+				string strConflictName;
+				if (new CommonFunctions(_objCharacter).CheckForbiddenItemConflict(objNode, out strConflictName))
+				{
+					MessageBox.Show(LanguageManager.Instance.GetString("Message_ForbiddenItemConflict").Replace("{0}", strConflictName), LanguageManager.Instance.GetString("MessageTitle_ForbiddenItemConflict"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					return;
+				}
+
 				_strSelectCategory = objNode["category"].InnerText;
 				_strSelectedCyberware = objNode["name"].InnerText;
 			}

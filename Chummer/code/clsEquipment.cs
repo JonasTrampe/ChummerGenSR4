@@ -9608,9 +9608,14 @@ namespace Chummer
 		protected string _strExtra = "";
 		protected bool _blnBonded = false;
 		protected bool _blnEquipped = true;
+		protected bool _blnCrashing = false;
 		protected bool _blnHomeNode = false;
 		protected XmlNode _nodBonus;
 		protected XmlNode _nodWeaponBonus;
+		protected XmlNode _nodCrash;
+		protected string _strDuration = "";
+		protected string _strAddictionPhysiological = "";
+		protected string _strAddictionPsychological = "";
 		protected Guid _guiWeaponID = new Guid();
 		protected List<Gear> _objChildren = new List<Gear>();
 		protected string _strNotes = "";
@@ -9727,6 +9732,10 @@ namespace Chummer
 			{
 			}
 			_nodBonus = objXmlGear["bonus"];
+			_nodCrash = objXmlGear["crash"]?["bonus"];
+			_strDuration = objXmlGear["duration"]?.InnerText ?? "";
+			_strAddictionPhysiological = objXmlGear["addictionrating"]?["physiological"]?.InnerText ?? "";
+			_strAddictionPsychological = objXmlGear["addictionrating"]?["psychological"]?.InnerText ?? "";
 			_intMaxRating = Convert.ToInt32(objXmlGear["rating"].InnerText);
 			try
 			{
@@ -9888,13 +9897,22 @@ namespace Chummer
 				}
 			}
 
+			// Drugs are consumables - just owning one doesn't grant its bonus, only actually taking a dose
+			// (toggling it Equipped, which also consumes one) does. Start unequipped so the checkbox/state
+			// reflects "not taken yet".
+			if (_strCategory == "Drugs" || _strCategory == "Awakened Drugs")
+				_blnEquipped = false;
+
 			// If the item grants a bonus, pass the information to the Improvement Manager.
 			if (objXmlGear.InnerXml.Contains("<bonus>"))
 			{
 				// Do not apply the Improvements if this is a Focus, unless we're speicifically creating a Weapon Focus. This is to avoid creating the Foci's Improvements twice (once when it's first added
-				// to the character which is incorrect, and once when the Focus is actually Bonded).
+				// to the character which is incorrect, and once when the Focus is actually Bonded). Same reasoning
+				// applies to Drugs, which only apply their bonus once actually taken (see ChangeGearEquippedStatus).
 				bool blnApply = true;
 				if ((_strCategory == "Foci" || _strCategory == "Metamagic Foci") && !objXmlGear["bonus"].InnerXml.Contains("selecttext"))
+					blnApply = false;
+				if (_strCategory == "Drugs" || _strCategory == "Awakened Drugs")
 					blnApply = false;
 
 				if (blnApply)
@@ -10108,8 +10126,13 @@ namespace Chummer
 			_strExtra = objGear.Extra;
 			_blnBonded = objGear.Bonded;
 			_blnEquipped = objGear.Equipped;
+			_blnCrashing = objGear.Crashing;
 			_blnHomeNode = objGear.HomeNode;
 			_nodBonus = objGear.Bonus;
+			_nodCrash = objGear.Crash;
+			_strDuration = objGear.Duration;
+			_strAddictionPhysiological = objGear.AddictionPhysiological;
+			_strAddictionPsychological = objGear.AddictionPsychological;
 			_nodWeaponBonus = objGear.WeaponBonus;
 			_guiWeaponID = Guid.Parse(objGear.WeaponID);
 			_strNotes = objGear.Notes;
@@ -10175,6 +10198,7 @@ namespace Chummer
 			objWriter.WriteElementString("extra", _strExtra);
 			objWriter.WriteElementString("bonded", _blnBonded.ToString());
 			objWriter.WriteElementString("equipped", _blnEquipped.ToString());
+			objWriter.WriteElementString("crashing", _blnCrashing.ToString());
 			objWriter.WriteElementString("homenode", _blnHomeNode.ToString());
 			if (_guiWeaponID != Guid.Empty)
 				objWriter.WriteElementString("weaponguid", _guiWeaponID.ToString());
@@ -10182,6 +10206,8 @@ namespace Chummer
 				objWriter.WriteRaw("<bonus>" + _nodBonus.InnerXml + "</bonus>");
 			else
 				objWriter.WriteElementString("bonus", "");
+			if (_nodCrash != null)
+				objWriter.WriteRaw("<crash>" + _nodCrash.InnerXml + "</crash>");
 			if (_nodWeaponBonus != null)
 				objWriter.WriteRaw("<weaponbonus>" + _nodWeaponBonus.InnerXml + "</weaponbonus>");
 			objWriter.WriteElementString("source", _strSource);
@@ -10316,6 +10342,14 @@ namespace Chummer
 			}
 			try
 			{
+				if (objNode["crashing"] != null)
+					_blnCrashing = Convert.ToBoolean(objNode["crashing"].InnerText);
+			}
+			catch
+			{
+			}
+			try
+			{
 				if (objNode["homenode"] != null)
 					_blnHomeNode = Convert.ToBoolean(objNode["homenode"].InnerText);
 			}
@@ -10323,6 +10357,7 @@ namespace Chummer
 			{
 			}
 			_nodBonus = objNode["bonus"];
+			_nodCrash = objNode["crash"];
 			try
 			{
 				if (objNode["weaponbonus"] != null)
@@ -10624,6 +10659,82 @@ namespace Chummer
 			set
 			{
 				_nodBonus = value;
+			}
+		}
+
+		/// <summary>
+		/// Crash Effect bonus node from the XML file (applies while Crashing is true). Consumables like
+		/// Drugs use this for the penalty that applies once the drug's high wears off.
+		/// </summary>
+		public XmlNode Crash
+		{
+			get
+			{
+				return _nodCrash;
+			}
+			set
+			{
+				_nodCrash = value;
+			}
+		}
+
+		/// <summary>
+		/// Whether the Crash Effect is currently active (e.g. a Drug's high has worn off).
+		/// </summary>
+		public bool Crashing
+		{
+			get
+			{
+				return _blnCrashing;
+			}
+			set
+			{
+				_blnCrashing = value;
+			}
+		}
+
+		/// <summary>
+		/// Duration text from the XML file (e.g. Drug effect duration). Informational only, not tracked in real time.
+		/// </summary>
+		public string Duration
+		{
+			get
+			{
+				return _strDuration;
+			}
+			set
+			{
+				_strDuration = value;
+			}
+		}
+
+		/// <summary>
+		/// Physiological Addiction Rating from the XML file. Informational only - not automatically rolled.
+		/// </summary>
+		public string AddictionPhysiological
+		{
+			get
+			{
+				return _strAddictionPhysiological;
+			}
+			set
+			{
+				_strAddictionPhysiological = value;
+			}
+		}
+
+		/// <summary>
+		/// Psychological Addiction Rating from the XML file. Informational only - not automatically rolled.
+		/// </summary>
+		public string AddictionPsychological
+		{
+			get
+			{
+				return _strAddictionPsychological;
+			}
+			set
+			{
+				_strAddictionPsychological = value;
 			}
 		}
 

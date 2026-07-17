@@ -1342,6 +1342,30 @@
 			<text>You must first select a piece of Cyberware to add a plugin to.</text>
 		</string>
 		<string>
+			<key>Message_ForbiddenItemConflict</key>
+			<text>This item cannot be combined with {0}, which you already have.</text>
+		</string>
+		<string>
+			<key>MessageTitle_ForbiddenItemConflict</key>
+			<text>Conflicting Item</text>
+		</string>
+		<string>
+			<key>Message_NoDosesLeft</key>
+			<text>You have no doses of this drug left to take.</text>
+		</string>
+		<string>
+			<key>MessageTitle_NoDosesLeft</key>
+			<text>No Doses Left</text>
+		</string>
+		<string>
+			<key>Message_AddictionTestReminder</key>
+			<text>Remember to make an Addiction Test for {0} (Addiction Rating {1}) - this is not rolled automatically.</text>
+		</string>
+		<string>
+			<key>MessageTitle_AddictionTestReminder</key>
+			<text>Addiction Test Reminder</text>
+		</string>
+		<string>
 			<key>MessageTitle_SelectCyberware</key>
 			<text>Select Cyberware</text>
 		</string>
@@ -3128,6 +3152,14 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		<string>
 			<key>Checkbox_SoftwareRunning</key>
 			<text>Running</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugTaken</key>
+			<text>Taken</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugCrashing</key>
+			<text>Crashing</text>
 		</string>
 		<string>
 			<key>Checkbox_BaseArmor</key>

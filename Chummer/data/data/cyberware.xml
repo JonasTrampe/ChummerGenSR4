@@ -667,6 +667,9 @@
 				</specificskill>
 			</bonus>
 			<senseimprovement>yes</senseimprovement>
+			<forbidden>
+				<item>Vision Enhancement</item>
+			</forbidden>
 		</cyberware>
 		<cyberware>
 			<name>Vision Magnification</name>
@@ -711,6 +714,9 @@
 				</specificskill>
 			</bonus>
 			<senseimprovement>yes</senseimprovement>
+			<forbidden>
+				<item>Audio Enhancement</item>
+			</forbidden>
 		</cyberware>
 		<cyberware>
 			<name>Balance Augmenter</name>

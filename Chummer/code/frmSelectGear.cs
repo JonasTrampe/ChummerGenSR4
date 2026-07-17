@@ -1172,6 +1172,13 @@ namespace Chummer
 				else
 					objNode = _objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + lstGear.SelectedValue + "\" and category = \"" + cboCategory.SelectedValue + "\"]");
 
+				string strConflictName;
+				if (new CommonFunctions(_objCharacter).CheckForbiddenItemConflict(objNode, out strConflictName))
+				{
+					MessageBox.Show(LanguageManager.Instance.GetString("Message_ForbiddenItemConflict").Replace("{0}", strConflictName), LanguageManager.Instance.GetString("MessageTitle_ForbiddenItemConflict"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					return;
+				}
+
 				_strSelectedGear = objNode["name"].InnerText;
 				_strSelectedCategory = objNode["category"].InnerText;
 				_strSelectCategory = objNode["category"].InnerText;

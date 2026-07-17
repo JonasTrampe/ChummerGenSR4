@@ -1344,6 +1344,30 @@
 			<text>プラグインを追加するサイバーウェアを先に選択してください.</text>
 		</string>
 		<string>
+			<key>Message_ForbiddenItemConflict</key>
+			<text>このアイテムは、既に所持している{0}と併用できません。</text>
+		</string>
+		<string>
+			<key>MessageTitle_ForbiddenItemConflict</key>
+			<text>アイテムの競合</text>
+		</string>
+		<string>
+			<key>Message_NoDosesLeft</key>
+			<text>このドラッグの残り服用回数がありません。</text>
+		</string>
+		<string>
+			<key>MessageTitle_NoDosesLeft</key>
+			<text>服用回数切れ</text>
+		</string>
+		<string>
+			<key>Message_AddictionTestReminder</key>
+			<text>{0}(依存度 {1})の依存判定を行うのを忘れないでください。これは自動では判定されません。</text>
+		</string>
+		<string>
+			<key>MessageTitle_AddictionTestReminder</key>
+			<text>依存判定のリマインダー</text>
+		</string>
+		<string>
 			<key>MessageTitle_SelectCyberware</key>
 			<text>サイバーウェアを選択</text>
 		</string>
@@ -3129,6 +3153,14 @@
 		<string>
 			<key>Checkbox_SoftwareRunning</key>
 			<text>作動中</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugTaken</key>
+			<text>服用済み</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugCrashing</key>
+			<text>クラッシュ中</text>
 		</string>
 		<string>
 			<key>Checkbox_BaseArmor</key>

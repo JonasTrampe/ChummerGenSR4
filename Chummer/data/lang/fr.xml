@@ -1338,6 +1338,30 @@
 			<text>Vous devez d'abord sélectionner une piece de Cyberware avant de pouvoir lui installer une extension.</text>
 		</string>
 		<string>
+			<key>Message_ForbiddenItemConflict</key>
+			<text>Cet objet ne peut pas être combiné avec {0}, que vous possédez déjà.</text>
+		</string>
+		<string>
+			<key>MessageTitle_ForbiddenItemConflict</key>
+			<text>Objet incompatible</text>
+		</string>
+		<string>
+			<key>Message_NoDosesLeft</key>
+			<text>Vous n'avez plus de doses de cette drogue à prendre.</text>
+		</string>
+		<string>
+			<key>MessageTitle_NoDosesLeft</key>
+			<text>Plus de doses</text>
+		</string>
+		<string>
+			<key>Message_AddictionTestReminder</key>
+			<text>N'oubliez pas de faire un test de dépendance pour {0} (indice de dépendance {1}) - ce test n'est pas effectué automatiquement.</text>
+		</string>
+		<string>
+			<key>MessageTitle_AddictionTestReminder</key>
+			<text>Rappel : test de dépendance</text>
+		</string>
+		<string>
 			<key>MessageTitle_SelectCyberware</key>
 			<text>Sélectionnez du Cyberware</text>
 		</string>
@@ -3112,6 +3136,14 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string>
 			<key>Checkbox_SoftwareRunning</key>
 			<text>En exécution</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugTaken</key>
+			<text>Pris</text>
+		</string>
+		<string>
+			<key>Checkbox_DrugCrashing</key>
+			<text>Contrecoup</text>
 		</string>
 		<string>
 			<key>Checkbox_BaseArmor</key>

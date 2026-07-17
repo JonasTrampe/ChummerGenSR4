@@ -21655,12 +21655,18 @@
 				<page>151</page>
 				<translate>Wahrnehmung</translate>
 				<specs>
+					<spec translate="Astral">Astral</spec>
 					<spec translate="Hören">Hearing</spec>
 					<spec translate="Riechen">Scent</spec>
 					<spec translate="Schmecken">Taste</spec>
 					<spec translate="Tasten">Touch</spec>
 					<spec translate="Sehen">Visual</spec>
 				</specs>
+			</skill>
+			<skill>
+				<name>Perception (Astral)</name>
+				<page>151</page>
+				<translate>Wahrnehmung (Astral)</translate>
 			</skill>
 			<skill>
 				<name>Perception (Audio)</name>

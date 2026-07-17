@@ -194,6 +194,7 @@
             this.cmdEdgeSpent = new System.Windows.Forms.Button();
             this.lblMovementLabel = new System.Windows.Forms.Label();
             this.chkGearEquipped = new System.Windows.Forms.CheckBox();
+            this.chkGearCrashing = new System.Windows.Forms.CheckBox();
             this.lblEnemies = new System.Windows.Forms.Label();
             this.lblKnowledgeSkills = new System.Windows.Forms.Label();
             this.lblActiveSkills = new System.Windows.Forms.Label();
@@ -2581,7 +2582,20 @@
             this.chkGearEquipped.Text = "Equipped";
             this.chkGearEquipped.UseVisualStyleBackColor = true;
             this.chkGearEquipped.CheckedChanged += new System.EventHandler(this.chkGearEquipped_CheckedChanged);
-            // 
+            //
+            // chkGearCrashing
+            //
+            this.chkGearCrashing.AutoSize = true;
+            this.chkGearCrashing.Location = new System.Drawing.Point(310, 276);
+            this.chkGearCrashing.Name = "chkGearCrashing";
+            this.chkGearCrashing.Size = new System.Drawing.Size(71, 17);
+            this.chkGearCrashing.TabIndex = 98;
+            this.chkGearCrashing.Tag = "Checkbox_DrugCrashing";
+            this.chkGearCrashing.Text = "Crashing";
+            this.chkGearCrashing.UseVisualStyleBackColor = true;
+            this.chkGearCrashing.Visible = false;
+            this.chkGearCrashing.CheckedChanged += new System.EventHandler(this.chkGearCrashing_CheckedChanged);
+            //
             // lblEnemies
             // 
             this.lblEnemies.AutoSize = true;
@@ -6566,6 +6580,7 @@
             this.tabGear.Controls.Add(this.lblGearDamageLabel);
             this.tabGear.Controls.Add(this.cmdAddLocation);
             this.tabGear.Controls.Add(this.chkGearEquipped);
+            this.tabGear.Controls.Add(this.chkGearCrashing);
             this.tabGear.Controls.Add(this.lblGearRating);
             this.tabGear.Controls.Add(this.lblGearQty);
             this.tabGear.Controls.Add(this.lblFoci);
@@ -12165,6 +12180,7 @@
 		private System.Windows.Forms.Label lblComposure;
 		private System.Windows.Forms.Label lblComposureLabel;
 		private System.Windows.Forms.CheckBox chkGearEquipped;
+		private System.Windows.Forms.CheckBox chkGearCrashing;
 		private System.Windows.Forms.Label lblComplexFormSkill;
 		private System.Windows.Forms.Label lblComplexFormSkillLabel;
 		private System.Windows.Forms.Label lblArmorCapacity;

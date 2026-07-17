@@ -13309,9 +13309,55 @@ namespace Chummer
 			try
 			{
 				objSelectedGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+
+				bool blnIsDrug = objSelectedGear.Category == "Drugs" || objSelectedGear.Category == "Awakened Drugs";
+				if (blnIsDrug && chkGearEquipped.Checked)
+				{
+					if (objSelectedGear.Quantity < 1)
+					{
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_NoDosesLeft"), LanguageManager.Instance.GetString("MessageTitle_NoDosesLeft"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+						_blnSkipRefresh = true;
+						chkGearEquipped.Checked = false;
+						_blnSkipRefresh = false;
+						return;
+					}
+
+					objSelectedGear.Quantity -= 1;
+					nudGearQty.Value = objSelectedGear.Quantity;
+
+					string strAddictionRating = objSelectedGear.AddictionPhysiological;
+					if (objSelectedGear.AddictionPsychological != string.Empty)
+						strAddictionRating += (strAddictionRating != string.Empty ? " / " : "") + objSelectedGear.AddictionPsychological;
+					string strAddictionMessage = LanguageManager.Instance.GetString("Message_AddictionTestReminder").Replace("{0}", objSelectedGear.DisplayNameShort).Replace("{1}", strAddictionRating != string.Empty ? strAddictionRating : "?");
+					MessageBox.Show(strAddictionMessage, LanguageManager.Instance.GetString("MessageTitle_AddictionTestReminder"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+				}
+
 				objSelectedGear.Equipped = chkGearEquipped.Checked;
 
 				_objController.ChangeGearEquippedStatus(objSelectedGear, chkGearEquipped.Checked);
+
+				RefreshSelectedGear();
+				UpdateCharacterInfo();
+
+				_blnIsDirty = true;
+				UpdateWindowTitle();
+			}
+			catch
+			{
+			}
+		}
+
+		private void chkGearCrashing_CheckedChanged(object sender, EventArgs e)
+		{
+			if (_blnSkipRefresh)
+				return;
+
+			try
+			{
+				Gear objSelectedGear = _objFunctions.FindGear(treGear.SelectedNode.Tag.ToString(), _objCharacter.Gear);
+				objSelectedGear.Crashing = chkGearCrashing.Checked;
+
+				_objController.ChangeGearCrashingStatus(objSelectedGear, chkGearCrashing.Checked);
 
 				RefreshSelectedGear();
 				UpdateCharacterInfo();
@@ -17790,6 +17836,11 @@ namespace Chummer
 					//nudGearQty.Minimum = objGear.CostFor;
 					chkGearEquipped.Visible = true;
 					chkGearEquipped.Checked = objGear.Equipped;
+					bool blnIsDrugGear = objGear.Category == "Drugs" || objGear.Category == "Awakened Drugs";
+					if (blnIsDrugGear)
+						chkGearEquipped.Text = LanguageManager.Instance.GetString("Checkbox_DrugTaken");
+					chkGearCrashing.Visible = blnIsDrugGear && objGear.Crash != null;
+					chkGearCrashing.Checked = objGear.Crashing;
 					_blnSkipRefresh = false;
 				}
 				else
@@ -17798,6 +17849,7 @@ namespace Chummer
 					_blnSkipRefresh = true;
 					chkGearEquipped.Visible = true;
 					chkGearEquipped.Checked = objGear.Equipped;
+					chkGearCrashing.Visible = false;
 
 					// If this is a Program, determine if its parent Gear (if any) is a Commlink. If so, show the Equipped checkbox.
 					if (objGear.IsProgram && _objOptions.CalculateCommlinkResponse)

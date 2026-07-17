@@ -806,6 +806,7 @@
 			<default>Yes</default>
 			<skillgroup />
 			<specs>
+				<spec>Astral</spec>
 				<spec>Hearing</spec>
 				<spec>Scent</spec>
 				<spec>Taste</spec>
@@ -814,6 +815,19 @@
 			</specs>
 			<source>SR4</source>
 			<page>124</page>
+		</skill>
+		<skill>
+			<name>Perception (Astral)</name>
+			<attribute>MAG</attribute>
+			<category>Magical Active</category>
+			<default>No</default>
+			<skillgroup />
+			<specs />
+			<source>SR4</source>
+			<page>124</page>
+			<isMeta>true</isMeta>
+			<metaBase>Perception</metaBase>
+			<metaSpec>Astral</metaSpec>
 		</skill>
 		<skill>
 			<name>Perception (Audio)</name>

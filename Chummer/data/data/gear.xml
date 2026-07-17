@@ -2673,6 +2673,9 @@
 			</bonus>
 			<source>SR4</source>
 			<page>333</page>
+			<forbidden>
+				<item>Audio Enhancement</item>
+			</forbidden>
 		</gear>
 		<gear>
 			<name>Earbuds</name>
@@ -2821,6 +2824,9 @@
 			</bonus>
 			<source>SR4</source>
 			<page>333</page>
+			<forbidden>
+				<item>Vision Enhancement</item>
+			</forbidden>
 		</gear>
 		<gear>
 			<name>Vision Magnification</name>
@@ -3770,6 +3776,12 @@
 			<rating>0</rating>
 			<avail>0</avail>
 			<cost>1</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>1</bonus>
+				</specificskill>
+			</bonus>
 			<source>AR</source>
 			<page>74</page>
 		</gear>
@@ -3824,6 +3836,12 @@
 			<rating>0</rating>
 			<avail>3R</avail>
 			<cost>10</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>1</bonus>
+				</specificskill>
+			</bonus>
 			<source>AR</source>
 			<page>74</page>
 		</gear>
@@ -3932,6 +3950,12 @@
 			<rating>0</rating>
 			<avail>2R</avail>
 			<cost>50</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>2</bonus>
+				</specificskill>
+			</bonus>
 			<source>SR4</source>
 			<page>258</page>
 		</gear>
@@ -3950,6 +3974,12 @@
 			<rating>0</rating>
 			<avail>2R</avail>
 			<cost>10</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>1</bonus>
+				</specificskill>
+			</bonus>
 			<source>SR4</source>
 			<page>258</page>
 		</gear>
@@ -3986,6 +4016,12 @@
 			<rating>0</rating>
 			<avail>6R</avail>
 			<cost>40</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>1</bonus>
+				</specificskill>
+			</bonus>
 			<source>AR</source>
 			<page>77</page>
 		</gear>
@@ -4013,6 +4049,12 @@
 			<rating>0</rating>
 			<avail>4R</avail>
 			<cost>50</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception</name>
+					<bonus>2</bonus>
+				</specificskill>
+			</bonus>
 			<source>AR</source>
 			<page>75</page>
 		</gear>

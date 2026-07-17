@@ -615,6 +615,7 @@
 			this.lblGearDamageLabel = new System.Windows.Forms.Label();
 			this.cmdAddLocation = new System.Windows.Forms.Button();
 			this.chkGearEquipped = new System.Windows.Forms.CheckBox();
+			this.chkGearCrashing = new System.Windows.Forms.CheckBox();
 			this.treFoci = new System.Windows.Forms.TreeView();
 			this.lblGearSource = new System.Windows.Forms.Label();
 			this.lblGearSourceLabel = new System.Windows.Forms.Label();
@@ -7038,6 +7039,7 @@
 			this.tabGear.Controls.Add(this.lblGearDamageLabel);
 			this.tabGear.Controls.Add(this.cmdAddLocation);
 			this.tabGear.Controls.Add(this.chkGearEquipped);
+			this.tabGear.Controls.Add(this.chkGearCrashing);
 			this.tabGear.Controls.Add(this.lblFoci);
 			this.tabGear.Controls.Add(this.treFoci);
 			this.tabGear.Controls.Add(this.lblGearSource);
@@ -7199,7 +7201,20 @@
 			this.chkGearEquipped.UseVisualStyleBackColor = true;
 			this.chkGearEquipped.Visible = false;
 			this.chkGearEquipped.CheckedChanged += new System.EventHandler(this.chkGearEquipped_CheckedChanged);
-			// 
+			//
+			// chkGearCrashing
+			//
+			this.chkGearCrashing.AutoSize = true;
+			this.chkGearCrashing.Location = new System.Drawing.Point(310, 276);
+			this.chkGearCrashing.Name = "chkGearCrashing";
+			this.chkGearCrashing.Size = new System.Drawing.Size(71, 17);
+			this.chkGearCrashing.TabIndex = 94;
+			this.chkGearCrashing.Tag = "Checkbox_DrugCrashing";
+			this.chkGearCrashing.Text = "Crashing";
+			this.chkGearCrashing.UseVisualStyleBackColor = true;
+			this.chkGearCrashing.Visible = false;
+			this.chkGearCrashing.CheckedChanged += new System.EventHandler(this.chkGearCrashing_CheckedChanged);
+			//
 			// treFoci
 			// 
 			this.treFoci.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -9889,6 +9904,7 @@
 		private System.Windows.Forms.Label lblComposure;
 		private System.Windows.Forms.Label lblComposureLabel;
 		private System.Windows.Forms.CheckBox chkGearEquipped;
+		private System.Windows.Forms.CheckBox chkGearCrashing;
 		private System.Windows.Forms.ToolStripMenuItem mnuSpecialMutantCritter;
 		private System.Windows.Forms.ToolStripMenuItem mnuSpecialToxicCritter;
 		private System.Windows.Forms.Label lblComplexFormSkill;

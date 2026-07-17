@@ -452,8 +452,15 @@
 			<capacity>0</capacity>
 			<avail>6</avail>
 			<cost>5000</cost>
+			<bonus>
+				<specificskill>
+					<name>Perception (Audio)</name>
+					<bonus>1</bonus>
+				</specificskill>
+			</bonus>
 			<source>AU</source>
 			<page>65</page>
+			<senseimprovement>yes</senseimprovement>
 		</bioware>
 		<bioware>
 			<name>Mender</name>
@@ -1226,6 +1233,9 @@
 			<forcegrade>Standard</forcegrade>
 			<source>AU</source>
 			<page>90</page>
+			<forbidden>
+				<item>Enhanced Protein Exchange, Synch</item>
+			</forbidden>
 		</bioware>
 		<bioware>
 			<name>Enhanced Protein Exchange, Hyper-Glucagon</name>
@@ -1330,6 +1340,9 @@
 			<forcegrade>Standard</forcegrade>
 			<source>AU</source>
 			<page>91</page>
+			<forbidden>
+				<item>Enhanced Protein Exchange, Dynomitan</item>
+			</forbidden>
 		</bioware>
 		<bioware>
 			<name>Enhanced Protein Exchange, Vasocon</name>

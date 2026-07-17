@@ -517,6 +517,69 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// Check whether adding the given piece of cyberware/bioware/gear data would conflict with an
+		/// already-owned item listed in its &lt;forbidden&gt;&lt;item&gt; entries (e.g. the gear and cyberware
+		/// versions of Vision/Audio Enhancement, or Enhanced Protein Exchange Dynomitan/Synch).
+		/// </summary>
+		/// <param name="objXmlAddNode">XmlNode of the item being added.</param>
+		/// <param name="strConflictName">Name of the already-owned item it conflicts with, if any.</param>
+		/// <returns>True if a conflict was found.</returns>
+		public bool CheckForbiddenItemConflict(XmlNode objXmlAddNode, out string strConflictName)
+		{
+			strConflictName = "";
+			if (objXmlAddNode == null)
+				return false;
+
+			XmlNodeList objXmlForbiddenList = objXmlAddNode.SelectNodes("forbidden/item");
+			if (objXmlForbiddenList == null || objXmlForbiddenList.Count == 0)
+				return false;
+
+			List<string> lstForbidden = new List<string>();
+			foreach (XmlNode objXmlForbidden in objXmlForbiddenList)
+				lstForbidden.Add(objXmlForbidden.InnerText);
+
+			foreach (Cyberware objCyberware in FlattenCyberware(_objCharacter.Cyberware))
+			{
+				if (lstForbidden.Contains(objCyberware.Name))
+				{
+					strConflictName = objCyberware.Name;
+					return true;
+				}
+			}
+
+			foreach (Gear objGear in FlattenGear(_objCharacter.Gear))
+			{
+				if (lstForbidden.Contains(objGear.Name))
+				{
+					strConflictName = objGear.Name;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private IEnumerable<Cyberware> FlattenCyberware(List<Cyberware> lstCyberware)
+		{
+			foreach (Cyberware objCyberware in lstCyberware)
+			{
+				yield return objCyberware;
+				foreach (Cyberware objChild in FlattenCyberware(objCyberware.Children))
+					yield return objChild;
+			}
+		}
+
+		private IEnumerable<Gear> FlattenGear(List<Gear> lstGear)
+		{
+			foreach (Gear objGear in lstGear)
+			{
+				yield return objGear;
+				foreach (Gear objChild in FlattenGear(objGear.Children))
+					yield return objChild;
+			}
+		}
+
+		/// <summary>
 		/// Locate a piece of Cyberware within the character's Cyberware.
 		/// </summary>
 		/// <param name="strGuid">InternalId of the Cyberware to find.</param>

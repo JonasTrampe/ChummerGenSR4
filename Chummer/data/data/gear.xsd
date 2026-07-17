@@ -337,6 +337,29 @@
                     <xs:element name="source" type="xs:string" minOccurs="1" maxOccurs="1" />
                     <xs:element name="page" type="xs:string" minOccurs="1" maxOccurs="1" />
 					<xs:element name="senseimprovement" type="xs:string" minOccurs="0" maxOccurs="1" />
+					<xs:element name="forbidden" minOccurs="0" maxOccurs="1">
+					  <xs:complexType>
+					    <xs:sequence>
+						  <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+					  </xs:complexType>
+					</xs:element>
+					<xs:element name="duration" type="xs:string" minOccurs="0" maxOccurs="1" />
+					<xs:element name="crash" minOccurs="0" maxOccurs="1">
+					  <xs:complexType>
+					    <xs:sequence>
+						  <xs:element ref="bonus" minOccurs="0" maxOccurs="1" />
+						</xs:sequence>
+					  </xs:complexType>
+					</xs:element>
+					<xs:element name="addictionrating" minOccurs="0" maxOccurs="1">
+					  <xs:complexType>
+					    <xs:sequence>
+						  <xs:element name="physiological" type="xs:string" minOccurs="0" maxOccurs="1" />
+						  <xs:element name="psychological" type="xs:string" minOccurs="0" maxOccurs="1" />
+						</xs:sequence>
+					  </xs:complexType>
+					</xs:element>
 					<xs:element ref="gears" minOccurs="0" maxOccurs="1" />
                   </xs:sequence>
                 </xs:complexType>

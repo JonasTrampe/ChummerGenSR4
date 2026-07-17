@@ -1040,5 +1040,24 @@ namespace Chummer
 				ChangeGearEquippedStatus(objGear, blnEquipped);
 			}
 		}
+
+		/// <summary>
+		/// Change the Crashing status of a piece of Gear (e.g. a Drug's Crash Effect once its high wears off).
+		/// Kept separate from ChangeGearEquippedStatus/Equipped so the Crash Effect's Improvements can be
+		/// added/removed independently of whatever bonus the item grants while actively Equipped/Taken.
+		/// </summary>
+		/// <param name="objGear">Gear object to change.</param>
+		/// <param name="blnCrashing">Whether or not the Gear's Crash Effect is currently active.</param>
+		public void ChangeGearCrashingStatus(Gear objGear, bool blnCrashing)
+		{
+			if (objGear.Crash == null)
+				return;
+
+			string strCrashSourceName = objGear.InternalId + "-crash";
+			if (blnCrashing)
+				_objImprovementManager.CreateImprovements(Improvement.ImprovementSource.Gear, strCrashSourceName, objGear.Crash, false, objGear.Rating, objGear.DisplayNameShort);
+			else
+				_objImprovementManager.RemoveImprovements(Improvement.ImprovementSource.Gear, strCrashSourceName);
+		}
 	}
 }
