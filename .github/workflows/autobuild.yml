@@ -121,7 +121,11 @@ jobs:
         uses: NuGet/setup-nuget@v4
 
       - name: Restore NuGet packages
-        run: nuget restore Chummer/Chummer.csproj
+        # Points at the .sln, not Chummer.csproj directly: nuget.exe needs a solution (or an explicit
+        # -SolutionDirectory) to know where the packages/ folder is. It gracefully skips
+        # Chummer.Tests.csproj's SDK-style PackageReferences (that's dotnet's job, not classic
+        # nuget.exe's) and still restores Chummer.csproj's packages.config correctly.
+        run: nuget restore ChummerGenSR4.sln
 
       - name: Build the app under Mono
         # Builds only the WinForms app project, not the whole solution - Mono's bundled msbuild/xbuild
