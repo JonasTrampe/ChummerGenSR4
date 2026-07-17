@@ -83,19 +83,24 @@ namespace Chummer
 					_strGameProfileFormat = objProfile.Formats.FirstOrDefault(f => f == "chum") ?? objProfile.Formats.FirstOrDefault() ?? "chum";
 				}
 
-				RunnersPointDocumentPage objPage = await _objApiClient.ListDocumentsAsync(_strGameProfileId);
 				lstDocuments.Items.Clear();
-				foreach (RunnersPointDocument objDocument in objPage.Items)
+				string strCursor = null;
+				do
 				{
-					ListViewItem objItem = new ListViewItem(new[]
+					RunnersPointDocumentPage objPage = await _objApiClient.ListDocumentsAsync(_strGameProfileId, strCursor);
+					foreach (RunnersPointDocument objDocument in objPage.Items)
 					{
-						string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName,
-						objDocument.ValidationState,
-						objDocument.UpdatedAt.ToString("g"),
-					});
-					objItem.Tag = objDocument;
-					lstDocuments.Items.Add(objItem);
-				}
+						ListViewItem objItem = new ListViewItem(new[]
+						{
+							string.IsNullOrEmpty(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName,
+							objDocument.ValidationState,
+							objDocument.UpdatedAt.ToString("g"),
+						});
+						objItem.Tag = objDocument;
+						lstDocuments.Items.Add(objItem);
+					}
+					strCursor = objPage.NextCursor;
+				} while (!string.IsNullOrEmpty(strCursor));
 
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
@@ -110,6 +115,10 @@ namespace Chummer
 			await RefreshAsync();
 		}
 
+		// States in which a document's most recent revision hasn't finished the async quarantine/
+		// validation pipeline yet. Pushing on top of one of these would race the in-flight validation.
+		private static readonly string[] s_astrInFlightStates = { "quarantined", "scanning", "validating", "processing" };
+
 		private async void cmdPushCurrent_Click(object sender, EventArgs e)
 		{
 			if (_objActiveCharacter == null)
@@ -119,25 +128,38 @@ namespace Chummer
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Pushing"));
 				byte[] bytContent = File.ReadAllBytes(_objActiveCharacter.FileName);
+				RunnersPointRevisionStatus objStatus;
 
 				if (string.IsNullOrEmpty(_objActiveCharacter.CloudDocumentId))
 				{
-					RunnersPointRevisionStatus objStatus = await _objApiClient.CreateDocumentAsync(bytContent, _strGameProfileId, _strGameProfileFormat);
+					objStatus = await _objApiClient.CreateDocumentAsync(bytContent, _strGameProfileId, _strGameProfileFormat);
 					_objActiveCharacter.CloudDocumentId = objStatus.DocumentId;
 					_objActiveCharacter.Save();
 				}
 				else
 				{
 					Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(_objActiveCharacter.CloudDocumentId);
-					await _objApiClient.PushRevisionAsync(_objActiveCharacter.CloudDocumentId, bytContent, objCurrent.Item2, _strGameProfileId, _strGameProfileFormat);
+					if (s_astrInFlightStates.Contains(objCurrent.Item1.ValidationState))
+					{
+						UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushInFlight"));
+						return;
+					}
+					objStatus = await _objApiClient.PushRevisionAsync(_objActiveCharacter.CloudDocumentId, bytContent, objCurrent.Item2, _strGameProfileId, _strGameProfileFormat);
 				}
 
-				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushAccepted"));
+				string strAccepted = LanguageManager.Instance.GetString("String_Cloud_PushAccepted");
+				if (objStatus.Messages.Count > 0)
+					strAccepted += " " + string.Join(" ", objStatus.Messages);
+				UpdateStatus(strAccepted);
 				await RefreshAsync();
 			}
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushIdempotencyConflict"));
 			}
 			catch (Exception ex)
 			{
@@ -145,11 +167,24 @@ namespace Chummer
 			}
 		}
 
+		// Whether downloadRevision is expected to work for a given document.validationState. The API
+		// doesn't currently document this (see open-questions doc: "whether warning-state revisions
+		// are downloadable" is unresolved) - "valid" and "warning" are the conservative assumption;
+		// "processing"/"rejected"/"archived" are blocked client-side with an explanation instead of
+		// just letting the download call fail with an unclear server error.
+		private static readonly string[] s_astrDownloadableStates = { "valid", "warning" };
+
 		private async void cmdDownload_Click(object sender, EventArgs e)
 		{
 			if (lstDocuments.SelectedItems.Count == 0)
 				return;
 			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+
+			if (!s_astrDownloadableStates.Contains(objDocument.ValidationState))
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotDownloadable").Replace("{0}", objDocument.ValidationState));
+				return;
+			}
 
 			SaveFileDialog objDialog = new SaveFileDialog();
 			objDialog.Filter = "Chummer Files (*.chum)|*.chum|All Files (*.*)|*.*";

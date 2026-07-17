@@ -675,6 +675,18 @@
 			<text>ローカルのコピーがクラウド上のバージョンより古くなっています。再度アップロードする前に最新版をダウンロードしてください。</text>
 		</string>
 		<string>
+			<key>String_Cloud_PushInFlight</key>
+			<text>前回のアップロードはまだ検証中です。しばらくしてから再試行してください。</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushIdempotencyConflict</key>
+			<text>同じ内容の以前のリクエストがまだ処理中です。少し待ってから再試行してください。</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotDownloadable</key>
+			<text>このドキュメントは現在ダウンロードできません（状態: {0}）。</text>
+		</string>
+		<string>
 			<key>String_Cloud_Downloading</key>
 			<text>ダウンロード中...</text>
 		</string>

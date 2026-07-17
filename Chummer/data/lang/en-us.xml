@@ -673,6 +673,18 @@
 			<text>Your local copy is out of date with the cloud version. Download the latest version before pushing again.</text>
 		</string>
 		<string>
+			<key>String_Cloud_PushInFlight</key>
+			<text>The previous push is still being validated. Try again shortly.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushIdempotencyConflict</key>
+			<text>A previous push with the same request is still being processed. Wait a moment and try again.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotDownloadable</key>
+			<text>This document can't be downloaded right now (state: {0}).</text>
+		</string>
+		<string>
 			<key>String_Cloud_Downloading</key>
 			<text>Downloading...</text>
 		</string>

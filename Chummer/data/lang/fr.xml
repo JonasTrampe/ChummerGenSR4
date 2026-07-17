@@ -669,6 +669,18 @@
 			<text>Votre copie locale n'est pas à jour par rapport à la version en ligne. Téléchargez la dernière version avant de réessayer.</text>
 		</string>
 		<string>
+			<key>String_Cloud_PushInFlight</key>
+			<text>L'envoi précédent est toujours en cours de validation. Réessayez dans un instant.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushIdempotencyConflict</key>
+			<text>Une requête précédente identique est toujours en cours de traitement. Patientez un instant puis réessayez.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotDownloadable</key>
+			<text>Ce document ne peut pas être téléchargé pour le moment (état : {0}).</text>
+		</string>
+		<string>
 			<key>String_Cloud_Downloading</key>
 			<text>Téléchargement...</text>
 		</string>
