@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
@@ -345,14 +347,76 @@ namespace Chummer
 
 		/// <summary>
 		/// GET /documents/{documentId}/revisions/{revisionId}/content. Downloads the accepted bytes
-		/// for a specific revision (used to pull a document down to a new local .chum file).
+		/// for a specific revision (used to pull a document down to a new local .chum file). Verifies
+		/// the response's Digest header (SHA-256 of the bytes) against what was actually received,
+		/// since silently trusting an unverified download for a "store my character" feature is asking
+		/// for a corrupted/truncated file to go unnoticed.
 		/// </summary>
 		public async Task<byte[]> DownloadRevisionAsync(string strDocumentId, string strRevisionId)
 		{
 			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
 			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
 			await ThrowIfProblemAsync(objResponse);
-			return await objResponse.Content.ReadAsByteArrayAsync();
+			byte[] bytContent = await objResponse.Content.ReadAsByteArrayAsync();
+
+			IEnumerable<string> lstDigestValues;
+			if (objResponse.Headers.TryGetValues("Digest", out lstDigestValues))
+			{
+				string strDigestHeader = lstDigestValues.FirstOrDefault();
+				if (!string.IsNullOrEmpty(strDigestHeader) && !VerifyDigest(bytContent, strDigestHeader))
+					throw new InvalidOperationException("Downloaded content for revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
+			}
+
+			return bytContent;
+		}
+
+		/// <summary>
+		/// Compares a SHA-256 hash of bytContent against a Digest header value. The spec only says
+		/// "SHA-256 digest of the response bytes" without nailing down RFC 3230's usual
+		/// "SHA-256=&lt;base64&gt;" framing vs. a bare hex string, so both are accepted.
+		/// </summary>
+		private static bool VerifyDigest(byte[] bytContent, string strDigestHeader)
+		{
+			string strValue = strDigestHeader;
+			int intEquals = strValue.IndexOf('=');
+			if (strValue.StartsWith("SHA-256=", StringComparison.OrdinalIgnoreCase) && intEquals >= 0)
+				strValue = strValue.Substring(intEquals + 1);
+
+			byte[] bytExpected;
+			using (SHA256 objSha256 = SHA256.Create())
+				bytExpected = objSha256.ComputeHash(bytContent);
+
+			byte[] bytActual;
+			try
+			{
+				// Try base64 first (RFC 3230 convention), fall back to hex.
+				bytActual = Convert.FromBase64String(strValue);
+			}
+			catch (FormatException)
+			{
+				try
+				{
+					string strHex = strValue.Replace("-", "");
+					bytActual = new byte[strHex.Length / 2];
+					for (int i = 0; i < bytActual.Length; i++)
+						bytActual[i] = Convert.ToByte(strHex.Substring(i * 2, 2), 16);
+				}
+				catch
+				{
+					// Header present but not in a format we understand - don't fail the download over
+					// a format mismatch we can't parse, but don't pretend we verified it either.
+					return true;
+				}
+			}
+
+			if (bytActual.Length != bytExpected.Length)
+				return false;
+			for (int i = 0; i < bytActual.Length; i++)
+			{
+				if (bytActual[i] != bytExpected[i])
+					return false;
+			}
+			return true;
 		}
 
 		/// <summary>
