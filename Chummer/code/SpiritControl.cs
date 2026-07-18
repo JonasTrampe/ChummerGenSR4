@@ -735,9 +735,8 @@ namespace Chummer
 				if (objXmlComplexForm.Attributes["select"] != null)
 					strForceValue = objXmlComplexForm.Attributes["select"].InnerText;
 				XmlNode objXmlProgram = objXmlProgramDocument.SelectSingleNode("/chummer/programs/program[name = \"" + objXmlComplexForm.InnerText + "\"]");
-				TreeNode objNode = new TreeNode();
 				TechProgram objProgram = new TechProgram(objCharacter);
-				objProgram.Create(objXmlProgram, objCharacter, objNode, strForceValue);
+				objProgram.Create(objXmlProgram, objCharacter, strForceValue);
 				objProgram.Rating = intRating;
 				objCharacter.TechPrograms.Add(objProgram);
 
@@ -751,9 +750,8 @@ namespace Chummer
 					if (objXmlComplexForm.Attributes["optionselect"] != null)
 						strOptForceValue = objXmlComplexForm.Attributes["optionselect"].InnerText;
 					XmlNode objXmlOption = objXmlProgramDocument.SelectSingleNode("/chummer/options/option[name = \"" + objXmlComplexForm.Attributes["option"].InnerText + "\"]");
-					TreeNode objNodeOpt = new TreeNode();
 					TechProgramOption objOption = new TechProgramOption(objCharacter);
-					objOption.Create(objXmlOption, objCharacter, objNodeOpt, strOptForceValue);
+					objOption.Create(objXmlOption, objCharacter, strOptForceValue);
 					objOption.Rating = intOptRating;
 					objProgram.Options.Add(objOption);
 				}

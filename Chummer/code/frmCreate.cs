@@ -6091,11 +6091,16 @@ namespace Chummer
 
 			XmlNode objXmlProgram = objXmlDocument.SelectSingleNode("/chummer/programs/program[name = \"" + frmPickProgram.SelectedProgram + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			TechProgram objProgram = new TechProgram(_objCharacter);
-			objProgram.Create(objXmlProgram, _objCharacter, objNode);
+			objProgram.Create(objXmlProgram, _objCharacter);
 			if (objProgram.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objProgram.DisplayName,
+				Tag = objProgram.InternalId,
+			};
 
 			_objCharacter.TechPrograms.Add(objProgram);
 
@@ -10029,12 +10034,17 @@ namespace Chummer
 
 			XmlNode objXmlOption = objXmlDocument.SelectSingleNode("/chummer/options/option[name = \"" + frmPickProgramOption.SelectedOption + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			TechProgramOption objOption = new TechProgramOption(_objCharacter);
-			objOption.Create(objXmlOption, _objCharacter, objNode);
-			objNode.ContextMenuStrip = cmsComplexFormPlugin;
+			objOption.Create(objXmlOption, _objCharacter);
 			if (objOption.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objOption.DisplayName,
+				Tag = objOption.InternalId,
+				ContextMenuStrip = cmsComplexFormPlugin,
+			};
 
 			objProgram.Options.Add(objOption);
 
@@ -20966,9 +20976,13 @@ namespace Chummer
 					if (objXmlProgram.Attributes["select"] != null)
 						strForceValue = objXmlProgram.Attributes["select"].InnerText;
 
-					TreeNode objNode = new TreeNode();
 					TechProgram objProgram = new TechProgram(_objCharacter);
-					objProgram.Create(objXmlProgramNode, _objCharacter, objNode, strForceValue);
+					objProgram.Create(objXmlProgramNode, _objCharacter, strForceValue);
+					TreeNode objNode = new TreeNode
+					{
+						Text = objProgram.DisplayName,
+						Tag = objProgram.InternalId,
+					};
 
 					// Set the Rating of the Power if applicable.
 					if (objXmlProgram["rating"] != null)
@@ -20983,10 +20997,14 @@ namespace Chummer
 
 						XmlNode objXmlOptionNode = objXmlProgramDocument.SelectSingleNode("/chummer/options/option[name = \"" + objXmlOption["name"].InnerText + "\"]");
 
-						TreeNode objChildNode = new TreeNode();
 						TechProgramOption objOption = new TechProgramOption(_objCharacter);
-						objOption.Create(objXmlOptionNode, _objCharacter, objChildNode, strChildForceValue);
-						objChildNode.ContextMenuStrip = cmsComplexFormPlugin;
+						objOption.Create(objXmlOptionNode, _objCharacter, strChildForceValue);
+						TreeNode objChildNode = new TreeNode
+						{
+							Text = objOption.DisplayName,
+							Tag = objOption.InternalId,
+							ContextMenuStrip = cmsComplexFormPlugin,
+						};
 
 						// Set the Rating of the Option if applicable.
 						if (objXmlOption["rating"] != null)

@@ -5677,9 +5677,8 @@ namespace Chummer
 		/// Create a Complex Form from an XmlNode.
 		/// <param name="objXmlProgramNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
-		public void Create(XmlNode objXmlProgramNode, Character objCharacter, TreeNode objNode, string strForcedValue = "")
+		public void Create(XmlNode objXmlProgramNode, Character objCharacter, string strForcedValue = "")
 		{
 			_strName = objXmlProgramNode["name"].InnerText;
 			_strCategory = objXmlProgramNode["category"].InnerText;
@@ -5713,8 +5712,6 @@ namespace Chummer
 				}
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
@@ -6267,9 +6264,8 @@ namespace Chummer
 		/// Create a Complex Form from an XmlNode.
 		/// <param name="objXmlOptionNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
-		public void Create(XmlNode objXmlOptionNode, Character objCharacter, TreeNode objNode, string strForcedValue = "")
+		public void Create(XmlNode objXmlOptionNode, Character objCharacter, string strForcedValue = "")
 		{
 			_strName = objXmlOptionNode["name"].InnerText;
 			_strSource = objXmlOptionNode["source"].InnerText;
@@ -6303,10 +6299,6 @@ namespace Chummer
 				}
 			}
 
-			objNode.Text = DisplayName;
-			if (_strExtra != "")
-				objNode.Text += " (" + _strExtra + ")";
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
