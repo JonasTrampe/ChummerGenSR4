@@ -5700,11 +5700,16 @@ namespace Chummer
 			XmlNode objXmlSpell = objXmlDocument.SelectSingleNode("/chummer/spells/spell[name = \"" + frmPickSpell.SelectedSpell + "\"]");
 
 			Spell objSpell = new Spell(_objCharacter);
-			TreeNode objNode = new TreeNode();
-			objSpell.Create(objXmlSpell, _objCharacter, objNode, "", frmPickSpell.Limited, frmPickSpell.Extended);
-			objNode.ContextMenuStrip = cmsSpell;
+			objSpell.Create(objXmlSpell, _objCharacter, "", frmPickSpell.Limited, frmPickSpell.Extended);
 			if (objSpell.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objSpell.DisplayName,
+				Tag = objSpell.InternalId,
+				ContextMenuStrip = cmsSpell,
+			};
 
 			_objCharacter.Spells.Add(objSpell);
 
@@ -21061,9 +21066,13 @@ namespace Chummer
 						XmlNode objXmlSpellNode = objXmlSpellDocument.SelectSingleNode("/chummer/spells/spell[name = \"" + objXmlSpell.InnerText + "\"]");
 
 						Spell objSpell = new Spell(_objCharacter);
-						TreeNode objNode = new TreeNode();
-						objSpell.Create(objXmlSpellNode, _objCharacter, objNode, strForceValue);
-						objNode.ContextMenuStrip = cmsSpell;
+						objSpell.Create(objXmlSpellNode, _objCharacter, strForceValue);
+						TreeNode objNode = new TreeNode
+						{
+							Text = objSpell.DisplayName,
+							Tag = objSpell.InternalId,
+							ContextMenuStrip = cmsSpell,
+						};
 						_objCharacter.Spells.Add(objSpell);
 
 						switch (objSpell.Category)

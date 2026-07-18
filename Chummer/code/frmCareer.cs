@@ -5235,14 +5235,19 @@ namespace Chummer
 			XmlNode objXmlSpell = objXmlDocument.SelectSingleNode("/chummer/spells/spell[name = \"" + frmPickSpell.SelectedSpell + "\"]");
 
 			Spell objSpell = new Spell(_objCharacter);
-			TreeNode objNode = new TreeNode();
-			objSpell.Create(objXmlSpell, _objCharacter, objNode, "", frmPickSpell.Limited, frmPickSpell.Extended);
-			objNode.ContextMenuStrip = cmsSpell;
+			objSpell.Create(objXmlSpell, _objCharacter, "", frmPickSpell.Limited, frmPickSpell.Extended);
 			if (objSpell.InternalId == Guid.Empty.ToString())
 				return;
 
 			if (!ConfirmKarmaExpense(LanguageManager.Instance.GetString("Message_ConfirmKarmaExpenseSpend").Replace("{0}", objSpell.DisplayName).Replace("{1}", _objOptions.KarmaSpell.ToString())))
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objSpell.DisplayName,
+				Tag = objSpell.InternalId,
+				ContextMenuStrip = cmsSpell,
+			};
 
 			_objCharacter.Spells.Add(objSpell);
 

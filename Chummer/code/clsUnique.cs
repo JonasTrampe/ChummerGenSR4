@@ -3670,7 +3670,7 @@ namespace Chummer
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
 		/// <param name="blnLimited">Whether or not the Spell should be marked as Limited.</param>
 		/// <param name="blnExtended">Whether or not the Spell should be marked as Extended.</param>
-		public void Create(XmlNode objXmlSpellNode, Character objCharacter, TreeNode objNode, string strForcedValue = "", bool blnLimited = false, bool blnExtended = false)
+		public void Create(XmlNode objXmlSpellNode, Character objCharacter, string strForcedValue = "", bool blnLimited = false, bool blnExtended = false)
 		{
 			_strName = objXmlSpellNode["name"].InnerText;
 			_strDescriptors = objXmlSpellNode["descriptor"].InnerText;
@@ -3721,11 +3721,6 @@ namespace Chummer
 				}
 			}
 
-			//TreeNode objNode = new TreeNode();
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
-
-			//return objNode;
 		}
 
 		/// <summary>
