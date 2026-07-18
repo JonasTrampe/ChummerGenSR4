@@ -7218,12 +7218,16 @@ namespace Chummer
 
 			XmlNode objXmlArt = objXmlDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + frmPickMartialArt.SelectedMartialArt + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			MartialArt objMartialArt = new MartialArt(_objCharacter);
-			objMartialArt.Create(objXmlArt, objNode, _objCharacter);
+			objMartialArt.Create(objXmlArt, _objCharacter);
 			_objCharacter.MartialArts.Add(objMartialArt);
 
-			objNode.ContextMenuStrip = cmsMartialArts;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMartialArt.DisplayName,
+				Tag = objMartialArt.Name,
+				ContextMenuStrip = cmsMartialArts,
+			};
 
 			treMartialArts.Nodes[0].Nodes.Add(objNode);
 			treMartialArts.Nodes[0].Expand();
@@ -9342,11 +9346,16 @@ namespace Chummer
 				XmlNode objXmlAdvantage = objXmlDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + objMartialArt.Name + "\"]/advantages/advantage[name = \"" + frmPickMartialArtAdvantage.SelectedAdvantage + "\"]");
 
 				// Create the Improvements for the Advantage if there are any.
-				TreeNode objNode = new TreeNode();
 				MartialArtAdvantage objAdvantage = new MartialArtAdvantage(_objCharacter);
-				objAdvantage.Create(objXmlAdvantage, _objCharacter, objNode);
+				objAdvantage.Create(objXmlAdvantage, _objCharacter);
 				if (objAdvantage.InternalId == Guid.Empty.ToString())
 					return;
+
+				TreeNode objNode = new TreeNode
+				{
+					Text = objAdvantage.DisplayName,
+					Tag = objAdvantage.InternalId,
+				};
 
 				objMartialArt.Advantages.Add(objAdvantage);
 
@@ -20836,13 +20845,17 @@ namespace Chummer
 
 					XmlNode objXmlArt = objXmlMartialArtDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + frmPickMartialArt.SelectedMartialArt + "\"]");
 
-					TreeNode objNode = new TreeNode();
 					MartialArt objMartialArt = new MartialArt(_objCharacter);
-					objMartialArt.Create(objXmlArt, objNode, _objCharacter);
+					objMartialArt.Create(objXmlArt, _objCharacter);
 					objMartialArt.Rating = intRating;
 					_objCharacter.MartialArts.Add(objMartialArt);
 
-					objNode.ContextMenuStrip = cmsMartialArts;
+					TreeNode objNode = new TreeNode
+					{
+						Text = objMartialArt.DisplayName,
+						Tag = objMartialArt.Name,
+						ContextMenuStrip = cmsMartialArts,
+					};
 
 					treMartialArts.Nodes[0].Nodes.Add(objNode);
 					treMartialArts.Nodes[0].Expand();
@@ -20859,22 +20872,31 @@ namespace Chummer
 
 				foreach (XmlNode objXmlArt in objXmlKit.SelectNodes("martialarts/martialart"))
 				{
-					TreeNode objNode = new TreeNode();
 					MartialArt objArt = new MartialArt(_objCharacter);
 					XmlNode objXmlArtNode = objXmlMartialArtDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + objXmlArt["name"].InnerText + "\"]");
-					objArt.Create(objXmlArtNode, objNode, _objCharacter);
+					objArt.Create(objXmlArtNode, _objCharacter);
 					objArt.Rating = Convert.ToInt32(objXmlArt["rating"].InnerText);
 					_objCharacter.MartialArts.Add(objArt);
+
+					TreeNode objNode = new TreeNode
+					{
+						Text = objArt.DisplayName,
+						Tag = objArt.Name,
+					};
 
 					// Check for Advantages.
 					foreach (XmlNode objXmlAdvantage in objXmlArt.SelectNodes("advantages/advantage"))
 					{
-						TreeNode objChildNode = new TreeNode();
 						MartialArtAdvantage objAdvantage = new MartialArtAdvantage(_objCharacter);
 						XmlNode objXmlAdvantageNode = objXmlMartialArtDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + objXmlArt["name"].InnerText + "\"]/advantages/advantage[. = \"" + objXmlAdvantage.InnerText + "\"]");
-						objAdvantage.Create(objXmlAdvantageNode, _objCharacter, objChildNode);
+						objAdvantage.Create(objXmlAdvantageNode, _objCharacter);
 						objArt.Advantages.Add(objAdvantage);
 
+						TreeNode objChildNode = new TreeNode
+						{
+							Text = objAdvantage.DisplayName,
+							Tag = objAdvantage.InternalId,
+						};
 						objNode.Nodes.Add(objChildNode);
 						objNode.Expand();
 					}

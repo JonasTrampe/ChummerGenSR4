@@ -6623,15 +6623,12 @@ namespace Chummer
 		/// <param name="objXmlArtNode">XmlNode to create the object from.</param>
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="objCharacter">Character the Martial Art is being added to.</param>
-		public void Create(XmlNode objXmlArtNode, TreeNode objNode, Character objCharacter)
+		public void Create(XmlNode objXmlArtNode, Character objCharacter)
 		{
 			_objCharacter = objCharacter;
 			_strName = objXmlArtNode["name"].InnerText;
 			_strSource = objXmlArtNode["source"].InnerText;
 			_strPage = objXmlArtNode["page"].InnerText;
-
-			objNode.Text = DisplayName;
-			objNode.Tag = _strName;
 		}
 
 		/// <summary>
@@ -6870,7 +6867,7 @@ namespace Chummer
 		/// <param name="objXmlAdvantageNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		public void Create(XmlNode objXmlAdvantageNode, Character objCharacter, TreeNode objNode)
+		public void Create(XmlNode objXmlAdvantageNode, Character objCharacter)
 		{
 			_strName = objXmlAdvantageNode["name"].InnerText;
 
@@ -6883,9 +6880,6 @@ namespace Chummer
 					return;
 				}
 			}
-
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>

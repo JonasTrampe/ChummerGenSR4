@@ -6876,12 +6876,16 @@ namespace Chummer
 
 			XmlNode objXmlArt = objXmlDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + frmPickMartialArt.SelectedMartialArt + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			MartialArt objMartialArt = new MartialArt(_objCharacter);
-			objMartialArt.Create(objXmlArt, objNode, _objCharacter);
+			objMartialArt.Create(objXmlArt, _objCharacter);
 			_objCharacter.MartialArts.Add(objMartialArt);
 
-			objNode.ContextMenuStrip = cmsMartialArts;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMartialArt.DisplayName,
+				Tag = objMartialArt.Name,
+				ContextMenuStrip = cmsMartialArts,
+			};
 
 			// Create the Expense Log Entry.
 			ExpenseLogEntry objExpense = new ExpenseLogEntry();
@@ -10888,11 +10892,16 @@ namespace Chummer
 				XmlNode objXmlAdvantage = objXmlDocument.SelectSingleNode("/chummer/martialarts/martialart[name = \"" + objMartialArt.Name + "\"]/advantages/advantage[name = \"" + frmPickMartialArtAdvantage.SelectedAdvantage + "\"]");
 
 				// Create the Improvements for the Advantage if there are any.
-				TreeNode objNode = new TreeNode();
 				MartialArtAdvantage objAdvantage = new MartialArtAdvantage(_objCharacter);
-				objAdvantage.Create(objXmlAdvantage, _objCharacter, objNode);
+				objAdvantage.Create(objXmlAdvantage, _objCharacter);
 				if (objAdvantage.InternalId == Guid.Empty.ToString())
 					return;
+
+				TreeNode objNode = new TreeNode
+				{
+					Text = objAdvantage.DisplayName,
+					Tag = objAdvantage.InternalId,
+				};
 
 				objMartialArt.Advantages.Add(objAdvantage);
 
