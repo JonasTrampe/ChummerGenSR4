@@ -7326,10 +7326,14 @@ namespace Chummer
 
 			XmlNode objXmlManeuver = objXmlDocument.SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + frmPickMartialArtManeuver.SelectedManeuver + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			MartialArtManeuver objManeuver = new MartialArtManeuver(_objCharacter);
-			objManeuver.Create(objXmlManeuver, objNode);
-			objNode.ContextMenuStrip = cmsMartialArtManeuver;
+			objManeuver.Create(objXmlManeuver);
+			TreeNode objNode = new TreeNode
+			{
+				Text = objManeuver.DisplayName,
+				Tag = objManeuver.InternalId,
+				ContextMenuStrip = cmsMartialArtManeuver,
+			};
 			_objCharacter.MartialArtManeuvers.Add(objManeuver);
 
 			treMartialArts.Nodes[1].Nodes.Add(objNode);
@@ -20862,11 +20866,15 @@ namespace Chummer
 				// Maneuvers.
 				foreach (XmlNode objXmlManeuver in objXmlKit.SelectNodes("martialarts/maneuver"))
 				{
-					TreeNode objNode = new TreeNode();
 					MartialArtManeuver objManeuver = new MartialArtManeuver(_objCharacter);
 					XmlNode objXmlManeuverNode = objXmlMartialArtDocument.SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + objXmlManeuver.InnerText + "\"]");
-					objManeuver.Create(objXmlManeuverNode, objNode);
-					objNode.ContextMenuStrip = cmsMartialArtManeuver;
+					objManeuver.Create(objXmlManeuverNode);
+					TreeNode objNode = new TreeNode
+					{
+						Text = objManeuver.DisplayName,
+						Tag = objManeuver.InternalId,
+						ContextMenuStrip = cmsMartialArtManeuver,
+					};
 					_objCharacter.MartialArtManeuvers.Add(objManeuver);
 
 					treMartialArts.Nodes[1].Nodes.Add(objNode);

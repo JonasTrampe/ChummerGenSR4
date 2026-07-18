@@ -7037,14 +7037,11 @@ namespace Chummer
 		/// Create a Martial Art Maneuver from an XmlNode and return the TreeNodes for it.
 		/// <param name="objXmlManeuverNode">XmlNode to create the object from.</param>
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		public void Create(XmlNode objXmlManeuverNode, TreeNode objNode)
+		public void Create(XmlNode objXmlManeuverNode)
 		{
 			_strName = objXmlManeuverNode["name"].InnerText;
 			_strSource = objXmlManeuverNode["source"].InnerText;
 			_strPage = objXmlManeuverNode["page"].InnerText;
-
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
