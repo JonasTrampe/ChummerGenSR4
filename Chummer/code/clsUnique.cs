@@ -4827,12 +4827,11 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Metamagic from an XmlNode and return the TreeNodes for it.
+		/// Create a Metamagic from an XmlNode.
 		/// <param name="objXmlMetamagicNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="objSource">Source of the Improvement.</param>
-		public void Create(XmlNode objXmlMetamagicNode, Character objCharacter, TreeNode objNode, Improvement.ImprovementSource objSource)
+		public void Create(XmlNode objXmlMetamagicNode, Character objCharacter, Improvement.ImprovementSource objSource)
 		{
 			_strName = objXmlMetamagicNode["name"].InnerText;
 			_strSource = objXmlMetamagicNode["source"].InnerText;
@@ -4858,8 +4857,6 @@ namespace Chummer
 					_strName += " (" + objImprovementManager.SelectedValue + ")";
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>

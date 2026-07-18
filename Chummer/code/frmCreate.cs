@@ -7476,7 +7476,6 @@ namespace Chummer
 			XmlDocument objXmlDocument = new XmlDocument();
 			XmlNode objXmlMetamagic;
 
-			TreeNode objNode = new TreeNode();
 			Metamagic objMetamagic = new Metamagic(_objCharacter);
 			Improvement.ImprovementSource objSource;
 
@@ -7493,10 +7492,16 @@ namespace Chummer
 				objSource = Improvement.ImprovementSource.Echo;
 			}
 
-			objMetamagic.Create(objXmlMetamagic, _objCharacter, objNode, objSource);
-			objNode.ContextMenuStrip = cmsMetamagic;
+			objMetamagic.Create(objXmlMetamagic, _objCharacter, objSource);
 			if (objMetamagic.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMetamagic.DisplayName,
+				Tag = objMetamagic.InternalId,
+				ContextMenuStrip = cmsMetamagic,
+			};
 
 			objMetamagic.PaidWithKarma = blnPayWithKarma;
 			_objCharacter.Metamagics.Add(objMetamagic);
