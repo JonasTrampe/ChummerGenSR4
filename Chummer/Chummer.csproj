@@ -117,6 +117,12 @@
     <Compile Include="code\frmCloudDocuments.Designer.cs">
       <DependentUpon>frmCloudDocuments.cs</DependentUpon>
     </Compile>
+    <Compile Include="code\frmCloudMetadata.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="code\frmCloudMetadata.Designer.cs">
+      <DependentUpon>frmCloudMetadata.cs</DependentUpon>
+    </Compile>
     <Compile Include="code\clsEquipment.cs" />
     <Compile Include="code\clsCharacter.cs" />
     <Compile Include="code\clsImprovement.cs" />

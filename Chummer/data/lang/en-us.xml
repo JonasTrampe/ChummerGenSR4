@@ -649,6 +649,30 @@
 			<text>Push Update to Selected</text>
 		</string>
 		<string>
+			<key>Button_Cloud_EditMetadata</key>
+			<text>Edit Metadata...</text>
+		</string>
+		<string>
+			<key>Title_CloudMetadata</key>
+			<text>Cloud Document Metadata</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Note</key>
+			<text>Not sent to RunnersPoint yet - the server has no way to accept this from a client. Stored locally so it isn't lost once it can.</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_DisplayName</key>
+			<text>Display Name:</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Description</key>
+			<text>Description:</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_ImageUrl</key>
+			<text>Image URL:</text>
+		</string>
+		<string>
 			<key>Radio_Cloud_MyDocuments</key>
 			<text>My Documents</text>
 		</string>

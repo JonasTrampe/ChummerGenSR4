@@ -42,6 +42,7 @@ namespace Chummer
 		{
 			_objApiClient = new RunnersPointApiClient(_objAuth);
 			cmdPushCurrent.Enabled = _objActiveCharacter != null;
+			cmdEditMetadata.Enabled = _objActiveCharacter != null;
 			UpdateSelectionButtons();
 
 			// Reflect whatever's actually stored, rather than always defaulting to the API Token radio,
@@ -317,6 +318,15 @@ namespace Chummer
 		private async void cmdRefresh_Click(object sender, EventArgs e)
 		{
 			await RefreshAsync();
+		}
+
+		private void cmdEditMetadata_Click(object sender, EventArgs e)
+		{
+			if (_objActiveCharacter == null)
+				return;
+
+			using (frmCloudMetadata frmMetadata = new frmCloudMetadata(_objActiveCharacter))
+				frmMetadata.ShowDialog(this);
 		}
 
 		// States in which a document's most recent revision hasn't finished the async quarantine/

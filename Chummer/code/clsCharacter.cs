@@ -55,6 +55,13 @@ namespace Chummer
 		private string _strFileName = "";
 		private string _strSettingsFileName = "default.xml";
 		private string _strCloudDocumentId = "";
+		// Local-only for now: the RunnersPoint API has no way for a client to submit document metadata
+		// at all (create/pushRevision take only raw file bytes, no metadata field), so these aren't sent
+		// anywhere yet. Staged for when/if the server adds that - see the "Document metadata mismatch"
+		// bug report (metadata.displayName/description/imageUrl per the OpenAPI spec).
+		private string _strCloudMetadataDisplayName = "";
+		private string _strCloudMetadataDescription = "";
+		private string _strCloudMetadataImageUrl = "";
 		private bool _blnIgnoreRules = false;
 		private int _intKarma = 0;
 		private int _intTotalKarma = 0;
@@ -301,6 +308,12 @@ namespace Chummer
 			objWriter.WriteElementString("gamenotes", _strGameNotes);
 			// <clouddocumentid />
 			objWriter.WriteElementString("clouddocumentid", _strCloudDocumentId);
+			// <clouddisplayname />
+			objWriter.WriteElementString("clouddisplayname", _strCloudMetadataDisplayName);
+			// <clouddescription />
+			objWriter.WriteElementString("clouddescription", _strCloudMetadataDescription);
+			// <cloudimageurl />
+			objWriter.WriteElementString("cloudimageurl", _strCloudMetadataImageUrl);
 
 			// <ignorerules />
 			if (_blnIgnoreRules)
@@ -902,6 +915,27 @@ namespace Chummer
 			try
 			{
 				_strCloudDocumentId = objXmlCharacter["clouddocumentid"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				_strCloudMetadataDisplayName = objXmlCharacter["clouddisplayname"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				_strCloudMetadataDescription = objXmlCharacter["clouddescription"].InnerText;
+			}
+			catch
+			{
+			}
+			try
+			{
+				_strCloudMetadataImageUrl = objXmlCharacter["cloudimageurl"].InnerText;
 			}
 			catch
 			{
@@ -2746,6 +2780,56 @@ namespace Chummer
 			set
 			{
 				_strCloudDocumentId = value;
+			}
+		}
+
+		/// <summary>
+		/// Display name to use for this character's cloud document, per the RunnersPoint API's
+		/// Document.metadata.displayName field. Local-only for now - the API has no way for a client to
+		/// submit metadata yet (see the metadata mismatch bug report), so this isn't sent anywhere until
+		/// that changes.
+		/// </summary>
+		public string CloudMetadataDisplayName
+		{
+			get
+			{
+				return _strCloudMetadataDisplayName;
+			}
+			set
+			{
+				_strCloudMetadataDisplayName = value;
+			}
+		}
+
+		/// <summary>
+		/// Description for this character's cloud document, per Document.metadata.description. Local-only
+		/// for now - see CloudMetadataDisplayName.
+		/// </summary>
+		public string CloudMetadataDescription
+		{
+			get
+			{
+				return _strCloudMetadataDescription;
+			}
+			set
+			{
+				_strCloudMetadataDescription = value;
+			}
+		}
+
+		/// <summary>
+		/// Portrait/image URL for this character's cloud document, per Document.metadata.imageUrl.
+		/// Local-only for now - see CloudMetadataDisplayName.
+		/// </summary>
+		public string CloudMetadataImageUrl
+		{
+			get
+			{
+				return _strCloudMetadataImageUrl;
+			}
+			set
+			{
+				_strCloudMetadataImageUrl = value;
 			}
 		}
 

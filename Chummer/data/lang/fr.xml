@@ -645,6 +645,30 @@
 			<text>Envoyer la mise à jour de la sélection</text>
 		</string>
 		<string>
+			<key>Button_Cloud_EditMetadata</key>
+			<text>Modifier les métadonnées...</text>
+		</string>
+		<string>
+			<key>Title_CloudMetadata</key>
+			<text>Métadonnées du document cloud</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Note</key>
+			<text>Pas encore envoyé à RunnersPoint - le serveur ne peut pas encore recevoir ceci d'un client. Enregistré localement pour ne pas le perdre une fois que ce sera possible.</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_DisplayName</key>
+			<text>Nom d'affichage :</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Description</key>
+			<text>Description :</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_ImageUrl</key>
+			<text>URL de l'image :</text>
+		</string>
+		<string>
 			<key>Radio_Cloud_MyDocuments</key>
 			<text>Mes documents</text>
 		</string>

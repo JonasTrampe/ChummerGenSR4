@@ -35,6 +35,7 @@ namespace Chummer
 			this.cmdDownload = new System.Windows.Forms.Button();
 			this.cmdArchive = new System.Windows.Forms.Button();
 			this.cmdPushShared = new System.Windows.Forms.Button();
+			this.cmdEditMetadata = new System.Windows.Forms.Button();
 			this.lblStatus = new System.Windows.Forms.Label();
 #if DEBUG
 			this.cmdDebugInfo = new System.Windows.Forms.Button();
@@ -246,6 +247,17 @@ namespace Chummer
 			this.cmdPushShared.Visible = false;
 			this.cmdPushShared.Click += new System.EventHandler(this.cmdPushShared_Click);
 			//
+			// cmdEditMetadata
+			//
+			this.cmdEditMetadata.Location = new System.Drawing.Point(441, 458);
+			this.cmdEditMetadata.Name = "cmdEditMetadata";
+			this.cmdEditMetadata.Size = new System.Drawing.Size(115, 27);
+			this.cmdEditMetadata.TabIndex = 16;
+			this.cmdEditMetadata.Tag = "Button_Cloud_EditMetadata";
+			this.cmdEditMetadata.Text = "Edit Metadata...";
+			this.cmdEditMetadata.UseVisualStyleBackColor = true;
+			this.cmdEditMetadata.Click += new System.EventHandler(this.cmdEditMetadata_Click);
+			//
 #if DEBUG
 			// cmdDebugInfo
 			//
@@ -264,7 +276,7 @@ namespace Chummer
 			this.lblStatus.Location = new System.Drawing.Point(12, 494);
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size(38, 13);
-			this.lblStatus.TabIndex = 16;
+			this.lblStatus.TabIndex = 18;
 			this.lblStatus.Text = "";
 			this.lblStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			//
@@ -277,6 +289,7 @@ namespace Chummer
 			this.Controls.Add(this.cmdDebugInfo);
 #endif
 			this.Controls.Add(this.lblStatus);
+			this.Controls.Add(this.cmdEditMetadata);
 			this.Controls.Add(this.cmdPushShared);
 			this.Controls.Add(this.cmdArchive);
 			this.Controls.Add(this.cmdDownload);
@@ -322,6 +335,7 @@ namespace Chummer
 		private System.Windows.Forms.Button cmdDownload;
 		private System.Windows.Forms.Button cmdArchive;
 		private System.Windows.Forms.Button cmdPushShared;
+		private System.Windows.Forms.Button cmdEditMetadata;
 		private System.Windows.Forms.Label lblStatus;
 #if DEBUG
 		private System.Windows.Forms.Button cmdDebugInfo;

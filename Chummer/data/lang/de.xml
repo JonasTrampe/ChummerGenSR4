@@ -588,6 +588,30 @@
 			<text>Aktualisierung für Auswahl senden</text>
 		</string>
 		<string>
+			<key>Button_Cloud_EditMetadata</key>
+			<text>Metadaten bearbeiten...</text>
+		</string>
+		<string>
+			<key>Title_CloudMetadata</key>
+			<text>Cloud-Dokument-Metadaten</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Note</key>
+			<text>Wird noch nicht an RunnersPoint gesendet - der Server kann dies noch nicht von einem Client entgegennehmen. Wird lokal gespeichert, damit es nicht verloren geht, sobald es möglich ist.</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_DisplayName</key>
+			<text>Anzeigename:</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Description</key>
+			<text>Beschreibung:</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_ImageUrl</key>
+			<text>Bild-URL:</text>
+		</string>
+		<string>
 			<key>Radio_Cloud_MyDocuments</key>
 			<text>Meine Dokumente</text>
 		</string>
