@@ -135,6 +135,63 @@ namespace Chummer.Tests
 		}
 
 		[Fact]
+		public void ParseDocument_FallsBackToMetadataNameWhenDisplayNameMissing()
+		{
+			// The real server's character-document metadata extractor currently populates
+			// metadata.name (from the XML's charactername/name element), not metadata.displayName as
+			// the OpenAPI spec and this client otherwise expect. Falling back keeps the document list
+			// showing the actual character name instead of a raw GUID until that's reconciled
+			// server-side.
+			Dictionary<string, object> objJson = new Dictionary<string, object>
+			{
+				{ "id", "doc-1" },
+				{ "metadata", new Dictionary<string, object> { { "name", "Kestrel" } } },
+			};
+
+			RunnersPointDocument objDocument = RunnersPointApiClient.ParseDocument(objJson);
+
+			Assert.Equal("Kestrel", objDocument.DisplayName);
+		}
+
+		[Fact]
+		public void ParseDocument_PrefersDisplayNameOverName()
+		{
+			Dictionary<string, object> objJson = new Dictionary<string, object>
+			{
+				{ "id", "doc-1" },
+				{ "metadata", new Dictionary<string, object> { { "displayName", "Kestrel" }, { "name", "Old Name" } } },
+			};
+
+			RunnersPointDocument objDocument = RunnersPointApiClient.ParseDocument(objJson);
+
+			Assert.Equal("Kestrel", objDocument.DisplayName);
+		}
+
+		[Fact]
+		public void ExtractRawETag_ReadsUnquotedHeaderValue()
+		{
+			// Regression test: the real server sends ETag as a bare token (e.g. a revision UUID)
+			// without the DQUOTEs RFC 7232 requires. HttpResponseMessage.Headers.ETag's strongly-typed
+			// EntityTagHeaderValue parser silently refuses that and returns null instead of throwing,
+			// which meant every If-Match sent back on a later pushRevision/archive call was empty and
+			// got rejected by the server. ExtractRawETag reads the header as plain text instead.
+			HttpResponseMessage objResponse = new HttpResponseMessage();
+			objResponse.Headers.TryAddWithoutValidation("ETag", "4ee72674-de9f-402d-879c-ce9023094a25");
+
+			Assert.Equal("4ee72674-de9f-402d-879c-ce9023094a25", RunnersPointApiClient.ExtractRawETag(objResponse));
+			// Confirms the scenario the fix works around actually reproduces against .NET's own parser.
+			Assert.Null(objResponse.Headers.ETag);
+		}
+
+		[Fact]
+		public void ExtractRawETag_ReturnsNullWhenHeaderMissing()
+		{
+			HttpResponseMessage objResponse = new HttpResponseMessage();
+
+			Assert.Null(RunnersPointApiClient.ExtractRawETag(objResponse));
+		}
+
+		[Fact]
 		public void ParseDocument_ToleratesMissingOptionalFields()
 		{
 			Dictionary<string, object> objJson = new Dictionary<string, object>

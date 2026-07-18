@@ -173,6 +173,21 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// Reads the raw ETag header value, bypassing HttpResponseMessage.Headers.ETag's strongly-typed
+		/// EntityTagHeaderValue parsing. The server sends ETag as a bare opaque token (e.g. a revision
+		/// UUID) without the DQUOTEs RFC 7232 requires around an entity-tag; .NET's typed parser silently
+		/// refuses anything unquoted and leaves Headers.ETag null instead of throwing, which meant every
+		/// If-Match sent back (pushRevision, archive) was empty and got rejected. Reading the header as
+		/// plain text and echoing it back exactly as received round-trips correctly against this server,
+		/// even though it isn't RFC-conformant.
+		/// </summary>
+		internal static string ExtractRawETag(HttpResponseMessage objResponse)
+		{
+			IEnumerable<string> lstValues;
+			return objResponse.Headers.TryGetValues("ETag", out lstValues) ? lstValues.FirstOrDefault() : null;
+		}
+
+		/// <summary>
 		/// Sends an authenticated request built by requestFactory. If the server responds 401, forces a
 		/// token refresh and retries once with a freshly-built request (a request/its content can't be
 		/// resent as-is once sent, hence rebuilding rather than reusing the same HttpRequestMessage). If
@@ -355,6 +370,12 @@ namespace Chummer
 				Dictionary<string, object> objMetadata = (Dictionary<string, object>)objJson["metadata"];
 				if (objMetadata.ContainsKey("displayName"))
 					objDocument.DisplayName = objMetadata["displayName"].ToString();
+				// The server's character-document extractor currently populates metadata.name (the
+				// charactername/name XML element), not metadata.displayName as the spec and this client
+				// otherwise expect - fall back to it so the list doesn't just show raw document IDs for
+				// every character until that's reconciled server-side.
+				else if (objMetadata.ContainsKey("name"))
+					objDocument.DisplayName = objMetadata["name"].ToString();
 			}
 			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out DateTime datUpdatedAt))
 				objDocument.UpdatedAt = datUpdatedAt;
@@ -405,7 +426,7 @@ namespace Chummer
 			string strBody = await objResponse.Content.ReadAsStringAsync();
 			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
 			RunnersPointDocument objDocument = ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
-			string strETag = objResponse.Headers.ETag != null ? objResponse.Headers.ETag.Tag : null;
+			string strETag = ExtractRawETag(objResponse);
 			return new Tuple<RunnersPointDocument, string>(objDocument, strETag);
 		}
 
@@ -445,7 +466,7 @@ namespace Chummer
 			{
 				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/documents/" + strDocumentId);
 				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
-				objRequest.Headers.Add("If-Match", strIfMatch);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
 				objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
 				objRequest.Headers.Add("X-Document-Format", strFormat);
 				objRequest.Content = new ByteArrayContent(bytContent);
@@ -604,7 +625,7 @@ namespace Chummer
 			{
 				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Delete, "/documents/" + strDocumentId);
 				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
-				objRequest.Headers.Add("If-Match", strIfMatch);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
 				return objRequest;
 			});
 			await ThrowIfProblemAsync(objResponse);
@@ -653,7 +674,7 @@ namespace Chummer
 			string strBody = await objResponse.Content.ReadAsStringAsync();
 			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
 			RunnersPointSharedDocument objDocument = ParseSharedDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
-			string strETag = objResponse.Headers.ETag != null ? objResponse.Headers.ETag.Tag : null;
+			string strETag = ExtractRawETag(objResponse);
 			return new Tuple<RunnersPointSharedDocument, string>(objDocument, strETag);
 		}
 
@@ -668,7 +689,7 @@ namespace Chummer
 			{
 				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId);
 				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
-				objRequest.Headers.Add("If-Match", strIfMatch);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
 				objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
 				objRequest.Headers.Add("X-Document-Format", strFormat);
 				objRequest.Content = new ByteArrayContent(bytContent);
