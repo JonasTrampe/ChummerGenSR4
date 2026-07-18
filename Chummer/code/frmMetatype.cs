@@ -635,7 +635,6 @@ namespace Chummer
 				foreach (XmlNode objXmlPower in objXmlCritter.SelectNodes("powers/power"))
 				{
 					XmlNode objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + objXmlPower.InnerText + "\"]");
-					TreeNode objNode = new TreeNode();
 					CritterPower objPower = new CritterPower(_objCharacter);
 					string strForcedValue = "";
 					int intRating = 0;
@@ -645,7 +644,7 @@ namespace Chummer
 					if (objXmlPower.Attributes["select"] != null)
 						strForcedValue = objXmlPower.Attributes["select"].InnerText;
 
-					objPower.Create(objXmlCritterPower, _objCharacter, objNode, intRating, strForcedValue);
+					objPower.Create(objXmlCritterPower, _objCharacter, intRating, strForcedValue);
 					objPower.CountTowardsLimit = false;
 					_objCharacter.CritterPowers.Add(objPower);
 				}
@@ -657,7 +656,6 @@ namespace Chummer
 					foreach (XmlNode objXmlPower in objXmlMetavariant.SelectNodes("powers/power"))
 					{
 						XmlNode objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + objXmlPower.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						CritterPower objPower = new CritterPower(_objCharacter);
 						string strForcedValue = "";
 						int intRating = 0;
@@ -667,7 +665,7 @@ namespace Chummer
 						if (objXmlPower.Attributes["select"] != null)
 							strForcedValue = objXmlPower.Attributes["select"].InnerText;
 
-						objPower.Create(objXmlCritterPower, _objCharacter, objNode, intRating, strForcedValue);
+						objPower.Create(objXmlCritterPower, _objCharacter, intRating, strForcedValue);
 						objPower.CountTowardsLimit = false;
 						_objCharacter.CritterPowers.Add(objPower);
 					}
@@ -677,7 +675,6 @@ namespace Chummer
 				if (chkBloodSpirit.Checked)
 				{
 					XmlNode objXmlCritterPower;
-					TreeNode objNode;
 					CritterPower objPower;
 					bool blnAddPower = true;
 
@@ -693,9 +690,8 @@ namespace Chummer
 					if (blnAddPower)
 					{
 						objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"Energy Drain\"]");
-						objNode = new TreeNode();
 						objPower = new CritterPower(_objCharacter);
-						objPower.Create(objXmlCritterPower, _objCharacter, objNode, 0, "");
+						objPower.Create(objXmlCritterPower, _objCharacter, 0, "");
 						objPower.CountTowardsLimit = false;
 						_objCharacter.CritterPowers.Add(objPower);
 					}
@@ -713,18 +709,16 @@ namespace Chummer
 					if (blnAddPower)
 					{
 						objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"Fear\"]");
-						objNode = new TreeNode();
 						objPower = new CritterPower(_objCharacter);
-						objPower.Create(objXmlCritterPower, _objCharacter, objNode, 0, "");
+						objPower.Create(objXmlCritterPower, _objCharacter, 0, "");
 						objPower.CountTowardsLimit = false;
 						_objCharacter.CritterPowers.Add(objPower);
 					}
 
 					// Natural Weapon.
 					objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"Natural Weapon\"]");
-					objNode = new TreeNode();
 					objPower = new CritterPower(_objCharacter);
-					objPower.Create(objXmlCritterPower, _objCharacter, objNode, 0, "DV " + intForce.ToString() + "P, AP 0");
+					objPower.Create(objXmlCritterPower, _objCharacter, 0, "DV " + intForce.ToString() + "P, AP 0");
 					objPower.CountTowardsLimit = false;
 					_objCharacter.CritterPowers.Add(objPower);
 
@@ -741,9 +735,8 @@ namespace Chummer
 					if (blnAddPower)
 					{
 						objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"Evanescence\"]");
-						objNode = new TreeNode();
 						objPower = new CritterPower(_objCharacter);
-						objPower.Create(objXmlCritterPower, _objCharacter, objNode, 0, "");
+						objPower.Create(objXmlCritterPower, _objCharacter, 0, "");
 						objPower.CountTowardsLimit = false;
 						_objCharacter.CritterPowers.Add(objPower);
 					}
@@ -763,9 +756,8 @@ namespace Chummer
 
 					// Add the selected Power.
 					XmlNode objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + cboPossessionMethod.SelectedValue.ToString() + "\"]");
-					TreeNode objNode = new TreeNode();
 					CritterPower objPower = new CritterPower(_objCharacter);
-					objPower.Create(objXmlCritterPower, _objCharacter, objNode, 0, "");
+					objPower.Create(objXmlCritterPower, _objCharacter, 0, "");
 					objPower.CountTowardsLimit = false;
 					_objCharacter.CritterPowers.Add(objPower);
 				}

@@ -7619,7 +7619,7 @@ namespace Chummer
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="intRating">Selected Rating for the Gear.</param>
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
-		public void Create(XmlNode objXmlPowerNode, Character objCharacter, TreeNode objNode, int intRating = 0, string strForcedValue = "")
+		public void Create(XmlNode objXmlPowerNode, Character objCharacter, int intRating = 0, string strForcedValue = "")
 		{
 			_strName = objXmlPowerNode["name"].InnerText;
 			_strCategory = objXmlPowerNode["category"].InnerText;
@@ -7630,10 +7630,6 @@ namespace Chummer
 			_strSource = objXmlPowerNode["source"].InnerText;
 			_strPage = objXmlPowerNode["page"].InnerText;
 			_nodBonus = objXmlPowerNode["bonus"];
-
-			// Create the TreeNode for the new item.
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 
 			if (intRating != 0)
 				_strExtra = intRating.ToString();
@@ -7651,7 +7647,6 @@ namespace Chummer
 				if (objImprovementManager.SelectedValue != "")
 				{
 					_strExtra = objImprovementManager.SelectedValue;
-					objNode.Text += " (" + objImprovementManager.SelectedValue + ")";
 				}
 			}
 		}

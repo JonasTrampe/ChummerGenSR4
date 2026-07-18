@@ -627,7 +627,6 @@ namespace Chummer
 			foreach (XmlNode objXmlPower in objXmlCritter.SelectNodes("powers/power"))
 			{
 				XmlNode objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + objXmlPower.InnerText + "\"]");
-				TreeNode objNode = new TreeNode();
 				CritterPower objPower = new CritterPower(objCharacter);
 				string strForcedValue = "";
 				int intRating = 0;
@@ -637,7 +636,7 @@ namespace Chummer
 				if (objXmlPower.Attributes["select"] != null)
 					strForcedValue = objXmlPower.Attributes["select"].InnerText;
 
-				objPower.Create(objXmlCritterPower, objCharacter, objNode, intRating, strForcedValue);
+				objPower.Create(objXmlCritterPower, objCharacter, intRating, strForcedValue);
 				objCharacter.CritterPowers.Add(objPower);
 			}
 

@@ -2151,11 +2151,15 @@ namespace Chummer
 				XmlDocument objXmlPowerDocument = XmlManager.Instance.Load("critterpowers.xml");
 				XmlNode objXmlPowerNode = objXmlPowerDocument.SelectSingleNode("/chummer/powers/power[name = \"Dual Natured\"]");
 
-				TreeNode objNode = new TreeNode();
 				CritterPower objCritterPower = new CritterPower(_objCharacter);
-				objCritterPower.Create(objXmlPowerNode, _objCharacter, objNode);
+				objCritterPower.Create(objXmlPowerNode, _objCharacter);
 				_objCharacter.CritterPowers.Add(objCritterPower);
 
+				TreeNode objNode = new TreeNode
+				{
+					Text = objCritterPower.DisplayName,
+					Tag = objCritterPower.InternalId,
+				};
 				treCritterPowers.Nodes[0].Nodes.Add(objNode);
 				treCritterPowers.Nodes[0].Expand();
 			}
@@ -2172,11 +2176,15 @@ namespace Chummer
 				XmlDocument objXmlPowerDocument = XmlManager.Instance.Load("critterpowers.xml");
 				XmlNode objXmlPowerNode = objXmlPowerDocument.SelectSingleNode("/chummer/powers/power[name = \"Immunity\"]");
 
-				TreeNode objNode = new TreeNode();
 				CritterPower objCritterPower = new CritterPower(_objCharacter);
-				objCritterPower.Create(objXmlPowerNode, _objCharacter, objNode, 0, "Normal Weapons");
+				objCritterPower.Create(objXmlPowerNode, _objCharacter, 0, "Normal Weapons");
 				_objCharacter.CritterPowers.Add(objCritterPower);
 
+				TreeNode objNode = new TreeNode
+				{
+					Text = objCritterPower.DisplayName,
+					Tag = objCritterPower.InternalId,
+				};
 				treCritterPowers.Nodes[0].Nodes.Add(objNode);
 				treCritterPowers.Nodes[0].Expand();
 			}
@@ -3769,13 +3777,18 @@ namespace Chummer
 		{
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("critterpowers.xml");
 			XmlNode objXmlPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"Denial\"]");
-			TreeNode objNode = new TreeNode();
 			CritterPower objPower = new CritterPower(_objCharacter);
-			objPower.Create(objXmlPower, _objCharacter, objNode);
+			objPower.Create(objXmlPower, _objCharacter);
 			objPower.CountTowardsLimit = false;
-			objNode.ContextMenuStrip = cmsCritterPowers;
 			if (objPower.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objPower.DisplayName,
+				Tag = objPower.InternalId,
+				ContextMenuStrip = cmsCritterPowers,
+			};
 
 			_objCharacter.CritterPowers.Add(objPower);
 
@@ -7647,13 +7660,18 @@ namespace Chummer
 			
 			objXmlDocument = XmlManager.Instance.Load("critterpowers.xml");
 			XmlNode objXmlPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + frmPickCritterPower.SelectedPower + "\"]");
-			TreeNode objNode = new TreeNode();
 			CritterPower objPower = new CritterPower(_objCharacter);
-			objPower.Create(objXmlPower, _objCharacter, objNode, frmPickCritterPower.SelectedRating);
+			objPower.Create(objXmlPower, _objCharacter, frmPickCritterPower.SelectedRating);
 			objPower.PowerPoints = frmPickCritterPower.PowerPoints;
-			objNode.ContextMenuStrip = cmsCritterPowers;
 			if (objPower.InternalId == Guid.Empty.ToString())
 				return;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objPower.DisplayName,
+				Tag = objPower.InternalId,
+				ContextMenuStrip = cmsCritterPowers,
+			};
 
 			_objCharacter.CritterPowers.Add(objPower);
 
@@ -7960,7 +7978,6 @@ namespace Chummer
 					foreach (XmlNode objXmlPower in objXmlQuality.SelectNodes("powers/power"))
 					{
 						XmlNode objXmlCritterPower = objXmlDocument.SelectSingleNode("/chummer/powers/power[name = \"" + objXmlPower.InnerText + "\"]");
-						TreeNode objPowerNode = new TreeNode();
 						CritterPower objPower = new CritterPower(_objCharacter);
 						string strForcedValue = "";
 						int intRating = 0;
@@ -7970,8 +7987,14 @@ namespace Chummer
 						if (objXmlPower.Attributes["select"] != null)
 							strForcedValue = objXmlPower.Attributes["select"].InnerText;
 
-						objPower.Create(objXmlCritterPower, _objCharacter, objPowerNode, intRating, strForcedValue);
+						objPower.Create(objXmlCritterPower, _objCharacter, intRating, strForcedValue);
 						_objCharacter.CritterPowers.Add(objPower);
+
+						TreeNode objPowerNode = new TreeNode
+						{
+							Text = objPower.DisplayName,
+							Tag = objPower.InternalId,
+						};
 
 						if (objPower.Category != "Weakness")
 						{
