@@ -72,11 +72,15 @@ namespace Chummer
 		/// <summary>
 		/// Reflects whether/how we're actually logged in - separate from the short-lived cmdRefresh-style
 		/// messages in lblStatus, so "am I connected, and how" stays visible instead of getting
-		/// overwritten by the next status update.
+		/// overwritten by the next status update. Also keeps cmdLogout from staying clickable (and
+		/// implying there's something to log out of) once there's no stored login left.
 		/// </summary>
 		private void UpdateConnectionState()
 		{
-			if (!_objAuth.HasStoredLogin())
+			bool blnLoggedIn = _objAuth.HasStoredLogin();
+			cmdLogout.Enabled = blnLoggedIn;
+
+			if (!blnLoggedIn)
 			{
 				lblConnectionState.Text = LanguageManager.Instance.GetString("String_Cloud_ConnectionState_NotConnected");
 				return;
