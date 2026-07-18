@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-955</version>
+	<version>-956</version>
 	<name>Deutsch (DE)</name>
 	<strings>
 		<string>
@@ -584,6 +584,10 @@
 			<text>Auswahl archivieren</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Unarchive</key>
+			<text>Auswahl aus Archiv wiederherstellen</text>
+		</string>
+		<string>
 			<key>Button_Cloud_PushShared</key>
 			<text>Aktualisierung für Auswahl senden</text>
 		</string>
@@ -592,12 +596,182 @@
 			<text>Metadaten bearbeiten...</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Revisions</key>
+			<text>Versionen...</text>
+		</string>
+		<string>
+			<key>Title_CloudRevisions</key>
+			<text>Versionen - {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Download</key>
+			<text>Auswahl herunterladen</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeRevision</key>
+			<text>Version endgültig löschen...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeDocument</key>
+			<text>Dokument endgültig löschen...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Close</key>
+			<text>Schließen</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Current</key>
+			<text>Aktuell</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Purging</key>
+			<text>Wird endgültig gelöscht...</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_PurgeNotEligible</key>
+			<text>Dieses Dokument muss mindestens 7 Tage archiviert sein, bevor es endgültig gelöscht werden kann.</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_RecentAuthRequired</key>
+			<text>Für die endgültige Löschung ist eine aktuelle Anmeldung erforderlich. Bitte erneut anmelden und wiederholen.</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Die am {0} erstellte Version endgültig löschen? Dies kann nicht rückgängig gemacht werden.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Version endgültig löschen</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>&quot;{0}&quot;, alle seine Versionen und die gespeicherten Inhalte endgültig löschen? Dies kann nicht rückgängig gemacht werden.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>Dokument endgültig löschen</text>
+		</string>
+		<string>
+			<key>Label_CloudRevisions_Karma</key>
+			<text>Karma:</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_FetchKarma</key>
+			<text>Karma abrufen</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_KarmaUnreadable</key>
+			<text>Karma konnte aus dem Inhalt dieser Version nicht gelesen werden.</text>
+		</string>
+		<string>
+			<key>Title_CloudConflict</key>
+			<text>Cloud-Speicherkonflikt</text>
+		</string>
+		<string>
+			<key>Label_CloudConflict_Explanation</key>
+			<text>Auf dem Server existiert eine neuere Version. Unterschiede:</text>
+		</string>
+		<string>
+			<key>String_CloudConflict_NoDetectableDifference</key>
+			<text>Zwischen den beiden Versionen wurden keine Unterschiede festgestellt.</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_OverwriteServer</key>
+			<text>Server überschreiben</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_SaveLocallyOnly</key>
+			<text>Nur lokal speichern</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_Cancel</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>Message_CloudSave_PushFailed</key>
+			<text>Diese Speicherung konnte nicht an den RunnersPoint-Server übertragen werden: {0}
+
+Stattdessen lokal gespeichert.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudSave_PushFailed</key>
+			<text>Cloud-Speicherung fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>String_CloudSave_PushInFlight</key>
+			<text>Die aktuelle Version auf dem Server wird noch validiert - bitte in Kürze erneut versuchen.</text>
+		</string>
+		<string>
+			<key>String_CloudSave_ConflictUnreadable</key>
+			<text>Die aktuelle Version des Servers konnte zum Vergleich nicht gelesen werden.</text>
+		</string>
+		<string>
+			<key>Checkbox_Options_SuppressCloudUnreachableWarning</key>
+			<text>Nicht warnen, wenn der Server beim Öffnen einer Cloud-verknüpften Figur nicht erreichbar ist</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>Prüfung auf neuere Version fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>RunnersPoint konnte nicht auf eine neuere Version dieser Figur geprüft werden: {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>Lokale Datei öffnen</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>Neuere Version verfügbar</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>Auf dem RunnersPoint-Server existiert eine neuere Version dieser Figur als die, mit der diese lokale Datei zuletzt synchronisiert wurde.</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>Neuere herunterladen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>Lokale Kopie öffnen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>Download fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>Die neuere Version konnte nicht heruntergeladen werden: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>Der Server hat diese Anfrage abgelehnt (401). Falls dies weiterhin auftritt, melden Sie sich ab und fügen Sie einen neuen API-Token ein.</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud-Dokument-Metadaten</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
-			<text>Wird noch nicht an RunnersPoint gesendet - der Server kann dies noch nicht von einem Client entgegennehmen. Wird lokal gespeichert, damit es nicht verloren geht, sobald es möglich ist.</text>
+			<text>Wird auf diesem Charakter gespeichert. Falls er bereits mit einem Cloud-Dokument verknüpft ist, werden diese Werte auch an RunnersPoint gesendet.</text>
+		</string>
+		<string>
+			<key>Message_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>Die Bild-URL muss mit https:// beginnen.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>Ungültige Bild-URL</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_DisplayName</key>
@@ -682,6 +856,10 @@
 		<string>
 			<key>String_Cloud_PushAccepted</key>
 			<text>Upload akzeptiert - die Validierung läuft im Hintergrund.</text>
+		</string>
+		<string>
+			<key>String_Cloud_MetadataUpdated</key>
+			<text>Metadaten aktualisiert.</text>
 		</string>
 		<string>
 			<key>String_Cloud_PushStale</key>

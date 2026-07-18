@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-916</version>
+	<version>-917</version>
 	<name>English (US)</name>
 	<strings>
 		<!-- Common Strings -->
@@ -645,6 +645,10 @@
 			<text>Archive Selected</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Unarchive</key>
+			<text>Unarchive Selected</text>
+		</string>
+		<string>
 			<key>Button_Cloud_PushShared</key>
 			<text>Push Update to Selected</text>
 		</string>
@@ -653,12 +657,182 @@
 			<text>Edit Metadata...</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Revisions</key>
+			<text>Revisions...</text>
+		</string>
+		<string>
+			<key>Title_CloudRevisions</key>
+			<text>Revisions - {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Download</key>
+			<text>Download Selected</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeRevision</key>
+			<text>Purge Revision...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeDocument</key>
+			<text>Purge Document...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Close</key>
+			<text>Close</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Current</key>
+			<text>Current</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Purging</key>
+			<text>Purging...</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_PurgeNotEligible</key>
+			<text>This document must be archived for at least 7 days before it can be purged.</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_RecentAuthRequired</key>
+			<text>Purging requires a recent login. Please log in again and retry.</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Permanently delete the revision created {0}? This cannot be undone.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Purge Revision</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>Permanently delete &quot;{0}&quot;, all of its revisions, and their stored content? This cannot be undone.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>Purge Document</text>
+		</string>
+		<string>
+			<key>Label_CloudRevisions_Karma</key>
+			<text>Karma:</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_FetchKarma</key>
+			<text>Fetch Karma</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_KarmaUnreadable</key>
+			<text>Could not read Karma from this revision's content.</text>
+		</string>
+		<string>
+			<key>Title_CloudConflict</key>
+			<text>Cloud Save Conflict</text>
+		</string>
+		<string>
+			<key>Label_CloudConflict_Explanation</key>
+			<text>A newer revision exists on the server. What was different:</text>
+		</string>
+		<string>
+			<key>String_CloudConflict_NoDetectableDifference</key>
+			<text>No differences were detected between the two revisions.</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_OverwriteServer</key>
+			<text>Overwrite Server</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_SaveLocallyOnly</key>
+			<text>Save Locally Only</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_Cancel</key>
+			<text>Cancel</text>
+		</string>
+		<string>
+			<key>Message_CloudSave_PushFailed</key>
+			<text>Couldn't push this save to the RunnersPoint server: {0}
+
+Saved locally instead.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudSave_PushFailed</key>
+			<text>Cloud Save Failed</text>
+		</string>
+		<string>
+			<key>String_CloudSave_PushInFlight</key>
+			<text>The current revision on the server is still being validated - try again shortly.</text>
+		</string>
+		<string>
+			<key>String_CloudSave_ConflictUnreadable</key>
+			<text>Could not read the server's current revision to compare against.</text>
+		</string>
+		<string>
+			<key>Checkbox_Options_SuppressCloudUnreachableWarning</key>
+			<text>Don't warn if the server is unreachable when opening a cloud-linked character</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>Could Not Check for a Newer Revision</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>Could not check RunnersPoint for a newer revision of this character: {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>Abort</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>Open Local File</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>Newer Revision Available</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>A newer revision of this character exists on the RunnersPoint server than the one this local file was last synced with.</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>Download Newer</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>Open Local Copy</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>Cancel</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>Download Failed</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>Could not download the newer revision: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>The server rejected this request (401). If this keeps happening, try logging out and pasting a fresh API token.</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud Document Metadata</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
-			<text>Not sent to RunnersPoint yet - the server has no way to accept this from a client. Stored locally so it isn't lost once it can.</text>
+			<text>Saved on this character. If it's already linked to a cloud document, these values are also pushed to RunnersPoint.</text>
+		</string>
+		<string>
+			<key>Message_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>The image URL must start with https://.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>Invalid Image URL</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_DisplayName</key>
@@ -743,6 +917,10 @@
 		<string>
 			<key>String_Cloud_PushAccepted</key>
 			<text>Upload accepted - validation is running in the background.</text>
+		</string>
+		<string>
+			<key>String_Cloud_MetadataUpdated</key>
+			<text>Metadata updated.</text>
 		</string>
 		<string>
 			<key>String_Cloud_PushStale</key>

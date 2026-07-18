@@ -1,14 +1,17 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Serilog;
 
 namespace Chummer
 {
 	public partial class frmMain : Form
 	{
 		private frmDiceRoller _frmRoller;
+		private readonly RunnersPointAuth _objCloudAuth = new RunnersPointAuth();
 
 		#region Control Events
 		public frmMain()
@@ -236,12 +239,12 @@ namespace Chummer
 			objCharacter.CharacterNameChanged += objCharacter_CharacterNameChanged;
 		}
 
-		private void mnuMRU_Click(object sender, EventArgs e)
+		private async void mnuMRU_Click(object sender, EventArgs e)
 		{
 			string strFileName = ((ToolStripMenuItem)sender).Text;
 			string strNumber = strFileName.Substring(0, 3);
-			strFileName = strFileName.Replace(strNumber, string.Empty).Trim();
-			LoadCharacter(strFileName);
+			strFileName = StripMruTag(strFileName.Replace(strNumber, string.Empty).Trim());
+			await LoadCharacter(strFileName);
 		}
 
 		private void mnuMRU_MouseDown(object sender, MouseEventArgs e)
@@ -250,24 +253,24 @@ namespace Chummer
 			{
 				string strFileName = ((ToolStripMenuItem)sender).Text;
 				string strNumber = strFileName.Substring(0, 3);
-				strFileName = strFileName.Replace(strNumber, string.Empty).Trim();
+				strFileName = StripMruTag(strFileName.Replace(strNumber, string.Empty).Trim());
 
 				GlobalOptions.Instance.RemoveFromMRUList(strFileName);
 				GlobalOptions.Instance.AddToStickyMRUList(strFileName);
 			}
 		}
 
-		private void mnuStickyMRU_Click(object sender, EventArgs e)
+		private async void mnuStickyMRU_Click(object sender, EventArgs e)
 		{
-			string strFileName = ((ToolStripMenuItem)sender).Text;
-			LoadCharacter(strFileName);
+			string strFileName = StripMruTag(((ToolStripMenuItem)sender).Text);
+			await LoadCharacter(strFileName);
 		}
 
 		private void mnuStickyMRU_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Right)
 			{
-				string strFileName = ((ToolStripMenuItem)sender).Text;
+				string strFileName = StripMruTag(((ToolStripMenuItem)sender).Text);
 
 				GlobalOptions.Instance.RemoveFromStickyMRUList(strFileName);
 				GlobalOptions.Instance.AddToMRUList(strFileName);
@@ -425,12 +428,12 @@ namespace Chummer
 				this.WindowState = FormWindowState.Maximized;
 		}
 
-		private void frmMain_DragDrop(object sender, DragEventArgs e)
+		private async void frmMain_DragDrop(object sender, DragEventArgs e)
 		{
 			// Open each file that has been dropped into the window.
 			string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 			foreach (string strFileName in s)
-				LoadCharacter(strFileName);
+				await LoadCharacter(strFileName);
 		}
 
 		private void frmMain_DragEnter(object sender, DragEventArgs e)
@@ -508,7 +511,7 @@ namespace Chummer
 		/// <summary>
 		/// Show the Open File dialogue, then load the selected character.
 		/// </summary>
-		private void OpenFile(object sender, EventArgs e)
+		private async void OpenFile(object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Chummer Files (*.chum)|*.chum|All Files (*.*)|*.*";
@@ -518,7 +521,7 @@ namespace Chummer
 			{
 				foreach (string strFileName in openFileDialog.FileNames)
 				{
-					LoadCharacter(strFileName);
+					await LoadCharacter(strFileName);
 				}
 			}
 		}
@@ -530,10 +533,13 @@ namespace Chummer
 		/// <param name="blnIncludeInMRU">Whether or not the file should appear in the MRU list.</param>
 		/// <param name="strNewName">New name for the character.</param>
 		/// <param name="blnClearFileName">Whether or not the name of the save file should be cleared.</param>
-		public void LoadCharacter(string strFileName, bool blnIncludeInMRU = true, string strNewName = "", bool blnClearFileName = false)
+		public async Task LoadCharacter(string strFileName, bool blnIncludeInMRU = true, string strNewName = "", bool blnClearFileName = false)
 		{
 			if (File.Exists(strFileName) && strFileName.EndsWith("chum"))
 			{
+				if (!await CheckCloudFreshnessAsync(strFileName))
+					return;
+
 				bool blnLoaded = false;
 				Character objCharacter = new Character();
 				objCharacter.FileName = strFileName;
@@ -581,6 +587,133 @@ namespace Chummer
 			}
 		}
 
+		// Prefixed onto an MRU entry's displayed text when that file is linked to a RunnersPoint cloud
+		// document (clouddocumentid set) - stripped back off in the MRU click/mousedown handlers before
+		// the rest of the text is used as a literal path, same as the "&N " numbering prefix already is.
+		private const string CloudMruTag = "[Cloud] ";
+
+		/// <summary>
+		/// Peeks a .chum file's clouddocumentid/cloudlastknownrevisionid without a full Character.Load()
+		/// - PopulateMRU runs on every MRUChanged, and LoadCharacter runs this before even constructing a
+		/// Character, so fully parsing skills/gear/etc. just to read two small elements would be needless
+		/// overhead. Returns null if the file isn't linked to a cloud document at all.
+		/// </summary>
+		private static Tuple<string, string> PeekCloudIds(string strFileName)
+		{
+			try
+			{
+				if (!File.Exists(strFileName))
+					return null;
+				XmlDocument objXmlDocument = new XmlDocument();
+				objXmlDocument.Load(strFileName);
+				XmlNode objIdNode = objXmlDocument.SelectSingleNode("/character/clouddocumentid");
+				string strDocumentId = objIdNode?.InnerText;
+				if (string.IsNullOrEmpty(strDocumentId))
+					return null;
+				XmlNode objRevisionNode = objXmlDocument.SelectSingleNode("/character/cloudlastknownrevisionid");
+				return new Tuple<string, string>(strDocumentId, objRevisionNode?.InnerText ?? "");
+			}
+			catch (Exception ex) when (ex is XmlException || ex is IOException || ex is UnauthorizedAccessException)
+			{
+				return null;
+			}
+		}
+
+		private static bool IsCloudLinked(string strFileName)
+		{
+			return PeekCloudIds(strFileName) != null;
+		}
+
+		/// <summary>
+		/// Compares a cloud-linked file's last-known server revision against what the server actually
+		/// has, before it gets opened - covers Recent/Sticky/File&gt;Open/drag-drop/startup arg alike,
+		/// since they all funnel through LoadCharacter. Returns false if the load should be aborted
+		/// entirely (user chose Cancel/Abort at a prompt); true otherwise (proceed to open strFileName,
+		/// which may have just been overwritten with a newer revision).
+		/// </summary>
+		private async Task<bool> CheckCloudFreshnessAsync(string strFileName)
+		{
+			Tuple<string, string> objCloudIds = PeekCloudIds(strFileName);
+			if (objCloudIds == null)
+				return true;
+			string strDocumentId = objCloudIds.Item1;
+			string strLastKnownRevisionId = objCloudIds.Item2;
+			// A file linked before CloudLastKnownRevisionId existed (or one that's never actually been
+			// pushed/downloaded since) has nothing to compare against - skip rather than always flagging
+			// a false conflict.
+			if (string.IsNullOrEmpty(strLastKnownRevisionId))
+				return true;
+
+			RunnersPointApiClient objApiClient = new RunnersPointApiClient(_objCloudAuth);
+			RunnersPointDocument objDocument;
+			try
+			{
+				objDocument = (await objApiClient.GetDocumentAsync(strDocumentId)).Item1;
+			}
+			catch (Exception ex)
+			{
+				if (GlobalOptions.Instance.SuppressCloudUnreachableWarning)
+					return true;
+
+				Log.Warning(ex, "Could not check RunnersPoint for a newer revision before opening {File}", strFileName);
+				using (frmCloudLoadPrompt frmPrompt = new frmCloudLoadPrompt(
+					LanguageManager.Instance.GetString("MessageTitle_CloudLoad_CheckFailed"),
+					LanguageManager.Instance.GetString("Message_CloudLoad_CheckFailed").Replace("{0}", ex.Message),
+					LanguageManager.Instance.GetString("Button_CloudLoad_Abort"),
+					LanguageManager.Instance.GetString("Button_CloudLoad_OpenLocalFile")))
+				{
+					frmPrompt.ShowDialog(this);
+					return frmPrompt.ChosenIndex == 1;
+				}
+			}
+
+			if (objDocument.CurrentRevision == strLastKnownRevisionId)
+				return true;
+
+			using (frmCloudLoadPrompt frmPrompt = new frmCloudLoadPrompt(
+				LanguageManager.Instance.GetString("MessageTitle_CloudLoad_NewerRevision"),
+				LanguageManager.Instance.GetString("Message_CloudLoad_NewerRevision"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_DownloadNewer"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_OpenLocalCopy"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_Cancel")))
+			{
+				frmPrompt.ShowDialog(this);
+				if (frmPrompt.ChosenIndex == 1)
+					return true; // Open Local Copy - proceed with the file as-is.
+				if (frmPrompt.ChosenIndex != 0)
+					return false; // Cancel (or closed without a choice).
+			}
+
+			// Download Newer.
+			try
+			{
+				Tuple<byte[], string> objDownload = await objApiClient.DownloadRevisionAsync(strDocumentId, objDocument.CurrentRevision);
+				string strBackupFileName = strFileName + ".chum-bak-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+				File.Copy(strFileName, strBackupFileName, true);
+				File.WriteAllBytes(strFileName, objDownload.Item1);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Failed to download the newer revision for {File}", strFileName);
+				MessageBox.Show(this, LanguageManager.Instance.GetString("Message_CloudLoad_DownloadFailed").Replace("{0}", ex.Message),
+					LanguageManager.Instance.GetString("MessageTitle_CloudLoad_DownloadFailed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return false;
+			}
+		}
+
+		private static string MruDisplayText(string strFileName)
+		{
+			return IsCloudLinked(strFileName) ? CloudMruTag + strFileName : strFileName;
+		}
+
+		private static string StripMruTag(string strDisplayText)
+		{
+			return strDisplayText.StartsWith(CloudMruTag, StringComparison.Ordinal)
+				? strDisplayText.Substring(CloudMruTag.Length)
+				: strDisplayText;
+		}
+
 		/// <summary>
 		/// Populate the MRU items.
 		/// </summary>
@@ -626,7 +759,7 @@ namespace Chummer
 				}
 
 				objItem.Visible = true;
-				objItem.Text = strFile;
+				objItem.Text = MruDisplayText(strFile);
 				mnuFileMRUSeparator.Visible = true;
 			}
 
@@ -712,9 +845,9 @@ namespace Chummer
 
 				objItem.Visible = true;
 				if (i == 9)
-					objItem.Text = "1&0 " + strFile;
+					objItem.Text = "1&0 " + MruDisplayText(strFile);
 				else
-					objItem.Text = "&" + (i + 1).ToString() + " " + strFile;
+					objItem.Text = "&" + (i + 1).ToString() + " " + MruDisplayText(strFile);
 				mnuFileMRUSeparator.Visible = true;
 			}
 

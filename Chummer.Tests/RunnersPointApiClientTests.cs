@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web.Script.Serialization;
 using Xunit;
 
 namespace Chummer.Tests
@@ -204,6 +205,38 @@ namespace Chummer.Tests
 			Assert.Equal("doc-1", objDocument.Id);
 			Assert.Equal("", objDocument.Type);
 			Assert.Null(objDocument.DisplayName);
+		}
+
+		[Fact]
+		public void BuildMetadataPatchBody_SetsNonEmptyValues()
+		{
+			byte[] bytBody = RunnersPointApiClient.BuildMetadataPatchBody("Kestrel", "A shadowrunner.", "https://example.com/portrait.png");
+
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objPatch = objSerializer.Deserialize<Dictionary<string, object>>(Encoding.UTF8.GetString(bytBody));
+
+			Assert.Equal("Kestrel", objPatch["displayName"]);
+			Assert.Equal("A shadowrunner.", objPatch["description"]);
+			Assert.Equal("https://example.com/portrait.png", objPatch["imageUrl"]);
+		}
+
+		[Fact]
+		public void BuildMetadataPatchBody_ClearsEmptyValuesWithJsonNull()
+		{
+			// An empty/null argument must produce a JSON null (RFC 7396 field-clear), not an omitted key
+			// or an empty string - the server treats a present empty string as "" (an actual value), only
+			// null clears the field.
+			byte[] bytBody = RunnersPointApiClient.BuildMetadataPatchBody("", null, "");
+
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objPatch = objSerializer.Deserialize<Dictionary<string, object>>(Encoding.UTF8.GetString(bytBody));
+
+			Assert.True(objPatch.ContainsKey("displayName"));
+			Assert.Null(objPatch["displayName"]);
+			Assert.True(objPatch.ContainsKey("description"));
+			Assert.Null(objPatch["description"]);
+			Assert.True(objPatch.ContainsKey("imageUrl"));
+			Assert.Null(objPatch["imageUrl"]);
 		}
 
 		[Fact]

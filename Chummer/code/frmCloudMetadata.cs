@@ -5,10 +5,10 @@ namespace Chummer
 {
 	/// <summary>
 	/// Edits a character's RunnersPoint cloud document metadata (displayName/description/imageUrl, per
-	/// the API's Document.metadata schema). Local-only for now - the API has no way for a client to
-	/// submit metadata at all (create/pushRevision take only raw file bytes), so nothing here is sent
-	/// anywhere yet. Staged for when/if the server adds that; stored in the character file either way so
-	/// the values aren't lost in the meantime.
+	/// the API's Document.metadata schema). Always saves locally on the character; the caller
+	/// (frmCloudDocuments) is responsible for also pushing the values to the server via
+	/// PATCH /documents/{documentId} when the character is already linked to a cloud document - this
+	/// dialog itself has no server/API access and doesn't attempt that.
 	/// </summary>
 	public partial class frmCloudMetadata : Form
 	{
@@ -30,9 +30,19 @@ namespace Chummer
 
 		private void cmdOK_Click(object sender, EventArgs e)
 		{
+			string strImageUrl = txtImageUrl.Text.Trim();
+			// Matches the server's own validation (DocumentMetadataPatch.imageUrl requires https://) -
+			// catching this here avoids an avoidable round trip to find out.
+			if (!string.IsNullOrEmpty(strImageUrl) && !strImageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+			{
+				MessageBox.Show(LanguageManager.Instance.GetString("Message_CloudMetadata_ImageUrlMustBeHttps"),
+					LanguageManager.Instance.GetString("MessageTitle_CloudMetadata_ImageUrlMustBeHttps"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
+
 			_objCharacter.CloudMetadataDisplayName = txtDisplayName.Text.Trim();
 			_objCharacter.CloudMetadataDescription = txtDescription.Text.Trim();
-			_objCharacter.CloudMetadataImageUrl = txtImageUrl.Text.Trim();
+			_objCharacter.CloudMetadataImageUrl = strImageUrl;
 
 			if (!string.IsNullOrEmpty(_objCharacter.FileName))
 				_objCharacter.Save();

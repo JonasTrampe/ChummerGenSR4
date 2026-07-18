@@ -116,6 +116,7 @@
 			this.lblPDFAppPath = new System.Windows.Forms.Label();
 			this.txtCloudApiBaseUrl = new System.Windows.Forms.TextBox();
 			this.lblCloudApiBaseUrl = new System.Windows.Forms.Label();
+			this.chkSuppressCloudUnreachableWarning = new System.Windows.Forms.CheckBox();
 			this.lblXSLT = new System.Windows.Forms.Label();
 			this.cboXSLT = new System.Windows.Forms.ComboBox();
 			this.lblLanguage = new System.Windows.Forms.Label();
@@ -1083,6 +1084,7 @@
 			this.tabGlobal.Controls.Add(this.lblPDFAppPath);
 			this.tabGlobal.Controls.Add(this.txtCloudApiBaseUrl);
 			this.tabGlobal.Controls.Add(this.lblCloudApiBaseUrl);
+			this.tabGlobal.Controls.Add(this.chkSuppressCloudUnreachableWarning);
 			this.tabGlobal.Controls.Add(this.lblXSLT);
 			this.tabGlobal.Controls.Add(this.cboXSLT);
 			this.tabGlobal.Controls.Add(this.lblLanguage);
@@ -1251,6 +1253,17 @@
 			this.lblCloudApiBaseUrl.TabIndex = 16;
 			this.lblCloudApiBaseUrl.Tag = "Label_Options_CloudApiBaseUrl";
 			this.lblCloudApiBaseUrl.Text = "Cloud Documents server:";
+			//
+			// chkSuppressCloudUnreachableWarning
+			//
+			this.chkSuppressCloudUnreachableWarning.AutoSize = true;
+			this.chkSuppressCloudUnreachableWarning.Location = new System.Drawing.Point(9, 423);
+			this.chkSuppressCloudUnreachableWarning.Name = "chkSuppressCloudUnreachableWarning";
+			this.chkSuppressCloudUnreachableWarning.Size = new System.Drawing.Size(300, 17);
+			this.chkSuppressCloudUnreachableWarning.TabIndex = 18;
+			this.chkSuppressCloudUnreachableWarning.Tag = "Checkbox_Options_SuppressCloudUnreachableWarning";
+			this.chkSuppressCloudUnreachableWarning.Text = "Don't warn if the server is unreachable when opening a cloud-linked character";
+			this.chkSuppressCloudUnreachableWarning.UseVisualStyleBackColor = true;
 			//
 			// lblXSLT
 			// 
@@ -3523,6 +3536,7 @@
 		private System.Windows.Forms.Label lblPDFAppPath;
 		private System.Windows.Forms.TextBox txtCloudApiBaseUrl;
 		private System.Windows.Forms.Label lblCloudApiBaseUrl;
+		private System.Windows.Forms.CheckBox chkSuppressCloudUnreachableWarning;
 		private System.Windows.Forms.NumericUpDown nudPDFOffset;
 		private System.Windows.Forms.Label lblPDFOffset;
 		private System.Windows.Forms.Button cmdPDFLocation;

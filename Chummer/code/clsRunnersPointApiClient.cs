@@ -111,6 +111,22 @@ namespace Chummer
 	}
 
 	/// <summary>
+	/// Immutable revision metadata from listRevisions/getRevision (and their /shared/ equivalents).
+	/// Distinct from RevisionStatus (the createDocument/pushRevision/getRevisionStatus response) -
+	/// this is the persisted record of an already-processed revision, not an in-flight quarantine poll.
+	/// </summary>
+	public class RunnersPointRevision
+	{
+		public string Id { get; set; }
+		public string DocumentId { get; set; }
+		public string Hash { get; set; }
+		public long SizeBytes { get; set; }
+		public string ValidationState { get; set; }
+		public List<string> ValidationMessages { get; set; } = new List<string>();
+		public DateTime CreatedAt { get; set; }
+	}
+
+	/// <summary>
 	/// Thrown for any non-success response from the RunnersPoint API. Carries the RFC 9457 Problem
 	/// Details fields where the server provided them, so callers can show a useful message instead of
 	/// just an HTTP status code.
@@ -144,6 +160,9 @@ namespace Chummer
 		// not the /v1 the OpenAPI spec's example server URL still shows).
 		private static string BaseUrl => GlobalOptions.Instance.CloudApiBaseUrl;
 		private const string ClientName = "ChummerGenSR4";
+		// System.Net.Http.HttpMethod.Patch isn't available on the .NET Framework 4.8 build of
+		// System.Net.Http (it was added well after that assembly shipped) - construct it explicitly.
+		private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
 
 		private readonly HttpClient _objHttpClient;
 		private readonly RunnersPointAuth _objAuth;
@@ -632,6 +651,70 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// POST /documents/{documentId}/unarchive. Owner-only, like archive - restores validationState
+		/// to mirror the current revision's own state (not unconditionally "accepted", since a document
+		/// can be archived before its current revision ever reached that state). currentRevision and the
+		/// document's ETag are unaffected.
+		/// </summary>
+		public async Task<RunnersPointDocument> UnarchiveDocumentAsync(string strDocumentId, string strIfMatch)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/documents/" + strDocumentId + "/unarchive");
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
+		/// <summary>
+		/// Builds a JSON Merge Patch (RFC 7396) body over Document.metadata's three keys. Chummer's
+		/// metadata editor always edits displayName/description/imageUrl together, so this always sends
+		/// all three - an empty/null argument clears that field server-side (JSON null), a non-empty one
+		/// sets it. Content-Type must be application/merge-patch+json per the spec.
+		/// </summary>
+		internal static byte[] BuildMetadataPatchBody(string strDisplayName, string strDescription, string strImageUrl)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objPatch = new Dictionary<string, object>
+			{
+				{ "displayName", string.IsNullOrEmpty(strDisplayName) ? null : strDisplayName },
+				{ "description", string.IsNullOrEmpty(strDescription) ? null : strDescription },
+				{ "imageUrl", string.IsNullOrEmpty(strImageUrl) ? null : strImageUrl },
+			};
+			return Encoding.UTF8.GetBytes(objSerializer.Serialize(objPatch));
+		}
+
+		/// <summary>
+		/// PATCH /documents/{documentId}. Metadata-only edit - never creates a new Revision, so
+		/// currentRevision/ETag are unaffected by this call (the response's ETag header still reflects
+		/// the current revision, unchanged).
+		/// </summary>
+		public async Task<RunnersPointDocument> UpdateDocumentMetadataAsync(string strDocumentId, string strIfMatch, string strDisplayName, string strDescription, string strImageUrl)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			byte[] bytContent = BuildMetadataPatchBody(strDisplayName, strDescription, strImageUrl);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(PatchMethod, "/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/merge-patch+json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
+		/// <summary>
 		/// GET /shared/documents. Documents explicitly shared with the authenticated user by another
 		/// user - e.g. a GM sharing a character back, or a document someone picked up from a marketplace
 		/// on the RunnersPoint website. Chummer only ever sees the individual grant; there is no public
@@ -701,6 +784,32 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// PATCH /shared/documents/{documentId}. Metadata-only edit via shared access - requires an
+		/// active grant with "update" permission specifically. A "write" grant alone is not sufficient:
+		/// per the spec, write (content) and update (metadata) are independent capabilities that don't
+		/// imply each other, so a collaborator needing both holds two separate grants. Archive/unarchive/
+		/// delete remain unavailable through shared access regardless.
+		/// </summary>
+		public async Task<RunnersPointSharedDocument> UpdateSharedDocumentMetadataAsync(string strDocumentId, string strIfMatch, string strDisplayName, string strDescription, string strImageUrl)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			byte[] bytContent = BuildMetadataPatchBody(strDisplayName, strDescription, strImageUrl);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(PatchMethod, "/shared/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/merge-patch+json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseSharedDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
+		/// <summary>
 		/// GET /shared/documents/{documentId}/revisions/{revisionId}/content. Same Digest verification
 		/// as DownloadRevisionAsync - a shared download is downloaded from someone else's storage, so
 		/// verifying it wasn't corrupted or truncated in transit matters at least as much here.
@@ -720,6 +829,117 @@ namespace Chummer
 			}
 
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+		}
+
+		internal static RunnersPointRevision ParseRevision(Dictionary<string, object> objJson)
+		{
+			RunnersPointRevision objRevision = new RunnersPointRevision();
+			objRevision.Id = objJson.ContainsKey("id") ? objJson["id"].ToString() : "";
+			objRevision.DocumentId = objJson.ContainsKey("documentId") ? objJson["documentId"].ToString() : "";
+			objRevision.Hash = objJson.ContainsKey("hash") ? objJson["hash"].ToString() : "";
+			objRevision.SizeBytes = objJson.ContainsKey("sizeBytes") ? Convert.ToInt64(objJson["sizeBytes"]) : 0;
+			objRevision.ValidationState = objJson.ContainsKey("validationState") ? objJson["validationState"].ToString() : "";
+			if (objJson.ContainsKey("validationMessages"))
+			{
+				foreach (object objMessage in (IEnumerable)objJson["validationMessages"])
+					objRevision.ValidationMessages.Add(objMessage.ToString());
+			}
+			if (objJson.ContainsKey("createdAt") && DateTime.TryParse(objJson["createdAt"].ToString(), out DateTime datCreatedAt))
+				objRevision.CreatedAt = datCreatedAt;
+			return objRevision;
+		}
+
+		private async Task<List<RunnersPointRevision>> FetchRevisionsAsync(string strPath)
+		{
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, strPath));
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objJson = objSerializer.Deserialize<Dictionary<string, object>>(strBody);
+
+			List<RunnersPointRevision> lstRevisions = new List<RunnersPointRevision>();
+			if (objJson.ContainsKey("items"))
+			{
+				foreach (object objItemObj in (IEnumerable)objJson["items"])
+					lstRevisions.Add(ParseRevision((Dictionary<string, object>)objItemObj));
+			}
+			return lstRevisions;
+		}
+
+		/// <summary>
+		/// GET /documents/{documentId}/revisions. Immutable revision metadata, newest first.
+		/// </summary>
+		public Task<List<RunnersPointRevision>> ListRevisionsAsync(string strDocumentId)
+		{
+			return FetchRevisionsAsync("/documents/" + strDocumentId + "/revisions");
+		}
+
+		/// <summary>
+		/// GET /shared/documents/{documentId}/revisions. Same shape, scoped to whatever the active share
+		/// grant permits.
+		/// </summary>
+		public Task<List<RunnersPointRevision>> ListSharedRevisionsAsync(string strDocumentId)
+		{
+			return FetchRevisionsAsync("/shared/documents/" + strDocumentId + "/revisions");
+		}
+
+		private async Task PurgeAsync(string strPath, string strIfMatch)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Delete, strPath);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+		}
+
+		/// <summary>
+		/// DELETE /documents/{documentId}/purge. Irreversibly deletes an archived document, its
+		/// revisions, and their storage objects. Requires the document to have been archived for at
+		/// least 7 days (`purge_not_eligible` otherwise) and requires authentication no older than 15
+		/// minutes (`recent_authentication_required`) - a stale login may need to be refreshed/re-entered
+		/// even though the token itself is still otherwise valid.
+		/// </summary>
+		public Task PurgeDocumentAsync(string strDocumentId, string strIfMatch)
+		{
+			return PurgeAsync("/documents/" + strDocumentId + "/purge", strIfMatch);
+		}
+
+		/// <summary>
+		/// DELETE /shared/documents/{documentId}/purge. Same operation as PurgeDocumentAsync, for a
+		/// grantee holding an active `purge` grant instead of the owner - unlike archive/unarchive, purge
+		/// is not owner-only. Same 7-day-archived and 15-minute-recent-auth preconditions.
+		/// </summary>
+		public Task PurgeSharedDocumentAsync(string strDocumentId, string strIfMatch)
+		{
+			return PurgeAsync("/shared/documents/" + strDocumentId + "/purge", strIfMatch);
+		}
+
+		/// <summary>
+		/// DELETE /documents/{documentId}/revisions/{revisionId}. Irreversibly deletes a single revision
+		/// and its storage object - no archived-first precondition or cooldown, but still requires
+		/// authentication no older than 15 minutes. If the purged revision was `currentRevision` and
+		/// others remain, the document rolls back to the most recently created remaining revision; if it
+		/// was the only revision, the document becomes `archived` with a null `currentRevision`. Returns
+		/// 204 with no body - callers should re-fetch the document afterward to see the updated state.
+		/// </summary>
+		public Task PurgeRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch)
+		{
+			return PurgeAsync("/documents/" + strDocumentId + "/revisions/" + strRevisionId, strIfMatch);
+		}
+
+		/// <summary>
+		/// DELETE /shared/documents/{documentId}/revisions/{revisionId}. Same operation as
+		/// PurgeRevisionAsync, for a grantee holding an active `purge` grant. No archived-first
+		/// precondition; same 15-minute recent-auth requirement.
+		/// </summary>
+		public Task PurgeSharedRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch)
+		{
+			return PurgeAsync("/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId, strIfMatch);
 		}
 
 #if DEBUG

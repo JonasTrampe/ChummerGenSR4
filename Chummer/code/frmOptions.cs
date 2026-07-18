@@ -173,6 +173,7 @@ namespace Chummer
 
 			txtPDFAppPath.Text = GlobalOptions.Instance.PDFAppPath;
 			txtCloudApiBaseUrl.Text = GlobalOptions.Instance.CloudApiBaseUrl;
+			chkSuppressCloudUnreachableWarning.Checked = GlobalOptions.Instance.SuppressCloudUnreachableWarning;
 
 			// Populate the Language List.
 			string strPath = Path.Combine(Application.StartupPath, "lang");
@@ -1730,6 +1731,7 @@ namespace Chummer
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
 			GlobalOptions.Instance.CloudApiBaseUrl = txtCloudApiBaseUrl.Text;
+			GlobalOptions.Instance.SuppressCloudUnreachableWarning = chkSuppressCloudUnreachableWarning.Checked;
 			GlobalOptions.Instance.PDFArgumentStyle = cboPDFArgumentStyle.SelectedValue.ToString();
 			SettingsRegistryKey objRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer");
 			objRegistry.SetValue("autoupdate", chkAutomaticUpdate.Checked.ToString());
@@ -1744,6 +1746,7 @@ namespace Chummer
 
 			objRegistry.SetValue("pdfapppath", txtPDFAppPath.Text);
 			objRegistry.SetValue("cloudapibaseurl", txtCloudApiBaseUrl.Text);
+			objRegistry.SetValue("suppresscloudunreachablewarning", chkSuppressCloudUnreachableWarning.Checked.ToString());
 
 			// Save the SourcebookInfo.
 			SettingsRegistryKey objSourceRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");

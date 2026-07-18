@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -36,6 +37,7 @@ namespace Chummer
 			_objActiveCharacter = objActiveCharacter;
 			InitializeComponent();
 			LanguageManager.Instance.Load(GlobalOptions.Instance.Language, this);
+			LayoutActionButtons();
 		}
 
 		private async void frmCloudDocuments_Load(object sender, EventArgs e)
@@ -184,12 +186,25 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Clears a stored login that the server no longer honors (expired or revoked) so the UI doesn't
-		/// just keep silently failing every call - the user needs to log in or paste a new token.
+		/// Handles a 401 from the server. For an OAuth login, SendWithRetryAsync already tried a token
+		/// refresh before this was ever thrown, so a 401 reaching here means the refresh token itself is
+		/// dead - there's nothing left to retry, so the stored login is cleared. A pasted apiToken has no
+		/// refresh path at all, so a 401 for it could just as easily be a transient server hiccup or a
+		/// request needing a scope the token wasn't minted with (e.g. a Shared With Me call against a
+		/// token that only carries documents:* scopes) as an actually-revoked token - wiping it outright
+		/// on every such 401 forced an annoying re-paste of an otherwise perfectly good token. Only an
+		/// explicit Log Out clears an apiToken now.
 		/// </summary>
 		private void HandleAuthExpired()
 		{
-			Log.Warning("RunnersPoint login rejected as expired/revoked (401) - clearing stored login");
+			if (_objAuth.IsApiTokenLogin())
+			{
+				Log.Warning("RunnersPoint API call returned 401 with a stored apiToken login - leaving it in place (see HandleAuthExpired)");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthTokenRejected"));
+				return;
+			}
+
+			Log.Warning("RunnersPoint OAuth login rejected as expired/revoked (401, refresh already attempted) - clearing stored login");
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
 			UpdateConnectionState();
@@ -206,6 +221,7 @@ namespace Chummer
 			cmdPushCurrent.Enabled = !SharedMode && _objActiveCharacter != null;
 			cmdArchive.Visible = !SharedMode;
 			cmdPushShared.Visible = SharedMode;
+			LayoutActionButtons();
 			await RefreshAsync();
 		}
 
@@ -320,13 +336,43 @@ namespace Chummer
 			await RefreshAsync();
 		}
 
-		private void cmdEditMetadata_Click(object sender, EventArgs e)
+		private async void cmdEditMetadata_Click(object sender, EventArgs e)
 		{
 			if (_objActiveCharacter == null)
 				return;
 
+			DialogResult objResult;
 			using (frmCloudMetadata frmMetadata = new frmCloudMetadata(_objActiveCharacter))
-				frmMetadata.ShowDialog(this);
+				objResult = frmMetadata.ShowDialog(this);
+
+			// The dialog already saved the values locally regardless of the outcome below - pushing to
+			// the server is a separate, best-effort step, and only applies once this character is
+			// actually linked to a cloud document (CloudDocumentId set via a prior push).
+			if (objResult != DialogResult.OK || string.IsNullOrEmpty(_objActiveCharacter.CloudDocumentId))
+				return;
+
+			try
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Pushing"));
+				Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(_objActiveCharacter.CloudDocumentId);
+				await _objApiClient.UpdateDocumentMetadataAsync(_objActiveCharacter.CloudDocumentId, objCurrent.Item2,
+					_objActiveCharacter.CloudMetadataDisplayName, _objActiveCharacter.CloudMetadataDescription, _objActiveCharacter.CloudMetadataImageUrl);
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_MetadataUpdated"));
+				await RefreshAsync();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud Documents operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
 		}
 
 		// States in which a document's most recent revision hasn't finished the async quarantine/
@@ -554,15 +600,19 @@ namespace Chummer
 			if (SharedMode || lstDocuments.SelectedItems.Count == 0)
 				return;
 			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			bool blnArchived = objDocument.ValidationState == "archived";
 
-			if (MessageBox.Show(LanguageManager.Instance.GetString("Message_Cloud_ConfirmArchive").Replace("{0}", objDocument.DisplayName ?? objDocument.Id),
+			if (!blnArchived && MessageBox.Show(LanguageManager.Instance.GetString("Message_Cloud_ConfirmArchive").Replace("{0}", objDocument.DisplayName ?? objDocument.Id),
 				LanguageManager.Instance.GetString("MessageTitle_Cloud_ConfirmArchive"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
 				return;
 
 			try
 			{
 				Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(objDocument.Id);
-				await _objApiClient.ArchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
+				if (blnArchived)
+					await _objApiClient.UnarchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
+				else
+					await _objApiClient.ArchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
 				await RefreshAsync();
 			}
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -581,6 +631,30 @@ namespace Chummer
 			UpdateSelectionButtons();
 		}
 
+		/// <summary>
+		/// Whether the selected document's revisions can be purged from this dialog. Owner access
+		/// (My Documents) always permits it; shared access only when the active grant carries the
+		/// "purge" permission specifically - independent of "write"/"update", per the API's grant model.
+		/// </summary>
+		private static bool CanPurge(object objTag, bool blnShared)
+		{
+			return !blnShared || (objTag is RunnersPointSharedDocument objShared && objShared.Permission == "purge" && objShared.ShareStatus == "active");
+		}
+
+		private async void cmdRevisions_Click(object sender, EventArgs e)
+		{
+			if (lstDocuments.SelectedItems.Count == 0)
+				return;
+			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			bool blnShared = SharedMode;
+			bool blnCanPurge = CanPurge(objDocument, blnShared);
+
+			using (frmCloudRevisions frmRevisions = new frmCloudRevisions(_objApiClient, objDocument, blnShared, blnCanPurge))
+				frmRevisions.ShowDialog(this);
+
+			await RefreshAsync();
+		}
+
 		private void UpdateSelectionButtons()
 		{
 			if (lstDocuments.SelectedItems.Count == 0)
@@ -588,14 +662,60 @@ namespace Chummer
 				cmdDownload.Enabled = false;
 				cmdArchive.Enabled = false;
 				cmdPushShared.Enabled = false;
+				cmdRevisions.Enabled = false;
+				LayoutActionButtons();
 				return;
 			}
 
 			object objTag = lstDocuments.SelectedItems[0].Tag;
 			cmdDownload.Enabled = true;
 			cmdArchive.Enabled = !SharedMode;
+			cmdRevisions.Enabled = true;
 			cmdPushShared.Enabled = SharedMode && _objActiveCharacter != null && objTag is RunnersPointSharedDocument objShared
 				&& objShared.Permission == "write" && objShared.ShareStatus == "active";
+
+			// Archive and unarchive are mutually exclusive on the same document - reuse one button
+			// rather than needing a second one in an already-tight button row.
+			bool blnArchived = !SharedMode && objTag is RunnersPointDocument objDocument && objDocument.ValidationState == "archived";
+			cmdArchive.Tag = blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive";
+			cmdArchive.Text = LanguageManager.Instance.GetString(blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive");
+			LayoutActionButtons();
+		}
+
+		/// <summary>
+		/// Positions the two rows of action buttons left-to-right based on each button's actual
+		/// (AutoSized) width, skipping any that are currently hidden. A fixed pixel grid can't work
+		/// across languages - "Aktuellen Charakter hochladen" or "Aktualización disponible" run far
+		/// longer than the English text the original layout was sized for, and were getting clipped.
+		/// Called after anything that can change a button's text (language load, Archive/Unarchive
+		/// swap) or visibility (My Documents vs. Shared With Me).
+		/// </summary>
+		private void LayoutActionButtons()
+		{
+			const int intMargin = 12;
+			const int intSpacing = 8;
+
+			int intX = intMargin;
+			foreach (Button objButton in new[] { cmdLogout, cmdRefresh, cmdPushCurrent, cmdPushShared, cmdRevisions, cmdDownload })
+			{
+				if (!objButton.Visible)
+					continue;
+				objButton.Location = new Point(intX, objButton.Top);
+				intX += objButton.Width + intSpacing;
+			}
+
+			intX = intMargin;
+			foreach (Button objButton in new[] { cmdArchive, cmdEditMetadata,
+#if DEBUG
+				cmdDebugInfo,
+#endif
+			})
+			{
+				if (!objButton.Visible)
+					continue;
+				objButton.Location = new Point(intX, objButton.Top);
+				intX += objButton.Width + intSpacing;
+			}
 		}
 
 		private void UpdateStatus(string strText)
