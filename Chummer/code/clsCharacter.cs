@@ -55,10 +55,10 @@ namespace Chummer
 		private string _strFileName = "";
 		private string _strSettingsFileName = "default.xml";
 		private string _strCloudDocumentId = "";
-		// Local-only for now: the RunnersPoint API has no way for a client to submit document metadata
-		// at all (create/pushRevision take only raw file bytes, no metadata field), so these aren't sent
-		// anywhere yet. Staged for when/if the server adds that - see the "Document metadata mismatch"
-		// bug report (metadata.displayName/description/imageUrl per the OpenAPI spec).
+		// Kept on the character (not just pushed and forgotten) so the editor has something to show/
+		// re-edit later, and so the values survive even for a character not yet linked to a cloud
+		// document. Pushed to the server via PATCH /documents/{documentId} (frmCloudDocuments) once
+		// CloudDocumentId is set - see RunnersPointApiClient.UpdateDocumentMetadataAsync.
 		private string _strCloudMetadataDisplayName = "";
 		private string _strCloudMetadataDescription = "";
 		private string _strCloudMetadataImageUrl = "";
@@ -2785,9 +2785,8 @@ namespace Chummer
 
 		/// <summary>
 		/// Display name to use for this character's cloud document, per the RunnersPoint API's
-		/// Document.metadata.displayName field. Local-only for now - the API has no way for a client to
-		/// submit metadata yet (see the metadata mismatch bug report), so this isn't sent anywhere until
-		/// that changes.
+		/// Document.metadata.displayName field. Pushed via PATCH /documents/{documentId} once this
+		/// character is linked to a cloud document (CloudDocumentId set).
 		/// </summary>
 		public string CloudMetadataDisplayName
 		{
@@ -2802,8 +2801,8 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Description for this character's cloud document, per Document.metadata.description. Local-only
-		/// for now - see CloudMetadataDisplayName.
+		/// Description for this character's cloud document, per Document.metadata.description - see
+		/// CloudMetadataDisplayName.
 		/// </summary>
 		public string CloudMetadataDescription
 		{
@@ -2818,8 +2817,8 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Portrait/image URL for this character's cloud document, per Document.metadata.imageUrl.
-		/// Local-only for now - see CloudMetadataDisplayName.
+		/// Portrait/image URL for this character's cloud document, per Document.metadata.imageUrl - see
+		/// CloudMetadataDisplayName. The server requires this to be an https:// URL.
 		/// </summary>
 		public string CloudMetadataImageUrl
 		{

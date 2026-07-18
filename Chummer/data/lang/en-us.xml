@@ -645,6 +645,10 @@
 			<text>Archive Selected</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Unarchive</key>
+			<text>Unarchive Selected</text>
+		</string>
+		<string>
 			<key>Button_Cloud_PushShared</key>
 			<text>Push Update to Selected</text>
 		</string>
@@ -658,7 +662,15 @@
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
-			<text>Not sent to RunnersPoint yet - the server has no way to accept this from a client. Stored locally so it isn't lost once it can.</text>
+			<text>Saved on this character. If it's already linked to a cloud document, these values are also pushed to RunnersPoint.</text>
+		</string>
+		<string>
+			<key>Message_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>The image URL must start with https://.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>Invalid Image URL</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_DisplayName</key>
@@ -743,6 +755,10 @@
 		<string>
 			<key>String_Cloud_PushAccepted</key>
 			<text>Upload accepted - validation is running in the background.</text>
+		</string>
+		<string>
+			<key>String_Cloud_MetadataUpdated</key>
+			<text>Metadata updated.</text>
 		</string>
 		<string>
 			<key>String_Cloud_PushStale</key>

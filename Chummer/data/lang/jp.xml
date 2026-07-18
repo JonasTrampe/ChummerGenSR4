@@ -647,6 +647,10 @@
 			<text>選択項目をアーカイブ</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Unarchive</key>
+			<text>選択項目のアーカイブを解除</text>
+		</string>
+		<string>
 			<key>Button_Cloud_PushShared</key>
 			<text>選択項目に更新をプッシュ</text>
 		</string>
@@ -660,7 +664,15 @@
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
-			<text>まだ RunnersPoint には送信されません。サーバーはクライアントからこれを受け取る手段をまだ持っていません。可能になった際に失われないよう、ローカルに保存されます。</text>
+			<text>このキャラクターに保存されます。既にクラウドドキュメントにリンクされている場合、これらの値は RunnersPoint にも送信されます。</text>
+		</string>
+		<string>
+			<key>Message_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>画像 URL は https:// で始まる必要があります。</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>無効な画像 URL</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_DisplayName</key>
@@ -745,6 +757,10 @@
 		<string>
 			<key>String_Cloud_PushAccepted</key>
 			<text>アップロードを受け付けました - 検証はバックグラウンドで実行されます。</text>
+		</string>
+		<string>
+			<key>String_Cloud_MetadataUpdated</key>
+			<text>メタデータを更新しました。</text>
 		</string>
 		<string>
 			<key>String_Cloud_PushStale</key>

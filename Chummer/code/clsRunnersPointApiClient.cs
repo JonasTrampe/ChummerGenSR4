@@ -144,6 +144,9 @@ namespace Chummer
 		// not the /v1 the OpenAPI spec's example server URL still shows).
 		private static string BaseUrl => GlobalOptions.Instance.CloudApiBaseUrl;
 		private const string ClientName = "ChummerGenSR4";
+		// System.Net.Http.HttpMethod.Patch isn't available on the .NET Framework 4.8 build of
+		// System.Net.Http (it was added well after that assembly shipped) - construct it explicitly.
+		private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
 
 		private readonly HttpClient _objHttpClient;
 		private readonly RunnersPointAuth _objAuth;
@@ -632,6 +635,70 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// POST /documents/{documentId}/unarchive. Owner-only, like archive - restores validationState
+		/// to mirror the current revision's own state (not unconditionally "accepted", since a document
+		/// can be archived before its current revision ever reached that state). currentRevision and the
+		/// document's ETag are unaffected.
+		/// </summary>
+		public async Task<RunnersPointDocument> UnarchiveDocumentAsync(string strDocumentId, string strIfMatch)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/documents/" + strDocumentId + "/unarchive");
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
+		/// <summary>
+		/// Builds a JSON Merge Patch (RFC 7396) body over Document.metadata's three keys. Chummer's
+		/// metadata editor always edits displayName/description/imageUrl together, so this always sends
+		/// all three - an empty/null argument clears that field server-side (JSON null), a non-empty one
+		/// sets it. Content-Type must be application/merge-patch+json per the spec.
+		/// </summary>
+		internal static byte[] BuildMetadataPatchBody(string strDisplayName, string strDescription, string strImageUrl)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objPatch = new Dictionary<string, object>
+			{
+				{ "displayName", string.IsNullOrEmpty(strDisplayName) ? null : strDisplayName },
+				{ "description", string.IsNullOrEmpty(strDescription) ? null : strDescription },
+				{ "imageUrl", string.IsNullOrEmpty(strImageUrl) ? null : strImageUrl },
+			};
+			return Encoding.UTF8.GetBytes(objSerializer.Serialize(objPatch));
+		}
+
+		/// <summary>
+		/// PATCH /documents/{documentId}. Metadata-only edit - never creates a new Revision, so
+		/// currentRevision/ETag are unaffected by this call (the response's ETag header still reflects
+		/// the current revision, unchanged).
+		/// </summary>
+		public async Task<RunnersPointDocument> UpdateDocumentMetadataAsync(string strDocumentId, string strIfMatch, string strDisplayName, string strDescription, string strImageUrl)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			byte[] bytContent = BuildMetadataPatchBody(strDisplayName, strDescription, strImageUrl);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(PatchMethod, "/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/merge-patch+json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
+		/// <summary>
 		/// GET /shared/documents. Documents explicitly shared with the authenticated user by another
 		/// user - e.g. a GM sharing a character back, or a document someone picked up from a marketplace
 		/// on the RunnersPoint website. Chummer only ever sees the individual grant; there is no public
@@ -698,6 +765,32 @@ namespace Chummer
 			});
 			await ThrowIfProblemAsync(objResponse);
 			return await ParseRevisionStatusAsync(objResponse);
+		}
+
+		/// <summary>
+		/// PATCH /shared/documents/{documentId}. Metadata-only edit via shared access - requires an
+		/// active grant with "update" permission specifically. A "write" grant alone is not sufficient:
+		/// per the spec, write (content) and update (metadata) are independent capabilities that don't
+		/// imply each other, so a collaborator needing both holds two separate grants. Archive/unarchive/
+		/// delete remain unavailable through shared access regardless.
+		/// </summary>
+		public async Task<RunnersPointSharedDocument> UpdateSharedDocumentMetadataAsync(string strDocumentId, string strIfMatch, string strDisplayName, string strDescription, string strImageUrl)
+		{
+			string strIdempotencyKey = NewIdempotencyKey();
+			byte[] bytContent = BuildMetadataPatchBody(strDisplayName, strDescription, strImageUrl);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(PatchMethod, "/shared/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.TryAddWithoutValidation("If-Match", strIfMatch);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/merge-patch+json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			return ParseSharedDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
 		}
 
 		/// <summary>

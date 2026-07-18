@@ -641,6 +641,10 @@
 			<text>Archiver la sélection</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Unarchive</key>
+			<text>Désarchiver la sélection</text>
+		</string>
+		<string>
 			<key>Button_Cloud_PushShared</key>
 			<text>Envoyer la mise à jour de la sélection</text>
 		</string>
@@ -654,7 +658,15 @@
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
-			<text>Pas encore envoyé à RunnersPoint - le serveur ne peut pas encore recevoir ceci d'un client. Enregistré localement pour ne pas le perdre une fois que ce sera possible.</text>
+			<text>Enregistré sur ce personnage. S'il est déjà lié à un document cloud, ces valeurs sont également envoyées à RunnersPoint.</text>
+		</string>
+		<string>
+			<key>Message_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>L'URL de l'image doit commencer par https://.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudMetadata_ImageUrlMustBeHttps</key>
+			<text>URL d'image non valide</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_DisplayName</key>
@@ -739,6 +751,10 @@
 		<string>
 			<key>String_Cloud_PushAccepted</key>
 			<text>Envoi accepté - la validation s'exécute en arrière-plan.</text>
+		</string>
+		<string>
+			<key>String_Cloud_MetadataUpdated</key>
+			<text>Métadonnées mises à jour.</text>
 		</string>
 		<string>
 			<key>String_Cloud_PushStale</key>

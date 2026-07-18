@@ -320,13 +320,43 @@ namespace Chummer
 			await RefreshAsync();
 		}
 
-		private void cmdEditMetadata_Click(object sender, EventArgs e)
+		private async void cmdEditMetadata_Click(object sender, EventArgs e)
 		{
 			if (_objActiveCharacter == null)
 				return;
 
+			DialogResult objResult;
 			using (frmCloudMetadata frmMetadata = new frmCloudMetadata(_objActiveCharacter))
-				frmMetadata.ShowDialog(this);
+				objResult = frmMetadata.ShowDialog(this);
+
+			// The dialog already saved the values locally regardless of the outcome below - pushing to
+			// the server is a separate, best-effort step, and only applies once this character is
+			// actually linked to a cloud document (CloudDocumentId set via a prior push).
+			if (objResult != DialogResult.OK || string.IsNullOrEmpty(_objActiveCharacter.CloudDocumentId))
+				return;
+
+			try
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Pushing"));
+				Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(_objActiveCharacter.CloudDocumentId);
+				await _objApiClient.UpdateDocumentMetadataAsync(_objActiveCharacter.CloudDocumentId, objCurrent.Item2,
+					_objActiveCharacter.CloudMetadataDisplayName, _objActiveCharacter.CloudMetadataDescription, _objActiveCharacter.CloudMetadataImageUrl);
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_MetadataUpdated"));
+				await RefreshAsync();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_PushStale"));
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud Documents operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
 		}
 
 		// States in which a document's most recent revision hasn't finished the async quarantine/
@@ -554,15 +584,19 @@ namespace Chummer
 			if (SharedMode || lstDocuments.SelectedItems.Count == 0)
 				return;
 			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			bool blnArchived = objDocument.ValidationState == "archived";
 
-			if (MessageBox.Show(LanguageManager.Instance.GetString("Message_Cloud_ConfirmArchive").Replace("{0}", objDocument.DisplayName ?? objDocument.Id),
+			if (!blnArchived && MessageBox.Show(LanguageManager.Instance.GetString("Message_Cloud_ConfirmArchive").Replace("{0}", objDocument.DisplayName ?? objDocument.Id),
 				LanguageManager.Instance.GetString("MessageTitle_Cloud_ConfirmArchive"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
 				return;
 
 			try
 			{
 				Tuple<RunnersPointDocument, string> objCurrent = await _objApiClient.GetDocumentAsync(objDocument.Id);
-				await _objApiClient.ArchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
+				if (blnArchived)
+					await _objApiClient.UnarchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
+				else
+					await _objApiClient.ArchiveDocumentAsync(objDocument.Id, objCurrent.Item2);
 				await RefreshAsync();
 			}
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -596,6 +630,12 @@ namespace Chummer
 			cmdArchive.Enabled = !SharedMode;
 			cmdPushShared.Enabled = SharedMode && _objActiveCharacter != null && objTag is RunnersPointSharedDocument objShared
 				&& objShared.Permission == "write" && objShared.ShareStatus == "active";
+
+			// Archive and unarchive are mutually exclusive on the same document - reuse one button
+			// rather than needing a second one in an already-tight button row.
+			bool blnArchived = !SharedMode && objTag is RunnersPointDocument objDocument && objDocument.ValidationState == "archived";
+			cmdArchive.Tag = blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive";
+			cmdArchive.Text = LanguageManager.Instance.GetString(blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive");
 		}
 
 		private void UpdateStatus(string strText)
