@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="Chummer.AvaloniaSpike/App.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />
+        <entry key="Chummer.AvaloniaSpike/Controls/AdeptPowerRow.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />
+        <entry key="Chummer.AvaloniaSpike/Controls/SkillRow.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />
+        <entry key="Chummer.AvaloniaSpike/MainWindow.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

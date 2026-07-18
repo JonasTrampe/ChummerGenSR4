@@ -90,6 +90,7 @@ namespace Chummer
 		private static string _strDefaultCharacterSheet = "Shadowrun 4";
 		private static string _strPDFArgumentStyle = "Adobe/Foxit";
 		private static string _strCloudApiBaseUrl = "http://localhost:8000/api/v1";
+		private static bool _blnSuppressCloudUnreachableWarning = false;
 		private static bool _blnDatesIncludeTime = true;
 		private static bool _blnPrintToFileFirst = false;
 
@@ -210,6 +211,14 @@ namespace Chummer
 			try
 			{
 				_strCloudApiBaseUrl = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "http://localhost:8000/api/v1");
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				_blnSuppressCloudUnreachableWarning = Convert.ToBoolean(CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "suppresscloudunreachablewarning", bool.FalseString));
 			}
 			catch
 			{
@@ -582,6 +591,23 @@ namespace Chummer
 			set
 			{
 				_strCloudApiBaseUrl = value;
+			}
+		}
+
+		/// <summary>
+		/// When set, opening a cloud-linked character whose server freshness check can't complete
+		/// (server unreachable, not logged in) opens the local file silently instead of showing a
+		/// blocking MessageBox with the error and an Abort/Open Local File choice.
+		/// </summary>
+		public bool SuppressCloudUnreachableWarning
+		{
+			get
+			{
+				return _blnSuppressCloudUnreachableWarning;
+			}
+			set
+			{
+				_blnSuppressCloudUnreachableWarning = value;
 			}
 		}
 

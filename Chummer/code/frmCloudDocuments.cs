@@ -615,6 +615,30 @@ namespace Chummer
 			UpdateSelectionButtons();
 		}
 
+		/// <summary>
+		/// Whether the selected document's revisions can be purged from this dialog. Owner access
+		/// (My Documents) always permits it; shared access only when the active grant carries the
+		/// "purge" permission specifically - independent of "write"/"update", per the API's grant model.
+		/// </summary>
+		private static bool CanPurge(object objTag, bool blnShared)
+		{
+			return !blnShared || (objTag is RunnersPointSharedDocument objShared && objShared.Permission == "purge" && objShared.ShareStatus == "active");
+		}
+
+		private async void cmdRevisions_Click(object sender, EventArgs e)
+		{
+			if (lstDocuments.SelectedItems.Count == 0)
+				return;
+			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			bool blnShared = SharedMode;
+			bool blnCanPurge = CanPurge(objDocument, blnShared);
+
+			using (frmCloudRevisions frmRevisions = new frmCloudRevisions(_objApiClient, objDocument, blnShared, blnCanPurge))
+				frmRevisions.ShowDialog(this);
+
+			await RefreshAsync();
+		}
+
 		private void UpdateSelectionButtons()
 		{
 			if (lstDocuments.SelectedItems.Count == 0)
@@ -622,12 +646,14 @@ namespace Chummer
 				cmdDownload.Enabled = false;
 				cmdArchive.Enabled = false;
 				cmdPushShared.Enabled = false;
+				cmdRevisions.Enabled = false;
 				return;
 			}
 
 			object objTag = lstDocuments.SelectedItems[0].Tag;
 			cmdDownload.Enabled = true;
 			cmdArchive.Enabled = !SharedMode;
+			cmdRevisions.Enabled = true;
 			cmdPushShared.Enabled = SharedMode && _objActiveCharacter != null && objTag is RunnersPointSharedDocument objShared
 				&& objShared.Permission == "write" && objShared.ShareStatus == "active";
 

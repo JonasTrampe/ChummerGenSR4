@@ -36,6 +36,7 @@ namespace Chummer
 			this.cmdArchive = new System.Windows.Forms.Button();
 			this.cmdPushShared = new System.Windows.Forms.Button();
 			this.cmdEditMetadata = new System.Windows.Forms.Button();
+			this.cmdRevisions = new System.Windows.Forms.Button();
 			this.lblStatus = new System.Windows.Forms.Label();
 #if DEBUG
 			this.cmdDebugInfo = new System.Windows.Forms.Button();
@@ -258,6 +259,17 @@ namespace Chummer
 			this.cmdEditMetadata.UseVisualStyleBackColor = true;
 			this.cmdEditMetadata.Click += new System.EventHandler(this.cmdEditMetadata_Click);
 			//
+			// cmdRevisions
+			//
+			this.cmdRevisions.Location = new System.Drawing.Point(360, 424);
+			this.cmdRevisions.Name = "cmdRevisions";
+			this.cmdRevisions.Size = new System.Drawing.Size(90, 27);
+			this.cmdRevisions.TabIndex = 17;
+			this.cmdRevisions.Tag = "Button_Cloud_Revisions";
+			this.cmdRevisions.Text = "Revisions...";
+			this.cmdRevisions.UseVisualStyleBackColor = true;
+			this.cmdRevisions.Click += new System.EventHandler(this.cmdRevisions_Click);
+			//
 #if DEBUG
 			// cmdDebugInfo
 			//
@@ -289,6 +301,7 @@ namespace Chummer
 			this.Controls.Add(this.cmdDebugInfo);
 #endif
 			this.Controls.Add(this.lblStatus);
+			this.Controls.Add(this.cmdRevisions);
 			this.Controls.Add(this.cmdEditMetadata);
 			this.Controls.Add(this.cmdPushShared);
 			this.Controls.Add(this.cmdArchive);
@@ -336,6 +349,7 @@ namespace Chummer
 		private System.Windows.Forms.Button cmdArchive;
 		private System.Windows.Forms.Button cmdPushShared;
 		private System.Windows.Forms.Button cmdEditMetadata;
+		private System.Windows.Forms.Button cmdRevisions;
 		private System.Windows.Forms.Label lblStatus;
 #if DEBUG
 		private System.Windows.Forms.Button cmdDebugInfo;

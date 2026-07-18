@@ -596,6 +596,120 @@
 			<text>Metadaten bearbeiten...</text>
 		</string>
 		<string>
+			<key>Button_Cloud_Revisions</key>
+			<text>Versionen...</text>
+		</string>
+		<string>
+			<key>Title_CloudRevisions</key>
+			<text>Versionen - {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Download</key>
+			<text>Auswahl herunterladen</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeRevision</key>
+			<text>Version endgültig löschen...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_PurgeDocument</key>
+			<text>Dokument endgültig löschen...</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_Close</key>
+			<text>Schließen</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Current</key>
+			<text>Aktuell</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_Purging</key>
+			<text>Wird endgültig gelöscht...</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_PurgeNotEligible</key>
+			<text>Dieses Dokument muss mindestens 7 Tage archiviert sein, bevor es endgültig gelöscht werden kann.</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_RecentAuthRequired</key>
+			<text>Für die endgültige Löschung ist eine aktuelle Anmeldung erforderlich. Bitte erneut anmelden und wiederholen.</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Die am {0} erstellte Version endgültig löschen? Dies kann nicht rückgängig gemacht werden.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeRevision</key>
+			<text>Version endgültig löschen</text>
+		</string>
+		<string>
+			<key>Message_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>&quot;{0}&quot;, alle seine Versionen und die gespeicherten Inhalte endgültig löschen? Dies kann nicht rückgängig gemacht werden.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudRevisions_ConfirmPurgeDocument</key>
+			<text>Dokument endgültig löschen</text>
+		</string>
+		<string>
+			<key>Label_CloudRevisions_Karma</key>
+			<text>Karma:</text>
+		</string>
+		<string>
+			<key>Button_CloudRevisions_FetchKarma</key>
+			<text>Karma abrufen</text>
+		</string>
+		<string>
+			<key>String_CloudRevisions_KarmaUnreadable</key>
+			<text>Karma konnte aus dem Inhalt dieser Version nicht gelesen werden.</text>
+		</string>
+		<string>
+			<key>Title_CloudConflict</key>
+			<text>Cloud-Speicherkonflikt</text>
+		</string>
+		<string>
+			<key>Label_CloudConflict_Explanation</key>
+			<text>Auf dem Server existiert eine neuere Version. Unterschiede:</text>
+		</string>
+		<string>
+			<key>String_CloudConflict_NoDetectableDifference</key>
+			<text>Zwischen den beiden Versionen wurden keine Unterschiede festgestellt.</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_OverwriteServer</key>
+			<text>Server überschreiben</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_SaveLocallyOnly</key>
+			<text>Nur lokal speichern</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_Cancel</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>Message_CloudSave_PushFailed</key>
+			<text>Diese Speicherung konnte nicht an den RunnersPoint-Server übertragen werden: {0}
+
+Stattdessen lokal gespeichert.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudSave_PushFailed</key>
+			<text>Cloud-Speicherung fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>String_CloudSave_PushInFlight</key>
+			<text>Die aktuelle Version auf dem Server wird noch validiert - bitte in Kürze erneut versuchen.</text>
+		</string>
+		<string>
+			<key>String_CloudSave_ConflictUnreadable</key>
+			<text>Die aktuelle Version des Servers konnte zum Vergleich nicht gelesen werden.</text>
+		</string>
+		<string>
+			<key>Checkbox_Options_SuppressCloudUnreachableWarning</key>
+			<text>Nicht warnen, wenn der Server beim Öffnen einer Cloud-verknüpften Figur nicht erreichbar ist</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud-Dokument-Metadaten</text>
 		</string>

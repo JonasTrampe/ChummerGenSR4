@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
@@ -37,6 +38,11 @@ namespace Chummer
 		private int _intDragLevel = 0;
 		private MouseButtons _objDragButton = new MouseButtons();
 		private bool _blnDraggingGear = false;
+
+		// Cloud-save state - see clsCloudSaveHelper.cs and frmCareer's identical fields.
+		private readonly RunnersPointAuth _objCloudAuth = new RunnersPointAuth();
+		private string _strLastPushedHash = "";
+		private bool _blnClosingAfterSave = false;
 		
 		// Create the XmlManager that will handle finding all of the XML files.
 		private ImprovementManager _objImprovementManager;
@@ -1256,25 +1262,41 @@ namespace Chummer
 			this.Icon = this.Icon.Clone() as System.Drawing.Icon;
 		}
 
-		private void frmCreate_FormClosing(object sender, FormClosingEventArgs e)
+		private async void frmCreate_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			// If there are unsaved changes to the character, as the user if they would like to save their changes.
 			if (_blnIsDirty)
 			{
-				string strCharacterName = _objCharacter.Alias;
-				if (_objCharacter.Alias.Trim() == string.Empty)
-					strCharacterName = LanguageManager.Instance.GetString("String_UnnamedCharacter");
-				DialogResult objResult = MessageBox.Show(LanguageManager.Instance.GetString("Message_UnsavedChanges").Replace("{0}", strCharacterName), LanguageManager.Instance.GetString("MessageTitle_UnsavedChanges"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-				if (objResult == DialogResult.Yes)
+				if (_blnClosingAfterSave)
 				{
-					// Attempt to save the Character. If the user cancels the Save As dialogue that may open, cancel the closing event so that changes are not lost.
-					bool blnResult = SaveCharacter();
-					if (!blnResult)
-						e.Cancel = true;
+					// Re-entered via the Close() call below, now that the async Save completed
+					// successfully - let this pass through to the actual close.
+					_blnClosingAfterSave = false;
 				}
-				else if (objResult == DialogResult.Cancel)
+				else
 				{
-					e.Cancel = true;
+					string strCharacterName = _objCharacter.Alias;
+					if (_objCharacter.Alias.Trim() == string.Empty)
+						strCharacterName = LanguageManager.Instance.GetString("String_UnnamedCharacter");
+					DialogResult objResult = MessageBox.Show(LanguageManager.Instance.GetString("Message_UnsavedChanges").Replace("{0}", strCharacterName), LanguageManager.Instance.GetString("MessageTitle_UnsavedChanges"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+					if (objResult == DialogResult.Yes)
+					{
+						// Cancel this close attempt - Save is async and FormClosing can't await without
+						// leaving the form in an inconsistent state. If the save succeeds, re-trigger
+						// Close() below, which re-enters this handler with _blnClosingAfterSave set.
+						e.Cancel = true;
+						bool blnSaveResult = await SaveCharacter();
+						if (blnSaveResult)
+						{
+							_blnClosingAfterSave = true;
+							Close();
+						}
+						return;
+					}
+					else if (objResult == DialogResult.Cancel)
+					{
+						e.Cancel = true;
+					}
 				}
 			}
 			// Reset the ToolStrip so the Save button is removed for the currently closing window.
@@ -1937,14 +1959,14 @@ namespace Chummer
 		#endregion
 
 		#region Menu Events
-		private void mnuFileSave_Click(object sender, EventArgs e)
+		private async void mnuFileSave_Click(object sender, EventArgs e)
 		{
-			SaveCharacter();
+			await SaveCharacter();
 		}
 
-		private void mnuFileSaveAs_Click(object sender, EventArgs e)
+		private async void mnuFileSaveAs_Click(object sender, EventArgs e)
 		{
-			SaveCharacterAs();
+			await SaveCharacterAs();
 		}
 
 		private void tsbSave_Click(object sender, EventArgs e)
@@ -17869,13 +17891,13 @@ namespace Chummer
 		/// <summary>
 		/// Save the Character.
 		/// </summary>
-		private bool SaveCharacter()
+		private async Task<bool> SaveCharacter()
 		{
 			bool blnSaved = false;
 
 			// If the Character does not have a file name, trigger the Save As menu item instead.
 			if (_objCharacter.FileName == "")
-				blnSaved = SaveCharacterAs(true);
+				blnSaved = await SaveCharacterAs(true);
 			else
 			{
 				// If the Created is checked, make sure the user wants to actually save this character.
@@ -17888,10 +17910,24 @@ namespace Chummer
 					}
 				}
 
-				_objCharacter.Save();
-				_blnIsDirty = false;
-				blnSaved = true;
-				GlobalOptions.Instance.AddToMRUList(_objCharacter.FileName);
+				if (string.IsNullOrEmpty(_objCharacter.CloudDocumentId))
+				{
+					_objCharacter.Save();
+					_blnIsDirty = false;
+					blnSaved = true;
+					GlobalOptions.Instance.AddToMRUList(_objCharacter.FileName);
+				}
+				else
+				{
+					CloudSaveOutcome objOutcome = await CloudSaveHelper.SaveAsync(this, _objCharacter, _objCloudAuth, _strLastPushedHash);
+					_strLastPushedHash = objOutcome.LastPushedHash;
+					if (objOutcome.Result == CloudSaveResult.Saved)
+					{
+						_blnIsDirty = false;
+						blnSaved = true;
+						GlobalOptions.Instance.AddToMRUList(_objCharacter.FileName);
+					}
+				}
 			}
 			UpdateWindowTitle(false);
 
@@ -17907,7 +17943,7 @@ namespace Chummer
 		/// <summary>
 		/// Save the Character using the Save As dialogue box.
 		/// </summary>
-		private bool SaveCharacterAs(bool blnEscapeAfterSave = false)
+		private async Task<bool> SaveCharacterAs(bool blnEscapeAfterSave = false)
 		{
 			bool blnSaved = false;
 
@@ -17939,6 +17975,8 @@ namespace Chummer
 				// A Save As copy is an independent character - it should get its own cloud document
 				// on next push, not silently push new revisions onto the original's document.
 				_objCharacter.CloudDocumentId = "";
+				_objCharacter.CloudLastKnownRevisionId = "";
+				_strLastPushedHash = "";
 				_objCharacter.FileName = strFileName;
 				_objCharacter.Save();
 				_blnIsDirty = false;

@@ -109,6 +109,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="code\clsCommon.cs" />
+    <Compile Include="code\clsCharacterDiff.cs" />
+    <Compile Include="code\clsCloudSaveHelper.cs" />
     <Compile Include="code\clsRunnersPointApiClient.cs" />
     <Compile Include="code\clsRunnersPointAuth.cs" />
     <Compile Include="code\frmCloudDocuments.cs">
@@ -122,6 +124,21 @@
     </Compile>
     <Compile Include="code\frmCloudMetadata.Designer.cs">
       <DependentUpon>frmCloudMetadata.cs</DependentUpon>
+    </Compile>
+    <Compile Include="code\frmCloudRevisions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="code\frmCloudRevisions.Designer.cs">
+      <DependentUpon>frmCloudRevisions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="code\frmCloudConflict.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="code\frmCloudConflict.Designer.cs">
+      <DependentUpon>frmCloudConflict.cs</DependentUpon>
+    </Compile>
+    <Compile Include="code\frmCloudLoadPrompt.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="code\clsEquipment.cs" />
     <Compile Include="code\clsCharacter.cs" />
