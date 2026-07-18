@@ -36,6 +36,9 @@ namespace Chummer
 			this.cmdArchive = new System.Windows.Forms.Button();
 			this.cmdPushShared = new System.Windows.Forms.Button();
 			this.lblStatus = new System.Windows.Forms.Label();
+#if DEBUG
+			this.cmdDebugInfo = new System.Windows.Forms.Button();
+#endif
 			this.SuspendLayout();
 			//
 			// rdoMyDocuments
@@ -243,6 +246,18 @@ namespace Chummer
 			this.cmdPushShared.Visible = false;
 			this.cmdPushShared.Click += new System.EventHandler(this.cmdPushShared_Click);
 			//
+#if DEBUG
+			// cmdDebugInfo
+			//
+			this.cmdDebugInfo.Location = new System.Drawing.Point(320, 458);
+			this.cmdDebugInfo.Name = "cmdDebugInfo";
+			this.cmdDebugInfo.Size = new System.Drawing.Size(115, 27);
+			this.cmdDebugInfo.TabIndex = 17;
+			this.cmdDebugInfo.Text = "Debug Info...";
+			this.cmdDebugInfo.UseVisualStyleBackColor = true;
+			this.cmdDebugInfo.Click += new System.EventHandler(this.cmdDebugInfo_Click);
+			//
+#endif
 			// lblStatus
 			//
 			this.lblStatus.AutoSize = true;
@@ -258,6 +273,9 @@ namespace Chummer
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(584, 525);
+#if DEBUG
+			this.Controls.Add(this.cmdDebugInfo);
+#endif
 			this.Controls.Add(this.lblStatus);
 			this.Controls.Add(this.cmdPushShared);
 			this.Controls.Add(this.cmdArchive);
@@ -305,5 +323,8 @@ namespace Chummer
 		private System.Windows.Forms.Button cmdArchive;
 		private System.Windows.Forms.Button cmdPushShared;
 		private System.Windows.Forms.Label lblStatus;
+#if DEBUG
+		private System.Windows.Forms.Button cmdDebugInfo;
+#endif
 	}
 }

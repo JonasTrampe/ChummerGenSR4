@@ -721,5 +721,37 @@ namespace Chummer
 
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
 		}
+
+#if DEBUG
+		/// <summary>
+		/// Debug-build-only diagnostic: dumps raw request/response detail for a document lookup that the
+		/// normal typed methods discard (the exact ETag header text, full response headers, raw metadata
+		/// JSON). Exists because bugs like the unquoted-ETag one are invisible through the typed API and
+		/// only show up by looking at the wire format directly.
+		/// </summary>
+		public async Task<string> GetDebugDumpAsync(string strDocumentId)
+		{
+			StringBuilder objDump = new StringBuilder();
+			objDump.AppendLine("Base URL: " + BaseUrl);
+			objDump.AppendLine("Client: " + ClientName + " " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+
+			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId);
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+
+			objDump.AppendLine();
+			objDump.AppendLine("GET /documents/" + strDocumentId);
+			objDump.AppendLine("Status: " + (int)objResponse.StatusCode + " " + objResponse.ReasonPhrase);
+			objDump.AppendLine("Response headers:");
+			foreach (KeyValuePair<string, IEnumerable<string>> objHeader in objResponse.Headers)
+				objDump.AppendLine("  " + objHeader.Key + ": " + string.Join(", ", objHeader.Value));
+			objDump.AppendLine("Headers.ETag (typed): " + (objResponse.Headers.ETag?.Tag ?? "(null - see ExtractRawETag)"));
+			objDump.AppendLine("ExtractRawETag(): " + (ExtractRawETag(objResponse) ?? "(null)"));
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			objDump.AppendLine("Body: " + strBody);
+
+			return objDump.ToString();
+		}
+#endif
 	}
 }

@@ -592,5 +592,41 @@ namespace Chummer
 		{
 			lblStatus.Text = strText;
 		}
+
+#if DEBUG
+		/// <summary>
+		/// Debug-build-only: dumps connection state and, if a document is selected, the raw request/
+		/// response detail GetDebugDumpAsync exposes (full headers, both the typed and raw ETag parse,
+		/// the raw body) - the sort of detail that only ever surfaces by looking at the wire format
+		/// directly, not through the normal typed API surface.
+		/// </summary>
+		private async void cmdDebugInfo_Click(object sender, EventArgs e)
+		{
+			System.Text.StringBuilder objInfo = new System.Text.StringBuilder();
+			objInfo.AppendLine("CloudApiBaseUrl: " + GlobalOptions.Instance.CloudApiBaseUrl);
+			objInfo.AppendLine("HasStoredLogin: " + _objAuth.HasStoredLogin());
+			objInfo.AppendLine("IsApiTokenLogin: " + _objAuth.IsApiTokenLogin());
+			objInfo.AppendLine("GameProfileId: " + _strGameProfileId);
+			objInfo.AppendLine("GameProfileFormat: " + _strGameProfileFormat);
+
+			if (lstDocuments.SelectedItems.Count > 0 && lstDocuments.SelectedItems[0].Tag is RunnersPointDocument objDocument)
+			{
+				try
+				{
+					objInfo.AppendLine();
+					objInfo.Append(await _objApiClient.GetDebugDumpAsync(objDocument.Id));
+				}
+				catch (Exception ex)
+				{
+					objInfo.AppendLine();
+					objInfo.AppendLine("Failed to fetch document debug dump: " + ex);
+				}
+			}
+
+			string strInfo = objInfo.ToString();
+			Log.Debug("Cloud Documents debug info requested:{NewLine}{Info}", Environment.NewLine, strInfo);
+			MessageBox.Show(strInfo, "Cloud Documents Debug Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+#endif
 	}
 }
