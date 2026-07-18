@@ -390,6 +390,29 @@ namespace Chummer
 			if (lstDocuments.SelectedItems.Count == 0)
 				return;
 			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			bool blnShared = objDocument is RunnersPointSharedDocument;
+
+			// Re-fetch the document immediately before downloading rather than trusting the list
+			// snapshot - it may have gone stale (someone else pushed a new revision, or it moved out of
+			// a downloadable state) since the list was last refreshed.
+			try
+			{
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Refreshing"));
+				objDocument = blnShared
+					? (await _objApiClient.GetSharedDocumentAsync(objDocument.Id)).Item1
+					: (await _objApiClient.GetDocumentAsync(objDocument.Id)).Item1;
+			}
+			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+				HandleAuthExpired();
+				return;
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud Documents operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+				return;
+			}
 
 			if (!s_astrDownloadableStates.Contains(objDocument.ValidationState))
 			{
@@ -401,7 +424,7 @@ namespace Chummer
 			try
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Downloading"));
-				objDownload = objDocument is RunnersPointSharedDocument
+				objDownload = blnShared
 					? await _objApiClient.DownloadSharedDocumentRevisionAsync(objDocument.Id, objDocument.CurrentRevision)
 					: await _objApiClient.DownloadRevisionAsync(objDocument.Id, objDocument.CurrentRevision);
 			}
@@ -412,6 +435,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 				return;
 			}
@@ -431,7 +455,22 @@ namespace Chummer
 			try
 			{
 				File.WriteAllBytes(objDialog.FileName, objDownload.Item1);
+
+				// Make sure the saved file is linked back to the document it came from - a character
+				// downloaded from somewhere else may never have had CloudDocumentId set, and without it
+				// a later push from the opened character would create a duplicate document instead of
+				// updating this one.
+				Character objDownloaded = new Character { FileName = objDialog.FileName };
+				if (objDownloaded.Load() && string.IsNullOrEmpty(objDownloaded.CloudDocumentId))
+				{
+					objDownloaded.CloudDocumentId = objDocument.Id;
+					objDownloaded.Save();
+				}
+
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
+
+				if (this.Owner is frmMain frmMainForm)
+					frmMainForm.LoadCharacter(objDialog.FileName);
 			}
 			catch (Exception ex)
 			{
