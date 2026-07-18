@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using Serilog;
 
 namespace Chummer
 {
@@ -198,13 +200,19 @@ namespace Chummer
 				// Problem body wasn't valid JSON (or wasn't Problem-shaped) - fall back to the status line.
 			}
 
+			string strMethod = objResponse.RequestMessage?.Method?.Method ?? "?";
+			string strPath = objResponse.RequestMessage?.RequestUri?.PathAndQuery ?? "?";
+
 			if (objResponse.StatusCode == (HttpStatusCode)429)
 			{
 				IEnumerable<string> lstRetryAfter;
 				string strRetryAfter = objResponse.Headers.TryGetValues("Retry-After", out lstRetryAfter) ? string.Join(",", lstRetryAfter) : "unknown";
+				Log.Warning("RunnersPoint API {Method} {Path} rate limited - retry after {RetryAfter}s (correlationId={CorrelationId})", strMethod, strPath, strRetryAfter, strCorrelationId);
 				throw new RunnersPointApiException(objResponse.StatusCode, "Rate limited - retry after " + strRetryAfter + "s", strCode, strCorrelationId);
 			}
 
+			Log.Warning("RunnersPoint API {Method} {Path} failed with {StatusCode}: {Title} (code={Code}, correlationId={CorrelationId})",
+				strMethod, strPath, (int)objResponse.StatusCode, strTitle, strCode, strCorrelationId);
 			throw new RunnersPointApiException(objResponse.StatusCode, strTitle, strCode, strCorrelationId);
 		}
 
@@ -228,13 +236,13 @@ namespace Chummer
 
 			if (objJson.ContainsKey("formats"))
 			{
-				foreach (object objFormat in (object[])objJson["formats"])
+				foreach (object objFormat in (IEnumerable)objJson["formats"])
 					objCapabilities.Formats.Add(objFormat.ToString());
 			}
 
 			if (objJson.ContainsKey("gameProfiles"))
 			{
-				foreach (object objProfileObj in (object[])objJson["gameProfiles"])
+				foreach (object objProfileObj in (IEnumerable)objJson["gameProfiles"])
 				{
 					Dictionary<string, object> objProfile = (Dictionary<string, object>)objProfileObj;
 					RunnersPointGameProfile objGameProfile = new RunnersPointGameProfile();
@@ -244,7 +252,7 @@ namespace Chummer
 					objGameProfile.DisplayName = objProfile.ContainsKey("displayName") ? objProfile["displayName"].ToString() : "";
 					if (objProfile.ContainsKey("formats"))
 					{
-						foreach (object objFormat in (object[])objProfile["formats"])
+						foreach (object objFormat in (IEnumerable)objProfile["formats"])
 							objGameProfile.Formats.Add(objFormat.ToString());
 					}
 					objCapabilities.GameProfiles.Add(objGameProfile);
@@ -253,7 +261,7 @@ namespace Chummer
 
 			if (objJson.ContainsKey("documentTypes"))
 			{
-				foreach (object objTypeObj in (object[])objJson["documentTypes"])
+				foreach (object objTypeObj in (IEnumerable)objJson["documentTypes"])
 				{
 					Dictionary<string, object> objType = (Dictionary<string, object>)objTypeObj;
 					RunnersPointDocumentTypeCapability objTypeCapability = new RunnersPointDocumentTypeCapability();
@@ -261,7 +269,7 @@ namespace Chummer
 					objTypeCapability.DisplayName = objType.ContainsKey("displayName") ? objType["displayName"].ToString() : "";
 					if (objType.ContainsKey("formats"))
 					{
-						foreach (object objFormatObj in (object[])objType["formats"])
+						foreach (object objFormatObj in (IEnumerable)objType["formats"])
 						{
 							Dictionary<string, object> objFormat = (Dictionary<string, object>)objFormatObj;
 							objTypeCapability.Formats.Add(new RunnersPointDocumentFormatCapability
@@ -300,7 +308,7 @@ namespace Chummer
 
 			if (objJson.ContainsKey("items"))
 			{
-				foreach (object objItemObj in (object[])objJson["items"])
+				foreach (object objItemObj in (IEnumerable)objJson["items"])
 					objPage.Items.Add(ParseDocument((Dictionary<string, object>)objItemObj));
 			}
 
@@ -430,7 +438,7 @@ namespace Chummer
 			objStatus.State = objJson.ContainsKey("state") ? objJson["state"].ToString() : "";
 			if (objJson.ContainsKey("messages"))
 			{
-				foreach (object objMessage in (object[])objJson["messages"])
+				foreach (object objMessage in (IEnumerable)objJson["messages"])
 					objStatus.Messages.Add(objMessage.ToString());
 			}
 			return objStatus;
@@ -596,7 +604,7 @@ namespace Chummer
 
 			if (objJson.ContainsKey("items"))
 			{
-				foreach (object objItemObj in (object[])objJson["items"])
+				foreach (object objItemObj in (IEnumerable)objJson["items"])
 					objPage.Items.Add(ParseSharedDocument((Dictionary<string, object>)objItemObj));
 			}
 

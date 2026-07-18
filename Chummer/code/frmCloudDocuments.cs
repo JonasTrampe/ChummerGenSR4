@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Serilog;
 
 namespace Chummer
 {
@@ -56,6 +57,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "RunnersPoint login failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_LoginFailed").Replace("{0}", ex.Message));
 			}
 		}
@@ -70,6 +72,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "RunnersPoint login failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_LoginFailed").Replace("{0}", ex.Message));
 			}
 		}
@@ -87,6 +90,7 @@ namespace Chummer
 		/// </summary>
 		private void HandleAuthExpired()
 		{
+			Log.Warning("RunnersPoint login rejected as expired/revoked (401) - clearing stored login");
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthExpired"));
@@ -175,6 +179,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
 		}
@@ -263,6 +268,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
 		}
@@ -320,6 +326,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
 		}
@@ -380,6 +387,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
 		}
@@ -406,6 +414,7 @@ namespace Chummer
 			}
 			catch (Exception ex)
 			{
+				Log.Error(ex, "Cloud Documents operation failed");
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
 			}
 		}
