@@ -72,6 +72,31 @@ namespace Chummer.Tests
 		}
 
 		[Fact]
+		public async Task ApiToken_SurvivesReloadFromDisk()
+		{
+			// Regression test: SaveTokens serializes a null RefreshToken (always the case for an
+			// apiToken login) as a JSON null, which is still a *present* key - LoadTokens' ContainsKey
+			// check alone doesn't catch that, and calling .ToString() on the null value threw a
+			// NullReferenceException. That only happened once _objCachedTokens was empty and it had to
+			// actually deserialize the file, which a single RunnersPointAuth instance's own in-memory
+			// cache masked - so this simulates a fresh process by using a second instance.
+			RunnersPointAuth objAuth = new RunnersPointAuth();
+			try
+			{
+				objAuth.SetApiToken(ValidToken);
+
+				RunnersPointAuth objReloaded = new RunnersPointAuth();
+				string strToken = await objReloaded.GetAccessTokenAsync();
+
+				Assert.Equal(ValidToken, strToken);
+			}
+			finally
+			{
+				objAuth.Logout();
+			}
+		}
+
+		[Fact]
 		public async Task SetApiToken_ReplacesAPreviousLogin()
 		{
 			RunnersPointAuth objAuth = new RunnersPointAuth();

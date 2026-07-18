@@ -653,6 +653,26 @@
 			<text>Partagés avec moi</text>
 		</string>
 		<string>
+			<key>Radio_Cloud_AuthApiToken</key>
+			<text>Utiliser un jeton API</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_AuthOAuth</key>
+			<text>Utiliser la connexion OAuth</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_NotConnected</key>
+			<text>Non connecté.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_ApiToken</key>
+			<text>Connecté via un jeton API.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_OAuth</key>
+			<text>Connecté via une connexion OAuth.</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>Non connecté. Cliquez sur Connexion pour lier votre compte RunnersPoint.</text>
 		</string>

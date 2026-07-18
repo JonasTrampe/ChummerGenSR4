@@ -596,6 +596,26 @@
 			<text>Mit mir geteilt</text>
 		</string>
 		<string>
+			<key>Radio_Cloud_AuthApiToken</key>
+			<text>API-Token verwenden</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_AuthOAuth</key>
+			<text>OAuth-Anmeldung verwenden</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_NotConnected</key>
+			<text>Nicht verbunden.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_ApiToken</key>
+			<text>Verbunden über API-Token.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_OAuth</key>
+			<text>Verbunden über OAuth-Anmeldung.</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>Nicht angemeldet. Klicken Sie auf Anmelden, um Ihr RunnersPoint-Konto zu verbinden.</text>
 		</string>

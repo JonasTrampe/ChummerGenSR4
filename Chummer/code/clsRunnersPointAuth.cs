@@ -73,6 +73,16 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// Whether the current stored login (if any) is a pasted apiToken rather than an OAuth login.
+		/// Meaningless if HasStoredLogin() is false.
+		/// </summary>
+		public bool IsApiTokenLogin()
+		{
+			TokenSet objTokens = LoadTokens();
+			return objTokens != null && objTokens.IsApiToken;
+		}
+
+		/// <summary>
 		/// Runs the full interactive login flow: opens the system browser, listens on a loopback port
 		/// for the redirect, exchanges the code for tokens, and persists them.
 		/// </summary>
@@ -248,7 +258,10 @@ namespace Chummer
 
 			TokenSet objTokens = new TokenSet();
 			objTokens.AccessToken = objJson["accessToken"].ToString();
-			objTokens.RefreshToken = objJson.ContainsKey("refreshToken") ? objJson["refreshToken"].ToString() : null;
+			// apiToken logins always store a null RefreshToken - the "refreshToken" key is still present
+			// in the JSON with a JSON null value, so ContainsKey alone isn't enough to know it's safe to
+			// call .ToString() on it.
+			objTokens.RefreshToken = objJson.ContainsKey("refreshToken") && objJson["refreshToken"] != null ? objJson["refreshToken"].ToString() : null;
 			objTokens.ExpiresAtUtc = DateTime.Parse(objJson["expiresAtUtc"].ToString()).ToUniversalTime();
 			objTokens.IsApiToken = objJson.ContainsKey("isApiToken") && Convert.ToBoolean(objJson["isApiToken"]);
 

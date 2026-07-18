@@ -17,9 +17,12 @@ namespace Chummer
 		{
 			this.rdoMyDocuments = new System.Windows.Forms.RadioButton();
 			this.rdoSharedWithMe = new System.Windows.Forms.RadioButton();
+			this.rdoAuthApiToken = new System.Windows.Forms.RadioButton();
+			this.rdoAuthOAuth = new System.Windows.Forms.RadioButton();
 			this.lblApiToken = new System.Windows.Forms.Label();
 			this.txtApiToken = new System.Windows.Forms.TextBox();
 			this.cmdUseApiToken = new System.Windows.Forms.Button();
+			this.lblConnectionState = new System.Windows.Forms.Label();
 			this.lstDocuments = new System.Windows.Forms.ListView();
 			this.colName = new System.Windows.Forms.ColumnHeader();
 			this.colState = new System.Windows.Forms.ColumnHeader();
@@ -58,34 +61,79 @@ namespace Chummer
 			this.rdoSharedWithMe.UseVisualStyleBackColor = true;
 			this.rdoSharedWithMe.CheckedChanged += new System.EventHandler(this.rdoDocumentMode_CheckedChanged);
 			//
+			// rdoAuthApiToken
+			//
+			this.rdoAuthApiToken.Checked = true;
+			this.rdoAuthApiToken.Location = new System.Drawing.Point(12, 38);
+			this.rdoAuthApiToken.Name = "rdoAuthApiToken";
+			this.rdoAuthApiToken.Size = new System.Drawing.Size(140, 20);
+			this.rdoAuthApiToken.TabIndex = 2;
+			this.rdoAuthApiToken.TabStop = true;
+			this.rdoAuthApiToken.Tag = "Radio_Cloud_AuthApiToken";
+			this.rdoAuthApiToken.Text = "Use API Token";
+			this.rdoAuthApiToken.UseVisualStyleBackColor = true;
+			this.rdoAuthApiToken.CheckedChanged += new System.EventHandler(this.rdoAuthMode_CheckedChanged);
+			//
+			// rdoAuthOAuth
+			//
+			this.rdoAuthOAuth.Location = new System.Drawing.Point(158, 38);
+			this.rdoAuthOAuth.Name = "rdoAuthOAuth";
+			this.rdoAuthOAuth.Size = new System.Drawing.Size(160, 20);
+			this.rdoAuthOAuth.TabIndex = 3;
+			this.rdoAuthOAuth.Tag = "Radio_Cloud_AuthOAuth";
+			this.rdoAuthOAuth.Text = "Use OAuth Login";
+			this.rdoAuthOAuth.UseVisualStyleBackColor = true;
+			this.rdoAuthOAuth.CheckedChanged += new System.EventHandler(this.rdoAuthMode_CheckedChanged);
+			//
 			// lblApiToken
 			//
 			this.lblApiToken.AutoSize = true;
-			this.lblApiToken.Location = new System.Drawing.Point(12, 41);
+			this.lblApiToken.Location = new System.Drawing.Point(12, 67);
 			this.lblApiToken.Name = "lblApiToken";
 			this.lblApiToken.Size = new System.Drawing.Size(60, 13);
-			this.lblApiToken.TabIndex = 2;
+			this.lblApiToken.TabIndex = 4;
 			this.lblApiToken.Tag = "Label_Cloud_ApiToken";
 			this.lblApiToken.Text = "API Token:";
 			//
 			// txtApiToken
 			//
-			this.txtApiToken.Location = new System.Drawing.Point(80, 38);
+			this.txtApiToken.Location = new System.Drawing.Point(80, 64);
 			this.txtApiToken.Name = "txtApiToken";
 			this.txtApiToken.Size = new System.Drawing.Size(300, 20);
-			this.txtApiToken.TabIndex = 3;
+			this.txtApiToken.TabIndex = 5;
 			this.txtApiToken.UseSystemPasswordChar = true;
 			//
 			// cmdUseApiToken
 			//
-			this.cmdUseApiToken.Location = new System.Drawing.Point(386, 36);
+			this.cmdUseApiToken.Location = new System.Drawing.Point(386, 62);
 			this.cmdUseApiToken.Name = "cmdUseApiToken";
 			this.cmdUseApiToken.Size = new System.Drawing.Size(90, 23);
-			this.cmdUseApiToken.TabIndex = 4;
+			this.cmdUseApiToken.TabIndex = 6;
 			this.cmdUseApiToken.Tag = "Button_Cloud_UseApiToken";
 			this.cmdUseApiToken.Text = "Use Token";
 			this.cmdUseApiToken.UseVisualStyleBackColor = true;
 			this.cmdUseApiToken.Click += new System.EventHandler(this.cmdUseApiToken_Click);
+			//
+			// cmdLogin
+			//
+			this.cmdLogin.Location = new System.Drawing.Point(12, 62);
+			this.cmdLogin.Name = "cmdLogin";
+			this.cmdLogin.Size = new System.Drawing.Size(90, 23);
+			this.cmdLogin.TabIndex = 7;
+			this.cmdLogin.Tag = "Button_Cloud_Login";
+			this.cmdLogin.Text = "Log In";
+			this.cmdLogin.Visible = false;
+			this.cmdLogin.UseVisualStyleBackColor = true;
+			this.cmdLogin.Click += new System.EventHandler(this.cmdLogin_Click);
+			//
+			// lblConnectionState
+			//
+			this.lblConnectionState.AutoSize = true;
+			this.lblConnectionState.Location = new System.Drawing.Point(12, 92);
+			this.lblConnectionState.Name = "lblConnectionState";
+			this.lblConnectionState.Size = new System.Drawing.Size(90, 13);
+			this.lblConnectionState.TabIndex = 8;
+			this.lblConnectionState.Text = "";
 			//
 			// lstDocuments
 			//
@@ -98,10 +146,10 @@ namespace Chummer
 			this.lstDocuments.FullRowSelect = true;
 			this.lstDocuments.MultiSelect = false;
 			this.lstDocuments.HideSelection = false;
-			this.lstDocuments.Location = new System.Drawing.Point(12, 64);
+			this.lstDocuments.Location = new System.Drawing.Point(12, 116);
 			this.lstDocuments.Name = "lstDocuments";
 			this.lstDocuments.Size = new System.Drawing.Size(560, 300);
-			this.lstDocuments.TabIndex = 5;
+			this.lstDocuments.TabIndex = 9;
 			this.lstDocuments.SelectedIndexChanged += new System.EventHandler(this.lstDocuments_SelectedIndexChanged);
 			this.lstDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 				| System.Windows.Forms.AnchorStyles.Left)
@@ -127,23 +175,12 @@ namespace Chummer
 			this.colShare.Text = "Share";
 			this.colShare.Width = 100;
 			//
-			// cmdLogin
-			//
-			this.cmdLogin.Location = new System.Drawing.Point(12, 372);
-			this.cmdLogin.Name = "cmdLogin";
-			this.cmdLogin.Size = new System.Drawing.Size(90, 27);
-			this.cmdLogin.TabIndex = 6;
-			this.cmdLogin.Tag = "Button_Cloud_Login";
-			this.cmdLogin.Text = "Log In";
-			this.cmdLogin.UseVisualStyleBackColor = true;
-			this.cmdLogin.Click += new System.EventHandler(this.cmdLogin_Click);
-			//
 			// cmdLogout
 			//
-			this.cmdLogout.Location = new System.Drawing.Point(108, 372);
+			this.cmdLogout.Location = new System.Drawing.Point(12, 424);
 			this.cmdLogout.Name = "cmdLogout";
 			this.cmdLogout.Size = new System.Drawing.Size(90, 27);
-			this.cmdLogout.TabIndex = 7;
+			this.cmdLogout.TabIndex = 10;
 			this.cmdLogout.Tag = "Button_Cloud_Logout";
 			this.cmdLogout.Text = "Log Out";
 			this.cmdLogout.UseVisualStyleBackColor = true;
@@ -151,10 +188,10 @@ namespace Chummer
 			//
 			// cmdRefresh
 			//
-			this.cmdRefresh.Location = new System.Drawing.Point(204, 372);
+			this.cmdRefresh.Location = new System.Drawing.Point(108, 424);
 			this.cmdRefresh.Name = "cmdRefresh";
 			this.cmdRefresh.Size = new System.Drawing.Size(90, 27);
-			this.cmdRefresh.TabIndex = 8;
+			this.cmdRefresh.TabIndex = 11;
 			this.cmdRefresh.Tag = "Button_Cloud_Refresh";
 			this.cmdRefresh.Text = "Refresh";
 			this.cmdRefresh.UseVisualStyleBackColor = true;
@@ -162,10 +199,10 @@ namespace Chummer
 			//
 			// cmdPushCurrent
 			//
-			this.cmdPushCurrent.Location = new System.Drawing.Point(300, 372);
+			this.cmdPushCurrent.Location = new System.Drawing.Point(204, 424);
 			this.cmdPushCurrent.Name = "cmdPushCurrent";
 			this.cmdPushCurrent.Size = new System.Drawing.Size(150, 27);
-			this.cmdPushCurrent.TabIndex = 9;
+			this.cmdPushCurrent.TabIndex = 12;
 			this.cmdPushCurrent.Tag = "Button_Cloud_PushCurrent";
 			this.cmdPushCurrent.Text = "Push Current Character";
 			this.cmdPushCurrent.UseVisualStyleBackColor = true;
@@ -173,10 +210,10 @@ namespace Chummer
 			//
 			// cmdDownload
 			//
-			this.cmdDownload.Location = new System.Drawing.Point(456, 372);
+			this.cmdDownload.Location = new System.Drawing.Point(456, 424);
 			this.cmdDownload.Name = "cmdDownload";
 			this.cmdDownload.Size = new System.Drawing.Size(115, 27);
-			this.cmdDownload.TabIndex = 10;
+			this.cmdDownload.TabIndex = 13;
 			this.cmdDownload.Tag = "Button_Cloud_Download";
 			this.cmdDownload.Text = "Download Selected";
 			this.cmdDownload.UseVisualStyleBackColor = true;
@@ -184,10 +221,10 @@ namespace Chummer
 			//
 			// cmdArchive
 			//
-			this.cmdArchive.Location = new System.Drawing.Point(12, 406);
+			this.cmdArchive.Location = new System.Drawing.Point(12, 458);
 			this.cmdArchive.Name = "cmdArchive";
 			this.cmdArchive.Size = new System.Drawing.Size(115, 27);
-			this.cmdArchive.TabIndex = 11;
+			this.cmdArchive.TabIndex = 14;
 			this.cmdArchive.Tag = "Button_Cloud_Archive";
 			this.cmdArchive.Text = "Archive Selected";
 			this.cmdArchive.UseVisualStyleBackColor = true;
@@ -195,10 +232,10 @@ namespace Chummer
 			//
 			// cmdPushShared
 			//
-			this.cmdPushShared.Location = new System.Drawing.Point(133, 406);
+			this.cmdPushShared.Location = new System.Drawing.Point(133, 458);
 			this.cmdPushShared.Name = "cmdPushShared";
 			this.cmdPushShared.Size = new System.Drawing.Size(180, 27);
-			this.cmdPushShared.TabIndex = 12;
+			this.cmdPushShared.TabIndex = 15;
 			this.cmdPushShared.Tag = "Button_Cloud_PushShared";
 			this.cmdPushShared.Text = "Push Update to Selected";
 			this.cmdPushShared.UseVisualStyleBackColor = true;
@@ -208,10 +245,10 @@ namespace Chummer
 			// lblStatus
 			//
 			this.lblStatus.AutoSize = true;
-			this.lblStatus.Location = new System.Drawing.Point(12, 442);
+			this.lblStatus.Location = new System.Drawing.Point(12, 494);
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size(38, 13);
-			this.lblStatus.TabIndex = 13;
+			this.lblStatus.TabIndex = 16;
 			this.lblStatus.Text = "";
 			this.lblStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			//
@@ -219,7 +256,7 @@ namespace Chummer
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(584, 473);
+			this.ClientSize = new System.Drawing.Size(584, 525);
 			this.Controls.Add(this.lblStatus);
 			this.Controls.Add(this.cmdPushShared);
 			this.Controls.Add(this.cmdArchive);
@@ -227,14 +264,17 @@ namespace Chummer
 			this.Controls.Add(this.cmdPushCurrent);
 			this.Controls.Add(this.cmdRefresh);
 			this.Controls.Add(this.cmdLogout);
-			this.Controls.Add(this.cmdLogin);
 			this.Controls.Add(this.lstDocuments);
+			this.Controls.Add(this.lblConnectionState);
+			this.Controls.Add(this.cmdLogin);
 			this.Controls.Add(this.cmdUseApiToken);
 			this.Controls.Add(this.txtApiToken);
 			this.Controls.Add(this.lblApiToken);
+			this.Controls.Add(this.rdoAuthOAuth);
+			this.Controls.Add(this.rdoAuthApiToken);
 			this.Controls.Add(this.rdoSharedWithMe);
 			this.Controls.Add(this.rdoMyDocuments);
-			this.MinimumSize = new System.Drawing.Size(500, 402);
+			this.MinimumSize = new System.Drawing.Size(500, 454);
 			this.Name = "frmCloudDocuments";
 			this.Tag = "Title_CloudDocuments";
 			this.Text = "Cloud Documents";
@@ -245,9 +285,12 @@ namespace Chummer
 
 		private System.Windows.Forms.RadioButton rdoMyDocuments;
 		private System.Windows.Forms.RadioButton rdoSharedWithMe;
+		private System.Windows.Forms.RadioButton rdoAuthApiToken;
+		private System.Windows.Forms.RadioButton rdoAuthOAuth;
 		private System.Windows.Forms.Label lblApiToken;
 		private System.Windows.Forms.TextBox txtApiToken;
 		private System.Windows.Forms.Button cmdUseApiToken;
+		private System.Windows.Forms.Label lblConnectionState;
 		private System.Windows.Forms.ListView lstDocuments;
 		private System.Windows.Forms.ColumnHeader colName;
 		private System.Windows.Forms.ColumnHeader colState;

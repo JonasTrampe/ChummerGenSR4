@@ -659,6 +659,26 @@
 			<text>共有されたドキュメント</text>
 		</string>
 		<string>
+			<key>Radio_Cloud_AuthApiToken</key>
+			<text>API トークンを使用</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_AuthOAuth</key>
+			<text>OAuth ログインを使用</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_NotConnected</key>
+			<text>接続されていません。</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_ApiToken</key>
+			<text>API トークンで接続済みです。</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_OAuth</key>
+			<text>OAuth ログインで接続済みです。</text>
+		</string>
+		<string>
 			<key>String_Cloud_NotLoggedIn</key>
 			<text>ログインしていません。RunnersPointアカウントに接続するには「ログイン」をクリックしてください。</text>
 		</string>

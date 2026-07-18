@@ -38,6 +38,13 @@ namespace Chummer
 			cmdPushCurrent.Enabled = _objActiveCharacter != null;
 			UpdateSelectionButtons();
 
+			// Reflect whatever's actually stored, rather than always defaulting to the API Token radio,
+			// so the UI doesn't contradict a login made via the other method in an earlier session.
+			if (_objAuth.HasStoredLogin() && !_objAuth.IsApiTokenLogin())
+				rdoAuthOAuth.Checked = true;
+			UpdateAuthModeVisibility();
+			UpdateConnectionState();
+
 			if (!_objAuth.HasStoredLogin())
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotLoggedIn"));
@@ -47,12 +54,46 @@ namespace Chummer
 			await RefreshAsync();
 		}
 
+		private void rdoAuthMode_CheckedChanged(object sender, EventArgs e)
+		{
+			if (sender is RadioButton radio && !radio.Checked)
+				return;
+			UpdateAuthModeVisibility();
+		}
+
+		private void UpdateAuthModeVisibility()
+		{
+			lblApiToken.Visible = rdoAuthApiToken.Checked;
+			txtApiToken.Visible = rdoAuthApiToken.Checked;
+			cmdUseApiToken.Visible = rdoAuthApiToken.Checked;
+			cmdLogin.Visible = rdoAuthOAuth.Checked;
+		}
+
+		/// <summary>
+		/// Reflects whether/how we're actually logged in - separate from the short-lived cmdRefresh-style
+		/// messages in lblStatus, so "am I connected, and how" stays visible instead of getting
+		/// overwritten by the next status update.
+		/// </summary>
+		private void UpdateConnectionState()
+		{
+			if (!_objAuth.HasStoredLogin())
+			{
+				lblConnectionState.Text = LanguageManager.Instance.GetString("String_Cloud_ConnectionState_NotConnected");
+				return;
+			}
+
+			lblConnectionState.Text = _objAuth.IsApiTokenLogin()
+				? LanguageManager.Instance.GetString("String_Cloud_ConnectionState_ApiToken")
+				: LanguageManager.Instance.GetString("String_Cloud_ConnectionState_OAuth");
+		}
+
 		private async void cmdLogin_Click(object sender, EventArgs e)
 		{
 			try
 			{
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_LoggingIn"));
 				await _objAuth.LoginAsync();
+				UpdateConnectionState();
 				await RefreshAsync();
 			}
 			catch (Exception ex)
@@ -68,6 +109,7 @@ namespace Chummer
 			{
 				_objAuth.SetApiToken(txtApiToken.Text);
 				txtApiToken.Text = "";
+				UpdateConnectionState();
 				await RefreshAsync();
 			}
 			catch (Exception ex)
@@ -81,6 +123,7 @@ namespace Chummer
 		{
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
+			UpdateConnectionState();
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotLoggedIn"));
 		}
 
@@ -93,6 +136,7 @@ namespace Chummer
 			Log.Warning("RunnersPoint login rejected as expired/revoked (401) - clearing stored login");
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
+			UpdateConnectionState();
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthExpired"));
 		}
 
