@@ -89,6 +89,7 @@ namespace Chummer
 		private static string _strLanguage = "en-us";
 		private static string _strDefaultCharacterSheet = "Shadowrun 4";
 		private static string _strPDFArgumentStyle = "Adobe/Foxit";
+		private static string _strCloudApiBaseUrl = "http://localhost:8000/api/v1";
 		private static bool _blnDatesIncludeTime = true;
 		private static bool _blnPrintToFileFirst = false;
 
@@ -201,6 +202,14 @@ namespace Chummer
 			try
 			{
 				_strPDFArgumentStyle = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "pdfargumentstyle", "Adobe/Foxit");
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				_strCloudApiBaseUrl = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "http://localhost:8000/api/v1");
 			}
 			catch
 			{
@@ -557,6 +566,22 @@ namespace Chummer
 			set
 			{
 				_strPDFArgumentStyle = value;
+			}
+		}
+
+		/// <summary>
+		/// Base URL (including path prefix, e.g. "http://localhost:8000/api/v1") of the RunnersPoint
+		/// Character Document Storage API that Cloud Documents talks to.
+		/// </summary>
+		public string CloudApiBaseUrl
+		{
+			get
+			{
+				return _strCloudApiBaseUrl;
+			}
+			set
+			{
+				_strCloudApiBaseUrl = value;
 			}
 		}
 

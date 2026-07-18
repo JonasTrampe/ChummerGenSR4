@@ -172,6 +172,7 @@ namespace Chummer
 			chkPrintToFileFirst.Checked = blnPrintToFileFirst;
 
 			txtPDFAppPath.Text = GlobalOptions.Instance.PDFAppPath;
+			txtCloudApiBaseUrl.Text = GlobalOptions.Instance.CloudApiBaseUrl;
 
 			// Populate the Language List.
 			string strPath = Path.Combine(Application.StartupPath, "lang");
@@ -761,6 +762,7 @@ namespace Chummer
 			txtPDFAppPath.Left = lblPDFAppPath.Left + lblPDFAppPath.Width + 6;
 			cmdPDFAppPath.Left = txtPDFAppPath.Left + txtPDFAppPath.Width + 6;
 			cmdPDFTest.Left = nudPDFOffset.Left + nudPDFOffset.Width + 6;
+			txtCloudApiBaseUrl.Left = lblCloudApiBaseUrl.Left + lblCloudApiBaseUrl.Width + 6;
 
 			intWidth = Math.Max(lblPDFLocation.Width, lblPDFOffset.Width);
 			txtPDFLocation.Left = lblPDFLocation.Left + intWidth + 6;
@@ -1727,6 +1729,7 @@ namespace Chummer
 			GlobalOptions.Instance.DatesIncludeTime = chkDatesIncludeTime.Checked;
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
+			GlobalOptions.Instance.CloudApiBaseUrl = txtCloudApiBaseUrl.Text;
 			GlobalOptions.Instance.PDFArgumentStyle = cboPDFArgumentStyle.SelectedValue.ToString();
 			SettingsRegistryKey objRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer");
 			objRegistry.SetValue("autoupdate", chkAutomaticUpdate.Checked.ToString());
@@ -1740,6 +1743,7 @@ namespace Chummer
 			objRegistry.SetValue("printtofilefirst", chkPrintToFileFirst.Checked.ToString());
 
 			objRegistry.SetValue("pdfapppath", txtPDFAppPath.Text);
+			objRegistry.SetValue("cloudapibaseurl", txtCloudApiBaseUrl.Text);
 
 			// Save the SourcebookInfo.
 			SettingsRegistryKey objSourceRegistry = SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer\\Sourcebook");

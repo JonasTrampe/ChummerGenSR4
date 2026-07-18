@@ -121,15 +121,28 @@ jobs:
         uses: NuGet/setup-nuget@v4
 
       - name: Restore NuGet packages
+        # Points at the .sln, not Chummer.csproj directly: nuget.exe needs a solution (or an explicit
+        # -SolutionDirectory) to know where the packages/ folder is. It gracefully skips
+        # Chummer.Tests.csproj's SDK-style PackageReferences (that's dotnet's job, not classic
+        # nuget.exe's) and still restores Chummer.csproj's packages.config correctly.
         run: nuget restore ChummerGenSR4.sln
 
-      - name: Build the solution under Mono
+      - name: Build the app under Mono
+        # Builds only the WinForms app project, not the whole solution - Mono's bundled msbuild/xbuild
+        # can't parse Chummer.Tests.csproj's SDK-style format (it demands the old MSBuild 2003 XML
+        # namespace), and this job's job is verifying the app itself runs under Mono, not running the
+        # test suite (which is dotnet-based and wouldn't run under xbuild anyway).
+        # Platform=AnyCPU must be explicit here: Chummer.csproj's OutputPath (..\bin\, i.e. the repo
+        # root bin/ the smoke test below expects) is conditioned on Configuration|Platform =
+        # Release|AnyCPU. The .sln normally supplies that Platform via its configuration mapping;
+        # building the project directly bypasses that, so Platform defaults to something else and the
+        # build silently lands in Chummer/bin/Release/ instead.
         run: |
           if command -v msbuild >/dev/null 2>&1; then
-            msbuild ChummerGenSR4.sln /p:Configuration=Release
+            msbuild Chummer/Chummer.csproj /p:Configuration=Release /p:Platform=AnyCPU
           else
             echo "msbuild not found on PATH, falling back to xbuild"
-            xbuild ChummerGenSR4.sln /p:Configuration=Release
+            xbuild Chummer/Chummer.csproj /p:Configuration=Release /p:Platform=AnyCPU
           fi
 
       - name: Headless startup smoke test

@@ -114,6 +114,8 @@
 			this.cmdPDFAppPath = new System.Windows.Forms.Button();
 			this.txtPDFAppPath = new System.Windows.Forms.TextBox();
 			this.lblPDFAppPath = new System.Windows.Forms.Label();
+			this.txtCloudApiBaseUrl = new System.Windows.Forms.TextBox();
+			this.lblCloudApiBaseUrl = new System.Windows.Forms.Label();
 			this.lblXSLT = new System.Windows.Forms.Label();
 			this.cboXSLT = new System.Windows.Forms.ComboBox();
 			this.lblLanguage = new System.Windows.Forms.Label();
@@ -1079,6 +1081,8 @@
 			this.tabGlobal.Controls.Add(this.cmdPDFAppPath);
 			this.tabGlobal.Controls.Add(this.txtPDFAppPath);
 			this.tabGlobal.Controls.Add(this.lblPDFAppPath);
+			this.tabGlobal.Controls.Add(this.txtCloudApiBaseUrl);
+			this.tabGlobal.Controls.Add(this.lblCloudApiBaseUrl);
 			this.tabGlobal.Controls.Add(this.lblXSLT);
 			this.tabGlobal.Controls.Add(this.cboXSLT);
 			this.tabGlobal.Controls.Add(this.lblLanguage);
@@ -1230,7 +1234,24 @@
 			this.lblPDFAppPath.TabIndex = 9;
 			this.lblPDFAppPath.Tag = "Label_Options_PDFApplicationPath";
 			this.lblPDFAppPath.Text = "Location of PDF application:";
-			// 
+			//
+			// txtCloudApiBaseUrl
+			//
+			this.txtCloudApiBaseUrl.Location = new System.Drawing.Point(153, 397);
+			this.txtCloudApiBaseUrl.Name = "txtCloudApiBaseUrl";
+			this.txtCloudApiBaseUrl.Size = new System.Drawing.Size(281, 20);
+			this.txtCloudApiBaseUrl.TabIndex = 17;
+			//
+			// lblCloudApiBaseUrl
+			//
+			this.lblCloudApiBaseUrl.AutoSize = true;
+			this.lblCloudApiBaseUrl.Location = new System.Drawing.Point(6, 400);
+			this.lblCloudApiBaseUrl.Name = "lblCloudApiBaseUrl";
+			this.lblCloudApiBaseUrl.Size = new System.Drawing.Size(126, 13);
+			this.lblCloudApiBaseUrl.TabIndex = 16;
+			this.lblCloudApiBaseUrl.Tag = "Label_Options_CloudApiBaseUrl";
+			this.lblCloudApiBaseUrl.Text = "Cloud Documents server:";
+			//
 			// lblXSLT
 			// 
 			this.lblXSLT.AutoSize = true;
@@ -3500,6 +3521,8 @@
 		private System.Windows.Forms.Button cmdPDFAppPath;
 		private System.Windows.Forms.TextBox txtPDFAppPath;
 		private System.Windows.Forms.Label lblPDFAppPath;
+		private System.Windows.Forms.TextBox txtCloudApiBaseUrl;
+		private System.Windows.Forms.Label lblCloudApiBaseUrl;
 		private System.Windows.Forms.NumericUpDown nudPDFOffset;
 		private System.Windows.Forms.Label lblPDFOffset;
 		private System.Windows.Forms.Button cmdPDFLocation;

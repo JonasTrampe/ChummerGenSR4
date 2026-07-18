@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <chummer>
-	<version>-959</version>
+	<version>-960</version>
 	<name>Français</name>
 	<strings>
 		<!-- Common Strings -->
@@ -599,6 +599,190 @@
 		<string>
 			<key>Menu_Main_Update</key>
 			<text>&amp;Mises à jour</text>
+		</string>
+		<string>
+			<key>Menu_Main_CloudDocuments</key>
+			<text>Documents en ligne...</text>
+		</string>
+		<string>
+			<key>Title_CloudDocuments</key>
+			<text>Documents en ligne</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Login</key>
+			<text>Connexion</text>
+		</string>
+		<string>
+			<key>Label_Cloud_ApiToken</key>
+			<text>Jeton API :</text>
+		</string>
+		<string>
+			<key>Button_Cloud_UseApiToken</key>
+			<text>Utiliser le jeton</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Logout</key>
+			<text>Déconnexion</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Refresh</key>
+			<text>Actualiser</text>
+		</string>
+		<string>
+			<key>Button_Cloud_PushCurrent</key>
+			<text>Envoyer le personnage actuel</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Download</key>
+			<text>Télécharger la sélection</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Archive</key>
+			<text>Archiver la sélection</text>
+		</string>
+		<string>
+			<key>Button_Cloud_PushShared</key>
+			<text>Envoyer la mise à jour de la sélection</text>
+		</string>
+		<string>
+			<key>Button_Cloud_EditMetadata</key>
+			<text>Modifier les métadonnées...</text>
+		</string>
+		<string>
+			<key>Title_CloudMetadata</key>
+			<text>Métadonnées du document cloud</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Note</key>
+			<text>Pas encore envoyé à RunnersPoint - le serveur ne peut pas encore recevoir ceci d'un client. Enregistré localement pour ne pas le perdre une fois que ce sera possible.</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_DisplayName</key>
+			<text>Nom d'affichage :</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_Description</key>
+			<text>Description :</text>
+		</string>
+		<string>
+			<key>Label_CloudMetadata_ImageUrl</key>
+			<text>URL de l'image :</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_MyDocuments</key>
+			<text>Mes documents</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_SharedWithMe</key>
+			<text>Partagés avec moi</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_AuthApiToken</key>
+			<text>Utiliser un jeton API</text>
+		</string>
+		<string>
+			<key>Radio_Cloud_AuthOAuth</key>
+			<text>Utiliser la connexion OAuth</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_NotConnected</key>
+			<text>Non connecté.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_ApiToken</key>
+			<text>Connecté via un jeton API.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ConnectionState_OAuth</key>
+			<text>Connecté via une connexion OAuth.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotLoggedIn</key>
+			<text>Non connecté. Cliquez sur Connexion pour lier votre compte RunnersPoint.</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoggingIn</key>
+			<text>Ouverture du navigateur pour la connexion...</text>
+		</string>
+		<string>
+			<key>String_Cloud_LoginFailed</key>
+			<text>Échec de la connexion : {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_Refreshing</key>
+			<text>Actualisation...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Ready</key>
+			<text>Prêt.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NoGameProfile</key>
+			<text>Aucun profil de jeu Shadowrun 4e édition correspondant n'a été trouvé sur le serveur.</text>
+		</string>
+		<string>
+			<key>String_Cloud_ServerUnreachable</key>
+			<text>Impossible de joindre le serveur RunnersPoint. Vérifiez votre connexion et l'adresse du serveur dans les options, puis réessayez.</text>
+		</string>
+		<string>
+			<key>String_Cloud_UnsupportedDocumentType</key>
+			<text>Le serveur n'annonce pas de prise en charge des documents de personnage dans un format que Chummer comprend.</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthExpired</key>
+			<text>Votre connexion RunnersPoint a expiré ou a été révoquée. Veuillez vous reconnecter ou coller un nouveau jeton API.</text>
+		</string>
+		<string>
+			<key>String_Cloud_Pushing</key>
+			<text>Envoi du personnage...</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushAccepted</key>
+			<text>Envoi accepté - la validation s'exécute en arrière-plan.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushStale</key>
+			<text>Votre copie locale n'est pas à jour par rapport à la version en ligne. Téléchargez la dernière version avant de réessayer.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushInFlight</key>
+			<text>L'envoi précédent est toujours en cours de validation. Réessayez dans un instant.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotSavedLocally</key>
+			<text>Enregistrez ce personnage localement (Fichier > Enregistrer) avant de l'envoyer vers le cloud.</text>
+		</string>
+		<string>
+			<key>String_Cloud_PushIdempotencyConflict</key>
+			<text>Une requête précédente identique est toujours en cours de traitement. Patientez un instant puis réessayez.</text>
+		</string>
+		<string>
+			<key>String_Cloud_NotDownloadable</key>
+			<text>Ce document ne peut pas être téléchargé pour le moment (état : {0}).</text>
+		</string>
+		<string>
+			<key>String_Cloud_Downloading</key>
+			<text>Téléchargement...</text>
+		</string>
+		<string>
+			<key>String_Cloud_Error</key>
+			<text>Erreur : {0}</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmArchive</key>
+			<text>Archiver « {0} » en ligne ? Votre fichier local ne sera pas supprimé.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmArchive</key>
+			<text>Archiver le document</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmPushShared</key>
+			<text>Envoyer le contenu de votre personnage actuel vers « {0} » ? Cela écrase le document partagé pour tous ceux avec qui il est partagé, pas seulement pour vous.</text>
+		</string>
+		<string>
+			<key>MessageTitle_Cloud_ConfirmPushShared</key>
+			<text>Envoyer la mise à jour au document partagé</text>
 		</string>
 		<string>
 			<key>Menu_Main_Omae</key>
@@ -5449,6 +5633,10 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string>
 			<key>Label_Options_PDFApplicationPath</key>
 			<text>Emplacement de l'application PDF:</text>
+		</string>
+		<string>
+			<key>Label_Options_CloudApiBaseUrl</key>
+			<text>Serveur Cloud Documents:</text>
 		</string>
 		<string>
 			<key>Label_Options_PDFLocation</key>

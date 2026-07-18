@@ -125,6 +125,21 @@ namespace Chummer
 			frmUpdateApp.ShowDialog(this);
 		}
 
+		private void mnuToolsCloudDocuments_Click(object sender, EventArgs e)
+		{
+			Character objActiveCharacter = null;
+			if (this.ActiveMdiChild != null)
+			{
+				if (this.ActiveMdiChild.GetType() == typeof(frmCareer))
+					objActiveCharacter = ((frmCareer)this.ActiveMdiChild).CharacterObject;
+				else if (this.ActiveMdiChild.GetType() == typeof(frmCreate))
+					objActiveCharacter = ((frmCreate)this.ActiveMdiChild).CharacterObject;
+			}
+
+			frmCloudDocuments frmCloud = new frmCloudDocuments(objActiveCharacter);
+			frmCloud.ShowDialog(this);
+		}
+
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			frmAbout frmShowAbout = new frmAbout();

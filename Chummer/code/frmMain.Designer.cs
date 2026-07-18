@@ -67,6 +67,7 @@
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsUpdate = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuToolsCloudDocuments = new System.Windows.Forms.ToolStripMenuItem();
 			this.windowsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.newWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -432,6 +433,7 @@
             this.mnuToolsDiceRoller,
             this.toolStripSeparator5,
             this.optionsToolStripMenuItem,
+            this.mnuToolsCloudDocuments,
             this.mnuToolsUpdate});
 			this.toolsMenu.Name = "toolsMenu";
 			this.toolsMenu.Size = new System.Drawing.Size(48, 20);
@@ -470,6 +472,14 @@
 			this.mnuToolsUpdate.Tag = "Menu_Main_Update";
 			this.mnuToolsUpdate.Text = "Check for Updates";
 			this.mnuToolsUpdate.Click += new System.EventHandler(this.mnuToolsUpdate_Click);
+			//
+			// mnuToolsCloudDocuments
+			//
+			this.mnuToolsCloudDocuments.Name = "mnuToolsCloudDocuments";
+			this.mnuToolsCloudDocuments.Size = new System.Drawing.Size(171, 22);
+			this.mnuToolsCloudDocuments.Tag = "Menu_Main_CloudDocuments";
+			this.mnuToolsCloudDocuments.Text = "Cloud Documents...";
+			this.mnuToolsCloudDocuments.Click += new System.EventHandler(this.mnuToolsCloudDocuments_Click);
 			//
 			// windowsMenu
 			// 
@@ -715,6 +725,7 @@
 		private System.Windows.Forms.ToolStripButton helpToolStripButton;
 		private System.Windows.Forms.ToolTip toolTip;
 		private System.Windows.Forms.ToolStripMenuItem mnuToolsUpdate;
+		private System.Windows.Forms.ToolStripMenuItem mnuToolsCloudDocuments;
 		private System.Windows.Forms.ToolStripButton tsbSave;
 		private System.Windows.Forms.ToolStripMenuItem mnuHelpRevisionHistory;
 		private System.Windows.Forms.ToolStripMenuItem mnuNewCritter;

@@ -3,14 +3,14 @@
 	<file>
 		<name>lang/en-us.xml</name>
 		<type>Language File</type>
-		<version>-915</version>
+		<version>-916</version>
 		<description>English (US) language file</description>
 		<notes>- English (US) language file</notes>
 	</file>
 	<file>
 		<name>lang/fr.xml</name>
 		<type>Language File</type>
-		<version>-959</version>
+		<version>-960</version>
 		<description>French language file</description>
 		<notes>- French language file</notes>
 	</file>
@@ -24,7 +24,7 @@
 	<file>
 		<name>lang/de.xml</name>
 		<type>Language File</type>
-		<version>-954</version>
+		<version>-955</version>
 		<description>German language file</description>
 		<notes>German language file</notes>
 	</file>
@@ -45,7 +45,7 @@
 	<file>
 		<name>lang/jp.xml</name>
 		<type>Language File</type>
-		<version>-1005</version>
+		<version>-1006</version>
 		<description>jp language file</description>
 		<notes>jp language file</notes>
 	</file>
