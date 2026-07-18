@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -54,6 +53,11 @@ namespace Chummer
 
 		private string _strFileName = "";
 		private string _strSettingsFileName = "default.xml";
+		// Set by Load() instead of showing a MessageBox directly - the model itself has no UI toolkit
+		// to show one with (it's shared between the WinForms and Avalonia hosts via Chummer.Core), so
+		// the caller (e.g. frmMain.LoadCharacter) checks this after a failed Load() and presents
+		// whatever dialog makes sense for its own UI stack.
+		private bool _blnLoadedWrongGameEdition = false;
 		private string _strCloudDocumentId = "";
 		// The revision id this local file is known to match on the server as of the last successful
 		// push or download - compared against Document.currentRevision on load to detect that a newer
@@ -264,7 +268,12 @@ namespace Chummer
 			objWriter.WriteStartElement("character");
 
 			// <appversion />
-			objWriter.WriteElementString("appversion", Application.ProductVersion.ToString().Replace("0.0.0.", string.Empty));
+			// Assembly.GetEntryAssembly() rather than GetExecutingAssembly() - this class lives in the
+			// shared Chummer.Core library, but "which app version saved this file" should reflect the
+			// actual host application (ChummerGenSR4.exe today, an Avalonia host later), not the library.
+			// global:: needed - this class's own "System" property (Matrix stat) shadows the namespace.
+			string strAppVersion = global::System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "";
+			objWriter.WriteElementString("appversion", strAppVersion.Replace("0.0.0.", string.Empty));
 			// <dataversion />
 			objWriter.WriteElementString("dataversion", CurrentDataVersion.ToString());
 			// <gameedition />
@@ -778,7 +787,7 @@ namespace Chummer
 			{
 				if (objXmlCharacter["gameedition"].InnerText != string.Empty && objXmlCharacter["gameedition"].InnerText != "SR4")
 				{
-					MessageBox.Show(LanguageManager.Instance.GetString("Message_IncorrectGameVersion_SR5"), LanguageManager.Instance.GetString("MessageTitle_IncorrectGameVersion"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+					_blnLoadedWrongGameEdition = true;
 					return false;
 				}
 			}
@@ -1659,14 +1668,20 @@ namespace Chummer
 			string strMugshotPath = "";
 			if (_strMugshot != "")
 			{
-				if (!Directory.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "mugshots"))
-					Directory.CreateDirectory(Application.StartupPath + Path.DirectorySeparatorChar + "mugshots");
+				// AppDomain.CurrentDomain.BaseDirectory instead of the WinForms-only
+				// Application.StartupPath - both give the same "directory the app runs from" answer,
+				// but this class is shared between the WinForms and Avalonia hosts via Chummer.Core.
+				string strMugshotDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mugshots");
+				if (!Directory.Exists(strMugshotDir))
+					Directory.CreateDirectory(strMugshotDir);
+				// Writing the raw decoded bytes straight to disk instead of round-tripping them through
+				// Image.FromStream/Image.Save (GDI+, Windows-only under modern .NET) - per the comment
+				// above, the ".img" extension is read back as whatever bytes are actually in the file,
+				// so there was never a need to decode/re-encode it in the first place.
 				byte[] bytImage = Convert.FromBase64String(_strMugshot);
-				MemoryStream objImageStream = new MemoryStream(bytImage, 0, bytImage.Length);
-				objImageStream.Write(bytImage, 0, bytImage.Length);
-				Image imgMugshot = Image.FromStream(objImageStream, true);
-				imgMugshot.Save(Application.StartupPath + Path.DirectorySeparatorChar + "mugshots" + Path.DirectorySeparatorChar + guiImage.ToString() + ".img");
-				strMugshotPath = "file://" + (Application.StartupPath + Path.DirectorySeparatorChar + "mugshots" + Path.DirectorySeparatorChar + guiImage.ToString() + ".img").Replace(Path.DirectorySeparatorChar, '/');
+				string strMugshotFile = Path.Combine(strMugshotDir, guiImage.ToString() + ".img");
+				File.WriteAllBytes(strMugshotFile, bytImage);
+				strMugshotPath = "file://" + strMugshotFile.Replace(Path.DirectorySeparatorChar, '/');
 			}
 			// <mugshot />
 			objWriter.WriteElementString("mugshot", strMugshotPath);
@@ -2788,6 +2803,19 @@ namespace Chummer
 			set
 			{
 				_strFileName = value;
+			}
+		}
+
+		/// <summary>
+		/// Set by a failed Load() when the file's gameedition element is present and isn't "SR4" - the
+		/// caller should show its own "wrong game version" message rather than have the model try to
+		/// (it has no UI toolkit to show one with - see Message_IncorrectGameVersion_SR5).
+		/// </summary>
+		public bool LoadedWrongGameEdition
+		{
+			get
+			{
+				return _blnLoadedWrongGameEdition;
 			}
 		}
 

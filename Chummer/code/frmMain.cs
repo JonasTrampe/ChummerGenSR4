@@ -546,7 +546,11 @@ namespace Chummer
 				blnLoaded = objCharacter.Load();
 
 				if (!blnLoaded)
+				{
+					if (objCharacter.LoadedWrongGameEdition)
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_IncorrectGameVersion_SR5"), LanguageManager.Instance.GetString("MessageTitle_IncorrectGameVersion"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
+				}
 
 				// If a new name is given, set the character's name to match (used in cloning).
 				if (strNewName != "")
