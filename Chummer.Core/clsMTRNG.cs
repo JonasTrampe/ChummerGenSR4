@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace Chummer
 {
-    class MTRNG
+    public class MTRNG
     {
         private const int N = 624;
         private const int M = 397;

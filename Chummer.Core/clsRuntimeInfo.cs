@@ -2,7 +2,7 @@ using System;
 
 namespace Chummer
 {
-	internal static class RuntimeInfo
+	public static class RuntimeInfo
 	{
 		private static readonly bool _isMono = Type.GetType("Mono.Runtime") != null;
 

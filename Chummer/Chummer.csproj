@@ -108,6 +108,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <!-- Shared data/business-logic layer - see docs/LINUX_PORT_PLAN.md. Multi-targeted (net48;net8.0);
+         this project's classic non-SDK format resolves it to the net48 build. -->
+    <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj">
+      <Project>{0A8EA1FE-BF7D-4424-A696-DCE573730831}</Project>
+      <Name>Chummer.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="code\clsCommon.cs" />
     <Compile Include="code\clsCharacterDiff.cs" />
     <Compile Include="code\clsCloudSaveHelper.cs" />
@@ -146,10 +154,7 @@
     <Compile Include="code\clsExpenses.cs" />
     <Compile Include="code\clsLanguageManager.cs" />
     <Compile Include="code\clsListItems.cs" />
-    <Compile Include="code\clsMTRNG.cs" />
     <Compile Include="code\clsOptions.cs" />
-    <Compile Include="code\clsRuntimeInfo.cs" />
-    <Compile Include="code\clsSettingsStore.cs" />
     <Compile Include="code\clsUnique.cs" />
     <Compile Include="code\clsXmlManager.cs" />
     <Compile Include="code\ContactControl.cs">
