@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using System.Windows.Forms;
 
 // MRUChanged Event Handler.
 public delegate void MRUChangedHandler();
@@ -152,8 +151,8 @@ namespace Chummer
 		#region Constructor and Instance
 		static GlobalOptions()
 		{
-			if (!Directory.Exists(Path.Combine(Application.StartupPath, "settings")))
-				Directory.CreateDirectory(Path.Combine(Application.StartupPath, "settings"));
+			if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings")))
+				Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings"));
 
 			// Automatic Update.
 			try
@@ -788,6 +787,27 @@ namespace Chummer
 
 	public class CharacterOptions
 	{
+		/// <summary>
+		/// Lets a host application answer "the named settings file is missing - use default.xml
+		/// instead?" interactively. The model itself has no UI toolkit to ask with (shared between the
+		/// WinForms and Avalonia hosts via Chummer.Core) - the WinForms host wires this up once at
+		/// startup to show the same confirmation dialog Load() used to show directly. If no host
+		/// registers a handler, this defaults to declining (matching the safer of the dialog's two
+		/// original choices) rather than silently substituting different settings data.
+		/// </summary>
+		public static Func<string, bool> ConfirmUseDefaultSettingsFile { get; set; }
+
+		/// <summary>
+		/// Set by a failed Load() when the named settings file didn't exist and either there's no
+		/// ConfirmUseDefaultSettingsFile handler registered or it declined the fallback to default.xml.
+		/// </summary>
+		public bool SettingsFileMissing { get; private set; }
+
+		/// <summary>
+		/// Set by a failed Load() when reading/parsing the settings file itself threw.
+		/// </summary>
+		public bool SettingsLoadFailed { get; private set; }
+
 		private string _strFileName = "default.xml";
 		private string _strName = "Default Settings";
 
@@ -935,11 +955,11 @@ namespace Chummer
 		public CharacterOptions()
 		{
 			// Create the settings directory if it does not exist.
-			if (!Directory.Exists(Path.Combine(Application.StartupPath, "settings")))
-				Directory.CreateDirectory(Path.Combine(Application.StartupPath, "settings"));
+			if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings")))
+				Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings"));
 
 			// If the default.xml settings file does not exist, attempt to read the settings from the Registry (old storage format), then save them to the default.xml file.
-			string strFilePath = Path.Combine(Application.StartupPath, "settings");
+			string strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings");
 			strFilePath = Path.Combine(strFilePath, "default.xml");
 			if (!File.Exists(strFilePath))
 			{
@@ -962,7 +982,7 @@ namespace Chummer
 		/// </summary>
 		public void Save()
 		{
-			string strFilePath = Path.Combine(Application.StartupPath, "settings");
+			string strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings");
 			strFilePath = Path.Combine(strFilePath, _strFileName);
 			FileStream objStream = new FileStream(strFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
 			XmlTextWriter objWriter = new XmlTextWriter(objStream, Encoding.Unicode);
@@ -1262,32 +1282,38 @@ namespace Chummer
 		/// <param name="strFileName">Settings file to load from.</param>
 		public bool Load(string strFileName)
 		{
+			SettingsFileMissing = false;
+			SettingsLoadFailed = false;
 			_strFileName = strFileName;
-			string strFilePath = Path.Combine(Application.StartupPath, "settings");
+			string strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings");
 			strFilePath = Path.Combine(strFilePath, _strFileName);
 			XmlDocument objXmlDocument = new XmlDocument();
 			try
 			{
-				// Make sure the settings file exists. If not, ask the user if they would like to use the default settings file instead. A character cannot be loaded without a settings file.
+				// Make sure the settings file exists. If not, ask the host application (via
+				// ConfirmUseDefaultSettingsFile) whether to use the default settings file instead. A
+				// character cannot be loaded without a settings file.
 				if (File.Exists(strFilePath))
 					objXmlDocument.Load(strFilePath);
 				else
 				{
-					if (MessageBox.Show(LanguageManager.Instance.GetString("Message_CharacterOptions_CannotLoadSetting").Replace("{0}", _strFileName), LanguageManager.Instance.GetString("MessageTitle_CharacterOptions_CannotLoadSetting"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+					bool blnUseDefault = ConfirmUseDefaultSettingsFile?.Invoke(_strFileName) ?? false;
+					if (!blnUseDefault)
 					{
-						MessageBox.Show(LanguageManager.Instance.GetString("Message_CharacterOptions_CannotLoadCharacter"), LanguageManager.Instance.GetString("MessageText_CharacterOptions_CannotLoadCharacter"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+						SettingsFileMissing = true;
 						return false;
 					}
 					else
 					{
 						_strFileName = "default.xml";
+						strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", _strFileName);
 						objXmlDocument.Load(strFilePath);
 					}
 				}
 			}
 			catch
 			{
-				MessageBox.Show(LanguageManager.Instance.GetString("Message_CharacterOptions_CannotLoadCharacter"), LanguageManager.Instance.GetString("MessageText_CharacterOptions_CannotLoadCharacter"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+				SettingsLoadFailed = true;
 				return false;
 			}
 

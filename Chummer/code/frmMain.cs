@@ -549,6 +549,8 @@ namespace Chummer
 				{
 					if (objCharacter.LoadedWrongGameEdition)
 						MessageBox.Show(LanguageManager.Instance.GetString("Message_IncorrectGameVersion_SR5"), LanguageManager.Instance.GetString("MessageTitle_IncorrectGameVersion"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+					else if (objCharacter.Options.SettingsFileMissing || objCharacter.Options.SettingsLoadFailed)
+						MessageBox.Show(LanguageManager.Instance.GetString("Message_CharacterOptions_CannotLoadCharacter"), LanguageManager.Instance.GetString("MessageText_CharacterOptions_CannotLoadCharacter"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 

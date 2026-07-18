@@ -20,6 +20,15 @@ namespace Chummer
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Application.ThreadException += OnThreadException;
 
+            // CharacterOptions.Load() has no UI toolkit of its own to ask this with (shared between the
+            // WinForms and Avalonia hosts via Chummer.Core) - wire up the same confirmation dialog it
+            // used to show directly, so this host's behavior is unchanged.
+            CharacterOptions.ConfirmUseDefaultSettingsFile = strFileName =>
+                MessageBox.Show(
+                    LanguageManager.Instance.GetString("Message_CharacterOptions_CannotLoadSetting").Replace("{0}", strFileName),
+                    LanguageManager.Instance.GetString("MessageTitle_CharacterOptions_CannotLoadSetting"),
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+
             try
             {
                 Application.EnableVisualStyles();
