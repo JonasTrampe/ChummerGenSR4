@@ -17,6 +17,12 @@ namespace Chummer
 	{
 		private const string DocumentType = "character";
 
+		// Masked placeholder shown in the API Token field when a token is already stored, so the field
+		// isn't just blank and misleadingly implying nothing is configured. Never submitted as-is - it's
+		// cleared as soon as the field gets focus, or ignored if somehow submitted unchanged.
+		private const string ApiTokenPlaceholder = "................................";
+		private bool _blnApiTokenPlaceholderShown;
+
 		private readonly RunnersPointAuth _objAuth = new RunnersPointAuth();
 		private RunnersPointApiClient _objApiClient;
 		private readonly Character _objActiveCharacter;
@@ -44,6 +50,7 @@ namespace Chummer
 				rdoAuthOAuth.Checked = true;
 			UpdateAuthModeVisibility();
 			UpdateConnectionState();
+			UpdateApiTokenPlaceholder();
 
 			if (!_objAuth.HasStoredLogin())
 			{
@@ -67,6 +74,33 @@ namespace Chummer
 			txtApiToken.Visible = rdoAuthApiToken.Checked;
 			cmdUseApiToken.Visible = rdoAuthApiToken.Checked;
 			cmdLogin.Visible = rdoAuthOAuth.Checked;
+		}
+
+		/// <summary>
+		/// Fills the API Token field with a masked placeholder when a token is already stored, so the
+		/// field visibly says "something's configured" instead of looking empty/unset. Clears back out
+		/// (via txtApiToken_Enter) the moment the user actually focuses the field to type a new one.
+		/// </summary>
+		private void UpdateApiTokenPlaceholder()
+		{
+			if (_objAuth.HasStoredLogin() && _objAuth.IsApiTokenLogin())
+			{
+				txtApiToken.Text = ApiTokenPlaceholder;
+				_blnApiTokenPlaceholderShown = true;
+			}
+			else
+			{
+				txtApiToken.Text = "";
+				_blnApiTokenPlaceholderShown = false;
+			}
+		}
+
+		private void txtApiToken_Enter(object sender, EventArgs e)
+		{
+			if (!_blnApiTokenPlaceholderShown)
+				return;
+			txtApiToken.Text = "";
+			_blnApiTokenPlaceholderShown = false;
 		}
 
 		/// <summary>
@@ -98,7 +132,13 @@ namespace Chummer
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_LoggingIn"));
 				await _objAuth.LoginAsync();
 				UpdateConnectionState();
+				UpdateApiTokenPlaceholder();
 				await RefreshAsync();
+			}
+			catch (System.Net.Http.HttpRequestException ex)
+			{
+				Log.Warning(ex, "RunnersPoint server unreachable");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_ServerUnreachable"));
 			}
 			catch (Exception ex)
 			{
@@ -109,12 +149,22 @@ namespace Chummer
 
 		private async void cmdUseApiToken_Click(object sender, EventArgs e)
 		{
+			// Nothing was actually typed - the field still shows the "a token is stored" placeholder,
+			// not a real value to submit.
+			if (_blnApiTokenPlaceholderShown)
+				return;
+
 			try
 			{
 				_objAuth.SetApiToken(txtApiToken.Text);
-				txtApiToken.Text = "";
 				UpdateConnectionState();
+				UpdateApiTokenPlaceholder();
 				await RefreshAsync();
+			}
+			catch (System.Net.Http.HttpRequestException ex)
+			{
+				Log.Warning(ex, "RunnersPoint server unreachable");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_ServerUnreachable"));
 			}
 			catch (Exception ex)
 			{
@@ -128,6 +178,7 @@ namespace Chummer
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
 			UpdateConnectionState();
+			UpdateApiTokenPlaceholder();
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_NotLoggedIn"));
 		}
 
@@ -141,6 +192,7 @@ namespace Chummer
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
 			UpdateConnectionState();
+			UpdateApiTokenPlaceholder();
 			UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthExpired"));
 		}
 
@@ -224,6 +276,14 @@ namespace Chummer
 			catch (RunnersPointApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
 			{
 				HandleAuthExpired();
+			}
+			catch (System.Net.Http.HttpRequestException ex)
+			{
+				// Distinguished from "wrong/expired credentials" - the login itself is still fine, the
+				// server just isn't reachable right now (offline, wrong CloudApiBaseUrl, DNS/connection
+				// failure). Don't wipe the stored login over what's likely a transient network problem.
+				Log.Warning(ex, "RunnersPoint server unreachable");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_ServerUnreachable"));
 			}
 			catch (Exception ex)
 			{

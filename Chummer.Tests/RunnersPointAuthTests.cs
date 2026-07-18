@@ -97,6 +97,37 @@ namespace Chummer.Tests
 		}
 
 		[Fact]
+		public async Task TryForceRefreshAsync_ReturnsFalseForApiTokenLogin()
+		{
+			// apiToken logins have no refresh token at all - there's nothing to refresh, so a 401 retry
+			// should fall straight through to the normal auth-expired handling instead of attempting (and
+			// failing) an OAuth-style refresh.
+			RunnersPointAuth objAuth = new RunnersPointAuth();
+			try
+			{
+				objAuth.SetApiToken(ValidToken);
+
+				bool blnRefreshed = await objAuth.TryForceRefreshAsync();
+
+				Assert.False(blnRefreshed);
+			}
+			finally
+			{
+				objAuth.Logout();
+			}
+		}
+
+		[Fact]
+		public async Task TryForceRefreshAsync_ReturnsFalseWhenNotLoggedIn()
+		{
+			RunnersPointAuth objAuth = new RunnersPointAuth();
+
+			bool blnRefreshed = await objAuth.TryForceRefreshAsync();
+
+			Assert.False(blnRefreshed);
+		}
+
+		[Fact]
 		public async Task SetApiToken_ReplacesAPreviousLogin()
 		{
 			RunnersPointAuth objAuth = new RunnersPointAuth();

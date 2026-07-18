@@ -697,6 +697,10 @@
 			<text>Aucun profil de jeu Shadowrun 4e édition correspondant n'a été trouvé sur le serveur.</text>
 		</string>
 		<string>
+			<key>String_Cloud_ServerUnreachable</key>
+			<text>Impossible de joindre le serveur RunnersPoint. Vérifiez votre connexion et l'adresse du serveur dans les options, puis réessayez.</text>
+		</string>
+		<string>
 			<key>String_Cloud_UnsupportedDocumentType</key>
 			<text>Le serveur n'annonce pas de prise en charge des documents de personnage dans un format que Chummer comprend.</text>
 		</string>

@@ -172,6 +172,32 @@ namespace Chummer
 			return Guid.NewGuid().ToString("N");
 		}
 
+		/// <summary>
+		/// Sends an authenticated request built by requestFactory. If the server responds 401, forces a
+		/// token refresh and retries once with a freshly-built request (a request/its content can't be
+		/// resent as-is once sent, hence rebuilding rather than reusing the same HttpRequestMessage). If
+		/// there's nothing to refresh (a pasted apiToken) or the refresh itself fails, the original 401
+		/// response is returned as-is for ThrowIfProblemAsync to turn into the usual auth-expired path.
+		/// requestFactory must be safe to call twice - callers building a POST/PUT with a stable
+		/// Idempotency-Key should compute that key once, outside the factory, and only rebuild the
+		/// request/content inside it.
+		/// </summary>
+		private async Task<HttpResponseMessage> SendWithRetryAsync(Func<Task<HttpRequestMessage>> requestFactory)
+		{
+			HttpRequestMessage objRequest = await requestFactory();
+			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			if (objResponse.StatusCode != HttpStatusCode.Unauthorized)
+				return objResponse;
+
+			if (!await _objAuth.TryForceRefreshAsync())
+				return objResponse;
+
+			Log.Information("RunnersPoint API call got 401 - refreshed the access token and retrying once");
+			objResponse.Dispose();
+			HttpRequestMessage objRetryRequest = await requestFactory();
+			return await _objHttpClient.SendAsync(objRetryRequest);
+		}
+
 		private async Task ThrowIfProblemAsync(HttpResponseMessage objResponse)
 		{
 			if (objResponse.IsSuccessStatusCode)
@@ -295,8 +321,7 @@ namespace Chummer
 			if (!string.IsNullOrEmpty(strCursor))
 				strPath += "&cursor=" + Uri.EscapeDataString(strCursor);
 
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, strPath);
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, strPath));
 			await ThrowIfProblemAsync(objResponse);
 
 			string strBody = await objResponse.Content.ReadAsStringAsync();
@@ -374,8 +399,7 @@ namespace Chummer
 		/// </summary>
 		public async Task<Tuple<RunnersPointDocument, string>> GetDocumentAsync(string strDocumentId)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId);
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId));
 			await ThrowIfProblemAsync(objResponse);
 
 			string strBody = await objResponse.Content.ReadAsStringAsync();
@@ -391,15 +415,18 @@ namespace Chummer
 		/// </summary>
 		public async Task<RunnersPointRevisionStatus> CreateDocumentAsync(byte[] bytContent, string strGameProfileId, string strFormat)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/documents");
-			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
-			objRequest.Headers.Add("X-Document-Type", "character");
-			objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
-			objRequest.Headers.Add("X-Document-Format", strFormat);
-			objRequest.Content = new ByteArrayContent(bytContent);
-			objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/documents");
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.Add("X-Document-Type", "character");
+				objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
+				objRequest.Headers.Add("X-Document-Format", strFormat);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+				return objRequest;
+			});
 			await ThrowIfProblemAsync(objResponse);
 			return await ParseRevisionStatusAsync(objResponse);
 		}
@@ -413,15 +440,18 @@ namespace Chummer
 		/// </summary>
 		public async Task<RunnersPointRevisionStatus> PushRevisionAsync(string strDocumentId, byte[] bytContent, string strIfMatch, string strGameProfileId, string strFormat)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/documents/" + strDocumentId);
-			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
-			objRequest.Headers.Add("If-Match", strIfMatch);
-			objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
-			objRequest.Headers.Add("X-Document-Format", strFormat);
-			objRequest.Content = new ByteArrayContent(bytContent);
-			objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.Add("If-Match", strIfMatch);
+				objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
+				objRequest.Headers.Add("X-Document-Format", strFormat);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+				return objRequest;
+			});
 			await ThrowIfProblemAsync(objResponse);
 			return await ParseRevisionStatusAsync(objResponse);
 		}
@@ -450,8 +480,7 @@ namespace Chummer
 		/// </summary>
 		public async Task<RunnersPointRevisionStatus> GetRevisionStatusAsync(string strRevisionId)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/revision-status/" + strRevisionId);
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/revision-status/" + strRevisionId));
 			await ThrowIfProblemAsync(objResponse);
 			return await ParseRevisionStatusAsync(objResponse);
 		}
@@ -465,8 +494,7 @@ namespace Chummer
 		/// </summary>
 		public async Task<Tuple<byte[], string>> DownloadRevisionAsync(string strDocumentId, string strRevisionId)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content"));
 			await ThrowIfProblemAsync(objResponse);
 			byte[] bytContent = await objResponse.Content.ReadAsByteArrayAsync();
 
@@ -571,11 +599,14 @@ namespace Chummer
 		/// </summary>
 		public async Task ArchiveDocumentAsync(string strDocumentId, string strIfMatch)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Delete, "/documents/" + strDocumentId);
-			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
-			objRequest.Headers.Add("If-Match", strIfMatch);
-
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Delete, "/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.Add("If-Match", strIfMatch);
+				return objRequest;
+			});
 			await ThrowIfProblemAsync(objResponse);
 		}
 
@@ -591,8 +622,7 @@ namespace Chummer
 			if (!string.IsNullOrEmpty(strCursor))
 				strPath += "&cursor=" + Uri.EscapeDataString(strCursor);
 
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, strPath);
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, strPath));
 			await ThrowIfProblemAsync(objResponse);
 
 			string strBody = await objResponse.Content.ReadAsStringAsync();
@@ -617,8 +647,7 @@ namespace Chummer
 		/// </summary>
 		public async Task<Tuple<RunnersPointSharedDocument, string>> GetSharedDocumentAsync(string strDocumentId)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId);
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId));
 			await ThrowIfProblemAsync(objResponse);
 
 			string strBody = await objResponse.Content.ReadAsStringAsync();
@@ -634,15 +663,18 @@ namespace Chummer
 		/// </summary>
 		public async Task<RunnersPointRevisionStatus> PushSharedDocumentRevisionAsync(string strDocumentId, byte[] bytContent, string strIfMatch, string strGameProfileId, string strFormat)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId);
-			objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
-			objRequest.Headers.Add("If-Match", strIfMatch);
-			objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
-			objRequest.Headers.Add("X-Document-Format", strFormat);
-			objRequest.Content = new ByteArrayContent(bytContent);
-			objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			string strIdempotencyKey = NewIdempotencyKey();
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId);
+				objRequest.Headers.Add("Idempotency-Key", strIdempotencyKey);
+				objRequest.Headers.Add("If-Match", strIfMatch);
+				objRequest.Headers.Add("X-Game-Profile-Id", strGameProfileId);
+				objRequest.Headers.Add("X-Document-Format", strFormat);
+				objRequest.Content = new ByteArrayContent(bytContent);
+				objRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+				return objRequest;
+			});
 			await ThrowIfProblemAsync(objResponse);
 			return await ParseRevisionStatusAsync(objResponse);
 		}
@@ -654,8 +686,7 @@ namespace Chummer
 		/// </summary>
 		public async Task<Tuple<byte[], string>> DownloadSharedDocumentRevisionAsync(string strDocumentId, string strRevisionId)
 		{
-			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content");
-			HttpResponseMessage objResponse = await _objHttpClient.SendAsync(objRequest);
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId + "/content"));
 			await ThrowIfProblemAsync(objResponse);
 			byte[] bytContent = await objResponse.Content.ReadAsByteArrayAsync();
 

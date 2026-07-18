@@ -703,6 +703,10 @@
 			<text>サーバー上に一致するShadowrun 4th Editionのゲームプロファイルが見つかりませんでした。</text>
 		</string>
 		<string>
+			<key>String_Cloud_ServerUnreachable</key>
+			<text>RunnersPoint サーバーに接続できませんでした。接続と、オプションのサーバーアドレスを確認してから、もう一度お試しください。</text>
+		</string>
+		<string>
 			<key>String_Cloud_UnsupportedDocumentType</key>
 			<text>サーバーは Chummer が理解できる形式でのキャラクタードキュメントのサポートを提供していません。</text>
 		</string>

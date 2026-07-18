@@ -102,6 +102,7 @@ namespace Chummer
 			this.txtApiToken.Size = new System.Drawing.Size(300, 20);
 			this.txtApiToken.TabIndex = 5;
 			this.txtApiToken.UseSystemPasswordChar = true;
+			this.txtApiToken.Enter += new System.EventHandler(this.txtApiToken_Enter);
 			//
 			// cmdUseApiToken
 			//

@@ -182,6 +182,31 @@ namespace Chummer
 			return _objCachedTokens.AccessToken;
 		}
 
+		/// <summary>
+		/// Forces a token refresh regardless of the locally-tracked expiry, for retrying a request that
+		/// the server itself just rejected with 401 (the local expiry clock and the server's may have
+		/// drifted, or the access token could have been revoked independently of its stated lifetime).
+		/// Returns false without throwing for anything that can't be refreshed this way - a pasted
+		/// apiToken (no refresh token at all) or a refresh attempt that itself fails - so callers can
+		/// fall back to treating the login as dead.
+		/// </summary>
+		public async Task<bool> TryForceRefreshAsync()
+		{
+			TokenSet objTokens = LoadTokens();
+			if (objTokens == null || objTokens.IsApiToken || string.IsNullOrEmpty(objTokens.RefreshToken))
+				return false;
+
+			try
+			{
+				await RefreshTokensAsync(objTokens);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		private async Task ExchangeCodeForTokensAsync(string strCode, string strCodeVerifier, string strRedirectUri)
 		{
 			Dictionary<string, string> objFormData = new Dictionary<string, string>
