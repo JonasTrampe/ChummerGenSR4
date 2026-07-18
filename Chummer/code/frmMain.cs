@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Serilog;
 
 namespace Chummer
 {
@@ -237,12 +239,12 @@ namespace Chummer
 			objCharacter.CharacterNameChanged += objCharacter_CharacterNameChanged;
 		}
 
-		private void mnuMRU_Click(object sender, EventArgs e)
+		private async void mnuMRU_Click(object sender, EventArgs e)
 		{
 			string strFileName = ((ToolStripMenuItem)sender).Text;
 			string strNumber = strFileName.Substring(0, 3);
 			strFileName = StripMruTag(strFileName.Replace(strNumber, string.Empty).Trim());
-			LoadCharacter(strFileName);
+			await LoadCharacter(strFileName);
 		}
 
 		private void mnuMRU_MouseDown(object sender, MouseEventArgs e)
@@ -258,10 +260,10 @@ namespace Chummer
 			}
 		}
 
-		private void mnuStickyMRU_Click(object sender, EventArgs e)
+		private async void mnuStickyMRU_Click(object sender, EventArgs e)
 		{
 			string strFileName = StripMruTag(((ToolStripMenuItem)sender).Text);
-			LoadCharacter(strFileName);
+			await LoadCharacter(strFileName);
 		}
 
 		private void mnuStickyMRU_MouseDown(object sender, MouseEventArgs e)
@@ -426,12 +428,12 @@ namespace Chummer
 				this.WindowState = FormWindowState.Maximized;
 		}
 
-		private void frmMain_DragDrop(object sender, DragEventArgs e)
+		private async void frmMain_DragDrop(object sender, DragEventArgs e)
 		{
 			// Open each file that has been dropped into the window.
 			string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 			foreach (string strFileName in s)
-				LoadCharacter(strFileName);
+				await LoadCharacter(strFileName);
 		}
 
 		private void frmMain_DragEnter(object sender, DragEventArgs e)
@@ -509,7 +511,7 @@ namespace Chummer
 		/// <summary>
 		/// Show the Open File dialogue, then load the selected character.
 		/// </summary>
-		private void OpenFile(object sender, EventArgs e)
+		private async void OpenFile(object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Chummer Files (*.chum)|*.chum|All Files (*.*)|*.*";
@@ -519,7 +521,7 @@ namespace Chummer
 			{
 				foreach (string strFileName in openFileDialog.FileNames)
 				{
-					LoadCharacter(strFileName);
+					await LoadCharacter(strFileName);
 				}
 			}
 		}
@@ -694,8 +696,8 @@ namespace Chummer
 			catch (Exception ex)
 			{
 				Log.Error(ex, "Failed to download the newer revision for {File}", strFileName);
-				MessageBox.Show(this, LanguageManager.Instance.GetString("Message_Cloud_Error").Replace("{0}", ex.Message),
-					LanguageManager.Instance.GetString("MessageTitle_Cloud_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(this, LanguageManager.Instance.GetString("Message_CloudLoad_DownloadFailed").Replace("{0}", ex.Message),
+					LanguageManager.Instance.GetString("MessageTitle_CloudLoad_DownloadFailed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 		}

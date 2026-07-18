@@ -771,6 +771,54 @@ Saved locally instead.</text>
 			<text>Don't warn if the server is unreachable when opening a cloud-linked character</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>Could Not Check for a Newer Revision</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>Could not check RunnersPoint for a newer revision of this character: {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>Abort</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>Open Local File</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>Newer Revision Available</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>A newer revision of this character exists on the RunnersPoint server than the one this local file was last synced with.</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>Download Newer</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>Open Local Copy</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>Cancel</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>Download Failed</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>Could not download the newer revision: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>The server rejected this request (401). If this keeps happening, try logging out and pasting a fresh API token.</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud Document Metadata</text>
 		</string>

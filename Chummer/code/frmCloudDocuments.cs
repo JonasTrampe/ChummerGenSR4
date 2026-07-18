@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -36,6 +37,7 @@ namespace Chummer
 			_objActiveCharacter = objActiveCharacter;
 			InitializeComponent();
 			LanguageManager.Instance.Load(GlobalOptions.Instance.Language, this);
+			LayoutActionButtons();
 		}
 
 		private async void frmCloudDocuments_Load(object sender, EventArgs e)
@@ -184,12 +186,25 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Clears a stored login that the server no longer honors (expired or revoked) so the UI doesn't
-		/// just keep silently failing every call - the user needs to log in or paste a new token.
+		/// Handles a 401 from the server. For an OAuth login, SendWithRetryAsync already tried a token
+		/// refresh before this was ever thrown, so a 401 reaching here means the refresh token itself is
+		/// dead - there's nothing left to retry, so the stored login is cleared. A pasted apiToken has no
+		/// refresh path at all, so a 401 for it could just as easily be a transient server hiccup or a
+		/// request needing a scope the token wasn't minted with (e.g. a Shared With Me call against a
+		/// token that only carries documents:* scopes) as an actually-revoked token - wiping it outright
+		/// on every such 401 forced an annoying re-paste of an otherwise perfectly good token. Only an
+		/// explicit Log Out clears an apiToken now.
 		/// </summary>
 		private void HandleAuthExpired()
 		{
-			Log.Warning("RunnersPoint login rejected as expired/revoked (401) - clearing stored login");
+			if (_objAuth.IsApiTokenLogin())
+			{
+				Log.Warning("RunnersPoint API call returned 401 with a stored apiToken login - leaving it in place (see HandleAuthExpired)");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_AuthTokenRejected"));
+				return;
+			}
+
+			Log.Warning("RunnersPoint OAuth login rejected as expired/revoked (401, refresh already attempted) - clearing stored login");
 			_objAuth.Logout();
 			lstDocuments.Items.Clear();
 			UpdateConnectionState();
@@ -206,6 +221,7 @@ namespace Chummer
 			cmdPushCurrent.Enabled = !SharedMode && _objActiveCharacter != null;
 			cmdArchive.Visible = !SharedMode;
 			cmdPushShared.Visible = SharedMode;
+			LayoutActionButtons();
 			await RefreshAsync();
 		}
 
@@ -647,6 +663,7 @@ namespace Chummer
 				cmdArchive.Enabled = false;
 				cmdPushShared.Enabled = false;
 				cmdRevisions.Enabled = false;
+				LayoutActionButtons();
 				return;
 			}
 
@@ -662,6 +679,43 @@ namespace Chummer
 			bool blnArchived = !SharedMode && objTag is RunnersPointDocument objDocument && objDocument.ValidationState == "archived";
 			cmdArchive.Tag = blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive";
 			cmdArchive.Text = LanguageManager.Instance.GetString(blnArchived ? "Button_Cloud_Unarchive" : "Button_Cloud_Archive");
+			LayoutActionButtons();
+		}
+
+		/// <summary>
+		/// Positions the two rows of action buttons left-to-right based on each button's actual
+		/// (AutoSized) width, skipping any that are currently hidden. A fixed pixel grid can't work
+		/// across languages - "Aktuellen Charakter hochladen" or "Aktualización disponible" run far
+		/// longer than the English text the original layout was sized for, and were getting clipped.
+		/// Called after anything that can change a button's text (language load, Archive/Unarchive
+		/// swap) or visibility (My Documents vs. Shared With Me).
+		/// </summary>
+		private void LayoutActionButtons()
+		{
+			const int intMargin = 12;
+			const int intSpacing = 8;
+
+			int intX = intMargin;
+			foreach (Button objButton in new[] { cmdLogout, cmdRefresh, cmdPushCurrent, cmdPushShared, cmdRevisions, cmdDownload })
+			{
+				if (!objButton.Visible)
+					continue;
+				objButton.Location = new Point(intX, objButton.Top);
+				intX += objButton.Width + intSpacing;
+			}
+
+			intX = intMargin;
+			foreach (Button objButton in new[] { cmdArchive, cmdEditMetadata,
+#if DEBUG
+				cmdDebugInfo,
+#endif
+			})
+			{
+				if (!objButton.Visible)
+					continue;
+				objButton.Location = new Point(intX, objButton.Top);
+				intX += objButton.Width + intSpacing;
+			}
 		}
 
 		private void UpdateStatus(string strText)

@@ -773,6 +773,54 @@
 			<text>クラウドに連携したキャラクターを開く際にサーバーに接続できなくても警告しない</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>新しいリビジョンの確認に失敗しました</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>このキャラクターの新しいリビジョンをRunnersPointで確認できませんでした: {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>中止</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>ローカルファイルを開く</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>新しいリビジョンがあります</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>このローカルファイルが最後に同期したものより新しいリビジョンがRunnersPointサーバーに存在します。</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>新しい方をダウンロード</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>ローカルコピーを開く</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>キャンセル</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>ダウンロード失敗</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>新しいリビジョンをダウンロードできませんでした: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>サーバーがこのリクエストを拒否しました(401)。これが続く場合は、ログアウトして新しいAPIトークンを貼り付けてください。</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>クラウドドキュメントのメタデータ</text>
 		</string>

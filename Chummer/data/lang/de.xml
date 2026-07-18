@@ -710,6 +710,54 @@ Stattdessen lokal gespeichert.</text>
 			<text>Nicht warnen, wenn der Server beim Öffnen einer Cloud-verknüpften Figur nicht erreichbar ist</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>Prüfung auf neuere Version fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>RunnersPoint konnte nicht auf eine neuere Version dieser Figur geprüft werden: {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>Lokale Datei öffnen</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>Neuere Version verfügbar</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>Auf dem RunnersPoint-Server existiert eine neuere Version dieser Figur als die, mit der diese lokale Datei zuletzt synchronisiert wurde.</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>Neuere herunterladen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>Lokale Kopie öffnen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>Download fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>Die neuere Version konnte nicht heruntergeladen werden: {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>Der Server hat diese Anfrage abgelehnt (401). Falls dies weiterhin auftritt, melden Sie sich ab und fügen Sie einen neuen API-Token ein.</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud-Dokument-Metadaten</text>
 		</string>

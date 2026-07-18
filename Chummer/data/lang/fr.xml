@@ -767,6 +767,54 @@ Enregistré localement à la place.</text>
 			<text>Ne pas avertir si le serveur est injoignable lors de l'ouverture d'un personnage lié au cloud</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_CheckFailed</key>
+			<text>Impossible de vérifier une révision plus récente</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_CheckFailed</key>
+			<text>Impossible de vérifier auprès de RunnersPoint une révision plus récente de ce personnage : {0}</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Abort</key>
+			<text>Abandonner</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalFile</key>
+			<text>Ouvrir le fichier local</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_NewerRevision</key>
+			<text>Révision plus récente disponible</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_NewerRevision</key>
+			<text>Une révision plus récente de ce personnage existe sur le serveur RunnersPoint que celle avec laquelle ce fichier local a été synchronisé pour la dernière fois.</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_DownloadNewer</key>
+			<text>Télécharger la plus récente</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_OpenLocalCopy</key>
+			<text>Ouvrir la copie locale</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_Cancel</key>
+			<text>Annuler</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_DownloadFailed</key>
+			<text>Échec du téléchargement</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DownloadFailed</key>
+			<text>Impossible de télécharger la révision plus récente : {0}</text>
+		</string>
+		<string>
+			<key>String_Cloud_AuthTokenRejected</key>
+			<text>Le serveur a rejeté cette requête (401). Si cela persiste, déconnectez-vous et collez un nouveau jeton API.</text>
+		</string>
+		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Métadonnées du document cloud</text>
 		</string>

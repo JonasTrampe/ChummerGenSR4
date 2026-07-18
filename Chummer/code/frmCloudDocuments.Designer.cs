@@ -154,7 +154,7 @@ namespace Chummer
 			this.lstDocuments.HideSelection = false;
 			this.lstDocuments.Location = new System.Drawing.Point(12, 116);
 			this.lstDocuments.Name = "lstDocuments";
-			this.lstDocuments.Size = new System.Drawing.Size(560, 300);
+			this.lstDocuments.Size = new System.Drawing.Size(736, 300);
 			this.lstDocuments.TabIndex = 9;
 			this.lstDocuments.SelectedIndexChanged += new System.EventHandler(this.lstDocuments_SelectedIndexChanged);
 			this.lstDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -183,6 +183,9 @@ namespace Chummer
 			//
 			// cmdLogout
 			//
+			this.cmdLogout.AutoSize = true;
+			this.cmdLogout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdLogout.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdLogout.Location = new System.Drawing.Point(12, 424);
 			this.cmdLogout.Name = "cmdLogout";
 			this.cmdLogout.Size = new System.Drawing.Size(90, 27);
@@ -194,6 +197,9 @@ namespace Chummer
 			//
 			// cmdRefresh
 			//
+			this.cmdRefresh.AutoSize = true;
+			this.cmdRefresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdRefresh.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdRefresh.Location = new System.Drawing.Point(108, 424);
 			this.cmdRefresh.Name = "cmdRefresh";
 			this.cmdRefresh.Size = new System.Drawing.Size(90, 27);
@@ -205,6 +211,9 @@ namespace Chummer
 			//
 			// cmdPushCurrent
 			//
+			this.cmdPushCurrent.AutoSize = true;
+			this.cmdPushCurrent.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdPushCurrent.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdPushCurrent.Location = new System.Drawing.Point(204, 424);
 			this.cmdPushCurrent.Name = "cmdPushCurrent";
 			this.cmdPushCurrent.Size = new System.Drawing.Size(150, 27);
@@ -216,6 +225,9 @@ namespace Chummer
 			//
 			// cmdDownload
 			//
+			this.cmdDownload.AutoSize = true;
+			this.cmdDownload.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdDownload.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdDownload.Location = new System.Drawing.Point(456, 424);
 			this.cmdDownload.Name = "cmdDownload";
 			this.cmdDownload.Size = new System.Drawing.Size(115, 27);
@@ -227,6 +239,9 @@ namespace Chummer
 			//
 			// cmdArchive
 			//
+			this.cmdArchive.AutoSize = true;
+			this.cmdArchive.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdArchive.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdArchive.Location = new System.Drawing.Point(12, 458);
 			this.cmdArchive.Name = "cmdArchive";
 			this.cmdArchive.Size = new System.Drawing.Size(115, 27);
@@ -238,6 +253,9 @@ namespace Chummer
 			//
 			// cmdPushShared
 			//
+			this.cmdPushShared.AutoSize = true;
+			this.cmdPushShared.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdPushShared.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdPushShared.Location = new System.Drawing.Point(133, 458);
 			this.cmdPushShared.Name = "cmdPushShared";
 			this.cmdPushShared.Size = new System.Drawing.Size(180, 27);
@@ -250,6 +268,9 @@ namespace Chummer
 			//
 			// cmdEditMetadata
 			//
+			this.cmdEditMetadata.AutoSize = true;
+			this.cmdEditMetadata.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdEditMetadata.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdEditMetadata.Location = new System.Drawing.Point(441, 458);
 			this.cmdEditMetadata.Name = "cmdEditMetadata";
 			this.cmdEditMetadata.Size = new System.Drawing.Size(115, 27);
@@ -261,6 +282,9 @@ namespace Chummer
 			//
 			// cmdRevisions
 			//
+			this.cmdRevisions.AutoSize = true;
+			this.cmdRevisions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdRevisions.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdRevisions.Location = new System.Drawing.Point(360, 424);
 			this.cmdRevisions.Name = "cmdRevisions";
 			this.cmdRevisions.Size = new System.Drawing.Size(90, 27);
@@ -273,6 +297,9 @@ namespace Chummer
 #if DEBUG
 			// cmdDebugInfo
 			//
+			this.cmdDebugInfo.AutoSize = true;
+			this.cmdDebugInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
+			this.cmdDebugInfo.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
 			this.cmdDebugInfo.Location = new System.Drawing.Point(320, 458);
 			this.cmdDebugInfo.Name = "cmdDebugInfo";
 			this.cmdDebugInfo.Size = new System.Drawing.Size(115, 27);
@@ -296,7 +323,7 @@ namespace Chummer
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(584, 525);
+			this.ClientSize = new System.Drawing.Size(760, 525);
 #if DEBUG
 			this.Controls.Add(this.cmdDebugInfo);
 #endif
@@ -319,7 +346,7 @@ namespace Chummer
 			this.Controls.Add(this.rdoAuthApiToken);
 			this.Controls.Add(this.rdoSharedWithMe);
 			this.Controls.Add(this.rdoMyDocuments);
-			this.MinimumSize = new System.Drawing.Size(500, 454);
+			this.MinimumSize = new System.Drawing.Size(650, 454);
 			this.Name = "frmCloudDocuments";
 			this.Tag = "Title_CloudDocuments";
 			this.Text = "Cloud Documents";
