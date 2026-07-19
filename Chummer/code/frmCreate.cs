@@ -8871,16 +8871,19 @@ namespace Chummer
 			// Locate the selected piece.
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponMod objMod = new WeaponMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode);
+			objMod.Create(objXmlMod);
 			objMod.Rating = frmPickVehicleMod.SelectedRating;
 			objMod.Parent = objWeapon;
 
 			objWeapon.WeaponMods.Add(objMod);
-			
-			objNode.Text = objMod.DisplayName;
-			objNode.ContextMenuStrip = cmsWeaponMod;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+				ContextMenuStrip = cmsWeaponMod,
+			};
 
 			treWeapons.SelectedNode.Nodes.Add(objNode);
 			treWeapons.SelectedNode.Expand();
@@ -9271,15 +9274,18 @@ namespace Chummer
 			// Locate the selected piece.
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponMod objMod = new WeaponMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode);
+			objMod.Create(objXmlMod);
 			objMod.Rating = frmPickVehicleMod.SelectedRating;
 			objMod.Parent = objWeapon;
 
 			objWeapon.WeaponMods.Add(objMod);
-			objNode.Text = objMod.DisplayName;
-			objNode.ContextMenuStrip = cmsVehicleWeaponMod;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+				ContextMenuStrip = cmsVehicleWeaponMod,
+			};
 
 			treVehicles.SelectedNode.Nodes.Add(objNode);
 			treVehicles.SelectedNode.Expand();
@@ -21399,10 +21405,14 @@ namespace Chummer
 						{
 							XmlNode objXmlModNode = objXmlWeaponDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlMod["name"].InnerText + "\"]");
 							WeaponMod objMod = new WeaponMod(_objCharacter);
-							TreeNode objModNode = new TreeNode();
-							objMod.Create(objXmlModNode, objModNode);
-							objModNode.ContextMenuStrip = cmsWeaponMod;
+							objMod.Create(objXmlModNode);
 							objMod.Parent = objWeapon;
+							TreeNode objModNode = new TreeNode
+							{
+								Text = objMod.DisplayName,
+								Tag = objMod.InternalId,
+								ContextMenuStrip = cmsWeaponMod,
+							};
 
 							objWeapon.WeaponMods.Add(objMod);
 
@@ -21765,10 +21775,14 @@ namespace Chummer
 								{
 									XmlNode objXmlModNode = objXmlWeaponDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlMod["name"].InnerText + "\"]");
 									WeaponMod objMod = new WeaponMod(_objCharacter);
-									TreeNode objModNode = new TreeNode();
-									objMod.Create(objXmlModNode, objModNode);
-									objModNode.ContextMenuStrip = cmsVehicleWeaponMod;
+									objMod.Create(objXmlModNode);
 									objMod.Parent = objWeapon;
+									TreeNode objModNode = new TreeNode
+									{
+										Text = objMod.DisplayName,
+										Tag = objMod.InternalId,
+										ContextMenuStrip = cmsVehicleWeaponMod,
+									};
 
 									objWeapon.WeaponMods.Add(objMod);
 

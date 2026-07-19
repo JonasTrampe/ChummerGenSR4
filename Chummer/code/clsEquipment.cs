@@ -4419,19 +4419,22 @@ namespace Chummer
 				XmlNodeList objXmlModList = objXmlWeapon.SelectNodes("mods/mod");
 				foreach (XmlNode objXmlWeaponMod in objXmlModList)
 				{
-					TreeNode objModNode = new TreeNode();
 					XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlWeaponMod.InnerText + "\"]");
 					WeaponMod objMod = new WeaponMod(_objCharacter);
-					objMod.Create(objXmlMod, objModNode);
+					objMod.Create(objXmlMod);
 					objMod.IncludedInWeapon = true;
 					objMod.Parent = this;
-					objModNode.ContextMenuStrip = cmsWeaponMod;
 					_lstWeaponMods.Add(objMod);
 
 					if (objXmlWeaponMod.Attributes["rating"] != null)
 						objMod.Rating = Convert.ToInt32(objXmlWeaponMod.Attributes["rating"].InnerText);
 
-					objModNode.Text = objMod.DisplayName;
+					TreeNode objModNode = new TreeNode
+					{
+						Text = objMod.DisplayName,
+						Tag = objMod.InternalId,
+						ContextMenuStrip = cmsWeaponMod,
+					};
 
 					objNode.Nodes.Add(objModNode);
 					objNode.Expand();
@@ -7991,10 +7994,9 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Weapon Modification from an XmlNode and return the TreeNodes for it.
+		/// Create a Weapon Modification from an XmlNode.
 		/// <param name="objXmlMod">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		public void Create(XmlNode objXmlMod, TreeNode objNode)
+		public void Create(XmlNode objXmlMod)
 		{
 			_strName = objXmlMod["name"].InnerText;
 			_intSlots = Convert.ToInt32(objXmlMod["slots"].InnerText);
@@ -8112,8 +8114,6 @@ namespace Chummer
 				}
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
@@ -14764,10 +14764,14 @@ namespace Chummer
 						{
 							XmlNode objXmlModNode = objXmlWeaponDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlMod["name"].InnerText + "\"]");
 							WeaponMod objMod = new WeaponMod(_objCharacter);
-							TreeNode objModNode = new TreeNode();
-							objMod.Create(objXmlModNode, objModNode);
+							objMod.Create(objXmlModNode);
 							objMod.Cost = "0";
-							objModNode.ContextMenuStrip = cmsVehicleWeaponMod;
+							TreeNode objModNode = new TreeNode
+							{
+								Text = objMod.DisplayName,
+								Tag = objMod.InternalId,
+								ContextMenuStrip = cmsVehicleWeaponMod,
+							};
 
 							objWeapon.WeaponMods.Add(objMod);
 

@@ -10068,9 +10068,8 @@ namespace Chummer
 			// Locate the selected piece.
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponMod objMod = new WeaponMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode);
+			objMod.Create(objXmlMod);
 			objMod.Rating = frmPickVehicleMod.SelectedRating;
 			objMod.Parent = objWeapon;
 
@@ -10082,6 +10081,12 @@ namespace Chummer
 					tsWeaponAddModification_Click(sender, e);
 				return;
 			}
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+			};
 
 			// Check the item's Cost and make sure the character can afford it.
 			int intOriginalCost = objWeapon.TotalCost;
@@ -10719,9 +10724,8 @@ namespace Chummer
 			// Locate the selected piece.
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponMod objMod = new WeaponMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode);
+			objMod.Create(objXmlMod);
 			objMod.Rating = frmPickVehicleMod.SelectedRating;
 			objMod.Parent = objWeapon;
 
@@ -10733,6 +10737,12 @@ namespace Chummer
 					tsVehicleAddWeaponModification_Click(sender, e);
 				return;
 			}
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+			};
 
 			// Check the item's Cost and make sure the character can afford it.
 			int intOriginalCost = objWeapon.TotalCost;
