@@ -192,9 +192,8 @@ namespace Chummer
 				Application.DoEvents();
 				try
 				{
-					TreeNode objTempNode = new TreeNode();
 					Weapon objTemp = new Weapon(objCharacter);
-					objTemp.Create(objXmlGear, objCharacter, objTempNode, null, null, null);
+					objTemp.Create(objXmlGear, objCharacter);
 					try
 					{
 						int objValue = objTemp.TotalCost;

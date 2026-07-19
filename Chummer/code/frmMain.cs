@@ -222,9 +222,8 @@ namespace Chummer
 			{
 				XmlDocument objXmlDocument = XmlManager.Instance.Load("weapons.xml");
 				XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"Unarmed Attack\"]");
-				TreeNode objDummy = new TreeNode();
 				Weapon objWeapon = new Weapon(objCharacter);
-				objWeapon.Create(objXmlWeapon, objCharacter, objDummy, null, null, null);
+				objWeapon.Create(objXmlWeapon, objCharacter);
 				objCharacter.Weapons.Add(objWeapon);
 			}
 			catch
@@ -491,9 +490,8 @@ namespace Chummer
 			{
 				XmlDocument objXmlDocument = XmlManager.Instance.Load("weapons.xml");
 				XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"Unarmed Attack\"]");
-				TreeNode objDummy = new TreeNode();
 				Weapon objWeapon = new Weapon(objCharacter);
-				objWeapon.Create(objXmlWeapon, objCharacter, objDummy, null, null, null);
+				objWeapon.Create(objXmlWeapon, objCharacter);
 				objCharacter.Weapons.Add(objWeapon);
 			}
 			catch

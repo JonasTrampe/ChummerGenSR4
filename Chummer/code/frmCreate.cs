@@ -6399,9 +6399,10 @@ namespace Chummer
 
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + frmPickWeapon.SelectedWeapon + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			Weapon objWeapon = new Weapon(_objCharacter);
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
+			TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+
 			_objCharacter.Weapons.Add(objWeapon);
 
 			objNode.ContextMenuStrip = cmsWeapon;
@@ -9131,9 +9132,10 @@ namespace Chummer
 
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + frmPickWeapon.SelectedWeapon + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			Weapon objWeapon = new Weapon(_objCharacter);
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
+			TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+
 			objWeapon.VehicleMounted = true;
 
 			objMod.Weapons.Add(objWeapon);
@@ -9332,9 +9334,10 @@ namespace Chummer
 
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + frmPickWeapon.SelectedWeapon + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			Weapon objWeapon = new Weapon(_objCharacter);
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
+			TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+
 			objWeapon.VehicleMounted = true;
 			objWeapon.IsUnderbarrelWeapon = true;
 			objSelectedWeapon.UnderbarrelWeapons.Add(objWeapon);
@@ -10024,10 +10027,11 @@ namespace Chummer
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("weapons.xml");
 
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + frmPickWeapon.SelectedWeapon + "\"]");
-
-			TreeNode objNode = new TreeNode();
+			
 			Weapon objWeapon = new Weapon(_objCharacter);
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
+			TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+
 			objWeapon.IsUnderbarrelWeapon = true;
 			objSelectedWeapon.UnderbarrelWeapons.Add(objWeapon);
 
@@ -21378,8 +21382,9 @@ namespace Chummer
 					XmlNode objXmlWeaponNode = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlWeapon["name"].InnerText + "\"]");
 
 					Weapon objWeapon = new Weapon(_objCharacter);
-					TreeNode objNode = new TreeNode();
-					objWeapon.Create(objXmlWeaponNode, _objCharacter, objNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod, blnCreateChildren);
+					objWeapon.Create(objXmlWeaponNode, _objCharacter, blnCreateChildren);
+					TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+
 					_objCharacter.Weapons.Add(objWeapon);
 
 					// Look for Weapon Accessories.
@@ -21441,8 +21446,10 @@ namespace Chummer
 						XmlNode objXmlUnderbarrelNode = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlWeapon["underbarrel"].InnerText + "\"]");
 
 						Weapon objUnderbarrelWeapon = new Weapon(_objCharacter);
-						TreeNode objUnderbarrelNode = new TreeNode();
-						objUnderbarrelWeapon.Create(objXmlUnderbarrelNode, _objCharacter, objUnderbarrelNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod, blnCreateChildren);
+
+						objUnderbarrelWeapon.Create(objXmlUnderbarrelNode, _objCharacter, blnCreateChildren);
+						TreeNode objUnderbarrelNode = _objFunctions.BuildWeaponNode(objWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+
 						objWeapon.UnderbarrelWeapons.Add(objUnderbarrelWeapon);
 						objNode.Nodes.Add(objUnderbarrelNode);
 						objNode.Expand();
@@ -21737,7 +21744,9 @@ namespace Chummer
 							Weapon objWeapon = new Weapon(_objCharacter);
 
 							XmlNode objXmlWeaponNode = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlWeapon["name"].InnerText + "\"]");
-							objWeapon.Create(objXmlWeaponNode, _objCharacter, objWeaponNode, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod, blnCreateChildren);
+							objWeapon.Create(objXmlWeaponNode, _objCharacter, blnCreateChildren);
+							TreeNode objUnderbarrelNode = _objFunctions.BuildWeaponNode(objWeapon, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+
 							objWeapon.VehicleMounted = true;
 							
 							// Find the first Weapon Mount in the Vehicle.

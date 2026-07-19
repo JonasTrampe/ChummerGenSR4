@@ -113,8 +113,7 @@ namespace Chummer
         	XmlNode objXmlWeapon = _objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + lstWeapon.SelectedValue + "\"]");
 
 			Weapon objWeapon = new Weapon(_objCharacter);
-			TreeNode objNode = new TreeNode();
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, null, null, null);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
 
 			lblWeaponReach.Text = objWeapon.TotalReach.ToString();
 			lblWeaponDamage.Text = objWeapon.CalculatedDamage();
