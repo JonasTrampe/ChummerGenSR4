@@ -4396,12 +4396,16 @@ namespace Chummer
 				foreach (XmlNode objXmlWeaponAccessory in objXmlAccessoryList)
 				{
 					XmlNode objXmlAccessory = objXmlDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + objXmlWeaponAccessory.InnerText + "\"]");
-					TreeNode objAccessoryNode = new TreeNode();
 					WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-					objAccessory.Create(objXmlAccessory, objAccessoryNode, objXmlAccessory["mount"].InnerText);
+					objAccessory.Create(objXmlAccessory, objXmlAccessory["mount"].InnerText);
 					objAccessory.IncludedInWeapon = true;
 					objAccessory.Parent = this;
-					objAccessoryNode.ContextMenuStrip = cmsWeaponAccessory;
+					TreeNode objAccessoryNode = new TreeNode
+					{
+						Text = objAccessory.DisplayName,
+						Tag = objAccessory.InternalId,
+						ContextMenuStrip = cmsWeaponAccessory,
+					};
 					_lstAccessories.Add(objAccessory);
 
 					objNode.Nodes.Add(objAccessoryNode);
@@ -7299,11 +7303,10 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Weapon Accessory from an XmlNode and return the TreeNodes for it.
+		/// Create a Weapon Accessory from an XmlNode.
 		/// <param name="objXmlAccessory">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="strMount">Mount slot that the Weapon Accessory will consume.</param>
-		public void Create(XmlNode objXmlAccessory, TreeNode objNode, string strMount)
+		public void Create(XmlNode objXmlAccessory, string strMount)
 		{
 			_strName = objXmlAccessory["name"].InnerText;
 			_strMount = strMount;
@@ -7340,8 +7343,6 @@ namespace Chummer
 				}
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
@@ -14737,13 +14738,17 @@ namespace Chummer
 						{
 							XmlNode objXmlAccessoryNode = objXmlWeaponDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + objXmlAccessory["name"].InnerText + "\"]");
 							WeaponAccessory objMod = new WeaponAccessory(_objCharacter);
-							TreeNode objModNode = new TreeNode();
 							string strMount = "";
 							if (objXmlAccessory["mount"] != null)
 								strMount = objXmlAccessory["mount"].InnerText;
-							objMod.Create(objXmlAccessoryNode, objModNode, strMount);
+							objMod.Create(objXmlAccessoryNode, strMount);
 							objMod.Cost = "0";
-							objModNode.ContextMenuStrip = cmsVehicleWeaponAccessory;
+							TreeNode objModNode = new TreeNode
+							{
+								Text = objMod.DisplayName,
+								Tag = objMod.InternalId,
+								ContextMenuStrip = cmsVehicleWeaponAccessory,
+							};
 
 							objWeapon.WeaponAccessories.Add(objMod);
 

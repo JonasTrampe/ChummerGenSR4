@@ -9937,10 +9937,15 @@ namespace Chummer
 			// Locate the selected piece.
 			objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + frmPickWeaponAccessory.SelectedAccessory + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-			objAccessory.Create(objXmlWeapon, objNode, frmPickWeaponAccessory.SelectedMount);
+			objAccessory.Create(objXmlWeapon, frmPickWeaponAccessory.SelectedMount);
 			objAccessory.Parent = objWeapon;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objAccessory.DisplayName,
+				Tag = objAccessory.InternalId,
+			};
 
 			// Check the item's Cost and make sure the character can afford it.
 			int intOriginalCost = objWeapon.TotalCost;
@@ -10595,10 +10600,15 @@ namespace Chummer
 			// Locate the selected piece.
 			objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + frmPickWeaponAccessory.SelectedAccessory + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-			objAccessory.Create(objXmlWeapon, objNode, frmPickWeaponAccessory.SelectedMount);
+			objAccessory.Create(objXmlWeapon, frmPickWeaponAccessory.SelectedMount);
 			objAccessory.Parent = objWeapon;
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objAccessory.DisplayName,
+				Tag = objAccessory.InternalId,
+			};
 
 			// Check the item's Cost and make sure the character can afford it.
 			int intOriginalCost = objWeapon.TotalCost;

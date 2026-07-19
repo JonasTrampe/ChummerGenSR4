@@ -8792,13 +8792,17 @@ namespace Chummer
 			// Locate the selected piece.
 			objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + frmPickWeaponAccessory.SelectedAccessory + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-			objAccessory.Create(objXmlWeapon, objNode, frmPickWeaponAccessory.SelectedMount);
+			objAccessory.Create(objXmlWeapon, frmPickWeaponAccessory.SelectedMount);
 			objAccessory.Parent = objWeapon;
 			objWeapon.WeaponAccessories.Add(objAccessory);
 
-			objNode.ContextMenuStrip = cmsWeaponAccessory;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objAccessory.DisplayName,
+				Tag = objAccessory.InternalId,
+				ContextMenuStrip = cmsWeaponAccessory,
+			};
 			treWeapons.SelectedNode.Nodes.Add(objNode);
 			treWeapons.SelectedNode.Expand();
 
@@ -9195,13 +9199,17 @@ namespace Chummer
 			// Locate the selected piece.
 			objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + frmPickWeaponAccessory.SelectedAccessory + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			WeaponAccessory objAccessory = new WeaponAccessory(_objCharacter);
-			objAccessory.Create(objXmlWeapon, objNode, frmPickWeaponAccessory.SelectedMount);
+			objAccessory.Create(objXmlWeapon, frmPickWeaponAccessory.SelectedMount);
 			objAccessory.Parent = objWeapon;
 			objWeapon.WeaponAccessories.Add(objAccessory);
 
-			objNode.ContextMenuStrip = cmsVehicleWeaponAccessory;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objAccessory.DisplayName,
+				Tag = objAccessory.InternalId,
+				ContextMenuStrip = cmsVehicleWeaponAccessory,
+			};
 			treVehicles.SelectedNode.Nodes.Add(objNode);
 			treVehicles.SelectedNode.Expand();
 
@@ -21361,12 +21369,16 @@ namespace Chummer
 						{
 							XmlNode objXmlAccessoryNode = objXmlWeaponDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + objXmlAccessory["name"].InnerText + "\"]");
 							WeaponAccessory objMod = new WeaponAccessory(_objCharacter);
-							TreeNode objModNode = new TreeNode();
 							string strMount = "";
 							if (objXmlAccessory["mount"] != null)
 								strMount = objXmlAccessory["mount"].InnerText;
-							objMod.Create(objXmlAccessoryNode, objModNode, strMount);
-							objModNode.ContextMenuStrip = cmsWeaponAccessory;
+							objMod.Create(objXmlAccessoryNode, strMount);
+							TreeNode objModNode = new TreeNode
+							{
+								Text = objMod.DisplayName,
+								Tag = objMod.InternalId,
+								ContextMenuStrip = cmsWeaponAccessory,
+							};
 							objMod.Parent = objWeapon;
 
 							objWeapon.WeaponAccessories.Add(objMod);
@@ -21727,12 +21739,16 @@ namespace Chummer
 								{
 									XmlNode objXmlAccessoryNode = objXmlWeaponDocument.SelectSingleNode("/chummer/accessories/accessory[name = \"" + objXmlAccessory["name"].InnerText + "\"]");
 									WeaponAccessory objMod = new WeaponAccessory(_objCharacter);
-									TreeNode objModNode = new TreeNode();
 									string strMount = "";
 									if (objXmlAccessory["mount"] != null)
 										strMount = objXmlAccessory["mount"].InnerText;
-									objMod.Create(objXmlAccessoryNode, objModNode, strMount);
-									objModNode.ContextMenuStrip = cmsWeaponAccessory;
+									objMod.Create(objXmlAccessoryNode, strMount);
+									TreeNode objModNode = new TreeNode
+									{
+										Text = objMod.DisplayName,
+										Tag = objMod.InternalId,
+										ContextMenuStrip = cmsWeaponAccessory,
+									};
 									objMod.Parent = objWeapon;
 
 									objWeapon.WeaponAccessories.Add(objMod);
