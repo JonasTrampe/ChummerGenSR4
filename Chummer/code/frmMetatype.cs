@@ -521,7 +521,6 @@ namespace Chummer
 					foreach (XmlNode objXmlQualityItem in objXmlMetatype.SelectNodes("qualities/positive/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -532,7 +531,7 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 						
 						// Add any created Weapons to the character.
@@ -542,7 +541,6 @@ namespace Chummer
 					foreach (XmlNode objXmlQualityItem in objXmlMetatype.SelectNodes("qualities/negative/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -553,7 +551,7 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 
 						// Add any created Weapons to the character.
@@ -574,7 +572,6 @@ namespace Chummer
 					foreach (XmlNode objXmlQualityItem in objXmlMetavariant.SelectNodes("qualities/positive/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -585,7 +582,7 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 
 						// Add any created Weapons to the character.
@@ -595,7 +592,6 @@ namespace Chummer
 					foreach (XmlNode objXmlQualityItem in objXmlMetavariant.SelectNodes("qualities/negative/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -606,7 +602,7 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 
 						// Add any created Weapons to the character.

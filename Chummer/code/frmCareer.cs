@@ -8519,13 +8519,11 @@ namespace Chummer
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("qualities.xml");
 			XmlNode objXmlQuality = objXmlDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + frmPickQuality.SelectedQuality + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			List<Weapon> objWeapons = new List<Weapon>();
 			List<TreeNode> objWeaponNodes = new List<TreeNode>();
 			Quality objQuality = new Quality(_objCharacter);
 
-			objQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objNode, objWeapons, objWeaponNodes);
-			objNode.ContextMenuStrip = cmsQuality;
+			objQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes);
 			if (objQuality.InternalId == Guid.Empty.ToString())
 				return;
 
@@ -8583,6 +8581,13 @@ namespace Chummer
 
 			if (blnAddItem)
 			{
+				TreeNode objNode = new TreeNode
+				{
+					Text = objQuality.DisplayName,
+					Tag = objQuality.InternalId,
+					ContextMenuStrip = cmsQuality,
+				};
+
 				// Add the Quality to the appropriate parent node.
 				if (objQuality.Type == QualityType.Positive)
 				{
@@ -8631,11 +8636,16 @@ namespace Chummer
 
 						if (blnAddQuality)
 						{
-							TreeNode objAddQualityNode = new TreeNode();
 							List<Weapon> objAddWeapons = new List<Weapon>();
 							List<TreeNode> objAddWeaponNodes = new List<TreeNode>();
 							Quality objAddQuality = new Quality(_objCharacter);
-							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objAddQualityNode, objAddWeapons, objAddWeaponNodes, strForceValue);
+							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objAddWeapons, objAddWeaponNodes, strForceValue);
+
+							TreeNode objAddQualityNode = new TreeNode
+							{
+								Text = objAddQuality.DisplayName,
+								Tag = objAddQuality.InternalId,
+							};
 
 							if (objAddQuality.Type == QualityType.Positive)
 							{
@@ -8914,13 +8924,11 @@ namespace Chummer
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("qualities.xml");
 			XmlNode objXmlQuality = objXmlDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + frmPickQuality.SelectedQuality + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			List<Weapon> objWeapons = new List<Weapon>();
 			List<TreeNode> objWeaponNodes = new List<TreeNode>();
 			Quality objNewQuality = new Quality(_objCharacter);
 
-			objNewQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objNode, objWeapons, objWeaponNodes);
-			objNode.ContextMenuStrip = cmsQuality;
+			objNewQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes);
 			if (objQuality.InternalId == Guid.Empty.ToString())
 				return;
 
@@ -8981,6 +8989,13 @@ namespace Chummer
 
 			if (blnAddItem)
 			{
+				TreeNode objNode = new TreeNode
+				{
+					Text = objNewQuality.DisplayName,
+					Tag = objNewQuality.InternalId,
+					ContextMenuStrip = cmsQuality,
+				};
+
 				// Add the Quality to the appropriate parent node.
 				treQualities.SelectedNode.Remove();
 				if (objNewQuality.Type == QualityType.Positive)
@@ -9037,11 +9052,16 @@ namespace Chummer
 
 						if (blnAddQuality)
 						{
-							TreeNode objAddQualityNode = new TreeNode();
 							List<Weapon> objAddWeapons = new List<Weapon>();
 							List<TreeNode> objAddWeaponNodes = new List<TreeNode>();
 							Quality objAddQuality = new Quality(_objCharacter);
-							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objAddQualityNode, objWeapons, objWeaponNodes, strForceValue);
+							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes, strForceValue);
+
+							TreeNode objAddQualityNode = new TreeNode
+							{
+								Text = objAddQuality.DisplayName,
+								Tag = objAddQuality.InternalId,
+							};
 
 							if (objAddQuality.Type == QualityType.Positive)
 							{
@@ -14123,16 +14143,20 @@ namespace Chummer
 					break;
 				case KarmaExpenseType.RemoveQuality:
 					// Add the Quality back to the character.
-					TreeNode objQualityNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 
 					Quality objAddQuality = new Quality(_objCharacter);
 					XmlDocument objXmlQualityDocument = XmlManager.Instance.Load("qualities.xml");
 					XmlNode objXmlQualityNode = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objEntry.Undo.ObjectId + "\"]");
-					objAddQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objQualityNode, objWeapons, objWeaponNodes, objEntry.Undo.Extra);
+					objAddQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes, objEntry.Undo.Extra);
 
-					objQualityNode.ContextMenuStrip = cmsQuality;
+					TreeNode objQualityNode = new TreeNode
+					{
+						Text = objAddQuality.DisplayName,
+						Tag = objAddQuality.InternalId,
+						ContextMenuStrip = cmsQuality,
+					};
 
 					// Add the Quality to the appropriate parent node.
 					if (objAddQuality.Type == QualityType.Positive)

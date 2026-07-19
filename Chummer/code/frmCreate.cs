@@ -7787,13 +7787,11 @@ namespace Chummer
 			XmlDocument objXmlDocument = XmlManager.Instance.Load("qualities.xml");
 			XmlNode objXmlQuality = objXmlDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + frmPickQuality.SelectedQuality + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			List<Weapon> objWeapons = new List<Weapon>();
 			List<TreeNode> objWeaponNodes = new List<TreeNode>();
 			Quality objQuality = new Quality(_objCharacter);
 
-			objQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objNode, objWeapons, objWeaponNodes);
-			objNode.ContextMenuStrip = cmsQuality;
+			objQuality.Create(objXmlQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes);
 			if (objQuality.InternalId == Guid.Empty.ToString())
 				return;
 
@@ -7899,6 +7897,13 @@ namespace Chummer
 
 			if (blnAddItem)
 			{
+				TreeNode objNode = new TreeNode
+				{
+					Text = objQuality.DisplayName,
+					Tag = objQuality.InternalId,
+					ContextMenuStrip = cmsQuality,
+				};
+
 				// Add the Quality to the appropriate parent node.
 				if (objQuality.Type == QualityType.Positive)
 				{
@@ -7947,11 +7952,16 @@ namespace Chummer
 
 						if (blnAddQuality)
 						{
-							TreeNode objAddQualityNode = new TreeNode();
 							List<Weapon> objAddWeapons = new List<Weapon>();
 							List<TreeNode> objAddWeaponNodes = new List<TreeNode>();
 							Quality objAddQuality = new Quality(_objCharacter);
-							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objAddQualityNode, objWeapons, objWeaponNodes, strForceValue);
+							objAddQuality.Create(objXmlSelectedQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes, strForceValue);
+
+							TreeNode objAddQualityNode = new TreeNode
+							{
+								Text = objAddQuality.DisplayName,
+								Tag = objAddQuality.InternalId,
+							};
 
 							if (objAddQuality.Type == QualityType.Positive)
 							{
@@ -8079,11 +8089,10 @@ namespace Chummer
 				if (objXmlMetatypeQuality["bonus"] != null)
 					objXmlMetatypeQuality["bonus"].InnerText = "";
 
-				TreeNode objEmptyNode = new TreeNode();
 				List<Weapon> objWeapons = new List<Weapon>();
 				List<TreeNode> objWeaponNodes = new List<TreeNode>();
 				Quality objReplaceQuality = new Quality(_objCharacter);
-				objReplaceQuality.Create(objXmlMetatypeQuality, _objCharacter, QualitySource.Selected, objEmptyNode, objWeapons, objWeaponNodes);
+				objReplaceQuality.Create(objXmlMetatypeQuality, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes);
 				objReplaceQuality.BP *= -1;
 				// If a Negative Quality is being bought off, the replacement one is Positive.
 				if (objQuality.Type == QualityType.Positive)
@@ -20613,7 +20622,6 @@ namespace Chummer
 				{
 					XmlNode objXmlQualityNode = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQuality.InnerText + "\"]");
 
-					TreeNode objNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 					Quality objQuality = new Quality(_objCharacter);
@@ -20622,9 +20630,14 @@ namespace Chummer
 					if (objXmlQuality.Attributes["select"] != null)
 						strForceValue = objXmlQuality.Attributes["select"].InnerText;
 
-					objQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objNode, objWeapons, objWeaponNodes, strForceValue);
+					objQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes, strForceValue);
 					_objCharacter.Qualities.Add(objQuality);
 
+					TreeNode objNode = new TreeNode
+					{
+						Text = objQuality.DisplayName,
+						Tag = objQuality.InternalId
+					};
 					treQualities.Nodes[0].Nodes.Add(objNode);
 					treQualities.Nodes[0].Expand();
 
@@ -20646,7 +20659,6 @@ namespace Chummer
 				{
 					XmlNode objXmlQualityNode = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQuality.InnerText + "\"]");
 
-					TreeNode objNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 					Quality objQuality = new Quality(_objCharacter);
@@ -20655,9 +20667,14 @@ namespace Chummer
 					if (objXmlQuality.Attributes["select"] != null)
 						strForceValue = objXmlQuality.Attributes["select"].InnerText;
 
-					objQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objNode, objWeapons, objWeaponNodes, strForceValue);
+					objQuality.Create(objXmlQualityNode, _objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes, strForceValue);
 					_objCharacter.Qualities.Add(objQuality);
 
+					TreeNode objNode = new TreeNode
+					{
+						Text = objQuality.DisplayName,
+						Tag = objQuality.InternalId
+					};
 					treQualities.Nodes[1].Nodes.Add(objNode);
 					treQualities.Nodes[1].Expand();
 

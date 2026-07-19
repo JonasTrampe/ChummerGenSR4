@@ -6073,8 +6073,7 @@ namespace Chummer
 					Quality objQuality = new Quality(this);
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
-					TreeNode objNode = new TreeNode();
-					objQuality.Create(objXmlQualityNode, this, QualitySource.Selected, objNode, objWeapons, objWeaponNodes, strForceValue);
+					objQuality.Create(objXmlQualityNode, this, QualitySource.Selected, objWeapons, objWeaponNodes, strForceValue);
 					_lstQualities.Add(objQuality);
 
 					// Add any created Weapons to the character.
@@ -6109,7 +6108,6 @@ namespace Chummer
 				if (!blnFound)
 				{
 					string strForceValue = "";
-					TreeNode objNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 					Quality objQuality = new Quality(this);
@@ -6118,7 +6116,7 @@ namespace Chummer
 						strForceValue = objXmlMetatypeQuality.Attributes["select"].InnerText;
 
 					XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlMetatypeQuality.InnerText + "\"]");
-					objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objNode, objWeapons, objWeaponNodes, strForceValue);
+					objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objWeapons, objWeaponNodes, strForceValue);
 					_lstQualities.Add(objQuality);
 
 					// Add any created Weapons to the character.
@@ -6145,7 +6143,6 @@ namespace Chummer
 				if (!blnFound)
 				{
 					string strForceValue = "";
-					TreeNode objNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 					Quality objQuality = new Quality(this);
@@ -6154,7 +6151,7 @@ namespace Chummer
 						strForceValue = objXmlMetatypeQuality.Attributes["select"].InnerText;
 
 					XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlMetatypeQuality.InnerText + "\"]");
-					objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objNode, objWeapons, objWeaponNodes, strForceValue);
+					objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objWeapons, objWeaponNodes, strForceValue);
 					_lstQualities.Add(objQuality);
 
 					// Add any created Weapons to the character.
@@ -6186,7 +6183,6 @@ namespace Chummer
 					if (!blnFound)
 					{
 						string strForceValue = "";
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(this);
@@ -6195,7 +6191,7 @@ namespace Chummer
 							strForceValue = objXmlMetatypeQuality.Attributes["select"].InnerText;
 
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlMetatypeQuality.InnerText + "\"]");
-						objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objWeapons, objWeaponNodes, strForceValue);
 						_lstQualities.Add(objQuality);
 
 						// Add any created Weapons to the character.
@@ -6222,7 +6218,6 @@ namespace Chummer
 					if (!blnFound)
 					{
 						string strForceValue = "";
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(this);
@@ -6231,7 +6226,7 @@ namespace Chummer
 							strForceValue = objXmlMetatypeQuality.Attributes["select"].InnerText;
 
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlMetatypeQuality.InnerText + "\"]");
-						objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, this, QualitySource.Metatype, objWeapons, objWeaponNodes, strForceValue);
 						_lstQualities.Add(objQuality);
 
 						// Add any created Weapons to the character.

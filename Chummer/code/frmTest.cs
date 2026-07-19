@@ -614,11 +614,10 @@ namespace Chummer
 				Application.DoEvents();
 				try
 				{
-					TreeNode objTempNode = new TreeNode();
 					List<Weapon> objWeapons = new List<Weapon>();
 					List<TreeNode> objWeaponNodes = new List<TreeNode>();
 					Quality objTemp = new Quality(objCharacter);
-					objTemp.Create(objXmlGear, objCharacter, QualitySource.Selected, objTempNode, objWeapons, objWeaponNodes);
+					objTemp.Create(objXmlGear, objCharacter, QualitySource.Selected, objWeapons, objWeaponNodes);
 				}
 				catch
 				{
@@ -734,7 +733,6 @@ namespace Chummer
 					foreach (XmlNode objXmlQualityItem in objXmlMetatype.SelectNodes("qualities/positive/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -745,13 +743,12 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 					}
 					foreach (XmlNode objXmlQualityItem in objXmlMetatype.SelectNodes("qualities/negative/quality"))
 					{
 						XmlNode objXmlQuality = objXmlQualityDocument.SelectSingleNode("/chummer/qualities/quality[name = \"" + objXmlQualityItem.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						List<Weapon> objWeapons = new List<Weapon>();
 						List<TreeNode> objWeaponNodes = new List<TreeNode>();
 						Quality objQuality = new Quality(_objCharacter);
@@ -762,7 +759,7 @@ namespace Chummer
 						objSource = QualitySource.Metatype;
 						if (objXmlQualityItem.Attributes["removable"] != null)
 							objSource = QualitySource.MetatypeRemovable;
-						objQuality.Create(objXmlQuality, _objCharacter, objSource, objNode, objWeapons, objWeaponNodes, strForceValue);
+						objQuality.Create(objXmlQuality, _objCharacter, objSource, objWeapons, objWeaponNodes, strForceValue);
 						_objCharacter.Qualities.Add(objQuality);
 					}
 

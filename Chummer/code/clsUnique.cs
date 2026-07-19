@@ -1031,7 +1031,7 @@ namespace Chummer
 		/// <param name="objWeapons">List of Weapons that should be added to the Character.</param>
 		/// <param name="objWeaponNodes">List of TreeNodes to represent the Weapons added.</param>
 		/// <param name="strForceValue">Force a value to be selected for the Quality.</param>
-		public void Create(XmlNode objXmlQuality, Character objCharacter, QualitySource objQualitySource, TreeNode objNode, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes, string strForceValue = "")
+		public void Create(XmlNode objXmlQuality, Character objCharacter, QualitySource objQualitySource, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes, string strForceValue = "")
 		{
 			_strName = objXmlQuality["name"].InnerText;
 			_intBP = Convert.ToInt32(objXmlQuality["bp"].InnerText);
@@ -1099,16 +1099,8 @@ namespace Chummer
 				if (objImprovementManager.SelectedValue != "")
 				{
 					_strExtra = objImprovementManager.SelectedValue;
-					objNode.Text += " (" + objImprovementManager.SelectedValue + ")";
 				}
 			}
-
-			// Metatype Qualities appear as grey text to show that they cannot be removed.
-			if (objQualitySource == QualitySource.Metatype || objQualitySource == QualitySource.MetatypeRemovable)
-				objNode.ForeColor = SystemColors.GrayText;
-
-			objNode.Text = DisplayName;
-			objNode.Tag = InternalId;
 		}
 
 		/// <summary>
