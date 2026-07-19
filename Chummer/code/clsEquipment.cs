@@ -137,9 +137,9 @@ namespace Chummer
 				{
 					XmlNode objXmlWeapon = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlAddWeapon.InnerText + "\" and starts-with(category, \"Cyberware\")]");
 
-					TreeNode objGearWeaponNode = new TreeNode();
 					Weapon objGearWeapon = new Weapon(_objCharacter);
-					objGearWeapon.Create(objXmlWeapon, _objCharacter, objGearWeaponNode, null, null, null);
+					objGearWeapon.Create(objXmlWeapon, _objCharacter);
+					TreeNode objGearWeaponNode = new CommonFunctions(_objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
 					objGearWeaponNode.ForeColor = SystemColors.GrayText;
 					objWeaponNodes.Add(objGearWeaponNode);
 					objWeapons.Add(objGearWeapon);
@@ -2496,9 +2496,9 @@ namespace Chummer
 				{
 					XmlNode objXmlWeapon = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlAddWeapon.InnerText + "\" and starts-with(category, \"Cyberware\")]");
 
-					TreeNode objGearWeaponNode = new TreeNode();
 					Weapon objGearWeapon = new Weapon(objCharacter);
-					objGearWeapon.Create(objXmlWeapon, objCharacter, objGearWeaponNode, null, null, null);
+					objGearWeapon.Create(objXmlWeapon, objCharacter);
+					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
 					objGearWeaponNode.ForeColor = SystemColors.GrayText;
 					objWeaponNodes.Add(objGearWeaponNode);
 					objWeapons.Add(objGearWeapon);
@@ -4261,7 +4261,7 @@ namespace Chummer
 		/// <param name="cmsWeaponAccessory">ContextMenuStrip to use for Accessories.</param>
 		/// <param name="cmsWeaponMod">ContextMenuStrip to use for Weapon Mods.</param>
 		/// <param name="blnCreateChildren">Whether or not child items should be created.</param>
-		public void Create(XmlNode objXmlWeapon, Character objCharacter, TreeNode objNode, ContextMenuStrip cmsWeapon, ContextMenuStrip cmsWeaponAccessory, ContextMenuStrip cmsWeaponMod, bool blnCreateChildren = true)
+		public void Create(XmlNode objXmlWeapon, Character objCharacter, bool blnCreateChildren = true)
 		{
 			_strName = objXmlWeapon["name"].InnerText;
 			_strCategory = objXmlWeapon["category"].InnerText;
@@ -4371,22 +4371,16 @@ namespace Chummer
 			{
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
-
 			// If the Weapon comes with an Underbarrel Weapon, add it.
 			if (objXmlWeapon.InnerXml.Contains("<underbarrel>") && blnCreateChildren)
 			{
 				XmlNode objXmlUnderbarrel = objXmlWeapon.SelectSingleNode("underbarrel");
 				Weapon objUnderbarrelWeapon = new Weapon(_objCharacter);
-				TreeNode objUnderbarrelNode = new TreeNode();
 				XmlNode objXmlWeaponNode = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlUnderbarrel.InnerText + "\"]");
-				objUnderbarrelWeapon.Create(objXmlWeaponNode, _objCharacter, objUnderbarrelNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+				objUnderbarrelWeapon.Create(objXmlWeaponNode, _objCharacter);
 				objUnderbarrelWeapon.IncludedInWeapon = true;
 				objUnderbarrelWeapon.IsUnderbarrelWeapon = true;
 				_lstUnderbarrel.Add(objUnderbarrelWeapon);
-				objUnderbarrelNode.ContextMenuStrip = cmsWeapon;
-				objNode.Nodes.Add(objUnderbarrelNode);
 			}
 
 			// If there are any Accessories that come with the Weapon, add them.
@@ -4400,16 +4394,7 @@ namespace Chummer
 					objAccessory.Create(objXmlAccessory, objXmlAccessory["mount"].InnerText);
 					objAccessory.IncludedInWeapon = true;
 					objAccessory.Parent = this;
-					TreeNode objAccessoryNode = new TreeNode
-					{
-						Text = objAccessory.DisplayName,
-						Tag = objAccessory.InternalId,
-						ContextMenuStrip = cmsWeaponAccessory,
-					};
 					_lstAccessories.Add(objAccessory);
-
-					objNode.Nodes.Add(objAccessoryNode);
-					objNode.Expand();
 				}
 			}
 
@@ -4428,16 +4413,6 @@ namespace Chummer
 
 					if (objXmlWeaponMod.Attributes["rating"] != null)
 						objMod.Rating = Convert.ToInt32(objXmlWeaponMod.Attributes["rating"].InnerText);
-
-					TreeNode objModNode = new TreeNode
-					{
-						Text = objMod.DisplayName,
-						Tag = objMod.InternalId,
-						ContextMenuStrip = cmsWeaponMod,
-					};
-
-					objNode.Nodes.Add(objModNode);
-					objNode.Expand();
 				}
 			}
 		}
@@ -9866,19 +9841,18 @@ namespace Chummer
 				{
 					XmlNode objXmlWeapon = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlAddWeapon.InnerText + "\" and category = \"Gear\"]");
 
-					TreeNode objGearWeaponNode = new TreeNode();
 					Weapon objGearWeapon = new Weapon(objCharacter);
-					objGearWeapon.Create(objXmlWeapon, objCharacter, objGearWeaponNode, null, null, null);
-					objGearWeaponNode.ForeColor = SystemColors.GrayText;
+					objGearWeapon.Create(objXmlWeapon, objCharacter);
 					if (blnAerodynamic)
 					{
 						objGearWeapon.Name += " (" + LanguageManager.Instance.GetString("Checkbox_Aerodynamic") + ")";
 						objGearWeapon.SetRange("Aerodynamic Grenades");
-						objGearWeaponNode.Text = objGearWeapon.DisplayName;
 						_strName += " (" + LanguageManager.Instance.GetString("Checkbox_Aerodynamic") + ")";
 						objNode.Text = DisplayName;
 					}
-						
+
+					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
+					objGearWeaponNode.ForeColor = SystemColors.GrayText;
 					objWeaponNodes.Add(objGearWeaponNode);
 					objWeapons.Add(objGearWeapon);
 
@@ -14677,11 +14651,11 @@ namespace Chummer
 				foreach (XmlNode objXmlWeapon in objXmlVehicle.SelectNodes("weapons/weapon"))
 				{
 					bool blnAttached = false;
-					TreeNode objWeaponNode = new TreeNode();
 					Weapon objWeapon = new Weapon(_objCharacter);
 
 					XmlNode objXmlWeaponNode = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlWeapon["name"].InnerText + "\"]");
-					objWeapon.Create(objXmlWeaponNode, _objCharacter, objWeaponNode, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
+					objWeapon.Create(objXmlWeaponNode, _objCharacter);
+					TreeNode objWeaponNode = new CommonFunctions(_objCharacter).BuildWeaponNode(objWeapon, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
 					objWeapon.Cost = 0;
 					objWeapon.VehicleMounted = true;
 

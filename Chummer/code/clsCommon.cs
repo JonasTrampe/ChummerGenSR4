@@ -388,6 +388,57 @@ namespace Chummer
 		}
 
 		/// <summary>
+		/// Builds a TreeNode for an already-Create()d Weapon, recursively adding child nodes for its
+		/// underbarrel weapon, accessories, and mods - Weapon.Create() itself no longer touches
+		/// TreeNode/ContextMenuStrip directly (it just populates UnderbarrelWeapons/WeaponAccessories/
+		/// WeaponMods), so every call site needs this same recursive tree-building afterward. Centralized
+		/// here rather than duplicated at each of Weapon.Create()'s many call sites.
+		/// </summary>
+		public TreeNode BuildWeaponNode(Weapon objWeapon, ContextMenuStrip cmsWeapon, ContextMenuStrip cmsWeaponAccessory, ContextMenuStrip cmsWeaponMod)
+		{
+			TreeNode objNode = new TreeNode
+			{
+				Text = objWeapon.DisplayName,
+				Tag = objWeapon.InternalId,
+				ContextMenuStrip = cmsWeapon,
+			};
+
+			foreach (Weapon objUnderbarrelWeapon in objWeapon.UnderbarrelWeapons)
+			{
+				TreeNode objUnderbarrelNode = BuildWeaponNode(objUnderbarrelWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+				objUnderbarrelNode.ContextMenuStrip = cmsWeapon;
+				objNode.Nodes.Add(objUnderbarrelNode);
+			}
+
+			foreach (WeaponAccessory objAccessory in objWeapon.WeaponAccessories)
+			{
+				TreeNode objAccessoryNode = new TreeNode
+				{
+					Text = objAccessory.DisplayName,
+					Tag = objAccessory.InternalId,
+					ContextMenuStrip = cmsWeaponAccessory,
+				};
+				objNode.Nodes.Add(objAccessoryNode);
+			}
+
+			foreach (WeaponMod objMod in objWeapon.WeaponMods)
+			{
+				TreeNode objModNode = new TreeNode
+				{
+					Text = objMod.DisplayName,
+					Tag = objMod.InternalId,
+					ContextMenuStrip = cmsWeaponMod,
+				};
+				objNode.Nodes.Add(objModNode);
+			}
+
+			if (objNode.Nodes.Count > 0)
+				objNode.Expand();
+
+			return objNode;
+		}
+
+		/// <summary>
 		/// Locate a Weapon within the character's Weapons.
 		/// </summary>
 		/// <param name="strGuid">InternalId of the Weapon to find.</param>

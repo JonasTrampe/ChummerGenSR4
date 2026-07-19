@@ -6000,9 +6000,9 @@ namespace Chummer
 
 			XmlNode objXmlWeapon = objXmlDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + frmPickWeapon.SelectedWeapon + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			Weapon objWeapon = new Weapon(_objCharacter);
-			objWeapon.Create(objXmlWeapon, _objCharacter, objNode, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
+			objWeapon.Create(objXmlWeapon, _objCharacter);
+			TreeNode objNode = _objFunctions.BuildWeaponNode(objWeapon, cmsWeapon, cmsWeaponAccessory, cmsWeaponMod);
 
 			int intCost = objWeapon.TotalCost;
 			// Apply a markup if applicable.

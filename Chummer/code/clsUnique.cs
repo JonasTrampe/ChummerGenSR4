@@ -1075,9 +1075,9 @@ namespace Chummer
 				{
 					XmlNode objXmlWeapon = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlAddWeapon.InnerText + "\" and starts-with(category, \"Quality\")]");
 
-					TreeNode objGearWeaponNode = new TreeNode();
 					Weapon objGearWeapon = new Weapon(objCharacter);
-					objGearWeapon.Create(objXmlWeapon, objCharacter, objGearWeaponNode, null, null, null);
+					objGearWeapon.Create(objXmlWeapon, objCharacter);
+					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
 					objGearWeaponNode.ForeColor = SystemColors.GrayText;
 					objWeaponNodes.Add(objGearWeaponNode);
 					objWeapons.Add(objGearWeapon);
