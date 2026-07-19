@@ -13469,7 +13469,7 @@ namespace Chummer
 		/// <param name="objXmlMod">XmlNode to create the object from.</param>
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="intRating">Selected Rating for the Gear.</param>
-		public void Create(XmlNode objXmlMod, TreeNode objNode, int intRating)
+		public void Create(XmlNode objXmlMod, int intRating)
 		{
 			_strName = objXmlMod["name"].InnerText;
 			_strCategory = objXmlMod["category"].InnerText;
@@ -13596,8 +13596,6 @@ namespace Chummer
 				}
 			}
 
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID.ToString();
 		}
 
 		/// <summary>
@@ -14598,7 +14596,6 @@ namespace Chummer
 				foreach (XmlNode objXmlVehicleMod in objXmlModList)
 				{
 					XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlVehicleMod.InnerText + "\"]");
-					TreeNode objModNode = new TreeNode();
 					VehicleMod objMod = new VehicleMod(_objCharacter);
 					int intRating = 0;
 
@@ -14608,12 +14605,17 @@ namespace Chummer
 					if (objXmlVehicleMod.Attributes["select"] != null)
 						objMod.Extra = objXmlVehicleMod.Attributes["select"].InnerText;
 
-					objMod.Create(objXmlMod, objModNode, intRating);
+					objMod.Create(objXmlMod, intRating);
 					objMod.IncludedInVehicle = true;
 
 					_lstVehicleMods.Add(objMod);
-					objModNode.ForeColor = SystemColors.GrayText;
-					objModNode.ContextMenuStrip = cmsVehicle;
+					TreeNode objModNode = new TreeNode
+					{
+						Text = objMod.DisplayName,
+						Tag = objMod.InternalId,
+						ForeColor = SystemColors.GrayText,
+						ContextMenuStrip = cmsVehicle,
+					};
 
 					objNode.Nodes.Add(objModNode);
 					objNode.Expand();

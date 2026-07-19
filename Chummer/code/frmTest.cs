@@ -141,9 +141,8 @@ namespace Chummer
 				Application.DoEvents();
 				try
 				{
-					TreeNode objTempNode = new TreeNode();
 					VehicleMod objTemp = new VehicleMod(objCharacter);
-					objTemp.Create(objXmlGear, objTempNode, 1);
+					objTemp.Create(objXmlGear, 1);
 					try
 					{
 						int objValue = objTemp.TotalCost;

@@ -6842,10 +6842,14 @@ namespace Chummer
 
 						XmlDocument objVehiclesDoc = XmlManager.Instance.Load("vehicles.xml");
 						XmlNode objXmlNode = objVehiclesDoc.SelectSingleNode("/chummer/mods/mod[name = \"Retrofit\"]");
-						TreeNode objTreeNode = new TreeNode();
-						objRetrofit.Create(objXmlNode, objTreeNode, 0);
+						objRetrofit.Create(objXmlNode, 0);
 						objRetrofit.Cost = intCost.ToString();
 						objFoundVehicle.Mods.Add(objRetrofit);
+						TreeNode objTreeNode = new TreeNode
+						{
+							Text = objRetrofit.DisplayName,
+							Tag = objRetrofit.InternalId,
+						};
 						treVehicles.SelectedNode.Parent.Nodes.Add(objTreeNode);
 					}
 
@@ -9047,23 +9051,24 @@ namespace Chummer
 			
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			VehicleMod objMod = new VehicleMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode, frmPickVehicleMod.SelectedRating);
+			objMod.Create(objXmlMod, frmPickVehicleMod.SelectedRating);
 
 			// Make sure that the Armor Rating does not exceed the maximum allowed by the Vehicle.
 			if (objMod.Name.StartsWith("Armor"))
 			{
 				if (objMod.Rating > objSelectedVehicle.MaxArmor)
-				{
 					objMod.Rating = objSelectedVehicle.MaxArmor;
-					objNode.Text = objMod.DisplayName;
-				}
 			}
 
 			objSelectedVehicle.Mods.Add(objMod);
 
-			objNode.ContextMenuStrip = cmsVehicle;
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+				ContextMenuStrip = cmsVehicle,
+			};
 			treVehicles.SelectedNode.Nodes.Add(objNode);
 			treVehicles.SelectedNode.Expand();
 			RefreshSelectedVehicle();
@@ -21643,7 +21648,6 @@ namespace Chummer
 					{
 						foreach (XmlNode objXmlMod in objXmlVehicle.SelectNodes("mods/mod"))
 						{
-							TreeNode objModNode = new TreeNode();
 							VehicleMod objMod = new VehicleMod(_objCharacter);
 
 							int intRating = 0;
@@ -21651,9 +21655,14 @@ namespace Chummer
 								intRating = Convert.ToInt32(objXmlMod["rating"].InnerText);
 
 							XmlNode objXmlModNode = objXmlVehicleDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlMod["name"].InnerText + "\"]");
-							objMod.Create(objXmlModNode, objModNode, intRating);
+							objMod.Create(objXmlModNode, intRating);
 							objVehicle.Mods.Add(objMod);
 
+							TreeNode objModNode = new TreeNode
+							{
+								Text = objMod.DisplayName,
+								Tag = objMod.InternalId,
+							};
 							objNode.Nodes.Add(objModNode);
 							objNode.Expand();
 						}

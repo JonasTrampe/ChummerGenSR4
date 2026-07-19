@@ -6535,10 +6535,14 @@ namespace Chummer
 
 						XmlDocument objVehiclesDoc = XmlManager.Instance.Load("vehicles.xml");
 						XmlNode objXmlNode = objVehiclesDoc.SelectSingleNode("/chummer/mods/mod[name = \"Retrofit\"]");
-						TreeNode objTreeNode = new TreeNode();
-						objRetrofit.Create(objXmlNode, objTreeNode, 0);
+						objRetrofit.Create(objXmlNode, 0);
 						objRetrofit.Cost = intCost.ToString();
 						objFoundVehicle.Mods.Add(objRetrofit);
+						TreeNode objTreeNode = new TreeNode
+						{
+							Text = objRetrofit.DisplayName,
+							Tag = objRetrofit.InternalId,
+						};
 						treVehicles.SelectedNode.Parent.Nodes.Add(objTreeNode);
 
 						// Create an Expense Log Entry for removing the Obsolete Mod.
@@ -10355,19 +10359,21 @@ namespace Chummer
 			
 			XmlNode objXmlMod = objXmlDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + frmPickVehicleMod.SelectedMod + "\"]");
 
-			TreeNode objNode = new TreeNode();
 			VehicleMod objMod = new VehicleMod(_objCharacter);
-			objMod.Create(objXmlMod, objNode, frmPickVehicleMod.SelectedRating);
+			objMod.Create(objXmlMod, frmPickVehicleMod.SelectedRating);
 
 			// Make sure that the Armor Rating does not exceed the maximum allowed by the Vehicle.
 			if (objMod.Name.StartsWith("Armor"))
 			{
 				if (objMod.Rating > objSelectedVehicle.MaxArmor)
-				{
 					objMod.Rating = objSelectedVehicle.MaxArmor;
-					objNode.Text = objMod.DisplayName;
-				}
 			}
+
+			TreeNode objNode = new TreeNode
+			{
+				Text = objMod.DisplayName,
+				Tag = objMod.InternalId,
+			};
 
 			// Check the item's Cost and make sure the character can afford it.
 			int intOriginalCost = objSelectedVehicle.TotalCost;
