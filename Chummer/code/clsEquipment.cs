@@ -8962,7 +8962,7 @@ namespace Chummer
 		/// Create a Lifestyle from an XmlNode and return the TreeNodes for it.
 		/// <param name="objXmlLifestyle">XmlNode to create the object from.</param>
 		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		public void Create(XmlNode objXmlLifestyle, TreeNode objNode)
+		public void Create(XmlNode objXmlLifestyle)
 		{
 			_strName = objXmlLifestyle["name"].InnerText;
 			_intCost = Convert.ToInt32(objXmlLifestyle["cost"].InnerText);
@@ -8970,9 +8970,6 @@ namespace Chummer
 			_intMultiplier = Convert.ToInt32(objXmlLifestyle["multiplier"].InnerText);
 			_strSource = objXmlLifestyle["source"].InnerText;
 			_strPage = objXmlLifestyle["page"].InnerText;
-
-			objNode.Text = DisplayName;
-			objNode.Tag = _guiID;
 		}
 
 		/// <summary>

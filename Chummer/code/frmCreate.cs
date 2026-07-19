@@ -2124,11 +2124,15 @@ namespace Chummer
 				XmlDocument objXmlLifestyleDocument = XmlManager.Instance.Load("lifestyles.xml");
 				XmlNode objXmlLifestyle = objXmlLifestyleDocument.SelectSingleNode("/chummer/lifestyles/lifestyle[name = \"Cyberzombie Lifestyle Addition\"]");
 
-				TreeNode objLifestyleNode = new TreeNode();
 				Lifestyle objLifestyle = new Lifestyle(_objCharacter);
-				objLifestyle.Create(objXmlLifestyle, objLifestyleNode);
+				objLifestyle.Create(objXmlLifestyle);
 				_objCharacter.Lifestyles.Add(objLifestyle);
 
+				TreeNode objLifestyleNode = new TreeNode
+				{
+					Text = objLifestyle.DisplayName,
+					Tag = objLifestyle.InternalId,
+				};
 				treLifestyles.Nodes[0].Nodes.Add(objLifestyleNode);
 				treLifestyles.Nodes[0].Expand();
 			}
@@ -20445,9 +20449,13 @@ namespace Chummer
 					Lifestyle objStreet = new Lifestyle(_objCharacter);
 					XmlDocument objXmlDocument = XmlManager.Instance.Load("lifestyles.xml");
 					XmlNode objXmlLifestyle = objXmlDocument.SelectSingleNode("/chummer/lifestyles/lifestyle[name = \"Street\"]");
-					TreeNode objNode = new TreeNode();
 
-					objStreet.Create(objXmlLifestyle, objNode);
+					objStreet.Create(objXmlLifestyle);
+					TreeNode objNode = new TreeNode
+					{
+						Text = objStreet.DisplayName,
+						Tag = objStreet.InternalId,
+					};
 					treLifestyles.Nodes[0].Nodes.Add(objNode);
 					treLifestyles.Nodes[0].Expand();
 
@@ -21230,15 +21238,16 @@ namespace Chummer
 					int intMonths = Convert.ToInt32(objXmlLifestyle["months"].InnerText);
 
 					// Create the Lifestyle.
-					TreeNode objNode = new TreeNode();
 					Lifestyle objLifestyle = new Lifestyle(_objCharacter);
+					string strNodeText = strName;
 
 					XmlNode objXmlLifestyleNode = objXmlLifestyleDocument.SelectSingleNode("/chummer/lifestyles/lifestyle[name = \"" + strName + "\"]");
 					if (objXmlLifestyleNode != null)
 					{
 						// This is a standard Lifestyle, so just use the Create method.
-						objLifestyle.Create(objXmlLifestyleNode, objNode);
+						objLifestyle.Create(objXmlLifestyleNode);
 						objLifestyle.Months = intMonths;
+						strNodeText = objLifestyle.DisplayName;
 					}
 					else
 					{
@@ -21258,15 +21267,15 @@ namespace Chummer
 
 						foreach (XmlNode objXmlQuality in objXmlLifestyle.SelectNodes("qualities/quality"))
 							objLifestyle.Qualities.Add(objXmlQuality.InnerText);
-
-						objNode.Text = strName;
 					}
 
 					// Add the Lifestyle to the character and Lifestyle Tree.
-					if (objLifestyle.Comforts != "")
-						objNode.ContextMenuStrip = cmsAdvancedLifestyle;
-					else
-						objNode.ContextMenuStrip = cmsLifestyleNotes;
+					TreeNode objNode = new TreeNode
+					{
+						Text = strNodeText,
+						Tag = objLifestyle.InternalId,
+						ContextMenuStrip = objLifestyle.Comforts != "" ? cmsAdvancedLifestyle : cmsLifestyleNotes,
+					};
 					_objCharacter.Lifestyles.Add(objLifestyle);
 					treLifestyles.Nodes[0].Nodes.Add(objNode);
 					treLifestyles.Nodes[0].Expand();

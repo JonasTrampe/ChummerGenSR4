@@ -2109,11 +2109,15 @@ namespace Chummer
 				XmlDocument objXmlLifestyleDocument = XmlManager.Instance.Load("lifestyles.xml");
 				XmlNode objXmlLifestyle = objXmlLifestyleDocument.SelectSingleNode("/chummer/lifestyles/lifestyle[name = \"Cyberzombie Lifestyle Addition\"]");
 
-				TreeNode objLifestyleNode = new TreeNode();
 				Lifestyle objLifestyle = new Lifestyle(_objCharacter);
-				objLifestyle.Create(objXmlLifestyle, objLifestyleNode);
+				objLifestyle.Create(objXmlLifestyle);
 				_objCharacter.Lifestyles.Add(objLifestyle);
 
+				TreeNode objLifestyleNode = new TreeNode
+				{
+					Text = objLifestyle.DisplayName,
+					Tag = objLifestyle.InternalId,
+				};
 				treLifestyles.Nodes[0].Nodes.Add(objLifestyleNode);
 				treLifestyles.Nodes[0].Expand();
 			}
