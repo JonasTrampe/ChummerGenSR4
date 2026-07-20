@@ -26094,7 +26094,7 @@ namespace Chummer
 			{
 				CalendarWeek objWeek = _objCharacter.Calendar[i];
 				ListViewItem objItem = new ListViewItem();
-				objItem.Text = objWeek.DisplayName;
+				objItem.Text = LanguageManager.Instance.GetString("String_WeekDisplay").Replace("{0}", objWeek.Year.ToString()).Replace("{1}", objWeek.Month.ToString()).Replace("{2}", objWeek.MonthWeek.ToString());
 				ListViewItem.ListViewSubItem objNoteItem = new ListViewItem.ListViewSubItem();
 				objNoteItem.Text = objWeek.Notes;
 				ListViewItem.ListViewSubItem objInternalIdItem = new ListViewItem.ListViewSubItem();
