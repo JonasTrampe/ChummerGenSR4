@@ -435,59 +435,7 @@ namespace Chummer
 		{
 			List<string> lstMessages = _objCatalog.VerifyLanguage(Path.Combine(Application.StartupPath, "lang"), strLanguage);
 			MessageBox.Show(lstMessages.Count == 0 ? "Language file is OK." : "\n" + string.Join("\n", lstMessages), "Language File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			return;
-
-			// Load the English version.
-			List<LanguageString> lstEnglish = new List<LanguageString>();
-			XmlDocument objEnglishDocument = new XmlDocument();
-			string strFilePath = Path.Combine(Application.StartupPath, "lang");
-			strFilePath = Path.Combine(strFilePath, "en-us.xml");
-			objEnglishDocument.Load(strFilePath);
-			foreach (XmlNode objNode in objEnglishDocument.SelectNodes("/chummer/strings/string"))
-			{
-				LanguageString objString = new LanguageString();
-				objString.Key = objNode["key"].InnerText;
-				objString.Text = objNode["text"].InnerText;
-				lstEnglish.Add(objString);
-			}
-
-			// Load the selected language version.
-			List<LanguageString> lstLanguage = new List<LanguageString>();
-			XmlDocument objLanguageDocument = new XmlDocument();
-			string strLangPath = Path.Combine(Application.StartupPath, "lang");
-			strLangPath = Path.Combine(strLangPath, strLanguage + ".xml");
-			objLanguageDocument.Load(strLangPath);
-			foreach (XmlNode objNode in objLanguageDocument.SelectNodes("/chummer/strings/string"))
-			{
-				LanguageString objString = new LanguageString();
-				objString.Key = objNode["key"].InnerText;
-				objString.Text = objNode["text"].InnerText;
-				lstLanguage.Add(objString);
-			}
-
-			string strMessage = "";
-			// Check for strings that are in the English file but not in the selected language file.
-			foreach (LanguageString objString in lstEnglish)
-			{
-				LanguageString objFindString = lstLanguage.Find(objItem => objItem.Key == objString.Key);
-				if (objFindString == null)
-					strMessage += "\nMissing String: " + objString.Key;
-			}
-			// Check for strings that are not in the English file but are in the selected language file (someone has put in Keys that they shouldn't have which are ignored).
-			foreach (LanguageString objString in lstLanguage)
-			{
-				LanguageString objFindString = lstEnglish.Find(objItem => objItem.Key == objString.Key);
-				if (objFindString == null)
-					strMessage += "\nUnused String: " + objString.Key;
-			}
-
-			// Display the message.
-			if (strMessage != "")
-				MessageBox.Show(strMessage, "Language File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			else
-				MessageBox.Show("Language file is OK.", "Language File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
-
 		/// <summary>
 		/// Attempt to translate any Extra text for an item.
 		/// </summary>
