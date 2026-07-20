@@ -314,6 +314,11 @@ public partial class MainWindow : Window
         gearTree.Items.Clear();
         foreach (CharacterTreeItemData item in character.Gear)
             gearTree.Items.Add(CreateTreeViewItem(item));
+
+        var weaponsTree = this.FindControl<TreeView>("WeaponsTree")!;
+        weaponsTree.Items.Clear();
+        foreach (CharacterWeaponData weapon in character.Weapons)
+            weaponsTree.Items.Add(new TreeViewItem { Header = weapon.DisplayName });
     }
 
     private static TreeViewItem CreateTreeViewItem(CharacterTreeItemData item)

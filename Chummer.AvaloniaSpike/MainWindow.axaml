@@ -745,7 +745,7 @@
                                         </StackPanel>
                                     </controls:TreeDetailPane.HeaderContent>
                                     <controls:TreeDetailPane.TreeContent>
-                                        <TreeView>
+                                        <TreeView Name="WeaponsTree">
                                             <TreeViewItem Header="Ausgewählte Waffen" />
                                             <TreeViewItem Header="Waffenlos" />
                                             <TreeViewItem Header="HK MP-5 TX" IsExpanded="True">

@@ -65,6 +65,7 @@ namespace Chummer
 		public IReadOnlyList<CharacterAttributeData> Attributes { get { return ReadAttributes(); } }
 		public IReadOnlyList<CharacterQualityData> Qualities { get { return ReadQualities(); } }
 		public IReadOnlyList<CharacterTreeItemData> Gear { get { return ReadTreeItems("/character/gears/gear"); } }
+		public IReadOnlyList<CharacterWeaponData> Weapons { get { return ReadWeapons(); } }
 
 		internal CharacterDocument(XmlDocument objDocument, string strDisplayName)
 		{
@@ -112,6 +113,16 @@ namespace Chummer
 			foreach (XmlNode objNode in objNodes)
 				lstItems.Add(ReadTreeItem(objNode));
 			return lstItems;
+		}
+
+		private IReadOnlyList<CharacterWeaponData> ReadWeapons()
+		{
+			List<CharacterWeaponData> lstWeapons = new List<CharacterWeaponData>();
+			XmlNodeList objNodes = Document.SelectNodes("/character/weapons/weapon");
+			if (objNodes == null) return lstWeapons;
+			foreach (XmlNode objNode in objNodes)
+				lstWeapons.Add(new CharacterWeaponData(GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty), GetValue(objNode, "damage", string.Empty), GetValue(objNode, "ammo", string.Empty)));
+			return lstWeapons;
 		}
 
 		private static CharacterTreeItemData ReadTreeItem(XmlNode objNode)
@@ -176,5 +187,30 @@ namespace Chummer
 		{
 			Name = strName;
 			Children = new List<CharacterTreeItemData>();
+		}
+	}
+
+	public sealed class CharacterWeaponData
+	{
+		public string Name { get; private set; }
+		public string Category { get; private set; }
+		public string Damage { get; private set; }
+		public string Ammo { get; private set; }
+
+		internal CharacterWeaponData(string strName, string strCategory, string strDamage, string strAmmo)
+		{
+			Name = strName;
+			Category = strCategory;
+			Damage = strDamage;
+			Ammo = strAmmo;
+		}
+
+		public string DisplayName
+		{
+			get
+			{
+				string strDetails = string.IsNullOrEmpty(Damage) ? Category : Damage;
+				return string.IsNullOrEmpty(strDetails) ? Name : Name + " (" + strDetails + ")";
+			}
 		}
 	}
