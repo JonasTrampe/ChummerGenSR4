@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
+        <None Include="..\Chummer\data\lang\*.xml" Link="lang\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <Import Project="$(PkgAvalonia)/buildTransitive/Avalonia.props" />

@@ -32,6 +32,14 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        try
+        {
+            Title = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " (Default Settings)]";
+        }
+        catch
+        {
+            // The spike remains runnable when language resources are absent during design-time use.
+        }
         SetUpCareerCharts();
         SetUpGearDragDrop();
     }
