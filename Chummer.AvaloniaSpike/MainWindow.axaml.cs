@@ -260,6 +260,7 @@ public partial class MainWindow : Window
                 characterName = _loadedCharacter.Name;
                 UpdateCharacterStatus(_loadedCharacter);
                 UpdateCharacterOverview(_loadedCharacter);
+                UpdateCharacterTrees(_loadedCharacter);
             }
             catch (Exception)
             {
@@ -293,6 +294,34 @@ public partial class MainWindow : Window
             row.Augmented = attribute.TotalValue == attribute.Value ? string.Empty : "(" + attribute.TotalValue + ")";
             row.Range = attribute.Minimum + " / " + attribute.Maximum + " (" + attribute.AugmentedMaximum + ")";
         }
+    }
+
+    private void UpdateCharacterTrees(CharacterDocument character)
+    {
+        var qualitiesTree = this.FindControl<TreeView>("QualitiesTree")!;
+        qualitiesTree.Items.Clear();
+        var positiveQualities = new TreeViewItem { Header = "Positive qualities", IsExpanded = true };
+        var negativeQualities = new TreeViewItem { Header = "Negative qualities", IsExpanded = true };
+        foreach (CharacterQualityData quality in character.Qualities)
+        {
+            var parent = quality.Type == "Negative" ? negativeQualities : positiveQualities;
+            parent.Items.Add(new TreeViewItem { Header = quality.DisplayName });
+        }
+        if (positiveQualities.ItemCount > 0) qualitiesTree.Items.Add(positiveQualities);
+        if (negativeQualities.ItemCount > 0) qualitiesTree.Items.Add(negativeQualities);
+
+        var gearTree = this.FindControl<TreeView>("AusruestungTree")!;
+        gearTree.Items.Clear();
+        foreach (CharacterTreeItemData item in character.Gear)
+            gearTree.Items.Add(CreateTreeViewItem(item));
+    }
+
+    private static TreeViewItem CreateTreeViewItem(CharacterTreeItemData item)
+    {
+        var treeItem = new TreeViewItem { Header = item.Name, IsExpanded = item.Children.Count > 0 };
+        foreach (CharacterTreeItemData child in item.Children)
+            treeItem.Items.Add(CreateTreeViewItem(child));
+        return treeItem;
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)

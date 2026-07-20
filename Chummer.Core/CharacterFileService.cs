@@ -63,6 +63,8 @@ namespace Chummer
 		public string Karma { get { return GetValue("/character/karma", "0"); } }
 		public string Nuyen { get { return GetValue("/character/nuyen", "0"); } }
 		public IReadOnlyList<CharacterAttributeData> Attributes { get { return ReadAttributes(); } }
+		public IReadOnlyList<CharacterQualityData> Qualities { get { return ReadQualities(); } }
+		public IReadOnlyList<CharacterTreeItemData> Gear { get { return ReadTreeItems("/character/gears/gear"); } }
 
 		internal CharacterDocument(XmlDocument objDocument, string strDisplayName)
 		{
@@ -92,6 +94,36 @@ namespace Chummer
 			return lstAttributes;
 		}
 
+		private IReadOnlyList<CharacterQualityData> ReadQualities()
+		{
+			List<CharacterQualityData> lstQualities = new List<CharacterQualityData>();
+			XmlNodeList objNodes = Document.SelectNodes("/character/qualities/quality");
+			if (objNodes == null) return lstQualities;
+			foreach (XmlNode objNode in objNodes)
+				lstQualities.Add(new CharacterQualityData(GetValue(objNode, "name", string.Empty), GetValue(objNode, "extra", string.Empty), GetValue(objNode, "qualitytype", string.Empty)));
+			return lstQualities;
+		}
+
+		private IReadOnlyList<CharacterTreeItemData> ReadTreeItems(string strXPath)
+		{
+			List<CharacterTreeItemData> lstItems = new List<CharacterTreeItemData>();
+			XmlNodeList objNodes = Document.SelectNodes(strXPath);
+			if (objNodes == null) return lstItems;
+			foreach (XmlNode objNode in objNodes)
+				lstItems.Add(ReadTreeItem(objNode));
+			return lstItems;
+		}
+
+		private static CharacterTreeItemData ReadTreeItem(XmlNode objNode)
+		{
+			CharacterTreeItemData objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty));
+			XmlNodeList objChildren = objNode.SelectNodes("children/gear");
+			if (objChildren != null)
+				foreach (XmlNode objChild in objChildren)
+					objItem.Children.Add(ReadTreeItem(objChild));
+			return objItem;
+		}
+
 		private static string GetValue(XmlNode objNode, string strName, string strFallback)
 		{
 			XmlNode objChild = objNode.SelectSingleNode(strName);
@@ -116,5 +148,33 @@ namespace Chummer
 			Minimum = strMinimum;
 			Maximum = strMaximum;
 			AugmentedMaximum = strAugmentedMaximum;
+		}
+	}
+
+	public sealed class CharacterQualityData
+	{
+		public string Name { get; private set; }
+		public string Extra { get; private set; }
+		public string Type { get; private set; }
+
+		internal CharacterQualityData(string strName, string strExtra, string strType)
+		{
+			Name = strName;
+			Extra = strExtra;
+			Type = strType;
+		}
+
+		public string DisplayName { get { return string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")"; } }
+	}
+
+	public sealed class CharacterTreeItemData
+	{
+		public string Name { get; private set; }
+		public List<CharacterTreeItemData> Children { get; private set; }
+
+		internal CharacterTreeItemData(string strName)
+		{
+			Name = strName;
+			Children = new List<CharacterTreeItemData>();
 		}
 	}

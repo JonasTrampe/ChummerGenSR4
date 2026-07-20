@@ -94,7 +94,7 @@
                                 </StackPanel>
                             </controls:TreeDetailPane.HeaderContent>
                             <controls:TreeDetailPane.TreeContent>
-                                <TreeView>
+                                <TreeView Name="QualitiesTree">
                                     <TreeViewItem Header="Gabe auswählen">
                                         <TreeViewItem Header="Mehr als metamenschlich" />
                                         <TreeViewItem Header="Restlichtverstärkung" />
