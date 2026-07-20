@@ -73,11 +73,14 @@
 		     toolbar and the per-character content tabs (Allgemein/Fertigkeiten/...) - this is
 		     the actual MDI-replacement mechanism the real app already uses (confirmed from
 		     reference screenshots), not something we need to invent for the Linux port. -->
-        <TabControl DockPanel.Dock="Top" Classes="characterTabs" SelectedIndex="0">
-            <TabItem Header="Huan Hu" />
-            <TabItem Header="Meteor" />
-            <TabItem Header="Nadja" />
-            <TabItem Header="unbenannter Charakter" />
+        <TabControl DockPanel.Dock="Top" Classes="characterTabs"
+                    ItemsSource="{Binding OpenCharacters}"
+                    SelectedItem="{Binding SelectedOpenCharacter, Mode=TwoWay}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
         </TabControl>
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,4,270">

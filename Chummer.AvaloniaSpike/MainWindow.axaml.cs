@@ -1,5 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -13,7 +16,7 @@ using ScottPlot;
 
 namespace Chummer.AvaloniaSpike;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
     // Tracks the item and button a drag session started with - DoDragDropAsync only needs an
     // IDataTransfer to satisfy the OS-level drag session, the actual "what to move"/"how"
@@ -32,10 +35,31 @@ public partial class MainWindow : Window
     private const double DragThreshold = 6;
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
     private CharacterDocument? _loadedCharacter;
+    private OpenCharacterTab? _selectedOpenCharacter;
+
+    public ObservableCollection<OpenCharacterTab> OpenCharacters { get; } = new();
+
+    public OpenCharacterTab? SelectedOpenCharacter
+    {
+        get => _selectedOpenCharacter;
+        set
+        {
+            if (ReferenceEquals(_selectedOpenCharacter, value))
+                return;
+
+            _selectedOpenCharacter = value;
+            OnPropertyChanged();
+            if (value is not null)
+                ActivateCharacter(value.Character);
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public MainWindow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        DataContext = this;
         try
         {
             Title = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " (Default Settings)]";
@@ -252,24 +276,32 @@ public partial class MainWindow : Window
 
         if (files.Count > 0)
         {
-            string characterName = files[0].Name;
             try
             {
                 await using var stream = await files[0].OpenReadAsync();
-                _loadedCharacter = _characterFiles.Load(stream, files[0].Name);
-                characterName = _loadedCharacter.Name;
-                UpdateCharacterStatus(_loadedCharacter);
-                UpdateCharacterOverview(_loadedCharacter);
-                UpdateCharacterTrees(_loadedCharacter);
+                CharacterDocument character = _characterFiles.Load(stream, files[0].Name);
+                var tab = new OpenCharacterTab(character);
+                OpenCharacters.Add(tab);
+                SelectedOpenCharacter = tab;
             }
             catch (Exception)
             {
-                // Keep the selected filename when the document is not a readable Chummer save.
+                // CharacterFileService already recorded the load failure; leave the active tab alone.
             }
-
-            Title = "Chummer - " + characterName;
         }
     }
+
+    private void ActivateCharacter(CharacterDocument character)
+    {
+        _loadedCharacter = character;
+        UpdateCharacterStatus(character);
+        UpdateCharacterOverview(character);
+        UpdateCharacterTrees(character);
+        Title = "Chummer - " + character.Name;
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     private void UpdateCharacterStatus(CharacterDocument character)
     {
