@@ -31,7 +31,7 @@ namespace Chummer
 	/// secret-tool CLI. If libsecret is not
 	/// available, tokens are written in plain text with a best-effort 0600 permission attempt.
 	/// </summary>
-	public class RunnersPointAuth
+	public class RunnersPointAuth : IRunnersPointAuth
 	{
 		// TODO: replace with Chummer's real registered public client id once RunnersPoint issues one.
 		private const string ClientId = "chummer-desktop-TODO";

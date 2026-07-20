@@ -33,9 +33,9 @@ namespace Chummer
 		private static readonly HttpMethod PatchMethod = new HttpMethod("PATCH");
 
 		private readonly HttpClient _objHttpClient;
-		private readonly RunnersPointAuth _objAuth;
+		private readonly IRunnersPointAuth _objAuth;
 
-		public RunnersPointApiClient(RunnersPointAuth objAuth)
+		public RunnersPointApiClient(IRunnersPointAuth objAuth)
 			: this(objAuth, GlobalOptions.Instance.CloudApiBaseUrl)
 		{
 		}
@@ -44,7 +44,7 @@ namespace Chummer
 		/// Create a client using a host-supplied API endpoint. This keeps the transport reusable by
 		/// the Avalonia host without coupling it to the legacy GlobalOptions singleton.
 		/// </summary>
-		public RunnersPointApiClient(RunnersPointAuth objAuth, string strBaseUrl)
+		public RunnersPointApiClient(IRunnersPointAuth objAuth, string strBaseUrl)
 		{
 			_objAuth = objAuth;
 			_strBaseUrl = (strBaseUrl ?? "").TrimEnd('/');
@@ -53,7 +53,7 @@ namespace Chummer
 			_objHttpClient.DefaultRequestHeaders.Add("X-Client-Version", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
 		}
 
-		public RunnersPointApiClient(RunnersPointAuth objAuth, RunnersPointApiOptions objOptions)
+		public RunnersPointApiClient(IRunnersPointAuth objAuth, RunnersPointApiOptions objOptions)
 			: this(objAuth, objOptions != null ? objOptions.BaseUrl : null)
 		{
 		}
