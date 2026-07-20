@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private TreeViewItem? _pendingPressItem;
     private Point _pendingPressPoint;
     private const double DragThreshold = 6;
+    private XmlDocument? _loadedCharacterDocument;
 
     public MainWindow()
     {
@@ -257,6 +258,7 @@ public partial class MainWindow : Window
                 var document = new XmlDocument();
                 document.Load(stream);
                 characterName = document.SelectSingleNode("/character/name")?.InnerText ?? characterName;
+                _loadedCharacterDocument = document;
             }
             catch (XmlException)
             {
@@ -264,6 +266,30 @@ public partial class MainWindow : Window
             }
 
             Title = "Chummer - " + characterName;
+        }
+    }
+
+    private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        if (_loadedCharacterDocument is null)
+            return;
+
+        var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save Chummer character",
+            DefaultExtension = "chum",
+            SuggestedFileName = _loadedCharacterDocument.SelectSingleNode("/character/name")?.InnerText ?? "character",
+            FileTypeChoices = new[] { new FilePickerFileType("Chummer characters") { Patterns = new[] { "*.chum" } } },
+        });
+
+        if (file is not null)
+        {
+            await using var stream = await file.OpenWriteAsync();
+            _loadedCharacterDocument.Save(stream);
         }
     }
 
