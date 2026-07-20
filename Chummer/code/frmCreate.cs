@@ -9474,7 +9474,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 
 					objGear = objCommlink;
@@ -9482,14 +9482,14 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 
 					objGear = objOperatingSystem;
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 
 					objGear = objNewGear;
@@ -9498,6 +9498,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsVehicleGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -9663,7 +9666,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objCommlink.DisplayName;
 
@@ -9672,7 +9675,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objOperatingSystem.DisplayName;
 
@@ -9680,7 +9683,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objNewGear.DisplayName;
 
@@ -9690,6 +9693,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsVehicleGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -11508,7 +11514,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -11527,7 +11533,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -11545,7 +11551,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objGear.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -11565,6 +11571,9 @@ namespace Chummer
 
 			if (objNewGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsCyberwareGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -11692,7 +11701,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objCommlink.DisplayName;
 
@@ -11701,7 +11710,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objOperatingSystem.DisplayName;
 
@@ -11709,7 +11718,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objNewGear.DisplayName;
 
@@ -11719,6 +11728,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsCyberwareGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -11839,7 +11851,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objCommlink.DisplayName;
 
@@ -11848,7 +11860,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objOperatingSystem.DisplayName;
 
@@ -11856,7 +11868,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objNewGear.DisplayName;
 
@@ -11866,6 +11878,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsCyberwareGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -11954,7 +11969,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -11973,7 +11988,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -11991,7 +12006,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objGear.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -12011,6 +12026,9 @@ namespace Chummer
 
 			if (objNewGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsWeaponAccessoryGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -12121,7 +12139,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objCommlink.DisplayName;
 
@@ -12130,7 +12148,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objOperatingSystem.DisplayName;
 
@@ -12138,7 +12156,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objNewGear.DisplayName;
 
@@ -12148,6 +12166,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsWeaponAccessoryGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -12367,7 +12388,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objCommlink.DisplayName;
 
@@ -12376,7 +12397,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objOperatingSystem.DisplayName;
 
@@ -12384,7 +12405,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objNewGear = new Gear(_objCharacter);
-					objNewGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
+					objNewGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
 					objNewGear.Quantity = frmPickGear.SelectedQty;
 					objNode.Text = objNewGear.DisplayName;
 
@@ -12394,6 +12415,9 @@ namespace Chummer
 
 			if (objGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objNode, cmsVehicleWeaponAccessoryGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -12476,7 +12500,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -12495,7 +12519,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, false);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, false);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -12513,7 +12537,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
+					objGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", frmPickGear.Hacked, frmPickGear.InherentProgram, false, true, frmPickGear.Aerodynamic);
 					objGear.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -12533,6 +12557,9 @@ namespace Chummer
 
 			if (objNewGear.InternalId == Guid.Empty.ToString())
 				return;
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsVehicleWeaponAccessoryGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -13375,12 +13402,14 @@ namespace Chummer
 					{
 						TreeNode objAmmoNode = new TreeNode();
 						Gear objAmmo = new Gear(_objCharacter);
-						objAmmo.Copy(objMovedGear, objAmmoNode, new List<Weapon>(), new List<TreeNode>());
+						objAmmo.Copy(objMovedGear, new List<Weapon>(), new List<TreeNode>());
 						objAmmo.Quantity = intFreeCapacity;
 						objAmmo.Parent = objDestinationGear;
 						objMovedGear.Quantity -= intFreeCapacity;
 						objDestinationGear.Children.Add(objAmmo);
 						objAmmoNode.Text = objAmmo.DisplayName;
+						objAmmoNode.Tag = objAmmo.InternalId;
+						_objFunctions.BuildGearTree(objAmmo, objAmmoNode, cmsGear);
 						objAmmoNode.ContextMenuStrip = cmsGear;
 						nodDestination.Nodes.Add(objAmmoNode);
 						treGear.SelectedNode.Text = objMovedGear.DisplayName;
@@ -18437,7 +18466,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18460,7 +18489,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18478,7 +18507,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, strForceItemValue, frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
+					objGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, strForceItemValue, frmPickGear.Hacked, frmPickGear.InherentProgram, true, true, frmPickGear.Aerodynamic);
 					objGear.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18498,6 +18527,9 @@ namespace Chummer
 
 			if (objNewGear.InternalId == Guid.Empty.ToString())
 				return false;
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsGear);
 
 			// Reduce the cost for Do It Yourself components.
 			if (frmPickGear.DoItYourself)
@@ -18685,7 +18717,7 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objCommlink.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objCommlink.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18701,7 +18733,7 @@ namespace Chummer
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating);
+					objOperatingSystem.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating);
 					objOperatingSystem.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18716,7 +18748,7 @@ namespace Chummer
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGear, _objCharacter, objNode, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", false, false, true, true, frmPickGear.Aerodynamic);
+					objGear.Create(objXmlGear, _objCharacter, frmPickGear.SelectedRating, objWeapons, objWeaponNodes, "", false, false, true, true, frmPickGear.Aerodynamic);
 					objGear.Quantity = frmPickGear.SelectedQty;
 					try
 					{
@@ -18733,6 +18765,9 @@ namespace Chummer
 
 			if (objNewGear.InternalId == Guid.Empty.ToString())
 				return false;
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsArmorGear);
 
 			if (!blnNullParent)
 				objNewGear.Parent = objSelectedGear;
@@ -21715,9 +21750,11 @@ namespace Chummer
 								intQty = Convert.ToInt32(objXmlGear["qty"].InnerText);
 
 							XmlNode objXmlGearNode = objXmlGearDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + objXmlGear["name"].InnerText + "\"]");
-							objGear.Create(objXmlGearNode, _objCharacter, objGearNode, intRating, objWeapons, objWeaponNodes, strForceValue, false, false, false, blnCreateChildren, false);
+							objGear.Create(objXmlGearNode, _objCharacter, intRating, objWeapons, objWeaponNodes, strForceValue, false, false, false, blnCreateChildren, false);
 							objGear.Quantity = intQty;
 							objGearNode.Text = objGear.DisplayName;
+							objGearNode.Tag = objGear.InternalId;
+							_objFunctions.BuildGearTree(objGear, objGearNode, cmsVehicleGear);
 							objVehicle.Gear.Add(objGear);
 
 							// Look for child components.
@@ -22766,7 +22803,7 @@ namespace Chummer
 					if (blnIncrease)
 					{
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Minidrone Sensor\" and category = \"Sensors\"]");
-						objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+						objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 						objSensor = objCurrentGear;
 						blnFound = true;
 					}
@@ -22778,7 +22815,7 @@ namespace Chummer
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Small Drone Sensor\" and category = \"Sensors\"]");
 					else
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Microdrone Sensor\" and category = \"Sensors\"]");
-					objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+					objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 					objSensor = objCurrentGear;
 					blnFound = true;
 					break;
@@ -22789,7 +22826,7 @@ namespace Chummer
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Medium Drone Sensor\" and category = \"Sensors\"]");
 					else
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Minidrone Sensor\" and category = \"Sensors\"]");
-					objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+					objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 					objSensor = objCurrentGear;
 					blnFound = true;
 					break;
@@ -22800,7 +22837,7 @@ namespace Chummer
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Large Drone Sensor\" and category = \"Sensors\"]");
 					else
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Small Drone Sensor\" and category = \"Sensors\"]");
-					objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+					objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 					objSensor = objCurrentGear;
 					blnFound = true;
 					break;
@@ -22811,7 +22848,7 @@ namespace Chummer
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Vehicle Sensor\" and category = \"Sensors\"]");
 					else
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Medium Drone Sensor\" and category = \"Sensors\"]");
-					objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+					objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 					objSensor = objCurrentGear;
 					blnFound = true;
 					break;
@@ -22822,7 +22859,7 @@ namespace Chummer
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Extra-Large Vehicle Sensor\" and category = \"Sensors\"]");
 					else
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Large Drone Sensor\" and category = \"Sensors\"]");
-					objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+					objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 					objSensor = objCurrentGear;
 					blnFound = true;
 					break;
@@ -22832,7 +22869,7 @@ namespace Chummer
 					if (!blnIncrease)
 					{
 						objNewNode = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Vehicle Sensor\" and category = \"Sensors\"]");
-						objNewSensor.Create(objNewNode, _objCharacter, objTreeNode, 0, lstWeapons, lstWeaponNodes);
+						objNewSensor.Create(objNewNode, _objCharacter, 0, lstWeapons, lstWeaponNodes);
 						objSensor = objCurrentGear;
 						blnFound = true;
 					}
@@ -23275,25 +23312,28 @@ namespace Chummer
 				case "Commlink":
 				case "Commlink Upgrade":
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Create(objXmlGearNode, _objCharacter, objNode, intRating, true, blnCreateChildren);
+					objCommlink.Create(objXmlGearNode, _objCharacter, intRating, true, blnCreateChildren);
 					objCommlink.Quantity = intQty;
 					objNewGear = objCommlink;
 					break;
 				case "Commlink Operating System":
 				case "Commlink Operating System Upgrade":
 					OperatingSystem objOperatingSystem = new OperatingSystem(_objCharacter);
-					objOperatingSystem.Create(objXmlGearNode, _objCharacter, objNode, intRating, true, blnCreateChildren);
+					objOperatingSystem.Create(objXmlGearNode, _objCharacter, intRating, true, blnCreateChildren);
 					objOperatingSystem.Quantity = intQty;
 					objNewGear = objOperatingSystem;
 					break;
 				default:
 					Gear objGear = new Gear(_objCharacter);
-					objGear.Create(objXmlGearNode, _objCharacter, objNode, intRating, objWeapons, objWeaponNodes, strForceValue, false, false, true, blnCreateChildren);
+					objGear.Create(objXmlGearNode, _objCharacter, intRating, objWeapons, objWeaponNodes, strForceValue, false, false, true, blnCreateChildren);
 					objGear.Quantity = intQty;
 					objNode.Text = objGear.DisplayName;
 					objNewGear = objGear;
 					break;
 			}
+
+			objNode.Tag = objNewGear.InternalId;
+			_objFunctions.BuildGearTree(objNewGear, objNode, cmsContextMenu);
 
 			if (objParentObject.GetType() == typeof(Character))
 				((Character)objParentObject).Gear.Add(objNewGear);

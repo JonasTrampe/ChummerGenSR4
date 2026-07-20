@@ -22,4 +22,43 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Controls\AdeptPowerRow.axaml.cs">
+        <DependentUpon>AdeptPowerRow.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\KarmaGpDialog.axaml.cs">
+        <DependentUpon>KarmaGpDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\MetatypeDialog.axaml.cs">
+        <DependentUpon>MetatypeDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\QualityDialog.axaml.cs">
+        <DependentUpon>QualityDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\SettingsProfileDialog.axaml.cs">
+        <DependentUpon>SettingsProfileDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\SheetPreviewDialog.axaml.cs">
+        <DependentUpon>SheetPreviewDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Dialogs\SpellDialog.axaml.cs">
+        <DependentUpon>SpellDialog.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Controls\AttributeRow.axaml.cs">
+        <DependentUpon>AttributeRow.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Controls\GroupRow.axaml.cs">
+        <DependentUpon>GroupRow.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Controls\InfoRow.axaml.cs">
+        <DependentUpon>InfoRow.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Controls\SkillRow.axaml.cs">
+        <DependentUpon>SkillRow.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Controls\TreeDetailPane.axaml.cs">
+        <DependentUpon>TreeDetailPane.axaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

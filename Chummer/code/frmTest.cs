@@ -447,11 +447,10 @@ namespace Chummer
 				Application.DoEvents();
 				try
 				{
-					TreeNode objTempNode = new TreeNode();
 					Gear objTemp = new Gear(objCharacter);
 					List<Weapon> lstWeapons = new List<Weapon>();
 					List<TreeNode> lstNodes = new List<TreeNode>();
-					objTemp.Create(objXmlGear, objCharacter, objTempNode, 1, lstWeapons, lstNodes, "Blades");
+					objTemp.Create(objXmlGear, objCharacter, 1, lstWeapons, lstNodes, "Blades");
 					try
 					{
 						int objValue = objTemp.TotalCost;
@@ -923,11 +922,10 @@ namespace Chummer
 						if (objXmlGear.Attributes["select"] != null)
 							strForceValue = objXmlGear.Attributes["select"].InnerText;
 						XmlNode objXmlGearItem = objXmlGearDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + objXmlGear.InnerText + "\"]");
-						TreeNode objNode = new TreeNode();
 						Gear objGear = new Gear(_objCharacter);
 						List<Weapon> lstWeapons = new List<Weapon>();
 						List<TreeNode> lstWeaponNodes = new List<TreeNode>();
-						objGear.Create(objXmlGearItem, _objCharacter, objNode, intRating, lstWeapons, lstWeaponNodes, strForceValue);
+						objGear.Create(objXmlGearItem, _objCharacter, intRating, lstWeapons, lstWeaponNodes, strForceValue);
 						objGear.Cost = "0";
 						objGear.Cost3 = "0";
 						objGear.Cost6 = "0";

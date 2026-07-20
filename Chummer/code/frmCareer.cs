@@ -7869,23 +7869,25 @@ namespace Chummer
 			if (objSelectedGear.GetType() == typeof(Commlink))
 			{
 				Commlink objCommlink = new Commlink(_objCharacter);
-				objCommlink.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+				objCommlink.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 				objGear = objCommlink;
 			}
 			else if (objSelectedGear.GetType() == typeof(OperatingSystem))
 			{
 				OperatingSystem objOS = new OperatingSystem(_objCharacter);
-				objOS.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+				objOS.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 				objGear = objOS;
 			}
 			else
-				objGear.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
-			
+				objGear.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
+
 			objGear.Quantity = frmPickNumber.SelectedValue;
 			objGear.Equipped = objSelectedGear.Equipped;
 			objGear.Location = objSelectedGear.Location;
 			objGear.Notes = objSelectedGear.Notes;
 			objGearNode.Text = objGear.DisplayName;
+			objGearNode.Tag = objGear.InternalId;
+			_objFunctions.BuildGearTree(objGear, objGearNode, treGear.SelectedNode.ContextMenuStrip);
 			objGearNode.ContextMenuStrip = treGear.SelectedNode.ContextMenuStrip;
 
 			// Update the selected item.
@@ -8095,22 +8097,24 @@ namespace Chummer
 				if (objSelectedGear.GetType() == typeof(Commlink))
 				{
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+					objCommlink.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 					objGear = objCommlink;
 				}
 				else if (objSelectedGear.GetType() == typeof(OperatingSystem))
 				{
 					OperatingSystem objOS = new OperatingSystem(_objCharacter);
-					objOS.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+					objOS.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 					objGear = objOS;
 				}
 				else
-					objGear.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+					objGear.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 
 				objGear.Parent = null;
 				objGear.Quantity = intMove;
 				objGear.Location = string.Empty;
 				objGearNode.Text = objGear.DisplayName;
+				objGearNode.Tag = objGear.InternalId;
+				_objFunctions.BuildGearTree(objGear, objGearNode, cmsVehicleGear);
 				objGearNode.ContextMenuStrip = cmsVehicleGear;
 
 				// Locate the Node for the selected Vehicle.
@@ -8276,21 +8280,23 @@ namespace Chummer
 					if (objSelectedGear.GetType() == typeof(Commlink))
 					{
 						Commlink objCommlink = new Commlink(_objCharacter);
-						objCommlink.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+						objCommlink.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 						objGear = objCommlink;
 					}
 					else if (objSelectedGear.GetType() == typeof(OperatingSystem))
 					{
 						OperatingSystem objOS = new OperatingSystem(_objCharacter);
-						objOS.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+						objOS.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 						objGear = objOS;
 					}
 					else
-						objGear.Copy(objSelectedGear, objGearNode, lstWeapons, lstWeaponNodes);
+						objGear.Copy(objSelectedGear, lstWeapons, lstWeaponNodes);
 
 					objGear.Parent = null;
 					objGear.Quantity = intMove;
 					objGearNode.Text = objGear.DisplayName;
+					objGearNode.Tag = objGear.InternalId;
+					_objFunctions.BuildGearTree(objGear, objGearNode, cmsGear);
 					objGearNode.ContextMenuStrip = cmsGear;
 
 					treGear.Nodes[0].Nodes.Add(objGearNode);
