@@ -433,6 +433,10 @@ namespace Chummer
 		/// <param name="strLanguage">Language to check.</param>
 		public void VerifyStrings(string strLanguage)
 		{
+			List<string> lstMessages = _objCatalog.VerifyLanguage(Path.Combine(Application.StartupPath, "lang"), strLanguage);
+			MessageBox.Show(lstMessages.Count == 0 ? "Language file is OK." : "\n" + string.Join("\n", lstMessages), "Language File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			return;
+
 			// Load the English version.
 			List<LanguageString> lstEnglish = new List<LanguageString>();
 			XmlDocument objEnglishDocument = new XmlDocument();

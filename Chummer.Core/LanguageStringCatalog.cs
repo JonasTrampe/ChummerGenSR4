@@ -42,6 +42,27 @@ namespace Chummer
 			return _dicStrings[strKey].Replace("\\n", "\n");
 		}
 
+		public List<string> VerifyLanguage(string strLanguageDirectory, string strLanguage)
+		{
+			Dictionary<string, string> dicEnglish = ReadStrings(Path.Combine(strLanguageDirectory, "en-us.xml"));
+			Dictionary<string, string> dicLanguage = ReadStrings(Path.Combine(strLanguageDirectory, strLanguage + ".xml"));
+			List<string> lstMessages = new List<string>();
+			foreach (string strKey in dicEnglish.Keys)
+				if (!dicLanguage.ContainsKey(strKey)) lstMessages.Add("Missing String: " + strKey);
+			foreach (string strKey in dicLanguage.Keys)
+				if (!dicEnglish.ContainsKey(strKey)) lstMessages.Add("Unused String: " + strKey);
+			return lstMessages;
+		}
+
+		private static Dictionary<string, string> ReadStrings(string strPath)
+		{
+			XmlDocument objDocument = new XmlDocument();
+			objDocument.Load(strPath);
+			Dictionary<string, string> dicStrings = new Dictionary<string, string>();
+			foreach (XmlNode objNode in objDocument.SelectNodes("/chummer/strings/string")) dicStrings[objNode["key"].InnerText] = objNode["text"].InnerText;
+			return dicStrings;
+		}
+
 		private void LoadFile(string strPath, bool blnReplace)
 		{
 			XmlDocument objDocument = new XmlDocument();
