@@ -648,7 +648,7 @@ namespace Chummer
 			if (string.IsNullOrEmpty(strLastKnownRevisionId))
 				return true;
 
-			RunnersPointApiClient objApiClient = new RunnersPointApiClient(_objCloudAuth);
+			IRunnersPointApiClient objApiClient = new RunnersPointApiClient(_objCloudAuth);
 			RunnersPointDocument objDocument;
 			try
 			{

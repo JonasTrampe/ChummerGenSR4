@@ -27,8 +27,8 @@ namespace Chummer
 	///   against a live server since none exists yet.
 	///
 	/// Token storage: DPAPI-protected on Windows (CurrentUser scope, so only the OS account that logged
-	/// in can decrypt it). On non-Windows platforms (Mono/Linux) there is currently no equivalent secret
-	/// store wired up - libsecret is used through its standard secret-tool CLI. If libsecret is not
+	/// in can decrypt it). On non-Windows platforms (Mono/Linux), libsecret is used through its standard
+	/// secret-tool CLI. If libsecret is not
 	/// available, tokens are written in plain text with a best-effort 0600 permission attempt.
 	/// </summary>
 	public class RunnersPointAuth
@@ -328,8 +328,8 @@ namespace Chummer
 			}
 			else
 			{
-				// No cross-platform secret store wired up yet - see class remarks. Flagged loudly rather
-				// than silently pretending this is as safe as the Windows path.
+				// libsecret is unavailable. Flag this loudly rather than silently pretending this is
+				// as safe as the Windows or libsecret-backed path.
 				Trace.TraceWarning("RunnersPoint auth tokens are being stored in plain text on this platform - no secret store integration exists for Mono/Linux yet.");
 				bytToWrite = bytJson;
 			}

@@ -38,6 +38,12 @@ factories are UI-agnostic; the legacy WinForms call signatures are retained as a
 `WinFormsEquipmentTreeExtensions.cs`. Dedicated WinForms helpers (`CommonFunctions`, language
 translation, and list sorting) continue to own tree rendering and interaction.
 
+**Current shared-services slice:** Cloud document DTOs, authentication (DPAPI on Windows and
+libsecret on Linux where available), endpoint options, and the `IRunnersPointApiClient` contract
+are in `Chummer.Core`. The WinForms cloud screens now consume the interface; the HTTP client
+implementation remains in the legacy application while its JSON/logging dependencies are removed
+or made shared.
+
 ---
 
 ## Detailed Phase Plan (Ongoing)

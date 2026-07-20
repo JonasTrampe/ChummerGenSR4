@@ -25,7 +25,7 @@ namespace Chummer
 		private bool _blnApiTokenPlaceholderShown;
 
 		private readonly RunnersPointAuth _objAuth = new RunnersPointAuth();
-		private RunnersPointApiClient _objApiClient;
+		private IRunnersPointApiClient _objApiClient;
 		private readonly Character _objActiveCharacter;
 		private string _strGameProfileId = "";
 		private string _strGameProfileFormat = "";

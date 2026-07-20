@@ -47,7 +47,7 @@ namespace Chummer
 				return new CloudSaveOutcome { Result = CloudSaveResult.Saved, LastPushedHash = strLastPushedHash };
 			}
 
-			RunnersPointApiClient objApiClient = new RunnersPointApiClient(objAuth);
+			IRunnersPointApiClient objApiClient = new RunnersPointApiClient(objAuth);
 			PushOutcome objOutcome = await TryPushAsync(objOwner, objApiClient, objCharacter, bytContent);
 
 			if (objOutcome.Cancelled)
@@ -83,7 +83,7 @@ namespace Chummer
 			public string ErrorMessage;
 		}
 
-		private static async Task<PushOutcome> TryPushAsync(IWin32Window objOwner, RunnersPointApiClient objApiClient, Character objCharacter, byte[] bytContent)
+		private static async Task<PushOutcome> TryPushAsync(IWin32Window objOwner, IRunnersPointApiClient objApiClient, Character objCharacter, byte[] bytContent)
 		{
 			try
 			{
@@ -125,7 +125,7 @@ namespace Chummer
 		/// revision, diff it against the content we're about to save, and let the user decide whether
 		/// their local edits should still win.
 		/// </summary>
-		private static async Task<PushOutcome> HandleConflictAsync(IWin32Window objOwner, RunnersPointApiClient objApiClient, Character objCharacter, byte[] bytContent)
+		private static async Task<PushOutcome> HandleConflictAsync(IWin32Window objOwner, IRunnersPointApiClient objApiClient, Character objCharacter, byte[] bytContent)
 		{
 			Tuple<RunnersPointDocument, string> objCurrent;
 			byte[] bytServerContent;
@@ -188,7 +188,7 @@ namespace Chummer
 		/// each time rather than cached, since this can be called from a window that never opened Cloud
 		/// Documents at all this session.
 		/// </summary>
-		private static async Task<Tuple<string, string>> ResolveGameProfileAsync(RunnersPointApiClient objApiClient)
+		private static async Task<Tuple<string, string>> ResolveGameProfileAsync(IRunnersPointApiClient objApiClient)
 		{
 			RunnersPointCapabilities objCapabilities = await objApiClient.GetCapabilitiesAsync();
 			RunnersPointGameProfile objProfile = objCapabilities.GameProfiles.FirstOrDefault(

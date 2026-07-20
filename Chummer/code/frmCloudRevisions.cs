@@ -16,12 +16,12 @@ namespace Chummer
 	/// </summary>
 	public partial class frmCloudRevisions : Form
 	{
-		private readonly RunnersPointApiClient _objApiClient;
+		private readonly IRunnersPointApiClient _objApiClient;
 		private readonly RunnersPointDocument _objDocument;
 		private readonly bool _blnShared;
 		private readonly bool _blnCanPurge;
 
-		public frmCloudRevisions(RunnersPointApiClient objApiClient, RunnersPointDocument objDocument, bool blnShared, bool blnCanPurge)
+		public frmCloudRevisions(IRunnersPointApiClient objApiClient, RunnersPointDocument objDocument, bool blnShared, bool blnCanPurge)
 		{
 			_objApiClient = objApiClient;
 			_objDocument = objDocument;
