@@ -1347,7 +1347,7 @@ namespace Chummer
 			objXmlNodeList = objXmlDocument.SelectNodes("/character/contacts/contact");
 			foreach (XmlNode objXmlContact in objXmlNodeList)
 			{
-				Contact objContact = new Contact(this);
+				Contact objContact = new Contact();
 				objContact.Load(objXmlContact);
 				_lstContacts.Add(objContact);
 			}
@@ -2060,7 +2060,7 @@ namespace Chummer
 			objWriter.WriteStartElement("contacts");
 			foreach (Contact objContact in _lstContacts)
 			{
-				objContact.Print(objWriter);
+				objContact.Print(objWriter, LanguageManager.Instance.GetString("String_" + objContact.EntityType.ToString()), Options.PrintNotes);
 			}
 			// </contacts>
 			objWriter.WriteEndElement();

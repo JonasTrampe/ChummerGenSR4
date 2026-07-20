@@ -5168,7 +5168,7 @@ namespace Chummer
 
 		private void cmdAddContact_Click(object sender, EventArgs e)
 		{
-			Contact objContact = new Contact(_objCharacter);
+			Contact objContact = new Contact();
 			_objCharacter.Contacts.Add(objContact);
 
 			int i = panContacts.Controls.Count;
@@ -5195,7 +5195,7 @@ namespace Chummer
 		private void cmdAddEnemy_Click(object sender, EventArgs e)
 		{
 			// Handle the ConnectionRatingChanged Event for the ContactControl object.
-			Contact objContact = new Contact(_objCharacter);
+			Contact objContact = new Contact();
 			_objCharacter.Contacts.Add(objContact);
 
 			int i = panEnemies.Controls.Count;
@@ -9782,7 +9782,7 @@ namespace Chummer
 
 		private void cmdAddPet_Click(object sender, EventArgs e)
 		{
-			Contact objContact = new Contact(_objCharacter);
+			Contact objContact = new Contact();
 			objContact.EntityType = ContactType.Pet;
 			_objCharacter.Contacts.Add(objContact);
 
