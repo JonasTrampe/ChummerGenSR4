@@ -52,7 +52,6 @@ namespace Chummer
 		static private string _strLanguage = "";
 		static readonly LanguageManager _objInstance = new LanguageManager();
 		static readonly LanguageStringCatalog _objCatalog = new LanguageStringCatalog();
-		static private readonly Dictionary<string, string> _objDictionary = new Dictionary<string, string>();
 		static bool _blnLoaded = false;
 		static readonly XmlDocument _objXmlDocument = new XmlDocument();
 		static XmlDocument _objXmlDataDocument;
@@ -128,7 +127,6 @@ namespace Chummer
 		{
 			try
 			{
-				_objDictionary.Clear();
 				_objCatalog.LoadBase(Path.Combine(Application.StartupPath, "lang"));
 				XmlDocument objEnglishDocument = new XmlDocument();
 				string strFilePath = Path.Combine(Application.StartupPath, "lang");
@@ -176,8 +174,7 @@ namespace Chummer
 						// If the string was not found, then someone has inserted a Key that should not exist and is ignored.
 						try
 						{
-							if (_objDictionary[objNode["key"].InnerText] != null)
-								_objDictionary[objNode["key"].InnerText] = objNode["text"].InnerText;
+							_objCatalog.GetString(objNode["key"].InnerText);
 						}
 						catch
 						{
