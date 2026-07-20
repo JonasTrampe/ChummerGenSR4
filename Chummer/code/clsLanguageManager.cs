@@ -115,7 +115,7 @@ namespace Chummer
 		{
 			get
 			{
-				return _objXmlDataDocument;
+				return _objCatalog.DataDocument;
 			}
 		}
 		#endregion
@@ -191,21 +191,6 @@ namespace Chummer
 					return;
 				}
 
-				// Check to see if the data translation file for the selected language exists.
-				string strDataPath = Path.Combine(Application.StartupPath, "lang");
-				strDataPath = Path.Combine(strDataPath, strLanguage + "_data.xml");
-				if (File.Exists(strDataPath))
-				{
-					try
-					{
-						_objXmlDataDocument = new XmlDocument();
-						_objXmlDataDocument.Load(strDataPath);
-					}
-					catch
-					{
-						// Failing to load the data translation file should not render the application unusable.
-					}
-				}
 			}
 
 			// If the object is a Form, call the UpdateForm method to provide its translations.

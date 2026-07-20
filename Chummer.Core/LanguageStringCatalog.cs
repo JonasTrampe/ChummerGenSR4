@@ -9,6 +9,7 @@ namespace Chummer
 	public sealed class LanguageStringCatalog
 	{
 		private readonly Dictionary<string, string> _dicStrings = new Dictionary<string, string>();
+		public XmlDocument DataDocument { get; private set; }
 
 		public void LoadBase(string strLanguageDirectory)
 		{
@@ -18,7 +19,22 @@ namespace Chummer
 		public void ApplyLanguage(string strLanguageDirectory, string strLanguage)
 		{
 			if (strLanguage != "en-us")
+			{
 				LoadFile(Path.Combine(strLanguageDirectory, strLanguage + ".xml"), false);
+				string strDataPath = Path.Combine(strLanguageDirectory, strLanguage + "_data.xml");
+				if (File.Exists(strDataPath))
+				{
+					try
+					{
+						DataDocument = new XmlDocument();
+						DataDocument.Load(strDataPath);
+					}
+					catch
+					{
+						DataDocument = null;
+					}
+				}
+			}
 		}
 
 		public string GetString(string strKey)
