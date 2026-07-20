@@ -51,6 +51,7 @@ namespace Chummer
 		static private readonly bool _blnDebug = false;
 		static private string _strLanguage = "";
 		static readonly LanguageManager _objInstance = new LanguageManager();
+		static readonly LanguageStringCatalog _objCatalog = new LanguageStringCatalog();
 		static private readonly Dictionary<string, string> _objDictionary = new Dictionary<string, string>();
 		static bool _blnLoaded = false;
 		static readonly XmlDocument _objXmlDocument = new XmlDocument();
@@ -128,6 +129,7 @@ namespace Chummer
 			try
 			{
 				_objDictionary.Clear();
+				_objCatalog.LoadBase(Path.Combine(Application.StartupPath, "lang"));
 				XmlDocument objEnglishDocument = new XmlDocument();
 				string strFilePath = Path.Combine(Application.StartupPath, "lang");
 				strFilePath = Path.Combine(strFilePath, "en-us.xml");
@@ -167,6 +169,7 @@ namespace Chummer
 					strFilePath = Path.Combine(strFilePath, strLanguage + ".xml");
 					objLanguageDocument.Load(strFilePath);
 					_objXmlDocument.Load(strFilePath);
+					_objCatalog.ApplyLanguage(Path.Combine(Application.StartupPath, "lang"), strLanguage);
 					foreach (XmlNode objNode in objLanguageDocument.SelectNodes("/chummer/strings/string"))
 					{
 						// Look for the English version of the found string. If it has been found, replace the English contents with the contents from this file.
@@ -437,7 +440,7 @@ namespace Chummer
 		public string GetString(string strKey)
 		{
 			string strReturn = "";
-			strReturn = _objDictionary[strKey].Replace("\\n", "\n");
+			strReturn = _objCatalog.GetString(strKey);
 
 			return strReturn;
 		}
