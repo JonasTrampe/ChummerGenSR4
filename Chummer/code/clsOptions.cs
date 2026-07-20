@@ -246,8 +246,8 @@ namespace Chummer
 				}
 			}
 
-			CyberwareGrades.LoadList(Improvement.ImprovementSource.Cyberware);
-			BiowareGrades.LoadList(Improvement.ImprovementSource.Bioware);
+			CyberwareGrades.LoadList(XmlManager.Instance.Load("cyberware.xml"));
+			BiowareGrades.LoadList(XmlManager.Instance.Load("bioware.xml"));
 		}
 
 		GlobalOptions()
