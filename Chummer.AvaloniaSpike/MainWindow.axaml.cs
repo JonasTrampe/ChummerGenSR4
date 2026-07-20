@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using Chummer.AvaloniaSpike.Dialogs;
 using ScottPlot;
@@ -227,6 +228,27 @@ public partial class MainWindow : Window
 
         var metatypeDialog = new MetatypeDialog();
         await metatypeDialog.ShowDialog(this);
+    }
+
+    private async void OnOpenCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open Chummer character",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Chummer characters") { Patterns = new[] { "*.chum", "*.xml" } },
+                FilePickerFileTypes.All,
+            },
+        });
+
+        if (files.Count > 0)
+            Title = "Chummer - " + files[0].Name;
     }
 
     private async void OnAddQualityClick(object? sender, RoutedEventArgs e)

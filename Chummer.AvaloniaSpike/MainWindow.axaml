@@ -46,9 +46,10 @@
                         AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
                     <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/page.png" />
                 </Button>
-                <Border Classes="toolbarButton" ToolTip.Tip="Öffnen">
+                <Button Classes="toolbarButton" ToolTip.Tip="Öffnen"
+                        AutomationProperties.Name="Öffnen" Click="OnOpenCharacterClick">
                     <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/folder_page.png" />
-                </Border>
+                </Button>
                 <Border Classes="toolbarButton" ToolTip.Tip="Speichern">
                     <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/disk.png" />
                 </Border>
