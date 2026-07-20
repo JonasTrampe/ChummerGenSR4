@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Xml;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -248,7 +249,22 @@ public partial class MainWindow : Window
         });
 
         if (files.Count > 0)
-            Title = "Chummer - " + files[0].Name;
+        {
+            string characterName = files[0].Name;
+            try
+            {
+                await using var stream = await files[0].OpenReadAsync();
+                var document = new XmlDocument();
+                document.Load(stream);
+                characterName = document.SelectSingleNode("/character/name")?.InnerText ?? characterName;
+            }
+            catch (XmlException)
+            {
+                // Keep the selected filename when the document is not a readable Chummer save.
+            }
+
+            Title = "Chummer - " + characterName;
+        }
     }
 
     private async void OnAddQualityClick(object? sender, RoutedEventArgs e)
