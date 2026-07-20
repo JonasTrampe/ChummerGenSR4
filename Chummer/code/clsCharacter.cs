@@ -1517,7 +1517,7 @@ namespace Chummer
 			objXmlNodeList = objXmlDocument.SelectNodes("/character/initiationgrades/initiationgrade");
 			foreach (XmlNode objXmlGrade in objXmlNodeList)
 			{
-				InitiationGrade objGrade = new InitiationGrade(this);
+				InitiationGrade objGrade = new InitiationGrade(Options.KarmaInitiation);
 				objGrade.Load(objXmlGrade);
 				_lstInitiationGrades.Add(objGrade);
 			}

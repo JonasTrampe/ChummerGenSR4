@@ -8202,7 +8202,7 @@ namespace Chummer
 				}
 
 				// Create the Initiate Grade object.
-				InitiationGrade objGrade = new InitiationGrade(_objCharacter);
+				InitiationGrade objGrade = new InitiationGrade(_objCharacter.Options.KarmaInitiation);
 				objGrade.Create(_objCharacter.InitiateGrade + 1, _objCharacter.RESEnabled, chkInitiationGroup.Checked, chkInitiationOrdeal.Checked);
 				_objCharacter.InitiationGrades.Add(objGrade);
 
@@ -8242,7 +8242,7 @@ namespace Chummer
 				}
 
 				// Create the Initiate Grade object.
-				InitiationGrade objGrade = new InitiationGrade(_objCharacter);
+				InitiationGrade objGrade = new InitiationGrade(_objCharacter.Options.KarmaInitiation);
 				objGrade.Create(_objCharacter.SubmersionGrade + 1, _objCharacter.RESEnabled, chkInitiationGroup.Checked, chkInitiationOrdeal.Checked);
 				_objCharacter.InitiationGrades.Add(objGrade);
 
@@ -21914,7 +21914,21 @@ namespace Chummer
 		{
 			lstInitiation.Items.Clear();
 			foreach (InitiationGrade objGrade in _objCharacter.InitiationGrades)
-				lstInitiation.Items.Add(objGrade.Text);
+				lstInitiation.Items.Add(FormatInitiationGrade(objGrade));
+		}
+
+		private static string FormatInitiationGrade(InitiationGrade objGrade)
+		{
+			string strReturn = LanguageManager.Instance.GetString("String_Grade") + " " + objGrade.Grade.ToString();
+			if (!objGrade.Group && !objGrade.Ordeal)
+				return strReturn;
+
+			List<string> lstDetails = new List<string>();
+			if (objGrade.Group)
+				lstDetails.Add(LanguageManager.Instance.GetString(objGrade.Technomancer ? "String_Network" : "String_Group"));
+			if (objGrade.Ordeal)
+				lstDetails.Add(LanguageManager.Instance.GetString(objGrade.Technomancer ? "String_Task" : "String_Ordeal"));
+			return strReturn + " (" + string.Join(", ", lstDetails) + ")";
 		}
 
 		/// <summary>
