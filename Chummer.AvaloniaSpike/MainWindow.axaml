@@ -113,15 +113,15 @@
                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,60,Auto,60">
                                         <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
                                                    Margin="0,0,6,0" />
-                                        <TextBox Grid.Column="1" Width="260" HorizontalAlignment="Left" />
+                                        <TextBox Name="AliasTextBox" Grid.Column="1" Width="260" HorizontalAlignment="Left" />
                                         <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center"
                                                    Margin="20,0,6,0" />
-                                        <TextBlock Grid.Column="3" Text="Ork" FontWeight="Bold"
+                                        <TextBlock Name="MetatypeText" Grid.Column="3" Text="Ork" FontWeight="Bold"
                                                    VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="4" Text="Nuyen:" VerticalAlignment="Center"
                                                    Margin="20,0,6,0" />
-                                        <TextBox Grid.Column="5" Text="0" />
-                                        <TextBlock Grid.Column="6" Text="= 0¥" VerticalAlignment="Center"
+                                        <TextBox Name="NuyenTextBox" Grid.Column="5" Text="0" />
+                                        <TextBlock Name="NuyenEquivalentText" Grid.Column="6" Text="= 0¥" VerticalAlignment="Center"
                                                    Margin="6,0,0,0" />
                                     </Grid>
 
@@ -134,27 +134,27 @@
                                             <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
                                         </Grid>
                                         <StackPanel>
-                                            <controls:AttributeRow AttributeName="Konstitution (KON)" Base="4"
+                                            <controls:AttributeRow Name="BODAttribute" AttributeName="Konstitution (KON)" Base="4"
                                                                    Range="4 / 9 (13)" Source="SR4 89" />
-                                            <controls:AttributeRow AttributeName="Geschicklichkeit (GES)" Base="5"
+                                            <controls:AttributeRow Name="AGIAttribute" AttributeName="Geschicklichkeit (GES)" Base="5"
                                                                    Augmented="(7)" Range="1 / 6 (9)" />
-                                            <controls:AttributeRow AttributeName="Reaktion (REA)" Base="5"
+                                            <controls:AttributeRow Name="REAAttribute" AttributeName="Reaktion (REA)" Base="5"
                                                                    Augmented="(7)" Range="1 / 6 (9)" />
-                                            <controls:AttributeRow AttributeName="Stärke (STR)" Base="3"
+                                            <controls:AttributeRow Name="STRAttribute" AttributeName="Stärke (STR)" Base="3"
                                                                    Augmented="(4)" Range="3 / 8 (12)" />
-                                            <controls:AttributeRow AttributeName="Charisma (CHA)" Base="2"
+                                            <controls:AttributeRow Name="CHAAttribute" AttributeName="Charisma (CHA)" Base="2"
                                                                    Range="1 / 5 (7)" />
-                                            <controls:AttributeRow AttributeName="Intuition (INT)" Base="5"
+                                            <controls:AttributeRow Name="INTAttribute" AttributeName="Intuition (INT)" Base="5"
                                                                    Range="1 / 6 (9)" />
-                                            <controls:AttributeRow AttributeName="Logik (LOG)" Base="5"
+                                            <controls:AttributeRow Name="LOGAttribute" AttributeName="Logik (LOG)" Base="5"
                                                                    Range="1 / 5 (7)" />
-                                            <controls:AttributeRow AttributeName="Willenskraft (WIL)" Base="2"
+                                            <controls:AttributeRow Name="WILAttribute" AttributeName="Willenskraft (WIL)" Base="2"
                                                                    Range="1 / 6 (9)" />
-                                            <controls:AttributeRow AttributeName="Edge (EDG)" Base="3"
+                                            <controls:AttributeRow Name="EDGAttribute" AttributeName="Edge (EDG)" Base="3"
                                                                    Range="1 / 6 (6)" ShowRemove="True" />
-                                            <controls:AttributeRow AttributeName="Magie (MAG)" Base="6"
+                                            <controls:AttributeRow Name="MAGAttribute" AttributeName="Magie (MAG)" Base="6"
                                                                    Range="1 / 6 (6)" />
-                                            <controls:AttributeRow AttributeName="Resonanz (RES)" Base="1"
+                                            <controls:AttributeRow Name="RESAttribute" AttributeName="Resonanz (RES)" Base="1"
                                                                    Range="1 / 6 (6)" IsEnabled="False" />
                                         </StackPanel>
 

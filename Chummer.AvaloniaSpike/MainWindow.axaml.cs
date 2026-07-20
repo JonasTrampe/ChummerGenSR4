@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using Chummer.AvaloniaSpike.Controls;
 using Chummer.AvaloniaSpike.Dialogs;
 using ScottPlot;
 
@@ -260,6 +261,7 @@ public partial class MainWindow : Window
                 characterName = document.SelectSingleNode("/character/name")?.InnerText ?? characterName;
                 _loadedCharacterDocument = document;
                 UpdateCharacterStatus(document);
+                UpdateCharacterOverview(document);
             }
             catch (XmlException)
             {
@@ -276,6 +278,34 @@ public partial class MainWindow : Window
         string nuyen = document.SelectSingleNode("/character/nuyen")?.InnerText ?? "0";
         this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: " + karma;
         this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: " + nuyen + "¥";
+    }
+
+    private void UpdateCharacterOverview(XmlDocument document)
+    {
+        string alias = document.SelectSingleNode("/character/alias")?.InnerText ?? string.Empty;
+        string metatype = document.SelectSingleNode("/character/metatype")?.InnerText ?? string.Empty;
+        string nuyen = document.SelectSingleNode("/character/nuyen")?.InnerText ?? "0";
+        this.FindControl<TextBox>("AliasTextBox")!.Text = alias;
+        this.FindControl<TextBlock>("MetatypeText")!.Text = metatype;
+        this.FindControl<TextBox>("NuyenTextBox")!.Text = nuyen;
+        this.FindControl<TextBlock>("NuyenEquivalentText")!.Text = "= " + nuyen + "¥";
+
+        foreach (XmlNode attribute in document.SelectNodes("/character/attributes/attribute")!)
+        {
+            string code = attribute.SelectSingleNode("name")?.InnerText ?? string.Empty;
+            var row = this.FindControl<AttributeRow>(code + "Attribute");
+            if (row is null)
+                continue;
+
+            string value = attribute.SelectSingleNode("value")?.InnerText ?? "0";
+            string totalValue = attribute.SelectSingleNode("totalvalue")?.InnerText ?? value;
+            string minimum = attribute.SelectSingleNode("metatypemin")?.InnerText ?? "0";
+            string maximum = attribute.SelectSingleNode("metatypemax")?.InnerText ?? "0";
+            string augmentedMaximum = attribute.SelectSingleNode("metatypeaugmax")?.InnerText ?? maximum;
+            row.Base = value;
+            row.Augmented = totalValue == value ? string.Empty : "(" + totalValue + ")";
+            row.Range = minimum + " / " + maximum + " (" + augmentedMaximum + ")";
+        }
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
