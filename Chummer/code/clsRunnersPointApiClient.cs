@@ -20,7 +20,7 @@ namespace Chummer
 	/// shared with the authenticated user via `/shared/documents/*` (per-document grants only - there is
 	/// no public marketplace/discovery surface in this API; that lives on the RunnersPoint website).
 	/// </summary>
-	public class RunnersPointApiClient
+	public class RunnersPointApiClient : IRunnersPointApiClient
 	{
 		// Configurable via Options > Cloud Documents server (GlobalOptions.CloudApiBaseUrl), so it can
 		// point at a local dev server, a staging deployment, or eventually a real production host
