@@ -13,7 +13,7 @@ public partial class GroupRow : UserControl
 
     public GroupRow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     public string? GroupName

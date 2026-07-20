@@ -80,7 +80,7 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
 
     public SkillRow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     public string? SkillName

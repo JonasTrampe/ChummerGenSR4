@@ -7,7 +7,7 @@ public partial class MetatypeDialog : Window
 {
     public MetatypeDialog()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)

@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <!--
+      The dotnet-hosted MSBuild used by Rider on Linux cannot target .NET Framework: its
+      reference assemblies are Windows-only. Mono MSBuild can still build net48 for the
+      legacy application, and Windows keeps both targets for the WinForms project.
+    -->
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows'))">net48;net8.0</TargetFrameworks>
+    <TargetFramework Condition="'$(TargetFrameworks)' == ''">net8.0</TargetFramework>
     <RootNamespace>Chummer</RootNamespace>
     <AssemblyName>Chummer.Core</AssemblyName>
     <LangVersion>latest</LangVersion>
@@ -25,6 +31,16 @@
          no-ops itself on non-Windows (Environment.OSVersion.Platform check) before ever touching
          this API. -->
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Chummer\code\clsRunnersPointAuth.cs" Link="clsRunnersPointAuth.cs" />
   </ItemGroup>
 
 </Project>

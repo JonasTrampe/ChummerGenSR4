@@ -25,6 +25,6 @@ public partial class InfoRow : UserControl
 
     public InfoRow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 }

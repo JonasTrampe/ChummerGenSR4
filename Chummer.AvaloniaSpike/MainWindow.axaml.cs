@@ -31,7 +31,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
         SetUpCareerCharts();
         SetUpGearDragDrop();
     }

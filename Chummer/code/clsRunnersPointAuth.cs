@@ -5,10 +5,11 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 
 namespace Chummer
 {
@@ -27,9 +28,8 @@ namespace Chummer
 	///
 	/// Token storage: DPAPI-protected on Windows (CurrentUser scope, so only the OS account that logged
 	/// in can decrypt it). On non-Windows platforms (Mono/Linux) there is currently no equivalent secret
-	/// store wired up - tokens are written in plain text with a best-effort 0600 permission attempt, and
-	/// GetAccessTokenAsync surfaces a warning the first time it has to do this. A real Linux secret store
-	/// (e.g. libsecret) is tracked as follow-up work, not implemented here.
+	/// store wired up - libsecret is used through its standard secret-tool CLI. If libsecret is not
+	/// available, tokens are written in plain text with a best-effort 0600 permission attempt.
 	/// </summary>
 	public class RunnersPointAuth
 	{
@@ -38,6 +38,8 @@ namespace Chummer
 		private const string AuthorizationUrl = "https://accounts.runnerspoint.example/oauth/authorize";
 		private const string TokenUrl = "https://accounts.runnerspoint.example/oauth/token";
 		private const string Scopes = "documents:read documents:write shared_documents:read shared_documents:write";
+		private const string SecretToolName = "secret-tool";
+		private const string SecretAttributeArguments = "application ChummerGenSR4 service RunnersPointAuth";
 
 		private static string TokenFilePath
 		{
@@ -50,15 +52,31 @@ namespace Chummer
 			}
 		}
 
+		[DataContract]
 		private class TokenSet
 		{
+			[DataMember(Name = "accessToken")]
 			public string AccessToken { get; set; }
+			[DataMember(Name = "refreshToken")]
 			public string RefreshToken { get; set; }
+			[DataMember(Name = "expiresAtUtc")]
 			public DateTime ExpiresAtUtc { get; set; }
 			// True for a pasted apiToken (SetApiToken) - these have no refresh token and are used as-is
 			// until the server itself rejects them (expired or revoked), rather than tracked against a
 			// client-side expiry.
+			[DataMember(Name = "isApiToken")]
 			public bool IsApiToken { get; set; }
+		}
+
+		[DataContract]
+		private class TokenResponse
+		{
+			[DataMember(Name = "access_token")]
+			public string AccessToken { get; set; }
+			[DataMember(Name = "refresh_token")]
+			public string RefreshToken { get; set; }
+			[DataMember(Name = "expires_in")]
+			public int ExpiresIn { get; set; }
 		}
 
 		private TokenSet _objCachedTokens;
@@ -69,6 +87,8 @@ namespace Chummer
 		/// </summary>
 		public bool HasStoredLogin()
 		{
+			if (!IsWindows() && TryLoadSecret(out _))
+				return true;
 			return File.Exists(TokenFilePath);
 		}
 
@@ -136,6 +156,8 @@ namespace Chummer
 		public void Logout()
 		{
 			_objCachedTokens = null;
+			if (!IsWindows())
+				ClearSecret();
 			if (File.Exists(TokenFilePath))
 				File.Delete(TokenFilePath);
 		}
@@ -244,13 +266,12 @@ namespace Chummer
 				if (!objResponse.IsSuccessStatusCode)
 					throw new InvalidOperationException("RunnersPoint token request failed (" + objResponse.StatusCode + "): " + strBody);
 
-				JavaScriptSerializer objSerializer = new JavaScriptSerializer();
-				Dictionary<string, object> objJson = objSerializer.Deserialize<Dictionary<string, object>>(strBody);
+				TokenResponse objJson = Deserialize<TokenResponse>(strBody);
 
 				TokenSet objTokens = new TokenSet();
-				objTokens.AccessToken = objJson["access_token"].ToString();
-				objTokens.RefreshToken = objJson.ContainsKey("refresh_token") ? objJson["refresh_token"].ToString() : (_objCachedTokens != null ? _objCachedTokens.RefreshToken : null);
-				int intExpiresIn = objJson.ContainsKey("expires_in") ? Convert.ToInt32(objJson["expires_in"]) : 3600;
+				objTokens.AccessToken = objJson.AccessToken;
+				objTokens.RefreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken : (_objCachedTokens != null ? _objCachedTokens.RefreshToken : null);
+				int intExpiresIn = objJson.ExpiresIn > 0 ? objJson.ExpiresIn : 3600;
 				// Refresh a little early so a request doesn't race an expiry that happens mid-flight.
 				objTokens.ExpiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
 
@@ -264,10 +285,13 @@ namespace Chummer
 			if (_objCachedTokens != null)
 				return _objCachedTokens;
 
-			if (!File.Exists(TokenFilePath))
+			byte[] bytStored = null;
+			if (!IsWindows() && TryLoadSecret(out string strSecret))
+				bytStored = Encoding.UTF8.GetBytes(strSecret);
+			else if (File.Exists(TokenFilePath))
+				bytStored = File.ReadAllBytes(TokenFilePath);
+			else
 				return null;
-
-			byte[] bytStored = File.ReadAllBytes(TokenFilePath);
 			byte[] bytJson;
 			if (IsWindows())
 			{
@@ -278,17 +302,9 @@ namespace Chummer
 				bytJson = bytStored;
 			}
 
-			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
-			Dictionary<string, object> objJson = objSerializer.Deserialize<Dictionary<string, object>>(Encoding.UTF8.GetString(bytJson));
+			TokenSet objTokens = Deserialize<TokenSet>(Encoding.UTF8.GetString(bytJson));
 
-			TokenSet objTokens = new TokenSet();
-			objTokens.AccessToken = objJson["accessToken"].ToString();
-			// apiToken logins always store a null RefreshToken - the "refreshToken" key is still present
-			// in the JSON with a JSON null value, so ContainsKey alone isn't enough to know it's safe to
-			// call .ToString() on it.
-			objTokens.RefreshToken = objJson.ContainsKey("refreshToken") && objJson["refreshToken"] != null ? objJson["refreshToken"].ToString() : null;
-			objTokens.ExpiresAtUtc = DateTime.Parse(objJson["expiresAtUtc"].ToString()).ToUniversalTime();
-			objTokens.IsApiToken = objJson.ContainsKey("isApiToken") && Convert.ToBoolean(objJson["isApiToken"]);
+			objTokens.ExpiresAtUtc = objTokens.ExpiresAtUtc.ToUniversalTime();
 
 			_objCachedTokens = objTokens;
 			return objTokens;
@@ -296,20 +312,19 @@ namespace Chummer
 
 		private void SaveTokens(TokenSet objTokens)
 		{
-			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
-			string strJson = objSerializer.Serialize(new Dictionary<string, object>
-			{
-				{ "accessToken", objTokens.AccessToken },
-				{ "refreshToken", objTokens.RefreshToken },
-				{ "expiresAtUtc", objTokens.ExpiresAtUtc.ToString("o") },
-				{ "isApiToken", objTokens.IsApiToken },
-			});
+			string strJson = Serialize(objTokens);
 			byte[] bytJson = Encoding.UTF8.GetBytes(strJson);
 
 			byte[] bytToWrite;
 			if (IsWindows())
 			{
 				bytToWrite = ProtectedData.Protect(bytJson, null, DataProtectionScope.CurrentUser);
+			}
+			else if (TryStoreSecret(strJson))
+			{
+				if (File.Exists(TokenFilePath))
+					File.Delete(TokenFilePath);
+				return;
 			}
 			else
 			{
@@ -330,6 +345,81 @@ namespace Chummer
 				catch
 				{
 				}
+			}
+		}
+
+		private static T Deserialize<T>(string strJson)
+		{
+			using (MemoryStream objStream = new MemoryStream(Encoding.UTF8.GetBytes(strJson)))
+				return (T)new DataContractJsonSerializer(typeof(T)).ReadObject(objStream);
+		}
+
+		private static string Serialize<T>(T objValue)
+		{
+			using (MemoryStream objStream = new MemoryStream())
+			{
+				new DataContractJsonSerializer(typeof(T)).WriteObject(objStream, objValue);
+				return Encoding.UTF8.GetString(objStream.ToArray());
+			}
+		}
+
+		private static bool TryLoadSecret(out string strSecret)
+		{
+			strSecret = null;
+			try
+			{
+				ProcessStartInfo objStartInfo = new ProcessStartInfo(SecretToolName, "lookup " + SecretAttributeArguments)
+				{
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+				};
+				using (Process objProcess = Process.Start(objStartInfo))
+				{
+					strSecret = objProcess.StandardOutput.ReadToEnd().TrimEnd('\r', '\n');
+					objProcess.WaitForExit();
+					return objProcess.ExitCode == 0 && !string.IsNullOrEmpty(strSecret);
+				}
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static bool TryStoreSecret(string strSecret)
+		{
+			try
+			{
+				ProcessStartInfo objStartInfo = new ProcessStartInfo(SecretToolName, "store --label=Chummer RunnersPoint credentials " + SecretAttributeArguments)
+				{
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					RedirectStandardInput = true,
+				};
+				using (Process objProcess = Process.Start(objStartInfo))
+				{
+					objProcess.StandardInput.Write(strSecret);
+					objProcess.StandardInput.Close();
+					objProcess.WaitForExit();
+					return objProcess.ExitCode == 0;
+				}
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static void ClearSecret()
+		{
+			try
+			{
+				using (Process objProcess = Process.Start(new ProcessStartInfo(SecretToolName, "clear " + SecretAttributeArguments) { UseShellExecute = false, CreateNoWindow = true }))
+					objProcess.WaitForExit();
+			}
+			catch
+			{
 			}
 		}
 

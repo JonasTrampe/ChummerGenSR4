@@ -28,7 +28,7 @@ public partial class AdeptPowerRow : UserControl
 
     public AdeptPowerRow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
 

@@ -25,7 +25,7 @@ public partial class AttributeRow : UserControl
 
     public AttributeRow()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     public string? AttributeName

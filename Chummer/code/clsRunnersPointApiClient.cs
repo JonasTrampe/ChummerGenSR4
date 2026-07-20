@@ -15,138 +15,6 @@ using Serilog;
 namespace Chummer
 {
 	/// <summary>
-	/// Document as returned by the RunnersPoint Character Document Storage API.
-	/// </summary>
-	public class RunnersPointDocument
-	{
-		public string Id { get; set; }
-		public string Type { get; set; }
-		public string GameProfileId { get; set; }
-		public string Format { get; set; }
-		public string SchemaVersion { get; set; }
-		public string CurrentRevision { get; set; }
-		public string ValidationState { get; set; }
-		public string DisplayName { get; set; }
-		public DateTime UpdatedAt { get; set; }
-	}
-
-	/// <summary>
-	/// A page of Documents from listDocuments, plus the ETag/cursor needed to keep paging.
-	/// </summary>
-	public class RunnersPointDocumentPage
-	{
-		public List<RunnersPointDocument> Items { get; set; } = new List<RunnersPointDocument>();
-		public string NextCursor { get; set; }
-	}
-
-	/// <summary>
-	/// Asynchronous quarantine/validation status, returned by createDocument, pushRevision, and getRevisionStatus.
-	/// </summary>
-	public class RunnersPointRevisionStatus
-	{
-		public string DocumentId { get; set; }
-		public string RevisionId { get; set; }
-		public string State { get; set; }
-		public List<string> Messages { get; set; } = new List<string>();
-	}
-
-	public class RunnersPointGameProfile
-	{
-		public string Id { get; set; }
-		public string System { get; set; }
-		public string Edition { get; set; }
-		public string DisplayName { get; set; }
-		public List<string> Formats { get; set; } = new List<string>();
-	}
-
-	/// <summary>
-	/// One media type a registered document type accepts (e.g. "application/xml" for "character"),
-	/// plus its own upload size ceiling.
-	/// </summary>
-	public class RunnersPointDocumentFormatCapability
-	{
-		public string MediaType { get; set; }
-		public long MaxUploadBytes { get; set; }
-	}
-
-	/// <summary>
-	/// One entry from Capabilities.documentTypes - the registered type id (e.g. "character") Chummer
-	/// sends as X-Document-Type, and the formats it accepts.
-	/// </summary>
-	public class RunnersPointDocumentTypeCapability
-	{
-		public string Id { get; set; }
-		public string DisplayName { get; set; }
-		public List<RunnersPointDocumentFormatCapability> Formats { get; set; } = new List<RunnersPointDocumentFormatCapability>();
-	}
-
-	public class RunnersPointCapabilities
-	{
-		public string ApiVersion { get; set; }
-		public List<RunnersPointGameProfile> GameProfiles { get; set; } = new List<RunnersPointGameProfile>();
-		public List<RunnersPointDocumentTypeCapability> DocumentTypes { get; set; } = new List<RunnersPointDocumentTypeCapability>();
-		public List<string> Formats { get; set; } = new List<string>();
-		public long MaxUploadBytes { get; set; }
-	}
-
-	/// <summary>
-	/// A document explicitly shared with the authenticated user by another user (e.g. a GM sharing a
-	/// character, or a document originating from a marketplace on the RunnersPoint website). Chummer
-	/// never sees a public listing - only documents an active share grant actually covers.
-	/// </summary>
-	public class RunnersPointSharedDocument : RunnersPointDocument
-	{
-		public string Permission { get; set; }
-		public string ShareStatus { get; set; }
-		public DateTime? ExpiresAt { get; set; }
-	}
-
-	/// <summary>
-	/// A page of SharedDocuments from listSharedDocuments, plus the cursor needed to keep paging.
-	/// </summary>
-	public class RunnersPointSharedDocumentPage
-	{
-		public List<RunnersPointSharedDocument> Items { get; set; } = new List<RunnersPointSharedDocument>();
-		public string NextCursor { get; set; }
-	}
-
-	/// <summary>
-	/// Immutable revision metadata from listRevisions/getRevision (and their /shared/ equivalents).
-	/// Distinct from RevisionStatus (the createDocument/pushRevision/getRevisionStatus response) -
-	/// this is the persisted record of an already-processed revision, not an in-flight quarantine poll.
-	/// </summary>
-	public class RunnersPointRevision
-	{
-		public string Id { get; set; }
-		public string DocumentId { get; set; }
-		public string Hash { get; set; }
-		public long SizeBytes { get; set; }
-		public string ValidationState { get; set; }
-		public List<string> ValidationMessages { get; set; } = new List<string>();
-		public DateTime CreatedAt { get; set; }
-	}
-
-	/// <summary>
-	/// Thrown for any non-success response from the RunnersPoint API. Carries the RFC 9457 Problem
-	/// Details fields where the server provided them, so callers can show a useful message instead of
-	/// just an HTTP status code.
-	/// </summary>
-	public class RunnersPointApiException : Exception
-	{
-		public HttpStatusCode StatusCode { get; private set; }
-		public string ProblemCode { get; private set; }
-		public string CorrelationId { get; private set; }
-
-		public RunnersPointApiException(HttpStatusCode statusCode, string title, string problemCode, string correlationId)
-			: base(title)
-		{
-			StatusCode = statusCode;
-			ProblemCode = problemCode;
-			CorrelationId = correlationId;
-		}
-	}
-
-	/// <summary>
 	/// Thin wrapper over the RunnersPoint Character Document Storage API (v1, draft.6). Covers personal
 	/// storage/sync of `character` documents, plus read-only-or-write access to documents explicitly
 	/// shared with the authenticated user via `/shared/documents/*` (per-document grants only - there is
@@ -158,7 +26,7 @@ namespace Chummer
 		// point at a local dev server, a staging deployment, or eventually a real production host
 		// without a rebuild. Defaults to the local Symfony dev server's actual route prefix (/api/v1,
 		// not the /v1 the OpenAPI spec's example server URL still shows).
-		private static string BaseUrl => GlobalOptions.Instance.CloudApiBaseUrl;
+		private readonly string _strBaseUrl;
 		private const string ClientName = "ChummerGenSR4";
 		// System.Net.Http.HttpMethod.Patch isn't available on the .NET Framework 4.8 build of
 		// System.Net.Http (it was added well after that assembly shipped) - construct it explicitly.
@@ -168,16 +36,31 @@ namespace Chummer
 		private readonly RunnersPointAuth _objAuth;
 
 		public RunnersPointApiClient(RunnersPointAuth objAuth)
+			: this(objAuth, GlobalOptions.Instance.CloudApiBaseUrl)
+		{
+		}
+
+		/// <summary>
+		/// Create a client using a host-supplied API endpoint. This keeps the transport reusable by
+		/// the Avalonia host without coupling it to the legacy GlobalOptions singleton.
+		/// </summary>
+		public RunnersPointApiClient(RunnersPointAuth objAuth, string strBaseUrl)
 		{
 			_objAuth = objAuth;
+			_strBaseUrl = (strBaseUrl ?? "").TrimEnd('/');
 			_objHttpClient = new HttpClient();
 			_objHttpClient.DefaultRequestHeaders.Add("X-Client-Name", ClientName);
 			_objHttpClient.DefaultRequestHeaders.Add("X-Client-Version", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
 		}
 
+		public RunnersPointApiClient(RunnersPointAuth objAuth, RunnersPointApiOptions objOptions)
+			: this(objAuth, objOptions != null ? objOptions.BaseUrl : null)
+		{
+		}
+
 		private async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod objMethod, string strPath, bool blnAuthenticated = true)
 		{
-			HttpRequestMessage objRequest = new HttpRequestMessage(objMethod, BaseUrl + strPath);
+			HttpRequestMessage objRequest = new HttpRequestMessage(objMethod, _strBaseUrl + strPath);
 			if (blnAuthenticated)
 			{
 				string strToken = await _objAuth.GetAccessTokenAsync();
@@ -952,7 +835,7 @@ namespace Chummer
 		public async Task<string> GetDebugDumpAsync(string strDocumentId)
 		{
 			StringBuilder objDump = new StringBuilder();
-			objDump.AppendLine("Base URL: " + BaseUrl);
+			objDump.AppendLine("Base URL: " + _strBaseUrl);
 			objDump.AppendLine("Client: " + ClientName + " " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
 
 			HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Get, "/documents/" + strDocumentId);

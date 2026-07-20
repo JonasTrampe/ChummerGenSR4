@@ -1,6 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:html="using:TheArtOfDev.HtmlRenderer.Avalonia"
         x:Class="Chummer.AvaloniaSpike.Dialogs.SheetPreviewDialog"
         Width="700" Height="640"
         WindowStartupLocation="CenterOwner"
@@ -8,11 +7,6 @@
         FontSize="11"
         Background="White"
         Title="Charakterbogen Vorschau">
-    <!-- Prototype for the frmViewer/WebBrowser replacement flagged in the Linux port plan's
-         Avalonia risk audit. Uses Avalonia.HtmlRenderer (a lightweight, no-native-dependency HTML
-         control) rather than a full Chromium WebView, per the "try the lightweight option first"
-         decision - it has no JS support and only partial CSS3, so this is a first-pass fidelity
-         check against the real XSLT-rendered sheet output, not a final answer. -->
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
             <Button Content="Drucken" />
@@ -20,9 +14,9 @@
             <Button Content="Schließen" Click="OnClose" />
         </StackPanel>
         <Border BorderBrush="#D0D0D0" BorderThickness="1">
-            <ScrollViewer>
-                <html:HtmlPanel Name="SheetHtmlPanel" />
-            </ScrollViewer>
+            <TextBox Name="SheetHtmlPanel" IsReadOnly="True" AcceptsReturn="True"
+                     TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     FontFamily="monospace" />
         </Border>
     </DockPanel>
 </Window>

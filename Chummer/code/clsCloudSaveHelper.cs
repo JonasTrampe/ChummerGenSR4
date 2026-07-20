@@ -9,25 +9,6 @@ using Serilog;
 
 namespace Chummer
 {
-	public enum CloudSaveResult
-	{
-		/// <summary>The user cancelled at the conflict prompt - nothing was written to disk or pushed.</summary>
-		Cancelled,
-		/// <summary>The local file was written (whether or not a push also happened/succeeded).</summary>
-		Saved,
-	}
-
-	/// <summary>
-	/// async methods can't have ref/out parameters, so the (possibly updated) last-pushed-hash comes
-	/// back as part of the result instead of being passed by ref - the caller should assign its stored
-	/// hash from LastPushedHash after every call regardless of Result.
-	/// </summary>
-	public class CloudSaveOutcome
-	{
-		public CloudSaveResult Result { get; set; }
-		public string LastPushedHash { get; set; }
-	}
-
 	/// <summary>
 	/// Cloud-aware Save logic shared by frmCreate and frmCareer's SaveCharacter(). A character not
 	/// linked to a cloud document behaves exactly as before - untouched. A cloud-linked character has

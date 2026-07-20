@@ -7,7 +7,7 @@ public partial class QualityDialog : Window
 {
     public QualityDialog()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e) => Close();

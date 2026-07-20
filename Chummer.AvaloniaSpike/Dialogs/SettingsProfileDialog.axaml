@@ -13,9 +13,9 @@
 
 		<Grid ColumnDefinitions="Auto,*">
 			<TextBlock Text="Konfigurationsdatei:" VerticalAlignment="Center" Margin="0,0,8,0" />
-			<ComboBox Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="0">
-				<ComboBoxItem Content="Default Settings" />
-			</ComboBox>
+			<ComboBox Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="0"
+			          ItemsSource="{Binding SettingsProfiles, x:CompileBindings=False}"
+			          DisplayMemberBinding="{Binding Name, x:CompileBindings=False}" />
 		</Grid>
 
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,20,0,0">

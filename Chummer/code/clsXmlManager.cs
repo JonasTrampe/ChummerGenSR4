@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using System.Windows.Forms;
 
 namespace Chummer
 {
@@ -96,7 +95,7 @@ namespace Chummer
 		/// <param name="strFileName">Name of the XML file to load.</param>
 		public XmlDocument Load(string strFileName)
 		{
-			string strPath = Path.Combine(Application.StartupPath, "data");
+			string strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 			strPath = Path.Combine(strPath, strFileName);
 			DateTime datDate = File.GetLastWriteTime(strPath);
 
@@ -154,7 +153,7 @@ namespace Chummer
 				// Load any override data files the user might have. Do not attempt this if we're loading the Improvements file.
 				if (strFileName != "improvements.xml")
 				{
-					string strFilePath = Path.Combine(Application.StartupPath, "data");
+					string strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 					foreach (string strFile in Directory.GetFiles(strFilePath, "override*_" + strFileName))
 					{
 						objXmlFile.Load(strFile);
@@ -336,7 +335,7 @@ namespace Chummer
 			// Load any custom data files the user might have. Do not attempt this if we're loading the Improvements file.
 			if (strFileName != "improvements.xml")
 			{
-				strPath = Path.Combine(Application.StartupPath, "data");
+				strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 				foreach (string strFile in Directory.GetFiles(strPath, "custom*_" + strFileName))
 				{
 					objXmlFile.Load(strFile);
@@ -381,11 +380,11 @@ namespace Chummer
 		public void Verify(string strLanguage, List<string> lstBooks)
 		{
 			XmlDocument objLanguageDoc = new XmlDocument();
-			string strFilePath = Path.Combine(Application.StartupPath, "lang");
+			string strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lang");
 			strFilePath = Path.Combine(strFilePath, strLanguage + "_data.xml");
 			objLanguageDoc.Load(strFilePath);
 
-			string strLangPath = Path.Combine(Application.StartupPath, "lang");
+			string strLangPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lang");
 			strLangPath = Path.Combine(strLangPath, "results_" + strLanguage + ".xml");
 			FileStream objStream = new FileStream(strLangPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
 			XmlTextWriter objWriter = new XmlTextWriter(objStream, Encoding.Unicode);
@@ -397,7 +396,7 @@ namespace Chummer
 			// <results>
 			objWriter.WriteStartElement("results");
 
-			string strPath = Path.Combine(Application.StartupPath, "data");
+			string strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 			foreach (string strFile in Directory.GetFiles(strPath, "*.xml"))
 			{
 				string strPathReplace = strPath + Path.DirectorySeparatorChar;

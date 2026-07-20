@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
 
@@ -938,25 +937,6 @@ namespace Chummer
 	}
 
 	/// <summary>
-	/// Type of Quality.
-	/// </summary>
-	public enum QualityType
-	{
-		Positive = 0,
-		Negative = 1,
-	}
-
-	/// <summary>
-	/// Source of the Quality.
-	/// </summary>
-	public enum QualitySource
-	{
-		Selected = 0,
-		Metatype = 1,
-		MetatypeRemovable = 2,
-	}
-
-	/// <summary>
 	/// A Quality.
 	/// </summary>
 	public class Quality
@@ -1022,16 +1002,14 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Create a Quality from an XmlNode and return the TreeNodes for it.
+		/// Create a Quality from an XmlNode.
 		/// </summary>
 		/// <param name="objXmlQuality">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character object the Quality will be added to.</param>
 		/// <param name="objQualitySource">Source of the Quality.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="objWeapons">List of Weapons that should be added to the Character.</param>
-		/// <param name="objWeaponNodes">List of TreeNodes to represent the Weapons added.</param>
 		/// <param name="strForceValue">Force a value to be selected for the Quality.</param>
-		public void Create(XmlNode objXmlQuality, Character objCharacter, QualitySource objQualitySource, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes, string strForceValue = "")
+		public void Create(XmlNode objXmlQuality, Character objCharacter, QualitySource objQualitySource, List<Weapon> objWeapons, string strForceValue = "")
 		{
 			_strName = objXmlQuality["name"].InnerText;
 			_intBP = Convert.ToInt32(objXmlQuality["bp"].InnerText);
@@ -1077,9 +1055,6 @@ namespace Chummer
 
 					Weapon objGearWeapon = new Weapon(objCharacter);
 					objGearWeapon.Create(objXmlWeapon, objCharacter);
-					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
-					objGearWeaponNode.ForeColor = SystemColors.GrayText;
-					objWeaponNodes.Add(objGearWeaponNode);
 					objWeapons.Add(objGearWeapon);
 
 					_guiWeaponID = Guid.Parse(objGearWeapon.InternalId);
@@ -3321,15 +3296,6 @@ namespace Chummer
 	}
 
 	/// <summary>
-	/// Type of Spirit.
-	/// </summary>
-	public enum SpiritType
-	{
-		Spirit = 0,
-		Sprite = 1,
-	}
-
-	/// <summary>
 	/// A Magician's Spirit or Technomancer's Sprite.
 	/// </summary>
 	public class Spirit
@@ -3655,10 +3621,9 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Spell from an XmlNode and return the TreeNodes for it.
+		/// Create a Spell from an XmlNode.
 		/// <param name="objXmlSpellNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
 		/// <param name="blnLimited">Whether or not the Spell should be marked as Limited.</param>
 		/// <param name="blnExtended">Whether or not the Spell should be marked as Extended.</param>
@@ -6611,9 +6576,8 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Martial Art from an XmlNode and return the TreeNodes for it.
+		/// Create a Martial Art from an XmlNode.
 		/// <param name="objXmlArtNode">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="objCharacter">Character the Martial Art is being added to.</param>
 		public void Create(XmlNode objXmlArtNode, Character objCharacter)
 		{
@@ -6855,10 +6819,9 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Martial Art Advantage from an XmlNode and return the TreeNodes for it.
+		/// Create a Martial Art Advantage from an XmlNode.
 		/// <param name="objXmlAdvantageNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		public void Create(XmlNode objXmlAdvantageNode, Character objCharacter)
 		{
 			_strName = objXmlAdvantageNode["name"].InnerText;
@@ -7004,9 +6967,8 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Martial Art Maneuver from an XmlNode and return the TreeNodes for it.
+		/// Create a Martial Art Maneuver from an XmlNode.
 		/// <param name="objXmlManeuverNode">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		public void Create(XmlNode objXmlManeuverNode)
 		{
 			_strName = objXmlManeuverNode["name"].InnerText;
@@ -7186,16 +7148,6 @@ namespace Chummer
 			}
 		}
 		#endregion
-	}
-
-	/// <summary>
-	/// Type of Contact.
-	/// </summary>
-	public enum ContactType
-	{
-		Contact = 0,
-		Enemy = 1,
-		Pet = 2,
 	}
 
 	/// <summary>
@@ -7605,10 +7557,9 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Critter Power from an XmlNode and return the TreeNodes for it.
+		/// Create a Critter Power from an XmlNode.
 		/// <param name="objXmlPowerNode">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="intRating">Selected Rating for the Gear.</param>
 		/// <param name="strForcedValue">Value to forcefully select for any ImprovementManager prompts.</param>
 		public void Create(XmlNode objXmlPowerNode, Character objCharacter, int intRating = 0, string strForcedValue = "")

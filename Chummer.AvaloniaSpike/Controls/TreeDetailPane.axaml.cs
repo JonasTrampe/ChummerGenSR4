@@ -31,7 +31,7 @@ public partial class TreeDetailPane : UserControl
 
     public TreeDetailPane()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     public object? HeaderContent

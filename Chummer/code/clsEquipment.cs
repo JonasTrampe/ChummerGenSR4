@@ -3,22 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
 
 namespace Chummer
 {
-	/// <summary>
-	/// Capacity Style.
-	/// </summary>
-	public enum CapacityStyle
-	{
-		Zero = 0,
-		Standard = 1,
-		PerRating = 2,
-	}
-
 	public class Equipment
 	{
 		public List<Armor> Armors = new List<Armor>();
@@ -70,12 +59,10 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Armor Modification from an XmlNode and return the TreeNodes for it.
+		/// Create an Armor Modification from an XmlNode.
 		/// <param name="objXmlArmorNode">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="intRating">Rating of the selected ArmorMod.</param>
 		/// <param name="objWeapons">List of Weapons that are created by the Armor.</param>
-		/// <param name="objWeaponNodes">List of Weapon Nodes that are created by the Armor.</param>
 		/// <param name="blnSkipCost">Whether or not creating the Armor should skip the Variable price dialogue (should only be used by frmSelectArmor).</param>
 		public void Create(XmlNode objXmlArmorNode, int intRating, List<Weapon> objWeapons, bool blnSkipCost = false)
 		{
@@ -138,9 +125,6 @@ namespace Chummer
 
 					Weapon objGearWeapon = new Weapon(_objCharacter);
 					objGearWeapon.Create(objXmlWeapon, _objCharacter);
-					TreeNode objGearWeaponNode = new CommonFunctions(_objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
-					objGearWeaponNode.ForeColor = SystemColors.GrayText;
-					 
 					objWeapons.Add(objGearWeapon);
 
 					_guiWeaponID = Guid.Parse(objGearWeapon.InternalId);
@@ -950,13 +934,11 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Cyberware from an XmlNode and return the TreeNodes for it.
+		/// Create armor from an XmlNode.
 		/// <param name="objXmlArmorNode">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		/// <param name="cmsArmorMod">ContextMenuStrip to apply to Armor Mode TreeNodes.</param>
 		/// <param name="blnSkipCost">Whether or not creating the Armor should skip the Variable price dialogue (should only be used by frmSelectArmor).</param>
 		/// <param name="blnCreateChildren">Whether or not child items should be created.</param>
-		public void Create(XmlNode objXmlArmorNode, TreeNode objNode, ContextMenuStrip cmsArmorMod, bool blnSkipCost = false, bool blnCreateChildren = true)
+		public void Create(XmlNode objXmlArmorNode, bool blnSkipCost = false, bool blnCreateChildren = true)
 		{
 			_strName = objXmlArmorNode["name"].InnerText;
 			_strCategory = objXmlArmorNode["category"].InnerText;
@@ -981,7 +963,7 @@ namespace Chummer
 				}
 
 				objArmorNode = objXmlDocument.SelectSingleNode("/chummer/categories/category[. = \"" + _strCategory + "\"]");
-				if (objNode != null)
+				if (objArmorNode != null)
 				{
 					if (objArmorNode.Attributes["translate"] != null)
 						_strAltCategory = objArmorNode.Attributes["translate"].InnerText;
@@ -1055,11 +1037,7 @@ namespace Chummer
 					XmlNode objXmlMod = objXmlArmorDocument.SelectSingleNode("/chummer/mods/mod[name = \"" + objXmlArmorMod.InnerText + "\"]");
 					ArmorMod objMod = new ArmorMod(_objCharacter);
 					List<Weapon> lstWeapons = new List<Weapon>();
-					List<TreeNode> lstWeaponNodes = new List<TreeNode>();
-
-					TreeNode objModNode = new TreeNode();
-
-					objMod.Create(objXmlMod, objModNode, intRating, lstWeapons, lstWeaponNodes, blnSkipCost);
+					objMod.Create(objXmlMod, intRating, lstWeapons, blnSkipCost);
 					objMod.Parent = this;
 					objMod.IncludedInArmor = true;
 					objMod.ArmorCapacity = "[0]";
@@ -1067,9 +1045,6 @@ namespace Chummer
 					objMod.MaximumRating = objMod.Rating;
 					_lstArmorMods.Add(objMod);
 
-					objModNode.ContextMenuStrip = cmsArmorMod;
-					objNode.Nodes.Add(objModNode);
-					objNode.Expand();
 				}
 			}
 
@@ -1089,11 +1064,9 @@ namespace Chummer
 					XmlNode objXmlGear = objXmlGearDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + objXmlArmorGear.InnerText + "\"]");
 					Gear objGear = new Gear(_objCharacter);
 
-					TreeNode objGearNode = new TreeNode();
 					List<Weapon> lstWeapons = new List<Weapon>();
-					List<TreeNode> lstWeaponNodes = new List<TreeNode>();
 
-					objGear.Create(objXmlGear, _objCharacter, intRating, lstWeapons, lstWeaponNodes, strForceValue, false, false, !blnSkipCost);
+					objGear.Create(objXmlGear, _objCharacter, intRating, lstWeapons, strForceValue, false, false, !blnSkipCost);
 					objGear.Capacity = "[0]";
 					objGear.ArmorCapacity = "[0]";
 					objGear.Cost = "0";
@@ -1102,16 +1075,9 @@ namespace Chummer
 					objGear.IncludedInParent = true;
 					_lstGear.Add(objGear);
 
-					objGearNode.Text = objGear.DisplayName;
-					objGearNode.Tag = objGear.InternalId;
-					new CommonFunctions(_objCharacter).BuildGearTree(objGear, objGearNode, null);
-					objNode.Nodes.Add(objGearNode);
-					objNode.Expand();
 				}
 			}
 
-			 
-			 
 		}
 
 		/// <summary>
@@ -2358,19 +2324,17 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Cyberware from an XmlNode and return the TreeNodes for it.
+		/// Create Cyberware from an XmlNode.
 		/// <param name="objXmlCyberware">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character object the Cyberware will be added to.</param>
 		/// <param name="objGrade">Grade of the selected piece.</param>
 		/// <param name="objSource">Source of the piece.</param>
 		/// <param name="intRating">Selected Rating of the piece of Cyberware.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="objWeapons">List of Weapons that should be added to the Character.</param>
-		/// <param name="objWeaponNodes">List of TreeNode to represent the Weapons added.</param>
 		/// <param name="blnCreateImprovements">Whether or not Improvements should be created.</param>
 		/// <param name="blnCreateChildren">Whether or not child items should be created.</param>
 		/// <param name="strForced">Force a particular value to be selected by an Improvement prompts.</param>
-		public void Create(XmlNode objXmlCyberware, Character objCharacter, Grade objGrade, Improvement.ImprovementSource objSource, int intRating, TreeNode objNode, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes, bool blnCreateImprovements = true, bool blnCreateChildren = true, string strForced = "")
+		public void Create(XmlNode objXmlCyberware, Character objCharacter, Grade objGrade, Improvement.ImprovementSource objSource, int intRating, List<Weapon> objWeapons, bool blnCreateImprovements = true, bool blnCreateChildren = true, string strForced = "")
 		{
 			_strName = objXmlCyberware["name"].InnerText;
 			_strCategory = objXmlCyberware["category"].InnerText;
@@ -2499,9 +2463,6 @@ namespace Chummer
 
 					Weapon objGearWeapon = new Weapon(objCharacter);
 					objGearWeapon.Create(objXmlWeapon, objCharacter);
-					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
-					objGearWeaponNode.ForeColor = SystemColors.GrayText;
-					 
 					objWeapons.Add(objGearWeapon);
 
 					_guiWeaponID = Guid.Parse(objGearWeapon.InternalId);
@@ -2523,10 +2484,6 @@ namespace Chummer
 				if (objImprovementManager.SelectedValue != "")
 					_strLocation = objImprovementManager.SelectedValue;
 			}
-
-			// Create the TreeNode for the new item.
-			 
-			 
 
 			// If we've just added a new base item, see if there are any subsystems that should automatically be added.
 			if (objXmlCyberware.InnerXml.Contains("subsystems") && blnCreateChildren)
@@ -2581,12 +2538,6 @@ namespace Chummer
 
 					_objChildren.Add(objSubsystem);
 
-					TreeNode objSubsystemNode = new TreeNode();
-					objSubsystemNode.Text = objSubsystem.DisplayName;
-					objSubsystemNode.Tag = objSubsystem.InternalId;
-					objSubsystemNode.ForeColor = SystemColors.GrayText;
-					objNode.Nodes.Add(objSubsystemNode);
-					objNode.Expand();
 				}
 			}
 		}
@@ -4254,13 +4205,9 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Weapon from an XmlNode and return the TreeNodes for it.
+		/// Create a Weapon from an XmlNode.
 		/// <param name="objXmlWeapon">XmlNode to create the object from.</param>
 		/// <param name="objCharacter">Character that the Weapon is being added to.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
-		/// <param name="cmsWeapon">ContextMenuStrip to use for Weapons.</param>
-		/// <param name="cmsWeaponAccessory">ContextMenuStrip to use for Accessories.</param>
-		/// <param name="cmsWeaponMod">ContextMenuStrip to use for Weapon Mods.</param>
 		/// <param name="blnCreateChildren">Whether or not child items should be created.</param>
 		public void Create(XmlNode objXmlWeapon, Character objCharacter, bool blnCreateChildren = true)
 		{
@@ -8868,17 +8815,6 @@ namespace Chummer
 	}
 
 	/// <summary>
-	/// Type of Lifestyle.
-	/// </summary>
-	public enum LifestyleType
-	{
-		Standard = 0,
-		BoltHole = 1,
-		Safehouse = 2,
-		Advanced = 3,
-	}
-
-	/// <summary>
 	/// Lifestyle.
 	/// </summary>
 	public class Lifestyle
@@ -8935,9 +8871,8 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Lifestyle from an XmlNode and return the TreeNodes for it.
+		/// Create a Lifestyle from an XmlNode.
 		/// <param name="objXmlLifestyle">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		public void Create(XmlNode objXmlLifestyle)
 		{
 			_strName = objXmlLifestyle["name"].InnerText;
@@ -9616,14 +9551,13 @@ namespace Chummer
 		/// <param name="objCharacter">Character the Gear is being added to.</param>
 		/// <param name="intRating">Selected Rating for the Gear.</param>
 		/// <param name="objWeapons">List of Weapons that should be added to the character.</param>
-		/// <param name="objWeaponNodes">List of TreeNodes to represent the added Weapons</param>
 		/// <param name="strForceValue">Value to forcefully select for any ImprovementManager prompts.</param>
 		/// <param name="blnHacked">Whether or not a Matrix Program has been hacked (removing the Copy Protection and Registration plugins).</param>
 		/// <param name="blnInherent">Whether or not a Program is Inherent to an A.I.</param>
 		/// <param name="blnAddImprovements">Whether or not Improvements should be added to the character.</param>
 		/// <param name="blnCreateChildren">Whether or not child Gear should be created.</param>
 		/// <param name="blnAerodynamic">Whether or not Weapons should be created as Aerodynamic.</param>
-		public void Create(XmlNode objXmlGear, Character objCharacter, int intRating, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes, string strForceValue = "", bool blnHacked = false, bool blnInherent = false, bool blnAddImprovements = true, bool blnCreateChildren = true, bool blnAerodynamic = false)
+		public void Create(XmlNode objXmlGear, Character objCharacter, int intRating, List<Weapon> objWeapons, string strForceValue = "", bool blnHacked = false, bool blnInherent = false, bool blnAddImprovements = true, bool blnCreateChildren = true, bool blnAerodynamic = false)
 		{
 			_strName = objXmlGear["name"].InnerText;
 			_strCategory = objXmlGear["category"].InnerText;
@@ -9846,9 +9780,6 @@ namespace Chummer
 						_strName += " (" + LanguageManager.Instance.GetString("Checkbox_Aerodynamic") + ")";
 					}
 
-					TreeNode objGearWeaponNode = new CommonFunctions(objCharacter).BuildWeaponNode(objGearWeapon, null, null, null);
-					objGearWeaponNode.ForeColor = SystemColors.GrayText;
-					 
 					objWeapons.Add(objGearWeapon);
 
 					_guiWeaponID = Guid.Parse(objGearWeapon.InternalId);
@@ -9916,7 +9847,7 @@ namespace Chummer
 					if (_objCharacter.Options.AutomaticCopyProtection && !blnInherent)
 					{
 						Gear objPlugin1 = new Gear(_objCharacter);
-						objPlugin1.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Copy Protection\"]"), objCharacter, _intRating, null, null);
+						objPlugin1.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Copy Protection\"]"), objCharacter, _intRating, null);
 						if (_intRating == 0)
 							objPlugin1.Rating = 1;
 						objPlugin1.Avail = "0";
@@ -9932,7 +9863,7 @@ namespace Chummer
 					if (_objCharacter.Options.AutomaticRegistration && !blnInherent)
 					{
 						Gear objPlugin2 = new Gear(_objCharacter);
-						objPlugin2.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Registration\"]"), objCharacter, 0, null, null);
+						objPlugin2.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Registration\"]"), objCharacter, 0, null);
 						objPlugin2.Avail = "0";
 						objPlugin2.Cost = "0";
 						objPlugin2.Cost3 = "0";
@@ -9946,7 +9877,7 @@ namespace Chummer
 					if ((objCharacter.Metatype == "A.I." || objCharacter.MetatypeCategory == "Technocritters" || objCharacter.MetatypeCategory == "Protosapients") && blnInherent)
 					{
 						Gear objPlugin3 = new Gear(_objCharacter);
-						objPlugin3.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Ergonomic\"]"), objCharacter, 0, null, null);
+						objPlugin3.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Ergonomic\"]"), objCharacter, 0, null);
 						objPlugin3.Avail = "0";
 						objPlugin3.Cost = "0";
 						objPlugin3.Cost3 = "0";
@@ -9957,7 +9888,7 @@ namespace Chummer
 						_objChildren.Add(objPlugin3);
 
 						Gear objPlugin4 = new Gear(_objCharacter);
-						objPlugin4.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Optimization\" and category = \"Program Options\"]"), objCharacter, _intRating, null, null);
+						objPlugin4.Create(objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"Optimization\" and category = \"Program Options\"]"), objCharacter, _intRating, null);
 						if (_intRating == 0)
 							objPlugin4.Rating = 1;
 						objPlugin4.Avail = "0";
@@ -9997,8 +9928,7 @@ namespace Chummer
 
 					Gear objChild = new Gear(_objCharacter);
 					List<Weapon> lstChildWeapons = new List<Weapon>();
-					List<TreeNode> lstChildWeaponNodes = new List<TreeNode>();
-					objChild.Create(objXmlGearNode, objCharacter, intChildRating, lstChildWeapons, lstChildWeaponNodes, strChildForceValue, blnHacked);
+					objChild.Create(objXmlGearNode, objCharacter, intChildRating, lstChildWeapons, strChildForceValue, blnHacked);
 					objChild.Quantity = intChildQty;
 					objChild.Cost = "0";
 					objChild.Cost3 = "0";
@@ -10023,8 +9953,7 @@ namespace Chummer
 		/// </summary>
 		/// <param name="objGear">Gear object to copy.</param>
 		/// <param name="objWeapons">List of Weapons created by the copied item.</param>
-		/// <param name="objWeaponNodes">List of TreeNodes for the Weapons created by the copied item.</param>
-		public void Copy(Gear objGear, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes)
+		public void Copy(Gear objGear, List<Weapon> objWeapons)
 		{
 			_strName = objGear.Name;
 			_strCategory = objGear.Category;
@@ -10068,17 +9997,17 @@ namespace Chummer
 				if (objGearChild.GetType() == typeof(Commlink))
 				{
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objCommlink.Copy(objGearChild, objWeapons);
 					objChild = objCommlink;
 				}
 				else if (objGearChild.GetType() == typeof(OperatingSystem))
 				{
 					OperatingSystem objOS = new OperatingSystem(_objCharacter);
-					objOS.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objOS.Copy(objGearChild, objWeapons);
 					objChild = objOS;
 				}
 				else
-					objChild.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objChild.Copy(objGearChild, objWeapons);
 				_objChildren.Add(objChild);
 			}
 		}
@@ -12212,8 +12141,7 @@ namespace Chummer
 		/// </summary>
 		/// <param name="objGear">Gear object to copy.</param>
 		/// <param name="objWeapons">List of Weapons created by copying the item.</param>
-		/// <param name="objWeaponNodes">List of Weapon TreeNodes created by copying the item.</param>
-		public void Copy(Commlink objGear, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes)
+		public void Copy(Commlink objGear, List<Weapon> objWeapons)
 		{
 			_strName = objGear.Name;
 			_strCategory = objGear.Category;
@@ -12253,17 +12181,17 @@ namespace Chummer
 				if (objGearChild.GetType() == typeof(Commlink))
 				{
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objCommlink.Copy(objGearChild, objWeapons);
 					objChild = objCommlink;
 				}
 				else if (objGearChild.GetType() == typeof(OperatingSystem))
 				{
 					OperatingSystem objOS = new OperatingSystem(_objCharacter);
-					objOS.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objOS.Copy(objGearChild, objWeapons);
 					objChild = objOS;
 				}
 				else
-					objChild.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objChild.Copy(objGearChild, objWeapons);
 				_objChildren.Add(objChild);
 			}
 		}
@@ -12956,8 +12884,7 @@ namespace Chummer
 		/// </summary>
 		/// <param name="objGear">Gear object to copy.</param>
 		/// <param name="objWeapons">List of Weapons created by copying the item.</param>
-		/// <param name="objWeaponNodes">List of Weapon TreeNodes created by copying the item.</param>
-		public void Copy(OperatingSystem objGear, List<Weapon> objWeapons, List<TreeNode> objWeaponNodes)
+		public void Copy(OperatingSystem objGear, List<Weapon> objWeapons)
 		{
 			_strName = objGear.Name;
 			_strCategory = objGear.Category;
@@ -12997,17 +12924,17 @@ namespace Chummer
 				if (objGearChild.GetType() == typeof(Commlink))
 				{
 					Commlink objCommlink = new Commlink(_objCharacter);
-					objCommlink.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objCommlink.Copy(objGearChild, objWeapons);
 					objChild = objCommlink;
 				}
 				else if (objGearChild.GetType() == typeof(OperatingSystem))
 				{
 					OperatingSystem objOS = new OperatingSystem(_objCharacter);
-					objOS.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objOS.Copy(objGearChild, objWeapons);
 					objChild = objOS;
 				}
 				else
-					objChild.Copy(objGearChild, objWeapons, objWeaponNodes);
+					objChild.Copy(objGearChild, objWeapons);
 				_objChildren.Add(objChild);
 			}
 		}
@@ -13362,9 +13289,8 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Vehicle Modification from an XmlNode and return the TreeNodes for it.
+		/// Create a Vehicle Modification from an XmlNode.
 		/// <param name="objXmlMod">XmlNode to create the object from.</param>
-		/// <param name="objNode">TreeNode to populate a TreeView.</param>
 		/// <param name="intRating">Selected Rating for the Gear.</param>
 		public void Create(XmlNode objXmlMod, int intRating)
 		{
@@ -14428,16 +14354,10 @@ namespace Chummer
 			_objCharacter = objCharacter;
 		}
 
-		/// Create a Vehicle from an XmlNode and return the TreeNodes for it.
+		/// Create a Vehicle from an XmlNode.
 		/// <param name="objXmlVehicle">XmlNode of the Vehicle to create.</param>
-		/// <param name="objNode">TreeNode to add to a TreeView.</param>
-		/// <param name="cmsVehicle">ContextMenuStrip to attach to Weapon Mounts.</param>
-		/// <param name="cmsVehicleGear">ContextMenuStrip to attach to Gear.</param>
-		/// <param name="cmsVehicleWeapon">ContextMenuStrip to attach to Vehicle Weapons.</param>
-		/// <param name="cmsVehicleWeaponAccessory">ContextMenuStrip to attach to Weapon Accessories.</param>
-		/// <param name="cmsVehicleWeaponMod">ContextMenuStrip to attachk to Weapon Mods.</param>
 		/// <param name="blnCreateChildren">Whether or not child items should be created.</param>
-		public void Create(XmlNode objXmlVehicle, TreeNode objNode, ContextMenuStrip cmsVehicle, ContextMenuStrip cmsVehicleGear, ContextMenuStrip cmsVehicleWeapon, ContextMenuStrip cmsVehicleWeaponAccessory, ContextMenuStrip cmsVehicleWeaponMod, bool blnCreateChildren = true)
+		public void Create(XmlNode objXmlVehicle, bool blnCreateChildren = true)
 		{
 			_strName = objXmlVehicle["name"].InnerText;
 			_strCategory = objXmlVehicle["category"].InnerText;
@@ -14480,9 +14400,6 @@ namespace Chummer
 				}
 			}
 
-			 
-			 
-
 			// If there are any VehicleMods that come with the Vehicle, add them.
 			if (objXmlVehicle.InnerXml.Contains("<mods>") && blnCreateChildren)
 			{
@@ -14506,16 +14423,6 @@ namespace Chummer
 					objMod.IncludedInVehicle = true;
 
 					_lstVehicleMods.Add(objMod);
-					TreeNode objModNode = new TreeNode
-					{
-						Text = objMod.DisplayName,
-						Tag = objMod.InternalId,
-						ForeColor = SystemColors.GrayText,
-						ContextMenuStrip = cmsVehicle,
-					};
-
-					objNode.Nodes.Add(objModNode);
-					objNode.Expand();
 				}
 				if (objXmlVehicle.SelectSingleNode("mods/addslots") != null)
 					_intAddSlots = Convert.ToInt32(objXmlVehicle.SelectSingleNode("mods/addslots").InnerText);
@@ -14530,7 +14437,6 @@ namespace Chummer
 				foreach (XmlNode objXmlVehicleGear in objXmlGearList)
 				{
 					XmlNode objXmlGaer = objXmlDocument.SelectSingleNode("/chummer/gears/gear[name = \"" + objXmlVehicleGear.InnerText + "\"]");
-					TreeNode objGearNode = new TreeNode();
 					Gear objGear = new Gear(_objCharacter);
 					int intRating = 0;
 					int intQty = 1;
@@ -14548,23 +14454,15 @@ namespace Chummer
 						strForceValue = "";
 
 					List<Weapon> objWeapons = new List<Weapon>();
-					List<TreeNode> objWeaponNodes = new List<TreeNode>();
-					objGear.Create(objXmlGaer, _objCharacter, intRating, objWeapons, objWeaponNodes, strForceValue);
+					objGear.Create(objXmlGaer, _objCharacter, intRating, objWeapons, strForceValue);
 					objGear.Cost = "0";
 					objGear.Quantity = intQty;
 					objGear.MaxRating = objGear.Rating;
-					objGearNode.Text = objGear.DisplayName;
-					objGearNode.Tag = objGear.InternalId;
-					new CommonFunctions(_objCharacter).BuildGearTree(objGear, objGearNode, cmsVehicleGear);
-					objGearNode.ContextMenuStrip = cmsVehicleGear;
-
 					foreach (Weapon objWeapon in objWeapons)
 						objWeapon.VehicleMounted = true;
 
 					_lstGear.Add(objGear);
 
-					objNode.Nodes.Add(objGearNode);
-					objNode.Expand();
 				}
 			}
 
@@ -14580,7 +14478,6 @@ namespace Chummer
 
 					XmlNode objXmlWeaponNode = objXmlWeaponDocument.SelectSingleNode("/chummer/weapons/weapon[name = \"" + objXmlWeapon["name"].InnerText + "\"]");
 					objWeapon.Create(objXmlWeaponNode, _objCharacter);
-					TreeNode objWeaponNode = new CommonFunctions(_objCharacter).BuildWeaponNode(objWeapon, cmsVehicleWeapon, cmsVehicleWeaponAccessory, cmsVehicleWeaponMod);
 					objWeapon.Cost = 0;
 					objWeapon.VehicleMounted = true;
 
@@ -14590,17 +14487,7 @@ namespace Chummer
 						if (objMod.Name.StartsWith("Weapon Mount") && objMod.Weapons.Count == 0)
 						{
 							objMod.Weapons.Add(objWeapon);
-							foreach (TreeNode objModNode in objNode.Nodes)
-							{
-								if (objModNode.Tag.ToString() == objMod.InternalId)
-								{
-									objWeaponNode.ContextMenuStrip = cmsVehicleWeapon;
-									objModNode.Nodes.Add(objWeaponNode);
-									objModNode.Expand();
-									blnAttached = true;
-									break;
-								}
-							}
+							blnAttached = true;
 							break;
 						}
 					}
@@ -14613,17 +14500,7 @@ namespace Chummer
 							if (objMod.Name.StartsWith("Weapon Mount"))
 							{
 								objMod.Weapons.Add(objWeapon);
-								foreach (TreeNode objModNode in objNode.Nodes)
-								{
-									if (objModNode.Tag.ToString() == objMod.InternalId)
-									{
-										objWeaponNode.ContextMenuStrip = cmsVehicleWeapon;
-										objModNode.Nodes.Add(objWeaponNode);
-										objModNode.Expand();
-										blnAttached = true;
-										break;
-									}
-								}
+								blnAttached = true;
 								break;
 							}
 						}
@@ -14641,17 +14518,7 @@ namespace Chummer
 								strMount = objXmlAccessory["mount"].InnerText;
 							objMod.Create(objXmlAccessoryNode, strMount);
 							objMod.Cost = "0";
-							TreeNode objModNode = new TreeNode
-							{
-								Text = objMod.DisplayName,
-								Tag = objMod.InternalId,
-								ContextMenuStrip = cmsVehicleWeaponAccessory,
-							};
-
 							objWeapon.WeaponAccessories.Add(objMod);
-
-							objWeaponNode.Nodes.Add(objModNode);
-							objWeaponNode.Expand();
 						}
 					}
 
@@ -14664,17 +14531,7 @@ namespace Chummer
 							WeaponMod objMod = new WeaponMod(_objCharacter);
 							objMod.Create(objXmlModNode);
 							objMod.Cost = "0";
-							TreeNode objModNode = new TreeNode
-							{
-								Text = objMod.DisplayName,
-								Tag = objMod.InternalId,
-								ContextMenuStrip = cmsVehicleWeaponMod,
-							};
-
 							objWeapon.WeaponMods.Add(objMod);
-
-							objWeaponNode.Nodes.Add(objModNode);
-							objWeaponNode.Expand();
 						}
 					}
 				}

@@ -7,7 +7,7 @@ public partial class SpellDialog : Window
 {
     public SpellDialog()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e) => Close();

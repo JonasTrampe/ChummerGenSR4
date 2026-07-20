@@ -6,7 +6,7 @@
 - [x] **Phase 0 (Legacy Cleanup):** WCF/Omae/Update legacy removed/modernized. REST API implemented.
 - [x] **Phase 1 (Settings Migration):** `SettingsStore` implemented and migrated.
 - [x] **Phase 2 (Mono Hardening/Intermediate):** Completed (essential for stability and verifying logic before the full rewrite).
-- [ ] **Phase 3 (The Big Refactor):** Resolving the "Model-UI Coupling" blocker (removing `TreeNode` from `cls*.cs` `Create()` methods) to enable a pure `Chummer.Core` library.
+- [ ] **Phase 3 (The Big Refactor):** Model-factory `TreeNode` decoupling is complete; incrementally move the resulting UI-agnostic model code into `Chummer.Core`.
 - [ ] **Phase 4 (Avalonia Rewrite):** Migrating the UI layer from WinForms to Avalonia (leveraging the pure core).
 - [ ] **Phase 5 (Packaging):** AppImage/Linux distribution.
 
@@ -32,12 +32,20 @@ During the transition to a shared `Chummer.Core` library, a critical structural 
 
 **The Solution (In Progress):** Implement an MVVM-like separation. The `Create()` methods in the core model must be refactored to be "pure" (constructing only the data object and metadata). The responsibility of building the UI representation (e.g., a TreeView item in Avalonia) is moved to the UI layer (ViewModels or the View itself).
 
+**Completed slice:** No domain-model `Create()` or `Copy()` method accepts or creates a
+`TreeNode`, `TreeView`, or `ContextMenuStrip`. `Character`, `Quality`, and the equipment-model
+factories are UI-agnostic; the legacy WinForms call signatures are retained as adapters in
+`WinFormsEquipmentTreeExtensions.cs`. Dedicated WinForms helpers (`CommonFunctions`, language
+translation, and list sorting) continue to own tree rendering and interaction.
+
 ---
 
 ## Detailed Phase Plan (Ongoing)
 
 ### Phase 3 – Core Model Refactoring (The Blocker)
-This is the current primary focus. We must systematically go through the ~21 `Create()` methods across the model layer:
+The factory-decoupling audit is complete. The current work is incremental extraction of the
+UI-agnostic model code into `Chummer.Core`, keeping dedicated WinForms helpers in the legacy
+application. The model types involved include:
 - `Quality`, `Spell`, `Metamagic`, `TechProgram`, `Art`, `MartialArtAdvantage`, `MartialArtManeuver`, `Power`, `Armor`, `ArmorMod`, `Cyberware`, `Weapon`, `WeaponAccessory`, `WeaponMount`, `Lifestyle`, `Gear`, `Vehicle`, etc.
 - **Approach:** Refactor one entity type at a time.
 - **Validation:** Ensure `ChummerGenSR4.sln` still builds and the existing WinForms app remains functional (using a shim or simply updating the WinForms side to handle the new "pure" objects).

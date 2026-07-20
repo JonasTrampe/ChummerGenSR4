@@ -8,24 +8,6 @@ using System.Text;
 namespace Chummer
 {
 	/// <summary>
-	/// One line of a CharacterDiff - either a scalar stat that differs, or an item added/removed/changed
-	/// in one of the character's collections.
-	/// </summary>
-	public class CharacterDiffEntry
-	{
-		public string Collection { get; set; }
-		public string Change { get; set; }
-		public string Name { get; set; }
-		public string Detail { get; set; }
-	}
-
-	public class CharacterDiffResult
-	{
-		public List<CharacterDiffEntry> Entries { get; } = new List<CharacterDiffEntry>();
-		public bool HasChanges => Entries.Count > 0;
-	}
-
-	/// <summary>
 	/// Compares two Characters loaded from independent .chum content - "yours" (the in-memory character
 	/// being saved) vs. "the server's" (a revision just downloaded because of a 412 conflict) - and
 	/// reports what differs. Matches items within each of Character's 13 collections by InternalId (a

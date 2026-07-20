@@ -5,9 +5,9 @@ namespace Chummer.AvaloniaSpike.Dialogs;
 
 public partial class SheetPreviewDialog : Window
 {
-    // A trimmed-down stand-in for what the real XSLT sheet transform ("Shadowrun 4.xsl") produces
-    // for frmCareer's currently-open character - just enough markup/CSS to judge how close
-    // Avalonia.HtmlRenderer's rendering gets, not a faithful reproduction of the real stylesheet.
+    // A trimmed-down stand-in for the real XSLT sheet transform ("Shadowrun 4.xsl"). A native
+    // read-only text preview keeps this spike free of an Avalonia 11-only HTML renderer; a
+    // production sheet viewer can later use a supported WebView implementation.
     public string SheetHtml { get; } = """
         <html>
         <head>
@@ -54,8 +54,8 @@ public partial class SheetPreviewDialog : Window
 
     public SheetPreviewDialog()
     {
-        InitializeComponent();
-        this.FindControl<TheArtOfDev.HtmlRenderer.Avalonia.HtmlPanel>("SheetHtmlPanel")!.Text = SheetHtml;
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+		this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetHtml;
     }
 
     private void OnClose(object? sender, RoutedEventArgs e) => Close();

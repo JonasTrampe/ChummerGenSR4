@@ -7,7 +7,7 @@ public partial class KarmaGpDialog : Window
 {
     public KarmaGpDialog()
     {
-        InitializeComponent();
+        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)
