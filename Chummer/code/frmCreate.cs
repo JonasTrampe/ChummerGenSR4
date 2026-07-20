@@ -7362,7 +7362,7 @@ namespace Chummer
 
 			XmlNode objXmlManeuver = objXmlDocument.SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + frmPickMartialArtManeuver.SelectedManeuver + "\"]");
 
-			MartialArtManeuver objManeuver = new MartialArtManeuver(_objCharacter);
+			MartialArtManeuver objManeuver = new MartialArtManeuver();
 			objManeuver.Create(objXmlManeuver);
 			TreeNode objNode = new TreeNode
 			{
@@ -21014,7 +21014,7 @@ namespace Chummer
 				// Maneuvers.
 				foreach (XmlNode objXmlManeuver in objXmlKit.SelectNodes("martialarts/maneuver"))
 				{
-					MartialArtManeuver objManeuver = new MartialArtManeuver(_objCharacter);
+					MartialArtManeuver objManeuver = new MartialArtManeuver();
 					XmlNode objXmlManeuverNode = objXmlMartialArtDocument.SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + objXmlManeuver.InnerText + "\"]");
 					objManeuver.Create(objXmlManeuverNode);
 					TreeNode objNode = new TreeNode

@@ -1446,7 +1446,7 @@ namespace Chummer
 			objXmlNodeList = objXmlDocument.SelectNodes("/character/martialartmaneuvers/martialartmaneuver");
 			foreach (XmlNode objXmlManeuver in objXmlNodeList)
 			{
-				MartialArtManeuver objManeuver = new MartialArtManeuver(this);
+				MartialArtManeuver objManeuver = new MartialArtManeuver();
 				objManeuver.Load(objXmlManeuver);
 				_lstMartialArtManeuvers.Add(objManeuver);
 			}
@@ -2114,7 +2114,7 @@ namespace Chummer
 			objWriter.WriteStartElement("martialartmaneuvers");
 			foreach (MartialArtManeuver objManeuver in _lstMartialArtManeuvers)
 			{
-				objManeuver.Print(objWriter);
+				objManeuver.Print(objWriter, MartialArtManeuverPresentation.GetDisplayName(objManeuver.Name), Options.LanguageBookShort(objManeuver.Source), MartialArtManeuverPresentation.GetPage(objManeuver.Name, objManeuver.Page), Options.PrintNotes);
 			}
 			// </martialartmaneuvers>
 			objWriter.WriteEndElement();

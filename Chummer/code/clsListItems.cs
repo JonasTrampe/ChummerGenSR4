@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace Chummer
 {
@@ -30,6 +31,27 @@ namespace Chummer
 			ListViewItem ly = objY as ListViewItem;
 
 			return DateTime.Compare(DateTime.Parse(ly.Text), DateTime.Parse(lx.Text));
+		}
+	}
+
+	/// <summary>
+	/// Legacy presentation adapter for martial-art maneuvers. Translation stays in the WinForms
+	/// application so the persisted maneuver model can remain in Chummer.Core.
+	/// </summary>
+	public static class MartialArtManeuverPresentation
+	{
+		public static string GetDisplayName(string strName)
+		{
+			if (GlobalOptions.Instance.Language == "en-us") return strName;
+			XmlNode objNode = XmlManager.Instance.Load("martialarts.xml").SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + strName + "\"]");
+			return objNode != null && objNode["translate"] != null ? objNode["translate"].InnerText : strName;
+		}
+
+		public static string GetPage(string strName, string strPage)
+		{
+			if (GlobalOptions.Instance.Language == "en-us") return strPage;
+			XmlNode objNode = XmlManager.Instance.Load("martialarts.xml").SelectSingleNode("/chummer/maneuvers/maneuver[name = \"" + strName + "\"]");
+			return objNode != null && objNode["altpage"] != null ? objNode["altpage"].InnerText : strPage;
 		}
 	}
 
