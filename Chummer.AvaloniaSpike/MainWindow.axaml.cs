@@ -259,6 +259,7 @@ public partial class MainWindow : Window
                 document.Load(stream);
                 characterName = document.SelectSingleNode("/character/name")?.InnerText ?? characterName;
                 _loadedCharacterDocument = document;
+                UpdateCharacterStatus(document);
             }
             catch (XmlException)
             {
@@ -267,6 +268,14 @@ public partial class MainWindow : Window
 
             Title = "Chummer - " + characterName;
         }
+    }
+
+    private void UpdateCharacterStatus(XmlDocument document)
+    {
+        string karma = document.SelectSingleNode("/character/karma")?.InnerText ?? "0";
+        string nuyen = document.SelectSingleNode("/character/nuyen")?.InnerText ?? "0";
+        this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: " + karma;
+        this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: " + nuyen + "¥";
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)

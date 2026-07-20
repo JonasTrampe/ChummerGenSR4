@@ -63,9 +63,9 @@
 
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
-                <TextBlock Text="Karma: 1" />
+                <TextBlock Name="KarmaStatus" Text="Karma: 1" />
                 <TextBlock Text="Essenz: 0,80" />
-                <TextBlock Text="Nuyen: 1.435¥" />
+                <TextBlock Name="NuyenStatus" Text="Nuyen: 1.435¥" />
             </StackPanel>
         </Border>
 
