@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Xml;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -31,7 +30,8 @@ public partial class MainWindow : Window
     private TreeViewItem? _pendingPressItem;
     private Point _pendingPressPoint;
     private const double DragThreshold = 6;
-    private XmlDocument? _loadedCharacterDocument;
+    private readonly CharacterFileService _characterFiles = new CharacterFileService();
+    private CharacterDocument? _loadedCharacter;
 
     public MainWindow()
     {
@@ -256,14 +256,12 @@ public partial class MainWindow : Window
             try
             {
                 await using var stream = await files[0].OpenReadAsync();
-                var document = new XmlDocument();
-                document.Load(stream);
-                characterName = document.SelectSingleNode("/character/name")?.InnerText ?? characterName;
-                _loadedCharacterDocument = document;
-                UpdateCharacterStatus(document);
-                UpdateCharacterOverview(document);
+                _loadedCharacter = _characterFiles.Load(stream, files[0].Name);
+                characterName = _loadedCharacter.Name;
+                UpdateCharacterStatus(_loadedCharacter);
+                UpdateCharacterOverview(_loadedCharacter);
             }
-            catch (XmlException)
+            catch (Exception)
             {
                 // Keep the selected filename when the document is not a readable Chummer save.
             }
@@ -272,45 +270,34 @@ public partial class MainWindow : Window
         }
     }
 
-    private void UpdateCharacterStatus(XmlDocument document)
+    private void UpdateCharacterStatus(CharacterDocument character)
     {
-        string karma = document.SelectSingleNode("/character/karma")?.InnerText ?? "0";
-        string nuyen = document.SelectSingleNode("/character/nuyen")?.InnerText ?? "0";
-        this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: " + karma;
-        this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: " + nuyen + "¥";
+        this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: " + character.Karma;
+        this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: " + character.Nuyen + "¥";
     }
 
-    private void UpdateCharacterOverview(XmlDocument document)
+    private void UpdateCharacterOverview(CharacterDocument character)
     {
-        string alias = document.SelectSingleNode("/character/alias")?.InnerText ?? string.Empty;
-        string metatype = document.SelectSingleNode("/character/metatype")?.InnerText ?? string.Empty;
-        string nuyen = document.SelectSingleNode("/character/nuyen")?.InnerText ?? "0";
-        this.FindControl<TextBox>("AliasTextBox")!.Text = alias;
-        this.FindControl<TextBlock>("MetatypeText")!.Text = metatype;
-        this.FindControl<TextBox>("NuyenTextBox")!.Text = nuyen;
-        this.FindControl<TextBlock>("NuyenEquivalentText")!.Text = "= " + nuyen + "¥";
+        this.FindControl<TextBox>("AliasTextBox")!.Text = character.Alias;
+        this.FindControl<TextBlock>("MetatypeText")!.Text = character.Metatype;
+        this.FindControl<TextBox>("NuyenTextBox")!.Text = character.Nuyen;
+        this.FindControl<TextBlock>("NuyenEquivalentText")!.Text = "= " + character.Nuyen + "¥";
 
-        foreach (XmlNode attribute in document.SelectNodes("/character/attributes/attribute")!)
+        foreach (CharacterAttributeData attribute in character.Attributes)
         {
-            string code = attribute.SelectSingleNode("name")?.InnerText ?? string.Empty;
-            var row = this.FindControl<AttributeRow>(code + "Attribute");
+            var row = this.FindControl<AttributeRow>(attribute.Code + "Attribute");
             if (row is null)
                 continue;
 
-            string value = attribute.SelectSingleNode("value")?.InnerText ?? "0";
-            string totalValue = attribute.SelectSingleNode("totalvalue")?.InnerText ?? value;
-            string minimum = attribute.SelectSingleNode("metatypemin")?.InnerText ?? "0";
-            string maximum = attribute.SelectSingleNode("metatypemax")?.InnerText ?? "0";
-            string augmentedMaximum = attribute.SelectSingleNode("metatypeaugmax")?.InnerText ?? maximum;
-            row.Base = value;
-            row.Augmented = totalValue == value ? string.Empty : "(" + totalValue + ")";
-            row.Range = minimum + " / " + maximum + " (" + augmentedMaximum + ")";
+            row.Base = attribute.Value;
+            row.Augmented = attribute.TotalValue == attribute.Value ? string.Empty : "(" + attribute.TotalValue + ")";
+            row.Range = attribute.Minimum + " / " + attribute.Maximum + " (" + attribute.AugmentedMaximum + ")";
         }
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
     {
-        if (_loadedCharacterDocument is null)
+        if (_loadedCharacter is null)
             return;
 
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
@@ -321,14 +308,14 @@ public partial class MainWindow : Window
         {
             Title = "Save Chummer character",
             DefaultExtension = "chum",
-            SuggestedFileName = _loadedCharacterDocument.SelectSingleNode("/character/name")?.InnerText ?? "character",
+            SuggestedFileName = _loadedCharacter.Name,
             FileTypeChoices = new[] { new FilePickerFileType("Chummer characters") { Patterns = new[] { "*.chum" } } },
         });
 
         if (file is not null)
         {
             await using var stream = await file.OpenWriteAsync();
-            _loadedCharacterDocument.Save(stream);
+            _characterFiles.Save(_loadedCharacter, stream, file.Name);
         }
     }
 
