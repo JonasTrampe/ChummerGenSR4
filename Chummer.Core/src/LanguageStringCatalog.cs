@@ -8,7 +8,7 @@ namespace Chummer.Core
     public sealed class LanguageStringCatalog
     {
         private readonly Dictionary<string, string> _dicStrings = new();
-        public XmlDocument DataDocument { get; private set; }
+        public XmlDocument? DataDocument { get; private set; }
 
         public void LoadBase(string strLanguageDirectory)
         {
@@ -58,8 +58,8 @@ namespace Chummer.Core
             var objDocument = new XmlDocument();
             objDocument.Load(strPath);
             var dicStrings = new Dictionary<string, string>();
-            foreach (XmlNode objNode in objDocument.SelectNodes("/chummer/strings/string"))
-                dicStrings[objNode["key"].InnerText] = objNode["text"].InnerText;
+            foreach (XmlNode objNode in GetStringNodes(objDocument))
+                dicStrings[GetRequiredValue(objNode, "key")] = GetRequiredValue(objNode, "text");
             return dicStrings;
         }
 
@@ -67,12 +67,24 @@ namespace Chummer.Core
         {
             var objDocument = new XmlDocument();
             objDocument.Load(strPath);
-            foreach (XmlNode objNode in objDocument.SelectNodes("/chummer/strings/string"))
+            foreach (XmlNode objNode in GetStringNodes(objDocument))
             {
-                var strKey = objNode["key"].InnerText;
+                var strKey = GetRequiredValue(objNode, "key");
                 if (blnReplace || _dicStrings.ContainsKey(strKey))
-                    _dicStrings[strKey] = objNode["text"].InnerText;
+                    _dicStrings[strKey] = GetRequiredValue(objNode, "text");
             }
+        }
+
+        private static XmlNodeList GetStringNodes(XmlDocument objDocument)
+        {
+            return objDocument.SelectNodes("/chummer/strings/string")
+                   ?? throw new InvalidDataException("Language file does not contain a strings section.");
+        }
+
+        private static string GetRequiredValue(XmlNode objNode, string strName)
+        {
+            return objNode[strName]?.InnerText
+                   ?? throw new InvalidDataException("Language string is missing the required '" + strName + "' value.");
         }
     }
 }

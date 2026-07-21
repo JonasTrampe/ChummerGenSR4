@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -173,11 +174,17 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            KarmaType = ConvertToKarmaExpenseType(objNode["karmatype"].InnerText);
-            NuyenType = ConvertToNuyenExpenseType(objNode["nuyentype"].InnerText);
-            ObjectId = objNode["objectid"].InnerText;
-            Qty = Convert.ToInt32(objNode["qty"].InnerText);
-            Extra = objNode["extra"].InnerText;
+            KarmaType = ConvertToKarmaExpenseType(GetRequiredValue(objNode, "karmatype"));
+            NuyenType = ConvertToNuyenExpenseType(GetRequiredValue(objNode, "nuyentype"));
+            ObjectId = GetRequiredValue(objNode, "objectid");
+            Qty = Convert.ToInt32(GetRequiredValue(objNode, "qty"));
+            Extra = GetRequiredValue(objNode, "extra");
+        }
+
+        private static string GetRequiredValue(XmlNode objNode, string strName)
+        {
+            return objNode[strName]?.InnerText
+                   ?? throw new InvalidDataException("Expense undo entry is missing the required '" + strName + "' value.");
         }
 
         #endregion
@@ -197,7 +204,7 @@ namespace Chummer.Core
         /// <summary>
         ///     Object InternalId.
         /// </summary>
-        public string ObjectId { get; set; }
+        public string ObjectId { get; set; } = "";
 
         /// <summary>
         ///     Quantity of items added (Nuyen only).

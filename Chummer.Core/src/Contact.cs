@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -64,68 +65,34 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            Name = objNode["name"].InnerText;
-            Connection = Convert.ToInt32(objNode["connection"].InnerText);
-            Loyalty = Convert.ToInt32(objNode["loyalty"].InnerText);
-            try
-            {
-                Membership = Convert.ToInt32(objNode["membership"].InnerText);
-                AreaOfInfluence = Convert.ToInt32(objNode["areaofinfluence"].InnerText);
-                MagicalResources = Convert.ToInt32(objNode["magicalresources"].InnerText);
-                MatrixResources = Convert.ToInt32(objNode["matrixresources"].InnerText);
-            }
-            catch
-            {
-            }
+            Name = GetRequiredValue(objNode, "name");
+            Connection = Convert.ToInt32(GetRequiredValue(objNode, "connection"));
+            Loyalty = Convert.ToInt32(GetRequiredValue(objNode, "loyalty"));
+            Membership = GetOptionalIntValue(objNode, "membership");
+            AreaOfInfluence = GetOptionalIntValue(objNode, "areaofinfluence");
+            MagicalResources = GetOptionalIntValue(objNode, "magicalresources");
+            MatrixResources = GetOptionalIntValue(objNode, "matrixresources");
+            EntityType = ConvertToContactType(GetRequiredValue(objNode, "type"));
+            FileName = objNode["file"]?.InnerText ?? string.Empty;
+            RelativeFileName = objNode["relative"]?.InnerText ?? string.Empty;
+            Notes = objNode["notes"]?.InnerText ?? string.Empty;
+            GroupName = objNode["groupname"]?.InnerText ?? string.Empty;
 
-            EntityType = ConvertToContactType(objNode["type"].InnerText);
-            try
-            {
-                FileName = objNode["file"].InnerText;
-            }
-            catch
-            {
-            }
+            if (int.TryParse(objNode["colour"]?.InnerText, out int intColour))
+                _objColour = Color.FromArgb(intColour);
 
-            try
-            {
-                RelativeFileName = objNode["relative"].InnerText;
-            }
-            catch
-            {
-            }
+            Free = bool.TryParse(objNode["free"]?.InnerText, out bool blnFree) && blnFree;
+        }
 
-            try
-            {
-                Notes = objNode["notes"].InnerText;
-            }
-            catch
-            {
-            }
+        private static string GetRequiredValue(XmlNode objNode, string strName)
+        {
+            return objNode[strName]?.InnerText
+                   ?? throw new InvalidDataException("Contact is missing the required '" + strName + "' value.");
+        }
 
-            try
-            {
-                GroupName = objNode["groupname"].InnerText;
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                _objColour = Color.FromArgb(Convert.ToInt32(objNode["colour"].InnerText));
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                Free = Convert.ToBoolean(objNode["free"].InnerText);
-            }
-            catch
-            {
-            }
+        private static int GetOptionalIntValue(XmlNode objNode, string strName)
+        {
+            return int.TryParse(objNode[strName]?.InnerText, out int intValue) ? intValue : 0;
         }
 
         /// <summary>
