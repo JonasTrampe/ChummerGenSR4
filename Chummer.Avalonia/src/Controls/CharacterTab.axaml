@@ -52,7 +52,7 @@
                         <sections:NotesTab />
                     </TabItem>
                     <TabItem Header="Verbessern">
-                        <sections:ImprovementsTab />
+                        <sections:ImprovementsTab x:Name="ImprovementsTab" />
                     </TabItem>
                 </TabControl>
 

@@ -34,6 +34,7 @@ public partial class CharacterTab : UserControl
         this.FindControl<VehiclesSectionTab>("VehiclesTab")!.LoadCharacter(character);
         this.FindControl<CharacterInfoSectionTab>("CharacterInfoTab")!.LoadCharacter(character);
         this.FindControl<KarmaNuyenSectionTab>("KarmaNuyenTab")!.LoadCharacter(character);
+        this.FindControl<ImprovementsTab>("ImprovementsTab")!.LoadCharacter(character);
         this.FindControl<CharacterSidebar>("Sidebar")!.LoadCharacter(character);
     }
 }

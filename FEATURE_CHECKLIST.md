@@ -41,9 +41,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ❌ Kalender (static mockup, no data model)
 - ❌ Notizen (static mockup, no data model — character-level Notes field itself *is* read, on
   the Charakter-Information tab, just not this dedicated tab)
-- ❌ Verbessern / Improvements list (static mockup — the underlying `Improvement` data is fully
-  modeled in Core and used everywhere for calculations, it's just never listed item-by-item in
-  its own tab)
+- ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
+  status; editing remains blocked on the shared write path)
 
 ## Character sheet tabs — editing
 
