@@ -90,6 +90,22 @@ namespace Chummer.Core
         public bool IsMatrixNative => Metatype.EndsWith("A.I.")
             || MetatypeCategory is "Technocritters" or "Protosapients";
 
+        /// <summary>Response rating of the character's equipped, active Commlink (0 if none),
+        /// ported from clsCommonFunctions.FindCommlinks + Commlink.TotalResponse as used by
+        /// MatrixInitiative. Searches every &lt;gear&gt; node anywhere in the document (so this
+        /// does find Commlinks nested under Armor/Cyberware, same as the legacy scan), but doesn't
+        /// separately check Vehicles' own onboard Commlinks the way FindCommlinks does. Uses the
+        /// raw &lt;response&gt; value rather than TotalResponse (gear-mod bonuses to Response
+        /// aren't modeled).</summary>
+        private int ActiveCommlinkResponse()
+        {
+            var objNodes = Document.SelectNodes(
+                "//gear[category = 'Commlinks' and equipped = 'True' and active = 'True']/response");
+            return objNodes is { Count: > 0 } && int.TryParse(objNodes[0]!.InnerText, out var intResponse)
+                ? intResponse
+                : 0;
+        }
+
         public string Karma => GetValue("/character/karma", "0");
 
         public string Nuyen => GetValue("/character/nuyen", "0");
@@ -296,11 +312,12 @@ namespace Chummer.Core
         ///  - A.I./technocritter/protosapient: INT + Response (checked first - it overrides
         ///    everything else, same order as the legacy version).
         ///  - Technomancer (and not A.I.): (INT x 2) + 1 + LivingPersonaResponse Improvements.
-        ///  - Otherwise: INT + MatrixInitiative Improvements (the default human/non-awakened path).
-        /// NOT ported: an active Commlink's Response bonus on the default path (Core doesn't model
-        /// Gear well enough yet to find "the equipped, active Commlink" and its Response rating),
-        /// Sprites using a fixed metatype-minimum value (that value comes from metatypes.xml data
-        /// Core doesn't load), and the TechnomancerAllowCommlink house rule.</summary>
+        ///  - Otherwise: INT + active Commlink's Response + MatrixInitiative Improvements (the
+        ///    default human/non-awakened path) - see ActiveCommlinkResponse's doc comment for its
+        ///    scoped-down Gear search.
+        /// NOT ported: Sprites using a fixed metatype-minimum value (that value comes from
+        /// metatypes.xml data Core doesn't load), and the TechnomancerAllowCommlink house rule
+        /// (which would let a Technomancer use this branch instead of their own).</summary>
         public CharacterInitiativeData MatrixInitiative
         {
             get
@@ -326,9 +343,12 @@ namespace Chummer.Core
                 }
                 else
                 {
+                    int intCommlinkResponse = ActiveCommlinkResponse();
                     var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiative);
-                    intBase = intInt + lstContributions.Sum(c => c.Value);
+                    intBase = intInt + intCommlinkResponse + lstContributions.Sum(c => c.Value);
                     sb.Append("Intuition: ").Append(intInt);
+                    if (intCommlinkResponse != 0)
+                        sb.Append('\n').Append("Kommlink-Antwort: ").Append(intCommlinkResponse);
                     AppendContributions(sb, lstContributions);
                 }
 
@@ -869,7 +889,9 @@ namespace Chummer.Core
 
         private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, string strChildXPath)
         {
-            var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty));
+            var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty),
+                GetValue(objNode, "category", string.Empty), GetValue(objNode, "rating", "0"),
+                GetValue(objNode, "equipped", "False") == "True");
             var objChildren = string.IsNullOrEmpty(strChildXPath) ? null : objNode.SelectNodes(strChildXPath);
             if (objChildren != null)
                 foreach (XmlNode objChild in objChildren)
@@ -998,13 +1020,28 @@ namespace Chummer.Core
 
     public sealed class CharacterTreeItemData
     {
-        internal CharacterTreeItemData(string strName)
+        internal CharacterTreeItemData(string strName, string strCategory = "", string strRating = "0",
+            bool blnEquipped = false)
         {
             Name = strName;
+            Category = strCategory;
+            Rating = strRating;
+            Equipped = blnEquipped;
             Children = new List<CharacterTreeItemData>();
         }
 
         public string Name { get; private set; }
+
+        /// <summary>Empty for item types that don't save one (e.g. Quality nodes don't reuse this
+        /// class). Gear/Cyberware/Armor/Weapon all use the same &lt;category&gt; element name.</summary>
+        public string Category { get; }
+
+        public string Rating { get; }
+
+        /// <summary>Whether the item is currently worn/active/installed - only meaningful for
+        /// item types that track it (Gear, Armor, Cyberware all do; not everything does).</summary>
+        public bool Equipped { get; }
+
         public List<CharacterTreeItemData> Children { get; }
     }
 

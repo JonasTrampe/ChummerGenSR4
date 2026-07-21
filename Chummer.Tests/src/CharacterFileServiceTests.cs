@@ -223,4 +223,27 @@ public class CharacterFileServiceTests
         Assert.Equal(7, character.MatrixInitiative.Base); // INT(3) + Response(4)
         Assert.Equal(3, character.MatrixInitiativePasses.Base);
     }
+
+    [Fact]
+    public void MatrixInitiative_DefaultPath_AddsActiveEquippedCommlinkResponse()
+    {
+        var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
+            + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
+            + "<category>Commlinks</category><equipped>True</equipped><active>True</active>"
+            + "<response>5</response></gear></gears></character>");
+
+        Assert.Equal(9, character.MatrixInitiative.Base); // INT(4) + Response(5)
+        Assert.Contains("Kommlink-Antwort: 5", character.MatrixInitiative.Tooltip);
+    }
+
+    [Fact]
+    public void MatrixInitiative_DefaultPath_IgnoresInactiveCommlink()
+    {
+        var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
+            + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
+            + "<category>Commlinks</category><equipped>True</equipped><active>False</active>"
+            + "<response>5</response></gear></gears></character>");
+
+        Assert.Equal(4, character.MatrixInitiative.Base); // Response not counted - commlink isn't active.
+    }
 }
