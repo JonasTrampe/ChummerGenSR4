@@ -471,6 +471,39 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterExpenseData> NuyenExpenses => ReadExpenses(strType: "Nuyen");
 
+        /// <summary>
+        /// Appends a Karma or Nuyen history entry in the same XML shape as the legacy career mode.
+        /// Positive amounts are earnings; negative amounts are expenditures. The caller supplies
+        /// the signed amount so refunds can be represented without a second write API.
+        /// </summary>
+        public void AddExpense(string strType, decimal decAmount, string strReason, DateTime? datDate = null)
+        {
+            if (strType != "Karma" && strType != "Nuyen")
+                throw new ArgumentException("An expense must be Karma or Nuyen.", nameof(strType));
+            if (decAmount == 0)
+                throw new ArgumentOutOfRangeException(nameof(decAmount), "An expense amount cannot be zero.");
+            if (string.IsNullOrWhiteSpace(strReason))
+                throw new ArgumentException("An expense reason is required.", nameof(strReason));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objExpenses = objRoot.SelectSingleNode("expenses");
+            if (objExpenses == null)
+            {
+                objExpenses = Document.CreateElement("expenses");
+                objRoot.AppendChild(objExpenses);
+            }
+
+            var objExpense = Document.CreateElement("expense");
+            AppendElement(objExpense, "guid", Guid.NewGuid().ToString());
+            AppendElement(objExpense, "date", (datDate ?? DateTime.Now).ToString("O"));
+            AppendElement(objExpense, "amount", decAmount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            AppendElement(objExpense, "reason", strReason.Trim());
+            AppendElement(objExpense, "type", strType);
+            AppendElement(objExpense, "refund", "False");
+            objExpenses.AppendChild(objExpense);
+        }
+
         public string Gender => GetValue("/character/sex", string.Empty);
 
         public string EyeColor => GetValue("/character/eyes", string.Empty);

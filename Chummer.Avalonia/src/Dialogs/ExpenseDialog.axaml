@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.ExpenseDialog"
+        Width="400" Height="220" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="Aufwendung erfassen">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,*,Auto" ColumnDefinitions="80,*">
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="PromptText" Margin="0,0,0,12" />
+        <TextBlock Grid.Row="1" Text="Menge:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AmountBox" Text="1" />
+        <TextBlock Grid.Row="2" Text="Grund:" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="ReasonBox" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="Hinzufügen" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

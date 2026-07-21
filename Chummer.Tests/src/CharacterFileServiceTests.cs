@@ -76,6 +76,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddExpense_MutatesCharacterAndPersistsSignedHistory()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
+        character.AddExpense("Nuyen", -250, "New fake SIN", new DateTime(2026, 7, 23));
+
+        Assert.Equal(4, character.CareerKarma);
+        Assert.Equal(0, character.CareerNuyen);
+        Assert.Equal("-250", character.NuyenExpenses[0].Amount);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+
+        Assert.Equal("Session reward", reloaded.KarmaExpenses[0].Reason);
+        Assert.Equal("New fake SIN", reloaded.NuyenExpenses[0].Reason);
+    }
+
+    [Fact]
     public void Cyberware_And_Bioware_AreSplitByImprovementSource()
     {
         CharacterDocument character = LoadFixture();

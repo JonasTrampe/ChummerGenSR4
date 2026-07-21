@@ -11,8 +11,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Character file I/O
 
 - ✅ Open/save `.chum` files
-- 🟡 **Anything added or edited in the UI actually persisting** — adding a Quality now mutates
-  the loaded XML and survives save/reload; all other edits remain read-only or unwired.
+- 🟡 **Anything added or edited in the UI actually persisting** — adding a Quality or a
+  Karma/Nuyen history entry now mutates the loaded XML and survives save/reload; all other
+  edits remain read-only or unwired.
 - ✅ Multiple characters open in tabs at once
 - ❌ Character creation flow (priority/point-buy system, `frmCreate` equivalent) — only three
   mockup dialogs (Settings Profile → Karma/GP → Metatype) chained together with no real logic
@@ -45,8 +46,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Character sheet tabs — editing
 
-- 🟡 **Add Quality** works end-to-end (rule list → character XML → save/reload). All other
-  add/delete/edit operations remain unwired.
+- 🟡 **Add Quality and Karma/Nuyen history entries** work end-to-end (UI → character XML →
+  save/reload). All other add/delete/edit operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 

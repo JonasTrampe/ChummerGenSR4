@@ -7,8 +7,8 @@
         <Grid Grid.Row="0" ColumnDefinitions="*,*">
             <StackPanel Grid.Column="0" Margin="0,0,4,0">
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Karma verdient" />
-                    <Button Content="Karma ausgegeben" />
+                    <Button Content="Karma verdient" Click="OnKarmaEarnedClick" />
+                    <Button Content="Karma ausgegeben" Click="OnKarmaSpentClick" />
                     <Button Content="Aufwendungen bearbeiten" />
                 </StackPanel>
                 <Grid ColumnDefinitions="80,50,*" Margin="0,0,0,2">
@@ -30,8 +30,8 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="4,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Nuyen verdient" />
-                    <Button Content="Nuyen ausgegeben" />
+                    <Button Content="Nuyen verdient" Click="OnNuyenEarnedClick" />
+                    <Button Content="Nuyen ausgegeben" Click="OnNuyenSpentClick" />
                     <Button Content="Aufwendungen bearbeiten" />
                 </StackPanel>
                 <Grid ColumnDefinitions="80,60,*" Margin="0,0,0,2">
