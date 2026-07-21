@@ -41,7 +41,7 @@ namespace Chummer.Core
         private const string SecretAttributeArguments = "application ChummerGenSR4 service RunnersPointAuth";
         private static readonly HttpClient ObjHttpClient = new();
 
-        private TokenSet _objCachedTokens;
+        private TokenSet? _objCachedTokens;
 
         private static string TokenFilePath
         {
@@ -71,7 +71,8 @@ namespace Chummer.Core
                 return objTokens.AccessToken;
 
             await RefreshTokensAsync(objTokens);
-            return _objCachedTokens.AccessToken;
+            return _objCachedTokens?.AccessToken
+                   ?? throw new InvalidOperationException("RunnersPoint token refresh did not return an access token.");
         }
 
         /// <summary>
@@ -166,6 +167,8 @@ namespace Chummer.Core
                 throw new InvalidOperationException("RunnersPoint login failed: " + strError);
             if (strReturnedState != strState)
                 throw new InvalidOperationException("RunnersPoint login failed: state mismatch (possible CSRF).");
+            if (string.IsNullOrEmpty(strCode))
+                throw new InvalidOperationException("RunnersPoint login failed: no authorization code was returned.");
 
             await ExchangeCodeForTokensAsync(strCode, strCodeVerifier, strRedirectUri);
         }
@@ -246,7 +249,7 @@ namespace Chummer.Core
 
                 var accessToken = objJson.AccessToken;
                 var refreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
-                    _objCachedTokens.RefreshToken;
+                    _objCachedTokens?.RefreshToken;
                 var intExpiresIn = objJson.ExpiresIn > 0 ? objJson.ExpiresIn : 3600;
                 // Refresh a little early so a request doesn't race an expiry that happens mid-flight.
                 var expiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
@@ -263,7 +266,7 @@ namespace Chummer.Core
             }
         }
 
-        private TokenSet LoadTokens()
+        private TokenSet? LoadTokens()
         {
             if (_objCachedTokens != null)
                 return _objCachedTokens;
@@ -338,11 +341,12 @@ namespace Chummer.Core
                 }
         }
 
-        private static T Deserialize<T>(string strJson)
+        private static T Deserialize<T>(string strJson) where T : class
         {
             using (var objStream = new MemoryStream(Encoding.UTF8.GetBytes(strJson)))
             {
-                return (T)new DataContractJsonSerializer(typeof(T)).ReadObject(objStream);
+                return (T)new DataContractJsonSerializer(typeof(T)).ReadObject(objStream)
+                       ?? throw new SerializationException("RunnersPoint returned an empty JSON payload.");
             }
         }
 
@@ -357,7 +361,7 @@ namespace Chummer.Core
 
         private static bool TryLoadSecret(out string strSecret)
         {
-            strSecret = null;
+            strSecret = string.Empty;
             try
             {
                 var objStartInfo = new ProcessStartInfo(SecretToolName, "lookup " + SecretAttributeArguments)
@@ -465,7 +469,7 @@ namespace Chummer.Core
         {
             [DataMember(Name = "accessToken")] public required string AccessToken { get; set; }
 
-            [DataMember(Name = "refreshToken")] public required string RefreshToken { get; set; }
+            [DataMember(Name = "refreshToken")] public string? RefreshToken { get; set; }
 
             [DataMember(Name = "expiresAtUtc")] public required DateTime ExpiresAtUtc { get; set; }
 
