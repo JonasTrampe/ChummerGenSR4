@@ -300,6 +300,49 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         Title = "Chummer - " + character.Name;
     }
 
+    private void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { DataContext: OpenCharacterTab tab })
+            return;
+
+        int index = OpenCharacters.IndexOf(tab);
+        bool closingActiveCharacter = ReferenceEquals(SelectedOpenCharacter, tab);
+        OpenCharacters.Remove(tab);
+        if (!closingActiveCharacter)
+            return;
+
+        SelectedOpenCharacter = OpenCharacters.Count == 0
+            ? null
+            : OpenCharacters[Math.Min(index, OpenCharacters.Count - 1)];
+        if (SelectedOpenCharacter is null)
+            ClearActiveCharacter();
+    }
+
+    private void ClearActiveCharacter()
+    {
+        _loadedCharacter = null;
+        Title = "Chummer";
+        this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: —";
+        this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: —";
+        this.FindControl<TextBox>("AliasTextBox")!.Text = string.Empty;
+        this.FindControl<TextBlock>("MetatypeText")!.Text = "—";
+        this.FindControl<TextBox>("NuyenTextBox")!.Text = string.Empty;
+        this.FindControl<TextBlock>("NuyenEquivalentText")!.Text = string.Empty;
+        this.FindControl<TreeView>("QualitiesTree")!.Items.Clear();
+        this.FindControl<TreeView>("AusruestungTree")!.Items.Clear();
+        this.FindControl<TreeView>("WeaponsTree")!.Items.Clear();
+        foreach (string code in new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "RES" })
+        {
+            var row = this.FindControl<AttributeRow>(code + "Attribute");
+            if (row is not null)
+            {
+                row.Base = string.Empty;
+                row.Augmented = string.Empty;
+                row.Range = string.Empty;
+            }
+        }
+    }
+
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 

@@ -78,7 +78,11 @@
                     SelectedItem="{Binding SelectedOpenCharacter, Mode=TwoWay}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Title}" />
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+                        <Button Content="×" Click="OnCloseCharacterTabClick"
+                                ToolTip.Tip="Charakter schließen" Padding="3,0" MinWidth="0" />
+                    </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
         </TabControl>
