@@ -332,7 +332,7 @@ namespace Chummer.NewUI.Api
 				UpdatedAt = objBase.UpdatedAt
 			};
 
-			if (objJson.ContainsKey("share") && objJson["share"] is Dictionary<string, object> objShare)
+			if (objJson != null && objJson.TryGetValue("share", out var objShareValue) && objShareValue is Dictionary<string, object> objShare)
 			{
 				objShared.Permission = GetString(objShare, "permission");
 				objShared.ShareStatus = GetString(objShare, "status");
@@ -356,7 +356,7 @@ namespace Chummer.NewUI.Api
 			var strBody = await objResponse.Content.ReadAsStringAsync();
 
 			var objDocument = ParseDocument(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody));
-			var strETag = ExtractRawETag(objResponse);
+			var strETag = ExtractRawETag(objResponse) ?? string.Empty;
 			return new Tuple<RunnersPointDocument, string>(objDocument, strETag);
 		}
 
@@ -412,15 +412,17 @@ namespace Chummer.NewUI.Api
 			var strBody = await objResponse.Content.ReadAsStringAsync();
 
 			var objJson = JsonSerializer.Deserialize<Dictionary<string, object>>(strBody);
+			if (objJson == null)
+				throw new InvalidOperationException("Failed to deserialize revision status response");
 
 			var objStatus = new RunnersPointRevisionStatus();
-			objStatus.DocumentId = objJson.TryGetValue("documentId", out var value) ? value.ToString() : "";
-			objStatus.RevisionId = objJson.TryGetValue("revisionId", out var value1) ? value1.ToString() : "";
-			objStatus.State = objJson.TryGetValue("state", out var value2) ? value2.ToString() : "";
+			objStatus.DocumentId = GetString(objJson, "documentId");
+			objStatus.RevisionId = GetString(objJson, "revisionId");
+			objStatus.State = GetString(objJson, "state");
 			if (objJson.TryGetValue("messages", out var value3))
 			{
 				foreach (var objMessage in (IEnumerable)value3)
-					objStatus.Messages.Add(objMessage.ToString());
+					objStatus.Messages.Add(objMessage?.ToString() ?? string.Empty);
 			}
 			return objStatus;
 		}
@@ -449,15 +451,14 @@ namespace Chummer.NewUI.Api
 			await ThrowIfProblemAsync(objResponse);
 			var bytContent = await objResponse.Content.ReadAsByteArrayAsync();
 
-			IEnumerable<string> lstDigestValues;
-			if (objResponse.Headers.TryGetValues("Digest", out lstDigestValues))
+			if (objResponse.Headers.TryGetValues("Digest", out var lstDigestValues))
 			{
 				var strDigestHeader = lstDigestValues.FirstOrDefault();
 				if (!string.IsNullOrEmpty(strDigestHeader) && !VerifyDigest(bytContent, strDigestHeader))
 					throw new InvalidOperationException("Downloaded content for revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
 			}
 
-			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse) ?? string.Empty);
 		}
 
 		/// <summary>
@@ -473,8 +474,7 @@ namespace Chummer.NewUI.Api
 			if (objResponse.Content == null)
 				return null;
 
-			IEnumerable<string> lstValues;
-			if (!objResponse.Content.Headers.TryGetValues("Content-Disposition", out lstValues))
+			if (!objResponse.Content.Headers.TryGetValues("Content-Disposition", out var lstValues))
 				return null;
 
 			var strHeader = lstValues.FirstOrDefault();
@@ -641,10 +641,10 @@ namespace Chummer.NewUI.Api
 
 			var objJson = JsonSerializer.Deserialize<Dictionary<string, object>>(strBody);
 			if (objJson == null)
-				return null;
+				return new RunnersPointSharedDocumentPage();
 			
 			var objPage = new RunnersPointSharedDocumentPage();
-			objPage.NextCursor = objJson.TryGetValue("nextCursor", out var nextCursor) ? nextCursor.ToString() : null;
+			objPage.NextCursor = GetOptionalString(objJson, "nextCursor");
 
 			if (objJson.TryGetValue("items", out var value))
 			{
@@ -667,7 +667,7 @@ namespace Chummer.NewUI.Api
 			var strBody = await objResponse.Content.ReadAsStringAsync();
 
 			var objDocument = ParseSharedDocument(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody));
-			var strETag = ExtractRawETag(objResponse);
+			var strETag = ExtractRawETag(objResponse) ?? string.Empty;
 			return new Tuple<RunnersPointSharedDocument, string>(objDocument, strETag);
 		}
 
@@ -737,21 +737,21 @@ namespace Chummer.NewUI.Api
 					throw new InvalidOperationException("Downloaded content for shared revision " + strRevisionId + " failed digest verification - the bytes received don't match the server's declared hash. Discarding rather than saving a possibly-corrupted file.");
 			}
 
-			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse) ?? string.Empty);
 		}
 
 		internal static RunnersPointRevision ParseRevision(Dictionary<string, object> objJson)
 		{
 			var objRevision = new RunnersPointRevision();
-			objRevision.Id = objJson.TryGetValue("id", out var value) ? value.ToString() : "";
-			objRevision.DocumentId = objJson.TryGetValue("documentId", out var value1) ? value1.ToString() : "";
-			objRevision.Hash = objJson.TryGetValue("hash", out var value2) ? value2.ToString() : "";
+			objRevision.Id = GetString(objJson, "id");
+			objRevision.DocumentId = GetString(objJson, "documentId");
+			objRevision.Hash = GetString(objJson, "hash");
 			objRevision.SizeBytes = objJson.TryGetValue("sizeBytes", out var value3) ? Convert.ToInt64(value3) : 0;
-			objRevision.ValidationState = objJson.TryGetValue("validationState", out var value4) ? value4.ToString() : "";
+			objRevision.ValidationState = GetString(objJson, "validationState");
 			if (objJson.TryGetValue("validationMessages", out var value5))
 			{
 				foreach (var objMessage in (IEnumerable)value5)
-					objRevision.ValidationMessages.Add(objMessage.ToString());
+					objRevision.ValidationMessages.Add(objMessage?.ToString() ?? string.Empty);
 			}
 			if (objJson.ContainsKey("createdAt") && DateTime.TryParse(objJson["createdAt"].ToString(), out var datCreatedAt))
 				objRevision.CreatedAt = datCreatedAt;

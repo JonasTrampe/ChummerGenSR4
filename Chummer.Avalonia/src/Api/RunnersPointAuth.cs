@@ -340,11 +340,12 @@ namespace Chummer.NewUI.Api
                 }
         }
 
-        private static T Deserialize<T>(string strJson)
+        private static T Deserialize<T>(string strJson) where T : class
         {
             using (var objStream = new MemoryStream(Encoding.UTF8.GetBytes(strJson)))
             {
-                return (T)new DataContractJsonSerializer(typeof(T)).ReadObject(objStream);
+                return new DataContractJsonSerializer(typeof(T)).ReadObject(objStream) as T
+                    ?? throw new SerializationException("RunnersPoint response did not contain a " + typeof(T).Name + " object.");
             }
         }
 
