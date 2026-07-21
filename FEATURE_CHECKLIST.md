@@ -31,7 +31,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Sprüche und Geister (spells by category, spirits)
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
-- ✅ Straßenausrüstung → Lebensstil, Panzerung, Waffen, Ausrüstung
+- ✅ Straßenausrüstung → Lebensstil, Panzerung (inkl. Mods/Sets), Waffen (inkl. Zubehör/Mods), Ausrüstung
 - ❌ Straßenausrüstung → Haustiere und Begleiter (still a static mockup, no data model)
 - 🟡 Fahrzeuge und Drohnen — vehicle list shows name+category only; no handling/pilot/armor/
   sensor/mod/weapon stats (`Chummer.Core` doesn't model Vehicle beyond that)

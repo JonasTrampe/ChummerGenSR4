@@ -236,7 +236,9 @@ namespace Chummer.Core
         public IReadOnlyList<CharacterTreeItemData> Bioware =>
             ReadTreeItems("/character/cyberwares/cyberware[improvementsource = 'Bioware']", "children/cyberware");
 
-        public IReadOnlyList<CharacterTreeItemData> Armor => ReadTreeItems("/character/armors/armor", "");
+        /// <summary>Armor is represented as a tree so installed armor modifications and optional
+        /// saved armor sets remain visible instead of being flattened into a list.</summary>
+        public IReadOnlyList<CharacterTreeItemData> Armor => ReadArmorTree();
 
         /// <summary>Armor encumbrance penalty (a negative dice-pool modifier, 0 if under threshold),
         /// ported from clsCharacter.cs's BallisticArmorEncumbrance/ImpactArmorEncumbrance. This is a
@@ -436,6 +438,9 @@ namespace Chummer.Core
         }
 
         public IReadOnlyList<CharacterWeaponData> Weapons => ReadWeapons();
+
+        /// <summary>Weapons with their installed accessories, modifications, and mounted gear.</summary>
+        public IReadOnlyList<CharacterTreeItemData> WeaponTrees => ReadWeaponTrees();
 
         public IReadOnlyList<CharacterSkillGroupData> SkillGroups => ReadSkillGroups();
 
@@ -707,6 +712,45 @@ namespace Chummer.Core
             return lstItems;
         }
 
+        private IReadOnlyList<CharacterTreeItemData> ReadArmorTree()
+        {
+            var lstArmor = new List<CharacterTreeItemData>();
+            var dicSets = new Dictionary<string, CharacterTreeItemData>(StringComparer.Ordinal);
+            var objNodes = Document.SelectNodes("/character/armors/armor");
+            if (objNodes == null) return lstArmor;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
+                string strSetName = GetValue(objNode, "armorname", string.Empty);
+                if (string.IsNullOrWhiteSpace(strSetName))
+                {
+                    lstArmor.Add(objArmor);
+                    continue;
+                }
+
+                if (!dicSets.TryGetValue(strSetName, out var objSet))
+                {
+                    objSet = new CharacterTreeItemData(strSetName, "Armor set");
+                    dicSets.Add(strSetName, objSet);
+                    lstArmor.Add(objSet);
+                }
+                objSet.Children.Add(objArmor);
+            }
+
+            return lstArmor;
+        }
+
+        private IReadOnlyList<CharacterTreeItemData> ReadWeaponTrees()
+        {
+            var lstWeapons = new List<CharacterTreeItemData>();
+            var objNodes = Document.SelectNodes("/character/weapons/weapon");
+            if (objNodes == null) return lstWeapons;
+            foreach (XmlNode objNode in objNodes)
+                lstWeapons.Add(ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo"));
+            return lstWeapons;
+        }
+
         private IReadOnlyList<CharacterWeaponData> ReadWeapons()
         {
             var lstWeapons = new List<CharacterWeaponData>();
@@ -971,15 +1015,19 @@ namespace Chummer.Core
             return lstExpenses;
         }
 
-        private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, string strChildXPath)
+        private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, params string[] lstChildXPaths)
         {
             var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty),
                 GetValue(objNode, "category", string.Empty), GetValue(objNode, "rating", "0"),
                 GetValue(objNode, "equipped", "False") == "True");
-            var objChildren = string.IsNullOrEmpty(strChildXPath) ? null : objNode.SelectNodes(strChildXPath);
-            if (objChildren != null)
+            foreach (string strChildXPath in lstChildXPaths)
+            {
+                if (string.IsNullOrEmpty(strChildXPath)) continue;
+                var objChildren = objNode.SelectNodes(strChildXPath);
+                if (objChildren == null) continue;
                 foreach (XmlNode objChild in objChildren)
                     objItem.Children.Add(ReadTreeItem(objChild, strChildXPath));
+            }
             return objItem;
         }
 

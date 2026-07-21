@@ -108,6 +108,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ArmorAndWeapons_ExposeInstalledItemsAsTrees()
+    {
+        var character = LoadXml("<character><name>Runner</name><armors><armor><name>Jacket</name>"
+            + "<armorname>Night Out</armorname><armormods><armormod><name>Fire Resistance</name>"
+            + "</armormod></armormods></armor></armors><weapons><weapon><name>Pistol</name>"
+            + "<accessories><accessory><name>Smartlink</name></accessory></accessories>"
+            + "<weaponmods><weaponmod><name>Gas Vent</name></weaponmod></weaponmods></weapon></weapons></character>");
+
+        Assert.Single(character.Armor);
+        Assert.Equal("Night Out", character.Armor[0].Name);
+        Assert.Single(character.Armor[0].Children);
+        Assert.Equal("Fire Resistance", character.Armor[0].Children[0].Children[0].Name);
+
+        Assert.Single(character.WeaponTrees);
+        Assert.Equal("Pistol", character.WeaponTrees[0].Name);
+        Assert.Equal(new[] { "Smartlink", "Gas Vent" }, character.WeaponTrees[0].Children.Select(item => item.Name));
+    }
+
+    [Fact]
     public void KarmaAndNuyenExpenses_AreSplitByType()
     {
         CharacterDocument character = LoadFixture();

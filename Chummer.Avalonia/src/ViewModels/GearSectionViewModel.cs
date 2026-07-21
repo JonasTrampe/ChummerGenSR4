@@ -25,8 +25,8 @@ public sealed class GearSectionViewModel : ViewModelBase
             Gear.Add(TreeNodeViewModel.FromTreeItem(item));
 
         Weapons.Clear();
-        foreach (CharacterWeaponData weapon in character.Weapons)
-            Weapons.Add(new TreeNodeViewModel(weapon.DisplayName));
+        foreach (CharacterTreeItemData weapon in character.WeaponTrees)
+            Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
 
         Armor.Clear();
         foreach (CharacterTreeItemData item in character.Armor)
