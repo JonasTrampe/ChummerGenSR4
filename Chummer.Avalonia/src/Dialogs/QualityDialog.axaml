@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.QualityDialog"
+        x:DataType="vm:QualityDialogViewModel"
         Width="620" Height="520" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
@@ -12,10 +14,9 @@
                    Margin="0,0,0,8" />
 
         <Grid Grid.Row="1" ColumnDefinitions="*,190">
-            <ListBox x:Name="QualityList" Grid.Column="0" ItemsSource="{Binding QualityOptions, x:CompileBindings=False}"
-                     SelectionChanged="OnSelectionChanged">
+            <ListBox Grid.Column="0" ItemsSource="{Binding QualityOptions}" SelectedItem="{Binding SelectedQuality, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
-                    <DataTemplate x:CompileBindings="False">
+                    <DataTemplate x:DataType="vm:QualityOptionViewModel">
                         <StackPanel Margin="4,2">
                             <TextBlock Text="{Binding DisplayName}" Foreground="#1E5FA8" />
                             <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" />
@@ -26,11 +27,11 @@
 
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
                 <TextBlock Text="GP:" FontWeight="Bold" />
-                <TextBlock x:Name="CostText" Text="–" />
+                <TextBlock Text="{Binding SelectedQuality.Cost, TargetNullValue=–}" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" />
-                <TextBlock x:Name="SourceText" Text="–" />
+                <TextBlock Text="{Binding SelectedQuality.SourcePage, TargetNullValue=–}" />
                 <TextBlock Text="Kategorie:" FontWeight="Bold" />
-                <TextBlock x:Name="CategoryText" Text="–" />
+                <TextBlock Text="{Binding SelectedQuality.Category, TargetNullValue=–}" />
             </StackPanel>
         </Grid>
 

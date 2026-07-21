@@ -1,21 +1,17 @@
-using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Dialogs;
 
 public partial class SettingsProfileDialog : Window
 {
-	public IReadOnlyList<ListItem> SettingsProfiles { get; } = new List<ListItem>
-	{
-		new ListItem { Name = "Default Settings", Value = "default.xml" },
-	};
+    public SettingsProfileDialogViewModel ViewModel { get; } = new();
 
     public SettingsProfileDialog()
     {
-        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
-		DataContext = this;
+        DataContext = ViewModel;
+        InitializeComponent();
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)

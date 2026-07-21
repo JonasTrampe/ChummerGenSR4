@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dialogs="clr-namespace:Chummer.NewUI.Dialogs"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.SettingsProfileDialog"
+        x:DataType="vm:SettingsProfileDialogViewModel"
         Width="400" Height="200" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
@@ -14,9 +15,8 @@
 
 		<Grid ColumnDefinitions="Auto,*">
 			<TextBlock Text="Konfigurationsdatei:" VerticalAlignment="Center" Margin="0,0,8,0" />
-			<ComboBox Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="0" x:DataType="dialogs:SettingsProfileDialog"
-			          ItemsSource="{Binding SettingsProfiles, x:CompileBindings=False}"
-			          DisplayMemberBinding="{Binding Name, x:CompileBindings=False}" />
+			<ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding SettingsProfiles}"
+			          SelectedItem="{Binding SelectedProfile, Mode=TwoWay}" DisplayMemberBinding="{Binding Name}" />
 		</Grid>
 
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,20,0,0">
