@@ -55,6 +55,9 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<string?> PoolProperty =
         AvaloniaProperty.Register<SkillRow, string?>(nameof(Pool));
 
+    public static readonly StyledProperty<string?> PoolTooltipProperty =
+        AvaloniaProperty.Register<SkillRow, string?>(nameof(PoolTooltip));
+
     public static readonly StyledProperty<string?> SpecializationProperty =
         AvaloniaProperty.Register<SkillRow, string?>(nameof(Specialization));
 
@@ -105,6 +108,12 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
     {
         get => GetValue(PoolProperty);
         set => SetValue(PoolProperty, value);
+    }
+
+    public string? PoolTooltip
+    {
+        get => GetValue(PoolTooltipProperty);
+        set => SetValue(PoolTooltipProperty, value);
     }
 
     public string? Specialization

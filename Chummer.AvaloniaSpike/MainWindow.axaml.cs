@@ -425,6 +425,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 Attribute = skill.Attribute,
                 Rating = skill.Rating,
                 Pool = skill.TotalValue,
+                PoolTooltip = skill.PoolTooltip,
                 Specialization = skill.Specialization,
                 IsGroupLocked = skill.IsGroupLocked,
             });
@@ -439,15 +440,16 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             knowledgeSkillsGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
             AddKnowledgeSkillText(knowledgeSkillsGrid, row, 0, skill.Name);
             AddKnowledgeSkillText(knowledgeSkillsGrid, row, 1, skill.Rating);
-            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 3, skill.TotalValue);
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 3, skill.TotalValue, skill.PoolTooltip);
             AddKnowledgeSkillText(knowledgeSkillsGrid, row, 4, skill.Specialization);
             AddKnowledgeSkillText(knowledgeSkillsGrid, row, 6, skill.Category);
         }
     }
 
-    private static void AddKnowledgeSkillText(Grid grid, int row, int column, string text)
+    private static void AddKnowledgeSkillText(Grid grid, int row, int column, string text, string tooltip = null)
     {
         var textBlock = new TextBlock { Text = text, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+        if (!string.IsNullOrEmpty(tooltip)) ToolTip.SetTip(textBlock, tooltip);
         Grid.SetRow(textBlock, row);
         Grid.SetColumn(textBlock, column);
         grid.Children.Add(textBlock);

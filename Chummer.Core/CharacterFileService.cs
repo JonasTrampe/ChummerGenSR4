@@ -283,6 +283,15 @@ namespace Chummer
 		public string Specialization { get; private set; }
 		public string Category { get; private set; }
 		public bool IsGroupLocked { get; private set; }
+		public string PoolTooltip
+		{
+			get
+			{
+				string strTooltip = "Gespeicherter Würfelpool: " + TotalValue + "\nFertigkeitswert: " + Rating + "\nAttribut: " + Attribute;
+				if (!string.IsNullOrEmpty(Specialization)) strTooltip += "\nSpezialisierung: " + Specialization;
+				return strTooltip;
+			}
+		}
 
 		internal CharacterSkillData(string strName, string strAttribute, string strRating, string strTotalValue, string strSpecialization, string strCategory, bool blnIsGroupLocked)
 		{

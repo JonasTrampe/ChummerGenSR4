@@ -24,7 +24,8 @@
                 <Image Source="avares://Chummer.AvaloniaSpike/Assets/icons/add.png" Width="16" Height="16" />
             </Button>
             <TextBlock Grid.Column="4" Classes="rowLabel" HorizontalAlignment="Center"
-                       Classes.disabledRow="{Binding IsUnavailable}" Text="{Binding Pool}" />
+                       Classes.disabledRow="{Binding IsUnavailable}" Text="{Binding Pool}"
+                       ToolTip.Tip="{Binding PoolTooltip}" />
 
             <!-- Specialization slot: metaskill subskills (e.g. individual Wahrnehmung senses) never
                  get one at all. Otherwise it's always this same combo, whether or not a
