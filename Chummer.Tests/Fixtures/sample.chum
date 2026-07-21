@@ -392,5 +392,49 @@
       <order>0</order>
       <notes />
     </improvement>
+    <improvement>
+      <unique />
+      <improvedname>Pistolen</improvedname>
+      <sourcename>Muscle Toner</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>1</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Skill</improvementttype>
+      <improvementsource>Cyberware</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>True</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+    <improvement>
+      <unique />
+      <improvedname>Pistolen</improvedname>
+      <sourcename>Smartlink</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>2</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Skill</improvementttype>
+      <improvementsource>Gear</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
   </improvements>
 </character>

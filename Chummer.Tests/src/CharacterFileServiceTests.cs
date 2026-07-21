@@ -136,4 +136,32 @@ public class CharacterFileServiceTests
         Assert.Equal(1, character.InitiativePasses.Augmented);
         Assert.Equal("1", character.InitiativePasses.Display);
     }
+
+    [Fact]
+    public void Skill_DicePool_StacksRatingAndPoolAugmentationsFromDifferentSources()
+    {
+        CharacterDocument character = LoadFixture();
+        CharacterSkillData pistolen = character.Skills.Single(s => s.Name == "Pistolen");
+
+        // Base rating 4, Muscle Toner adds +1 to the rating itself (addtorating=True) -> "4 (5)".
+        Assert.Equal("4", pistolen.BaseRating);
+        Assert.Equal("4 (5)", pistolen.Rating);
+
+        // Pool = augmented rating(5) + Smartlink's +2 pool-only bonus + AGI(6) = 13.
+        Assert.Equal("13", pistolen.TotalValue);
+        Assert.Contains("Muscle Toner: +1", pistolen.PoolTooltip);
+        Assert.Contains("Smartlink: +2", pistolen.PoolTooltip);
+    }
+
+    [Fact]
+    public void KnowledgeSkill_DicePool_ComputedTheSameWayAsActiveSkills()
+    {
+        CharacterDocument character = LoadFixture();
+        CharacterSkillData knowledgeSkill = character.KnowledgeSkills.Single(s => s.Name == "Straßenwissen");
+
+        // Straßenwissen: rating 3, attribute INT(4) -> pool 7, no Improvements targeting it.
+        Assert.Equal("3", knowledgeSkill.BaseRating);
+        Assert.Equal("3", knowledgeSkill.Rating);
+        Assert.Equal("7", knowledgeSkill.TotalValue);
+    }
 }

@@ -489,10 +489,7 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 if (GetValue(objNode, "knowledge", "False") == "True") continue;
-                lstSkills.Add(new CharacterSkillData(
-                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "attribute", string.Empty),
-                    GetValue(objNode, "rating", "0"), GetValue(objNode, "totalvalue", "0"),
-                    GetValue(objNode, "spec", string.Empty), GetValue(objNode, "skillcategory", string.Empty),
+                lstSkills.Add(BuildSkillData(objNode, GetValue(objNode, "skillgroup", string.Empty),
                     GetValue(objNode, "grouped", "False") == "True"));
             }
 
@@ -507,13 +504,86 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 if (GetValue(objNode, "knowledge", "False") != "True") continue;
-                lstSkills.Add(new CharacterSkillData(
-                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "attribute", string.Empty),
-                    GetValue(objNode, "rating", "0"), GetValue(objNode, "totalvalue", "0"),
-                    GetValue(objNode, "spec", string.Empty), GetValue(objNode, "skillcategory", string.Empty), false));
+                // Knowledge skills aren't organized into skill groups.
+                lstSkills.Add(BuildSkillData(objNode, string.Empty, blnIsGroupLocked: false));
             }
 
             return lstSkills;
+        }
+
+        private CharacterSkillData BuildSkillData(XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked)
+        {
+            string strName = GetValue(objNode, "name", string.Empty);
+            string strAttribute = GetValue(objNode, "attribute", string.Empty);
+            string strCategory = GetValue(objNode, "skillcategory", string.Empty);
+            string strSpecialization = GetValue(objNode, "spec", string.Empty);
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+
+            (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
+                strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization);
+
+            return new CharacterSkillData(strName, strAttribute, intRating.ToString(), strRatingDisplay,
+                intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked);
+        }
+
+        /// <summary>Ported from clsUnique.cs's Skill.TotalRating (the dice pool) and
+        /// Skill.RatingModifiers/DicePoolModifiers, which is where "skills have augmentations
+        /// too" - Skillwire/Adept powers/gear can raise a skill's effective rating
+        /// (RatingModifiers, added before the 1.5x-rating cap) separately from bonuses that only
+        /// affect the pool without touching the displayed rating (DicePoolModifiers). Both are
+        /// aggregated across Skill/SkillGroup/SkillCategory-targeted Improvements, same as the
+        /// legacy version.
+        ///
+        /// Deliberately NOT ported (all narrow, all house-rule or edge-case paths): Skillsoft/
+        /// Activesoft rating overrides, the Mystic Adept MAG-split, SwapSkillAttribute, Enhanced
+        /// Articulation, defaulting with Rating 0 (a skill at Rating 0 always computes to a Pool
+        /// of 0 here, whereas the legacy game rules let some skills default off the linked
+        /// attribute alone), the EnforceMaximumSkillRatingModifier/CapSkillRating house rules, and
+        /// the metatype-talent MetaRatingModifier bonus.
+        /// </summary>
+        private (string RatingDisplay, int Pool, string Tooltip) ComputeSkillDicePool(string strName,
+            string strSkillGroup, string strCategory, string strAttribute, int intRating, string strSpecialization)
+        {
+            var lstRatingContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: true);
+            var lstPoolContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: false);
+            int intRatingMod = lstRatingContributions.Sum(c => c.Value);
+            int intPoolMod = lstPoolContributions.Sum(c => c.Value);
+            int intAttributeValue = GetAttributeInt(strAttribute);
+            int intWound = WoundModifiers;
+            int intAugmentedRating = intRating + intRatingMod;
+
+            string strRatingDisplay = intRatingMod == 0
+                ? intRating.ToString()
+                : intRating + " (" + intAugmentedRating + ")";
+
+            int intPool = intRating == 0
+                ? 0
+                : Math.Max(0, intAugmentedRating + intPoolMod + intAttributeValue + intWound);
+
+            var sb = new StringBuilder();
+            sb.Append("Fertigkeitswert: ").Append(intRating);
+            AppendContributions(sb, lstRatingContributions);
+            sb.Append('\n').Append("Attribut (").Append(strAttribute).Append("): ").Append(intAttributeValue);
+            AppendContributions(sb, lstPoolContributions);
+            if (intWound != 0)
+                sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
+            if (!string.IsNullOrEmpty(strSpecialization))
+                sb.Append('\n').Append("Spezialisierung \"").Append(strSpecialization).Append("\": +2 bei Anwendung");
+            sb.Append('\n').Append("Würfelpool: ").Append(intPool);
+
+            return (strRatingDisplay, intPool, sb.ToString());
+        }
+
+        private IReadOnlyList<(string SourceName, int Value)> SkillImprovementContributions(string strName,
+            string strSkillGroup, string strCategory, bool blnAddToRating)
+        {
+            var lstContributions = new List<(string SourceName, int Value)>(
+                ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Skill, strName, blnAddToRating));
+            if (!string.IsNullOrEmpty(strSkillGroup))
+                lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SkillGroup, strSkillGroup, blnAddToRating));
+            if (!string.IsNullOrEmpty(strCategory))
+                lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SkillCategory, strCategory, blnAddToRating));
+            return lstContributions;
         }
 
         private IReadOnlyList<CharacterContactData> ReadContacts(bool blnEnemies)
@@ -831,13 +901,16 @@ namespace Chummer.Core
 
     public sealed class CharacterSkillData
     {
-        internal CharacterSkillData(string strName, string strAttribute, string strRating, string strTotalValue,
-            string strSpecialization, string strCategory, bool blnIsGroupLocked)
+        internal CharacterSkillData(string strName, string strAttribute, string strBaseRating, string strRating,
+            string strTotalValue, string strPoolTooltip, string strSpecialization, string strCategory,
+            bool blnIsGroupLocked)
         {
             Name = strName;
             Attribute = strAttribute;
+            BaseRating = strBaseRating;
             Rating = strRating;
             TotalValue = strTotalValue;
+            PoolTooltip = strPoolTooltip;
             Specialization = strSpecialization;
             Category = strCategory;
             IsGroupLocked = blnIsGroupLocked;
@@ -845,22 +918,25 @@ namespace Chummer.Core
 
         public string Name { get; private set; }
         public string Attribute { get; }
+
+        /// <summary>The skill's own rating with no Improvements applied - <see cref="Rating"/> is
+        /// what UI should actually display.</summary>
+        public string BaseRating { get; }
+
+        /// <summary>Rating for display, e.g. "3" or "3 (5)" when skill-rating-boosting
+        /// Improvements (Skillwire, an Adept power, etc.) raise it above the base value - same
+        /// "base (augmented)" convention as attributes.</summary>
         public string Rating { get; }
+
+        /// <summary>The computed dice pool (skill rating + Improvements + linked attribute +
+        /// wound modifiers) - see CharacterDocument's skill-reading code for the full formula and
+        /// its documented simplifications.</summary>
         public string TotalValue { get; }
+
+        public string PoolTooltip { get; }
         public string Specialization { get; }
         public string Category { get; private set; }
         public bool IsGroupLocked { get; private set; }
-
-        public string PoolTooltip
-        {
-            get
-            {
-                var strTooltip = "Gespeicherter Würfelpool: " + TotalValue + "\nFertigkeitswert: " + Rating +
-                                 "\nAttribut: " + Attribute;
-                if (!string.IsNullOrEmpty(Specialization)) strTooltip += "\nSpezialisierung: " + Specialization;
-                return strTooltip;
-            }
-        }
     }
 
     public sealed class CharacterContactData
