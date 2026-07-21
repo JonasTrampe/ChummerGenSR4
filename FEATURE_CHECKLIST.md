@@ -11,9 +11,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Character file I/O
 
 - ✅ Open/save `.chum` files
-- ❌ **Anything added or edited in the UI actually persisting** — `CharacterFileService.Save()`
-  just re-serializes the untouched `XmlDocument`; there is no typed-model → XML write path at
-  all. This is the single biggest gap and blocks nearly every "add X" button below.
+- 🟡 **Anything added or edited in the UI actually persisting** — adding a Quality now mutates
+  the loaded XML and survives save/reload; all other edits remain read-only or unwired.
 - ✅ Multiple characters open in tabs at once
 - ❌ Character creation flow (priority/point-buy system, `frmCreate` equivalent) — only three
   mockup dialogs (Settings Profile → Karma/GP → Metatype) chained together with no real logic
@@ -46,14 +45,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Character sheet tabs — editing
 
-- ❌ **All of it.** Every "hinzufügen"/"Löschen"/"bearbeiten" button across every tab is either
-  unwired or opens a dialog whose result is discarded. This is downstream of the I/O gap and the
-  picker-dialog gap below — nothing to add without both.
+- 🟡 **Add Quality** works end-to-end (rule list → character XML → save/reload). All other
+  add/delete/edit operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 2 of ~41: `QualityDialog`/`SpellDialog` exist as UI shells (open/close only, no list, no
-  selection, no character-context filtering)
+- 🟡 2 of ~41: `QualityDialog` now reads `qualities.xml`, filters out names the character
+  already has, and returns a selection; `SpellDialog` remains an open/close shell.
 - ❌ The other ~39 (Gear, Cyberware, Armor, Weapon, Vehicle, Skill, MartialArt, Metamagic,
   Lifestyle, CritterPower, ContactConnection, ...) don't exist yet
 

@@ -46,6 +46,36 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_MutatesCharacterAndPersistsTheMinimalSaveShape()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Ambidextrous", "Positive");
+        character.AddQuality("Allergy", "Negative", "Silver (Mild)");
+
+        Assert.Collection(character.Qualities,
+            quality =>
+            {
+                Assert.Equal("Ambidextrous", quality.Name);
+                Assert.Equal("Positive", quality.Type);
+                Assert.Equal(string.Empty, quality.Extra);
+            },
+            quality =>
+            {
+                Assert.Equal("Allergy", quality.Name);
+                Assert.Equal("Negative", quality.Type);
+                Assert.Equal("Silver (Mild)", quality.Extra);
+            });
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+
+        Assert.Equal(2, reloaded.Qualities.Count);
+        Assert.Equal("Allergy (Silver (Mild))", reloaded.Qualities[1].DisplayName);
+    }
+
+    [Fact]
     public void Cyberware_And_Bioware_AreSplitByImprovementSource()
     {
         CharacterDocument character = LoadFixture();

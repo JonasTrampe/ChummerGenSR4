@@ -190,6 +190,42 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterQualityData> Qualities => ReadQualities();
 
+        /// <summary>
+        /// Adds a quality using the character-file representation used by the legacy application.
+        /// The rules definition stays in <c>qualities.xml</c>; a character save only records the
+        /// chosen name, optional selection detail, and positive/negative category. Because this
+        /// mutates the backing document, <see cref="CharacterFileService.Save"/> persists it.
+        /// </summary>
+        public void AddQuality(string strName, string strType, string strExtra = "")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A quality name is required.", nameof(strName));
+            if (strType != "Positive" && strType != "Negative")
+                throw new ArgumentException("A quality must be Positive or Negative.", nameof(strType));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objQualities = objRoot.SelectSingleNode("qualities");
+            if (objQualities == null)
+            {
+                objQualities = Document.CreateElement("qualities");
+                objRoot.AppendChild(objQualities);
+            }
+
+            var objQuality = Document.CreateElement("quality");
+            AppendElement(objQuality, "name", strName.Trim());
+            AppendElement(objQuality, "extra", strExtra.Trim());
+            AppendElement(objQuality, "qualitytype", strType);
+            objQualities.AppendChild(objQuality);
+        }
+
+        private void AppendElement(XmlElement objParent, string strName, string strValue)
+        {
+            var objElement = Document.CreateElement(strName);
+            objElement.InnerText = strValue;
+            objParent.AppendChild(objElement);
+        }
+
         public IReadOnlyList<CharacterTreeItemData> Gear => ReadTreeItems("/character/gears/gear", "children/gear");
 
         // Cyberware and bioware are saved to the same <cyberwares> list and only distinguished by
