@@ -46,7 +46,7 @@
                         <sections:KarmaNuyenSectionTab Name="KarmaNuyenTab" />
                     </TabItem>
                     <TabItem Header="Kalender">
-                        <sections:CalendarTab />
+                        <sections:CalendarTab x:Name="CalendarTab" />
                     </TabItem>
                     <TabItem Header="Notizen">
                         <sections:NotesTab x:Name="NotesTab" />

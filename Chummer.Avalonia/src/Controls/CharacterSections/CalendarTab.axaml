@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.CalendarTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CalendarTab"
+             x:DataType="vm:CalendarSectionViewModel">
     <DockPanel Margin="4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
             <Button Content="Wochen hinzufügen" />
@@ -11,13 +13,15 @@
             <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
             <TextBlock Grid.Column="1" Classes="gridHeader" Text="Notizen" />
         </Grid>
-        <ListBox>
-            <ListBoxItem>
+        <ListBox ItemsSource="{Binding Weeks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:CalendarWeekRowViewModel">
                 <Grid ColumnDefinitions="120,*">
-                    <TextBlock Grid.Column="0" Text="2072: Monat 1, Woche 1" />
-                    <TextBlock Grid.Column="1" Text="Testeintrag" />
+                    <TextBlock Grid.Column="0" Text="{Binding Date}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Notes}" TextWrapping="Wrap" />
                 </Grid>
-            </ListBoxItem>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
 </UserControl>

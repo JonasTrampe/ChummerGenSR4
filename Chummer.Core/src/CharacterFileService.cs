@@ -186,6 +186,7 @@ namespace Chummer.Core
         /// what these actually drive. Most callers want a derived value (like Condition above)
         /// rather than this list directly.</summary>
         public IReadOnlyList<Improvement> Improvements => ReadImprovements();
+        public IReadOnlyList<CalendarWeek> Calendar => ReadCalendar();
 
         public IReadOnlyList<CharacterQualityData> Qualities => ReadQualities();
 
@@ -585,6 +586,20 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
                 lstImprovements.Add(Improvement.Load(objNode));
             return lstImprovements;
+        }
+
+        private IReadOnlyList<CalendarWeek> ReadCalendar()
+        {
+            var lstWeeks = new List<CalendarWeek>();
+            XmlNodeList? objNodes = Document.SelectNodes("/character/calendar/week");
+            if (objNodes == null) return lstWeeks;
+            foreach (XmlNode objNode in objNodes)
+            {
+                var objWeek = new CalendarWeek();
+                objWeek.Load(objNode);
+                lstWeeks.Add(objWeek);
+            }
+            return lstWeeks;
         }
 
         private IReadOnlyList<CharacterAttributeData> ReadAttributes()

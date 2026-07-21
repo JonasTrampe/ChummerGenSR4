@@ -38,7 +38,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - 🟡 Charakter-Information — all fields load and are editable in the TextBoxes, but edits don't
   save (see the I/O gap above)
 - ✅ Karma und Nuyen (expense history + real running-total charts)
-- ❌ Kalender (static mockup, no data model)
+- ✅ Kalender (read-only saved calendar weeks and notes; editing remains blocked on the shared
+  write path)
 - ✅ Notizen (read-only character-level notes; editing remains blocked on the shared write path)
 - ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
   status; editing remains blocked on the shared write path)
