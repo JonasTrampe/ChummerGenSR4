@@ -333,6 +333,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         this.FindControl<TreeView>("WeaponsTree")!.Items.Clear();
         this.FindControl<TreeView>("CyberwareTree")!.Items.Clear();
         this.FindControl<TreeView>("ArmorTree")!.Items.Clear();
+        this.FindControl<StackPanel>("SkillGroupsPanel")!.Children.Clear();
+        this.FindControl<WrapPanel>("ActiveSkillsPanel")!.Children.Clear();
         foreach (string code in new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "RES" })
         {
             var row = this.FindControl<AttributeRow>(code + "Attribute");
@@ -406,6 +408,26 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         armorTree.Items.Clear();
         foreach (CharacterTreeItemData item in character.Armor)
             armorTree.Items.Add(CreateTreeViewItem(item));
+
+        var skillGroupsPanel = this.FindControl<StackPanel>("SkillGroupsPanel")!;
+        skillGroupsPanel.Children.Clear();
+        foreach (CharacterSkillGroupData group in character.SkillGroups)
+            skillGroupsPanel.Children.Add(new GroupRow { GroupName = group.Name, Rating = group.Rating });
+
+        var activeSkillsPanel = this.FindControl<WrapPanel>("ActiveSkillsPanel")!;
+        activeSkillsPanel.Children.Clear();
+        foreach (CharacterSkillData skill in character.Skills)
+        {
+            activeSkillsPanel.Children.Add(new SkillRow
+            {
+                SkillName = skill.Name,
+                Attribute = skill.Attribute,
+                Rating = skill.Rating,
+                Pool = skill.TotalValue,
+                Specialization = skill.Specialization,
+                IsGroupLocked = skill.IsGroupLocked,
+            });
+        }
     }
 
     private static TreeViewItem CreateTreeViewItem(CharacterTreeItemData item)

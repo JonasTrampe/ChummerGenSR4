@@ -243,7 +243,7 @@
                                 <TextBlock DockPanel.Dock="Top" Text="Fertigkeitsgruppen" FontWeight="Bold"
                                            Margin="0,0,0, 18" />
                                 <ScrollViewer>
-                                    <StackPanel>
+                                    <StackPanel Name="SkillGroupsPanel">
                                         <controls:GroupRow GroupName="Athletik" Rating="2" />
                                         <controls:GroupRow GroupName="Beschwören" Rating="0" />
                                         <controls:GroupRow GroupName="Biotech" Rating="2" />
@@ -277,7 +277,7 @@
                                 <ScrollViewer>
                                     <StackPanel>
 
-                                    <WrapPanel Margin="8,0,0,0">
+                                    <WrapPanel Name="ActiveSkillsPanel" Margin="8,0,0,0">
 
                                         <controls:SkillRow SkillName="Abrichten" Attribute="INT" Rating="0" Pool="4" />
                                         <controls:SkillRow SkillName="Akrobatik" Attribute="GES" Rating="2" Pool="9" />

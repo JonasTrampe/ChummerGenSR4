@@ -68,6 +68,8 @@ namespace Chummer
 		public IReadOnlyList<CharacterTreeItemData> Cyberware { get { return ReadTreeItems("/character/cyberwares/cyberware", "children/cyberware"); } }
 		public IReadOnlyList<CharacterTreeItemData> Armor { get { return ReadTreeItems("/character/armors/armor", null); } }
 		public IReadOnlyList<CharacterWeaponData> Weapons { get { return ReadWeapons(); } }
+		public IReadOnlyList<CharacterSkillGroupData> SkillGroups { get { return ReadSkillGroups(); } }
+		public IReadOnlyList<CharacterSkillData> Skills { get { return ReadSkills(); } }
 
 		internal CharacterDocument(XmlDocument objDocument, string strDisplayName)
 		{
@@ -125,6 +127,32 @@ namespace Chummer
 			foreach (XmlNode objNode in objNodes)
 				lstWeapons.Add(new CharacterWeaponData(GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty), GetValue(objNode, "damage", string.Empty), GetValue(objNode, "ammo", string.Empty)));
 			return lstWeapons;
+		}
+
+		private IReadOnlyList<CharacterSkillGroupData> ReadSkillGroups()
+		{
+			List<CharacterSkillGroupData> lstGroups = new List<CharacterSkillGroupData>();
+			XmlNodeList objNodes = Document.SelectNodes("/character/skillgroups/skillgroup");
+			if (objNodes == null) return lstGroups;
+			foreach (XmlNode objNode in objNodes)
+				lstGroups.Add(new CharacterSkillGroupData(GetValue(objNode, "name", string.Empty), GetValue(objNode, "rating", "0")));
+			return lstGroups;
+		}
+
+		private IReadOnlyList<CharacterSkillData> ReadSkills()
+		{
+			List<CharacterSkillData> lstSkills = new List<CharacterSkillData>();
+			XmlNodeList objNodes = Document.SelectNodes("/character/skills/skill");
+			if (objNodes == null) return lstSkills;
+			foreach (XmlNode objNode in objNodes)
+			{
+				if (GetValue(objNode, "knowledge", "False") == "True") continue;
+				lstSkills.Add(new CharacterSkillData(
+					GetValue(objNode, "name", string.Empty), GetValue(objNode, "attribute", string.Empty),
+					GetValue(objNode, "rating", "0"), GetValue(objNode, "totalvalue", "0"),
+					GetValue(objNode, "spec", string.Empty), GetValue(objNode, "grouped", "False") == "True"));
+			}
+			return lstSkills;
 		}
 
 		private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, string strChildXPath)
@@ -214,5 +242,37 @@ namespace Chummer
 				string strDetails = string.IsNullOrEmpty(Damage) ? Category : Damage;
 				return string.IsNullOrEmpty(strDetails) ? Name : Name + " (" + strDetails + ")";
 			}
+		}
+	}
+
+	public sealed class CharacterSkillGroupData
+	{
+		public string Name { get; private set; }
+		public string Rating { get; private set; }
+
+		internal CharacterSkillGroupData(string strName, string strRating)
+		{
+			Name = strName;
+			Rating = strRating;
+		}
+	}
+
+	public sealed class CharacterSkillData
+	{
+		public string Name { get; private set; }
+		public string Attribute { get; private set; }
+		public string Rating { get; private set; }
+		public string TotalValue { get; private set; }
+		public string Specialization { get; private set; }
+		public bool IsGroupLocked { get; private set; }
+
+		internal CharacterSkillData(string strName, string strAttribute, string strRating, string strTotalValue, string strSpecialization, bool blnIsGroupLocked)
+		{
+			Name = strName;
+			Attribute = strAttribute;
+			Rating = strRating;
+			TotalValue = strTotalValue;
+			Specialization = strSpecialization;
+			IsGroupLocked = blnIsGroupLocked;
 		}
 	}
