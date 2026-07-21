@@ -19,6 +19,9 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     public DerivedValueViewModel ImpactEncumbrance { get; } = new();
     public DerivedValueViewModel Initiative { get; } = new();
     public DerivedValueViewModel InitiativePasses { get; } = new();
+    public DerivedValueViewModel AstralInitiative { get; } = new();
+    public DerivedValueViewModel MatrixInitiative { get; } = new();
+    public DerivedValueViewModel MatrixInitiativePasses { get; } = new();
     public DerivedValueViewModel Composure { get; } = new();
     public DerivedValueViewModel JudgeIntentions { get; } = new();
     public DerivedValueViewModel LiftAndCarry { get; } = new();
@@ -39,6 +42,9 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
         SetFrom(Initiative, character.Initiative);
         SetFrom(InitiativePasses, character.InitiativePasses);
+        SetFrom(AstralInitiative, character.AstralInitiative);
+        SetFrom(MatrixInitiative, character.MatrixInitiative);
+        SetFrom(MatrixInitiativePasses, character.MatrixInitiativePasses);
         SetFrom(Composure, character.Composure);
         SetFrom(JudgeIntentions, character.JudgeIntentions);
         SetFrom(LiftAndCarry, character.LiftAndCarry);

@@ -233,6 +233,78 @@ namespace Chummer.Core
             }
         }
 
+        /// <summary>Astral Initiative (INT x 2, plus wound modifiers), ported from clsCharacter.cs.
+        /// Always 3 Passes for every character in the legacy version too (AstralInitiativePasses
+        /// is a hardcoded "3", not computed), so that side isn't exposed as its own property.</summary>
+        public CharacterInitiativeData AstralInitiative
+        {
+            get
+            {
+                int intInt = GetAttributeInt("INT");
+                int intBase = intInt * 2;
+                int intWound = WoundModifiers;
+                int intAugmented = intBase + intWound;
+
+                var sb = new StringBuilder();
+                sb.Append("Intuition x 2: ").Append(intBase);
+                if (intWound != 0)
+                    sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
+                sb.Append('\n').Append("Gesamt: ").Append(Math.Max(intAugmented, 0));
+
+                return new CharacterInitiativeData(intBase, Math.Max(intAugmented, 0), sb.ToString());
+            }
+        }
+
+        /// <summary>Matrix Initiative (INT, plus Improvements), ported from clsCharacter.cs. This
+        /// is deliberately just the default non-awakened-non-technomancer human path - the
+        /// legacy version also branches on: an active Commlink's Response bonus, Technomancers
+        /// using (INT x 2) + 1 plus Living Persona bonuses instead, Sprites using a fixed
+        /// metatype-minimum value, and A.I./technocritter/protosapient characters using
+        /// INT + System instead. None of that branching data (RES-enabled state, equipped gear's
+        /// "active commlink" flag, metatype category) is modeled in Core yet.</summary>
+        public CharacterInitiativeData MatrixInitiative
+        {
+            get
+            {
+                int intInt = GetAttributeInt("INT");
+                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiative);
+                int intWound = WoundModifiers;
+                int intBase = intInt + lstContributions.Sum(c => c.Value);
+                int intAugmented = intBase + intWound;
+
+                var sb = new StringBuilder();
+                sb.Append("Intuition: ").Append(intInt);
+                AppendContributions(sb, lstContributions);
+                if (intWound != 0)
+                    sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
+                sb.Append('\n').Append("Gesamt: ").Append(Math.Max(intAugmented, 0));
+
+                return new CharacterInitiativeData(intBase, Math.Max(intAugmented, 0), sb.ToString());
+            }
+        }
+
+        /// <summary>Matrix Initiative Passes (1 base for non-Technomancers, plus Improvements),
+        /// ported from clsCharacter.cs. Doesn't cover the Technomancer (3 base) or A.I./
+        /// technocritter/protosapient (always 3) special cases - see MatrixInitiative's doc
+        /// comment for why.</summary>
+        public CharacterInitiativeData MatrixInitiativePasses
+        {
+            get
+            {
+                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePass)
+                    .Concat(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePassAdd))
+                    .ToList();
+                int intPasses = 1 + lstContributions.Sum(c => c.Value);
+
+                var sb = new StringBuilder();
+                sb.Append("Basis: 1");
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Gesamt: ").Append(intPasses);
+
+                return new CharacterInitiativeData(1, intPasses, sb.ToString());
+            }
+        }
+
         public IReadOnlyList<CharacterWeaponData> Weapons => ReadWeapons();
 
         public IReadOnlyList<CharacterSkillGroupData> SkillGroups => ReadSkillGroups();

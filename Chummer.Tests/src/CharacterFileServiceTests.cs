@@ -164,4 +164,18 @@ public class CharacterFileServiceTests
         Assert.Equal("3", knowledgeSkill.Rating);
         Assert.Equal("7", knowledgeSkill.TotalValue);
     }
+
+    [Fact]
+    public void AstralAndMatrixInitiative_ComputeFromIntuition()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // INT(4) * 2 = 8, no wound modifiers in the fixture.
+        Assert.Equal(8, character.AstralInitiative.Base);
+        Assert.Equal(8, character.AstralInitiative.Augmented);
+
+        // Default non-Technomancer path: just INT(4), no MatrixInitiative Improvements.
+        Assert.Equal(4, character.MatrixInitiative.Base);
+        Assert.Equal(1, character.MatrixInitiativePasses.Base);
+    }
 }

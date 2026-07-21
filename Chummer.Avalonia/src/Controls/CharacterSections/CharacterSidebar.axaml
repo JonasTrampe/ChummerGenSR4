@@ -22,9 +22,12 @@
                     <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
                         <ComboBoxItem Content="[Straßenausrüstung] Singularity Batt..." />
                     </ComboBox>
-                    <controls:InfoRow Label="Matrixinitiative:" Value="10" />
-                    <controls:InfoRow Label="Matrixinitiativedurchgänge:" Value="3" />
-                    <controls:InfoRow Label="Astrale Initiative:" Value="0" />
+                    <controls:InfoRow Label="Matrixinitiative:" Value="{Binding MatrixInitiative.Value}"
+                                       Tooltip="{Binding MatrixInitiative.Tooltip}" />
+                    <controls:InfoRow Label="Matrixinitiativedurchgänge:" Value="{Binding MatrixInitiativePasses.Value}"
+                                       Tooltip="{Binding MatrixInitiativePasses.Tooltip}" />
+                    <controls:InfoRow Label="Astrale Initiative:" Value="{Binding AstralInitiative.Value}"
+                                       Tooltip="{Binding AstralInitiative.Tooltip}" />
                     <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
                     <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
                     <controls:InfoRow Label="Rüstungsbehinderung (ballistisch):" Value="{Binding BallisticEncumbrance.Value}"
