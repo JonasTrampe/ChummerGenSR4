@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Chummer.Core;
 using Xunit;
 
@@ -13,6 +14,12 @@ public class CharacterFileServiceTests
         var strPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "sample.chum");
         using var stream = File.OpenRead(strPath);
         return new CharacterFileService().Load(stream, "sample.chum");
+    }
+
+    private static CharacterDocument LoadXml(string strXml)
+    {
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(strXml));
+        return new CharacterFileService().Load(stream, "test.chum");
     }
 
     [Fact]
@@ -188,5 +195,32 @@ public class CharacterFileServiceTests
         Assert.Equal(5, character.CareerKarma);
         // The fixture's one Nuyen entry is -500 (spent, not earned) -> CareerNuyen 0.
         Assert.Equal(0, character.CareerNuyen);
+    }
+
+    private static string AttributeXml(string strCode, string strValue) =>
+        "<attribute><name>" + strCode + "</name><value>" + strValue + "</value><totalvalue>" + strValue
+        + "</totalvalue><metatypemin>1</metatypemin><metatypemax>6</metatypemax><metatypeaugmax>9</metatypeaugmax></attribute>";
+
+    [Fact]
+    public void MatrixInitiative_TechnomancerPath_UsesIntTimesTwoPlusOne()
+    {
+        var character = LoadXml("<character><name>Tech</name><metatype>Human</metatype>"
+            + "<technomancer>True</technomancer><attributes>" + AttributeXml("INT", "4") + "</attributes></character>");
+
+        Assert.Equal(9, character.MatrixInitiative.Base); // (4 * 2) + 1
+        Assert.Equal(3, character.MatrixInitiativePasses.Base);
+    }
+
+    [Fact]
+    public void MatrixInitiative_AiPath_UsesIntPlusResponse_OverridingEverythingElse()
+    {
+        // Also marked Technomancer to prove the A.I. branch takes priority (matches the legacy
+        // check order: A.I./technocritter/protosapient overrides the Technomancer path too).
+        var character = LoadXml("<character><name>Agent</name><metatype>A.I.</metatype>"
+            + "<technomancer>True</technomancer><response>4</response><attributes>"
+            + AttributeXml("INT", "3") + "</attributes></character>");
+
+        Assert.Equal(7, character.MatrixInitiative.Base); // INT(3) + Response(4)
+        Assert.Equal(3, character.MatrixInitiativePasses.Base);
     }
 }

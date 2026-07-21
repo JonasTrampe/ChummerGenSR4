@@ -74,6 +74,22 @@ namespace Chummer.Core
 
         public string Metatype => GetValue("/character/metatype", string.Empty);
 
+        public string MetatypeCategory => GetValue("/character/metatypecategory", string.Empty);
+
+        public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
+
+        /// <summary>Matrix "System" stat, only meaningful for A.I./technocritter/protosapient
+        /// characters (drone/sprite-style characters whose Matrix Initiative uses this instead of
+        /// a Commlink's Response) - see MatrixInitiative.</summary>
+        public int SystemResponse => int.TryParse(GetValue("/character/response", "0"), out var i) ? i : 0;
+
+        /// <summary>True for A.I., technocritter, and protosapient characters, which compute
+        /// Matrix Initiative/Passes differently (INT + Response instead of the human/Technomancer
+        /// formulas, and always 3 Passes) - ported from the metatype checks scattered through
+        /// clsCharacter.cs's MatrixInitiative/MatrixInitiativePasses.</summary>
+        public bool IsMatrixNative => Metatype.EndsWith("A.I.")
+            || MetatypeCategory is "Technocritters" or "Protosapients";
+
         public string Karma => GetValue("/character/karma", "0");
 
         public string Nuyen => GetValue("/character/nuyen", "0");
@@ -275,26 +291,48 @@ namespace Chummer.Core
             }
         }
 
-        /// <summary>Matrix Initiative (INT, plus Improvements), ported from clsCharacter.cs. This
-        /// is deliberately just the default non-awakened-non-technomancer human path - the
-        /// legacy version also branches on: an active Commlink's Response bonus, Technomancers
-        /// using (INT x 2) + 1 plus Living Persona bonuses instead, Sprites using a fixed
-        /// metatype-minimum value, and A.I./technocritter/protosapient characters using
-        /// INT + System instead. None of that branching data (RES-enabled state, equipped gear's
-        /// "active commlink" flag, metatype category) is modeled in Core yet.</summary>
+        /// <summary>Matrix Initiative, ported from clsCharacter.cs. Covers three of the four
+        /// legacy branches:
+        ///  - A.I./technocritter/protosapient: INT + Response (checked first - it overrides
+        ///    everything else, same order as the legacy version).
+        ///  - Technomancer (and not A.I.): (INT x 2) + 1 + LivingPersonaResponse Improvements.
+        ///  - Otherwise: INT + MatrixInitiative Improvements (the default human/non-awakened path).
+        /// NOT ported: an active Commlink's Response bonus on the default path (Core doesn't model
+        /// Gear well enough yet to find "the equipped, active Commlink" and its Response rating),
+        /// Sprites using a fixed metatype-minimum value (that value comes from metatypes.xml data
+        /// Core doesn't load), and the TechnomancerAllowCommlink house rule.</summary>
         public CharacterInitiativeData MatrixInitiative
         {
             get
             {
                 int intInt = GetAttributeInt("INT");
-                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiative);
                 int intWound = WoundModifiers;
-                int intBase = intInt + lstContributions.Sum(c => c.Value);
-                int intAugmented = intBase + intWound;
-
+                int intBase;
                 var sb = new StringBuilder();
-                sb.Append("Intuition: ").Append(intInt);
-                AppendContributions(sb, lstContributions);
+
+                if (IsMatrixNative)
+                {
+                    int intResponse = SystemResponse;
+                    intBase = intInt + intResponse;
+                    sb.Append("Intuition: ").Append(intInt);
+                    sb.Append('\n').Append("System: ").Append(intResponse);
+                }
+                else if (Technomancer)
+                {
+                    var lstLivingPersona = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.LivingPersonaResponse);
+                    intBase = (intInt * 2) + 1 + lstLivingPersona.Sum(c => c.Value);
+                    sb.Append("(Intuition x 2) + 1: ").Append((intInt * 2) + 1);
+                    AppendContributions(sb, lstLivingPersona);
+                }
+                else
+                {
+                    var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiative);
+                    intBase = intInt + lstContributions.Sum(c => c.Value);
+                    sb.Append("Intuition: ").Append(intInt);
+                    AppendContributions(sb, lstContributions);
+                }
+
+                int intAugmented = intBase + intWound;
                 if (intWound != 0)
                     sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
                 sb.Append('\n').Append("Gesamt: ").Append(Math.Max(intAugmented, 0));
@@ -303,25 +341,40 @@ namespace Chummer.Core
             }
         }
 
-        /// <summary>Matrix Initiative Passes (1 base for non-Technomancers, plus Improvements),
-        /// ported from clsCharacter.cs. Doesn't cover the Technomancer (3 base) or A.I./
-        /// technocritter/protosapient (always 3) special cases - see MatrixInitiative's doc
-        /// comment for why.</summary>
+        /// <summary>Matrix Initiative Passes, ported from clsCharacter.cs: 3 base for
+        /// Technomancers (1 otherwise), plus MatrixInitiativePass Improvements - except for A.I./
+        /// technocritter/protosapient characters, who always get a fixed 3 regardless of the
+        /// above (same override order as the legacy version). MatrixInitiativePassAdd
+        /// Improvements always apply on top, even for A.I.s.</summary>
         public CharacterInitiativeData MatrixInitiativePasses
         {
             get
             {
-                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePass)
-                    .Concat(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePassAdd))
-                    .ToList();
-                int intPasses = 1 + lstContributions.Sum(c => c.Value);
-
                 var sb = new StringBuilder();
-                sb.Append("Basis: 1");
-                AppendContributions(sb, lstContributions);
+                int intBase;
+                int intPasses;
+
+                if (IsMatrixNative)
+                {
+                    intBase = 3;
+                    intPasses = 3;
+                    sb.Append("Basis (A.I./technokritisches Metatyp): 3");
+                }
+                else
+                {
+                    var lstPassContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePass);
+                    intBase = Technomancer ? 3 : 1;
+                    intPasses = intBase + lstPassContributions.Sum(c => c.Value);
+                    sb.Append("Basis").Append(Technomancer ? " (Technomancer)" : "").Append(": ").Append(intBase);
+                    AppendContributions(sb, lstPassContributions);
+                }
+
+                var lstAddContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.MatrixInitiativePassAdd);
+                intPasses += lstAddContributions.Sum(c => c.Value);
+                AppendContributions(sb, lstAddContributions);
                 sb.Append('\n').Append("Gesamt: ").Append(intPasses);
 
-                return new CharacterInitiativeData(1, intPasses, sb.ToString());
+                return new CharacterInitiativeData(intBase, intPasses, sb.ToString());
             }
         }
 
