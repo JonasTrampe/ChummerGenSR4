@@ -78,6 +78,26 @@ namespace Chummer.Core
 
         public string Nuyen => GetValue("/character/nuyen", "0");
 
+        /// <summary>Total Karma earned over the character's career (sum of positive, non-refund
+        /// Karma expense entries), ported from clsCharacter.cs's CareerKarma.</summary>
+        public int CareerKarma => SumEarnedExpenses(KarmaExpenses);
+
+        /// <summary>Total Nuyen earned over the character's career (sum of positive, non-refund
+        /// Nuyen expense entries), ported from clsCharacter.cs's CareerNuyen.</summary>
+        public int CareerNuyen => SumEarnedExpenses(NuyenExpenses);
+
+        private static int SumEarnedExpenses(IReadOnlyList<CharacterExpenseData> lstExpenses)
+        {
+            int intTotal = 0;
+            foreach (CharacterExpenseData expense in lstExpenses)
+            {
+                if (!expense.Refund && int.TryParse(expense.Amount, out var intAmount) && intAmount > 0)
+                    intTotal += intAmount;
+            }
+
+            return intTotal;
+        }
+
         public CharacterConditionData Condition =>
             new(GetAttributeValue("ESS"),
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
@@ -787,7 +807,8 @@ namespace Chummer.Core
             {
                 if (GetValue(objNode, "type", string.Empty) != strType) continue;
                 lstExpenses.Add(new CharacterExpenseData(GetValue(objNode, "date", string.Empty),
-                    GetValue(objNode, "amount", "0"), GetValue(objNode, "reason", string.Empty)));
+                    GetValue(objNode, "amount", "0"), GetValue(objNode, "reason", string.Empty),
+                    GetValue(objNode, "refund", "False") == "True"));
             }
 
             return lstExpenses;
@@ -1174,16 +1195,18 @@ namespace Chummer.Core
 
     public sealed class CharacterExpenseData
     {
-        internal CharacterExpenseData(string strDate, string strAmount, string strReason)
+        internal CharacterExpenseData(string strDate, string strAmount, string strReason, bool blnRefund)
         {
             Date = strDate;
             Amount = strAmount;
             Reason = strReason;
+            Refund = blnRefund;
         }
 
         public string Date { get; }
         public string Amount { get; }
         public string Reason { get; }
+        public bool Refund { get; }
 
         public string DisplayDate =>
             System.DateTime.TryParse(Date, out var datValue) ? datValue.ToString("dd.MM.yyyy") : Date;

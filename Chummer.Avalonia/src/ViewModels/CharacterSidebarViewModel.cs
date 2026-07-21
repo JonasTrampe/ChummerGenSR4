@@ -27,8 +27,21 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     public DerivedValueViewModel LiftAndCarry { get; } = new();
     public DerivedValueViewModel Memory { get; } = new();
 
+    private string _strRemainingNuyen = string.Empty;
+    public string RemainingNuyen { get => _strRemainingNuyen; set => SetField(ref _strRemainingNuyen, value); }
+
+    private string _strCareerKarma = string.Empty;
+    public string CareerKarma { get => _strCareerKarma; set => SetField(ref _strCareerKarma, value); }
+
+    private string _strCareerNuyen = string.Empty;
+    public string CareerNuyen { get => _strCareerNuyen; set => SetField(ref _strCareerNuyen, value); }
+
     public void LoadCharacter(CharacterDocument character)
     {
+        RemainingNuyen = character.Nuyen + "¥";
+        CareerKarma = character.CareerKarma.ToString();
+        CareerNuyen = character.CareerNuyen + "¥";
+
         CharacterConditionData condition = character.Condition;
         Essence = condition.Essence;
         PhysicalDamage = condition.PhysicalDamage;

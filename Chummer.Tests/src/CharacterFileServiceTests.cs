@@ -178,4 +178,15 @@ public class CharacterFileServiceTests
         Assert.Equal(4, character.MatrixInitiative.Base);
         Assert.Equal(1, character.MatrixInitiativePasses.Base);
     }
+
+    [Fact]
+    public void CareerKarmaAndNuyen_SumOnlyPositiveNonRefundEntries()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // The fixture's one Karma entry is +5 (earned) -> CareerKarma 5.
+        Assert.Equal(5, character.CareerKarma);
+        // The fixture's one Nuyen entry is -500 (spent, not earned) -> CareerNuyen 0.
+        Assert.Equal(0, character.CareerNuyen);
+    }
 }

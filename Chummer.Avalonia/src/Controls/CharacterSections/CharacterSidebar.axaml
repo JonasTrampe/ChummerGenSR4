@@ -35,9 +35,9 @@
                     <controls:InfoRow Label="Rüstungsbehinderung (Stoß):" Value="{Binding ImpactEncumbrance.Value}"
                                        Tooltip="{Binding ImpactEncumbrance.Tooltip}" />
                     <controls:InfoRow Label="Essenz:" Value="{Binding Essence}" />
-                    <controls:InfoRow Label="Verbleibende Nuyen:" Value="1.435¥" />
-                    <controls:InfoRow Label="Karma der gesamten Laufbahn:" Value="17" />
-                    <controls:InfoRow Label="Karriere Nuyen:" Value="23.700¥" />
+                    <controls:InfoRow Label="Verbleibende Nuyen:" Value="{Binding RemainingNuyen}" />
+                    <controls:InfoRow Label="Karma der gesamten Laufbahn:" Value="{Binding CareerKarma}" />
+                    <controls:InfoRow Label="Karriere Nuyen:" Value="{Binding CareerNuyen}" />
                     <controls:InfoRow Label="Selbstbeherrschung:" Value="{Binding Composure.Value}"
                                        Tooltip="{Binding Composure.Tooltip}" />
                     <controls:InfoRow Label="Menschenkenntnis:" Value="{Binding JudgeIntentions.Value}"
