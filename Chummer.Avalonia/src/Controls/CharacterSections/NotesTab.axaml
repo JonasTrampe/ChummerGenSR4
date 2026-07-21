@@ -1,5 +1,11 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.NotesTab">
-    <Border Classes="groupBox" Margin="4" />
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.NotesTab"
+             x:DataType="vm:NotesSectionViewModel">
+    <Border Classes="groupBox" Margin="4" Padding="8">
+        <TextBox Text="{Binding Notes}" IsReadOnly="True" AcceptsReturn="True"
+                 TextWrapping="Wrap" VerticalContentAlignment="Top" Background="Transparent"
+                 BorderThickness="0" />
+    </Border>
 </UserControl>

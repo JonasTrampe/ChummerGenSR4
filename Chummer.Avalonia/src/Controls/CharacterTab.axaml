@@ -49,7 +49,7 @@
                         <sections:CalendarTab />
                     </TabItem>
                     <TabItem Header="Notizen">
-                        <sections:NotesTab />
+                        <sections:NotesTab x:Name="NotesTab" />
                     </TabItem>
                     <TabItem Header="Verbessern">
                         <sections:ImprovementsTab x:Name="ImprovementsTab" />

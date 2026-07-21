@@ -39,8 +39,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   save (see the I/O gap above)
 - ✅ Karma und Nuyen (expense history + real running-total charts)
 - ❌ Kalender (static mockup, no data model)
-- ❌ Notizen (static mockup, no data model — character-level Notes field itself *is* read, on
-  the Charakter-Information tab, just not this dedicated tab)
+- ✅ Notizen (read-only character-level notes; editing remains blocked on the shared write path)
 - ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
   status; editing remains blocked on the shared write path)
 
