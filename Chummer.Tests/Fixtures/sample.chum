@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<character>
+  <appversion>0.0.0</appversion>
+  <name>Testrunner</name>
+  <alias>Ghost</alias>
+  <sex>Weiblich</sex>
+  <eyes>Grau</eyes>
+  <height>1,70</height>
+  <weight>62</weight>
+  <skin>Blass</skin>
+  <hair>Schwarz</hair>
+  <background>Aufgewachsen in Redmond.</background>
+  <concept>Ex-Konzernsicherheit</concept>
+  <notes>Testfixture fuer Chummer.Tests.</notes>
+  <playername>Jonas</playername>
+  <streetcred>2</streetcred>
+  <notoriety>0</notoriety>
+  <publicawareness>0</publicawareness>
+  <metatype>Mensch</metatype>
+  <karma>5</karma>
+  <nuyen>1500</nuyen>
+  <physicalcmfilled>1</physicalcmfilled>
+  <stuncmfilled>0</stuncmfilled>
+  <attributes>
+    <attribute>
+      <name>BOD</name>
+      <value>4</value>
+      <totalvalue>4</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>AGI</name>
+      <value>5</value>
+      <totalvalue>6</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>WIL</name>
+      <value>3</value>
+      <totalvalue>3</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>ESS</name>
+      <value>6</value>
+      <totalvalue>5.5</totalvalue>
+      <metatypemin>0</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>6</metatypeaugmax>
+    </attribute>
+  </attributes>
+  <qualities>
+    <quality>
+      <name>Sixth Sense</name>
+      <extra />
+      <qualitytype>Positive</qualitytype>
+    </quality>
+    <quality>
+      <name>Allergy</name>
+      <extra>Silver (Mild)</extra>
+      <qualitytype>Negative</qualitytype>
+    </quality>
+  </qualities>
+  <contacts>
+    <contact>
+      <name>Schieber: Stef</name>
+      <connection>3</connection>
+      <loyalty>2</loyalty>
+      <type>Contact</type>
+    </contact>
+    <contact>
+      <name>Lonestar Sergeant</name>
+      <connection>2</connection>
+      <loyalty>1</loyalty>
+      <type>Enemy</type>
+    </contact>
+  </contacts>
+  <skills>
+    <skill>
+      <name>Pistolen</name>
+      <attribute>AGI</attribute>
+      <rating>4</rating>
+      <totalvalue>10</totalvalue>
+      <spec>Schwere Pistolen</spec>
+      <skillcategory>Kampf</skillcategory>
+      <knowledge>False</knowledge>
+      <grouped>False</grouped>
+    </skill>
+    <skill>
+      <name>Straßenwissen</name>
+      <attribute>INT</attribute>
+      <rating>3</rating>
+      <totalvalue>3</totalvalue>
+      <spec />
+      <skillcategory>Straßenwissen</skillcategory>
+      <knowledge>True</knowledge>
+    </skill>
+  </skills>
+  <skillgroups>
+    <skillgroup>
+      <name>Feuerwaffen</name>
+      <rating>2</rating>
+    </skillgroup>
+  </skillgroups>
+  <gears>
+    <gear>
+      <name>Custom Commlink</name>
+      <children />
+    </gear>
+  </gears>
+  <cyberwares>
+    <cyberware>
+      <name>Wired Reflexes</name>
+      <improvementsource>Cyberware</improvementsource>
+      <children />
+    </cyberware>
+    <cyberware>
+      <name>Cerebral Booster</name>
+      <improvementsource>Bioware</improvementsource>
+      <children />
+    </cyberware>
+  </cyberwares>
+  <armors>
+    <armor>
+      <name>Actioneer Business Clothes</name>
+      <category>Clothing</category>
+      <b>6</b>
+      <i>4</i>
+      <equipped>True</equipped>
+    </armor>
+    <armor>
+      <name>Form-Fitting Bodysuit</name>
+      <category>Full Body Armor</category>
+      <b>6</b>
+      <i>6</i>
+      <equipped>True</equipped>
+    </armor>
+  </armors>
+  <weapons>
+    <weapon>
+      <name>Ares Predator IV</name>
+      <category>Pistolen</category>
+      <damage>6K</damage>
+      <ammo>15(c)</ammo>
+    </weapon>
+  </weapons>
+  <martialarts>
+    <martialart>
+      <name>Krav Maga</name>
+      <rating>1</rating>
+      <source>SR4</source>
+      <martialartadvantages>
+        <martialartadvantage>
+          <guid>00000000-0000-0000-0000-000000000001</guid>
+          <name>Zusätzlicher Angriff</name>
+        </martialartadvantage>
+      </martialartadvantages>
+    </martialart>
+  </martialarts>
+  <martialartmaneuvers>
+    <martialartmaneuver>
+      <guid>00000000-0000-0000-0000-000000000002</guid>
+      <name>Sweep</name>
+    </martialartmaneuver>
+  </martialartmaneuvers>
+  <powers>
+    <power>
+      <name>Verbesserte Sinne</name>
+      <extra>Sehen</extra>
+      <rating>2</rating>
+      <pointsperlevel>0.25</pointsperlevel>
+    </power>
+  </powers>
+  <spells>
+    <spell>
+      <name>Manabolt</name>
+      <category>Combat</category>
+      <type>P</type>
+      <range>LOS</range>
+      <damage>P</damage>
+      <duration>I</duration>
+      <dv>F/2</dv>
+      <source>SM</source>
+      <page>194</page>
+    </spell>
+  </spells>
+  <spirits>
+    <spirit>
+      <name>Geist der Luft</name>
+      <crittername>Zephyr</crittername>
+      <services>1</services>
+      <force>3</force>
+      <bound>True</bound>
+      <type>Spirit</type>
+    </spirit>
+  </spirits>
+  <initiationgrades>
+    <initiationgrade>
+      <guid>00000000-0000-0000-0000-000000000003</guid>
+      <grade>1</grade>
+      <res>False</res>
+      <group>False</group>
+      <ordeal>True</ordeal>
+    </initiationgrade>
+  </initiationgrades>
+  <lifestyles>
+    <lifestyle>
+      <name>Mittelklasse</name>
+      <lifestylename>Mittelklasse</lifestylename>
+      <cost>2000</cost>
+      <months>1</months>
+    </lifestyle>
+  </lifestyles>
+  <vehicles>
+    <vehicle>
+      <name>Suzuki Mirage</name>
+      <category>Bikes</category>
+    </vehicle>
+  </vehicles>
+  <expenses>
+    <expense>
+      <guid>00000000-0000-0000-0000-000000000004</guid>
+      <date>2026-07-01T00:00:00</date>
+      <amount>5</amount>
+      <reason>Fertigkeit Pistolen 3 -&gt; 4</reason>
+      <type>Karma</type>
+      <refund>False</refund>
+    </expense>
+    <expense>
+      <guid>00000000-0000-0000-0000-000000000005</guid>
+      <date>2026-07-05T00:00:00</date>
+      <amount>-500</amount>
+      <reason>Erworbene Ausrüstung Ares Predator IV</reason>
+      <type>Nuyen</type>
+      <refund>False</refund>
+    </expense>
+  </expenses>
+  <improvements>
+    <improvement>
+      <unique>wiredreflexes</unique>
+      <improvedname>REA</improvedname>
+      <sourcename>Wired Reflexes</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>2</aug>
+      <augmax>0</augmax>
+      <val>0</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Attribute</improvementttype>
+      <improvementsource>Cyberware</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+    <improvement>
+      <unique>cerebralbooster</unique>
+      <improvedname>LOG</improvedname>
+      <sourcename>Cerebral Booster</sourcename>
+      <min>0</min>
+      <max>1</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>0</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Attribute</improvementttype>
+      <improvementsource>Bioware</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+    <improvement>
+      <unique />
+      <improvedname />
+      <sourcename>Wired Reflexes</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>1</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>PhysicalCM</improvementttype>
+      <improvementsource>Cyberware</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+  </improvements>
+</character>

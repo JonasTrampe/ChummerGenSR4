@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Chummer.Core;
 using Xunit;
 
 namespace Chummer.Tests
@@ -14,12 +15,12 @@ namespace Chummer.Tests
 		[Fact]
 		public async Task SetApiToken_ThenGetAccessToken_ReturnsTheSameToken()
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			try
 			{
 				objAuth.SetApiToken(ValidToken);
 
-				string strToken = await objAuth.GetAccessTokenAsync();
+				var strToken = await objAuth.GetAccessTokenAsync();
 
 				Assert.Equal(ValidToken, strToken);
 				Assert.True(objAuth.HasStoredLogin());
@@ -33,7 +34,7 @@ namespace Chummer.Tests
 		[Fact]
 		public void SetApiToken_TrimsWhitespace()
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			try
 			{
 				objAuth.SetApiToken("  " + ValidToken + "  ");
@@ -52,7 +53,7 @@ namespace Chummer.Tests
 		[InlineData("rp_tooshort")]
 		public void SetApiToken_RejectsMalformedTokens(string strBadToken)
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 
 			Assert.Throws<ArgumentException>(() => objAuth.SetApiToken(strBadToken));
 			Assert.False(objAuth.HasStoredLogin());
@@ -61,7 +62,7 @@ namespace Chummer.Tests
 		[Fact]
 		public async Task Logout_ClearsStoredLogin()
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			objAuth.SetApiToken(ValidToken);
 			Assert.True(objAuth.HasStoredLogin());
 
@@ -80,13 +81,13 @@ namespace Chummer.Tests
 			// NullReferenceException. That only happened once _objCachedTokens was empty and it had to
 			// actually deserialize the file, which a single RunnersPointAuth instance's own in-memory
 			// cache masked - so this simulates a fresh process by using a second instance.
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			try
 			{
 				objAuth.SetApiToken(ValidToken);
 
-				RunnersPointAuth objReloaded = new RunnersPointAuth();
-				string strToken = await objReloaded.GetAccessTokenAsync();
+				var objReloaded = new RunnersPointAuth();
+				var strToken = await objReloaded.GetAccessTokenAsync();
 
 				Assert.Equal(ValidToken, strToken);
 			}
@@ -102,12 +103,12 @@ namespace Chummer.Tests
 			// apiToken logins have no refresh token at all - there's nothing to refresh, so a 401 retry
 			// should fall straight through to the normal auth-expired handling instead of attempting (and
 			// failing) an OAuth-style refresh.
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			try
 			{
 				objAuth.SetApiToken(ValidToken);
 
-				bool blnRefreshed = await objAuth.TryForceRefreshAsync();
+				var blnRefreshed = await objAuth.TryForceRefreshAsync();
 
 				Assert.False(blnRefreshed);
 			}
@@ -120,9 +121,9 @@ namespace Chummer.Tests
 		[Fact]
 		public async Task TryForceRefreshAsync_ReturnsFalseWhenNotLoggedIn()
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 
-			bool blnRefreshed = await objAuth.TryForceRefreshAsync();
+			var blnRefreshed = await objAuth.TryForceRefreshAsync();
 
 			Assert.False(blnRefreshed);
 		}
@@ -130,14 +131,14 @@ namespace Chummer.Tests
 		[Fact]
 		public async Task SetApiToken_ReplacesAPreviousLogin()
 		{
-			RunnersPointAuth objAuth = new RunnersPointAuth();
+			var objAuth = new RunnersPointAuth();
 			try
 			{
 				objAuth.SetApiToken(ValidToken);
-				string strSecondToken = "rp_fedcba9876543210fedcba9876543210fedcba98";
+				var strSecondToken = "rp_fedcba9876543210fedcba9876543210fedcba98";
 				objAuth.SetApiToken(strSecondToken);
 
-				string strToken = await objAuth.GetAccessTokenAsync();
+				var strToken = await objAuth.GetAccessTokenAsync();
 
 				Assert.Equal(strSecondToken, strToken);
 			}
