@@ -30,7 +30,7 @@
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView ItemsSource="{Binding Armor}">
+                    <TreeView ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding Name}" />
@@ -40,32 +40,16 @@
                 </controls:TreeDetailPane.TreeContent>
                 <controls:TreeDetailPane.DetailContent>
                     <StackPanel Margin="8,0,0,0" Spacing="6">
-                    <Grid ColumnDefinitions="Auto,60,Auto,60,Auto,60" RowSpacing="4">
-                        <TextBlock Grid.Column="0" Text="Ballistisch:" />
-                        <TextBlock Grid.Column="1" Text="0" />
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                        <TextBlock Grid.Row="0" Text="Name:" Width="90" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedArmor.Name, TargetNullValue=–}" FontWeight="SemiBold" />
+                        <TextBlock Grid.Row="1" Text="Kategorie:" Width="90" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedArmor.Category, TargetNullValue=–}" />
+                        <TextBlock Grid.Row="2" Text="Stufe:" Width="90" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedArmor.Rating, TargetNullValue=–}" />
+                        <TextBlock Grid.Row="3" Text="Angelegt:" Width="90" />
+                        <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedArmor.Equipped}" IsEnabled="False" />
                     </Grid>
-                    <Grid ColumnDefinitions="Auto,60">
-                        <TextBlock Grid.Column="0" Text="Stoß:" />
-                        <TextBlock Grid.Column="1" Text="0" />
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto,60,Auto,80,Auto,60">
-                        <TextBlock Grid.Column="0" Text="Stufe:" />
-                        <TextBlock Grid.Column="1" Text="4" />
-                        <TextBlock Grid.Column="2" Text="Verfügbarkeit:" />
-                        <TextBlock Grid.Column="3" Text="10V" />
-                        <TextBlock Grid.Column="4" Text="Kosten:" />
-                        <TextBlock Grid.Column="5" Text="2.000¥" />
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto,60">
-                        <TextBlock Grid.Column="0" Text="Kapazität:" />
-                        <TextBlock Grid.Column="1" Text="[0]" />
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Grid.Column="0" Text="Quelle:" Width="60" />
-                        <TextBlock Grid.Column="1" Text="SR4 372" />
-                    </Grid>
-                    <CheckBox Content="Teil der Standardrüstung" />
-                    <CheckBox Content="angelegt" IsChecked="True" />
                     </StackPanel>
                 </controls:TreeDetailPane.DetailContent>
             </controls:TreeDetailPane>
@@ -81,7 +65,7 @@
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView ItemsSource="{Binding Weapons}">
+                    <TreeView ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding Name}" />
@@ -92,78 +76,16 @@
                 <controls:TreeDetailPane.DetailContent>
                     <ScrollViewer>
                         <StackPanel Margin="8,0,0,0" Spacing="6">
-                        <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Name:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="HK MP-5 TX" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                            <TextBlock Grid.Row="0" Text="Name:" Width="90" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedWeapon.Name, TargetNullValue=–}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="1" Text="Kategorie:" Width="90" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedWeapon.Category, TargetNullValue=–}" />
+                            <TextBlock Grid.Row="2" Text="Stufe:" Width="90" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
+                            <TextBlock Grid.Row="3" Text="Installiert:" Width="90" />
+                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" IsEnabled="False" />
                         </Grid>
-                        <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kategorie:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="Maschinenpistolen" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,*,*">
-                            <TextBlock Grid.Column="0" Text="Schaden: 5K" />
-                            <TextBlock Grid.Column="1" Text="Rückstoßkompensation: 4" />
-                            <TextBlock Grid.Column="2" Text="PB: -" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,*,*">
-                            <TextBlock Grid.Column="0" Text="Reichweite: 0" />
-                            <TextBlock Grid.Column="1" Text="Modus: HM/SM/AM" />
-                            <TextBlock Grid.Column="2" Text="Muni: 20(s)" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,*,*">
-                            <TextBlock Grid.Column="0" Text="Verfügbarkeit: 4E" />
-                            <TextBlock Grid.Column="1" Text="Kosten: 2.500¥" />
-                            <TextBlock Grid.Column="2" Text="Verbergen: +2" />
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                            <TextBlock Grid.Column="0" Text="Mod Slots: 6 (2 verbleibend)" />
-                            <CheckBox Grid.Column="2" Content="Teil der Grundwaffe" />
-                            <CheckBox Grid.Column="3" Content="Installiert" Margin="12,0,0,0" />
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto,*,26">
-                            <TextBlock Text="Quelle:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="SR4 363" />
-                            <Border Grid.Column="2" Classes="iconButton">
-                                <Image Source="avares://Chummer.Avalonia/assets/icons/page.png" />
-                            </Border>
-                        </Grid>
-
-                        <TextBlock Text="Reichweite" FontWeight="Bold" Margin="0,4,0,0" />
-                        <Grid ColumnDefinitions="*,*,*,*">
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="kurz" />
-                                <TextBlock Text="0-10" Foreground="#666666" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="mittel" />
-                                <TextBlock Text="11-40" Foreground="#666666" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="lang" />
-                                <TextBlock Text="41-85" Foreground="#666666" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="3">
-                                <TextBlock Text="extrem" />
-                                <TextBlock Text="86-150" Foreground="#666666" />
-                            </StackPanel>
-                        </Grid>
-
-                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,6,0,0">
-                            <TextBlock Grid.Column="0" Text="Verbleibende Munition:"
-                                       VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Text="20" VerticalAlignment="Center" />
-                            <Button Grid.Column="2" Content="Schießen!" />
-                            <Button Grid.Column="3" Content="Nachladen" Margin="6,0,0,0" />
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Derzeit ausgewählte Munition:"
-                                       VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
-                                      SelectedIndex="0">
-                                <ComboBoxItem Content="Slot 1 Munition: Standardmunition" />
-                            </ComboBox>
-                        </Grid>
-                        <controls:InfoRow Label="Würfelpool:" Value="13" />
                         </StackPanel>
                     </ScrollViewer>
                 </controls:TreeDetailPane.DetailContent>

@@ -11,6 +11,20 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> Lifestyles { get; } = new();
 
+    private TreeNodeViewModel? _selectedArmor;
+    public TreeNodeViewModel? SelectedArmor
+    {
+        get => _selectedArmor;
+        set => SetField(ref _selectedArmor, value);
+    }
+
+    private TreeNodeViewModel? _selectedWeapon;
+    public TreeNodeViewModel? SelectedWeapon
+    {
+        get => _selectedWeapon;
+        set => SetField(ref _selectedWeapon, value);
+    }
+
     private string _strLifestyleCost = "Kosten/Monat:";
     public string LifestyleCost
     {
@@ -27,10 +41,12 @@ public sealed class GearSectionViewModel : ViewModelBase
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
             Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
+        SelectedWeapon = Weapons.Count > 0 ? Weapons[0] : null;
 
         Armor.Clear();
         foreach (CharacterTreeItemData item in character.Armor)
             Armor.Add(TreeNodeViewModel.FromTreeItem(item));
+        SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
 
         Lifestyles.Clear();
         decimal decTotalCost = 0;
