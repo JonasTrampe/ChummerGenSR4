@@ -1,46 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <!--
-      The dotnet-hosted MSBuild used by Rider on Linux cannot target .NET Framework: its
-      reference assemblies are Windows-only. Mono MSBuild can still build net48 for the
-      legacy application, and Windows keeps both targets for the WinForms project.
-    -->
-    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows'))">net48;net8.0</TargetFrameworks>
-    <TargetFramework Condition="'$(TargetFrameworks)' == ''">net8.0</TargetFramework>
-    <RootNamespace>Chummer</RootNamespace>
-    <AssemblyName>Chummer.Core</AssemblyName>
-    <LangVersion>latest</LangVersion>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Nullable>disable</Nullable>
-    <!--
-      Shared data/business-logic layer for both the legacy WinForms app (Chummer.csproj, net48) and
-      the new Avalonia port (Chummer.AvaloniaSpike today, Chummer.Avalonia eventually) - see
-      docs/LINUX_PORT_PLAN.md. Multi-targeted so the net48 consumer keeps working exactly as before
-      while the net8.0 build is what the cross-platform Avalonia app actually references.
+    <PropertyGroup>
+        <!--
+          The dotnet-hosted MSBuild used by Rider on Linux cannot target .NET Framework: its
+          reference assemblies are Windows-only. Mono MSBuild can still build net48 for the
+          legacy application, and Windows keeps both targets for the WinForms project.
+        -->
+        <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows'))">net48;net8.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Nullable>enable</Nullable>
+        <PackageId>Chummer.Core</PackageId>
+        <RootNamespace>Chummer.Core</RootNamespace>
+        <TargetFramework>net10.0</TargetFramework>
+        <!--
+          Shared data/business-logic layer for both the legacy WinForms app (Chummer.csproj, net48) and
+          the new Avalonia port (Chummer.Avalonia today, Chummer.Avalonia eventually) - see
+          docs/LINUX_PORT_PLAN.md. Multi-targeted so the net48 consumer keeps working exactly as before
+          while the net8.0 build is what the cross-platform Avalonia app actually references.
+    
+          Files land here once they're confirmed to have zero System.Windows.Forms/System.Drawing
+          dependency (or have had the handful of leak points fixed) - see docs/LINUX_PORT_PLAN.md's
+          Chummer.Core migration notes for the current boundary.
+        -->
+    </PropertyGroup>
 
-      Files land here once they're confirmed to have zero System.Windows.Forms/System.Drawing
-      dependency (or have had the handful of leak points fixed) - see docs/LINUX_PORT_PLAN.md's
-      Chummer.Core migration notes for the current boundary.
-    -->
-  </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <!-- Microsoft.Win32.Registry isn't part of the net8.0 BCL the way it's built into net48 -
+             needed for clsSettingsStore.cs's one-time legacy-registry migration path, which already
+             no-ops itself on non-Windows (Environment.OSVersion.Platform check) before ever touching
+             this API. -->
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0"/>
+        <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.10"/>
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <!-- Microsoft.Win32.Registry isn't part of the net8.0 BCL the way it's built into net48 -
-         needed for clsSettingsStore.cs's one-time legacy-registry migration path, which already
-         no-ops itself on non-Windows (Environment.OSVersion.Platform check) before ever touching
-         this API. -->
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+        <Reference Include="System.Net.Http"/>
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Security" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\Chummer\code\clsRunnersPointAuth.cs" Link="clsRunnersPointAuth.cs" />
-  </ItemGroup>
+    <ItemGroup>
+      <Reference Include="System.Security.Cryptography.ProtectedData">
+        <HintPath>..\..\..\..\..\..\..\..\home\riagan\.nuget\packages\system.security.cryptography.protecteddata\10.0.10\lib\net10.0\System.Security.Cryptography.ProtectedData.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 
 </Project>
