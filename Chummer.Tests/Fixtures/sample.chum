@@ -47,6 +47,46 @@
       <metatypeaugmax>9</metatypeaugmax>
     </attribute>
     <attribute>
+      <name>REA</name>
+      <value>4</value>
+      <totalvalue>4</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>STR</name>
+      <value>3</value>
+      <totalvalue>3</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>CHA</name>
+      <value>3</value>
+      <totalvalue>3</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>INT</name>
+      <value>4</value>
+      <totalvalue>4</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
+      <name>LOG</name>
+      <value>5</value>
+      <totalvalue>5</totalvalue>
+      <metatypemin>1</metatypemin>
+      <metatypemax>6</metatypemax>
+      <metatypeaugmax>9</metatypeaugmax>
+    </attribute>
+    <attribute>
       <name>ESS</name>
       <value>6</value>
       <totalvalue>5.5</totalvalue>
@@ -299,6 +339,50 @@
       <exclude />
       <improvementttype>PhysicalCM</improvementttype>
       <improvementsource>Cyberware</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+    <improvement>
+      <unique />
+      <improvedname />
+      <sourcename>Sixth Sense</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>1</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Composure</improvementttype>
+      <improvementsource>Quality</improvementsource>
+      <custom>False</custom>
+      <customname />
+      <customid />
+      <customgroup />
+      <addtorating>False</addtorating>
+      <enabled>True</enabled>
+      <order>0</order>
+      <notes />
+    </improvement>
+    <improvement>
+      <unique />
+      <improvedname />
+      <sourcename>Combat Sense</sourcename>
+      <min>0</min>
+      <max>0</max>
+      <aug>0</aug>
+      <augmax>0</augmax>
+      <val>2</val>
+      <rating>1</rating>
+      <exclude />
+      <improvementttype>Composure</improvementttype>
+      <improvementsource>Spell</improvementsource>
       <custom>False</custom>
       <customname />
       <customid />

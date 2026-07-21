@@ -76,4 +76,47 @@ public static class ImprovementManager
 
         return intValue;
     }
+
+    /// <summary>
+    /// Per-source breakdown of what feeds into <see cref="ValueOf"/> for the same type/name/
+    /// AddToRating filter - one entry per contributing Improvement's SourceName and Value, so a
+    /// UI can show "why is this +5" when several different augmentations stack (e.g. Wired
+    /// Reflexes +2 REA, a quality +1 REA, a spell +2 REA all contributing to the same total).
+    /// Improvements sharing a UniqueName are still deduplicated to the single highest value
+    /// among them (matching ValueOf), so this always sums to the same total ValueOf returns for
+    /// the same arguments - it just doesn't collapse same-source-name entries together.
+    /// </summary>
+    public static IReadOnlyList<(string SourceName, int Value)> DescribeValueOf(
+        IReadOnlyList<Improvement> lstImprovements, ImprovementType eType, string? strImprovedName = null,
+        bool blnAddToRating = false)
+    {
+        var lstContributions = new List<(string SourceName, int Value)>();
+        var dicHighestByUniqueName = new Dictionary<string, (string SourceName, int Value)>();
+
+        foreach (var objImprovement in lstImprovements)
+        {
+            if (!objImprovement.Enabled || objImprovement.Custom || objImprovement.Type != eType)
+                continue;
+            if (objImprovement.AddToRating != blnAddToRating)
+                continue;
+            if (strImprovedName != null && objImprovement.ImprovedName != strImprovedName)
+                continue;
+            if (objImprovement.Value == 0)
+                continue;
+
+            if (objImprovement.UniqueName != string.Empty)
+            {
+                if (!dicHighestByUniqueName.TryGetValue(objImprovement.UniqueName, out var highest)
+                    || objImprovement.Value > highest.Value)
+                    dicHighestByUniqueName[objImprovement.UniqueName] = (objImprovement.SourceName, objImprovement.Value);
+            }
+            else
+            {
+                lstContributions.Add((objImprovement.SourceName, objImprovement.Value));
+            }
+        }
+
+        lstContributions.AddRange(dicHighestByUniqueName.Values);
+        return lstContributions;
+    }
 }

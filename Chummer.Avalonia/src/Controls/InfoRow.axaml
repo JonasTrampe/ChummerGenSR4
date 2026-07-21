@@ -9,6 +9,7 @@
 	     rows would silently overlap whenever a label wrapped to two lines. -->
 	<Grid ColumnDefinitions="190,*" DataContext="{Binding ElementName=root}" MinHeight="18">
 		<TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding Label}" TextWrapping="Wrap" />
-		<TextBlock Grid.Column="1" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="SemiBold" />
+		<TextBlock Grid.Column="1" Text="{Binding Value}" ToolTip.Tip="{Binding Tooltip}"
+		           VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="SemiBold" />
 	</Grid>
 </UserControl>

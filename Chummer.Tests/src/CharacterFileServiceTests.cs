@@ -80,9 +80,10 @@ public class CharacterFileServiceTests
         CharacterDocument character = LoadFixture();
 
         // BOD totalvalue 4 -> ceil(4/2) + 8 = 10, plus the fixture's +1 PhysicalCM improvement.
-        Assert.Equal(11, character.Condition.PhysicalCm);
+        Assert.Equal(11, character.Condition.PhysicalCm.Value);
+        Assert.Contains("Wired Reflexes", character.Condition.PhysicalCm.Tooltip);
         // WIL totalvalue 3 -> ceil(3/2) + 8 = 10, no StunCM improvements in the fixture.
-        Assert.Equal(10, character.Condition.StunCm);
+        Assert.Equal(10, character.Condition.StunCm.Value);
     }
 
     [Fact]
@@ -92,8 +93,47 @@ public class CharacterFileServiceTests
 
         // Threshold = BOD(4) * 2 = 8. Total ballistic = 6 (Actioneer) + 3 (Form-Fitting 6/2) = 9,
         // over threshold by 1 -> ceil(1/2) = 1 point of penalty.
-        Assert.Equal(-1, character.ArmorEncumbrance.BallisticPenalty);
+        Assert.Equal(-1, character.ArmorEncumbrance.BallisticPenalty.Value);
+        Assert.Contains("Actioneer", character.ArmorEncumbrance.BallisticPenalty.Tooltip);
         // Total impact = 4 + 3 (Form-Fitting 6/2) = 7, at/under threshold -> no penalty.
-        Assert.Equal(0, character.ArmorEncumbrance.ImpactPenalty);
+        Assert.Equal(0, character.ArmorEncumbrance.ImpactPenalty.Value);
+    }
+
+    [Fact]
+    public void SpecialAttributeTests_SumTheirTwoAttributesPlusImprovements()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // WIL(3) + CHA(3) + Sixth Sense(+1) + Combat Sense(+2) - two different-sourced
+        // Improvements stacking on the same stat, which the tooltip must list separately.
+        Assert.Equal(9, character.Composure.Value);
+        Assert.Equal(7, character.JudgeIntentions.Value); // INT(4) + CHA(3)
+        Assert.Equal(7, character.LiftAndCarry.Value); // STR(3) + BOD(4)
+        Assert.Equal(8, character.Memory.Value); // LOG(5) + WIL(3)
+
+        Assert.Contains("Willenskraft: 3", character.Composure.Tooltip);
+        Assert.Contains("Sixth Sense: +1", character.Composure.Tooltip);
+        Assert.Contains("Combat Sense: +2", character.Composure.Tooltip);
+        Assert.Contains("Gesamt: 9", character.Composure.Tooltip);
+    }
+
+    [Fact]
+    public void Initiative_IsIntPlusRea_WithNoWoundModifiersInFixture()
+    {
+        CharacterDocument character = LoadFixture();
+
+        Assert.Equal(8, character.Initiative.Base); // INT(4) + REA(4)
+        Assert.Equal(8, character.Initiative.Augmented);
+        Assert.Equal("8", character.Initiative.Display);
+    }
+
+    [Fact]
+    public void InitiativePasses_DefaultsToOne()
+    {
+        CharacterDocument character = LoadFixture();
+
+        Assert.Equal(1, character.InitiativePasses.Base);
+        Assert.Equal(1, character.InitiativePasses.Augmented);
+        Assert.Equal("1", character.InitiativePasses.Display);
     }
 }

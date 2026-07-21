@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 
 namespace Chummer.Core
@@ -82,6 +83,51 @@ namespace Chummer.Core
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
                 ComputePhysicalCm(), ComputeStunCm());
 
+        /// <summary>Sums two attributes plus any Improvements of the given type against no specific
+        /// ImprovedName (used by the "Special Attribute Tests": Composure, Judge Intentions, Lift and
+        /// Carry, Memory). Each attribute is listed on its own tooltip line by its German name, then
+        /// one line per contributing Improvement (source name + signed value) when several stack.</summary>
+        private CharacterDerivedValueData SumAttributesWithImprovements(ImprovementType eType,
+            params (string Code, string Label)[] attributes)
+        {
+            var sb = new StringBuilder();
+            int intTotal = 0;
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                int intValue = GetAttributeInt(attributes[i].Code);
+                intTotal += intValue;
+                if (i > 0) sb.Append('\n');
+                sb.Append(attributes[i].Label).Append(": ").Append(intValue);
+            }
+
+            var lstContributions = ImprovementManager.DescribeValueOf(Improvements, eType);
+            intTotal += lstContributions.Sum(c => c.Value);
+            AppendContributions(sb, lstContributions);
+            sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+
+            return new CharacterDerivedValueData(intTotal, sb.ToString());
+        }
+
+        /// <summary>Appends one tooltip line per contribution as "SourceName: +N" (or "-N").</summary>
+        private static void AppendContributions(StringBuilder sb, IReadOnlyList<(string SourceName, int Value)> lstContributions)
+        {
+            foreach (var (strSource, intValue) in lstContributions)
+                sb.Append('\n').Append(DescribeSource(strSource)).Append(": ").Append(FormatSigned(intValue));
+        }
+
+        // Some legacy Improvements store the source item's GUID in SourceName instead of a
+        // readable name (Core doesn't yet cross-reference that back to the actual gear/power/
+        // quality that granted it - see PORTING_PLAN.md) - fall back to a generic label rather
+        // than showing a raw GUID in a tooltip.
+        private static string DescribeSource(string strSource)
+        {
+            if (string.IsNullOrEmpty(strSource))
+                return "Sonstiges";
+            return Guid.TryParse(strSource, out _) ? "Sonstige Ausrüstung/Fähigkeit" : strSource;
+        }
+
+        private static string FormatSigned(int intValue) => intValue >= 0 ? "+" + intValue : intValue.ToString();
+
         public IReadOnlyList<CharacterAttributeData> Attributes => ReadAttributes();
 
         /// <summary>Raw bonus/modifier records - see Improvement.cs and ImprovementManager.cs for
@@ -113,6 +159,79 @@ namespace Chummer.Core
         ///    rules (CharacterOptions isn't loaded per-character yet - see PORTING_PLAN.md Phase 3)
         /// </summary>
         public CharacterEncumbranceData ArmorEncumbrance => ComputeArmorEncumbrance();
+
+        /// <summary>Composure (WIL + CHA + Improvements), ported from clsCharacter.cs.</summary>
+        public CharacterDerivedValueData Composure =>
+            SumAttributesWithImprovements(ImprovementType.Composure, ("WIL", "Willenskraft"), ("CHA", "Charisma"));
+
+        /// <summary>Judge Intentions (INT + CHA + Improvements), ported from clsCharacter.cs.</summary>
+        public CharacterDerivedValueData JudgeIntentions =>
+            SumAttributesWithImprovements(ImprovementType.JudgeIntentions, ("INT", "Intuition"), ("CHA", "Charisma"));
+
+        /// <summary>Lifting and Carrying (STR + BOD + Improvements), ported from clsCharacter.cs.</summary>
+        public CharacterDerivedValueData LiftAndCarry =>
+            SumAttributesWithImprovements(ImprovementType.LiftAndCarry, ("STR", "Stärke"), ("BOD", "Konstitution"));
+
+        /// <summary>Memory (LOG + WIL + Improvements), ported from clsCharacter.cs.</summary>
+        public CharacterDerivedValueData Memory =>
+            SumAttributesWithImprovements(ImprovementType.Memory, ("LOG", "Logik"), ("WIL", "Willenskraft"));
+
+        /// <summary>Dice-pool penalty from current Physical/Stun damage, ported from clsCharacter.cs's
+        /// WoundModifiers. Despite the name this doesn't actually look at how many condition-monitor
+        /// boxes are filled in - the legacy implementation only sums Improvements sourced from
+        /// ConditionMonitor (i.e. this is 0 unless something is granting/removing wound-penalty
+        /// immunity, not a live "you're hurt" calculation); kept as its own property so Initiative
+        /// below reads the same way the original does.</summary>
+        public int WoundModifiers => Improvements
+            .Where(i => i.Enabled && i.Source == ImprovementSource.ConditionMonitor)
+            .Sum(i => i.Value);
+
+        /// <summary>Initiative (INT + REA, base/augmented shown as "base (augmented)" when they
+        /// differ), ported from clsCharacter.cs. Simplified: the legacy version also clamps to a
+        /// per-metatype maximum via a "special INI attribute" that's never actually populated from
+        /// the save file in normal play (always defaults to unconstrained) - not ported since Core
+        /// doesn't load metatype data. Never goes below 0.</summary>
+        public CharacterInitiativeData Initiative
+        {
+            get
+            {
+                int intInt = GetAttributeInt("INT");
+                int intRea = GetAttributeInt("REA");
+                int intBase = intInt + intRea;
+                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Initiative);
+                int intWound = WoundModifiers;
+                int intAugmented = intBase + lstContributions.Sum(c => c.Value) + intWound;
+
+                var sb = new StringBuilder();
+                sb.Append("Intuition: ").Append(intInt).Append('\n');
+                sb.Append("Reaktion: ").Append(intRea);
+                AppendContributions(sb, lstContributions);
+                if (intWound != 0)
+                    sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
+                sb.Append('\n').Append("Gesamt: ").Append(Math.Max(intAugmented, 0));
+
+                return new CharacterInitiativeData(intBase, Math.Max(intAugmented, 0), sb.ToString());
+            }
+        }
+
+        /// <summary>Initiative Passes (1 base, plus Improvements), ported from clsCharacter.cs.</summary>
+        public CharacterInitiativeData InitiativePasses
+        {
+            get
+            {
+                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.InitiativePass)
+                    .Concat(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.InitiativePassAdd))
+                    .ToList();
+                int intPasses = 1 + lstContributions.Sum(c => c.Value);
+
+                var sb = new StringBuilder();
+                sb.Append("Basis: 1");
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Gesamt: ").Append(intPasses);
+
+                return new CharacterInitiativeData(1, intPasses, sb.ToString());
+            }
+        }
 
         public IReadOnlyList<CharacterWeaponData> Weapons => ReadWeapons();
 
@@ -191,22 +310,39 @@ namespace Chummer.Core
             return string.IsNullOrEmpty(objNode == null ? null : objNode.InnerText) ? "0" : objNode.InnerText;
         }
 
+        private int GetAttributeInt(string strCode)
+            => int.TryParse(GetAttributeValue(strCode), out var intValue) ? intValue : 0;
+
         // Ported from clsCharacter.cs's PhysicalCM/StunCM properties. The A.I./technocritter/
         // protosapient special cases (no BOD -> half System instead, no Stun track at all)
         // aren't ported since Core doesn't read metatype category yet - flag if a save file
         // needs it.
-        private int ComputePhysicalCm()
+        private CharacterDerivedValueData ComputePhysicalCm()
         {
             var dblBod = double.TryParse(GetAttributeValue("BOD"), out var d) ? d : 0;
-            var intCm = (int)Math.Ceiling(dblBod / 2) + 8;
-            return intCm + ImprovementManager.ValueOf(Improvements, ImprovementType.PhysicalCm);
+            var intBase = (int)Math.Ceiling(dblBod / 2) + 8;
+            var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.PhysicalCm);
+            var intTotal = intBase + lstContributions.Sum(c => c.Value);
+
+            var sb = new StringBuilder();
+            sb.Append("Basis (8 + Konstitution/2 aufgerundet): ").Append(intBase);
+            AppendContributions(sb, lstContributions);
+            sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+            return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
-        private int ComputeStunCm()
+        private CharacterDerivedValueData ComputeStunCm()
         {
             var dblWil = double.TryParse(GetAttributeValue("WIL"), out var d) ? d : 0;
-            var intCm = (int)Math.Ceiling(dblWil / 2) + 8;
-            return intCm + ImprovementManager.ValueOf(Improvements, ImprovementType.StunCm);
+            var intBase = (int)Math.Ceiling(dblWil / 2) + 8;
+            var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.StunCm);
+            var intTotal = intBase + lstContributions.Sum(c => c.Value);
+
+            var sb = new StringBuilder();
+            sb.Append("Basis (8 + Willenskraft/2 aufgerundet): ").Append(intBase);
+            AppendContributions(sb, lstContributions);
+            sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+            return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
         private CharacterEncumbranceData ComputeArmorEncumbrance()
@@ -217,6 +353,7 @@ namespace Chummer.Core
             var intMultiplier = 2;
             var intTotalBallistic = 0;
             var intTotalImpact = 0;
+            var lstWorn = new List<string>();
             if (objNodes != null)
             {
                 foreach (XmlNode objNode in objNodes)
@@ -224,18 +361,39 @@ namespace Chummer.Core
                     if (GetValue(objNode, "category", string.Empty) == "Military Grade Armor")
                         intMultiplier = 3;
 
-                    var blnFormFitting = GetValue(objNode, "name", string.Empty).StartsWith("Form-Fitting");
+                    var strName = GetValue(objNode, "name", string.Empty);
+                    var blnFormFitting = strName.StartsWith("Form-Fitting");
                     var intBallistic = ParseArmorRating(GetValue(objNode, "b", "0"));
                     var intImpact = ParseArmorRating(GetValue(objNode, "i", "0"));
-                    intTotalBallistic += blnFormFitting ? intBallistic / 2 : intBallistic;
-                    intTotalImpact += blnFormFitting ? intImpact / 2 : intImpact;
+                    var intCountedBallistic = blnFormFitting ? intBallistic / 2 : intBallistic;
+                    var intCountedImpact = blnFormFitting ? intImpact / 2 : intImpact;
+                    intTotalBallistic += intCountedBallistic;
+                    intTotalImpact += intCountedImpact;
+                    lstWorn.Add(strName + " (ballistisch " + FormatSigned(intCountedBallistic)
+                        + ", Stoß " + FormatSigned(intCountedImpact) + (blnFormFitting ? ", Anschmiegsam: halbiert" : "") + ")");
                 }
             }
 
             var intThreshold = (int)(dblBod * intMultiplier);
+            var strThresholdNote = "Schwelle: Konstitution " + dblBod + " x " + intMultiplier + " = " + intThreshold
+                + (intMultiplier == 3 ? " (Militärgraderüstung getragen)" : "");
+
             return new CharacterEncumbranceData(
-                ComputeEncumbrancePenalty(intTotalBallistic, intThreshold),
-                ComputeEncumbrancePenalty(intTotalImpact, intThreshold));
+                BuildEncumbranceValue(intTotalBallistic, intThreshold, "ballistisch", strThresholdNote, lstWorn),
+                BuildEncumbranceValue(intTotalImpact, intThreshold, "Stoß", strThresholdNote, lstWorn));
+        }
+
+        private static CharacterDerivedValueData BuildEncumbranceValue(int intTotal, int intThreshold,
+            string strKind, string strThresholdNote, IReadOnlyList<string> lstWorn)
+        {
+            var intPenalty = ComputeEncumbrancePenalty(intTotal, intThreshold);
+            var sb = new StringBuilder();
+            sb.Append("Getragene Panzerung (").Append(strKind).Append("): ").Append(intTotal);
+            foreach (var strItem in lstWorn)
+                sb.Append('\n').Append("  ").Append(strItem);
+            sb.Append('\n').Append(strThresholdNote);
+            sb.Append('\n').Append("Behinderung: ").Append(intPenalty);
+            return new CharacterDerivedValueData(intPenalty, sb.ToString());
         }
 
         // Armor ratings in the save file can carry a "+2" style mod suffix on top of the base
@@ -536,13 +694,13 @@ namespace Chummer.Core
     public sealed class CharacterConditionData
     {
         internal CharacterConditionData(string strEssence, string strPhysicalDamage, string strStunDamage,
-            int intPhysicalCm, int intStunCm)
+            CharacterDerivedValueData physicalCm, CharacterDerivedValueData stunCm)
         {
             Essence = strEssence;
             PhysicalDamage = strPhysicalDamage;
             StunDamage = strStunDamage;
-            PhysicalCm = intPhysicalCm;
-            StunCm = intStunCm;
+            PhysicalCm = physicalCm;
+            StunCm = stunCm;
         }
 
         public string Essence { get; private set; }
@@ -550,23 +708,60 @@ namespace Chummer.Core
         public string StunDamage { get; private set; }
 
         /// <summary>Total Physical Condition Monitor boxes (8 + half BOD, rounded up, plus Improvements).</summary>
-        public int PhysicalCm { get; }
+        public CharacterDerivedValueData PhysicalCm { get; }
 
         /// <summary>Total Stun Condition Monitor boxes (8 + half WIL, rounded up, plus Improvements).</summary>
-        public int StunCm { get; }
+        public CharacterDerivedValueData StunCm { get; }
     }
 
     /// <summary>Armor encumbrance dice-pool penalties - see CharacterDocument.ArmorEncumbrance.</summary>
     public sealed class CharacterEncumbranceData
     {
-        internal CharacterEncumbranceData(int intBallisticPenalty, int intImpactPenalty)
+        internal CharacterEncumbranceData(CharacterDerivedValueData ballisticPenalty, CharacterDerivedValueData impactPenalty)
         {
-            BallisticPenalty = intBallisticPenalty;
-            ImpactPenalty = intImpactPenalty;
+            BallisticPenalty = ballisticPenalty;
+            ImpactPenalty = impactPenalty;
         }
 
-        public int BallisticPenalty { get; }
-        public int ImpactPenalty { get; }
+        public CharacterDerivedValueData BallisticPenalty { get; }
+        public CharacterDerivedValueData ImpactPenalty { get; }
+    }
+
+    /// <summary>Base vs. augmented value for a derived stat that's normally shown as
+    /// "base (augmented)" when they differ, e.g. Initiative or Initiative Passes.</summary>
+    public sealed class CharacterInitiativeData
+    {
+        internal CharacterInitiativeData(int intBase, int intAugmented, string strTooltip)
+        {
+            Base = intBase;
+            Augmented = intAugmented;
+            Tooltip = strTooltip;
+        }
+
+        public int Base { get; }
+        public int Augmented { get; }
+
+        /// <summary>Mouseover breakdown of every attribute/Improvement that fed into Augmented.</summary>
+        public string Tooltip { get; }
+
+        /// <summary>"5" if Base == Augmented, otherwise "5 (7)".</summary>
+        public string Display => Base == Augmented ? Base.ToString() : Base + " (" + Augmented + ")";
+    }
+
+    /// <summary>A computed number plus a mouseover explanation of how it was derived - the
+    /// tooltip lists the base attribute(s) and each individual contributing Improvement's source
+    /// name and value, so several stacking augmentations (cyberware + quality + spell, etc.) are
+    /// each visible rather than collapsed into one opaque total.</summary>
+    public sealed class CharacterDerivedValueData
+    {
+        internal CharacterDerivedValueData(int intValue, string strTooltip)
+        {
+            Value = intValue;
+            Tooltip = strTooltip;
+        }
+
+        public int Value { get; }
+        public string Tooltip { get; }
     }
 
     public sealed class CharacterQualityData
