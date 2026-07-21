@@ -20,7 +20,7 @@ public partial class ExpenseDialog : Window
     public ExpenseDialog(string title, int sign)
     {
         _sign = sign;
-        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        InitializeComponent();
         Title = title;
         PromptText.Text = sign > 0 ? "Gib den verdienten Betrag und einen Grund ein." : "Gib den ausgegebenen Betrag und einen Grund ein.";
     }

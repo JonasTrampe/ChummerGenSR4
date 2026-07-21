@@ -17,7 +17,7 @@ public partial class QualityDialog : Window
     public QualityDialog()
     {
         DataContext = this;
-        Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        InitializeComponent();
     }
 
     public QualityDialog(CharacterDocument character)
