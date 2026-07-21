@@ -327,7 +327,7 @@
                                         <Button Grid.Column="1" Content="Fertigkeit" />
                                     </Grid>
                                     <!-- Name | Rating | [+] | Pool | Spezialisierung dropdown | [+] | Kategorie dropdown | Löschen -->
-                                    <Grid ColumnDefinitions="140,26,20,26,140,20,110,Auto"
+                                    <Grid Name="KnowledgeSkillsGrid" ColumnDefinitions="140,26,20,26,140,20,110,Auto"
                                           RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4" Margin="0,4,0,0">
                                         <ComboBox Grid.Row="0" Grid.Column="0" Width="130" HorizontalAlignment="Left">
                                             <ComboBoxItem Content="Bars und Clubs" />

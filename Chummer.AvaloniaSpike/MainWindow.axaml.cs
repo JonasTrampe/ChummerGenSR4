@@ -335,6 +335,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         this.FindControl<TreeView>("ArmorTree")!.Items.Clear();
         this.FindControl<StackPanel>("SkillGroupsPanel")!.Children.Clear();
         this.FindControl<WrapPanel>("ActiveSkillsPanel")!.Children.Clear();
+        this.FindControl<Grid>("KnowledgeSkillsGrid")!.Children.Clear();
         foreach (string code in new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "RES" })
         {
             var row = this.FindControl<AttributeRow>(code + "Attribute");
@@ -428,6 +429,28 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 IsGroupLocked = skill.IsGroupLocked,
             });
         }
+
+        var knowledgeSkillsGrid = this.FindControl<Grid>("KnowledgeSkillsGrid")!;
+        knowledgeSkillsGrid.Children.Clear();
+        knowledgeSkillsGrid.RowDefinitions.Clear();
+        for (int row = 0; row < character.KnowledgeSkills.Count; row++)
+        {
+            CharacterSkillData skill = character.KnowledgeSkills[row];
+            knowledgeSkillsGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 0, skill.Name);
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 1, skill.Rating);
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 3, skill.TotalValue);
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 4, skill.Specialization);
+            AddKnowledgeSkillText(knowledgeSkillsGrid, row, 6, skill.Category);
+        }
+    }
+
+    private static void AddKnowledgeSkillText(Grid grid, int row, int column, string text)
+    {
+        var textBlock = new TextBlock { Text = text, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+        Grid.SetRow(textBlock, row);
+        Grid.SetColumn(textBlock, column);
+        grid.Children.Add(textBlock);
     }
 
     private static TreeViewItem CreateTreeViewItem(CharacterTreeItemData item)

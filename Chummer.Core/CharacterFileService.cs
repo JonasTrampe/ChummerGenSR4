@@ -70,6 +70,7 @@ namespace Chummer
 		public IReadOnlyList<CharacterWeaponData> Weapons { get { return ReadWeapons(); } }
 		public IReadOnlyList<CharacterSkillGroupData> SkillGroups { get { return ReadSkillGroups(); } }
 		public IReadOnlyList<CharacterSkillData> Skills { get { return ReadSkills(); } }
+		public IReadOnlyList<CharacterSkillData> KnowledgeSkills { get { return ReadKnowledgeSkills(); } }
 
 		internal CharacterDocument(XmlDocument objDocument, string strDisplayName)
 		{
@@ -150,7 +151,23 @@ namespace Chummer
 				lstSkills.Add(new CharacterSkillData(
 					GetValue(objNode, "name", string.Empty), GetValue(objNode, "attribute", string.Empty),
 					GetValue(objNode, "rating", "0"), GetValue(objNode, "totalvalue", "0"),
-					GetValue(objNode, "spec", string.Empty), GetValue(objNode, "grouped", "False") == "True"));
+					GetValue(objNode, "spec", string.Empty), GetValue(objNode, "skillcategory", string.Empty), GetValue(objNode, "grouped", "False") == "True"));
+			}
+			return lstSkills;
+		}
+
+		private IReadOnlyList<CharacterSkillData> ReadKnowledgeSkills()
+		{
+			List<CharacterSkillData> lstSkills = new List<CharacterSkillData>();
+			XmlNodeList objNodes = Document.SelectNodes("/character/skills/skill");
+			if (objNodes == null) return lstSkills;
+			foreach (XmlNode objNode in objNodes)
+			{
+				if (GetValue(objNode, "knowledge", "False") != "True") continue;
+				lstSkills.Add(new CharacterSkillData(
+					GetValue(objNode, "name", string.Empty), GetValue(objNode, "attribute", string.Empty),
+					GetValue(objNode, "rating", "0"), GetValue(objNode, "totalvalue", "0"),
+					GetValue(objNode, "spec", string.Empty), GetValue(objNode, "skillcategory", string.Empty), false));
 			}
 			return lstSkills;
 		}
@@ -264,15 +281,17 @@ namespace Chummer
 		public string Rating { get; private set; }
 		public string TotalValue { get; private set; }
 		public string Specialization { get; private set; }
+		public string Category { get; private set; }
 		public bool IsGroupLocked { get; private set; }
 
-		internal CharacterSkillData(string strName, string strAttribute, string strRating, string strTotalValue, string strSpecialization, bool blnIsGroupLocked)
+		internal CharacterSkillData(string strName, string strAttribute, string strRating, string strTotalValue, string strSpecialization, string strCategory, bool blnIsGroupLocked)
 		{
 			Name = strName;
 			Attribute = strAttribute;
 			Rating = strRating;
 			TotalValue = strTotalValue;
 			Specialization = strSpecialization;
+			Category = strCategory;
 			IsGroupLocked = blnIsGroupLocked;
 		}
 	}
