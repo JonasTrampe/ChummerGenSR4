@@ -8,6 +8,16 @@ namespace Chummer.Core
 {
 	public sealed class XmlManager : IXmlResourceLoader
 	{
+		private static IEnumerable<XmlNode> SelectNodes(XmlNode objNode, string strXPath)
+		{
+			var objNodes = objNode.SelectNodes(strXPath);
+			if (objNodes == null)
+				yield break;
+
+			foreach (XmlNode objChild in objNodes)
+				yield return objChild;
+		}
+
 		/// <summary>
 		/// Used to cache XML files so that they do not need to be loaded and translated each time an object wants the file.
 		/// </summary>
@@ -136,18 +146,18 @@ namespace Chummer.Core
 			objDoc.AppendChild(objCont);
 
 			var objXmlFile = new XmlDocument();
-			XmlNodeList objList;
+			IEnumerable<XmlNode> objList;
 
 			if (blnLoadFile)
 			{
 				// Load the base file and retrieve all of the child nodes.
 				objXmlFile.Load(strPath);
-				objList = objXmlFile.SelectNodes("/chummer/*");
+				objList = SelectNodes(objXmlFile, "/chummer/*");
 				foreach (XmlNode objNode in objList)
 				{
 					// Append the entire child node to the new document.
 					var objImported = objDoc.ImportNode(objNode, true);
-					objDoc.DocumentElement.AppendChild(objImported);
+					objCont.AppendChild(objImported);
 				}
 
 				// Load any override data files the user might have. Do not attempt this if we're loading the Improvements file.
@@ -159,16 +169,20 @@ namespace Chummer.Core
 						: Array.Empty<string>())
 					{
 						objXmlFile.Load(strFile);
-						objList = objXmlFile.SelectNodes("/chummer/*");
+						objList = SelectNodes(objXmlFile, "/chummer/*");
 						foreach (XmlNode objNode in objList)
 						{
 							foreach (XmlNode objType in objNode.ChildNodes)
 							{
 								if (objType["name"] != null)
 								{
-									var objItem = objDoc.SelectSingleNode("/chummer/" + objNode.Name + "/" + objType.Name + "[name = \"" + objType["name"].InnerText.Replace("&amp;", "&") + "\"]");
-									if (objItem != null)
-										objItem.InnerXml = objType.InnerXml;
+									var objName = objType["name"];
+									if (objName != null)
+									{
+										var objItem = objDoc.SelectSingleNode("/chummer/" + objNode.Name + "/" + objType.Name + "[name = \"" + objName.InnerText.Replace("&amp;", "&") + "\"]");
+										if (objItem != null)
+											objItem.InnerXml = objType.InnerXml;
+									}
 								}
 							}
 						}
@@ -182,7 +196,7 @@ namespace Chummer.Core
 					// The structure is similar to the base data file, but the root node is instead a child /chummer node with a file attribute to indicate the XML file it translates.
 					if (LanguageManager.Instance.DataDoc != null)
 					{
-						foreach (XmlNode objNode in LanguageManager.Instance.DataDoc.SelectNodes("/chummer/chummer[@file = \"" + strFileName + "\"]"))
+						foreach (XmlNode objNode in SelectNodes(LanguageManager.Instance.DataDoc, "/chummer/chummer[@file = \"" + strFileName + "\"]"))
 						{
 							foreach (XmlNode objType in objNode.ChildNodes)
 							{
@@ -341,7 +355,7 @@ namespace Chummer.Core
 				foreach (var strFile in Directory.GetFiles(strPath, "custom*_" + strFileName))
 				{
 					objXmlFile.Load(strFile);
-					objList = objXmlFile.SelectNodes("/chummer/*");
+					objList = SelectNodes(objXmlFile, "/chummer/*");
 					foreach (XmlNode objNode in objList)
 					{
 						// Look for any items with a duplicate name and pluck them from the node so we don't end up with multiple items with the same name.
