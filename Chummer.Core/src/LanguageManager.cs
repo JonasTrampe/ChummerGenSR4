@@ -38,7 +38,7 @@ public sealed class LanguageManager
     /// <param name="strLanguage">Language code to load, e.g. "de-de". "en-us" is the built-in base.</param>
     public void Load(string strLanguage)
     {
-        var strLanguageDirectory = Path.Combine(AppContext.BaseDirectory, "lang");
+        var strLanguageDirectory = Path.Combine(AppContext.BaseDirectory, "data", "lang");
         if (!Loaded)
         {
             try
@@ -74,7 +74,7 @@ public sealed class LanguageManager
 
     /// <summary>Check the keys in the selected language file against the English version.</summary>
     public List<string> VerifyStrings(string strLanguage) =>
-        _objCatalog.VerifyLanguage(Path.Combine(AppContext.BaseDirectory, "lang"), strLanguage);
+        _objCatalog.VerifyLanguage(Path.Combine(AppContext.BaseDirectory, "data", "lang"), strLanguage);
 
     /// <summary>
     /// Attempt to translate an attribute abbreviation ("BOD", "AGI", ...) used as an "Extra"

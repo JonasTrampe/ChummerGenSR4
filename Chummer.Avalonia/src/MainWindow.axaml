@@ -43,19 +43,19 @@
                 <Button Name="NewCharacterButton" Classes="toolbarButton"
                         ToolTip.Tip="Neu (öffnet den Charaktererschaffungs-Assistenten)"
                         AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
-                    <Image Source="avares://Chummer.Avalonia/Assets/icons/page.png" />
+                    <Image Source="avares://Chummer.Avalonia/assets/icons/page.png" />
                 </Button>
                 <Button Classes="toolbarButton" ToolTip.Tip="Öffnen"
                         AutomationProperties.Name="Öffnen" Click="OnOpenCharacterClick">
-                    <Image Source="avares://Chummer.Avalonia/Assets/icons/folder_page.png" />
+                    <Image Source="avares://Chummer.Avalonia/assets/icons/folder_page.png" />
                 </Button>
                 <Button Classes="toolbarButton" ToolTip.Tip="Speichern unter"
                         AutomationProperties.Name="Speichern unter" Click="OnSaveCharacterClick">
-                    <Image Source="avares://Chummer.Avalonia/Assets/icons/disk.png" />
+                    <Image Source="avares://Chummer.Avalonia/assets/icons/disk.png" />
                 </Button>
                 <Button Classes="toolbarButton" ToolTip.Tip="Drucken"
                         AutomationProperties.Name="Drucken" Click="OnPrintClick">
-                    <Image Source="avares://Chummer.Avalonia/Assets/icons/printer.png" />
+                    <Image Source="avares://Chummer.Avalonia/assets/icons/printer.png" />
                 </Button>
             </StackPanel>
         </Border>

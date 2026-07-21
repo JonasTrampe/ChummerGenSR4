@@ -95,7 +95,7 @@ namespace Chummer.Core
 		/// <param name="strFileName">Name of the XML file to load.</param>
 		public XmlDocument Load(string strFileName)
 		{
-			var strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+			var strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data");
 			strPath = Path.Combine(strPath, strFileName);
 			var datDate = File.GetLastWriteTime(strPath);
 
@@ -154,7 +154,9 @@ namespace Chummer.Core
 				if (strFileName != "improvements.xml")
 				{
 					var strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data");
-					foreach (var strFile in Directory.GetFiles(strFilePath, "override*_" + strFileName))
+					foreach (var strFile in Directory.Exists(strFilePath)
+						? Directory.GetFiles(strFilePath, "override*_" + strFileName)
+						: Array.Empty<string>())
 					{
 						objXmlFile.Load(strFile);
 						objList = objXmlFile.SelectNodes("/chummer/*");
@@ -335,7 +337,7 @@ namespace Chummer.Core
 			// Load any custom data files the user might have. Do not attempt this if we're loading the Improvements file.
 			if (strFileName != "improvements.xml")
 			{
-				strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+				strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data");
 				foreach (var strFile in Directory.GetFiles(strPath, "custom*_" + strFileName))
 				{
 					objXmlFile.Load(strFile);
@@ -380,11 +382,11 @@ namespace Chummer.Core
 		public void Verify(string strLanguage, List<string> lstBooks)
 		{
 			var objLanguageDoc = new XmlDocument();
-			var strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lang");
+			var strFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "lang");
 			strFilePath = Path.Combine(strFilePath, strLanguage + "_data.xml");
 			objLanguageDoc.Load(strFilePath);
 
-			var strLangPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lang");
+			var strLangPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "lang");
 			strLangPath = Path.Combine(strLangPath, "results_" + strLanguage + ".xml");
 			var objStream = new FileStream(strLangPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
 			var objWriter = new XmlTextWriter(objStream, Encoding.Unicode);
@@ -396,7 +398,7 @@ namespace Chummer.Core
 			// <results>
 			objWriter.WriteStartElement("results");
 
-			var strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+			var strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data");
 			foreach (var strFile in Directory.GetFiles(strPath, "*.xml"))
 			{
 				var strPathReplace = strPath + Path.DirectorySeparatorChar;

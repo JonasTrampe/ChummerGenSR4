@@ -11,12 +11,12 @@
 
     <ItemGroup>
         <AvaloniaResource Include="assets\**"/>
-        <!-- Game/language/sheet/settings data lives in Chummer.Core\Data (shared with the legacy
-             WinForms app - see its CopyDataFilesAfterBuild target). XmlManager/LanguageManager
-             expect it at AppContext.BaseDirectory, so it's copied into this app's own output.
-             "saves" (bundled example characters) is deliberately excluded - it's ~50MB of sample
-             content nobody needs copied into every build output; it's still on disk under
-             Chummer.Core\Data\saves if that's ever wanted. -->
+        <!-- Game/language/sheet/settings/example-save data lives in Chummer.Core\data and is
+             copied verbatim (source tree structure preserved) under a single "data\" folder next
+             to the exe - i.e. Chummer.Core\data\data\weapons.xml -> <exe>\data\data\weapons.xml,
+             Chummer.Core\data\lang\en-us.xml -> <exe>\data\lang\en-us.xml, etc. XmlManager and
+             LanguageManager (Chummer.Core) look for everything under AppContext.BaseDirectory\data
+             to match. Demo/example characters in data\saves ARE included - they're meant to ship. -->
         <None Include="..\Chummer.Core\data\**\*.*"
               Link="data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>

@@ -217,7 +217,7 @@ public sealed class GlobalOptions
 		}
 
 		// Retrieve the SourcebookInfo objects.
-		var objXmlDocument = XmlManager.Instance.Load("data/books.xml");
+		var objXmlDocument = XmlManager.Instance.Load("books.xml");
 		var objXmlBookList = objXmlDocument.SelectNodes("/chummer/books/book");
 		foreach (XmlNode objXmlBook in objXmlBookList)
 		{
@@ -239,8 +239,8 @@ public sealed class GlobalOptions
 			}
 		}
 
-		CyberwareGrades.LoadList(XmlManager.Instance.Load("data/cyberware.xml"));
-		BiowareGrades.LoadList(XmlManager.Instance.Load("data/bioware.xml"));
+		CyberwareGrades.LoadList(XmlManager.Instance.Load("cyberware.xml"));
+		BiowareGrades.LoadList(XmlManager.Instance.Load("bioware.xml"));
 	}
 
 	GlobalOptions()
@@ -893,7 +893,7 @@ public class CharacterOptions
 		LanguageManager.Instance.Load(GlobalOptions.Instance.Language);
 
 		// Load the book information.
-		_objBookDoc = XmlManager.Instance.Load("data/books.xml");
+		_objBookDoc = XmlManager.Instance.Load("books.xml");
 	}
 
 	/// <summary>
@@ -2024,7 +2024,7 @@ public class CharacterOptions
 		var strBooks = strBookList.Split(',');
 
 		var objXmlDocument = new XmlDocument();
-		objXmlDocument = XmlManager.Instance.Load("data/books.xml");
+		objXmlDocument = XmlManager.Instance.Load("books.xml");
 
 		foreach (var strBookCode in strBooks)
 		{
