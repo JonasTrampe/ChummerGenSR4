@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CyberwareSectionTab">
+    <controls:TreeDetailPane TreeWidth="330" ContentMargin="4">
+        <controls:TreeDetailPane.HeaderContent>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                <Button Content="Cyberware hinzufügen" />
+                <Button Content="Bioware hinzufügen" />
+                <Button Content="Löschen" />
+            </StackPanel>
+        </controls:TreeDetailPane.HeaderContent>
+        <controls:TreeDetailPane.TreeContent>
+            <TreeView Name="CyberwareTree">
+                <TreeViewItem Name="CyberwareHeaderItem" Header="Cyberware auswählen" IsExpanded="True" />
+                <TreeViewItem Name="BiowareHeaderItem" Header="Bioware auswählen" IsExpanded="True" />
+            </TreeView>
+        </controls:TreeDetailPane.TreeContent>
+        <controls:TreeDetailPane.DetailContent>
+            <StackPanel Margin="8,0,0,0" Spacing="6">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Width="80" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Kategorie:" Width="80" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verfügbarkeit:" Width="80" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Quelle:" Width="80" />
+            </Grid>
+            <Separator Margin="0,4" />
+            <Grid ColumnDefinitions="*,*,*,*">
+                <TextBlock Grid.Column="0" Text="Prozessor:" />
+                <TextBlock Grid.Column="1" Text="Signal:" />
+                <TextBlock Grid.Column="2" Text="System:" />
+                <TextBlock Grid.Column="3" Text="Firewall:" />
+            </Grid>
+            <Separator Margin="0,4" />
+            <TextBlock Text="Verbrauchte Essenz" FontWeight="Bold" />
+            <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto,Auto" RowSpacing="2">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Cyberware:" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="4,90" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Bioware:" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="0,30" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verlorene Essenz:" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="0,00" />
+            </Grid>
+            </StackPanel>
+        </controls:TreeDetailPane.DetailContent>
+    </controls:TreeDetailPane>
+</UserControl>

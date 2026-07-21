@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sections="clr-namespace:Chummer.NewUI.Controls.CharacterSections"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Chummer.NewUI.Controls.CharacterTab">
+        <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,4,270">
+
+                <TabControl Grid.Column="0">
+                    <TabItem Header="Allgemein">
+                        <sections:GeneralSectionTab Name="GeneralTab" />
+                    </TabItem>
+                    <TabItem Header="Fertigkeiten">
+                        <sections:SkillsSectionTab Name="SkillsTab" />
+                    </TabItem>
+                    <TabItem Header="Kampfkünste">
+                        <sections:MartialArtsSectionTab Name="MartialArtsTab" />
+                    </TabItem>
+                    <!-- Adeptenkräfte: conditional tab - Adept characters only -->
+                    <TabItem Header="Adeptenkräfte">
+                        <sections:AdeptPowersSectionTab Name="AdeptPowersTab" />
+                    </TabItem>
+                    <!-- Sprüche und Geister: conditional tab - Magician/Adept characters -->
+                    <TabItem Header="Sprüche und Geister">
+                        <sections:SpellsSectionTab Name="SpellsTab" />
+                    </TabItem>
+                    <!-- Initiation: conditional tab - Awakened characters only -->
+                    <TabItem Header="Initiation">
+                        <sections:InitiationSectionTab Name="InitiationTab" />
+                    </TabItem>
+                    <TabItem Header="Cyberware und Bioware">
+                        <sections:CyberwareSectionTab Name="CyberwareTab" />
+                    </TabItem>
+                    <TabItem Header="Straßenausrüstung">
+                        <sections:GearSectionTab Name="GearTab" />
+                    </TabItem>
+                    <TabItem Header="Fahrzeuge und Drohnen">
+                        <sections:VehiclesSectionTab Name="VehiclesTab" />
+                    </TabItem>
+                    <TabItem Header="Charakter-Information">
+                        <sections:CharacterInfoSectionTab Name="CharacterInfoTab" />
+                    </TabItem>
+                    <TabItem Header="Karma und Nuyen">
+                        <sections:KarmaNuyenSectionTab Name="KarmaNuyenTab" />
+                    </TabItem>
+                    <TabItem Header="Kalender">
+                        <sections:CalendarTab />
+                    </TabItem>
+                    <TabItem Header="Notizen">
+                        <sections:NotesTab />
+                    </TabItem>
+                    <TabItem Header="Verbessern">
+                        <sections:ImprovementsTab />
+                    </TabItem>
+                </TabControl>
+
+                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+
+                <sections:CharacterSidebar Name="Sidebar" Grid.Column="2" />
+            </Grid>
+        </Border>
+</UserControl>

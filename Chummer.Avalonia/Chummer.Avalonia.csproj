@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <EnableAvaloniaXamlCompilation>true</EnableAvaloniaXamlCompilation>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>Chummer.NewUI</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="assets\**"/>
+        <!-- Game/language/sheet/settings data lives in Chummer.Core\Data (shared with the legacy
+             WinForms app - see its CopyDataFilesAfterBuild target). XmlManager/LanguageManager
+             expect it at AppContext.BaseDirectory, so it's copied into this app's own output.
+             "saves" (bundled example characters) is deliberately excluded - it's ~50MB of sample
+             content nobody needs copied into every build output; it's still on disk under
+             Chummer.Core\Data\saves if that's ever wanted. -->
+        <None Include="..\Chummer.Core\data\**\*.*"
+              Link="data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <Import Project="$(PkgAvalonia)/buildTransitive/Avalonia.props" />
+    <Import Project="$(PkgAvalonia)/buildTransitive/Avalonia.targets" />
+
+    <ItemGroup>
+        <PackageReference Include="Dock.MarkupExtension" Version="12.0.0.2" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
+        <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.10" />
+        <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj" />
+        <PackageReference Include="Avalonia" Version="12.1.0"/>
+        <PackageReference Include="Avalonia.Desktop" Version="12.1.0"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0"/>
+        <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59"/>
+        <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="src\App.axaml.cs">
+        <DependentUpon>App.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="src\MainWindow.axaml.cs">
+        <DependentUpon>MainWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="data\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="src\Controls\AdeptPowerRow.axaml" />
+      <AdditionalFiles Include="src\Controls\AttributeRow.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\AdeptPowersSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\CalendarTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\CharacterInfoSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\CharacterSidebar.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\CyberwareSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\GearSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\GeneralSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\ImprovementsTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\InitiationSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\KarmaNuyenSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\MartialArtsSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\NotesTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\SkillsSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\SpellsSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterSections\VehiclesSectionTab.axaml" />
+      <AdditionalFiles Include="src\Controls\CharacterTab.axaml" />
+      <AdditionalFiles Include="src\Controls\GroupRow.axaml" />
+      <AdditionalFiles Include="src\Controls\InfoRow.axaml" />
+      <AdditionalFiles Include="src\Controls\SkillRow.axaml" />
+      <AdditionalFiles Include="src\Controls\TreeDetailPane.axaml" />
+      <AdditionalFiles Include="src\Dialogs\KarmaGpDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\MetatypeDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\QualityDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\SettingsProfileDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\SheetPreviewDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\SpellDialog.axaml" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.VehiclesSectionTab">
+    <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+        <controls:TreeDetailPane.HeaderContent>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                <Button Content="Fahrzeug hinzufügen" />
+                <Button Content="Löschen" />
+                <Button Content="Ort hinzufügen" />
+            </StackPanel>
+        </controls:TreeDetailPane.HeaderContent>
+        <controls:TreeDetailPane.TreeContent>
+            <TreeView Name="VehiclesTree">
+                <TreeViewItem Header="GMC Bulldog Step-Van" IsExpanded="True">
+                    <TreeViewItem Header="Entfernung manueller Steuerung" />
+                    <TreeViewItem Header="Fahrgastsicherheitssystem (Stufe 4)" />
+                    <TreeViewItem Header="Insassenpanzerung (Stufe 4)" />
+                    <TreeViewItem Header="Notlaufreifen (Stufe 4)" />
+                    <TreeViewItem Header="Rigger-Schutzblase (Standard)" />
+                    <TreeViewItem Header="Schleierchip" />
+                    <TreeViewItem Header="Smartschild" />
+                    <TreeViewItem Header="Schmuggelbehälter, abgeschimt (versteckte Waffenkiste)" />
+                    <TreeViewItem Header="Seilwinde (Verstärkt)" />
+                    <TreeViewItem Header="Diebstahlsicherung" />
+                    <TreeViewItem Header="GridLink-Überbrückung" />
+                    <TreeViewItem Header="Fahrzeugsensor" IsExpanded="True">
+                        <TreeViewItem Header="Mikrofon (Stufe 2)">
+                            <TreeViewItem Header="Audioverbesserung (Stufe 3)" />
+                            <TreeViewItem Header="Selektiver Geräuschfilter (Stufe 3)" />
+                        </TreeViewItem>
+                        <TreeViewItem Header="Kamera (Stufe 3)">
+                            <TreeViewItem Header="Sichtverbesserung (Stufe 3)" />
+                            <TreeViewItem Header="Infrarot" />
+                            <TreeViewItem Header="Blitzkompensation" />
+                        </TreeViewItem>
+                    </TreeViewItem>
+                </TreeViewItem>
+                <TreeViewItem Header="MCT-Nissan Roto-drone">
+                    <TreeViewItem Header="Verbessertes Start-/Landeprofil Level 2" />
+                    <TreeViewItem Header="Munitionsbehälter" />
+                    <TreeViewItem Header="Waffenhalterung (normal, außen, drehbar, Fernsteuerung)" />
+                </TreeViewItem>
+            </TreeView>
+        </controls:TreeDetailPane.TreeContent>
+        <controls:TreeDetailPane.DetailContent>
+            <ScrollViewer>
+                <StackPanel Margin="8,0,0,0" Spacing="6">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Text="Name:" Width="70" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Text="Kategorie:" Width="70" />
+                    </Grid>
+                    <Separator Margin="0,2" />
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <TextBlock Grid.Column="0" Text="Handling:" />
+                        <TextBlock Grid.Column="1" Text="Beschleunigung:" />
+                        <TextBlock Grid.Column="2" Text="Geschwindigkeit:" />
+                        <TextBlock Grid.Column="3" Text="Gerät:" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <TextBlock Grid.Column="0" Text="Pilot:" />
+                        <TextBlock Grid.Column="1" Text="Rumpf:" />
+                        <TextBlock Grid.Column="2" Text="Panzerung:" />
+                        <TextBlock Grid.Column="3" Text="Sensor:" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <TextBlock Grid.Column="0" Text="Firewall:" />
+                        <TextBlock Grid.Column="1" Text="Signal:" />
+                        <TextBlock Grid.Column="2" Text="Prozessor:" />
+                        <TextBlock Grid.Column="3" Text="System:" />
+                    </Grid>
+                    <Separator Margin="0,2" />
+                    <Grid ColumnDefinitions="*,*,*">
+                        <TextBlock Grid.Column="0" Text="Verfügbarkeit:" />
+                        <TextBlock Grid.Column="1" Text="Kosten:" />
+                        <TextBlock Grid.Column="2" Text="Slots:" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <CheckBox Content="Teil der Grundwaffe" />
+                        <CheckBox Content="Installiert" />
+                    </StackPanel>
+
+                    <Separator Margin="0,6" />
+                    <TextBlock Text="Ingram White Knight" FontWeight="Bold" />
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <TextBlock Grid.Column="0" Text="Schaden:" />
+                        <TextBlock Grid.Column="1" Text="PB:" />
+                        <TextBlock Grid.Column="2" Text="Modus:" />
+                        <TextBlock Grid.Column="3" Text="Muni:" />
+                    </Grid>
+                    <TextBlock Text="Reichweite" FontWeight="Bold" Margin="0,4,0,0" />
+                    <Grid ColumnDefinitions="*,*,*,*">
+                        <TextBlock Grid.Column="0" Text="kurz" />
+                        <TextBlock Grid.Column="1" Text="mittel" />
+                        <TextBlock Grid.Column="2" Text="lang" />
+                        <TextBlock Grid.Column="3" Text="extrem" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,6,0,0">
+                        <TextBlock Grid.Column="0" Text="Verbleibende Munition:"
+                                   VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="2" Width="90" />
+                        <Button Grid.Column="3" Content="Schießen!" Margin="6,0,0,0" />
+                    </Grid>
+                    <Button Content="Nachladen" HorizontalAlignment="Left" />
+                    <controls:InfoRow Label="Würfelpool:" Value="2" />
+
+                    <TextBlock Text="Zustandsmonitor" FontWeight="Bold" Margin="0,6,0,0" />
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Border Classes="cmBox" /><Border Classes="cmBox" />
+                        <Border Classes="cmBox" /><Border Classes="cmBox" />
+                        <Border Classes="cmBox" />
+                        <Border Classes="cmBox" /><Border Classes="cmBox" />
+                        <Border Classes="cmBox" /><Border Classes="cmBox" />
+                        <Border Classes="cmBox" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </controls:TreeDetailPane.DetailContent>
+    </controls:TreeDetailPane>
+</UserControl>

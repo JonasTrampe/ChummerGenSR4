@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.ImprovementsTab">
+    <controls:TreeDetailPane TreeWidth="220" ContentMargin="8">
+        <controls:TreeDetailPane.HeaderContent>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                    <Button Content="Verbesserung hinzufügen" />
+                    <Button Content="Verbesserung bearbeiten" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                    <Button Content="Löschen" />
+                    <Button Content="Gruppe hinzufügen" />
+                </StackPanel>
+            </StackPanel>
+        </controls:TreeDetailPane.HeaderContent>
+        <controls:TreeDetailPane.TreeContent>
+            <TreeView>
+                <TreeViewItem Header="Verbesserung auswählen" IsExpanded="True">
+                    <TreeViewItem Header="test" IsSelected="True" />
+                </TreeViewItem>
+            </TreeView>
+        </controls:TreeDetailPane.TreeContent>
+        <controls:TreeDetailPane.DetailContent>
+            <StackPanel Margin="8,0,0,0" Spacing="6">
+                <controls:InfoRow Label="Typ:" Value="Concealability" />
+                <controls:InfoRow Label="Wert:" Value="5" />
+                <CheckBox Content="aktiv" IsChecked="True" />
+            </StackPanel>
+        </controls:TreeDetailPane.DetailContent>
+    </controls:TreeDetailPane>
+</UserControl>

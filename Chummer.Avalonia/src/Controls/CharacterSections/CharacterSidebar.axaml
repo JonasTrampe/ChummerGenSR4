@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CharacterSidebar">
+    <!-- Right sidebar is itself a 2-tab control (Weitere Informationen / Zustandsmonitor),
+	     stays visible outside the main TabControl (splitMain in the real designer file). -->
+    <TabControl Classes="sidebar">
+        <TabItem Header="Weitere Informationen">
+            <ScrollViewer>
+                <StackPanel Margin="6" Spacing="4">
+                    <controls:InfoRow Name="PhysicalMonitorInfo" Label="Körperlicher Zustandsmonitor:" Value="10" />
+                    <controls:InfoRow Name="StunMonitorInfo" Label="Geistiger Zustandsmonitor:" Value="9" />
+                    <controls:InfoRow Label="Initiative:" Value="10 (12)" />
+                    <controls:InfoRow Label="Initiativedurchgänge:" Value="1 (3)" />
+                    <TextBlock Text="Aktiver Kommlink:" Margin="0,4,0,0" />
+                    <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="[Straßenausrüstung] Singularity Batt..." />
+                    </ComboBox>
+                    <controls:InfoRow Label="Matrixinitiative:" Value="10" />
+                    <controls:InfoRow Label="Matrixinitiativedurchgänge:" Value="3" />
+                    <controls:InfoRow Label="Astrale Initiative:" Value="0" />
+                    <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
+                    <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
+                    <controls:InfoRow Name="BallisticEncumbranceInfo" Label="Rüstungsbehinderung (ballistisch):" Value="0" />
+                    <controls:InfoRow Name="ImpactEncumbranceInfo" Label="Rüstungsbehinderung (Stoß):" Value="0" />
+                    <controls:InfoRow Name="EssenceInfo" Label="Essenz:" Value="0,8" />
+                    <controls:InfoRow Label="Verbleibende Nuyen:" Value="1.435¥" />
+                    <controls:InfoRow Label="Karma der gesamten Laufbahn:" Value="17" />
+                    <controls:InfoRow Label="Karriere Nuyen:" Value="23.700¥" />
+                    <controls:InfoRow Label="Selbstbeherrschung:" Value="4" />
+                    <controls:InfoRow Label="Menschenkenntnis:" Value="7" />
+                    <controls:InfoRow Label="Heben und Tragen:" Value="8" />
+                    <controls:InfoRow Label="Schwimmen:" Value="5" />
+                    <controls:InfoRow Label="Fliegen:" Value="0 / 25" />
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="Zustandsmonitor">
+            <ScrollViewer>
+                <StackPanel Margin="6" Spacing="4">
+                    <controls:InfoRow Name="PhysicalDamageInfo" Label="Körperlicher Schaden:" Value="0" />
+                    <controls:InfoRow Name="StunDamageInfo" Label="Geistiger Schaden:" Value="0" />
+                    <controls:InfoRow Label="Verletzungsmodifikator:" Value="0" />
+                    <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
+                    <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
+                    <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="4" />
+
+                    <TextBlock Text="physisch" Margin="0,6,0,0" />
+                    <StackPanel Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-1" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-2" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-3" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" Background="#A0A0A0" />
+                            <Border Classes="cmBox" Background="#A0A0A0" />
+                            <TextBlock Text="D" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Text="Geistig" Margin="0,6,0,0" />
+                    <StackPanel Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-1" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-2" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Classes="cmBox" /><Border Classes="cmBox" />
+                            <TextBlock Text="-3" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Text="Zurück erhalten/Ausgeben von Edge" Margin="0,10,0,0"
+                               TextWrapping="Wrap" />
+                    <TextBlock Text="3 von 3 verbleibend" />
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Classes="iconButton">
+                            <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
+                        </Button>
+                        <Button Classes="iconButton">
+                            <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
+</UserControl>

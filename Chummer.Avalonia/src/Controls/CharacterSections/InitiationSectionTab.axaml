@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.InitiationSectionTab">
+    <Grid ColumnDefinitions="220,4,*" Margin="8">
+        <DockPanel Grid.Column="0">
+            <Button DockPanel.Dock="Top" Content="Metamagie Hinzufügen" Margin="0,0,0,4" />
+            <ListBox Name="InitiationGradesListBox" />
+        </DockPanel>
+
+        <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+
+        <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="8">
+            <Grid ColumnDefinitions="Auto,40,26,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Initiatengrad:" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="1" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Classes="iconButton">
+                    <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
+                </Button>
+                <CheckBox Grid.Column="3" Content="Gruppeninitiation (-20%)" Margin="16,0,0,0" />
+            </Grid>
+            <CheckBox Content="Initiationsprüfung (-20%)" />
+
+            <Grid ColumnDefinitions="*,*">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Quelle:" FontWeight="Bold" />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Geschichte:" FontWeight="Bold" />
+                    <Border Classes="groupBox" Height="70">
+                        <TextBlock Margin="4" Text="Grad 1 (Prüfung)" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <CheckBox Content="beigetretene Gruppe:" />
+            <Grid ColumnDefinitions="Auto,*">
+                <TextBlock Text="Gruppe:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBox Grid.Column="1" />
+            </Grid>
+            <TextBlock Text="Notizen:" FontWeight="Bold" />
+            <Border Classes="groupBox" Height="120" />
+        </StackPanel>
+    </Grid>
+</UserControl>

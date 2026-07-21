@@ -1,0 +1,337 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.GearSectionTab">
+    <TabControl Margin="4">
+        <TabItem Header="Lebensstil">
+            <Grid ColumnDefinitions="200,4,*" Margin="4">
+                <DockPanel Grid.Column="0">
+                    <Button DockPanel.Dock="Top" Content="Lebensstil hinzufügen" Margin="0,0,0,4" />
+                    <ListBox Name="LifestylesListBox" />
+                </DockPanel>
+                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+                <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
+                    <TextBlock Name="LifestyleCostText" Text="Kosten/Monat:" />
+                    <TextBlock
+                        Text="Komfort / Unterhaltung / Grundversorgung / Wohngegend / Sicherheit"
+                        Foreground="#666666" FontStyle="Italic" />
+                </StackPanel>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Panzerung">
+            <controls:TreeDetailPane TreeWidth="220" ContentMargin="4">
+                <controls:TreeDetailPane.HeaderContent>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                        <Button Content="Panzerung hinzufügen" />
+                        <Button Content="Löschen" />
+                        <Button Content="Panzerungsset hinzufügen" />
+                    </StackPanel>
+                </controls:TreeDetailPane.HeaderContent>
+                <controls:TreeDetailPane.TreeContent>
+                    <TreeView Name="ArmorTree">
+                        <TreeViewItem Header="Panzerung auswählen" />
+                        <TreeViewItem Header="Actioneer Geschäftsanzug" IsExpanded="True">
+                            <TreeViewItem Header="Chemische Isolierung (Stufe 6)" />
+                        </TreeViewItem>
+                        <TreeViewItem Header="Formangepasste Ganzkörperpanzerung" IsExpanded="True">
+                            <TreeViewItem Header="Wärmedämpfung (Stufe 4)" />
+                            <TreeViewItem Header="Vitalmonitor" />
+                        </TreeViewItem>
+                    </TreeView>
+                </controls:TreeDetailPane.TreeContent>
+                <controls:TreeDetailPane.DetailContent>
+                    <StackPanel Margin="8,0,0,0" Spacing="6">
+                    <Grid ColumnDefinitions="Auto,60,Auto,60,Auto,60" RowSpacing="4">
+                        <TextBlock Grid.Column="0" Text="Ballistisch:" />
+                        <TextBlock Grid.Column="1" Text="0" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,60">
+                        <TextBlock Grid.Column="0" Text="Stoß:" />
+                        <TextBlock Grid.Column="1" Text="0" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,60,Auto,80,Auto,60">
+                        <TextBlock Grid.Column="0" Text="Stufe:" />
+                        <TextBlock Grid.Column="1" Text="4" />
+                        <TextBlock Grid.Column="2" Text="Verfügbarkeit:" />
+                        <TextBlock Grid.Column="3" Text="10V" />
+                        <TextBlock Grid.Column="4" Text="Kosten:" />
+                        <TextBlock Grid.Column="5" Text="2.000¥" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,60">
+                        <TextBlock Grid.Column="0" Text="Kapazität:" />
+                        <TextBlock Grid.Column="1" Text="[0]" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Grid.Column="0" Text="Quelle:" Width="60" />
+                        <TextBlock Grid.Column="1" Text="SR4 372" />
+                    </Grid>
+                    <CheckBox Content="Teil der Standardrüstung" />
+                    <CheckBox Content="angelegt" IsChecked="True" />
+                    </StackPanel>
+                </controls:TreeDetailPane.DetailContent>
+            </controls:TreeDetailPane>
+        </TabItem>
+
+        <TabItem Header="Waffen">
+            <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+                <controls:TreeDetailPane.HeaderContent>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                        <Button Content="Waffe hinzufügen" />
+                        <Button Content="Löschen" />
+                        <Button Content="Ort hinzufügen" />
+                    </StackPanel>
+                </controls:TreeDetailPane.HeaderContent>
+                <controls:TreeDetailPane.TreeContent>
+                    <TreeView Name="WeaponsTree">
+                        <TreeViewItem Header="Ausgewählte Waffen" />
+                        <TreeViewItem Header="Waffenlos" />
+                        <TreeViewItem Header="HK MP-5 TX" IsExpanded="True">
+                            <TreeViewItem Header="Schallunterdrücker" />
+                            <TreeViewItem Header="Ausklappbare Schulterstütze" />
+                            <TreeViewItem Header="Gasventil-2" />
+                            <TreeViewItem Header="Lasermarkierer" />
+                            <TreeViewItem Header="Smartgunsystem" />
+                            <TreeViewItem Header="Elektronisches Feuern" />
+                            <TreeViewItem Header="Ausgebauter Abzug" />
+                            <TreeViewItem Header="Skinlink" />
+                        </TreeViewItem>
+                        <TreeViewItem Header="ArmTech MGL-12">
+                            <TreeViewItem Header="Airburst-Verbindung" />
+                            <TreeViewItem Header="Elektronisches Feuern" />
+                            <TreeViewItem Header="Smartgunsystem" />
+                            <TreeViewItem Header="Skinlink" />
+                            <TreeViewItem Header="Ausgebauter Abzug" />
+                            <TreeViewItem Header="Zusätzlicher Ladestreifen" />
+                        </TreeViewItem>
+                        <TreeViewItem Header="Minigranate: Betäubung" />
+                        <TreeViewItem Header="Minigranate: Instant-Fangnetz" />
+                        <TreeViewItem Header="Minigranate: Spreng" />
+                        <TreeViewItem Header="Minigranate: IR-Rauch" />
+                        <TreeViewItem Header="Minigranate: Rauch" />
+                    </TreeView>
+                </controls:TreeDetailPane.TreeContent>
+                <controls:TreeDetailPane.DetailContent>
+                    <ScrollViewer>
+                        <StackPanel Margin="8,0,0,0" Spacing="6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Name:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="HK MP-5 TX" FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kategorie:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="Maschinenpistolen" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*">
+                            <TextBlock Grid.Column="0" Text="Schaden: 5K" />
+                            <TextBlock Grid.Column="1" Text="Rückstoßkompensation: 4" />
+                            <TextBlock Grid.Column="2" Text="PB: -" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*">
+                            <TextBlock Grid.Column="0" Text="Reichweite: 0" />
+                            <TextBlock Grid.Column="1" Text="Modus: HM/SM/AM" />
+                            <TextBlock Grid.Column="2" Text="Muni: 20(s)" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*">
+                            <TextBlock Grid.Column="0" Text="Verfügbarkeit: 4E" />
+                            <TextBlock Grid.Column="1" Text="Kosten: 2.500¥" />
+                            <TextBlock Grid.Column="2" Text="Verbergen: +2" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                            <TextBlock Grid.Column="0" Text="Mod Slots: 6 (2 verbleibend)" />
+                            <CheckBox Grid.Column="2" Content="Teil der Grundwaffe" />
+                            <CheckBox Grid.Column="3" Content="Installiert" Margin="12,0,0,0" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*,26">
+                            <TextBlock Text="Quelle:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="SR4 363" />
+                            <Border Grid.Column="2" Classes="iconButton">
+                                <Image Source="avares://Chummer.Avalonia/assets/icons/page.png" />
+                            </Border>
+                        </Grid>
+
+                        <TextBlock Text="Reichweite" FontWeight="Bold" Margin="0,4,0,0" />
+                        <Grid ColumnDefinitions="*,*,*,*">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="kurz" />
+                                <TextBlock Text="0-10" Foreground="#666666" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="mittel" />
+                                <TextBlock Text="11-40" Foreground="#666666" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="lang" />
+                                <TextBlock Text="41-85" Foreground="#666666" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="extrem" />
+                                <TextBlock Text="86-150" Foreground="#666666" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,6,0,0">
+                            <TextBlock Grid.Column="0" Text="Verbleibende Munition:"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="20" VerticalAlignment="Center" />
+                            <Button Grid.Column="2" Content="Schießen!" />
+                            <Button Grid.Column="3" Content="Nachladen" Margin="6,0,0,0" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Derzeit ausgewählte Munition:"
+                                       VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
+                                      SelectedIndex="0">
+                                <ComboBoxItem Content="Slot 1 Munition: Standardmunition" />
+                            </ComboBox>
+                        </Grid>
+                        <controls:InfoRow Label="Würfelpool:" Value="13" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </controls:TreeDetailPane.DetailContent>
+            </controls:TreeDetailPane>
+        </TabItem>
+
+        <TabItem Header="Ausrüstung">
+            <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+                <controls:TreeDetailPane.HeaderContent>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
+                        <Button Content="Ausrüstung hinzufügen" />
+                        <Button Content="Löschen" />
+                        <Button Content="Ort hinzufügen" />
+                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
+                    </StackPanel>
+                </controls:TreeDetailPane.HeaderContent>
+                <controls:TreeDetailPane.TreeContent>
+                    <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -
+                         matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
+                         one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
+                    <TreeView Name="AusruestungTree">
+                        <TreeViewItem Header="Ausrüstung wählen." IsExpanded="True">
+                            <TreeViewItem Header="Untersuchungswerkzeug Kiste" />
+                            <TreeViewItem Header="Custom Commlink (&quot;Schicke Armbanduhr&quot;)"
+                                          IsExpanded="True">
+                                <TreeViewItem Header="Custom Commlink OS" IsExpanded="True">
+                                    <TreeViewItem Header="Custom Platzhalter (Software)"
+                                                  IsExpanded="True">
+                                        <TreeViewItem Header="Analyse (Stufe 6)" />
+                                        <TreeViewItem Header="Angriff (Stufe 6)" />
+                                        <TreeViewItem Header="Aufspüren (Stufe 6)" />
+                                        <TreeViewItem Header="Ausnutzen (Stufe 6)" />
+                                        <TreeViewItem Header="Befehl (Stufe 6)" />
+                                        <TreeViewItem Header="Datenbombe (Stufe 6)" />
+                                        <TreeViewItem Header="Datenübersetzer (Stufe 6)" />
+                                        <TreeViewItem Header="ECCM (Stufe 6)" />
+                                        <TreeViewItem Header="Editieren (Stufe 6)" />
+                                        <TreeViewItem Header="Panzerung (Stufe 6)" />
+                                        <TreeViewItem Header="Säubern (Stufe 6)" />
+                                        <TreeViewItem Header="Scannen (Stufe 6)" />
+                                        <TreeViewItem Header="Schleicher (Stufe 6)" />
+                                        <TreeViewItem Header="Schmöker (Stufe 6)" />
+                                        <TreeViewItem Header="Schnüffler (Stufe 6)" />
+                                        <TreeViewItem Header="Täuschung (Stufe 6)" />
+                                        <TreeViewItem Header="Verschlüsselung (Stufe 6)" />
+                                    </TreeViewItem>
+                                    <TreeViewItem Header="Custom Platzhalter (Miltec)">
+                                        <TreeViewItem Header="Taktische AR-Software (Stufe 4)" />
+                                        <TreeViewItem Header="Waffenwächtersoftware (Stufe 6)" />
+                                        <TreeViewItem Header="Gesichtserkennungssoftware (Stufe 6)" />
+                                        <TreeViewItem Header="Geräuschanalysesoftware (Stufe 6)" />
+                                        <TreeViewItem Header="Gangarterkennungssoftware (Stufe 6)" />
+                                        <TreeViewItem Header="Sichtsuchersoftware (Stufe 6)" />
+                                        <TreeViewItem Header="Luftabwehrassistent (Stufe 3)" />
+                                        <TreeViewItem Header="Medic (Stufe 6)" />
+                                        <TreeViewItem Header="Clearsight (Stufe 4)" />
+                                    </TreeViewItem>
+                                    <TreeViewItem Header="Custom Platzhalter (Agenten)">
+                                        <TreeViewItem Header="Die Drei Musketiere (Stufe 6)" />
+                                        <TreeViewItem Header="Agent (Stufe 6)" />
+                                        <TreeViewItem Header="Agent (Stufe 6)" />
+                                    </TreeViewItem>
+                                    <TreeViewItem Header="Custom Platzhalter (Other Stuff)">
+                                        <TreeViewItem Header="Miracle Shooter" />
+                                    </TreeViewItem>
+                                    <TreeViewItem Header="Firewall 6" />
+                                    <TreeViewItem Header="System 6" />
+                                </TreeViewItem>
+                                <TreeViewItem Header="Panzergehäuse (Stufe 10)" />
+                                <TreeViewItem Header="Härte (Stufe 6)" />
+                                <TreeViewItem Header="Maßgeschneidertes Interface" />
+                                <TreeViewItem Header="Biometric Lock" />
+                            </TreeViewItem>
+                        </TreeViewItem>
+                    </TreeView>
+                </controls:TreeDetailPane.TreeContent>
+                <controls:TreeDetailPane.DetailContent>
+                    <StackPanel Margin="8,0,0,0" Spacing="6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Name:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="Custom Commlink" FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kategorie:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="Kommlink" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,90,Auto,90,Auto,90">
+                            <TextBlock Grid.Column="0" Text="Stufe:" />
+                            <TextBlock Grid.Column="2" Text="Verfügbarkeit:" />
+                            <TextBlock Grid.Column="3" Text="0" />
+                            <TextBlock Grid.Column="4" Text="Kosten:" />
+                            <TextBlock Grid.Column="5" Text="218.780¥" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kapazität:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="0 (0 verbleibend)" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,40,26,26,Auto,26" ColumnSpacing="6">
+                            <TextBlock Grid.Column="0" Text="Menge:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="1" />
+                            <Border Grid.Column="2" Classes="iconButton">
+                                <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
+                            </Border>
+                            <Border Grid.Column="3" Classes="iconButton">
+                                <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" />
+                            </Border>
+                            <Border Grid.Column="5" Classes="iconButton">
+                                <Image Source="avares://Chummer.Avalonia/assets/icons/printer.png" />
+                            </Border>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*,*">
+                            <TextBlock Grid.Column="0" Text="Prozessor: 6" />
+                            <TextBlock Grid.Column="1" Text="Signal: 6" />
+                            <TextBlock Grid.Column="2" Text="System: 6" />
+                            <TextBlock Grid.Column="3" Text="Firewall: 6" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Quelle:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="SR4 374" />
+                        </Grid>
+                        <CheckBox Content="angelegt" IsChecked="True" />
+                        <CheckBox Content="Kommlink aktivieren" IsChecked="True" />
+
+                        <TextBlock Text="gebundene Foki" FontWeight="Bold" Margin="0,8,0,0" />
+                        <Button Content="Mehrfachfoki herstellen" HorizontalAlignment="Left" />
+                        <Border Classes="groupBox" Height="200" />
+                    </StackPanel>
+                </controls:TreeDetailPane.DetailContent>
+            </controls:TreeDetailPane>
+        </TabItem>
+
+        <TabItem Header="Haustiere und Begleiter">
+            <StackPanel Margin="8" Spacing="6">
+                <Button Content="Haustier hinzufügen" HorizontalAlignment="Left" />
+                <Grid ColumnDefinitions="Auto,140,Auto,140,20,20,Auto" ColumnSpacing="6">
+                    <TextBlock Grid.Column="0" Text="Name:" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Text="asd" />
+                    <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center" />
+                    <Border Grid.Column="4" Classes="iconButton">
+                        <Image Source="avares://Chummer.Avalonia/assets/icons/link.png" />
+                    </Border>
+                    <Border Grid.Column="5" Classes="iconButton">
+                        <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
+                    </Border>
+                    <Button Grid.Column="6" Content="Löschen" />
+                </Grid>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</UserControl>

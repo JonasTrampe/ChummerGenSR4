@@ -1,0 +1,96 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:newUi="clr-namespace:Chummer.NewUI"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
+        x:Class="Chummer.NewUI.MainWindow"
+        Width="1280" Height="745"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Title="Chummer - [Karriere Modus (Default Settings)]">
+
+    <!-- v2: matches a fuller set of real reference screenshots. Two things the first pass
+	     got wrong, fixed here:
+	     1) The real app is themed by Windows' modern common-controls visual style (white
+	        backgrounds, thin light borders, blue underline on the selected tab) - not the
+	        chunky classic-Windows look the first pass pushed toward.
+	     2) The right sidebar is itself a 2-tab control ("Weitere Informationen" /
+	        "Zustandsmonitor"), not a single flat panel - it swaps content but stays visible
+	        across every main tab (splitMain in the real designer file). -->
+
+    <DockPanel LastChildFill="True">
+
+        <Menu DockPanel.Dock="Top" Background="White">
+            <MenuItem Header="_Datei">
+                <MenuItem Header="_Neu" Click="OnNewCharacterClick" />
+                <MenuItem Header="Ö_ffnen..." Click="OnOpenCharacterClick" />
+                <MenuItem Header="_Speichern" Click="OnSaveCharacterClick" />
+                <Separator />
+                <MenuItem Header="_Drucken" Click="OnPrintClick" />
+                <Separator />
+                <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
+            </MenuItem>
+            <MenuItem Header="_Zubehör" />
+            <MenuItem Header="_Spezial" />
+            <MenuItem Header="_Fenster" />
+            <MenuItem Header="_Hilfe" />
+        </Menu>
+
+        <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <Button Name="NewCharacterButton" Classes="toolbarButton"
+                        ToolTip.Tip="Neu (öffnet den Charaktererschaffungs-Assistenten)"
+                        AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
+                    <Image Source="avares://Chummer.Avalonia/Assets/icons/page.png" />
+                </Button>
+                <Button Classes="toolbarButton" ToolTip.Tip="Öffnen"
+                        AutomationProperties.Name="Öffnen" Click="OnOpenCharacterClick">
+                    <Image Source="avares://Chummer.Avalonia/Assets/icons/folder_page.png" />
+                </Button>
+                <Button Classes="toolbarButton" ToolTip.Tip="Speichern unter"
+                        AutomationProperties.Name="Speichern unter" Click="OnSaveCharacterClick">
+                    <Image Source="avares://Chummer.Avalonia/Assets/icons/disk.png" />
+                </Button>
+                <Button Classes="toolbarButton" ToolTip.Tip="Drucken"
+                        AutomationProperties.Name="Drucken" Click="OnPrintClick">
+                    <Image Source="avares://Chummer.Avalonia/Assets/icons/printer.png" />
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
+                <TextBlock Name="KarmaStatus" Text="Karma: 1" />
+                <TextBlock Name="EssenceStatus" Text="Essenz: 0,80" />
+                <TextBlock Name="NuyenStatus" Text="Nuyen: 1.435¥" />
+                <TextBlock Name="ErrorStatus" Foreground="Red" IsVisible="False" />
+            </StackPanel>
+        </Border>
+
+        <!-- Character-tab strip: one tab per open character window, sitting between the
+		     toolbar and the per-character content tabs (Allgemein/Fertigkeiten/...) - this is
+		     the actual MDI-replacement mechanism the real app already uses (confirmed from
+		     reference screenshots), not something we need to invent for the Linux port. -->
+        <TabControl DockPanel.Dock="Top" x:DataType="newUi:MainWindow" Classes="characterTabs"
+                    ItemsSource="{Binding OpenCharacters}"
+                    SelectedItem="{Binding SelectedOpenCharacter, Mode=TwoWay}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+                        <Button Content="×" Click="OnCloseCharacterTabClick"
+                                ToolTip.Tip="Charakter schließen" Padding="3,0" MinWidth="0" />
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="newUi:OpenCharacterTab">
+                    <ContentControl Content="{Binding Content}" />
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+
+    </DockPanel>
+</Window>

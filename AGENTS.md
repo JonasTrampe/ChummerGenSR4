@@ -31,7 +31,7 @@ There is no separate test project/`npm test`-equivalent — validation is build 
 - **Packages**: classic `packages.config` (not `PackageReference`) — restore via `nuget restore`, not `dotnet restore`
 - **CI**: GitHub Actions (`.github/workflows/autobuild.yml`) — builds on `windows-latest` and (in progress) a Mono/`ubuntu-latest` job for the Linux port
 
-There is also a `Chummer.AvaloniaSpike` project — an experimental/prototype Avalonia UI rewrite, kept separate from the stabilization work on the main WinForms app. Don't conflate changes between the two unless the task is explicitly about the Avalonia spike.
+There is also a `Chummer.Avalonia` project — an experimental/prototype Avalonia UI rewrite, kept separate from the stabilization work on the main WinForms app. Don't conflate changes between the two unless the task is explicitly about the Avalonia spike.
 
 ## Project Structure
 

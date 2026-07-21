@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CharacterInfoSectionTab">
+    <ScrollViewer Margin="8">
+        <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="Auto,120,Auto,120,Auto,120,Auto,*" RowDefinitions="Auto,Auto"
+                  RowSpacing="6" ColumnSpacing="6">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Geschlecht:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="GenderTextBox" Grid.Row="0" Grid.Column="1" />
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Augenfarbe:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="EyeColorTextBox" Grid.Row="0" Grid.Column="3" />
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="Haarfarbe:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="HairColorTextBox" Grid.Row="0" Grid.Column="5" />
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="Spielername:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="PlayerNameTextBox" Grid.Row="0" Grid.Column="7" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Grösse:" VerticalAlignment="Center" />
+                <TextBox Name="HeightTextBox" Grid.Row="1" Grid.Column="1" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="Gewicht:" VerticalAlignment="Center" />
+                <TextBox Name="WeightTextBox" Grid.Row="1" Grid.Column="3" />
+                <TextBlock Grid.Row="1" Grid.Column="4" Text="Hautfarbe:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="SkinColorTextBox" Grid.Row="1" Grid.Column="5" />
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,50,Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto"
+                  RowSpacing="4" ColumnSpacing="6">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Straßenruf:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="StreetCredTextBox" Grid.Row="0" Grid.Column="1" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Schlechter Ruf:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="NotorietyTextBox" Grid.Row="1" Grid.Column="1" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Prominenz:"
+                           VerticalAlignment="Center" />
+                <TextBox Name="PublicAwarenessTextBox" Grid.Row="2" Grid.Column="1" />
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Portrait: (210px x 310px)" VerticalAlignment="Center" />
+                <Button Content="Ändern" />
+                <Button Content="Löschen" />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Text="Beschreibung:" FontWeight="Bold" />
+                <Border Classes="groupBox" Height="70">
+                    <TextBox Name="DescriptionTextBox" AcceptsReturn="True" TextWrapping="Wrap"
+                             BorderThickness="0" />
+                </Border>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Hintergrund:" FontWeight="Bold" />
+                <Border Classes="groupBox" Height="70">
+                    <TextBox Name="BackgroundTextBox" AcceptsReturn="True" TextWrapping="Wrap"
+                             BorderThickness="0" />
+                </Border>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Konzept:" FontWeight="Bold" />
+                <Border Classes="groupBox" Height="70">
+                    <TextBox Name="ConceptTextBox" AcceptsReturn="True" TextWrapping="Wrap"
+                             BorderThickness="0" />
+                </Border>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Notizen:" FontWeight="Bold" />
+                <Border Classes="groupBox" Height="70">
+                    <TextBox Name="NotesTextBox" AcceptsReturn="True" TextWrapping="Wrap"
+                             BorderThickness="0" />
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

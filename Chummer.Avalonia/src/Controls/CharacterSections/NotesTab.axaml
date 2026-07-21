@@ -1,0 +1,5 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.NotesTab">
+    <Border Classes="groupBox" Margin="4" />
+</UserControl>

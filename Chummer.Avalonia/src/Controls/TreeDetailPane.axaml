@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Chummer.NewUI.Controls.TreeDetailPane"
+             x:Name="root">
+    <DockPanel Margin="{Binding ContentMargin, ElementName=root}">
+        <ContentPresenter DockPanel.Dock="Top" Content="{Binding HeaderContent, ElementName=root}" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding TreeWidth, ElementName=root}" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Grid.Column="0" Content="{Binding TreeContent, ElementName=root}" />
+            <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+            <ContentPresenter Grid.Column="2" Content="{Binding DetailContent, ElementName=root}" />
+        </Grid>
+    </DockPanel>
+</UserControl>

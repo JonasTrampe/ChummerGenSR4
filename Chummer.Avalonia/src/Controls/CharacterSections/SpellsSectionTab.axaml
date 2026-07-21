@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.SpellsSectionTab">
+    <DockPanel Margin="8">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+            <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
+            <Button Content="Löschen" />
+        </StackPanel>
+        <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto">
+            <DockPanel Grid.Row="0" Grid.Column="0">
+                <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />
+                <TreeView>
+                <TreeViewItem Name="CombatSpellsItem" Header="Kampfzauber auswählen" IsExpanded="True" />
+                <TreeViewItem Name="DetectionSpellsItem" Header="Wahrnehmungszauber auswählen" />
+                <TreeViewItem Name="HealthSpellsItem" Header="Heilzauber auswählen" />
+                <TreeViewItem Name="IllusionSpellsItem" Header="Illusionszauber auswählen" />
+                <TreeViewItem Name="ManipulationSpellsItem" Header="Manipulationszauber auswählen" />
+                <TreeViewItem Name="RitualSpellsItem" Header="Ausgewählte Geomantie Rituale" />
+                </TreeView>
+            </DockPanel>
+
+            <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
+
+            <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0,0,0" Spacing="6">
+            <Grid ColumnDefinitions="*,*">
+                <TextBlock Grid.Column="0" Text="Eigenschaften: Indirekt, Elementar" />
+                <TextBlock Grid.Column="1" Text="Kategorie: Kampfzauber" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*,*">
+                <TextBlock Grid.Column="0" Text="Typ: P" />
+                <TextBlock Grid.Column="1" Text="Reichweite: BF" />
+                <TextBlock Grid.Column="2" Text="Schaden: K" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*">
+                <TextBlock Grid.Column="0" Text="Dauer: S" />
+                <TextBlock Grid.Column="1" Text="Entzugsformel: (K+2)+3" />
+            </Grid>
+            <controls:InfoRow Label="Quelle:" Value="SM 194" />
+            <controls:InfoRow Label="Würfelpool:" Value="9" />
+
+            <Grid ColumnDefinitions="Auto,150">
+                <TextBlock Text="Tradition:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox Grid.Column="1" SelectedIndex="0">
+                    <ComboBoxItem Content="Chaosmagie" />
+                </ComboBox>
+            </Grid>
+            <controls:InfoRow Label="Entzug widerstehen: WIL + LOG" Value="2" />
+        </StackPanel>
+
+        <!-- Geister section spans the full tab width, below the spell tree/detail split -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
+                BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
+            <StackPanel>
+                <TextBlock Text="Geister" FontWeight="Bold" Margin="0,0,0,4" />
+                <Button Content="Geist" HorizontalAlignment="Left" Margin="0,0,0,6" />
+                <StackPanel Name="SpiritsPanel" />
+            </StackPanel>
+        </Border>
+        </Grid>
+    </DockPanel>
+</UserControl>

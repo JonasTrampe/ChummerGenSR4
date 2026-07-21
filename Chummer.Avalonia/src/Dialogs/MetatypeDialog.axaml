@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.MetatypeDialog"
+        Width="520" Height="420" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Title="Wählen Sie einen Metatyp">
+	<Grid RowDefinitions="Auto,*,Auto" Margin="12">
+		<ComboBox Grid.Row="0" Width="160" HorizontalAlignment="Left" Margin="0,0,0,8" SelectedIndex="0">
+			<ComboBoxItem Content="Metamenschen" />
+		</ComboBox>
+
+		<Grid Grid.Row="1" ColumnDefinitions="140,*">
+			<ListBox Grid.Column="0">
+				<ListBoxItem Content="Elf" />
+				<ListBoxItem Content="Mensch" />
+				<ListBoxItem Content="Ork" />
+				<ListBoxItem Content="Troll" IsSelected="True" />
+				<ListBoxItem Content="Zwerg" />
+			</ListBox>
+
+			<StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
+				<TextBlock Text="GP" FontWeight="Bold" />
+				<TextBlock Text="40" />
+
+				<Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="KON" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="1" Text="GES" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="2" Text="REA" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="3" Text="STR" FontWeight="Bold" />
+					<TextBlock Grid.Row="1" Grid.Column="0" Text="5/10 (15)" />
+					<TextBlock Grid.Row="1" Grid.Column="1" Text="1/5 (7)" />
+					<TextBlock Grid.Row="1" Grid.Column="2" Text="1/6 (9)" />
+					<TextBlock Grid.Row="1" Grid.Column="3" Text="5/10 (15)" />
+
+					<TextBlock Grid.Row="2" Grid.Column="0" Text="CHA" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="1" Text="INT" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="2" Text="LOG" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="3" Text="WIL" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="3" Grid.Column="0" Text="1/4 (6)" />
+					<TextBlock Grid.Row="3" Grid.Column="1" Text="1/5 (7)" />
+					<TextBlock Grid.Row="3" Grid.Column="2" Text="1/5 (7)" />
+					<TextBlock Grid.Row="3" Grid.Column="3" Text="1/6 (9)" />
+				</Grid>
+				<TextBlock Text="INI: 2/11 (16)" FontWeight="Bold" />
+
+				<TextBlock Text="Metavariante:" Margin="0,8,0,0" />
+				<ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
+					<ComboBoxItem Content="Riese" />
+				</ComboBox>
+
+				<TextBlock Text="GP" FontWeight="Bold" Margin="0,8,0,0" />
+				<TextBlock Text="40" />
+				<TextBlock Text="Gaben" FontWeight="Bold" />
+				<TextBlock Text="Hautveränderung (Borkenhaut)" Foreground="#1E5FA8" />
+				<TextBlock Text="Infrarot" Foreground="#1E5FA8" />
+				<TextBlock Text="Auffälliger Stil" Foreground="#1E5FA8" />
+			</StackPanel>
+		</Grid>
+
+		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,12,0,0">
+			<Button Content="Abbruch" Width="80" Click="OnCancel" />
+			<Button Content="OK" Width="80" Click="OnOk" />
+		</StackPanel>
+	</Grid>
+</Window>

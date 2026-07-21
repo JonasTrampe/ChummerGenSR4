@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.KarmaGpDialog"
+        Width="400" Height="200" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Title="GP-Anzahl auswählen">
+	<StackPanel Margin="12" Spacing="10">
+		<TextBlock Foreground="#2E6B2E" TextWrapping="Wrap"
+		           Text="Geben Sie die Menge an Generierungspunkten ein mit der Sie Ihren Charakter erschaffen dürfen (Gewöhnlich 400)" />
+
+		<Grid ColumnDefinitions="70,70,Auto,60">
+			<ComboBox Grid.Column="0" SelectedIndex="0"><ComboBoxItem Content="GP" /></ComboBox>
+			<TextBox Grid.Column="1" Text="400" Margin="6,0,0,0" />
+			<TextBlock Grid.Column="2" Text="Max Verf.:" VerticalAlignment="Center" Margin="16,0,6,0" />
+			<TextBox Grid.Column="3" Text="12" />
+		</Grid>
+
+		<CheckBox Content="Ignoriere Charaktererschaffungsregeln" />
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,20,0,0">
+			<Button Content="Abbruch" Width="80" Click="OnCancel" />
+			<Button Content="OK" Width="80" Click="OnOk" />
+		</StackPanel>
+	</StackPanel>
+</Window>

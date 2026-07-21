@@ -13,5 +13,6 @@
         <option value="run_sonarqube_analysis" />
       </set>
     </option>
+    <option name="port" value="64344" />
   </component>
 </project>

@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.GeneralSectionTab">
+    <controls:TreeDetailPane TreeWidth="280" ContentMargin="2 8 2 4">
+        <controls:TreeDetailPane.HeaderContent>
+            <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
+                <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
+                <Button Content="Gabe austauschen" />
+                <Button Content="Löschen" />
+            </StackPanel>
+        </controls:TreeDetailPane.HeaderContent>
+        <controls:TreeDetailPane.TreeContent>
+            <TreeView Name="QualitiesTree" />
+        </controls:TreeDetailPane.TreeContent>
+        <controls:TreeDetailPane.DetailContent>
+            <ScrollViewer Margin="2 8 2 4">
+            <StackPanel Margin="4,0,4,0" Spacing="10">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,60,Auto,60">
+                    <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
+                               Margin="0,0,6,0" />
+                    <TextBox Name="AliasTextBox" Grid.Column="1" Width="260" HorizontalAlignment="Left" />
+                    <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center"
+                               Margin="20,0,6,0" />
+                    <TextBlock Name="MetatypeText" Grid.Column="3" Text="Ork" FontWeight="Bold"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="Nuyen:" VerticalAlignment="Center"
+                               Margin="20,0,6,0" />
+                    <TextBox Name="NuyenTextBox" Grid.Column="5" Text="0" />
+                    <TextBlock Name="NuyenEquivalentText" Grid.Column="6" Text="= 0¥" VerticalAlignment="Center"
+                               Margin="6,0,0,0" />
+                </Grid>
+
+                <StackPanel>
+                    <Grid ColumnDefinitions="150,40,26,60,90,60" Margin="0,0,0,2">
+                        <TextBlock Grid.Column="0" Classes="gridHeader" Text="Attribute" />
+                        <TextBlock Grid.Column="1" Classes="gridHeader" Text="Basis" />
+                        <TextBlock Grid.Column="3" Classes="gridHeader" Text="(Verst.)" />
+                        <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp Begrenzu." />
+                        <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
+                    </Grid>
+                    <StackPanel>
+                        <controls:AttributeRow Name="BODAttribute" AttributeName="Konstitution (KON)" Base="4"
+                                               Range="4 / 9 (13)" Source="SR4 89" />
+                        <controls:AttributeRow Name="AGIAttribute" AttributeName="Geschicklichkeit (GES)" Base="5"
+                                               Augmented="(7)" Range="1 / 6 (9)" />
+                        <controls:AttributeRow Name="REAAttribute" AttributeName="Reaktion (REA)" Base="5"
+                                               Augmented="(7)" Range="1 / 6 (9)" />
+                        <controls:AttributeRow Name="STRAttribute" AttributeName="Stärke (STR)" Base="3"
+                                               Augmented="(4)" Range="3 / 8 (12)" />
+                        <controls:AttributeRow Name="CHAAttribute" AttributeName="Charisma (CHA)" Base="2"
+                                               Range="1 / 5 (7)" />
+                        <controls:AttributeRow Name="INTAttribute" AttributeName="Intuition (INT)" Base="5"
+                                               Range="1 / 6 (9)" />
+                        <controls:AttributeRow Name="LOGAttribute" AttributeName="Logik (LOG)" Base="5"
+                                               Range="1 / 5 (7)" />
+                        <controls:AttributeRow Name="WILAttribute" AttributeName="Willenskraft (WIL)" Base="2"
+                                               Range="1 / 6 (9)" />
+                        <controls:AttributeRow Name="EDGAttribute" AttributeName="Edge (EDG)" Base="3"
+                                               Range="1 / 6 (6)" ShowRemove="True" />
+                        <controls:AttributeRow Name="MAGAttribute" AttributeName="Magie (MAG)" Base="6"
+                                               Range="1 / 6 (6)" />
+                        <controls:AttributeRow Name="RESAttribute" AttributeName="Resonanz (RES)" Base="1"
+                                               Range="1 / 6 (6)" IsEnabled="False" />
+                    </StackPanel>
+
+                    <Border Classes="groupBox" Padding="10" HorizontalAlignment="Left"
+                            Margin="0,4,0,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Magieadept MAG-Aufteilung" FontWeight="Bold" />
+                            <Grid ColumnDefinitions="90,90">
+                                <TextBlock Grid.Column="0" Text="Magier" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1" Text="Adept" FontWeight="SemiBold" />
+                            </Grid>
+                            <Grid ColumnDefinitions="90,90">
+                                <TextBox Grid.Column="0" Text="3" Width="60"
+                                         HorizontalAlignment="Left" />
+                                <TextBlock Grid.Column="1" Text="3" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
+                    <Button Content="Connection hinzufügen" HorizontalAlignment="Left"
+                            Margin="0,0,0,6" />
+                    <StackPanel Name="ContactsPanel" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="Feinde" FontWeight="Bold" Margin="0,0,0,4" />
+                    <Button Content="Feind hinzufügen" HorizontalAlignment="Left"
+                            Margin="0,0,0,6" />
+                    <StackPanel Name="EnemiesPanel" />
+                </StackPanel>
+            </StackPanel>
+            </ScrollViewer>
+        </controls:TreeDetailPane.DetailContent>
+    </controls:TreeDetailPane>
+</UserControl>

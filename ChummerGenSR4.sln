@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer", "Chummer\Chummer.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Tests", "Chummer.Tests\Chummer.Tests.csproj", "{19E962B8-6CBC-4A4A-AA17-89E6F54DD83D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.AvaloniaSpike", "Chummer.AvaloniaSpike\Chummer.AvaloniaSpike.csproj", "{73E8D45B-415D-4C6B-AE96-339619F8EF40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Avalonia", "Chummer.Avalonia\Chummer.Avalonia.csproj", "{73E8D45B-415D-4C6B-AE96-339619F8EF40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Core", "Chummer.Core\Chummer.Core.csproj", "{0A8EA1FE-BF7D-4424-A696-DCE573730831}"
 EndProject

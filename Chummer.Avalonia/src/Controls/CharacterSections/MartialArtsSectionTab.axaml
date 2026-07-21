@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.MartialArtsSectionTab">
+    <controls:TreeDetailPane TreeWidth="220" ContentMargin="2 8 2 4">
+        <controls:TreeDetailPane.HeaderContent>
+            <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                <Button Content="Kampfkunst hinzufügen" />
+                <Button Content="Manöver hinzufügen" />
+                <Button Content="Löschen" />
+            </StackPanel>
+        </controls:TreeDetailPane.HeaderContent>
+        <controls:TreeDetailPane.TreeContent>
+            <ListBox Name="MartialArtsListBox">
+                <ListBoxItem Content="Ausgewählte Kampfkunst" FontStyle="Italic" Foreground="#888888" />
+                <ListBoxItem Content="Ausgewählte Manöver" FontStyle="Italic" Foreground="#888888" />
+            </ListBox>
+        </controls:TreeDetailPane.TreeContent>
+        <controls:TreeDetailPane.DetailContent>
+            <StackPanel Margin="12,0,0,0" Spacing="6">
+                <Grid ColumnDefinitions="Auto,Auto">
+                    <TextBlock Text="Stufe:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Classes="iconButton">
+                        <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
+                    </Button>
+                </Grid>
+                <TextBlock Text="Quelle:" />
+            </StackPanel>
+        </controls:TreeDetailPane.DetailContent>
+    </controls:TreeDetailPane>
+</UserControl>
