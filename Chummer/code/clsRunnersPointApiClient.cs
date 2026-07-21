@@ -469,7 +469,7 @@ namespace Chummer
 		/// "SHA-256 digest of the response bytes" without nailing down RFC 3230's usual
 		/// "SHA-256=&lt;base64&gt;" framing vs. a bare hex string, so both are accepted.
 		/// </summary>
-		internal static bool VerifyDigest(byte[] bytContent, string strDigestHeader)
+		public static bool VerifyDigest(byte[] bytContent, string strDigestHeader)
 		{
 			string strValue = strDigestHeader;
 			int intEquals = strValue.IndexOf('=');

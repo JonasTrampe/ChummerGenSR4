@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace Chummer
 {
-	public sealed class XmlManager
+	public sealed class XmlManager : IXmlResourceLoader
 	{
 		/// <summary>
 		/// Used to cache XML files so that they do not need to be loaded and translated each time an object wants the file.
