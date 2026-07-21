@@ -75,6 +75,20 @@ namespace Chummer.NewUI.Api
 		}
 
 		/// <summary>
+		/// Gets a required textual API value. JSON object values are deliberately treated as untrusted:
+		/// a present JSON null is equivalent to a missing value for the wire contracts in Chummer.Core.
+		/// </summary>
+		private static string GetString(Dictionary<string, object> objJson, string strName)
+		{
+			return objJson.TryGetValue(strName, out var objValue) ? objValue?.ToString() ?? string.Empty : string.Empty;
+		}
+
+		private static string? GetOptionalString(Dictionary<string, object> objJson, string strName)
+		{
+			return objJson.TryGetValue(strName, out var objValue) ? objValue?.ToString() : null;
+		}
+
+		/// <summary>
 		/// Reads the raw ETag header value, bypassing HttpResponseMessage.Headers.ETag's strongly-typed
 		/// EntityTagHeaderValue parsing. The server sends ETag as a bare opaque token (e.g. a revision
 		/// UUID) without the DQUOTEs RFC 7232 requires around an entity-tag; .NET's typed parser silently
@@ -179,13 +193,13 @@ namespace Chummer.NewUI.Api
 				return new RunnersPointCapabilities();
 			
 			var objCapabilities = new RunnersPointCapabilities();
-			objCapabilities.ApiVersion = objJson.TryGetValue("apiVersion", out var value) ? value.ToString() : "";
+			objCapabilities.ApiVersion = GetString(objJson, "apiVersion");
 			objCapabilities.MaxUploadBytes = objJson.TryGetValue("maxUploadBytes", out var value1) ? Convert.ToInt64(value1) : 0;
 
 			if (objJson.TryGetValue("formats", out var value2))
 			{
 				foreach (var objFormat in (IEnumerable)value2)
-					objCapabilities.Formats.Add(objFormat.ToString());
+					objCapabilities.Formats.Add(objFormat?.ToString() ?? string.Empty);
 			}
 
 			if (objJson.TryGetValue("gameProfiles", out var value3))
@@ -194,14 +208,14 @@ namespace Chummer.NewUI.Api
 				{
 					var objProfile = (Dictionary<string, object>)objProfileObj;
 					var objGameProfile = new RunnersPointGameProfile();
-					objGameProfile.Id = objProfile.TryGetValue("id", out var value4) ? value4.ToString() : "";
-					objGameProfile.System = objProfile.TryGetValue("system", out var value5) ? value5.ToString() : "";
-					objGameProfile.Edition = objProfile.TryGetValue("edition", out var value6) ? value6.ToString() : "";
-					objGameProfile.DisplayName = objProfile.TryGetValue("displayName", out var value7) ? value7.ToString() : "";
+					objGameProfile.Id = GetString(objProfile, "id");
+					objGameProfile.System = GetString(objProfile, "system");
+					objGameProfile.Edition = GetString(objProfile, "edition");
+					objGameProfile.DisplayName = GetString(objProfile, "displayName");
 					if (objProfile.TryGetValue("formats", out var value8))
 					{
 						foreach (var objFormat in (IEnumerable)value8)
-							objGameProfile.Formats.Add(objFormat.ToString());
+							objGameProfile.Formats.Add(objFormat?.ToString() ?? string.Empty);
 					}
 					objCapabilities.GameProfiles.Add(objGameProfile);
 				}
@@ -213,8 +227,8 @@ namespace Chummer.NewUI.Api
 				{
 					var objType = (Dictionary<string, object>)objTypeObj;
 					var objTypeCapability = new RunnersPointDocumentTypeCapability();
-					objTypeCapability.Id = objType.TryGetValue("id", out var value4) ? value4.ToString() : "";
-					objTypeCapability.DisplayName = objType.TryGetValue("displayName", out var value5) ? value5.ToString() : "";
+					objTypeCapability.Id = GetString(objType, "id");
+					objTypeCapability.DisplayName = GetString(objType, "displayName");
 					if (objType.TryGetValue("formats", out var value6))
 					{
 						foreach (var objFormatObj in (IEnumerable)value6)
@@ -222,7 +236,7 @@ namespace Chummer.NewUI.Api
 							var objFormat = (Dictionary<string, object>)objFormatObj;
 							objTypeCapability.Formats.Add(new RunnersPointDocumentFormatCapability
 							{
-								MediaType = objFormat.TryGetValue("mediaType", out var value7) ? value7.ToString() : "",
+								MediaType = GetString(objFormat, "mediaType"),
 								MaxUploadBytes = objFormat.TryGetValue("maxUploadBytes", out var value8) ? Convert.ToInt64(value8) : 0,
 							});
 						}
@@ -250,11 +264,11 @@ namespace Chummer.NewUI.Api
 
 			var objJson = JsonSerializer.Deserialize<Dictionary<string, object>>(strBody);
 			if (objJson == null)
-				return null;
+				return new RunnersPointDocumentPage();
 			
 			var objPage = new RunnersPointDocumentPage
 			{
-				NextCursor = objJson.TryGetValue("nextCursor", out var value) ? value.ToString() : null
+				NextCursor = GetOptionalString(objJson, "nextCursor")
 			};
 
 			if (objJson.TryGetValue("items", out var items))
@@ -274,24 +288,24 @@ namespace Chummer.NewUI.Api
 			}
 			
 			var objDocument = new RunnersPointDocument();
-			objDocument.Id = objJson.TryGetValue("id", out var value) ? value.ToString() : "";
-			objDocument.Type = objJson.TryGetValue("type", out var value1) ? value1.ToString() : "";
-			objDocument.GameProfileId = objJson.TryGetValue("gameProfileId", out var value2) ? value2.ToString() : "";
-			objDocument.Format = objJson.TryGetValue("format", out var value3) ? value3.ToString() : "";
-			objDocument.SchemaVersion = objJson.TryGetValue("schemaVersion", out var value4) ? value4.ToString() : "";
-			objDocument.CurrentRevision = objJson.TryGetValue("currentRevision", out var value5) ? value5.ToString() : "";
-			objDocument.ValidationState = objJson.TryGetValue("validationState", out var value6) ? value6.ToString() : "";
+			objDocument.Id = GetString(objJson, "id");
+			objDocument.Type = GetString(objJson, "type");
+			objDocument.GameProfileId = GetString(objJson, "gameProfileId");
+			objDocument.Format = GetString(objJson, "format");
+			objDocument.SchemaVersion = GetString(objJson, "schemaVersion");
+			objDocument.CurrentRevision = GetString(objJson, "currentRevision");
+			objDocument.ValidationState = GetString(objJson, "validationState");
 			if (objJson.ContainsKey("metadata") && objJson["metadata"] is Dictionary<string, object>)
 			{
 				var objMetadata = (Dictionary<string, object>)objJson["metadata"];
 				if (objMetadata.TryGetValue("displayName", out var value7))
-					objDocument.DisplayName = value7.ToString();
+					objDocument.DisplayName = value7?.ToString() ?? string.Empty;
 				// The server's character-document extractor currently populates metadata.name (the
 				// charactername/name XML element), not metadata.displayName as the spec and this client
 				// otherwise expect - fall back to it so the list doesn't just show raw document IDs for
 				// every character until that's reconciled server-side.
 				else if (objMetadata.TryGetValue("name", out var value8))
-					objDocument.DisplayName = value8.ToString();
+					objDocument.DisplayName = value8?.ToString() ?? string.Empty;
 			}
 			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out var datUpdatedAt))
 				objDocument.UpdatedAt = datUpdatedAt;
@@ -320,8 +334,8 @@ namespace Chummer.NewUI.Api
 
 			if (objJson.ContainsKey("share") && objJson["share"] is Dictionary<string, object> objShare)
 			{
-				objShared.Permission = objShare.TryGetValue("permission", out var value) ? value.ToString() : "";
-				objShared.ShareStatus = objShare.TryGetValue("status", out var value1) ? value1.ToString() : "";
+				objShared.Permission = GetString(objShare, "permission");
+				objShared.ShareStatus = GetString(objShare, "status");
 				if (objShare.ContainsKey("expiresAt") && objShare["expiresAt"] != null
 					&& DateTime.TryParse(objShare["expiresAt"].ToString(), out var datExpiresAt))
 					objShared.ExpiresAt = datExpiresAt;
