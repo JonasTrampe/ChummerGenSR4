@@ -1,7 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:avalonia="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.KarmaNuyenSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.KarmaNuyenSectionTab"
+             x:DataType="vm:KarmaNuyenSectionViewModel">
     <Grid RowDefinitions="Auto,*" Margin="4">
         <Grid Grid.Row="0" ColumnDefinitions="*,*">
             <StackPanel Grid.Column="0" Margin="0,0,4,0">
@@ -15,7 +16,17 @@
                     <TextBlock Grid.Column="1" Classes="gridHeader" Text="Menge" />
                     <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
                 </Grid>
-                <ListBox Name="KarmaExpensesListBox" />
+                <ListBox ItemsSource="{Binding KarmaExpenses}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ExpenseRowViewModel">
+                            <Grid ColumnDefinitions="80,50,*">
+                                <TextBlock Grid.Column="0" Text="{Binding Date}" />
+                                <TextBlock Grid.Column="1" Text="{Binding Amount}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Reason}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="4,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
@@ -28,22 +39,34 @@
                     <TextBlock Grid.Column="1" Classes="gridHeader" Text="Menge" />
                     <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
                 </Grid>
-                <ListBox Name="NuyenExpensesListBox" />
+                <ListBox ItemsSource="{Binding NuyenExpenses}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ExpenseRowViewModel">
+                            <Grid ColumnDefinitions="80,60,*">
+                                <TextBlock Grid.Column="0" Text="{Binding Date}" />
+                                <TextBlock Grid.Column="1" Text="{Binding Amount}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Reason}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </Grid>
 
         <!-- Real ScottPlot.Avalonia charts (the actual replacement for the WinForms
              System.Windows.Forms.DataVisualization area charts, per the Linux port plan's
-             Phase 2 chart decision) - populated from code-behind since ScottPlot's Plot API
-             isn't XAML-bindable. -->
+             Phase 2 chart decision). Follows ScottPlot's own MVVM pattern
+             (https://scottplot.net/quickstart/wpf/): the ViewModel owns the AvaPlot instance and
+             this just hosts it, instead of naming the control here and reaching into it from
+             code-behind. -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,8,0,0">
             <Border Grid.Column="0" BorderBrush="#D0D0D0" BorderThickness="1" Margin="0,0,4,0"
                     Height="180">
-                <avalonia:AvaPlot Name="KarmaChart" />
+                <ContentControl Content="{Binding KarmaChart, Mode=OneTime}" />
             </Border>
             <Border Grid.Column="1" BorderBrush="#D0D0D0" BorderThickness="1" Margin="4,0,0,0"
                     Height="180">
-                <avalonia:AvaPlot Name="NuyenChart" />
+                <ContentControl Content="{Binding NuyenChart, Mode=OneTime}" />
             </Border>
         </Grid>
     </Grid>

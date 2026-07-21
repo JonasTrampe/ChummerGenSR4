@@ -17,6 +17,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
     private OpenCharacterTab? _selectedOpenCharacter;
+    private string _strKarmaStatus = "Karma: —";
+    private string _strNuyenStatus = "Nuyen: —";
+    private string _strErrorMessage = string.Empty;
 
     public ObservableCollection<OpenCharacterTab> OpenCharacters { get; } = new();
 
@@ -33,6 +36,26 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             ActivateCharacter(value?.Character);
         }
     }
+
+    public string KarmaStatus
+    {
+        get => _strKarmaStatus;
+        private set { _strKarmaStatus = value; OnPropertyChanged(); }
+    }
+
+    public string NuyenStatus
+    {
+        get => _strNuyenStatus;
+        private set { _strNuyenStatus = value; OnPropertyChanged(); }
+    }
+
+    public string ErrorMessage
+    {
+        get => _strErrorMessage;
+        private set { _strErrorMessage = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasError)); }
+    }
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -91,22 +114,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 var tab = new OpenCharacterTab(character);
                 OpenCharacters.Add(tab);
                 SelectedOpenCharacter = tab;
-                SetErrorStatus(null);
+                ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
                 // CharacterFileService already traced the failure; surface it in the UI too -
                 // silently swallowing it here made a bad file look identical to "nothing happened".
-                SetErrorStatus("Fehler beim Öffnen von " + files[0].Name + ": " + ex.Message);
+                ErrorMessage = "Fehler beim Öffnen von " + files[0].Name + ": " + ex.Message;
             }
         }
-    }
-
-    private void SetErrorStatus(string? message)
-    {
-        var errorStatus = this.FindControl<TextBlock>("ErrorStatus")!;
-        errorStatus.Text = message;
-        errorStatus.IsVisible = !string.IsNullOrEmpty(message);
     }
 
     private void ActivateCharacter(CharacterDocument? character)
@@ -114,13 +130,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (character is null)
         {
             Title = "Chummer";
-            this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: —";
-            this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: —";
+            KarmaStatus = "Karma: —";
+            NuyenStatus = "Nuyen: —";
             return;
         }
 
-        this.FindControl<TextBlock>("KarmaStatus")!.Text = "Karma: " + character.Karma;
-        this.FindControl<TextBlock>("NuyenStatus")!.Text = "Nuyen: " + character.Nuyen + "¥";
+        KarmaStatus = "Karma: " + character.Karma;
+        NuyenStatus = "Nuyen: " + character.Nuyen + "¥";
         Title = "Chummer - " + character.Name;
     }
 

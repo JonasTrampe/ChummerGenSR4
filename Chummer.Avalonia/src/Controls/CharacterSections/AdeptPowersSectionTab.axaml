@@ -1,6 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.AdeptPowersSectionTab">
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.AdeptPowersSectionTab"
+             x:DataType="vm:AdeptPowersSectionViewModel">
     <DockPanel Margin="2 8 2 4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
             <Button Content="Kraft" />
@@ -9,7 +12,13 @@
 
         </StackPanel>
         <ScrollViewer>
-            <StackPanel Name="AdeptPowersPanel" />
+            <ItemsControl ItemsSource="{Binding Powers}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AdeptPowerRowViewModel">
+                        <controls:InfoRow Label="{Binding Label}" Value="{Binding Value}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
     </DockPanel>
 </UserControl>

@@ -1,17 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.GearSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.GearSectionTab"
+             x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
         <TabItem Header="Lebensstil">
             <Grid ColumnDefinitions="200,4,*" Margin="4">
                 <DockPanel Grid.Column="0">
                     <Button DockPanel.Dock="Top" Content="Lebensstil hinzufügen" Margin="0,0,0,4" />
-                    <ListBox Name="LifestylesListBox" />
+                    <ListBox ItemsSource="{Binding Lifestyles}" />
                 </DockPanel>
                 <GridSplitter Grid.Column="1" Background="#E4E4E4" />
                 <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
-                    <TextBlock Name="LifestyleCostText" Text="Kosten/Monat:" />
+                    <TextBlock Text="{Binding LifestyleCost}" />
                     <TextBlock
                         Text="Komfort / Unterhaltung / Grundversorgung / Wohngegend / Sicherheit"
                         Foreground="#666666" FontStyle="Italic" />
@@ -28,15 +30,12 @@
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView Name="ArmorTree">
-                        <TreeViewItem Header="Panzerung auswählen" />
-                        <TreeViewItem Header="Actioneer Geschäftsanzug" IsExpanded="True">
-                            <TreeViewItem Header="Chemische Isolierung (Stufe 6)" />
-                        </TreeViewItem>
-                        <TreeViewItem Header="Formangepasste Ganzkörperpanzerung" IsExpanded="True">
-                            <TreeViewItem Header="Wärmedämpfung (Stufe 4)" />
-                            <TreeViewItem Header="Vitalmonitor" />
-                        </TreeViewItem>
+                    <TreeView ItemsSource="{Binding Armor}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" />
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
                     </TreeView>
                 </controls:TreeDetailPane.TreeContent>
                 <controls:TreeDetailPane.DetailContent>
@@ -82,32 +81,12 @@
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView Name="WeaponsTree">
-                        <TreeViewItem Header="Ausgewählte Waffen" />
-                        <TreeViewItem Header="Waffenlos" />
-                        <TreeViewItem Header="HK MP-5 TX" IsExpanded="True">
-                            <TreeViewItem Header="Schallunterdrücker" />
-                            <TreeViewItem Header="Ausklappbare Schulterstütze" />
-                            <TreeViewItem Header="Gasventil-2" />
-                            <TreeViewItem Header="Lasermarkierer" />
-                            <TreeViewItem Header="Smartgunsystem" />
-                            <TreeViewItem Header="Elektronisches Feuern" />
-                            <TreeViewItem Header="Ausgebauter Abzug" />
-                            <TreeViewItem Header="Skinlink" />
-                        </TreeViewItem>
-                        <TreeViewItem Header="ArmTech MGL-12">
-                            <TreeViewItem Header="Airburst-Verbindung" />
-                            <TreeViewItem Header="Elektronisches Feuern" />
-                            <TreeViewItem Header="Smartgunsystem" />
-                            <TreeViewItem Header="Skinlink" />
-                            <TreeViewItem Header="Ausgebauter Abzug" />
-                            <TreeViewItem Header="Zusätzlicher Ladestreifen" />
-                        </TreeViewItem>
-                        <TreeViewItem Header="Minigranate: Betäubung" />
-                        <TreeViewItem Header="Minigranate: Instant-Fangnetz" />
-                        <TreeViewItem Header="Minigranate: Spreng" />
-                        <TreeViewItem Header="Minigranate: IR-Rauch" />
-                        <TreeViewItem Header="Minigranate: Rauch" />
+                    <TreeView ItemsSource="{Binding Weapons}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" />
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
                     </TreeView>
                 </controls:TreeDetailPane.TreeContent>
                 <controls:TreeDetailPane.DetailContent>
@@ -205,60 +184,12 @@
                     <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -
                          matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
                          one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
-                    <TreeView Name="AusruestungTree">
-                        <TreeViewItem Header="Ausrüstung wählen." IsExpanded="True">
-                            <TreeViewItem Header="Untersuchungswerkzeug Kiste" />
-                            <TreeViewItem Header="Custom Commlink (&quot;Schicke Armbanduhr&quot;)"
-                                          IsExpanded="True">
-                                <TreeViewItem Header="Custom Commlink OS" IsExpanded="True">
-                                    <TreeViewItem Header="Custom Platzhalter (Software)"
-                                                  IsExpanded="True">
-                                        <TreeViewItem Header="Analyse (Stufe 6)" />
-                                        <TreeViewItem Header="Angriff (Stufe 6)" />
-                                        <TreeViewItem Header="Aufspüren (Stufe 6)" />
-                                        <TreeViewItem Header="Ausnutzen (Stufe 6)" />
-                                        <TreeViewItem Header="Befehl (Stufe 6)" />
-                                        <TreeViewItem Header="Datenbombe (Stufe 6)" />
-                                        <TreeViewItem Header="Datenübersetzer (Stufe 6)" />
-                                        <TreeViewItem Header="ECCM (Stufe 6)" />
-                                        <TreeViewItem Header="Editieren (Stufe 6)" />
-                                        <TreeViewItem Header="Panzerung (Stufe 6)" />
-                                        <TreeViewItem Header="Säubern (Stufe 6)" />
-                                        <TreeViewItem Header="Scannen (Stufe 6)" />
-                                        <TreeViewItem Header="Schleicher (Stufe 6)" />
-                                        <TreeViewItem Header="Schmöker (Stufe 6)" />
-                                        <TreeViewItem Header="Schnüffler (Stufe 6)" />
-                                        <TreeViewItem Header="Täuschung (Stufe 6)" />
-                                        <TreeViewItem Header="Verschlüsselung (Stufe 6)" />
-                                    </TreeViewItem>
-                                    <TreeViewItem Header="Custom Platzhalter (Miltec)">
-                                        <TreeViewItem Header="Taktische AR-Software (Stufe 4)" />
-                                        <TreeViewItem Header="Waffenwächtersoftware (Stufe 6)" />
-                                        <TreeViewItem Header="Gesichtserkennungssoftware (Stufe 6)" />
-                                        <TreeViewItem Header="Geräuschanalysesoftware (Stufe 6)" />
-                                        <TreeViewItem Header="Gangarterkennungssoftware (Stufe 6)" />
-                                        <TreeViewItem Header="Sichtsuchersoftware (Stufe 6)" />
-                                        <TreeViewItem Header="Luftabwehrassistent (Stufe 3)" />
-                                        <TreeViewItem Header="Medic (Stufe 6)" />
-                                        <TreeViewItem Header="Clearsight (Stufe 4)" />
-                                    </TreeViewItem>
-                                    <TreeViewItem Header="Custom Platzhalter (Agenten)">
-                                        <TreeViewItem Header="Die Drei Musketiere (Stufe 6)" />
-                                        <TreeViewItem Header="Agent (Stufe 6)" />
-                                        <TreeViewItem Header="Agent (Stufe 6)" />
-                                    </TreeViewItem>
-                                    <TreeViewItem Header="Custom Platzhalter (Other Stuff)">
-                                        <TreeViewItem Header="Miracle Shooter" />
-                                    </TreeViewItem>
-                                    <TreeViewItem Header="Firewall 6" />
-                                    <TreeViewItem Header="System 6" />
-                                </TreeViewItem>
-                                <TreeViewItem Header="Panzergehäuse (Stufe 10)" />
-                                <TreeViewItem Header="Härte (Stufe 6)" />
-                                <TreeViewItem Header="Maßgeschneidertes Interface" />
-                                <TreeViewItem Header="Biometric Lock" />
-                            </TreeViewItem>
-                        </TreeViewItem>
+                    <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" />
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
                     </TreeView>
                 </controls:TreeDetailPane.TreeContent>
                 <controls:TreeDetailPane.DetailContent>

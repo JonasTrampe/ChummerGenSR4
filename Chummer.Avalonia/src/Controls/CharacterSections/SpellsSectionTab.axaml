@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.SpellsSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.SpellsSectionTab"
+             x:DataType="vm:SpellsSectionViewModel">
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
             <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
@@ -10,13 +12,12 @@
         <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto">
             <DockPanel Grid.Row="0" Grid.Column="0">
                 <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />
-                <TreeView>
-                <TreeViewItem Name="CombatSpellsItem" Header="Kampfzauber auswählen" IsExpanded="True" />
-                <TreeViewItem Name="DetectionSpellsItem" Header="Wahrnehmungszauber auswählen" />
-                <TreeViewItem Name="HealthSpellsItem" Header="Heilzauber auswählen" />
-                <TreeViewItem Name="IllusionSpellsItem" Header="Illusionszauber auswählen" />
-                <TreeViewItem Name="ManipulationSpellsItem" Header="Manipulationszauber auswählen" />
-                <TreeViewItem Name="RitualSpellsItem" Header="Ausgewählte Geomantie Rituale" />
+                <TreeView ItemsSource="{Binding SpellCategories}">
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate ItemsSource="{Binding Children}">
+                            <TextBlock Text="{Binding Name}" />
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
                 </TreeView>
             </DockPanel>
 
@@ -54,7 +55,13 @@
             <StackPanel>
                 <TextBlock Text="Geister" FontWeight="Bold" Margin="0,0,0,4" />
                 <Button Content="Geist" HorizontalAlignment="Left" Margin="0,0,0,6" />
-                <StackPanel Name="SpiritsPanel" />
+                <ItemsControl ItemsSource="{Binding Spirits}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SpiritRowViewModel">
+                            <controls:InfoRow Label="{Binding Label}" Value="{Binding Value}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </Border>
         </Grid>

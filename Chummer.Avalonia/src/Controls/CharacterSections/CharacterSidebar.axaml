@@ -1,17 +1,23 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.CharacterSidebar">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CharacterSidebar"
+             x:DataType="vm:CharacterSidebarViewModel">
     <!-- Right sidebar is itself a 2-tab control (Weitere Informationen / Zustandsmonitor),
 	     stays visible outside the main TabControl (splitMain in the real designer file). -->
     <TabControl Classes="sidebar">
         <TabItem Header="Weitere Informationen">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
-                    <controls:InfoRow Name="PhysicalMonitorInfo" Label="Körperlicher Zustandsmonitor:" Value="10" />
-                    <controls:InfoRow Name="StunMonitorInfo" Label="Geistiger Zustandsmonitor:" Value="9" />
-                    <controls:InfoRow Label="Initiative:" Value="10 (12)" />
-                    <controls:InfoRow Label="Initiativedurchgänge:" Value="1 (3)" />
+                    <controls:InfoRow Label="Körperlicher Zustandsmonitor:" Value="{Binding PhysicalMonitor.Value}"
+                                       Tooltip="{Binding PhysicalMonitor.Tooltip}" />
+                    <controls:InfoRow Label="Geistiger Zustandsmonitor:" Value="{Binding StunMonitor.Value}"
+                                       Tooltip="{Binding StunMonitor.Tooltip}" />
+                    <controls:InfoRow Label="Initiative:" Value="{Binding Initiative.Value}"
+                                       Tooltip="{Binding Initiative.Tooltip}" />
+                    <controls:InfoRow Label="Initiativedurchgänge:" Value="{Binding InitiativePasses.Value}"
+                                       Tooltip="{Binding InitiativePasses.Tooltip}" />
                     <TextBlock Text="Aktiver Kommlink:" Margin="0,4,0,0" />
                     <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
                         <ComboBoxItem Content="[Straßenausrüstung] Singularity Batt..." />
@@ -21,15 +27,22 @@
                     <controls:InfoRow Label="Astrale Initiative:" Value="0" />
                     <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
                     <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
-                    <controls:InfoRow Name="BallisticEncumbranceInfo" Label="Rüstungsbehinderung (ballistisch):" Value="0" />
-                    <controls:InfoRow Name="ImpactEncumbranceInfo" Label="Rüstungsbehinderung (Stoß):" Value="0" />
-                    <controls:InfoRow Name="EssenceInfo" Label="Essenz:" Value="0,8" />
+                    <controls:InfoRow Label="Rüstungsbehinderung (ballistisch):" Value="{Binding BallisticEncumbrance.Value}"
+                                       Tooltip="{Binding BallisticEncumbrance.Tooltip}" />
+                    <controls:InfoRow Label="Rüstungsbehinderung (Stoß):" Value="{Binding ImpactEncumbrance.Value}"
+                                       Tooltip="{Binding ImpactEncumbrance.Tooltip}" />
+                    <controls:InfoRow Label="Essenz:" Value="{Binding Essence}" />
                     <controls:InfoRow Label="Verbleibende Nuyen:" Value="1.435¥" />
                     <controls:InfoRow Label="Karma der gesamten Laufbahn:" Value="17" />
                     <controls:InfoRow Label="Karriere Nuyen:" Value="23.700¥" />
-                    <controls:InfoRow Label="Selbstbeherrschung:" Value="4" />
-                    <controls:InfoRow Label="Menschenkenntnis:" Value="7" />
-                    <controls:InfoRow Label="Heben und Tragen:" Value="8" />
+                    <controls:InfoRow Label="Selbstbeherrschung:" Value="{Binding Composure.Value}"
+                                       Tooltip="{Binding Composure.Tooltip}" />
+                    <controls:InfoRow Label="Menschenkenntnis:" Value="{Binding JudgeIntentions.Value}"
+                                       Tooltip="{Binding JudgeIntentions.Tooltip}" />
+                    <controls:InfoRow Label="Heben und Tragen:" Value="{Binding LiftAndCarry.Value}"
+                                       Tooltip="{Binding LiftAndCarry.Tooltip}" />
+                    <controls:InfoRow Label="Gedächtnis:" Value="{Binding Memory.Value}"
+                                       Tooltip="{Binding Memory.Tooltip}" />
                     <controls:InfoRow Label="Schwimmen:" Value="5" />
                     <controls:InfoRow Label="Fliegen:" Value="0 / 25" />
                 </StackPanel>
@@ -39,8 +52,8 @@
         <TabItem Header="Zustandsmonitor">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
-                    <controls:InfoRow Name="PhysicalDamageInfo" Label="Körperlicher Schaden:" Value="0" />
-                    <controls:InfoRow Name="StunDamageInfo" Label="Geistiger Schaden:" Value="0" />
+                    <controls:InfoRow Label="Körperlicher Schaden:" Value="{Binding PhysicalDamage}" />
+                    <controls:InfoRow Label="Geistiger Schaden:" Value="{Binding StunDamage}" />
                     <controls:InfoRow Label="Verletzungsmodifikator:" Value="0" />
                     <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
                     <controls:InfoRow Label="Stoßpanzerung:" Value="5" />

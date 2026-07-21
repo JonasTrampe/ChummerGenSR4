@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -15,8 +16,10 @@ public partial class GearSectionTab : UserControl
     // Tracks the item and button a drag session started with - DoDragDropAsync only needs an
     // IDataTransfer to satisfy the OS-level drag session, the actual "what to move"/"how"
     // bookkeeping is simpler kept here directly rather than round-tripped through a
-    // DataTransferItem.
-    private TreeViewItem? _draggedGearItem;
+    // DataTransferItem. These track the bound ViewModel node, not the visual TreeViewItem - the
+    // tree is data-bound now, so drag/drop mutates the ViewModel's TreeNodeViewModel graph and
+    // lets the bindings redraw it, rather than reaching into the visual tree's Items collection.
+    private TreeNodeViewModel? _draggedGearNode;
     private bool _draggedWithRightButton;
 
     // Press-then-threshold state: DoDragDropAsync requires the original PointerPressedEventArgs,
@@ -24,46 +27,20 @@ public partial class GearSectionTab : UserControl
     // otherwise every plain click (including on the expand/collapse box) immediately hijacks
     // itself into an OS-level drag session before the click can be processed normally.
     private PointerPressedEventArgs? _pendingPressArgs;
-    private TreeViewItem? _pendingPressItem;
+    private TreeNodeViewModel? _pendingPressNode;
     private Point _pendingPressPoint;
     private const double DragThreshold = 6;
 
+    public GearSectionViewModel ViewModel { get; } = new();
+
     public GearSectionTab()
     {
+        DataContext = ViewModel;
         InitializeComponent();
         SetUpGearDragDrop();
     }
 
-    public void LoadCharacter(CharacterDocument character)
-    {
-        var gearTree = this.FindControl<TreeView>("AusruestungTree")!;
-        gearTree.Items.Clear();
-        foreach (CharacterTreeItemData item in character.Gear)
-            gearTree.Items.Add(CharacterTreeViewBuilder.CreateTreeViewItem(item));
-
-        var weaponsTree = this.FindControl<TreeView>("WeaponsTree")!;
-        weaponsTree.Items.Clear();
-        foreach (CharacterWeaponData weapon in character.Weapons)
-            weaponsTree.Items.Add(new TreeViewItem { Header = weapon.DisplayName });
-
-        var armorTree = this.FindControl<TreeView>("ArmorTree")!;
-        armorTree.Items.Clear();
-        foreach (CharacterTreeItemData item in character.Armor)
-            armorTree.Items.Add(CharacterTreeViewBuilder.CreateTreeViewItem(item));
-
-        var listBox = this.FindControl<ListBox>("LifestylesListBox")!;
-        listBox.Items.Clear();
-        decimal decTotalCost = 0;
-        foreach (CharacterLifestyleData lifestyle in character.Lifestyles)
-        {
-            listBox.Items.Add(new ListBoxItem { Content = lifestyle.Name });
-            if (decimal.TryParse(lifestyle.Cost, out var decCost))
-                decTotalCost += decCost;
-        }
-
-        this.FindControl<TextBlock>("LifestyleCostText")!.Text =
-            "Kosten/Monat: " + decTotalCost.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) + "¥";
-    }
+    public void LoadCharacter(CharacterDocument character) => ViewModel.LoadCharacter(character);
 
     // Avalonia DragDrop prototype for the gear-reordering risk area flagged in the Linux port
     // plan's Avalonia audit (frmCareer/frmCreate gear/cyberware lists). Matches the real app's two
@@ -81,7 +58,8 @@ public partial class GearSectionTab : UserControl
             var isRightButton = pointerProperties.IsRightButtonPressed;
             if ((!pointerProperties.IsLeftButtonPressed && !isRightButton)
                 || (e.Source as Visual)?.FindAncestorOfType<ToggleButton>(true) is not null
-                || (e.Source as Visual)?.FindAncestorOfType<TreeViewItem>(true) is not { } source)
+                || (e.Source as Visual)?.FindAncestorOfType<TreeViewItem>(true) is not { } sourceItem
+                || sourceItem.DataContext is not TreeNodeViewModel sourceNode)
                 return;
 
             // Just remember the candidate - do NOT start the OS-level drag yet. Engaging it
@@ -89,14 +67,14 @@ public partial class GearSectionTab : UserControl
             // it hijacked the gesture before the expand/collapse ToggleButton, item selection, etc.
             // ever got a chance to see it.
             _pendingPressArgs = e;
-            _pendingPressItem = source;
+            _pendingPressNode = sourceNode;
             _draggedWithRightButton = isRightButton;
             _pendingPressPoint = e.GetPosition(tree);
         }, RoutingStrategies.Tunnel);
 
         tree.AddHandler(InputElement.PointerMovedEvent, async (_, e) =>
         {
-            if (_pendingPressArgs is not { } pressArgs || _pendingPressItem is not { } source)
+            if (_pendingPressArgs is not { } pressArgs || _pendingPressNode is not { } sourceNode)
                 return;
 
             var currentPoint = e.GetPosition(tree);
@@ -106,11 +84,11 @@ public partial class GearSectionTab : UserControl
                 return;
 
             _pendingPressArgs = null;
-            _pendingPressItem = null;
-            _draggedGearItem = source;
+            _pendingPressNode = null;
+            _draggedGearNode = sourceNode;
 
             var item = new DataTransferItem();
-            item.Set(DataFormat.Text, source.Header?.ToString() ?? "gear");
+            item.Set(DataFormat.Text, sourceNode.Name);
             var transfer = new DataTransfer();
             transfer.Add(item);
             try
@@ -126,14 +104,14 @@ public partial class GearSectionTab : UserControl
             }
             finally
             {
-                _draggedGearItem = null;
+                _draggedGearNode = null;
             }
         }, RoutingStrategies.Tunnel);
 
         tree.AddHandler(InputElement.PointerReleasedEvent, (_, _) =>
         {
             _pendingPressArgs = null;
-            _pendingPressItem = null;
+            _pendingPressNode = null;
         }, RoutingStrategies.Tunnel);
 
         DragDrop.SetAllowDrop(tree, true);
@@ -153,30 +131,22 @@ public partial class GearSectionTab : UserControl
             // e.Source isn't reliable here - unlike pointer events, Avalonia's drag routing
             // doesn't consistently set it to the actual element under the cursor, so it's hit-
             // tested explicitly at the drop coordinates instead.
-            if (_draggedGearItem is not { } source
-                || FindTreeViewItemAt(tree, e.GetPosition(tree)) is not { } target
-                || source == target
-                || source.Parent is not ItemsControl sourceParent)
+            if (_draggedGearNode is not { } source
+                || FindTreeNodeAt(tree, e.GetPosition(tree)) is not { } target
+                || source == target)
                 return;
 
-            // Deliberately typed as ItemCollection, not IList: ItemCollection's own Remove(object)
-            // (which actually mutates the collection) has a different signature (returns bool) than
-            // IList.Remove(object) (returns void), so it does NOT satisfy that interface member -
-            // the interface slot instead falls back to the base ItemsSourceView's IList.Remove,
-            // which unconditionally throws NotSupportedException. Calling through an IList-typed
-            // reference silently ate that exception (Avalonia's Win32 drop-target COM shim swallows
-            // exceptions from managed handlers), which is exactly why nothing ever moved.
-            var sourceSiblings = sourceParent.Items;
+            var sourceSiblings = source.Parent?.Children ?? ViewModel.Gear;
 
             if (_draggedWithRightButton)
             {
                 // Reparent: refuse to drop an item onto itself or into its own subtree, since that
                 // would either no-op or orphan the whole branch.
-                if (IsAncestorOf(source, target) || target is not ItemsControl targetParent)
+                if (IsAncestorOf(source, target))
                     return;
 
                 sourceSiblings.Remove(source);
-                targetParent.Items.Add(source);
+                target.AddChild(source);
             }
             else
             {
@@ -190,14 +160,15 @@ public partial class GearSectionTab : UserControl
         });
     }
 
-    private static TreeViewItem? FindTreeViewItemAt(IInputElement tree, Point pointRelativeToTree)
-        => (tree.InputHitTest(pointRelativeToTree) as Visual)?.FindAncestorOfType<TreeViewItem>(true);
+    private static TreeNodeViewModel? FindTreeNodeAt(IInputElement tree, Point pointRelativeToTree)
+        => ((tree.InputHitTest(pointRelativeToTree) as Visual)?.FindAncestorOfType<TreeViewItem>(true))
+            ?.DataContext as TreeNodeViewModel;
 
-    private static bool IsAncestorOf(TreeViewItem candidate, TreeViewItem item)
+    private static bool IsAncestorOf(TreeNodeViewModel candidate, TreeNodeViewModel node)
     {
-        for (var node = item.Parent; node is not null; node = (node as Control)?.Parent)
+        for (var current = node.Parent; current is not null; current = current.Parent)
         {
-            if (ReferenceEquals(node, candidate))
+            if (ReferenceEquals(current, candidate))
                 return true;
         }
 

@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.VehiclesSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.VehiclesSectionTab"
+             x:DataType="vm:VehiclesSectionViewModel">
     <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
@@ -11,36 +13,12 @@
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView Name="VehiclesTree">
-                <TreeViewItem Header="GMC Bulldog Step-Van" IsExpanded="True">
-                    <TreeViewItem Header="Entfernung manueller Steuerung" />
-                    <TreeViewItem Header="Fahrgastsicherheitssystem (Stufe 4)" />
-                    <TreeViewItem Header="Insassenpanzerung (Stufe 4)" />
-                    <TreeViewItem Header="Notlaufreifen (Stufe 4)" />
-                    <TreeViewItem Header="Rigger-Schutzblase (Standard)" />
-                    <TreeViewItem Header="Schleierchip" />
-                    <TreeViewItem Header="Smartschild" />
-                    <TreeViewItem Header="Schmuggelbehälter, abgeschimt (versteckte Waffenkiste)" />
-                    <TreeViewItem Header="Seilwinde (Verstärkt)" />
-                    <TreeViewItem Header="Diebstahlsicherung" />
-                    <TreeViewItem Header="GridLink-Überbrückung" />
-                    <TreeViewItem Header="Fahrzeugsensor" IsExpanded="True">
-                        <TreeViewItem Header="Mikrofon (Stufe 2)">
-                            <TreeViewItem Header="Audioverbesserung (Stufe 3)" />
-                            <TreeViewItem Header="Selektiver Geräuschfilter (Stufe 3)" />
-                        </TreeViewItem>
-                        <TreeViewItem Header="Kamera (Stufe 3)">
-                            <TreeViewItem Header="Sichtverbesserung (Stufe 3)" />
-                            <TreeViewItem Header="Infrarot" />
-                            <TreeViewItem Header="Blitzkompensation" />
-                        </TreeViewItem>
-                    </TreeViewItem>
-                </TreeViewItem>
-                <TreeViewItem Header="MCT-Nissan Roto-drone">
-                    <TreeViewItem Header="Verbessertes Start-/Landeprofil Level 2" />
-                    <TreeViewItem Header="Munitionsbehälter" />
-                    <TreeViewItem Header="Waffenhalterung (normal, außen, drehbar, Fernsteuerung)" />
-                </TreeViewItem>
+            <TreeView ItemsSource="{Binding Vehicles}">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding Name}" />
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
             </TreeView>
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>

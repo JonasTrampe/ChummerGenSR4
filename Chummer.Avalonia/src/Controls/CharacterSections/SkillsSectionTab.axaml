@@ -1,6 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.SkillsSectionTab">
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.SkillsSectionTab"
+             x:DataType="vm:SkillsSectionViewModel">
     <!-- Real layout is a horizontal split (splitSkills in the designer file): top
 	     row = groups | actions side by side, bottom row = Wissensfertigkeiten as
 	     its own full-width strip - NOT nested to the right of Aktionsfertigkeiten
@@ -10,7 +13,13 @@
             <TextBlock DockPanel.Dock="Top" Text="Fertigkeitsgruppen" FontWeight="Bold"
                        Margin="0,0,0, 18" />
             <ScrollViewer>
-                <StackPanel Name="SkillGroupsPanel" />
+                <ItemsControl ItemsSource="{Binding SkillGroups}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:GroupRowViewModel">
+                            <controls:GroupRow GroupName="{Binding GroupName}" Rating="{Binding Rating}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </DockPanel>
 
@@ -29,7 +38,22 @@
             <ScrollViewer>
                 <StackPanel>
 
-                <WrapPanel Name="ActiveSkillsPanel" Margin="8,0,0,0" />
+                <ItemsControl Margin="8,0,0,0" ItemsSource="{Binding ActiveSkills}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SkillRowViewModel">
+                            <controls:SkillRow SkillName="{Binding SkillName}" Attribute="{Binding Attribute}"
+                                                Rating="{Binding Rating}" Pool="{Binding Pool}"
+                                                PoolTooltip="{Binding PoolTooltip}"
+                                                Specialization="{Binding Specialization}"
+                                                IsGroupLocked="{Binding IsGroupLocked}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
@@ -44,8 +68,20 @@
                     <Button Grid.Column="1" Content="Fertigkeit" />
                 </Grid>
                 <!-- Name | Rating | [+] | Pool | Spezialisierung dropdown | [+] | Kategorie dropdown | Löschen -->
-                <Grid Name="KnowledgeSkillsGrid" ColumnDefinitions="140,26,20,26,140,20,110,Auto"
-                      RowSpacing="4" Margin="0,4,0,0" />
+                <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding KnowledgeSkills}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:KnowledgeSkillRowViewModel">
+                            <Grid ColumnDefinitions="140,26,20,26,140,20,110,Auto" Margin="0,2,0,2">
+                                <TextBlock Grid.Column="0" Text="{Binding SkillName}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{Binding Rating}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="3" Text="{Binding Pool}" ToolTip.Tip="{Binding PoolTooltip}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="4" Text="{Binding Specialization}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="6" Text="{Binding Category}" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </Border>
     </Grid>

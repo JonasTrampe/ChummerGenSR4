@@ -5,6 +5,7 @@
         xmlns:newUi="clr-namespace:Chummer.NewUI"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
         x:Class="Chummer.NewUI.MainWindow"
+        x:DataType="newUi:MainWindow"
         Width="1280" Height="745"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
@@ -62,10 +63,10 @@
 
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
-                <TextBlock Name="KarmaStatus" Text="Karma: 1" />
-                <TextBlock Name="EssenceStatus" Text="Essenz: 0,80" />
-                <TextBlock Name="NuyenStatus" Text="Nuyen: 1.435¥" />
-                <TextBlock Name="ErrorStatus" Foreground="Red" IsVisible="False" />
+                <TextBlock Text="{Binding KarmaStatus}" />
+                <TextBlock Text="Essenz: 0,80" />
+                <TextBlock Text="{Binding NuyenStatus}" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" IsVisible="{Binding HasError}" />
             </StackPanel>
         </Border>
 

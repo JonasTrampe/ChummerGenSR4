@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.GeneralSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.GeneralSectionTab"
+             x:DataType="vm:GeneralSectionViewModel">
     <controls:TreeDetailPane TreeWidth="280" ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
@@ -11,7 +13,13 @@
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView Name="QualitiesTree" />
+            <TreeView ItemsSource="{Binding Qualities}">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding Name}" />
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>
             <ScrollViewer Margin="2 8 2 4">
@@ -19,15 +27,15 @@
                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,60,Auto,60">
                     <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
                                Margin="0,0,6,0" />
-                    <TextBox Name="AliasTextBox" Grid.Column="1" Width="260" HorizontalAlignment="Left" />
+                    <TextBox Grid.Column="1" Text="{Binding Alias}" Width="260" HorizontalAlignment="Left" />
                     <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
-                    <TextBlock Name="MetatypeText" Grid.Column="3" Text="Ork" FontWeight="Bold"
+                    <TextBlock Grid.Column="3" Text="{Binding Metatype}" FontWeight="Bold"
                                VerticalAlignment="Center" />
                     <TextBlock Grid.Column="4" Text="Nuyen:" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
-                    <TextBox Name="NuyenTextBox" Grid.Column="5" Text="0" />
-                    <TextBlock Name="NuyenEquivalentText" Grid.Column="6" Text="= 0¥" VerticalAlignment="Center"
+                    <TextBox Grid.Column="5" Text="{Binding Nuyen}" />
+                    <TextBlock Grid.Column="6" Text="{Binding NuyenEquivalent}" VerticalAlignment="Center"
                                Margin="6,0,0,0" />
                 </Grid>
 
@@ -39,30 +47,17 @@
                         <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp Begrenzu." />
                         <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
                     </Grid>
-                    <StackPanel>
-                        <controls:AttributeRow Name="BODAttribute" AttributeName="Konstitution (KON)" Base="4"
-                                               Range="4 / 9 (13)" Source="SR4 89" />
-                        <controls:AttributeRow Name="AGIAttribute" AttributeName="Geschicklichkeit (GES)" Base="5"
-                                               Augmented="(7)" Range="1 / 6 (9)" />
-                        <controls:AttributeRow Name="REAAttribute" AttributeName="Reaktion (REA)" Base="5"
-                                               Augmented="(7)" Range="1 / 6 (9)" />
-                        <controls:AttributeRow Name="STRAttribute" AttributeName="Stärke (STR)" Base="3"
-                                               Augmented="(4)" Range="3 / 8 (12)" />
-                        <controls:AttributeRow Name="CHAAttribute" AttributeName="Charisma (CHA)" Base="2"
-                                               Range="1 / 5 (7)" />
-                        <controls:AttributeRow Name="INTAttribute" AttributeName="Intuition (INT)" Base="5"
-                                               Range="1 / 6 (9)" />
-                        <controls:AttributeRow Name="LOGAttribute" AttributeName="Logik (LOG)" Base="5"
-                                               Range="1 / 5 (7)" />
-                        <controls:AttributeRow Name="WILAttribute" AttributeName="Willenskraft (WIL)" Base="2"
-                                               Range="1 / 6 (9)" />
-                        <controls:AttributeRow Name="EDGAttribute" AttributeName="Edge (EDG)" Base="3"
-                                               Range="1 / 6 (6)" ShowRemove="True" />
-                        <controls:AttributeRow Name="MAGAttribute" AttributeName="Magie (MAG)" Base="6"
-                                               Range="1 / 6 (6)" />
-                        <controls:AttributeRow Name="RESAttribute" AttributeName="Resonanz (RES)" Base="1"
-                                               Range="1 / 6 (6)" IsEnabled="False" />
-                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Attributes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AttributeRowViewModel">
+                                <controls:AttributeRow AttributeName="{Binding AttributeName}"
+                                                        Base="{Binding Base}" Augmented="{Binding Augmented}"
+                                                        Range="{Binding Range}" Source="{Binding Source}"
+                                                        ShowRemove="{Binding ShowRemove}"
+                                                        IsEnabled="{Binding IsAttributeEnabled}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
                     <Border Classes="groupBox" Padding="10" HorizontalAlignment="Left"
                             Margin="0,4,0,0">
@@ -85,14 +80,44 @@
                     <TextBlock Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
                     <Button Content="Connection hinzufügen" HorizontalAlignment="Left"
                             Margin="0,0,0,6" />
-                    <StackPanel Name="ContactsPanel" />
+                    <ItemsControl ItemsSource="{Binding Contacts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ContactRowViewModel">
+                                <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
+                                        Margin="0,0,0,4">
+                                    <Grid ColumnDefinitions="140,Auto,50,Auto,50" ColumnSpacing="6">
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
 
                 <StackPanel>
                     <TextBlock Text="Feinde" FontWeight="Bold" Margin="0,0,0,4" />
                     <Button Content="Feind hinzufügen" HorizontalAlignment="Left"
                             Margin="0,0,0,6" />
-                    <StackPanel Name="EnemiesPanel" />
+                    <ItemsControl ItemsSource="{Binding Enemies}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ContactRowViewModel">
+                                <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
+                                        Margin="0,0,0,4">
+                                    <Grid ColumnDefinitions="140,Auto,50,Auto,50" ColumnSpacing="6">
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>

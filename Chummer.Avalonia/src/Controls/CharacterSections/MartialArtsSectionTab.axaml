@@ -1,7 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.MartialArtsSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.MartialArtsSectionTab"
+             x:DataType="vm:MartialArtsSectionViewModel">
+    <UserControl.Styles>
+        <Style Selector="TextBlock.header">
+            <Setter Property="FontStyle" Value="Italic" />
+            <Setter Property="Foreground" Value="#888888" />
+        </Style>
+    </UserControl.Styles>
     <controls:TreeDetailPane TreeWidth="220" ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
@@ -11,9 +19,13 @@
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <ListBox Name="MartialArtsListBox">
-                <ListBoxItem Content="Ausgewählte Kampfkunst" FontStyle="Italic" Foreground="#888888" />
-                <ListBoxItem Content="Ausgewählte Manöver" FontStyle="Italic" Foreground="#888888" />
+            <ListBox ItemsSource="{Binding Items}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MartialArtsListItemViewModel">
+                        <TextBlock Text="{Binding Text}" Classes.header="{Binding IsHeader}"
+                                   Margin="{Binding IndentLeft, StringFormat='{}{0},0,0,0'}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>

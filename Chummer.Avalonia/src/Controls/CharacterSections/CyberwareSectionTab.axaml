@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
-             x:Class="Chummer.NewUI.Controls.CharacterSections.CyberwareSectionTab">
+             xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.CharacterSections.CyberwareSectionTab"
+             x:DataType="vm:CyberwareSectionViewModel">
     <controls:TreeDetailPane TreeWidth="330" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
@@ -11,9 +13,12 @@
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView Name="CyberwareTree">
-                <TreeViewItem Name="CyberwareHeaderItem" Header="Cyberware auswählen" IsExpanded="True" />
-                <TreeViewItem Name="BiowareHeaderItem" Header="Bioware auswählen" IsExpanded="True" />
+            <TreeView ItemsSource="{Binding Roots}">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding Name}" />
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
             </TreeView>
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>

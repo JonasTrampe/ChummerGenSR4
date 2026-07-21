@@ -1,21 +1,19 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
 public partial class VehiclesSectionTab : UserControl
 {
+    public VehiclesSectionViewModel ViewModel { get; } = new();
+
     public VehiclesSectionTab()
     {
+        DataContext = ViewModel;
         InitializeComponent();
     }
 
-    public void LoadCharacter(CharacterDocument character)
-    {
-        var vehiclesTree = this.FindControl<TreeView>("VehiclesTree")!;
-        vehiclesTree.Items.Clear();
-        foreach (CharacterWeaponData vehicle in character.Vehicles)
-            vehiclesTree.Items.Add(new TreeViewItem { Header = vehicle.DisplayName });
-    }
+    public void LoadCharacter(CharacterDocument character) => ViewModel.LoadCharacter(character);
 }
