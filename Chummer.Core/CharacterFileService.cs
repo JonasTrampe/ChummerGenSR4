@@ -64,7 +64,9 @@ namespace Chummer
 		public string Nuyen { get { return GetValue("/character/nuyen", "0"); } }
 		public IReadOnlyList<CharacterAttributeData> Attributes { get { return ReadAttributes(); } }
 		public IReadOnlyList<CharacterQualityData> Qualities { get { return ReadQualities(); } }
-		public IReadOnlyList<CharacterTreeItemData> Gear { get { return ReadTreeItems("/character/gears/gear"); } }
+		public IReadOnlyList<CharacterTreeItemData> Gear { get { return ReadTreeItems("/character/gears/gear", "children/gear"); } }
+		public IReadOnlyList<CharacterTreeItemData> Cyberware { get { return ReadTreeItems("/character/cyberwares/cyberware", "children/cyberware"); } }
+		public IReadOnlyList<CharacterTreeItemData> Armor { get { return ReadTreeItems("/character/armors/armor", null); } }
 		public IReadOnlyList<CharacterWeaponData> Weapons { get { return ReadWeapons(); } }
 
 		internal CharacterDocument(XmlDocument objDocument, string strDisplayName)
@@ -105,13 +107,13 @@ namespace Chummer
 			return lstQualities;
 		}
 
-		private IReadOnlyList<CharacterTreeItemData> ReadTreeItems(string strXPath)
+		private IReadOnlyList<CharacterTreeItemData> ReadTreeItems(string strXPath, string strChildXPath)
 		{
 			List<CharacterTreeItemData> lstItems = new List<CharacterTreeItemData>();
 			XmlNodeList objNodes = Document.SelectNodes(strXPath);
 			if (objNodes == null) return lstItems;
 			foreach (XmlNode objNode in objNodes)
-				lstItems.Add(ReadTreeItem(objNode));
+				lstItems.Add(ReadTreeItem(objNode, strChildXPath));
 			return lstItems;
 		}
 
@@ -125,13 +127,13 @@ namespace Chummer
 			return lstWeapons;
 		}
 
-		private static CharacterTreeItemData ReadTreeItem(XmlNode objNode)
+		private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, string strChildXPath)
 		{
 			CharacterTreeItemData objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty));
-			XmlNodeList objChildren = objNode.SelectNodes("children/gear");
+			XmlNodeList objChildren = string.IsNullOrEmpty(strChildXPath) ? null : objNode.SelectNodes(strChildXPath);
 			if (objChildren != null)
 				foreach (XmlNode objChild in objChildren)
-					objItem.Children.Add(ReadTreeItem(objChild));
+					objItem.Children.Add(ReadTreeItem(objChild, strChildXPath));
 			return objItem;
 		}
 

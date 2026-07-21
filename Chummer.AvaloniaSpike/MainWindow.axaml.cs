@@ -331,6 +331,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         this.FindControl<TreeView>("QualitiesTree")!.Items.Clear();
         this.FindControl<TreeView>("AusruestungTree")!.Items.Clear();
         this.FindControl<TreeView>("WeaponsTree")!.Items.Clear();
+        this.FindControl<TreeView>("CyberwareTree")!.Items.Clear();
+        this.FindControl<TreeView>("ArmorTree")!.Items.Clear();
         foreach (string code in new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "RES" })
         {
             var row = this.FindControl<AttributeRow>(code + "Attribute");
@@ -394,6 +396,16 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         weaponsTree.Items.Clear();
         foreach (CharacterWeaponData weapon in character.Weapons)
             weaponsTree.Items.Add(new TreeViewItem { Header = weapon.DisplayName });
+
+        var cyberwareTree = this.FindControl<TreeView>("CyberwareTree")!;
+        cyberwareTree.Items.Clear();
+        foreach (CharacterTreeItemData item in character.Cyberware)
+            cyberwareTree.Items.Add(CreateTreeViewItem(item));
+
+        var armorTree = this.FindControl<TreeView>("ArmorTree")!;
+        armorTree.Items.Clear();
+        foreach (CharacterTreeItemData item in character.Armor)
+            armorTree.Items.Add(CreateTreeViewItem(item));
     }
 
     private static TreeViewItem CreateTreeViewItem(CharacterTreeItemData item)

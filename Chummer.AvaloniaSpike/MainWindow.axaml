@@ -617,7 +617,7 @@
                                 </StackPanel>
                             </controls:TreeDetailPane.HeaderContent>
                             <controls:TreeDetailPane.TreeContent>
-                                <TreeView>
+                                <TreeView Name="CyberwareTree">
                                     <TreeViewItem Header="Cyberware auswählen">
                                         <TreeViewItem Header="Cyberaugen-Basissystem (Stufe 4)" IsExpanded="True">
                                             <TreeViewItem Header="Augen-Rekorder" />
@@ -698,7 +698,7 @@
                                         </StackPanel>
                                     </controls:TreeDetailPane.HeaderContent>
                                     <controls:TreeDetailPane.TreeContent>
-                                        <TreeView>
+                                        <TreeView Name="ArmorTree">
                                             <TreeViewItem Header="Panzerung auswählen" />
                                             <TreeViewItem Header="Actioneer Geschäftsanzug" IsExpanded="True">
                                                 <TreeViewItem Header="Chemische Isolierung (Stufe 6)" />
