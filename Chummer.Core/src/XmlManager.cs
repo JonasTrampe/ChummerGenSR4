@@ -18,6 +18,18 @@ namespace Chummer.Core
 				yield return objChild;
 		}
 
+		private static void AppendTranslatedValue(XmlDocument objDocument, XmlNode objType, XmlNode objChild, string strSourceElement, string strTargetElement)
+		{
+			var objName = objChild["name"];
+			var objValue = objChild[strSourceElement];
+			if (objName == null || objValue == null)
+				return;
+
+			var objItem = objDocument.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objName.InnerXml.Replace("&amp;", "&") + "\"]");
+			if (objItem != null)
+				objItem.InnerXml += "<" + strTargetElement + ">" + objValue.InnerXml + "</" + strTargetElement + ">";
+		}
+
 		/// <summary>
 		/// Used to cache XML files so that they do not need to be loaded and translated each time an object wants the file.
 		/// </summary>
@@ -204,35 +216,15 @@ namespace Chummer.Core
 								{
 									// If this is a translatable item, find the proper node and add/update this information.
 									if (objChild["translate"] != null)
-									{
-										var objItem = objDoc.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerXml.Replace("&amp;", "&") + "\"]");
-										if (objItem != null)
-											objItem.InnerXml += "<translate>" + objChild["translate"].InnerXml + "</translate>";
-									}
+										AppendTranslatedValue(objDoc, objType, objChild, "translate", "translate");
 									if (objChild["page"] != null)
-									{
-										var objItem = objDoc.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerXml.Replace("&amp;", "&") + "\"]");
-										if (objItem != null)
-											objItem.InnerXml += "<altpage>" + objChild["page"].InnerXml + "</altpage>";
-									}
+										AppendTranslatedValue(objDoc, objType, objChild, "page", "altpage");
 									if (objChild["code"] != null)
-									{
-										var objItem = objDoc.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerXml.Replace("&amp;", "&") + "\"]");
-										if (objItem != null)
-											objItem.InnerXml += "<altcode>" + objChild["code"].InnerXml + "</altcode>";
-									}
+										AppendTranslatedValue(objDoc, objType, objChild, "code", "altcode");
 									if (objChild["advantage"] != null)
-									{
-										var objItem = objDoc.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerXml.Replace("&amp;", "&") + "\"]");
-										if (objItem != null)
-											objItem.InnerXml += "<altadvantage>" + objChild["advantage"].InnerXml + "</altadvantage>";
-									}
+										AppendTranslatedValue(objDoc, objType, objChild, "advantage", "altadvantage");
 									if (objChild["disadvantage"] != null)
-									{
-										var objItem = objDoc.SelectSingleNode("/chummer/" + objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerXml.Replace("&amp;", "&") + "\"]");
-										if (objItem != null)
-											objItem.InnerXml += "<altdisadvantage>" + objChild["disadvantage"].InnerXml + "</altdisadvantage>";
-									}
+										AppendTranslatedValue(objDoc, objType, objChild, "disadvantage", "altdisadvantage");
 									if (objChild.Attributes != null)
 									{
 										// Handle Category name translations.
