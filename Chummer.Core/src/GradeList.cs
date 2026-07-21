@@ -19,7 +19,10 @@ namespace Chummer.Core
         /// <param name="objXmlDocument">Document containing the grade definitions.</param>
         public void LoadList(XmlDocument objXmlDocument)
         {
-            foreach (XmlNode objNode in objXmlDocument.SelectNodes("/chummer/grades/grade"))
+			var objNodes = objXmlDocument.SelectNodes("/chummer/grades/grade");
+			if (objNodes == null)
+				return;
+			foreach (XmlNode objNode in objNodes)
             {
                 var objGrade = new Grade();
                 objGrade.Load(objNode);

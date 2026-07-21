@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -43,11 +44,14 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            _guiId = Guid.Parse(objNode["guid"].InnerText);
-            Year = Convert.ToInt32(objNode["year"].InnerText);
-            Week = Convert.ToInt32(objNode["week"].InnerText);
-            Notes = objNode["notes"].InnerText;
-        }
+			_guiId = Guid.Parse(RequiredValue(objNode, "guid"));
+			Year = Convert.ToInt32(RequiredValue(objNode, "year"));
+			Week = Convert.ToInt32(RequiredValue(objNode, "week"));
+			Notes = objNode["notes"]?.InnerText ?? string.Empty;
+		}
+
+		private static string RequiredValue(XmlNode objNode, string strName)
+			=> objNode[strName]?.InnerText ?? throw new InvalidDataException("Calendar week is missing '" + strName + "'.");
 
         /// <summary>
         ///     Print the object's XML to the XmlWriter.

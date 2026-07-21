@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -39,11 +40,14 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            _guiId = Guid.Parse(objNode["guid"].InnerText);
-            Name = objNode["name"].InnerText;
-            Rating = Convert.ToInt32(objNode["rating"].InnerText);
-            _guiGearId = Guid.Parse(objNode["gearid"].InnerText);
-        }
+			_guiId = Guid.Parse(RequiredValue(objNode, "guid"));
+			Name = RequiredValue(objNode, "name");
+			Rating = Convert.ToInt32(RequiredValue(objNode, "rating"));
+			_guiGearId = Guid.Parse(RequiredValue(objNode, "gearid"));
+		}
+
+		private static string RequiredValue(XmlNode objNode, string strName)
+			=> objNode[strName]?.InnerText ?? throw new InvalidDataException("Focus is missing '" + strName + "'.");
 
         #endregion
 

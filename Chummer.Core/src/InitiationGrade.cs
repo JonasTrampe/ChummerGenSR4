@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -55,19 +56,16 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            _guiId = Guid.Parse(objNode["guid"].InnerText);
-            Technomancer = Convert.ToBoolean(objNode["res"].InnerText);
-            Grade = Convert.ToInt32(objNode["grade"].InnerText);
-            Group = Convert.ToBoolean(objNode["group"].InnerText);
-            Ordeal = Convert.ToBoolean(objNode["ordeal"].InnerText);
-            try
-            {
-                Notes = objNode["notes"].InnerText;
-            }
-            catch
-            {
-            }
-        }
+			_guiId = Guid.Parse(RequiredValue(objNode, "guid"));
+			Technomancer = Convert.ToBoolean(RequiredValue(objNode, "res"));
+			Grade = Convert.ToInt32(RequiredValue(objNode, "grade"));
+			Group = Convert.ToBoolean(RequiredValue(objNode, "group"));
+			Ordeal = Convert.ToBoolean(RequiredValue(objNode, "ordeal"));
+			Notes = objNode["notes"]?.InnerText ?? string.Empty;
+		}
+
+		private static string RequiredValue(XmlNode objNode, string strName)
+			=> objNode[strName]?.InnerText ?? throw new InvalidDataException("Initiation grade is missing '" + strName + "'.");
 
         #endregion
 

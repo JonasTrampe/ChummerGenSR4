@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml;
 
 namespace Chummer.Core
@@ -23,9 +24,9 @@ namespace Chummer.Core
         /// <param name="objXmlManeuverNode">XmlNode to create the object from.</param>
         public void Create(XmlNode objXmlManeuverNode)
         {
-            Name = objXmlManeuverNode["name"].InnerText;
-            Source = objXmlManeuverNode["source"].InnerText;
-            _strPage = objXmlManeuverNode["page"].InnerText;
+			Name = RequiredValue(objXmlManeuverNode, "name");
+			Source = RequiredValue(objXmlManeuverNode, "source");
+			_strPage = RequiredValue(objXmlManeuverNode, "page");
         }
 
         /// <summary>
@@ -49,18 +50,15 @@ namespace Chummer.Core
         /// <param name="objNode">XmlNode to load.</param>
         public void Load(XmlNode objNode)
         {
-            _guiId = Guid.Parse(objNode["guid"].InnerText);
-            Name = objNode["name"].InnerText;
-            Source = objNode["source"].InnerText;
-            _strPage = objNode["page"].InnerText;
-            try
-            {
-                Notes = objNode["notes"].InnerText;
-            }
-            catch
-            {
-            }
-        }
+			_guiId = Guid.Parse(RequiredValue(objNode, "guid"));
+			Name = RequiredValue(objNode, "name");
+			Source = RequiredValue(objNode, "source");
+			_strPage = RequiredValue(objNode, "page");
+			Notes = objNode["notes"]?.InnerText ?? string.Empty;
+		}
+
+		private static string RequiredValue(XmlNode objNode, string strName)
+			=> objNode[strName]?.InnerText ?? throw new InvalidDataException("Martial art maneuver is missing '" + strName + "'.");
 
         /// <summary>
         ///     Print the object's XML to the XmlWriter.
