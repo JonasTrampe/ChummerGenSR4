@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -6,50 +8,50 @@ namespace Chummer.Core
 {
     public class RunnersPointDocument
     {
-        public string Id { get; set; }
-        public string Type { get; set; }
-        public string GameProfileId { get; set; }
-        public string Format { get; set; }
-        public string SchemaVersion { get; set; }
-        public string CurrentRevision { get; set; }
-        public string ValidationState { get; set; }
-        public string DisplayName { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string GameProfileId { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
+        public string SchemaVersion { get; set; } = string.Empty;
+        public string CurrentRevision { get; set; } = string.Empty;
+        public string ValidationState { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public DateTime UpdatedAt { get; set; }
     }
 
     public class RunnersPointDocumentPage
     {
         public List<RunnersPointDocument> Items { get; set; } = new();
-        public string NextCursor { get; set; }
+        public string? NextCursor { get; set; }
     }
 
     public class RunnersPointRevisionStatus
     {
-        public string DocumentId { get; set; }
-        public string RevisionId { get; set; }
-        public string State { get; set; }
+        public string DocumentId { get; set; } = string.Empty;
+        public string RevisionId { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
         public List<string> Messages { get; set; } = new();
     }
 
     public class RunnersPointGameProfile
     {
-        public string Id { get; set; }
-        public string System { get; set; }
-        public string Edition { get; set; }
-        public string DisplayName { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string System { get; set; } = string.Empty;
+        public string Edition { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public List<string> Formats { get; set; } = new();
     }
 
     public class RunnersPointDocumentFormatCapability
     {
-        public string MediaType { get; set; }
+        public string MediaType { get; set; } = string.Empty;
         public long MaxUploadBytes { get; set; }
     }
 
     public class RunnersPointDocumentTypeCapability
     {
-        public string Id { get; set; }
-        public string DisplayName { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public List<RunnersPointDocumentFormatCapability> Formats { get; set; } = new();
     }
 
@@ -64,15 +66,15 @@ namespace Chummer.Core
 
     public class RunnersPointSharedDocument : RunnersPointDocument
     {
-        public string Permission { get; set; }
-        public string ShareStatus { get; set; }
+        public string Permission { get; set; } = string.Empty;
+        public string ShareStatus { get; set; } = string.Empty;
         public DateTime? ExpiresAt { get; set; }
     }
 
     public class RunnersPointSharedDocumentPage
     {
         public List<RunnersPointSharedDocument> Items { get; set; } = new();
-        public string NextCursor { get; set; }
+        public string? NextCursor { get; set; }
     }
 
     public class RunnersPointRevision
