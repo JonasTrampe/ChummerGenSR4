@@ -41,4 +41,14 @@ public partial class GeneralSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
         }
     }
+
+    private void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedQualityNode?.Parent == null)
+            return;
+
+        var quality = ViewModel.SelectedQualityNode;
+        if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
+            ViewModel.LoadCharacter(_character);
+    }
 }

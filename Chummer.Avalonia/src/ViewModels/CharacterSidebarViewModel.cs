@@ -15,6 +15,8 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
     public DerivedValueViewModel PhysicalMonitor { get; } = new();
     public DerivedValueViewModel StunMonitor { get; } = new();
+    public DerivedValueViewModel BallisticArmor { get; } = new();
+    public DerivedValueViewModel ImpactArmor { get; } = new();
     public DerivedValueViewModel BallisticEncumbrance { get; } = new();
     public DerivedValueViewModel ImpactEncumbrance { get; } = new();
     public DerivedValueViewModel Initiative { get; } = new();
@@ -50,6 +52,8 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         SetFrom(StunMonitor, condition.StunCm);
 
         CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
+        SetFrom(BallisticArmor, encumbrance.BallisticRating);
+        SetFrom(ImpactArmor, encumbrance.ImpactRating);
         SetFrom(BallisticEncumbrance, encumbrance.BallisticPenalty);
         SetFrom(ImpactEncumbrance, encumbrance.ImpactPenalty);
 

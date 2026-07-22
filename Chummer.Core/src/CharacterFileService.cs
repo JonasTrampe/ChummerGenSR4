@@ -219,6 +219,131 @@ namespace Chummer.Core
             objQualities.AppendChild(objQuality);
         }
 
+        /// <summary>Removes the first saved quality matching its name, type, and optional detail.</summary>
+        public bool RemoveQuality(string strName, string strType, string strExtra = "")
+        {
+            var objNodes = Document.SelectNodes("/character/qualities/quality");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objQuality in objNodes)
+            {
+                if (GetValue(objQuality, "name", string.Empty) != strName
+                    || GetValue(objQuality, "qualitytype", string.Empty) != strType
+                    || GetValue(objQuality, "extra", string.Empty) != strExtra)
+                    continue;
+
+                objQuality.ParentNode?.RemoveChild(objQuality);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Adds a spell using the saved-character fields consumed by <see cref="Spells"/>.
+        /// Rules metadata is selected from spells.xml by the UI and copied here so the character
+        /// remains self-contained when saved and reopened.
+        /// </summary>
+        public void AddSpell(string strName, string strCategory, string strType, string strRange, string strDamage,
+            string strDuration, string strDv, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A spell name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objSpells = objRoot.SelectSingleNode("spells");
+            if (objSpells == null)
+            {
+                objSpells = Document.CreateElement("spells");
+                objRoot.AppendChild(objSpells);
+            }
+
+            var objSpell = Document.CreateElement("spell");
+            AppendElement(objSpell, "name", strName.Trim());
+            AppendElement(objSpell, "category", strCategory);
+            AppendElement(objSpell, "type", strType);
+            AppendElement(objSpell, "range", strRange);
+            AppendElement(objSpell, "damage", strDamage);
+            AppendElement(objSpell, "duration", strDuration);
+            AppendElement(objSpell, "dv", strDv);
+            AppendElement(objSpell, "source", strSource);
+            AppendElement(objSpell, "page", strPage);
+            objSpells.AppendChild(objSpell);
+        }
+
+        /// <summary>Adds a root-level gear item in the minimal saved-character tree shape.</summary>
+        public void AddGear(string strName, string strCategory, string strRating = "0")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A gear name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objGears = objRoot.SelectSingleNode("gears");
+            if (objGears == null)
+            {
+                objGears = Document.CreateElement("gears");
+                objRoot.AppendChild(objGears);
+            }
+
+            var objGear = Document.CreateElement("gear");
+            AppendElement(objGear, "name", strName.Trim());
+            AppendElement(objGear, "category", strCategory);
+            AppendElement(objGear, "rating", strRating);
+            AppendElement(objGear, "equipped", "False");
+            objGear.AppendChild(Document.CreateElement("children"));
+            objGears.AppendChild(objGear);
+        }
+
+        /// <summary>Removes the first root-level saved gear item matching its name/category/rating.</summary>
+        public bool RemoveGear(string strName, string strCategory, string strRating = "0")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/gears/gear");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objGear in objNodes)
+            {
+                if (!string.Equals(GetValue(objGear, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objGear, "category", string.Empty), strCategory, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objGear, "rating", "0"), strRating, StringComparison.Ordinal))
+                    continue;
+
+                objGear.ParentNode?.RemoveChild(objGear);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Removes the first saved spell with the supplied name.</summary>
+        public bool RemoveSpell(string strName)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/spells/spell");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objSpell in objNodes)
+            {
+                if (!string.Equals(GetValue(objSpell, "name", string.Empty), strName.Trim(),
+                        StringComparison.Ordinal))
+                    continue;
+
+                objSpell.ParentNode?.RemoveChild(objSpell);
+                return true;
+            }
+
+            return false;
+        }
+
         private void AppendElement(XmlElement objParent, string strName, string strValue)
         {
             var objElement = Document.CreateElement(strName);
@@ -618,9 +743,45 @@ namespace Chummer.Core
             var strThresholdNote = "Schwelle: Konstitution " + dblBod + " x " + intMultiplier + " = " + intThreshold
                 + (intMultiplier == 3 ? " (Militärgraderüstung getragen)" : "");
 
+            var intBallisticRating = ComputeArmorRating(objNodes, "b", ImprovementType.BallisticArmor);
+            var intImpactRating = ComputeArmorRating(objNodes, "i", ImprovementType.ImpactArmor);
+
             return new CharacterEncumbranceData(
+                BuildArmorRatingValue(intBallisticRating, "b", "ballistisch", objNodes, ImprovementType.BallisticArmor),
+                BuildArmorRatingValue(intImpactRating, "i", "Stoß", objNodes, ImprovementType.ImpactArmor),
                 BuildEncumbranceValue(intTotalBallistic, intThreshold, "ballistisch", strThresholdNote, lstWorn),
                 BuildEncumbranceValue(intTotalImpact, intThreshold, "Stoß", strThresholdNote, lstWorn));
+        }
+
+        private int ComputeArmorRating(XmlNodeList? objNodes, string strElement, ImprovementType eImprovementType)
+        {
+            var intHighest = 0;
+            if (objNodes != null)
+            {
+                foreach (XmlNode objNode in objNodes)
+                    intHighest = Math.Max(intHighest, ParseArmorRating(GetValue(objNode, strElement, "0")));
+            }
+
+            return intHighest + ImprovementManager.ValueOf(Improvements, eImprovementType);
+        }
+
+        private CharacterDerivedValueData BuildArmorRatingValue(int intTotal, string strElement, string strKind,
+            XmlNodeList? objNodes, ImprovementType eImprovementType)
+        {
+            var sb = new StringBuilder();
+            sb.Append("Höchste getragene Panzerung (").Append(strKind).Append("):");
+            if (objNodes != null)
+            {
+                foreach (XmlNode objNode in objNodes)
+                    sb.Append('\n').Append("  ").Append(GetValue(objNode, "name", string.Empty)).Append(": ")
+                        .Append(ParseArmorRating(GetValue(objNode, strElement, "0")));
+            }
+
+            foreach (var objContribution in ImprovementManager.DescribeValueOf(Improvements, eImprovementType))
+                sb.Append('\n').Append("  ").Append(objContribution.SourceName).Append(": ")
+                    .Append(FormatSigned(objContribution.Value));
+            sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+            return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
         private static CharacterDerivedValueData BuildEncumbranceValue(int intTotal, int intThreshold,
@@ -1087,12 +1248,17 @@ namespace Chummer.Core
     /// <summary>Armor encumbrance dice-pool penalties - see CharacterDocument.ArmorEncumbrance.</summary>
     public sealed class CharacterEncumbranceData
     {
-        internal CharacterEncumbranceData(CharacterDerivedValueData ballisticPenalty, CharacterDerivedValueData impactPenalty)
+        internal CharacterEncumbranceData(CharacterDerivedValueData ballisticRating, CharacterDerivedValueData impactRating,
+            CharacterDerivedValueData ballisticPenalty, CharacterDerivedValueData impactPenalty)
         {
+            BallisticRating = ballisticRating;
+            ImpactRating = impactRating;
             BallisticPenalty = ballisticPenalty;
             ImpactPenalty = impactPenalty;
         }
 
+        public CharacterDerivedValueData BallisticRating { get; }
+        public CharacterDerivedValueData ImpactRating { get; }
         public CharacterDerivedValueData BallisticPenalty { get; }
         public CharacterDerivedValueData ImpactPenalty { get; }
     }

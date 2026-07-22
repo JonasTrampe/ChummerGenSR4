@@ -80,6 +80,7 @@
       <AdditionalFiles Include="src\Controls\TreeDetailPane.axaml" />
       <AdditionalFiles Include="src\Dialogs\KarmaGpDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\ExpenseDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\GearDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\MetatypeDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\QualityDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\SettingsProfileDialog.axaml" />

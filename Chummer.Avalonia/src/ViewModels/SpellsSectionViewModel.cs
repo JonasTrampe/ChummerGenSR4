@@ -26,6 +26,13 @@ public sealed class SpellsSectionViewModel : ViewModelBase
 
     public ObservableCollection<TreeNodeViewModel> SpellCategories { get; }
 
+    private TreeNodeViewModel? _selectedSpellNode;
+    public TreeNodeViewModel? SelectedSpellNode
+    {
+        get => _selectedSpellNode;
+        set => SetField(ref _selectedSpellNode, value);
+    }
+
     public ObservableCollection<SpiritRowViewModel> Spirits { get; } = new();
 
     public SpellsSectionViewModel()

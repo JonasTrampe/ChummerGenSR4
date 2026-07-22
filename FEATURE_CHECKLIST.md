@@ -46,15 +46,17 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Character sheet tabs — editing
 
-- 🟡 **Add Quality and Karma/Nuyen history entries** work end-to-end (UI → character XML →
-  save/reload). All other add/delete/edit operations remain unwired.
+- 🟡 **Add Quality, Spell, Gear, and Karma/Nuyen history entries** work end-to-end (UI → character XML →
+  save/reload); selected Qualities, Spells, and root-level Gear entries can also be deleted. All other
+  add/delete/edit operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 2 of ~41: `QualityDialog` now reads `qualities.xml`, filters out names the character
-  already has, and returns a selection; `SpellDialog` remains an open/close shell.
-- ❌ The other ~39 (Gear, Cyberware, Armor, Weapon, Vehicle, Skill, MartialArt, Metamagic,
-  Lifestyle, CritterPower, ContactConnection, ...) don't exist yet
+- 🟡 3 of ~41: `QualityDialog` and `SpellDialog` support their full selected-item flows.
+  `GearDialog` now reads `gear.xml`, shows its key rules data, and adds/removes root-level gear
+  items at their default rating; quantity and containers are not yet supported.
+- ❌ The other ~38 (Cyberware, Armor, Weapon, Vehicle, Skill, MartialArt, Metamagic, Lifestyle,
+  CritterPower, ContactConnection, ...) don't exist yet
 
 ## Derived stats / calculations
 
@@ -71,8 +73,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ❌ Sprite Matrix Initiative (needs metatype-minimum data from `metatypes.xml`, which is
   bundled in `Chummer.Core/data` but not loaded/parsed by Core yet)
 - ❌ Swim/Fly movement rates
-- ❌ Total worn armor rating (Ballistische/Stoßpanzerung sidebar rows — still hardcoded "11"/"5";
-  note this is a *different, simpler* stat than the armor encumbrance penalty, which is done)
+- ✅ Worn armor rating (Ballistische/Stoßpanzerung sidebar rows) — uses the highest equipped
+  armor value plus BallisticArmor/ImpactArmor Improvements, with a source tooltip
 - ❌ Live wound modifier / current condition-monitor-filled-boxes penalty (`WoundModifiers` today
   only reflects Improvements, not how much damage is actually marked — see the derived-stats
   commit history for why)

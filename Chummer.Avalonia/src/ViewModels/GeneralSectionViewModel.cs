@@ -50,6 +50,13 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
     public ObservableCollection<TreeNodeViewModel> Qualities { get; } = new();
 
+    private TreeNodeViewModel? _selectedQualityNode;
+    public TreeNodeViewModel? SelectedQualityNode
+    {
+        get => _selectedQualityNode;
+        set => SetField(ref _selectedQualityNode, value);
+    }
+
     public ObservableCollection<ContactRowViewModel> Contacts { get; } = new();
 
     public ObservableCollection<ContactRowViewModel> Enemies { get; } = new();
@@ -87,7 +94,8 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         foreach (CharacterQualityData quality in character.Qualities)
         {
             var parent = quality.Type == "Negative" ? negativeQualities : positiveQualities;
-            parent.Children.Add(new TreeNodeViewModel(quality.DisplayName));
+            parent.AddChild(new TreeNodeViewModel(quality.DisplayName, strCategory: quality.Type,
+                strRating: quality.Extra, strSourceName: quality.Name));
         }
         if (positiveQualities.Children.Count > 0) Qualities.Add(positiveQualities);
         if (negativeQualities.Children.Count > 0) Qualities.Add(negativeQualities);

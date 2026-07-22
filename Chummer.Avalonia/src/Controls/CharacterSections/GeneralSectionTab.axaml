@@ -9,11 +9,11 @@
             <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
                 <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
                 <Button Content="Gabe austauschen" />
-                <Button Content="Löschen" />
+                <Button Content="Löschen" Click="OnDeleteQualityClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView ItemsSource="{Binding Qualities}">
+            <TreeView ItemsSource="{Binding Qualities}" SelectedItem="{Binding SelectedQualityNode, Mode=TwoWay}">
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />

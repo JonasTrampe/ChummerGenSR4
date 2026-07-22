@@ -7,12 +7,12 @@
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
             <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
-            <Button Content="Löschen" />
+            <Button Content="Löschen" Click="OnDeleteSpellClick" />
         </StackPanel>
         <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto">
             <DockPanel Grid.Row="0" Grid.Column="0">
                 <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />
-                <TreeView ItemsSource="{Binding SpellCategories}">
+                <TreeView ItemsSource="{Binding SpellCategories}" SelectedItem="{Binding SelectedSpellNode, Mode=TwoWay}">
                     <TreeView.ItemTemplate>
                         <TreeDataTemplate ItemsSource="{Binding Children}">
                             <TextBlock Text="{Binding Name}" />

@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.GearDialog"
+        x:DataType="vm:GearDialogViewModel"
+        Width="620" Height="520" WindowStartupLocation="CenterOwner" Title="Ausrüstung auswählen">
+    <Grid RowDefinitions="*,Auto" Margin="12">
+        <Grid ColumnDefinitions="*,200">
+            <ListBox ItemsSource="{Binding GearOptions}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:GearOptionViewModel">
+                        <StackPanel Margin="4,2">
+                            <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" />
+                            <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
+                <TextBlock Text="Kategorie:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedGear.Category, TargetNullValue=–}" />
+                <TextBlock Text="Standardstufe:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
+                <TextBlock Text="Verfügbarkeit:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedGear.Availability, TargetNullValue=–}" />
+                <TextBlock Text="Kosten:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedGear.Cost, TargetNullValue=–}" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding SelectedGear.SourcePage, TargetNullValue=–}" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+        </Grid>
+    </Grid>
+</Window>

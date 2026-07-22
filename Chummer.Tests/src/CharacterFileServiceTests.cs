@@ -76,6 +76,76 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RemoveQuality_MatchesNameTypeAndDetail()
+    {
+        CharacterDocument character = LoadXml("<character><qualities><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Gold</extra></quality></qualities></character>");
+
+        Assert.True(character.RemoveQuality("Allergy", "Negative", "Silver"));
+        CharacterQualityData remaining = Assert.Single(character.Qualities);
+        Assert.Equal("Gold", remaining.Extra);
+    }
+
+    [Fact]
+    public void AddSpell_MutatesCharacterAndPersistsRuleFields()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204");
+
+        CharacterSpellData added = Assert.Single(character.Spells);
+        Assert.Equal("Combat", added.Category);
+        Assert.Equal("(F/2)+3", added.Dv);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+
+        CharacterSpellData saved = Assert.Single(reloaded.Spells);
+        Assert.Equal("Acid Stream", saved.Name);
+        Assert.Equal("SR4", saved.Source);
+        Assert.Equal("204", saved.Page);
+    }
+
+    [Fact]
+    public void AddGear_MutatesCharacterTreeAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Medkit", "Biotech", "6");
+
+        CharacterTreeItemData added = Assert.Single(character.Gear);
+        Assert.Equal("Medkit", added.Name);
+        Assert.Equal("Biotech", added.Category);
+        Assert.Equal("6", added.Rating);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Medkit", Assert.Single(reloaded.Gear).Name);
+    }
+
+    [Fact]
+    public void RemoveGear_RemovesOnlyMatchingRootLevelEntry()
+    {
+        CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");
+
+        Assert.True(character.RemoveGear("Medkit", "Biotech", "6"));
+        CharacterTreeItemData remaining = Assert.Single(character.Gear);
+        Assert.Equal("3", remaining.Rating);
+    }
+
+    [Fact]
+    public void RemoveSpell_RemovesOnlyTheMatchingSavedSpell()
+    {
+        CharacterDocument character = LoadXml("<character><spells><spell><name>Acid Stream</name></spell><spell><name>Clout</name></spell></spells></character>");
+
+        Assert.True(character.RemoveSpell("Acid Stream"));
+        Assert.False(character.RemoveSpell("Missing spell"));
+        CharacterSpellData remaining = Assert.Single(character.Spells);
+        Assert.Equal("Clout", remaining.Name);
+    }
+
+    [Fact]
     public void AddExpense_MutatesCharacterAndPersistsSignedHistory()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -173,6 +243,17 @@ public class CharacterFileServiceTests
         Assert.Contains("Actioneer", character.ArmorEncumbrance.BallisticPenalty.Tooltip);
         // Total impact = 4 + 3 (Form-Fitting 6/2) = 7, at/under threshold -> no penalty.
         Assert.Equal(0, character.ArmorEncumbrance.ImpactPenalty.Value);
+    }
+
+    [Fact]
+    public void ArmorRating_UsesHighestEquippedPiece()
+    {
+        CharacterDocument character = LoadFixture();
+
+        Assert.Equal(6, character.ArmorEncumbrance.BallisticRating.Value);
+        Assert.Equal(6, character.ArmorEncumbrance.ImpactRating.Value);
+        Assert.Contains("Actioneer Business Clothes: 6", character.ArmorEncumbrance.BallisticRating.Tooltip);
+        Assert.Contains("Form-Fitting Bodysuit: 6", character.ArmorEncumbrance.ImpactRating.Tooltip);
     }
 
     [Fact]

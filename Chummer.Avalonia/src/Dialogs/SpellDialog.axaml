@@ -1,72 +1,47 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.SpellDialog"
-        Width="560" Height="480" CanResize="False"
+        x:DataType="vm:SpellDialogViewModel"
+        Width="620" Height="520" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11"
-        Background="White"
-        Title="Zauberspruch auswählen">
-	<Grid RowDefinitions="*,Auto" Margin="12">
-		<Grid Grid.Row="0" ColumnDefinitions="240,4,*">
-			<TreeView Grid.Column="0">
-				<TreeViewItem Header="Geomatisches Ritual" />
-				<TreeViewItem Header="Heilzauber" />
-				<TreeViewItem Header="Illusionszauber" />
-				<TreeViewItem Header="Kampfzauber" />
-				<TreeViewItem Header="Manipulationszauber" />
-				<TreeViewItem Header="Wahrnehmungszauber" IsExpanded="True">
-					<TreeViewItem Header="Adlerauge" />
-					<TreeViewItem Header="Astrale Hellsicht" />
-					<TreeViewItem Header="Astrales Fenster" />
-					<TreeViewItem Header="Blutschau" />
-					<TreeViewItem Header="Borgen" />
-					<TreeViewItem Header="Diagnose" />
-					<TreeViewItem Header="Feinde aufspüren" />
-					<TreeViewItem Header="Feinde aufspüren, Erweitertes" />
-					<TreeViewItem Header="Geheimer Handschlag" />
-					<TreeViewItem Header="Geistessonde" />
-					<TreeViewItem Header="Gerät Analysieren" />
-					<TreeViewItem Header="Hellhören" />
-					<TreeViewItem Header="Hellsicht" />
-					<TreeViewItem Header="Huckepack" />
-					<TreeViewItem Header="Individuum aufspüren" />
-					<TreeViewItem Header="Infrarot" />
-					<TreeViewItem Header="Kampfsinn" />
-					<TreeViewItem Header="Katalog" />
-					<TreeViewItem Header="Leben aufspüren" />
-					<TreeViewItem Header="Leben aufspüren, Erweitertes" />
-					<TreeViewItem Header="[Lebensform] aufspüren" />
-					<TreeViewItem Header="Luftblase Aufspüren" />
-					<TreeViewItem Header="Luftblase Aufspüren, Erweitert" />
-					<TreeViewItem Header="Gedankenmuster" IsSelected="True" />
-					<TreeViewItem Header="Gedankenscan" />
-				</TreeViewItem>
-			</TreeView>
-
-			<GridSplitter Grid.Column="1" Background="#E4E4E4" />
-
-			<StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="8">
-				<Grid ColumnDefinitions="Auto,*">
-					<TextBlock Text="Suche:" VerticalAlignment="Center" Margin="0,0,8,0" />
-					<TextBox Grid.Column="1" />
-				</Grid>
-
-				<TextBlock Text="Eigenschaften: Aktiv, psychisch, Blickrichtungsgebun" TextWrapping="Wrap" />
-				<TextBlock Text="Typ: M" />
-				<TextBlock Text="Reichweite: B" />
-				<TextBlock Text="Schaden:" />
-				<TextBlock Text="Dauer: A" />
-				<TextBlock Text="Entzugsformel: (K÷2)" />
-				<CheckBox Content="Eingeschränkter Zauberspruch" />
-				<TextBlock Text="Quelle: SM 203" Margin="0,20,0,0" />
-			</StackPanel>
-		</Grid>
-
-		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,12,0,0">
-			<Button Content="Weitere" Width="80" />
-			<Button Content="Abbruch" Width="80" Click="OnCancel" />
-			<Button Content="OK" Width="80" Click="OnOk" />
-		</StackPanel>
-	</Grid>
+        FontSize="11" Background="White" Title="Zauberspruch auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <TextBlock Grid.Row="0" Text="Wähle einen noch nicht vorhandenen Zauberspruch aus den installierten Regeln aus." Margin="0,0,0,8" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,220">
+            <ListBox ItemsSource="{Binding SpellOptions}" SelectedItem="{Binding SelectedSpell, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SpellOptionViewModel">
+                        <StackPanel Margin="4,2">
+                            <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" />
+                            <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
+                <TextBlock Text="Kategorie:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Category, TargetNullValue=–}" />
+                <TextBlock Text="Eigenschaften:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Descriptor, TargetNullValue=–}" TextWrapping="Wrap" />
+                <TextBlock Text="Typ:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Type, TargetNullValue=–}" />
+                <TextBlock Text="Reichweite:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Range, TargetNullValue=–}" />
+                <TextBlock Text="Schaden:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Damage, TargetNullValue=–}" />
+                <TextBlock Text="Dauer:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.Duration, TargetNullValue=–}" />
+                <TextBlock Text="Entzugsformel:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedSpell.DrainValue, TargetNullValue=–}" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding SelectedSpell.SourcePage, TargetNullValue=–}" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+        </Grid>
+    </Grid>
 </Window>

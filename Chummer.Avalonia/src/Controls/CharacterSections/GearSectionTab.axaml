@@ -96,8 +96,8 @@
             <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Ausrüstung hinzufügen" />
-                        <Button Content="Löschen" />
+                        <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
+                        <Button Content="Löschen" Click="OnDeleteGearClick" />
                         <Button Content="Ort hinzufügen" />
                         <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
                     </StackPanel>
@@ -106,7 +106,7 @@
                     <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -
                          matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
                          one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
-                    <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}">
+                    <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding Name}" />
@@ -118,52 +118,20 @@
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Name:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="Custom Commlink" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Name, TargetNullValue=–}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Kategorie:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="Kommlink" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Category, TargetNullValue=–}" />
                         </Grid>
-                        <Grid ColumnDefinitions="Auto,90,Auto,90,Auto,90">
+                        <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Grid.Column="0" Text="Stufe:" />
-                            <TextBlock Grid.Column="2" Text="Verfügbarkeit:" />
-                            <TextBlock Grid.Column="3" Text="0" />
-                            <TextBlock Grid.Column="4" Text="Kosten:" />
-                            <TextBlock Grid.Column="5" Text="218.780¥" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kapazität:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="0 (0 verbleibend)" />
+                            <TextBlock Text="Installiert:" Width="90" />
+                            <CheckBox Grid.Column="1" IsChecked="{Binding SelectedGear.Equipped}" IsEnabled="False" />
                         </Grid>
-                        <Grid ColumnDefinitions="Auto,40,26,26,Auto,26" ColumnSpacing="6">
-                            <TextBlock Grid.Column="0" Text="Menge:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="1" />
-                            <Border Grid.Column="2" Classes="iconButton">
-                                <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
-                            </Border>
-                            <Border Grid.Column="3" Classes="iconButton">
-                                <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" />
-                            </Border>
-                            <Border Grid.Column="5" Classes="iconButton">
-                                <Image Source="avares://Chummer.Avalonia/assets/icons/printer.png" />
-                            </Border>
-                        </Grid>
-                        <Grid ColumnDefinitions="*,*,*,*">
-                            <TextBlock Grid.Column="0" Text="Prozessor: 6" />
-                            <TextBlock Grid.Column="1" Text="Signal: 6" />
-                            <TextBlock Grid.Column="2" Text="System: 6" />
-                            <TextBlock Grid.Column="3" Text="Firewall: 6" />
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Quelle:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="SR4 374" />
-                        </Grid>
-                        <CheckBox Content="angelegt" IsChecked="True" />
-                        <CheckBox Content="Kommlink aktivieren" IsChecked="True" />
-
-                        <TextBlock Text="gebundene Foki" FontWeight="Bold" Margin="0,8,0,0" />
-                        <Button Content="Mehrfachfoki herstellen" HorizontalAlignment="Left" />
-                        <Border Classes="groupBox" Height="200" />
                     </StackPanel>
                 </controls:TreeDetailPane.DetailContent>
             </controls:TreeDetailPane>

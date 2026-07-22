@@ -13,6 +13,7 @@ public sealed class TreeNodeViewModel
     public string Category { get; }
     public string Rating { get; }
     public bool Equipped { get; }
+    public string SourceName { get; }
     public ObservableCollection<TreeNodeViewModel> Children { get; } = new();
     public bool IsExpanded { get; set; }
 
@@ -21,13 +22,14 @@ public sealed class TreeNodeViewModel
     public TreeNodeViewModel? Parent { get; set; }
 
     public TreeNodeViewModel(string strName, bool blnExpanded = false, string strCategory = "",
-        string strRating = "0", bool blnEquipped = false)
+        string strRating = "0", bool blnEquipped = false, string strSourceName = "")
     {
         Name = strName;
         IsExpanded = blnExpanded;
         Category = strCategory;
         Rating = strRating;
         Equipped = blnEquipped;
+        SourceName = strSourceName;
     }
 
     public void AddChild(TreeNodeViewModel child)
@@ -39,7 +41,7 @@ public sealed class TreeNodeViewModel
     public static TreeNodeViewModel FromTreeItem(CharacterTreeItemData item)
     {
         var node = new TreeNodeViewModel(item.Name, item.Children.Count > 0, item.Category, item.Rating,
-            item.Equipped);
+            item.Equipped, item.Name);
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));
         return node;

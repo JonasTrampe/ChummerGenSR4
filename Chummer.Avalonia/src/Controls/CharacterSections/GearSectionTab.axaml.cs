@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
+using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -31,6 +32,8 @@ public partial class GearSectionTab : UserControl
     private Point _pendingPressPoint;
     private const double DragThreshold = 6;
 
+    private CharacterDocument? _character;
+
     public GearSectionViewModel ViewModel { get; } = new();
 
     public GearSectionTab()
@@ -40,7 +43,35 @@ public partial class GearSectionTab : UserControl
         SetUpGearDragDrop();
     }
 
-    public void LoadCharacter(CharacterDocument character) => ViewModel.LoadCharacter(character);
+    public void LoadCharacter(CharacterDocument character)
+    {
+        _character = character;
+        ViewModel.LoadCharacter(character);
+    }
+
+    private async void OnAddGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new GearDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedGear != null)
+        {
+            var gear = dialog.SelectedGear;
+            _character.AddGear(gear.Name, gear.Category, gear.Rating);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedGear == null || ViewModel.SelectedGear.Parent != null)
+            return;
+
+        if (_character.RemoveGear(ViewModel.SelectedGear.SourceName, ViewModel.SelectedGear.Category, ViewModel.SelectedGear.Rating))
+            ViewModel.LoadCharacter(_character);
+    }
 
     // Avalonia DragDrop prototype for the gear-reordering risk area flagged in the Linux port
     // plan's Avalonia audit (frmCareer/frmCreate gear/cyberware lists). Matches the real app's two

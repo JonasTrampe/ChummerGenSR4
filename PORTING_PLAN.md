@@ -35,7 +35,7 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   replaces the `Condition.Essence` passthrough already wired into `CharacterSidebar`.
 - Step 2.2: Physical/Stun condition monitor track size — replaces the hardcoded `Value="10"`
   in `CharacterSidebar.axaml`.
-- Step 2.3: Armor/ballistic/impact encumbrance.
+- Step 2.3: Armor/ballistic/impact encumbrance and displayed worn armor ratings. ✅
 - Step 2.4: Skill dice pools (Skill + Attribute + Improvement + gear bonuses) — this is the
   one the `SkillRow`/`InfoRow` "Würfelpool" placeholders in `SkillsSectionTab` are waiting on.
 - Step 2.5: Adept power point cost, attribute karma-cost curves (`clsUnique.cs`), Cyberware/
@@ -46,18 +46,22 @@ then one Avalonia section tab wired to stop showing a hardcoded number.
 
 ## Phase 3 — A real write path
 
-Right now `CharacterFileService.Save()` just re-serializes the untouched `XmlDocument` —
-there is no typed-model → XML path, so nothing added/edited in the UI can be persisted.
+`CharacterFileService.Save()` preserves mutations made directly to its backing `XmlDocument`.
+There is still no broad typed-model → XML layer, but Quality, Spell, and Karma/Nuyen mutations
+now prove a safe incremental write pattern that survives save/reload.
 
 - Step 3.1: Pick one simple, low-risk mutation to prove the pattern end-to-end: adding a
   Quality. Port `Quality.Save(XmlWriter)` semantics into Core, add
   `CharacterDocument.AddQuality(...)`, wire `GeneralSectionTab`'s "Gabe hinzufügen" button to
-  it, confirm round-trip save/reload preserves it.
+  it, confirm round-trip save/reload preserves it. ✅ Selected Qualities can also be deleted.
+- Step 3.1a: Spell add/delete is now the second end-to-end mutation, including its real picker and
+  a Core save/reload test. ✅
 - Step 3.2: Repeat for Karma/Nuyen expense entries (also simple, and the
   `KarmaNuyenSectionTab` "verdient"/"ausgegeben" buttons are already stubbed for it).
 - Step 3.3: Once the pattern is proven, generalize to gear/cyberware/spells/contacts — these
   are all "append a `<foo>` node with these fields" in the legacy `Save()`, same shape as
-  Quality.
+  Quality. 🟡 Spell is complete; Gear now has a tested Core add/remove/save/reload API plus a
+  root-level picker/UI flow. Its quantity and containment semantics still need porting.
 
 ## Phase 4 — Item picker dialogs (the `frmSelectXxx` → real Avalonia dialogs)
 
@@ -72,9 +76,12 @@ service (`Task<T?> ShowDialogAsync<TDialog, T>(...)`).
   by already-taken/incompatible qualities, return the selection) — it's the one button already
   wired to open a dialog with nothing behind it, so it's the natural first target.
 - Step 4.3: `SpellDialog` next (same shape, categories already modeled in `CharacterTab`'s
-  spell tree).
+  spell tree). ✅ The picker reads `spells.xml`, filters already-known spells, and adds the
+  selected spell to character XML; the tab also supports deletion, and save/reload preserves changes.
 - Step 4.4: Prioritize the rest by how often they're needed for a usable character: Gear,
   Cyberware, Weapon, Armor before the long tail (Nexus, CritterPower, AdvancedLifestyle, ...).
+  🟡 Gear now has a rules-data picker and root-level add/delete/save/reload flow; its rating,
+  quantity, and containment semantics still need porting.
 
 ## Phase 5 — Character creation flow
 

@@ -28,8 +28,10 @@
                                        Tooltip="{Binding MatrixInitiativePasses.Tooltip}" />
                     <controls:InfoRow Label="Astrale Initiative:" Value="{Binding AstralInitiative.Value}"
                                        Tooltip="{Binding AstralInitiative.Tooltip}" />
-                    <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
-                    <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
+                    <controls:InfoRow Label="Ballistische Panzerung:" Value="{Binding BallisticArmor.Value}"
+                                      Tooltip="{Binding BallisticArmor.Tooltip}" />
+                    <controls:InfoRow Label="Stoßpanzerung:" Value="{Binding ImpactArmor.Value}"
+                                      Tooltip="{Binding ImpactArmor.Tooltip}" />
                     <controls:InfoRow Label="Rüstungsbehinderung (ballistisch):" Value="{Binding BallisticEncumbrance.Value}"
                                        Tooltip="{Binding BallisticEncumbrance.Tooltip}" />
                     <controls:InfoRow Label="Rüstungsbehinderung (Stoß):" Value="{Binding ImpactEncumbrance.Value}"
@@ -58,8 +60,10 @@
                     <controls:InfoRow Label="Körperlicher Schaden:" Value="{Binding PhysicalDamage}" />
                     <controls:InfoRow Label="Geistiger Schaden:" Value="{Binding StunDamage}" />
                     <controls:InfoRow Label="Verletzungsmodifikator:" Value="0" />
-                    <controls:InfoRow Label="Ballistische Panzerung:" Value="11" />
-                    <controls:InfoRow Label="Stoßpanzerung:" Value="5" />
+        <controls:InfoRow Label="Ballistische Panzerung:" Value="{Binding BallisticArmor.Value}"
+                          Tooltip="{Binding BallisticArmor.Tooltip}" />
+        <controls:InfoRow Label="Stoßpanzerung:" Value="{Binding ImpactArmor.Value}"
+                          Tooltip="{Binding ImpactArmor.Tooltip}" />
                     <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="4" />
 
                     <TextBlock Text="physisch" Margin="0,6,0,0" />

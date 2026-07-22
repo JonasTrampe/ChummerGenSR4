@@ -11,6 +11,13 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> Lifestyles { get; } = new();
 
+    private TreeNodeViewModel? _selectedGear;
+    public TreeNodeViewModel? SelectedGear
+    {
+        get => _selectedGear;
+        set => SetField(ref _selectedGear, value);
+    }
+
     private TreeNodeViewModel? _selectedArmor;
     public TreeNodeViewModel? SelectedArmor
     {
@@ -37,6 +44,7 @@ public sealed class GearSectionViewModel : ViewModelBase
         Gear.Clear();
         foreach (CharacterTreeItemData item in character.Gear)
             Gear.Add(TreeNodeViewModel.FromTreeItem(item));
+        SelectedGear = Gear.Count > 0 ? Gear[0] : null;
 
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
