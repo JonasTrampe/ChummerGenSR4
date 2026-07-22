@@ -10,6 +10,10 @@ in the legacy WinForms files (`clsCharacter.cs` 6.2k lines, `clsUnique.cs` 7.4k,
 plus the two giant host forms `frmCareer.cs`/`frmCreate.cs` (27.6k/23.6k lines).
 
 That gap — "reads and displays" vs. "computes and edits" — is the real porting boundary.
+One notable exception now exists: the Avalonia shell already has a real Cloud Documents dialog
+backed by the shared RunnersPoint API/auth code, including folders, revisions, metadata, and
+upload/download flows. Cloud parity is therefore no longer a "not started" area; it is a
+partially-complete feature stream that still needs polish and some legacy-flow parity.
 Everything below is sequenced around closing it a slice at a time, always keeping the app
 buildable and runnable at each step.
 
