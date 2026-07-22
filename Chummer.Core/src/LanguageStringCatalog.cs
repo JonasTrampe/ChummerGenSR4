@@ -10,6 +10,12 @@ namespace Chummer.Core
         private readonly Dictionary<string, string> _dicStrings = new();
         public XmlDocument? DataDocument { get; private set; }
 
+        public void Reset()
+        {
+            _dicStrings.Clear();
+            DataDocument = null;
+        }
+
         public void LoadBase(string strLanguageDirectory)
         {
             LoadFile(Path.Combine(strLanguageDirectory, "en-us.xml"), true);

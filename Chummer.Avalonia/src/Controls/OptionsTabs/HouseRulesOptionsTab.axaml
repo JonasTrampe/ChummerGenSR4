@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="using:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.OptionsTabs.HouseRulesOptionsTab"
+             x:DataType="vm:OptionsDialogViewModel">
+    <ScrollViewer Margin="8"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Border Classes="settingsCard" MaxWidth="900">
+        <StackPanel Spacing="8">
+            <TextBlock Classes="settingsHeader" Tag="Tab_Options_HouseRules" Text="Hausregeln" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <CheckBox Tag="Checkbox_Options_FreeContactPointsKarma" Content="Kostenlose Connectionpunkte: CHA x" IsChecked="{Binding CurrentOptions.FreeContacts, Mode=TwoWay}" />
+                <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.FreeContactsMultiplier, Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <CheckBox Tag="Checkbox_Options_FreeContactPointsBP" Content="Freie Generierungspunkte für Connections:" IsChecked="{Binding CurrentOptions.FreeContactsFlat, Mode=TwoWay}" />
+                <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.FreeContactsFlatNumber, Mode=TwoWay}" />
+            </StackPanel>
+            <CheckBox Tag="Checkbox_Options_FreeKnowledgeSkills" Content="Generieren mit Karma: Kostenlose Wissensfertigkeiten wie im GP-System" IsChecked="{Binding CurrentOptions.FreeKarmaKnowledge, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_MaxSpiritForce" Content="Die maximale Geisterstufe und die Kraftstufe des Magieradepten sind auf die Höhe des Magie-Attributes beschränkt." IsChecked="{Binding CurrentOptions.SpiritForceBasedOnTotalMag, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_DefaultIncludeModifiers" Content="Proben auf Fertigkeiten ohne Wert beinhalten Modifikatoren" IsChecked="{Binding CurrentOptions.SkillDefaultingIncludesModifiers, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_EssenceLossReducesMaximum" Content="Essenzverlust senkt nur das MAG/RES-Maximum" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_NoArmorEncumbrance" Content="Keine Panzerungsbehinderung" IsChecked="{Binding CurrentOptions.IgnoreArmorEncumbrance, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_AlternateArmorEncumbrance" Content="Alternative Schwellenwertberechnung für Panzerungsbehinderung (KON+STR)" IsChecked="{Binding CurrentOptions.AlternateArmorEncumbrance, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_AllowCyberwareESSDiscounts" Content="Vergünstigungen für Cyberware-Essenzkosten erlauben" IsChecked="{Binding CurrentOptions.AllowCyberwareEssDiscounts, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_ExceedPositiveQualities" Content="Charakteren gestatten, mehr als 35 GP für Gaben auszugeben" IsChecked="{Binding CurrentOptions.ExceedPositiveQualities, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_ExceedNegativeQualities" Content="Charakteren gestatten, mehr als 35 GP für Handicaps zu erhalten" IsChecked="{Binding CurrentOptions.ExceedNegativeQualities, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_ExceedNegativeQualitiesLimit" Content="Charaktere können maximal 35 GP für Handicaps erhalten" IsChecked="{Binding CurrentOptions.ExceedNegativeQualitiesLimit, Mode=TwoWay}" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <CheckBox Tag="Checkbox_Options_MultiplyRestrictedCost" Content="Multipliziere die Kosten für eingeschränkt verfügbare Gegenstände mit dem Faktor" IsChecked="{Binding CurrentOptions.MultiplyRestrictedCost, Mode=TwoWay}" />
+                <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.RestrictedCostMultiplier, Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <CheckBox Tag="Checkbox_Options_MultiplyForbiddenCost" Content="Multipliziere die Kosten für verbotene Gegenstände mit dem Faktor" IsChecked="{Binding CurrentOptions.MultiplyForbiddenCost, Mode=TwoWay}" />
+                <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.ForbiddenCostMultiplier, Mode=TwoWay}" />
+            </StackPanel>
+            <CheckBox Content="Dem Spieler erlauben mehr als 50% der Punkte für Attribute auszugeben" IsChecked="{Binding CurrentOptions.AllowExceedAttributeBp, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_UnrestrictedNuyen" Content="Der Charakter kann beliebig viele Punkte in Nuyen wandeln" IsChecked="{Binding CurrentOptions.UnrestrictedNuyen, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowHigherStackedFoci" Content="Erlauben, dass ein Mehrfachfoki zusammengerchnet über Kraftstufe 6 hinaus generiert werden kann" IsChecked="{Binding CurrentOptions.AllowHigherStackedFoci, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowEditPartOfBaseWeapon" Content="Waffenzubehör darf auch an nicht dafür vorgesehenen Stellen an der Waffe angebracht werden" IsChecked="{Binding CurrentOptions.AllowEditPartOfBaseWeapon, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AlternateMetatypeAttributeKarma" Content="Die gesteigerten Werte von Metamenschen kosten in der Bauphase Punkte" IsChecked="{Binding CurrentOptions.AlternateMetatypeAttributeKarma, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowObsolescentUpgrade" Content="Antiquierte Fahrzeuge dürfen ebenso wie Auslaufmodelle nachgerüstet werden." IsChecked="{Binding CurrentOptions.AllowObsolescentUpgrade, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowBiowareSuites" Content="Bioware Zusammenstellung erlauben" IsChecked="{Binding CurrentOptions.AllowBiowareSuites, Mode=TwoWay}" />
+            <CheckBox Content="Frei Geister erhalten ihre Powerpunkte basierend auf ihrem MAG Attribute, nicht Edge" IsChecked="{Binding CurrentOptions.FreeSpiritPowerPointsMag, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_SpecialAttributeKarmaLimit" Content="Spezialattribute(EDG,MAG,RES) werden während der Charaktererschaffung nicht dem 50% Limit für Attribute angerechnet" IsChecked="{Binding CurrentOptions.SpecialAttributeKarmaLimit, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_TechnomancerAllowAutosoft" Content="Technomancer dürfen Autosofts als Komplexe Form wählen" IsChecked="{Binding CurrentOptions.TechnomancerAllowAutosoft, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_TechnomancerAllowCommlink" Content="Technomancer dürfen statt ihrer Lebenden Persona einen Kommlink verwenden" IsChecked="{Binding CurrentOptions.TechnomancerAllowCommlink, Mode=TwoWay}" />
+            <CheckBox x:Name="chkRestrictStickNShock" Tag="Checkbox_Option_RestrictStickNShock" Content="Stick-n-Shock nach Waffenkategorie einschränken" IsChecked="{Binding CurrentOptions.RestrictStickNShock, Mode=TwoWay}" />
+            <Button Tag="Button_SelectWeaponCategories" Content="Kategorien auswählen..."
+                    Margin="24,0,0,0"
+                    HorizontalAlignment="Left"
+                    IsEnabled="{Binding #chkRestrictStickNShock.IsChecked}"
+                    Click="OnSelectStickNShockCategories" />
+            <CheckBox Tag="Checkbox_Options_ImprovedSenseFullRating" Content="Verbesserter Sinn gewährt die volle Stufe der gewählten Cyberware" IsChecked="{Binding CurrentOptions.ImprovedSenseFullRating, Mode=TwoWay}" />
+        </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>

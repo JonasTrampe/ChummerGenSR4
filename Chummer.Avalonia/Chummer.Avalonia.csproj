@@ -20,10 +20,6 @@
         <None Include="..\Chummer.Core\data\**\*.*"
               Link="data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
-
-    <Import Project="$(PkgAvalonia)/buildTransitive/Avalonia.props" />
-    <Import Project="$(PkgAvalonia)/buildTransitive/Avalonia.targets" />
-
     <ItemGroup>
         <PackageReference Include="Dock.MarkupExtension" Version="12.0.0.2" />
         <PackageReference Include="Serilog" Version="4.4.0" />
@@ -76,15 +72,24 @@
       <AdditionalFiles Include="src\Controls\CharacterTab.axaml" />
       <AdditionalFiles Include="src\Controls\GroupRow.axaml" />
       <AdditionalFiles Include="src\Controls\InfoRow.axaml" />
+      <AdditionalFiles Include="src\Controls\IntegerSpinner.axaml" />
+      <AdditionalFiles Include="src\Controls\OptionsTabs\BpCostsOptionsTab.axaml" />
+      <AdditionalFiles Include="src\Controls\OptionsTabs\GeneralOptionsTab.axaml" />
+      <AdditionalFiles Include="src\Controls\OptionsTabs\HouseRulesOptionsTab.axaml" />
+      <AdditionalFiles Include="src\Controls\OptionsTabs\KarmaCostsOptionsTab.axaml" />
+      <AdditionalFiles Include="src\Controls\OptionsTabs\OptionalRulesOptionsTab.axaml" />
       <AdditionalFiles Include="src\Controls\SkillRow.axaml" />
       <AdditionalFiles Include="src\Controls\TreeDetailPane.axaml" />
       <AdditionalFiles Include="src\Dialogs\KarmaGpDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\ExpenseDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\CloudDocumentsDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\GearDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\MetatypeDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\OptionsDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\QualityDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\SettingsProfileDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\SheetPreviewDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\SpellDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\WeaponCategoriesDialog.axaml" />
     </ItemGroup>
 </Project>

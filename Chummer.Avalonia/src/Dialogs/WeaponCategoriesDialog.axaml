@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="using:Chummer.NewUI.Dialogs"
+        xmlns:viewModels="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.WeaponCategoriesDialog"
+        x:DataType="dialogs:WeaponCategoriesDialog"
+        Width="420"
+        Height="520"
+        MinWidth="360"
+        MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Tag="Title_SelectWeaponCategories">
+    <Grid RowDefinitions="*,Auto" RowSpacing="12" Margin="12">
+        <Border BorderBrush="#C8C8C8" BorderThickness="1">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Categories}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:WeaponCategorySelectionItemViewModel">
+                            <CheckBox Margin="8,4"
+                                      Content="{Binding Name}"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="6">
+            <Button Width="80" Click="OnOk" Tag="String_OK" Content="OK" />
+            <Button Width="80" Click="OnCancel" Tag="String_Cancel" Content="Abbruch" />
+        </StackPanel>
+    </Grid>
+</Window>

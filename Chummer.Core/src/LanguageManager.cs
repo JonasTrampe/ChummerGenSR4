@@ -17,7 +17,6 @@ public sealed class LanguageManager
     public static LanguageManager Instance { get; } = new();
 
     private readonly LanguageStringCatalog _objCatalog = new();
-    private string _strLanguage = string.Empty;
 
     private LanguageManager()
     {
@@ -30,42 +29,27 @@ public sealed class LanguageManager
     public XmlDocument? DataDoc => _objCatalog.DataDocument;
 
     /// <summary>
-    /// Load the base English strings (once per process) and, if a non-English language is
-    /// requested, overlay its strings and data translations on top. Mirrors the legacy
-    /// behavior of only ever applying the first non-English language requested for the
-    /// process lifetime - <paramref name="strLanguage"/> is otherwise ignored on later calls.
+    /// Load the base English strings and, if a non-English language is requested, overlay its
+    /// strings and data translations on top. Unlike the first Avalonia port draft, this method
+    /// fully reloads on every call so runtime language changes can take effect.
     /// </summary>
     /// <param name="strLanguage">Language code to load, e.g. "de-de". "en-us" is the built-in base.</param>
     public void Load(string strLanguage)
     {
         var strLanguageDirectory = Path.Combine(AppContext.BaseDirectory, "data", "lang");
-        if (!Loaded)
+        try
         {
-            try
-            {
-                _objCatalog.LoadBase(strLanguageDirectory);
-                Loaded = true;
-            }
-            catch
-            {
-                // No usable en-us.xml on disk - GetString() will throw for callers. The legacy
-                // version popped a MessageBox and called Application.Exit() here, which isn't
-                // appropriate for a library with no UI or process ownership of its own.
-                return;
-            }
-        }
-
-        if (strLanguage != "en-us" && _strLanguage == string.Empty)
-        {
-            try
-            {
-                _strLanguage = strLanguage;
+            _objCatalog.Reset();
+            _objCatalog.LoadBase(strLanguageDirectory);
+            Loaded = true;
+            if (strLanguage != "en-us")
                 _objCatalog.ApplyLanguage(strLanguageDirectory, strLanguage);
-            }
-            catch
-            {
-                // Keep the base English strings loaded; just skip the overlay.
-            }
+        }
+        catch
+        {
+            // No usable en-us.xml on disk - GetString() will throw for callers. The legacy
+            // version popped a MessageBox and called Application.Exit() here, which isn't
+            // appropriate for a library with no UI or process ownership of its own.
         }
     }
 
@@ -84,7 +68,7 @@ public sealed class LanguageManager
     /// </summary>
     public string TranslateExtra(string strExtra)
     {
-        if (_strLanguage == "en-us" || string.IsNullOrWhiteSpace(strExtra))
+        if (GlobalOptions.Instance.Language == "en-us" || string.IsNullOrWhiteSpace(strExtra))
             return strExtra;
 
         var strKey = strExtra switch

@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:tabs="using:Chummer.NewUI.Controls.OptionsTabs"
+        x:Class="Chummer.NewUI.Dialogs.OptionsDialog"
+        x:DataType="vm:OptionsDialogViewModel"
+        Width="1080" Height="780"
+        MinWidth="960" MinHeight="700"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11"
+        Background="White"
+        Tag="Title_Options"
+        Title="Optionen">
+	<DockPanel Margin="10" LastChildFill="True">
+		<StackPanel DockPanel.Dock="Top" Spacing="8">
+			<Grid ColumnDefinitions="Auto,240,Auto,260,*" ColumnSpacing="8">
+				<TextBlock Grid.Column="0" Tag="Label_Options_SettingsFile" Text="Konfigurationsdatei:" VerticalAlignment="Center" />
+				<ComboBox Grid.Column="1" ItemsSource="{Binding SettingsProfiles}" SelectedItem="{Binding SelectedSettingsProfile, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<TextBlock Grid.Column="2" Tag="Label_Options_SettingName" Text="Konfigurationsprofil:" VerticalAlignment="Center" />
+				<TextBox Grid.Column="3" Text="{Binding SettingsProfileName, Mode=TwoWay}" />
+			</Grid>
+		</StackPanel>
+
+		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+			<Button Tag="String_OK" Content="OK" Width="90" Click="OnOk" />
+		</StackPanel>
+
+		<TabControl>
+			<TabItem Tag="Tab_Options_General" Header="Allgemein">
+				<tabs:GeneralOptionsTab />
+			</TabItem>
+			<TabItem Tag="Tab_Options_BPCosts" Header="GP-Kosten">
+				<tabs:BpCostsOptionsTab />
+			</TabItem>
+			<TabItem Tag="Tab_Options_KarmaCosts" Header="Karmakosten">
+				<tabs:KarmaCostsOptionsTab />
+			</TabItem>
+			<TabItem Tag="Tab_Options_OptionalRules" Header="Optionale Regeln">
+				<tabs:OptionalRulesOptionsTab />
+			</TabItem>
+			<TabItem Tag="Tab_Options_HouseRules" Header="Hausregeln">
+				<tabs:HouseRulesOptionsTab />
+			</TabItem>
+		</TabControl>
+	</DockPanel>
+</Window>

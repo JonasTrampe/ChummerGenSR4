@@ -1,0 +1,162 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="using:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.OptionsTabs.GeneralOptionsTab"
+             x:DataType="vm:OptionsDialogViewModel">
+    <Grid Margin="6" ColumnDefinitions="300,*" ColumnSpacing="10">
+        <Border Grid.Column="0" BorderBrush="#D8D8D8" BorderThickness="1">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Margin="6,6,6,4" Tag="Label_Options_AdditionalBooks" Text="Weitere nutzbare Quellenbücher" />
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Sourcebooks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OptionsBookItemViewModel">
+                                <CheckBox Margin="6,2"
+                                          Content="{Binding DisplayName}"
+                                          IsEnabled="{Binding CanToggle}"
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <TabControl Grid.Column="1">
+            <TabItem Tag="Tab_Options_Global" Header="Global">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" Spacing="10">
+                        <Grid ColumnDefinitions="140,260,Auto,Auto,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Tag="Label_Options_Language" Text="Sprache:" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}" MaxDropDownHeight="320">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="2" Content="Verify" Width="90" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyLanguage" />
+                            <Button Grid.Column="3" Content="Verify Data File" Width="120" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyData" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Tag="Label_Options_DefaultCharacterSheet" Text="Standard Charakterbogen:" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Sheets}" SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" MaxDropDownHeight="320">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <CheckBox Tag="Checkbox_Options_AutomaticUpdates" Content="Automatische Updates" IsChecked="{Binding AutomaticUpdate, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_LocalisedUpdatesOnly" Content="Lade Aktualisierungen nur in der von mir gewählten Sprache." IsChecked="{Binding LocalisedUpdatesOnly, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_StartupFullscreen" Content="Chummer im Vollbild-Modus starten" IsChecked="{Binding StartupFullscreen, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_SingleDiceRoller" Content="Nur ein Würfelfenster zulassen" IsChecked="{Binding SingleDiceRoller, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_DatesIncludeTime" Content="Unkosten mit Zeitangabe anzeigen." IsChecked="{Binding DatesIncludeTime, Mode=TwoWay}" />
+                        <Grid ColumnDefinitions="140,*,100" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="Pfad zur PDF-Betrachter:" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Text="{Binding PdfAppPath, Mode=TwoWay}" />
+                            <Button Grid.Column="2" Content="..." Click="OnBrowsePdfApp" />
+                        </Grid>
+                        <Grid ColumnDefinitions="140,220,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Tag="Label_Options_PDFArgumentStyle" Text="PDF Argument Style:" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding PdfArgumentStyles}" SelectedItem="{Binding SelectedPdfArgumentStyle, Mode=TwoWay}" MaxDropDownHeight="200">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <Grid ColumnDefinitions="140,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="Cloud-Dokumente-Server:" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Text="{Binding CloudApiBaseUrl, Mode=TwoWay}" />
+                        </Grid>
+                        <CheckBox Tag="Checkbox_Options_SuppressCloudUnreachableWarning" Content="Nicht warnen, wenn der Server beim Öffnen einer Cloud-verknüpften Figur nicht erreichbar ist"
+                                  IsChecked="{Binding SuppressCloudUnreachableWarning, Mode=TwoWay}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Tag="Tab_Options_Character" Header="Charakter und ausdrucken">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" Spacing="10">
+                        <Grid ColumnDefinitions="220,260,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="Gliedmaßen für Standard-Charaktere:" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding LimbCounts}" SelectedItem="{Binding SelectedLimbCount, Mode=TwoWay}" MaxDropDownHeight="200">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <Grid ColumnDefinitions="220,120,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="Nuyen pro Generierungspunkt:" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Column="1" Minimum="0" Maximum="100000"
+                                                     HorizontalAlignment="Left" Width="104"
+                                                     Value="{Binding CurrentOptions.NuyenPerBp, Mode=TwoWay}" />
+                        </Grid>
+                        <TextBlock Tag="Label_Options_Defaults" Text="Standardwerte für neue Charaktere" />
+                        <Grid ColumnDefinitions="80,120,80,120,*" ColumnSpacing="8">
+                            <ComboBox Grid.Column="0" ItemsSource="{Binding BuildMethods}" SelectedItem="{Binding SelectedBuildMethod, Mode=TwoWay}" MaxDropDownHeight="120">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <controls:IntegerSpinner Grid.Column="1" Minimum="0" Maximum="5000"
+                                                     HorizontalAlignment="Left" Width="104"
+                                                     Value="{Binding CurrentOptions.BuildPoints, Mode=TwoWay}" />
+                            <TextBlock Grid.Column="2" Text="Max Verf.:" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Column="3" Minimum="0" Maximum="99"
+                                                     HorizontalAlignment="Left" Width="104"
+                                                     Value="{Binding CurrentOptions.Availability, Mode=TwoWay}" />
+                        </Grid>
+                        <CheckBox Content="Würfelpool für Fertigkeiten benutzen" IsChecked="{Binding CurrentOptions.AllowSkillDiceRolling, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_PrintAllSkills" Content="Alle Aktionsfertigkeiten mit eine Gesamtstufe von über 0 drucken" IsChecked="{Binding CurrentOptions.PrintSkillsWithZeroRating, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_PrintExpenses" Content="Karma und Nuyen Ausgaben mitschreiben" IsChecked="{Binding CurrentOptions.PrintExpenses, Mode=TwoWay}" />
+                        <CheckBox Content="Alternative Führungskills anzeigen(aus den &quot;War!&quot; Regelwerk)" IsChecked="{Binding CurrentOptions.PrintLeadershipAlternates, Mode=TwoWay}" />
+                        <CheckBox Content="Alternative Magieskills anzeigen(aus dem &quot;Strassenmagie&quot; Regelwerk)" IsChecked="{Binding CurrentOptions.PrintArcanaAlternates, Mode=TwoWay}" />
+                        <CheckBox Content="Notizen ausdrucken" IsChecked="{Binding CurrentOptions.PrintNotes, Mode=TwoWay}" />
+                        <CheckBox Content="Linux Druckfehler-Fix nutzen." IsChecked="{Binding PrintToFileFirst, Mode=TwoWay}" />
+                        <Grid ColumnDefinitions="380,100,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Tag="Label_Options_EssenceDecimals" Text="Nach wievielen Stellen hinter dem Komma soll für die Essenz-Berechnung gerundet werden?" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding EssenceDecimals}" SelectedItem="{Binding SelectedEssenceDecimals, Mode=TwoWay}" MaxDropDownHeight="120">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Tag="Tab_Options_Miscellaneous" Header="Verschiedenes">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" Spacing="8">
+                        <CheckBox Tag="Checkbox_Options_ConfirmDelete" Content="Um Bestätigung fragen beim Entfernen von Gegenständen" IsChecked="{Binding CurrentOptions.ConfirmDelete, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_ConfirmKarmaExpense" Content="Um Bestätigung fragen beim Ausgeben von Karma" IsChecked="{Binding CurrentOptions.ConfirmKarmaExpense, Mode=TwoWay}" />
+                        <CheckBox Content="Kopie des Charakters erstellen bevor er in den Karriere-Modus überführt wird" IsChecked="{Binding CurrentOptions.CreateBackupOnCareer, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_UseRestrictionsToRecoilCompensation" Content="Nutze Einschränkungen für Rückstoßkompensation (AR 156)" IsChecked="{Binding CurrentOptions.RestrictRecoil, Mode=TwoWay}" />
+                        <CheckBox Content="Erzwinge Kapazitätsgrenzen" IsChecked="{Binding CurrentOptions.EnforceCapacity, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_EnforceSkillRating" Content="Enforce maximum Skill modified Rating" IsChecked="{Binding CurrentOptions.EnforceMaximumSkillRatingModifier, Mode=TwoWay}" />
+                        <CheckBox Content="Karma cost for increasing Special Attributes is reduced with Essence Loss" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_AutomaticCopyProtection" Content="Kopierschutz-Software automatisch an Matrix Programme koppeln (Vernetzt benötigt)" IsChecked="{Binding CurrentOptions.AutomaticCopyProtection, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_AutomaticRegistration" Content="Registrations-Software automatisch an Matrix Programmen koppeln (Vernetzt benötigt)" IsChecked="{Binding CurrentOptions.AutomaticRegistration, Mode=TwoWay}" />
+                        <CheckBox Content="Berechne den Kommlink-Prozessor anhand der laufenden Programme" IsChecked="{Binding CurrentOptions.CalculateCommlinkResponse, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_ErgonomicProgramLimit" Content="Ergonomische Programme beeinflussen die Prozessorleistung des Kommlinks nicht (UN114)" IsChecked="{Binding CurrentOptions.ErgonomicProgramLimit, Mode=TwoWay}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
