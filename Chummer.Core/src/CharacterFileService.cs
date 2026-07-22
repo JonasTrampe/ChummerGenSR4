@@ -177,7 +177,11 @@ namespace Chummer.Core
 
         public string Karma => GetValue("/character/karma", "0");
 
-        public string Nuyen => GetValue("/character/nuyen", "0");
+        public string Nuyen
+        {
+            get => GetValue("/character/nuyen", "0");
+            set => SetRootValue("nuyen", value);
+        }
 
         /// <summary>Saved walking/running movement string (for example "10/25"), written by the
         /// legacy character save as &lt;movementwalk&gt;.</summary>

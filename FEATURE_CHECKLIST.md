@@ -12,14 +12,18 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 - ✅ Open/save `.chum` files
 - 🟡 **Anything added or edited in the UI actually persisting** — adding a Quality or a
-  Karma/Nuyen history entry now mutates the loaded XML and survives save/reload; all other
-  edits remain read-only or unwired.
+  Karma/Nuyen history entry now mutates the loaded XML and survives save/reload; character
+  profile/general fields such as alias, notes, biography text, street-cred values, and Nuyen
+  also write back to the loaded XML. Many other edits remain read-only or unwired.
 - ✅ Multiple characters open in tabs at once
 - ❌ Character creation flow (priority/point-buy system, `frmCreate` equivalent) — only three
   mockup dialogs (Settings Profile → Karma/GP → Metatype) chained together with no real logic
   behind any of them
-- ❌ Cloud save/share (RunnersPoint API) wired into the UI — the API client, auth, and DTOs are
-  ported to `Chummer.Core`, but nothing in Avalonia calls them (no share/cloud-open menu item)
+- 🟡 Cloud save/share (RunnersPoint API) wired into the UI — Avalonia now has a Cloud Documents
+  menu entry and dialog with OAuth/API-token login, folder tree, shared-documents toggle,
+  push/download/archive/unarchive, metadata editing, revisions, and document-to-folder drag/drop.
+  Remaining gaps are mostly parity/polish items around conflict/newer-revision flows and broader
+  legacy-Chummer UX parity.
 - ✅ MRU / recently-opened files list — Dateimenü shows sticky + normal recent characters via
   MVVM-bound menu items backed by `GlobalOptions`; local paths reopen directly and stale entries
   are removed when open fails
@@ -37,12 +41,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ❌ Straßenausrüstung → Haustiere und Begleiter (still a static mockup, no data model)
 - 🟡 Fahrzeuge und Drohnen — vehicle list shows name+category only; no handling/pilot/armor/
   sensor/mod/weapon stats (`Chummer.Core` doesn't model Vehicle beyond that)
-- 🟡 Charakter-Information — all fields load and are editable in the TextBoxes, but edits don't
-  save (see the I/O gap above)
+- ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
+  character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)
 - ✅ Kalender (read-only saved calendar weeks and notes; editing remains blocked on the shared
   write path)
-- ✅ Notizen (read-only character-level notes; editing remains blocked on the shared write path)
+- ✅ Notizen
 - ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
   status; editing remains blocked on the shared write path)
 

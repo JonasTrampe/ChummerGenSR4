@@ -5,11 +5,19 @@ namespace Chummer.NewUI.ViewModels;
 
 public sealed class GeneralSectionViewModel : ViewModelBase
 {
+    private CharacterDocument? _character;
+
     private string _strAlias = string.Empty;
     public string Alias
     {
         get => _strAlias;
-        set => SetField(ref _strAlias, value);
+        set
+        {
+            if (!SetField(ref _strAlias, value))
+                return;
+            if (_character != null)
+                _character.Alias = value;
+        }
     }
 
     private string _strMetatype = string.Empty;
@@ -23,7 +31,14 @@ public sealed class GeneralSectionViewModel : ViewModelBase
     public string Nuyen
     {
         get => _strNuyen;
-        set => SetField(ref _strNuyen, value);
+        set
+        {
+            if (!SetField(ref _strNuyen, value))
+                return;
+            if (_character != null)
+                _character.Nuyen = value;
+            NuyenEquivalent = "= " + value + "¥";
+        }
     }
 
     private string _strNuyenEquivalent = string.Empty;
@@ -31,6 +46,27 @@ public sealed class GeneralSectionViewModel : ViewModelBase
     {
         get => _strNuyenEquivalent;
         set => SetField(ref _strNuyenEquivalent, value);
+    }
+
+    private bool _blnShowMysticAdeptMagSplit;
+    public bool ShowMysticAdeptMagSplit
+    {
+        get => _blnShowMysticAdeptMagSplit;
+        set => SetField(ref _blnShowMysticAdeptMagSplit, value);
+    }
+
+    private string _strMysticAdeptMagicianMagSplit = string.Empty;
+    public string MysticAdeptMagicianMagSplit
+    {
+        get => _strMysticAdeptMagicianMagSplit;
+        set => SetField(ref _strMysticAdeptMagicianMagSplit, value);
+    }
+
+    private string _strMysticAdeptAdeptMagSplit = string.Empty;
+    public string MysticAdeptAdeptMagSplit
+    {
+        get => _strMysticAdeptAdeptMagSplit;
+        set => SetField(ref _strMysticAdeptAdeptMagSplit, value);
     }
 
     public ObservableCollection<AttributeRowViewModel> Attributes { get; } = new()
@@ -63,10 +99,14 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
     public void LoadCharacter(CharacterDocument character)
     {
+        _character = character;
         Alias = character.Alias;
         Metatype = character.Metatype;
         Nuyen = character.Nuyen;
         NuyenEquivalent = "= " + character.Nuyen + "¥";
+        ShowMysticAdeptMagSplit = character.MysticAdept;
+        MysticAdeptMagicianMagSplit = character.MysticAdept ? character.MysticAdeptMagicianMagSplit.ToString() : string.Empty;
+        MysticAdeptAdeptMagSplit = character.MysticAdept ? character.MysticAdeptAdeptMagSplit.ToString() : string.Empty;
 
         foreach (CharacterAttributeData attribute in character.Attributes)
         {
