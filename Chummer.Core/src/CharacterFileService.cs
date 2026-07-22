@@ -800,6 +800,176 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Career mode: raises an active skill's rating by one, deducting Karma. False if
+        /// not enough Karma, or the skill is currently grouped (raise the skill group instead).</summary>
+        public bool RaiseActiveSkill(int intSkillId)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            int intCost = intRating == 0
+                ? objOptions.KarmaNewActiveSkill
+                : (intRating + 1) * objOptions.KarmaImproveActiveSkill * (intRating >= 6 ? 2 : 1);
+
+            int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+            if (intCost > intKarma)
+                return false;
+
+            string strName = GetValue(objNode, "name", string.Empty);
+            SetChildValue(objNode, "rating", (intRating + 1).ToString());
+            Karma = (intKarma - intCost).ToString();
+
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.ImproveSkill, strName);
+            AddExpense("Karma", -intCost, strName + " " + intRating + " -> " + (intRating + 1), null, objUndo);
+            return true;
+        }
+
+        /// <summary>Create mode: sets an active skill's rating directly. False if the skill is
+        /// currently grouped (set the group's rating instead).</summary>
+        public bool SetActiveSkillRating(int intSkillId, int intRating)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+                return false;
+
+            SetChildValue(objNode, "rating", intRating.ToString());
+            return true;
+        }
+
+        /// <summary>Career mode: raises a skill group's rating by one, deducting Karma, and keeps
+        /// every grouped member skill's own rating in sync with the new group rating.</summary>
+        public bool RaiseSkillGroup(string strGroupName)
+        {
+            XmlNode? objNode = GetSkillGroupNode(strGroupName);
+            if (objNode == null)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            int intCost = intRating == 0 ? objOptions.KarmaNewSkillGroup : (intRating + 1) * objOptions.KarmaImproveSkillGroup;
+
+            int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+            if (intCost > intKarma)
+                return false;
+
+            int intNewRating = intRating + 1;
+            SetChildValue(objNode, "rating", intNewRating.ToString());
+            SyncGroupedSkillRatings(strGroupName, intNewRating);
+            Karma = (intKarma - intCost).ToString();
+
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.ImproveSkillGroup, strGroupName);
+            AddExpense("Karma", -intCost, strGroupName + " " + intRating + " -> " + intNewRating, null, objUndo);
+            return true;
+        }
+
+        /// <summary>Create mode: sets a skill group's rating directly and syncs member skills.</summary>
+        public bool SetSkillGroupRating(string strGroupName, int intRating)
+        {
+            XmlNode? objNode = GetSkillGroupNode(strGroupName);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "rating", intRating.ToString());
+            SyncGroupedSkillRatings(strGroupName, intRating);
+            return true;
+        }
+
+        private void SyncGroupedSkillRatings(string strGroupName, int intRating)
+        {
+            var objNodes = Document.SelectNodes("/character/skills/skill");
+            if (objNodes == null) return;
+            foreach (XmlNode objSkillNode in objNodes)
+            {
+                if (GetValue(objSkillNode, "skillgroup", string.Empty) == strGroupName
+                    && GetValue(objSkillNode, "grouped", "False") == "True")
+                    SetChildValue(objSkillNode, "rating", intRating.ToString());
+            }
+        }
+
+        /// <summary>Create mode: sets an active skill's specialization directly, no Karma cost.</summary>
+        public bool SetActiveSkillSpecialization(int intSkillId, string strSpecialization)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "spec", strSpecialization);
+            return true;
+        }
+
+        /// <summary>Career mode: sets an active skill's specialization, deducting the flat
+        /// KarmaSpecialization cost. False if not enough Karma.</summary>
+        public bool AddActiveSkillSpecialization(int intSkillId, string strSpecialization)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            int intCost = objOptions.KarmaSpecialization;
+            int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+            if (intCost > intKarma)
+                return false;
+
+            string strName = GetValue(objNode, "name", string.Empty);
+            SetChildValue(objNode, "spec", strSpecialization);
+            Karma = (intKarma - intCost).ToString();
+
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.SkillSpec, strName);
+            AddExpense("Karma", -intCost, strName + " -> " + strSpecialization, null, objUndo);
+            return true;
+        }
+
+        /// <summary>Adds a new Exotic Active Skill (e.g. "Exotic Ranged Weapon (Bow)" - the
+        /// specialization holds the "(Bow)" sub-type). Starts at rating 0; the first point costs
+        /// KarmaNewActiveSkill like any other new active skill when raised.</summary>
+        public void AddExoticSkill(string strName, string strSpecialization, string strCategory, string strAttribute)
+        {
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objSkills = objRoot.SelectSingleNode("skills");
+            if (objSkills == null)
+            {
+                objSkills = Document.CreateElement("skills");
+                objRoot.AppendChild(objSkills);
+            }
+
+            var objSkill = Document.CreateElement("skill");
+            AppendElement(objSkill, "name", strName.Trim());
+            AppendElement(objSkill, "skillgroup", string.Empty);
+            AppendElement(objSkill, "skillcategory", strCategory);
+            AppendElement(objSkill, "grouped", "False");
+            AppendElement(objSkill, "default", "False");
+            AppendElement(objSkill, "rating", "0");
+            AppendElement(objSkill, "ratingmax", "6");
+            AppendElement(objSkill, "knowledge", "False");
+            AppendElement(objSkill, "exotic", "True");
+            AppendElement(objSkill, "spec", strSpecialization.Trim());
+            AppendElement(objSkill, "allowdelete", "True");
+            AppendElement(objSkill, "attribute", strAttribute);
+            AppendElement(objSkill, "totalvalue", "0");
+            objSkills.AppendChild(objSkill);
+        }
+
+        private XmlNode? GetActiveSkillNode(int intSkillId)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/skills/skill");
+            if (objNodes == null || intSkillId < 0 || intSkillId >= objNodes.Count)
+                return null;
+
+            XmlNode objNode = objNodes[intSkillId]!;
+            return GetValue(objNode, "knowledge", "False") == "False" ? objNode : null;
+        }
+
+        private XmlNode? GetSkillGroupNode(string strGroupName)
+            => Document.SelectSingleNode("/character/skillgroups/skillgroup[name = '" + strGroupName + "']");
+
         public bool RemoveKnowledgeSkill(int intSkillId)
         {
             XmlNode? objNode = GetKnowledgeSkillNode(intSkillId);
@@ -1420,12 +1590,13 @@ namespace Chummer.Core
             bool blnAllowDelete = GetValue(objNode, "allowdelete", "False") == "True";
             bool blnKnowledge = GetValue(objNode, "knowledge", "False") == "True";
 
+            bool blnExotic = GetValue(objNode, "exotic", "False") == "True";
             (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
                 strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization);
 
             return new CharacterSkillData(intSkillId, strName, strAttribute, intRating.ToString(), strRatingDisplay,
                 intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked, blnAllowDelete,
-                blnKnowledge);
+                blnKnowledge, strSkillGroup, blnExotic);
         }
 
         /// <summary>Ported from clsUnique.cs's Skill.TotalRating (the dice pool) and
@@ -1960,7 +2131,8 @@ namespace Chummer.Core
     {
         internal CharacterSkillData(int intSkillId, string strName, string strAttribute, string strBaseRating,
             string strRating, string strTotalValue, string strPoolTooltip, string strSpecialization,
-            string strCategory, bool blnIsGroupLocked, bool blnAllowDelete, bool blnKnowledgeSkill)
+            string strCategory, bool blnIsGroupLocked, bool blnAllowDelete, bool blnKnowledgeSkill,
+            string strSkillGroup = "", bool blnExotic = false)
         {
             SkillId = intSkillId;
             Name = strName;
@@ -1974,6 +2146,8 @@ namespace Chummer.Core
             IsGroupLocked = blnIsGroupLocked;
             AllowDelete = blnAllowDelete;
             KnowledgeSkill = blnKnowledgeSkill;
+            SkillGroup = strSkillGroup;
+            Exotic = blnExotic;
         }
 
         public int SkillId { get; }
@@ -2000,6 +2174,8 @@ namespace Chummer.Core
         public bool IsGroupLocked { get; private set; }
         public bool AllowDelete { get; private set; }
         public bool KnowledgeSkill { get; private set; }
+        public string SkillGroup { get; private set; }
+        public bool Exotic { get; private set; }
     }
 
     public sealed class CharacterContactData

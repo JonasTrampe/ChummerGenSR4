@@ -329,6 +329,110 @@ public class CharacterFileServiceTests
         Assert.Equal("10", character.Karma);
     }
 
+    private static CharacterDocument LoadCharacterWithSkill(int intRating, bool blnGrouped = false, string strKarma = "100")
+    {
+        return LoadXml("<character><name>Runner</name><karma>" + strKarma + "</karma>"
+            + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>" + blnGrouped + "</grouped><rating>" + intRating
+            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete>"
+            + "</skill></skills></character>");
+    }
+
+    [Fact]
+    public void RaiseActiveSkill_NewSkillCostsKarmaNewActiveSkill()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 0);
+
+        Assert.True(character.RaiseActiveSkill(0));
+
+        Assert.Equal("1", character.Skills.Single().BaseRating);
+        Assert.Equal("96", character.Karma); // 100 - KarmaNewActiveSkill(4)
+    }
+
+    [Fact]
+    public void RaiseActiveSkill_ImprovingCostsRatingPlusOneTimesKarmaImproveActiveSkill()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
+
+        Assert.True(character.RaiseActiveSkill(0));
+
+        Assert.Equal("4", character.Skills.Single().BaseRating);
+        Assert.Equal("92", character.Karma); // 100 - (3+1)*KarmaImproveActiveSkill(2) = 100-8
+    }
+
+    [Fact]
+    public void RaiseActiveSkill_DoublesCostAboveRatingSix()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 6);
+
+        Assert.True(character.RaiseActiveSkill(0));
+
+        Assert.Equal("7", character.Skills.Single().BaseRating);
+        Assert.Equal("72", character.Karma); // 100 - (6+1)*2*2 = 100-28
+    }
+
+    [Fact]
+    public void RaiseActiveSkill_FailsWhenSkillIsGrouped()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 2, blnGrouped: true);
+
+        Assert.False(character.RaiseActiveSkill(0));
+        Assert.False(character.SetActiveSkillRating(0, 3));
+        Assert.Equal("2", character.Skills.Single().BaseRating);
+    }
+
+    [Fact]
+    public void RaiseSkillGroup_DeductsKarmaAndSyncsGroupedMemberSkills()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma>"
+            + "<skillgroups><skillgroup><name>Firearms</name><rating>2</rating></skillgroup></skillgroups>"
+            + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>True</grouped><rating>2</rating><knowledge>False</knowledge>"
+            + "<exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill></skills></character>");
+
+        Assert.True(character.RaiseSkillGroup("Firearms"));
+
+        Assert.Equal("3", character.SkillGroups.Single().Rating);
+        Assert.Equal("3", character.Skills.Single().BaseRating);
+        Assert.Equal("85", character.Karma); // 100 - (2+1)*KarmaImproveSkillGroup(5) = 100-15
+    }
+
+    [Fact]
+    public void AddActiveSkillSpecialization_CostsKarmaSpecializationInCareerMode()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
+
+        Assert.True(character.AddActiveSkillSpecialization(0, "Semi-Automatics"));
+
+        Assert.Equal("Semi-Automatics", character.Skills.Single().Specialization);
+        Assert.Equal("98", character.Karma); // 100 - KarmaSpecialization(2)
+    }
+
+    [Fact]
+    public void SetActiveSkillSpecialization_DoesNotChargeKarma()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
+
+        Assert.True(character.SetActiveSkillSpecialization(0, "Semi-Automatics"));
+
+        Assert.Equal("Semi-Automatics", character.Skills.Single().Specialization);
+        Assert.Equal("100", character.Karma);
+    }
+
+    [Fact]
+    public void AddExoticSkill_CreatesNewSkillAtRatingZero()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        character.AddExoticSkill("Exotic Ranged Weapon", "Bow", "Combat Active", "AGI");
+
+        CharacterSkillData skill = character.Skills.Single();
+        Assert.Equal("Exotic Ranged Weapon", skill.Name);
+        Assert.Equal("Bow", skill.Specialization);
+        Assert.True(skill.Exotic);
+        Assert.Equal("0", skill.BaseRating);
+    }
+
     [Fact]
     public void Gear_CalculatedCostAndAvailEvaluateRatingFormulasAndSumChildren()
     {
