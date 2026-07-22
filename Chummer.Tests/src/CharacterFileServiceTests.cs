@@ -238,6 +238,16 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Condition_ComputesEssenceFromCyberwareAndBioware()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // ESS metatypemax 6, Wired Reflexes (Cyberware) ess 1.5 and Cerebral Booster (Bioware)
+        // ess 0.5: the higher cost (1.5) counts in full, the lower (0.5) at half -> 6 - 1.5 - 0.25.
+        Assert.Equal("4.25", character.Condition.Essence);
+    }
+
+    [Fact]
     public void Condition_ComputesPhysicalAndStunTrackFromImprovements()
     {
         CharacterDocument character = LoadFixture();

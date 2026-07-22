@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -216,9 +217,47 @@ namespace Chummer.Core
         }
 
         public CharacterConditionData Condition =>
-            new(GetAttributeValue("ESS"),
+            new(ComputeEssence(),
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
                 ComputePhysicalCm(), ComputeStunCm());
+
+        // Ported from clsCharacter.cs's Essence property. Each Cyberware/Bioware item's Essence
+        // cost is read straight from its saved <ess> element (the legacy app already evaluates
+        // CalculatedESS - grade multiplier, essence discount, rating-based cost expressions - at
+        // save time) rather than re-deriving that formula here. Cyberware and Bioware costs are
+        // totaled separately; the higher total counts in full and the lower at half, matching the
+        // "layered" Essence cost rule. The CyborgEssence fixed-at-0.1 override isn't ported (it
+        // needs a save file that actually uses it to verify against).
+        private string ComputeEssence()
+        {
+            double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
+                NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsedMax) ? dblParsedMax : 0;
+            var lstEssenceImprovements = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Essence);
+            double dblBase = dblMax + lstEssenceImprovements.Sum(c => c.Value);
+
+            double dblCyberware = 0, dblBioware = 0, dblHoles = 0;
+            var objNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objNodes != null)
+            {
+                foreach (XmlNode objNode in objNodes)
+                {
+                    double dblEss = double.TryParse(GetValue(objNode, "ess", "0"), NumberStyles.Float,
+                        CultureInfo.InvariantCulture, out var dblParsedEss) ? dblParsedEss : 0;
+                    if (GetValue(objNode, "name", string.Empty) == "Essence Hole")
+                        dblHoles += dblEss;
+                    else if (GetValue(objNode, "improvementsource", string.Empty) == "Bioware")
+                        dblBioware += dblEss;
+                    else
+                        dblCyberware += dblEss;
+                }
+            }
+
+            double dblHigher = Math.Max(dblCyberware, dblBioware);
+            double dblLower = Math.Min(dblCyberware, dblBioware);
+            double dblTotal = dblBase - dblHigher - (dblLower / 2) - dblHoles;
+
+            return dblTotal.ToString("0.##", CultureInfo.InvariantCulture);
+        }
 
         /// <summary>Sums two attributes plus any Improvements of the given type against no specific
         /// ImprovedName (used by the "Special Attribute Tests": Composure, Judge Intentions, Lift and

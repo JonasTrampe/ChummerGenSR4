@@ -158,11 +158,13 @@
     <cyberware>
       <name>Wired Reflexes</name>
       <improvementsource>Cyberware</improvementsource>
+      <ess>1.5</ess>
       <children />
     </cyberware>
     <cyberware>
       <name>Cerebral Booster</name>
       <improvementsource>Bioware</improvementsource>
+      <ess>0.5</ess>
       <children />
     </cyberware>
   </cyberwares>
