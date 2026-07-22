@@ -221,6 +221,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Attributes_AugmentedValueIncludesAttributeImprovements()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // REA totalvalue 4, plus the fixture's Wired Reflexes +2 REA Improvement (stored in
+        // Augmented, not Value - it boosts the augmented attribute without raising the base).
+        CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
+        Assert.Equal("4", rea.TotalValue);
+        Assert.Equal(6, rea.Augmented.Value);
+        Assert.Contains("Wired Reflexes", rea.Augmented.Tooltip);
+
+        // BOD has no Attribute-type Improvements in the fixture, so Augmented == TotalValue.
+        CharacterAttributeData bod = character.Attributes.Single(a => a.Code == "BOD");
+        Assert.Equal(int.Parse(bod.TotalValue), bod.Augmented.Value);
+    }
+
+    [Fact]
     public void Condition_ComputesPhysicalAndStunTrackFromImprovements()
     {
         CharacterDocument character = LoadFixture();

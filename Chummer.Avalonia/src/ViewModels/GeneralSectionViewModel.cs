@@ -124,7 +124,9 @@ public sealed class GeneralSectionViewModel : ViewModelBase
                 continue;
 
             row.Base = attribute.Value;
-            row.Augmented = attribute.TotalValue == attribute.Value ? string.Empty : "(" + attribute.TotalValue + ")";
+            row.Augmented = int.TryParse(attribute.Value, out int intBase) && intBase == attribute.Augmented.Value
+                ? string.Empty
+                : "(" + attribute.Augmented.Value + ")";
             row.Range = attribute.Minimum + " / " + attribute.Maximum + " (" + attribute.AugmentedMaximum + ")";
         }
 

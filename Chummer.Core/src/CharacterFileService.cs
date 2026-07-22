@@ -1133,13 +1133,35 @@ namespace Chummer.Core
             var objNodes = Document.SelectNodes("/character/attributes/attribute");
             if (objNodes == null) return lstAttributes;
             foreach (XmlNode objNode in objNodes)
+            {
+                var strCode = GetValue(objNode, "name", string.Empty);
+                var strTotalValue = GetValue(objNode, "totalvalue", GetValue(objNode, "value", "0"));
                 lstAttributes.Add(new CharacterAttributeData(
-                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "value", "0"),
-                    GetValue(objNode, "totalvalue", GetValue(objNode, "value", "0")),
+                    strCode, GetValue(objNode, "value", "0"), strTotalValue,
                     GetValue(objNode, "metatypemin", "0"), GetValue(objNode, "metatypemax", "0"),
-                    GetValue(objNode, "metatypeaugmax", GetValue(objNode, "metatypemax", "0"))));
+                    GetValue(objNode, "metatypeaugmax", GetValue(objNode, "metatypemax", "0")),
+                    ComputeAttributeAugmented(strCode, strTotalValue)));
+            }
 
             return lstAttributes;
+        }
+
+        // Ported from clsUnique.cs's Attribute.AttributeModifiers/TotalValue: attribute-boosting
+        // Improvements (e.g. Wired Reflexes) store their bonus in Augmented, not Value, since they
+        // raise the augmented attribute without touching its permanent/base value. Cyberlimb
+        // averaging and the metatype-augmented-maximum clamp aren't ported yet - flag if a save
+        // file needs them.
+        private CharacterDerivedValueData ComputeAttributeAugmented(string strCode, string strTotalValue)
+        {
+            var intBase = int.TryParse(strTotalValue, out var intParsed) ? intParsed : 0;
+            var lstContributions = ImprovementManager.DescribeAugmentedValueOf(Improvements, ImprovementType.Attribute, strCode);
+            var intTotal = intBase + lstContributions.Sum(c => c.Value);
+
+            var sb = new StringBuilder();
+            sb.Append("Basis: ").Append(intBase);
+            AppendContributions(sb, lstContributions);
+            sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+            return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
         private IReadOnlyList<CharacterQualityData> ReadQualities()
@@ -1561,7 +1583,7 @@ namespace Chummer.Core
     public sealed class CharacterAttributeData
     {
         internal CharacterAttributeData(string strCode, string strValue, string strTotalValue, string strMinimum,
-            string strMaximum, string strAugmentedMaximum)
+            string strMaximum, string strAugmentedMaximum, CharacterDerivedValueData augmented)
         {
             Code = strCode;
             Value = strValue;
@@ -1569,6 +1591,7 @@ namespace Chummer.Core
             Minimum = strMinimum;
             Maximum = strMaximum;
             AugmentedMaximum = strAugmentedMaximum;
+            Augmented = augmented;
         }
 
         public string Code { get; private set; }
@@ -1577,6 +1600,10 @@ namespace Chummer.Core
         public string Minimum { get; private set; }
         public string Maximum { get; private set; }
         public string AugmentedMaximum { get; private set; }
+
+        /// <summary>TotalValue plus any Attribute-type Improvement bonuses (e.g. Wired Reflexes'
+        /// Reaction boost) that raise the augmented value without changing TotalValue itself.</summary>
+        public CharacterDerivedValueData Augmented { get; private set; }
     }
 
     public sealed class CharacterConditionData
