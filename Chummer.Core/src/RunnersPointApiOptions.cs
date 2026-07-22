@@ -5,6 +5,6 @@ namespace Chummer.Core
     /// </summary>
     public class RunnersPointApiOptions
     {
-        public string BaseUrl { get; set; } = "http://localhost:8000/api/v1";
+        public string BaseUrl { get; set; } = "https://runners-point.link/api/v1";
     }
 }

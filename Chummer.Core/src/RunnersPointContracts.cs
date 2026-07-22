@@ -16,6 +16,7 @@ namespace Chummer.Core
         public string CurrentRevision { get; set; } = string.Empty;
         public string ValidationState { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
+        public int? FolderId { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
 
@@ -66,9 +67,19 @@ namespace Chummer.Core
 
     public class RunnersPointSharedDocument : RunnersPointDocument
     {
+        public int? RecipientFolderId { get; set; }
         public string Permission { get; set; } = string.Empty;
         public string ShareStatus { get; set; } = string.Empty;
         public DateTime? ExpiresAt { get; set; }
+    }
+
+    public class RunnersPointFolder
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int? ParentFolderId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     public class RunnersPointSharedDocumentPage

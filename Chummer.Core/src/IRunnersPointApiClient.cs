@@ -10,6 +10,10 @@ namespace Chummer.Core
     public interface IRunnersPointApiClient
     {
         Task<RunnersPointCapabilities> GetCapabilitiesAsync();
+        Task<List<RunnersPointFolder>> ListFoldersAsync();
+        Task<RunnersPointFolder> CreateFolderAsync(string strName, int? intParentFolderId = null);
+        Task<RunnersPointFolder> UpdateFolderAsync(int intFolderId, string strName = null, int? intParentFolderId = null, bool blnIncludeParentFolderId = false);
+        Task DeleteFolderAsync(int intFolderId);
 
         Task<RunnersPointDocumentPage> ListDocumentsAsync(string strGameProfileId, string strCursor = "",
             int intPageSize = 25);
@@ -22,6 +26,7 @@ namespace Chummer.Core
 
         Task<RunnersPointRevisionStatus> GetRevisionStatusAsync(string strRevisionId);
         Task<Tuple<byte[], string>> DownloadRevisionAsync(string strDocumentId, string strRevisionId);
+        Task<RunnersPointDocument> SetDocumentFolderAsync(string strDocumentId, int? intFolderId);
         Task ArchiveDocumentAsync(string strDocumentId, string strIfMatch);
         Task<RunnersPointDocument> UnarchiveDocumentAsync(string strDocumentId, string strIfMatch);
 
@@ -40,6 +45,7 @@ namespace Chummer.Core
             string strDisplayName, string strDescription, string strImageUrl);
 
         Task<Tuple<byte[], string>> DownloadSharedDocumentRevisionAsync(string strDocumentId, string strRevisionId);
+        Task<RunnersPointSharedDocument> SetSharedDocumentFolderAsync(string strDocumentId, int? intFolderId);
         Task<List<RunnersPointRevision>> ListRevisionsAsync(string strDocumentId);
         Task<List<RunnersPointRevision>> ListSharedRevisionsAsync(string strDocumentId);
         Task PurgeDocumentAsync(string strDocumentId, string strIfMatch);

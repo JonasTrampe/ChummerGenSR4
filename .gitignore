@@ -53,8 +53,9 @@ bin/
 *.svclog
 *.scc
 .codex/
+.artifacts/
+.build-scratch/
 
 
 ### NuGet packages restored via packages.config ###
 /packages/
-

@@ -85,7 +85,99 @@ namespace Chummer.NewUI.Api
 
 		private static string? GetOptionalString(Dictionary<string, object> objJson, string strName)
 		{
-			return objJson.TryGetValue(strName, out var objValue) ? objValue?.ToString() : null;
+			return objJson.TryGetValue(strName, out var objValue) ? GetStringValue(objValue) : null;
+		}
+
+		private static int? GetOptionalInt(Dictionary<string, object>? objJson, string strName)
+		{
+			return objJson != null && objJson.TryGetValue(strName, out var objValue) ? GetIntValue(objValue) : null;
+		}
+
+		private static long GetLongOrDefault(Dictionary<string, object> objJson, string strName, long lngDefault = 0)
+		{
+			return objJson.TryGetValue(strName, out var objValue) ? GetLongValue(objValue) ?? lngDefault : lngDefault;
+		}
+
+		private static string? GetStringValue(object? objValue)
+		{
+			if (objValue == null)
+				return null;
+			if (objValue is JsonElement objElement)
+			{
+				return objElement.ValueKind switch
+				{
+					JsonValueKind.Null => null,
+					JsonValueKind.String => objElement.GetString(),
+					JsonValueKind.Number => objElement.ToString(),
+					JsonValueKind.True => bool.TrueString,
+					JsonValueKind.False => bool.FalseString,
+					_ => objElement.ToString()
+				};
+			}
+
+			return objValue.ToString();
+		}
+
+		private static int? GetIntValue(object? objValue)
+		{
+			if (objValue == null)
+				return null;
+			if (objValue is JsonElement objElement)
+			{
+				if (objElement.ValueKind == JsonValueKind.Number && objElement.TryGetInt32(out var intNumber))
+					return intNumber;
+				if (objElement.ValueKind == JsonValueKind.String && int.TryParse(objElement.GetString(), out intNumber))
+					return intNumber;
+				return null;
+			}
+
+			return Convert.ToInt32(objValue);
+		}
+
+		private static long? GetLongValue(object? objValue)
+		{
+			if (objValue == null)
+				return null;
+			if (objValue is JsonElement objElement)
+			{
+				if (objElement.ValueKind == JsonValueKind.Number && objElement.TryGetInt64(out var lngNumber))
+					return lngNumber;
+				if (objElement.ValueKind == JsonValueKind.String && long.TryParse(objElement.GetString(), out lngNumber))
+					return lngNumber;
+				return null;
+			}
+
+			return Convert.ToInt64(objValue);
+		}
+
+		private static Dictionary<string, object>? GetObjectValue(object? objValue)
+		{
+			if (objValue is Dictionary<string, object> objDictionary)
+				return objDictionary;
+			if (objValue is JsonElement objElement && objElement.ValueKind == JsonValueKind.Object)
+				return JsonSerializer.Deserialize<Dictionary<string, object>>(objElement.GetRawText());
+			return null;
+		}
+
+		private static IEnumerable<object> GetArrayValues(object? objValue)
+		{
+			if (objValue == null)
+				yield break;
+			if (objValue is JsonElement objElement && objElement.ValueKind == JsonValueKind.Array)
+			{
+				foreach (var objItem in objElement.EnumerateArray())
+					yield return objItem;
+				yield break;
+			}
+
+			if (objValue is IEnumerable objEnumerable && objValue is not string)
+			{
+				foreach (var objItem in objEnumerable)
+				{
+					if (objItem != null)
+						yield return objItem;
+				}
+			}
 		}
 
 		/// <summary>
@@ -194,19 +286,21 @@ namespace Chummer.NewUI.Api
 			
 			var objCapabilities = new RunnersPointCapabilities();
 			objCapabilities.ApiVersion = GetString(objJson, "apiVersion");
-			objCapabilities.MaxUploadBytes = objJson.TryGetValue("maxUploadBytes", out var value1) ? Convert.ToInt64(value1) : 0;
+			objCapabilities.MaxUploadBytes = GetLongOrDefault(objJson, "maxUploadBytes");
 
 			if (objJson.TryGetValue("formats", out var value2))
 			{
-				foreach (var objFormat in (IEnumerable)value2)
-					objCapabilities.Formats.Add(objFormat?.ToString() ?? string.Empty);
+				foreach (var objFormat in GetArrayValues(value2))
+					objCapabilities.Formats.Add(GetStringValue(objFormat) ?? string.Empty);
 			}
 
 			if (objJson.TryGetValue("gameProfiles", out var value3))
 			{
-				foreach (var objProfileObj in (IEnumerable)value3)
+				foreach (var objProfileObj in GetArrayValues(value3))
 				{
-					var objProfile = (Dictionary<string, object>)objProfileObj;
+					var objProfile = GetObjectValue(objProfileObj);
+					if (objProfile == null)
+						continue;
 					var objGameProfile = new RunnersPointGameProfile();
 					objGameProfile.Id = GetString(objProfile, "id");
 					objGameProfile.System = GetString(objProfile, "system");
@@ -214,8 +308,8 @@ namespace Chummer.NewUI.Api
 					objGameProfile.DisplayName = GetString(objProfile, "displayName");
 					if (objProfile.TryGetValue("formats", out var value8))
 					{
-						foreach (var objFormat in (IEnumerable)value8)
-							objGameProfile.Formats.Add(objFormat?.ToString() ?? string.Empty);
+						foreach (var objFormat in GetArrayValues(value8))
+							objGameProfile.Formats.Add(GetStringValue(objFormat) ?? string.Empty);
 					}
 					objCapabilities.GameProfiles.Add(objGameProfile);
 				}
@@ -223,21 +317,25 @@ namespace Chummer.NewUI.Api
 
 			if (objJson.TryGetValue("documentTypes", out var value9))
 			{
-				foreach (var objTypeObj in (IEnumerable)value9)
+				foreach (var objTypeObj in GetArrayValues(value9))
 				{
-					var objType = (Dictionary<string, object>)objTypeObj;
+					var objType = GetObjectValue(objTypeObj);
+					if (objType == null)
+						continue;
 					var objTypeCapability = new RunnersPointDocumentTypeCapability();
 					objTypeCapability.Id = GetString(objType, "id");
 					objTypeCapability.DisplayName = GetString(objType, "displayName");
 					if (objType.TryGetValue("formats", out var value6))
 					{
-						foreach (var objFormatObj in (IEnumerable)value6)
+						foreach (var objFormatObj in GetArrayValues(value6))
 						{
-							var objFormat = (Dictionary<string, object>)objFormatObj;
+							var objFormat = GetObjectValue(objFormatObj);
+							if (objFormat == null)
+								continue;
 							objTypeCapability.Formats.Add(new RunnersPointDocumentFormatCapability
 							{
 								MediaType = GetString(objFormat, "mediaType"),
-								MaxUploadBytes = objFormat.TryGetValue("maxUploadBytes", out var value8) ? Convert.ToInt64(value8) : 0,
+								MaxUploadBytes = GetLongOrDefault(objFormat, "maxUploadBytes"),
 							});
 						}
 					}
@@ -246,6 +344,88 @@ namespace Chummer.NewUI.Api
 			}
 
 			return objCapabilities;
+		}
+
+		internal static RunnersPointFolder ParseFolder(Dictionary<string, object> objJson)
+		{
+			var objFolder = new RunnersPointFolder
+			{
+				Id = GetIntValue(objJson["id"]) ?? 0,
+				Name = GetString(objJson, "name"),
+				ParentFolderId = GetOptionalInt(objJson, "parentFolderId")
+			};
+			if (objJson.ContainsKey("createdAt") && DateTime.TryParse(objJson["createdAt"].ToString(), out var datCreatedAt))
+				objFolder.CreatedAt = datCreatedAt;
+			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out var datUpdatedAt))
+				objFolder.UpdatedAt = datUpdatedAt;
+			return objFolder;
+		}
+
+		public async Task<List<RunnersPointFolder>> ListFoldersAsync()
+		{
+			var objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/folders"));
+			await ThrowIfProblemAsync(objResponse);
+
+			var strBody = await objResponse.Content.ReadAsStringAsync();
+			var objJson = JsonSerializer.Deserialize<Dictionary<string, object>>(strBody);
+			var lstFolders = new List<RunnersPointFolder>();
+			if (objJson != null && objJson.TryGetValue("items", out var objItems))
+			{
+				foreach (var objItemObj in GetArrayValues(objItems))
+				{
+					var objItem = GetObjectValue(objItemObj);
+					if (objItem != null)
+						lstFolders.Add(ParseFolder(objItem));
+				}
+			}
+
+			return lstFolders;
+		}
+
+		public async Task<RunnersPointFolder> CreateFolderAsync(string strName, int? intParentFolderId = null)
+		{
+			var objBody = new Dictionary<string, object?> { { "name", strName } };
+			if (intParentFolderId.HasValue)
+				objBody["parentFolderId"] = intParentFolderId.Value;
+
+			var objResponse = await SendWithRetryAsync(async () =>
+			{
+				var objRequest = await CreateRequestAsync(HttpMethod.Post, "/folders");
+				objRequest.Content = new StringContent(JsonSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			var strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseFolder(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody)
+				?? throw new InvalidOperationException("Failed to deserialize folder response."));
+		}
+
+		public async Task<RunnersPointFolder> UpdateFolderAsync(int intFolderId, string? strName = null, int? intParentFolderId = null, bool blnIncludeParentFolderId = false)
+		{
+			var objBody = new Dictionary<string, object?>();
+			if (strName != null)
+				objBody["name"] = strName;
+			if (blnIncludeParentFolderId)
+				objBody["parentFolderId"] = intParentFolderId;
+
+			var objResponse = await SendWithRetryAsync(async () =>
+			{
+				var objRequest = await CreateRequestAsync(PatchMethod, "/folders/" + intFolderId);
+				objRequest.Content = new StringContent(JsonSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			var strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseFolder(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody)
+				?? throw new InvalidOperationException("Failed to deserialize folder response."));
+		}
+
+		public async Task DeleteFolderAsync(int intFolderId)
+		{
+			var objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Delete, "/folders/" + intFolderId));
+			await ThrowIfProblemAsync(objResponse);
 		}
 
 		/// <summary>
@@ -273,8 +453,12 @@ namespace Chummer.NewUI.Api
 
 			if (objJson.TryGetValue("items", out var items))
 			{
-				foreach (var objItemObj in (IEnumerable)items)
-					objPage.Items.Add(ParseDocument((Dictionary<string, object>)objItemObj));
+				foreach (var objItemObj in GetArrayValues(items))
+				{
+					var objItem = GetObjectValue(objItemObj);
+					if (objItem != null)
+						objPage.Items.Add(ParseDocument(objItem));
+				}
 			}
 
 			return objPage;
@@ -295,17 +479,18 @@ namespace Chummer.NewUI.Api
 			objDocument.SchemaVersion = GetString(objJson, "schemaVersion");
 			objDocument.CurrentRevision = GetString(objJson, "currentRevision");
 			objDocument.ValidationState = GetString(objJson, "validationState");
-			if (objJson.ContainsKey("metadata") && objJson["metadata"] is Dictionary<string, object>)
+			objDocument.FolderId = GetOptionalInt(objJson, "folderId");
+			var objMetadata = objJson.ContainsKey("metadata") ? GetObjectValue(objJson["metadata"]) : null;
+			if (objMetadata != null)
 			{
-				var objMetadata = (Dictionary<string, object>)objJson["metadata"];
 				if (objMetadata.TryGetValue("displayName", out var value7))
-					objDocument.DisplayName = value7?.ToString() ?? string.Empty;
+					objDocument.DisplayName = GetStringValue(value7) ?? string.Empty;
 				// The server's character-document extractor currently populates metadata.name (the
 				// charactername/name XML element), not metadata.displayName as the spec and this client
 				// otherwise expect - fall back to it so the list doesn't just show raw document IDs for
 				// every character until that's reconciled server-side.
 				else if (objMetadata.TryGetValue("name", out var value8))
-					objDocument.DisplayName = value8?.ToString() ?? string.Empty;
+					objDocument.DisplayName = GetStringValue(value8) ?? string.Empty;
 			}
 			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out var datUpdatedAt))
 				objDocument.UpdatedAt = datUpdatedAt;
@@ -329,10 +514,13 @@ namespace Chummer.NewUI.Api
 				CurrentRevision = objBase.CurrentRevision,
 				ValidationState = objBase.ValidationState,
 				DisplayName = objBase.DisplayName,
-				UpdatedAt = objBase.UpdatedAt
+				UpdatedAt = objBase.UpdatedAt,
+				FolderId = objBase.FolderId
 			};
+			objShared.RecipientFolderId = GetOptionalInt(objJson, "recipientFolderId");
 
-			if (objJson != null && objJson.TryGetValue("share", out var objShareValue) && objShareValue is Dictionary<string, object> objShare)
+			var objShare = objJson != null && objJson.TryGetValue("share", out var objShareValue) ? GetObjectValue(objShareValue) : null;
+			if (objShare != null)
 			{
 				objShared.Permission = GetString(objShare, "permission");
 				objShared.ShareStatus = GetString(objShare, "status");
@@ -421,8 +609,8 @@ namespace Chummer.NewUI.Api
 			objStatus.State = GetString(objJson, "state");
 			if (objJson.TryGetValue("messages", out var value3))
 			{
-				foreach (var objMessage in (IEnumerable)value3)
-					objStatus.Messages.Add(objMessage?.ToString() ?? string.Empty);
+				foreach (var objMessage in GetArrayValues(value3))
+					objStatus.Messages.Add(GetStringValue(objMessage) ?? string.Empty);
 			}
 			return objStatus;
 		}
@@ -459,6 +647,19 @@ namespace Chummer.NewUI.Api
 			}
 
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse) ?? string.Empty);
+		}
+
+		public async Task<RunnersPointDocument> SetDocumentFolderAsync(string strDocumentId, int? intFolderId)
+		{
+			var objResponse = await SendWithRetryAsync(async () =>
+			{
+				var objRequest = await CreateRequestAsync(HttpMethod.Put, "/documents/" + strDocumentId + "/folder");
+				objRequest.Content = new StringContent(JsonSerializer.Serialize(new { folderId = intFolderId }), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			var strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseDocument(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody));
 		}
 
 		/// <summary>
@@ -648,8 +849,12 @@ namespace Chummer.NewUI.Api
 
 			if (objJson.TryGetValue("items", out var value))
 			{
-				foreach (var objItemObj in (IEnumerable)value)
-					objPage.Items.Add(ParseSharedDocument((Dictionary<string, object>)objItemObj));
+				foreach (var objItemObj in GetArrayValues(value))
+				{
+					var objItem = GetObjectValue(objItemObj);
+					if (objItem != null)
+						objPage.Items.Add(ParseSharedDocument(objItem));
+				}
 			}
 
 			return objPage;
@@ -740,18 +945,31 @@ namespace Chummer.NewUI.Api
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse) ?? string.Empty);
 		}
 
+		public async Task<RunnersPointSharedDocument> SetSharedDocumentFolderAsync(string strDocumentId, int? intFolderId)
+		{
+			var objResponse = await SendWithRetryAsync(async () =>
+			{
+				var objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId + "/folder");
+				objRequest.Content = new StringContent(JsonSerializer.Serialize(new { folderId = intFolderId }), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			var strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseSharedDocument(JsonSerializer.Deserialize<Dictionary<string, object>>(strBody));
+		}
+
 		internal static RunnersPointRevision ParseRevision(Dictionary<string, object> objJson)
 		{
 			var objRevision = new RunnersPointRevision();
 			objRevision.Id = GetString(objJson, "id");
 			objRevision.DocumentId = GetString(objJson, "documentId");
 			objRevision.Hash = GetString(objJson, "hash");
-			objRevision.SizeBytes = objJson.TryGetValue("sizeBytes", out var value3) ? Convert.ToInt64(value3) : 0;
+			objRevision.SizeBytes = GetLongOrDefault(objJson, "sizeBytes");
 			objRevision.ValidationState = GetString(objJson, "validationState");
 			if (objJson.TryGetValue("validationMessages", out var value5))
 			{
-				foreach (var objMessage in (IEnumerable)value5)
-					objRevision.ValidationMessages.Add(objMessage?.ToString() ?? string.Empty);
+				foreach (var objMessage in GetArrayValues(value5))
+					objRevision.ValidationMessages.Add(GetStringValue(objMessage) ?? string.Empty);
 			}
 			if (objJson.ContainsKey("createdAt") && DateTime.TryParse(objJson["createdAt"].ToString(), out var datCreatedAt))
 				objRevision.CreatedAt = datCreatedAt;
@@ -774,8 +992,12 @@ namespace Chummer.NewUI.Api
 			var lstRevisions = new List<RunnersPointRevision>();
 			if (objJson.TryGetValue("items", out var value))
 			{
-				foreach (var objItemObj in (IEnumerable)value)
-					lstRevisions.Add(ParseRevision((Dictionary<string, object>)objItemObj));
+				foreach (var objItemObj in GetArrayValues(value))
+				{
+					var objItem = GetObjectValue(objItemObj);
+					if (objItem != null)
+						lstRevisions.Add(ParseRevision(objItem));
+				}
 			}
 			return lstRevisions;
 		}

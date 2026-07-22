@@ -27,7 +27,7 @@ public sealed class GlobalOptions
 	private static string _strLanguage = "en-us";
 	private static string _strDefaultCharacterSheet = "Shadowrun 4";
 	private static string _strPdfArgumentStyle = "Adobe/Foxit";
-	private static string _strCloudApiBaseUrl = "http://localhost:8000/api/v1";
+	private static string _strCloudApiBaseUrl = "https://runners-point.link/api/v1";
 	private static bool _blnSuppressCloudUnreachableWarning = false;
 	private static bool _blnDatesIncludeTime = true;
 	private static bool _blnPrintToFileFirst = false;
@@ -52,6 +52,33 @@ public sealed class GlobalOptions
 	{
 		var data = SettingsStore.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
 		return data.ToString() ?? "";
+	}
+
+	static string NormalizeCloudApiBaseUrl(string value)
+	{
+		var strValue = (value ?? string.Empty).Trim();
+		if (string.IsNullOrEmpty(strValue))
+			return "https://runners-point.link/api/v1";
+
+		if (!Uri.TryCreate(strValue, UriKind.Absolute, out var objUri))
+			return strValue.TrimEnd('/');
+
+		if ((string.Equals(objUri.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+		     || string.Equals(objUri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase))
+		    && objUri.Port == 8000)
+			return "https://runners-point.link/api/v1";
+
+		var strPath = objUri.AbsolutePath.TrimEnd('/');
+		if (string.IsNullOrEmpty(strPath))
+			strPath = "/api/v1";
+		else if (string.Equals(strPath, "/v1", StringComparison.OrdinalIgnoreCase))
+			strPath = "/api/v1";
+
+		var objBuilder = new UriBuilder(objUri)
+		{
+			Path = strPath
+		};
+		return objBuilder.Uri.ToString().TrimEnd('/');
 	}
 
 	static string CheckAndGetRegistryKey(string baseSubkey, string value)
@@ -144,7 +171,7 @@ public sealed class GlobalOptions
 
 		try
 		{
-			_strCloudApiBaseUrl = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "http://localhost:8000/api/v1");
+			_strCloudApiBaseUrl = NormalizeCloudApiBaseUrl(CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "https://runners-point.link/api/v1"));
 		}
 		catch
 		{
@@ -509,7 +536,7 @@ public sealed class GlobalOptions
 	}
 
 	/// <summary>
-	/// Base URL (including path prefix, e.g. "http://localhost:8000/api/v1") of the RunnersPoint
+	/// Base URL (including path prefix, e.g. "https://runners-point.link/api/v1") of the RunnersPoint
 	/// Character Document Storage API that Cloud Documents talks to.
 	/// </summary>
 	public string CloudApiBaseUrl
@@ -520,7 +547,7 @@ public sealed class GlobalOptions
 		}
 		set
 		{
-			_strCloudApiBaseUrl = value;
+			_strCloudApiBaseUrl = NormalizeCloudApiBaseUrl(value);
 		}
 	}
 

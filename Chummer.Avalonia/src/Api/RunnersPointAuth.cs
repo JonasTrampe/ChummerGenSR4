@@ -168,7 +168,10 @@ namespace Chummer.NewUI.Api
             if (strReturnedState != strState)
                 throw new InvalidOperationException("RunnersPoint login failed: state mismatch (possible CSRF).");
 
-            if (strCode != null) await ExchangeCodeForTokensAsync(strCode, strCodeVerifier, strRedirectUri);
+            if (string.IsNullOrEmpty(strCode))
+                throw new InvalidOperationException("RunnersPoint login failed: no authorization code was returned.");
+
+            await ExchangeCodeForTokensAsync(strCode, strCodeVerifier, strRedirectUri);
         }
 
         public void Logout()
@@ -248,20 +251,26 @@ namespace Chummer.NewUI.Api
                     throw new InvalidOperationException("Could not deserialize token response: " + strBody);
                 }
                 
-                var objTokens = new TokenSet();
-                objTokens.AccessToken = objJson.AccessToken;
-                objTokens.RefreshToken = (string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
-                    _objCachedTokens?.RefreshToken) ?? "";
+                var accessToken = objJson.AccessToken;
+                var refreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
+                    _objCachedTokens?.RefreshToken;
                 var intExpiresIn = objJson.ExpiresIn > 0 ? objJson.ExpiresIn : 3600;
                 // Refresh a little early so a request doesn't race an expiry that happens mid-flight.
-                objTokens.ExpiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
+                var expiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
+
+                var objTokens = new TokenSet
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    ExpiresAtUtc = expiresAtUtc,
+                };
 
                 SaveTokens(objTokens);
                 _objCachedTokens = objTokens;
             }
         }
 
-        private TokenSet LoadTokens()
+        private TokenSet? LoadTokens()
         {
             if (_objCachedTokens != null)
                 return _objCachedTokens;
@@ -272,7 +281,7 @@ namespace Chummer.NewUI.Api
             else if (File.Exists(TokenFilePath))
                 bytStored = File.ReadAllBytes(TokenFilePath);
             else
-                return new TokenSet();
+                return null;
             byte[] bytJson;
             if (IsWindows())
             {
@@ -287,10 +296,6 @@ namespace Chummer.NewUI.Api
             }
 
             var objTokens = Deserialize<TokenSet>(Encoding.UTF8.GetString(bytJson));
-            if (objTokens == null)
-            {
-                throw new InvalidOperationException("Did not find any valid token!");
-            }
             
             objTokens.ExpiresAtUtc = objTokens.ExpiresAtUtc.ToUniversalTime();
 
@@ -466,9 +471,9 @@ namespace Chummer.NewUI.Api
         [DataContract]
         private class TokenSet
         {
-            [DataMember(Name = "accessToken")] public string AccessToken { get; set; } = "";
+            [DataMember(Name = "accessToken")] public string AccessToken { get; set; } = string.Empty;
 
-            [DataMember(Name = "refreshToken")] public string RefreshToken { get; set; } = "";
+            [DataMember(Name = "refreshToken")] public string? RefreshToken { get; set; }
 
             [DataMember(Name = "expiresAtUtc")] public DateTime ExpiresAtUtc { get; set; }
 
@@ -481,9 +486,9 @@ namespace Chummer.NewUI.Api
         [DataContract]
         private class TokenResponse
         {
-            [DataMember(Name = "access_token")] public string AccessToken { get; set; } = "";
+            [DataMember(Name = "access_token")] public string AccessToken { get; set; } = string.Empty;
 
-            [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; } = "";
+            [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; } = string.Empty;
 
             [DataMember(Name = "expires_in")] public int ExpiresIn { get; set; }
         }

@@ -703,11 +703,115 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterSkillData> KnowledgeSkills => ReadKnowledgeSkills();
 
+        public void AddKnowledgeSkill(string strName, string strCategory)
+        {
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objSkills = objRoot.SelectSingleNode("skills");
+            if (objSkills == null)
+            {
+                objSkills = Document.CreateElement("skills");
+                objRoot.AppendChild(objSkills);
+            }
+
+            var objSkill = Document.CreateElement("skill");
+            string strAttribute = AttributeForKnowledgeCategory(strCategory);
+            AppendElement(objSkill, "name", strName.Trim());
+            AppendElement(objSkill, "skillgroup", string.Empty);
+            AppendElement(objSkill, "skillcategory", strCategory);
+            AppendElement(objSkill, "grouped", "False");
+            AppendElement(objSkill, "default", "False");
+            AppendElement(objSkill, "rating", "1");
+            AppendElement(objSkill, "ratingmax", "6");
+            AppendElement(objSkill, "knowledge", "True");
+            AppendElement(objSkill, "exotic", "False");
+            AppendElement(objSkill, "spec", string.Empty);
+            AppendElement(objSkill, "allowdelete", "True");
+            AppendElement(objSkill, "attribute", strAttribute);
+            AppendElement(objSkill, "totalvalue", "0");
+            objSkills.AppendChild(objSkill);
+        }
+
+        public bool UpdateKnowledgeSkill(int intSkillId, string strName, string strRating, string strSpecialization,
+            string strCategory)
+        {
+            XmlNode? objNode = GetKnowledgeSkillNode(intSkillId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "name", strName);
+            SetChildValue(objNode, "rating", strRating);
+            SetChildValue(objNode, "spec", strSpecialization);
+            SetChildValue(objNode, "skillcategory", strCategory);
+            SetChildValue(objNode, "attribute", AttributeForKnowledgeCategory(strCategory));
+            return true;
+        }
+
+        public bool RemoveKnowledgeSkill(int intSkillId)
+        {
+            XmlNode? objNode = GetKnowledgeSkillNode(intSkillId);
+            if (objNode?.ParentNode == null)
+                return false;
+
+            objNode.ParentNode.RemoveChild(objNode);
+            return true;
+        }
+
         // Enemies are saved into the same <contacts> list as regular contacts and are only
         // distinguished by <type>Enemy</type> - split here so each gets its own display list.
         public IReadOnlyList<CharacterContactData> Contacts => ReadContacts(blnEnemies: false);
 
         public IReadOnlyList<CharacterContactData> Enemies => ReadContacts(blnEnemies: true);
+
+        public void AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy)
+        {
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objContacts = objRoot.SelectSingleNode("contacts");
+            if (objContacts == null)
+            {
+                objContacts = Document.CreateElement("contacts");
+                objRoot.AppendChild(objContacts);
+            }
+
+            var objContact = Document.CreateElement("contact");
+            AppendElement(objContact, "name", strName.Trim());
+            AppendElement(objContact, "connection", strConnection);
+            AppendElement(objContact, "loyalty", strLoyalty);
+            AppendElement(objContact, "membership", "0");
+            AppendElement(objContact, "areaofinfluence", "0");
+            AppendElement(objContact, "magicalresources", "0");
+            AppendElement(objContact, "matrixresources", "0");
+            AppendElement(objContact, "type", blnEnemy ? "Enemy" : "Contact");
+            AppendElement(objContact, "file", string.Empty);
+            AppendElement(objContact, "notes", string.Empty);
+            AppendElement(objContact, "groupname", string.Empty);
+            AppendElement(objContact, "colour", "0");
+            AppendElement(objContact, "free", "False");
+            objContacts.AppendChild(objContact);
+        }
+
+        public bool UpdateContact(int intContactId, string strName, string strConnection, string strLoyalty)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "name", strName);
+            SetChildValue(objNode, "connection", strConnection);
+            SetChildValue(objNode, "loyalty", strLoyalty);
+            return true;
+        }
+
+        public bool RemoveContact(int intContactId)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode?.ParentNode == null)
+                return false;
+
+            objNode.ParentNode.RemoveChild(objNode);
+            return true;
+        }
 
         public IReadOnlyList<CharacterMartialArtData> MartialArts => ReadMartialArts();
 
@@ -1126,11 +1230,16 @@ namespace Chummer.Core
             var lstSkills = new List<CharacterSkillData>();
             var objNodes = Document.SelectNodes("/character/skills/skill");
             if (objNodes == null) return lstSkills;
+            int intSkillId = 0;
             foreach (XmlNode objNode in objNodes)
             {
-                if (GetValue(objNode, "knowledge", "False") == "True") continue;
-                lstSkills.Add(BuildSkillData(objNode, GetValue(objNode, "skillgroup", string.Empty),
-                    GetValue(objNode, "grouped", "False") == "True"));
+                if (GetValue(objNode, "knowledge", "False") != "True")
+                {
+                    lstSkills.Add(BuildSkillData(intSkillId, objNode, GetValue(objNode, "skillgroup", string.Empty),
+                        GetValue(objNode, "grouped", "False") == "True"));
+                }
+
+                intSkillId++;
             }
 
             return lstSkills;
@@ -1141,29 +1250,36 @@ namespace Chummer.Core
             var lstSkills = new List<CharacterSkillData>();
             var objNodes = Document.SelectNodes("/character/skills/skill");
             if (objNodes == null) return lstSkills;
+            int intSkillId = 0;
             foreach (XmlNode objNode in objNodes)
             {
-                if (GetValue(objNode, "knowledge", "False") != "True") continue;
-                // Knowledge skills aren't organized into skill groups.
-                lstSkills.Add(BuildSkillData(objNode, string.Empty, blnIsGroupLocked: false));
+                if (GetValue(objNode, "knowledge", "False") == "True")
+                {
+                    lstSkills.Add(BuildSkillData(intSkillId, objNode, string.Empty, blnIsGroupLocked: false));
+                }
+
+                intSkillId++;
             }
 
             return lstSkills;
         }
 
-        private CharacterSkillData BuildSkillData(XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked)
+        private CharacterSkillData BuildSkillData(int intSkillId, XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked)
         {
             string strName = GetValue(objNode, "name", string.Empty);
             string strAttribute = GetValue(objNode, "attribute", string.Empty);
             string strCategory = GetValue(objNode, "skillcategory", string.Empty);
             string strSpecialization = GetValue(objNode, "spec", string.Empty);
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            bool blnAllowDelete = GetValue(objNode, "allowdelete", "False") == "True";
+            bool blnKnowledge = GetValue(objNode, "knowledge", "False") == "True";
 
             (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
                 strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization);
 
-            return new CharacterSkillData(strName, strAttribute, intRating.ToString(), strRatingDisplay,
-                intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked);
+            return new CharacterSkillData(intSkillId, strName, strAttribute, intRating.ToString(), strRatingDisplay,
+                intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked, blnAllowDelete,
+                blnKnowledge);
         }
 
         /// <summary>Ported from clsUnique.cs's Skill.TotalRating (the dice pool) and
@@ -1231,16 +1347,45 @@ namespace Chummer.Core
             var lstContacts = new List<CharacterContactData>();
             var objNodes = Document.SelectNodes("/character/contacts/contact");
             if (objNodes == null) return lstContacts;
+            int intContactId = 0;
             foreach (XmlNode objNode in objNodes)
             {
                 var blnIsEnemy = GetValue(objNode, "type", "Contact") == "Enemy";
-                if (blnIsEnemy != blnEnemies) continue;
-                lstContacts.Add(new CharacterContactData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "connection", "0"), GetValue(objNode, "loyalty", "0")));
+                if (blnIsEnemy == blnEnemies)
+                {
+                    lstContacts.Add(new CharacterContactData(intContactId,
+                        GetValue(objNode, "name", string.Empty),
+                        GetValue(objNode, "connection", "0"),
+                        GetValue(objNode, "loyalty", "0"),
+                        blnIsEnemy));
+                }
+
+                intContactId++;
             }
 
             return lstContacts;
         }
+
+        private XmlNode? GetContactNode(int intContactId)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/contacts/contact");
+            return objNodes != null && intContactId >= 0 && intContactId < objNodes.Count
+                ? objNodes[intContactId]
+                : null;
+        }
+
+        private XmlNode? GetKnowledgeSkillNode(int intSkillId)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/skills/skill");
+            if (objNodes == null || intSkillId < 0 || intSkillId >= objNodes.Count)
+                return null;
+
+            XmlNode objNode = objNodes[intSkillId]!;
+            return GetValue(objNode, "knowledge", "False") == "True" ? objNode : null;
+        }
+
+        private static string AttributeForKnowledgeCategory(string strCategory)
+            => strCategory is "Street" or "Interest" or "Language" ? "INT" : "LOG";
 
         private IReadOnlyList<CharacterMartialArtData> ReadMartialArts()
         {
@@ -1594,10 +1739,11 @@ namespace Chummer.Core
 
     public sealed class CharacterSkillData
     {
-        internal CharacterSkillData(string strName, string strAttribute, string strBaseRating, string strRating,
-            string strTotalValue, string strPoolTooltip, string strSpecialization, string strCategory,
-            bool blnIsGroupLocked)
+        internal CharacterSkillData(int intSkillId, string strName, string strAttribute, string strBaseRating,
+            string strRating, string strTotalValue, string strPoolTooltip, string strSpecialization,
+            string strCategory, bool blnIsGroupLocked, bool blnAllowDelete, bool blnKnowledgeSkill)
         {
+            SkillId = intSkillId;
             Name = strName;
             Attribute = strAttribute;
             BaseRating = strBaseRating;
@@ -1607,8 +1753,11 @@ namespace Chummer.Core
             Specialization = strSpecialization;
             Category = strCategory;
             IsGroupLocked = blnIsGroupLocked;
+            AllowDelete = blnAllowDelete;
+            KnowledgeSkill = blnKnowledgeSkill;
         }
 
+        public int SkillId { get; }
         public string Name { get; private set; }
         public string Attribute { get; }
 
@@ -1630,20 +1779,27 @@ namespace Chummer.Core
         public string Specialization { get; }
         public string Category { get; private set; }
         public bool IsGroupLocked { get; private set; }
+        public bool AllowDelete { get; private set; }
+        public bool KnowledgeSkill { get; private set; }
     }
 
     public sealed class CharacterContactData
     {
-        internal CharacterContactData(string strName, string strConnection, string strLoyalty)
+        internal CharacterContactData(int intContactId, string strName, string strConnection, string strLoyalty,
+            bool blnIsEnemy)
         {
+            ContactId = intContactId;
             Name = strName;
             Connection = strConnection;
             Loyalty = strLoyalty;
+            IsEnemy = blnIsEnemy;
         }
 
+        public int ContactId { get; }
         public string Name { get; }
         public string Connection { get; }
         public string Loyalty { get; }
+        public bool IsEnemy { get; }
     }
 
     public sealed class CharacterMartialArtData
