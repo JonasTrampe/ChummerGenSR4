@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using Chummer.Core;
 using Serilog;
 
 namespace Chummer
@@ -825,7 +826,6 @@ namespace Chummer
 			return PurgeAsync("/shared/documents/" + strDocumentId + "/revisions/" + strRevisionId, strIfMatch);
 		}
 
-#if DEBUG
 		/// <summary>
 		/// Debug-build-only diagnostic: dumps raw request/response detail for a document lookup that the
 		/// normal typed methods discard (the exact ETag header text, full response headers, raw metadata
@@ -855,6 +855,5 @@ namespace Chummer
 
 			return objDump.ToString();
 		}
-#endif
 	}
 }

@@ -46,5 +46,6 @@ namespace Chummer.Core
         Task PurgeSharedDocumentAsync(string strDocumentId, string strIfMatch);
         Task PurgeRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch);
         Task PurgeSharedRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch);
+        Task<string> GetDebugDumpAsync(string strDocumentId);
     }
 }

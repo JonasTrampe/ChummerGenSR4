@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
+using Chummer.Core;
 
 namespace Chummer
 {
@@ -137,7 +138,6 @@ namespace Chummer
 					LanguageString objString = new LanguageString();
 					objString.Key = objNode["key"].InnerText;
 					objString.Text = objNode["text"].InnerText;
-					_objDictionary.Add(objNode["key"].InnerText, objNode["text"].InnerText);
 				}
 				_blnLoaded = true;
 			}
