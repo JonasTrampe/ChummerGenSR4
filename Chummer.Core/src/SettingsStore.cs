@@ -28,7 +28,7 @@ namespace Chummer.Core
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ChummerGenSR4", "settings.xml");
 
         private static Dictionary<string, Dictionary<string, string>> _dicData = [];
-        private static readonly Lock LockObject = new();
+        private static readonly object LockObject = new();
 
         public static SettingsRegistryKey CurrentUser => new();
 
@@ -187,7 +187,7 @@ namespace Chummer.Core
     /// </summary>
     public sealed class SettingsRegistryKey
     {
-        private string SubKeyPath { get; init; } = string.Empty;
+        private string SubKeyPath { get; set; } = string.Empty;
 
         public SettingsRegistryKey CreateSubKey(string strSubKeyPath)
         {

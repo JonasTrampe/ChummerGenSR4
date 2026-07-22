@@ -18,7 +18,7 @@ public sealed class GlobalOptions
 	static readonly GlobalOptions ObjInstance = new GlobalOptions();
 	static readonly CultureInfo ObjCultureInfo = new CultureInfo("en-US");
 
-	public event MruChangedHandler MruChanged;
+	public event MruChangedHandler MruChanged = delegate { };
 
 	private static bool _blnAutomaticUpdate = false;
 	private static bool _blnLocalisedUpdatesOnly = false;
@@ -70,8 +70,9 @@ public sealed class GlobalOptions
 			try
 			{
 				var entry = objRegistry.GetValue(baseValue + i);
-				if (entry != null)
-					list.Add(entry.ToString());
+				var strEntry = entry?.ToString();
+				if (!string.IsNullOrEmpty(strEntry))
+					list.Add(strEntry);
 			}
 			catch
 			{
@@ -219,16 +220,27 @@ public sealed class GlobalOptions
 		// Retrieve the SourcebookInfo objects.
 		var objXmlDocument = XmlManager.Instance.Load("books.xml");
 		var objXmlBookList = objXmlDocument.SelectNodes("/chummer/books/book");
+		if (objXmlBookList == null)
+			return;
+
 		foreach (XmlNode objXmlBook in objXmlBookList)
 		{
 			try
 			{
+				var objCodeNode = objXmlBook["code"];
+				if (objCodeNode == null)
+					continue;
+
 				var objSource = new SourcebookInfo();
-				var strTemp = CheckAndGetRegistryKey("Software\\Chummer", objXmlBook["code"].InnerText);
+				var strCode = objCodeNode.InnerText;
+				var strTemp = CheckAndGetRegistryKey("Software\\Chummer", strCode);
 				if (strTemp == null)
 					continue;
 				var strParts = strTemp.Split('|');
-				objSource.Code = objXmlBook["code"].InnerText;
+				if (strParts.Length < 2)
+					continue;
+
+				objSource.Code = strCode;
 				objSource.Path = strParts[0];
 				objSource.Offset = Convert.ToInt32(strParts[1]);
 

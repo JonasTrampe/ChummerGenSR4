@@ -7,12 +7,12 @@
           legacy application, and Windows keeps both targets for the WinForms project.
         -->
         <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows'))">net48;net8.0</TargetFrameworks>
+        <TargetFramework Condition="'$(MSBuildRuntimeType)' == 'Core' And !$([MSBuild]::IsOSPlatform('Windows'))">net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <Nullable>enable</Nullable>
         <PackageId>Chummer.Core</PackageId>
         <RootNamespace>Chummer.Core</RootNamespace>
-        <TargetFramework>net10.0</TargetFramework>
         <!--
           Shared data/business-logic layer for both the legacy WinForms app (Chummer.csproj, net48) and
           the new Avalonia port (Chummer.Avalonia today, Chummer.Avalonia eventually) - see
@@ -35,13 +35,8 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+        <Reference Include="System.Security"/>
         <Reference Include="System.Net.Http"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="System.Security.Cryptography.ProtectedData">
-        <HintPath>..\..\..\..\..\..\..\..\home\riagan\.nuget\packages\system.security.cryptography.protecteddata\10.0.10\lib\net10.0\System.Security.Cryptography.ProtectedData.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>

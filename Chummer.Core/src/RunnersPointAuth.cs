@@ -228,7 +228,7 @@ namespace Chummer.Core
             var objFormData = new Dictionary<string, string>
             {
                 { "grant_type", "refresh_token" },
-                { "refresh_token", objExpiredTokens.RefreshToken },
+                { "refresh_token", objExpiredTokens.RefreshToken! },
                 { "client_id", ClientId }
             };
             await RequestAndStoreTokensAsync(objFormData);
@@ -467,11 +467,11 @@ namespace Chummer.Core
         [DataContract]
         private class TokenSet
         {
-            [DataMember(Name = "accessToken")] public required string AccessToken { get; set; }
+            [DataMember(Name = "accessToken")] public string AccessToken { get; set; } = string.Empty;
 
             [DataMember(Name = "refreshToken")] public string? RefreshToken { get; set; }
 
-            [DataMember(Name = "expiresAtUtc")] public required DateTime ExpiresAtUtc { get; set; }
+            [DataMember(Name = "expiresAtUtc")] public DateTime ExpiresAtUtc { get; set; }
 
             // True for a pasted apiToken (SetApiToken) - these have no refresh token and are used as-is
             // until the server itself rejects them (expired or revoked), rather than tracked against a
@@ -482,11 +482,11 @@ namespace Chummer.Core
         [DataContract]
         private class TokenResponse
         {
-            [DataMember(Name = "access_token")] public required string AccessToken { get; set; }
+            [DataMember(Name = "access_token")] public string AccessToken { get; set; } = string.Empty;
 
-            [DataMember(Name = "refresh_token")] public required string RefreshToken { get; set; }
+            [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; } = string.Empty;
 
-            [DataMember(Name = "expires_in")] public required int ExpiresIn { get; set; }
+            [DataMember(Name = "expires_in")] public int ExpiresIn { get; set; }
         }
     }
 }
