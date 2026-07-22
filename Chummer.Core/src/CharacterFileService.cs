@@ -132,6 +132,8 @@ namespace Chummer.Core
 
         public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
 
+        public IReadOnlyList<CharacterCommlinkData> Commlinks => ReadCommlinks();
+
         /// <summary>Matrix "System" stat, only meaningful for A.I./technocritter/protosapient
         /// characters (drone/sprite-style characters whose Matrix Initiative uses this instead of
         /// a Commlink's Response) - see MatrixInitiative.</summary>
@@ -158,6 +160,19 @@ namespace Chummer.Core
             return objNodes is { Count: > 0 } && int.TryParse(objNodes[0]!.InnerText, out var intResponse)
                 ? intResponse
                 : 0;
+        }
+
+        public void SetActiveCommlink(string strGuid)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlinks']");
+            if (objNodes == null)
+                return;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strNodeGuid = GetValue(objNode, "guid", string.Empty);
+                SetChildValue(objNode, "active", strNodeGuid == strGuid ? "True" : "False");
+            }
         }
 
         public string Karma => GetValue("/character/karma", "0");
@@ -431,6 +446,18 @@ namespace Chummer.Core
             objElement.InnerText = strValue ?? string.Empty;
         }
 
+        private void SetChildValue(XmlNode objParent, string strName, string strValue)
+        {
+            XmlNode? objNode = objParent.SelectSingleNode(strName);
+            if (objNode == null)
+            {
+                objNode = Document.CreateElement(strName);
+                objParent.AppendChild(objNode);
+            }
+
+            objNode.InnerText = strValue ?? string.Empty;
+        }
+
         public IReadOnlyList<CharacterTreeItemData> Gear => ReadTreeItems("/character/gears/gear", "children/gear");
 
         // Cyberware and bioware are saved to the same <cyberwares> list and only distinguished by
@@ -471,6 +498,25 @@ namespace Chummer.Core
         /// <summary>Memory (LOG + WIL + Improvements), ported from clsCharacter.cs.</summary>
         public CharacterDerivedValueData Memory =>
             SumAttributesWithImprovements(ImprovementType.Memory, ("LOG", "Logik"), ("WIL", "Willenskraft"));
+
+        /// <summary>Damage Resistance dice pool, ported from frmCareer.cs's condition-monitor
+        /// refresh: BOD + DamageResistance Improvements.</summary>
+        public CharacterDerivedValueData DamageResistance
+        {
+            get
+            {
+                int intBody = GetAttributeInt("BOD");
+                var sb = new StringBuilder();
+                sb.Append("Konstitution: ").Append(intBody);
+
+                var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.DamageResistance);
+                int intTotal = intBody + lstContributions.Sum(c => c.Value);
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Gesamt: ").Append(intTotal);
+
+                return new CharacterDerivedValueData(intTotal, sb.ToString());
+            }
+        }
 
         /// <summary>Dice-pool penalty from current Physical/Stun damage, ported from clsCharacter.cs's
         /// WoundModifiers. Despite the name this doesn't actually look at how many condition-monitor
@@ -1314,6 +1360,30 @@ namespace Chummer.Core
             return lstExpenses;
         }
 
+        private IReadOnlyList<CharacterCommlinkData> ReadCommlinks()
+        {
+            var lstCommlinks = new List<CharacterCommlinkData>();
+            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlinks']");
+            if (objNodes == null)
+                return lstCommlinks;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strGuid = GetValue(objNode, "guid", string.Empty);
+                if (string.IsNullOrEmpty(strGuid))
+                    continue;
+
+                lstCommlinks.Add(new CharacterCommlinkData(
+                    strGuid,
+                    GetValue(objNode, "name", string.Empty),
+                    int.TryParse(GetValue(objNode, "response", "0"), out var intResponse) ? intResponse : 0,
+                    GetValue(objNode, "equipped", "False") == "True",
+                    GetValue(objNode, "active", "False") == "True"));
+            }
+
+            return lstCommlinks;
+        }
+
         private static CharacterTreeItemData ReadTreeItem(XmlNode objNode, params string[] lstChildXPaths)
         {
             var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty),
@@ -1773,5 +1843,23 @@ namespace Chummer.Core
 
         public string DisplayDate =>
             System.DateTime.TryParse(Date, out var datValue) ? datValue.ToString("dd.MM.yyyy") : Date;
+    }
+
+    public sealed class CharacterCommlinkData
+    {
+        internal CharacterCommlinkData(string strGuid, string strName, int intResponse, bool blnEquipped, bool blnActive)
+        {
+            Guid = strGuid;
+            Name = strName;
+            Response = intResponse;
+            Equipped = blnEquipped;
+            Active = blnActive;
+        }
+
+        public string Guid { get; }
+        public string Name { get; }
+        public int Response { get; }
+        public bool Equipped { get; }
+        public bool Active { get; }
     }
 }

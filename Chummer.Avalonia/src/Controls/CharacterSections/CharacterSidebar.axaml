@@ -19,9 +19,10 @@
                     <controls:InfoRow Label="Initiativedurchgänge:" Value="{Binding InitiativePasses.Value}"
                                        Tooltip="{Binding InitiativePasses.Tooltip}" />
                     <TextBlock Text="Aktiver Kommlink:" Margin="0,4,0,0" />
-                    <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
-                        <ComboBoxItem Content="[Straßenausrüstung] Singularity Batt..." />
-                    </ComboBox>
+                    <ComboBox HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding Commlinks}"
+                              SelectedItem="{Binding SelectedCommlink}"
+                              DisplayMemberBinding="{Binding DisplayName}" />
                     <controls:InfoRow Label="Matrixinitiative:" Value="{Binding MatrixInitiative.Value}"
                                        Tooltip="{Binding MatrixInitiative.Tooltip}" />
                     <controls:InfoRow Label="Matrixinitiativedurchgänge:" Value="{Binding MatrixInitiativePasses.Value}"
@@ -48,8 +49,9 @@
                                        Tooltip="{Binding LiftAndCarry.Tooltip}" />
                     <controls:InfoRow Label="Gedächtnis:" Value="{Binding Memory.Value}"
                                        Tooltip="{Binding Memory.Tooltip}" />
-                    <controls:InfoRow Label="Schwimmen:" Value="5" />
-                    <controls:InfoRow Label="Fliegen:" Value="0 / 25" />
+                    <controls:InfoRow Label="Bewegung:" Value="{Binding WalkMovement}" />
+                    <controls:InfoRow Label="Schwimmen:" Value="{Binding SwimMovement}" />
+                    <controls:InfoRow Label="Fliegen:" Value="{Binding FlyMovement}" />
                 </StackPanel>
             </ScrollViewer>
         </TabItem>
@@ -59,12 +61,13 @@
                 <StackPanel Margin="6" Spacing="4">
                     <controls:InfoRow Label="Körperlicher Schaden:" Value="{Binding PhysicalDamage}" />
                     <controls:InfoRow Label="Geistiger Schaden:" Value="{Binding StunDamage}" />
-                    <controls:InfoRow Label="Verletzungsmodifikator:" Value="0" />
+                    <controls:InfoRow Label="Verletzungsmodifikator:" Value="{Binding WoundModifiers}" />
         <controls:InfoRow Label="Ballistische Panzerung:" Value="{Binding BallisticArmor.Value}"
                           Tooltip="{Binding BallisticArmor.Tooltip}" />
         <controls:InfoRow Label="Stoßpanzerung:" Value="{Binding ImpactArmor.Value}"
                           Tooltip="{Binding ImpactArmor.Tooltip}" />
-                    <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="4" />
+                    <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="{Binding DamageResistance.Value}"
+                                      Tooltip="{Binding DamageResistance.Tooltip}" />
 
                     <TextBlock Text="physisch" Margin="0,6,0,0" />
                     <StackPanel Spacing="2">

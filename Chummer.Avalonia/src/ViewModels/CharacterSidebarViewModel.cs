@@ -1,9 +1,14 @@
 using Chummer.Core;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Chummer.NewUI.ViewModels;
 
 public sealed class CharacterSidebarViewModel : ViewModelBase
 {
+    private CharacterDocument? _objCharacter;
+    private bool _blnUpdatingCommlinks;
+
     private string _strEssence = string.Empty;
     public string Essence { get => _strEssence; set => SetField(ref _strEssence, value); }
 
@@ -28,6 +33,19 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     public DerivedValueViewModel JudgeIntentions { get; } = new();
     public DerivedValueViewModel LiftAndCarry { get; } = new();
     public DerivedValueViewModel Memory { get; } = new();
+    public DerivedValueViewModel DamageResistance { get; } = new();
+
+    private string _strWoundModifiers = "0";
+    public string WoundModifiers { get => _strWoundModifiers; set => SetField(ref _strWoundModifiers, value); }
+
+    private string _strWalkMovement = string.Empty;
+    public string WalkMovement { get => _strWalkMovement; set => SetField(ref _strWalkMovement, value); }
+
+    private string _strSwimMovement = string.Empty;
+    public string SwimMovement { get => _strSwimMovement; set => SetField(ref _strSwimMovement, value); }
+
+    private string _strFlyMovement = string.Empty;
+    public string FlyMovement { get => _strFlyMovement; set => SetField(ref _strFlyMovement, value); }
 
     private string _strRemainingNuyen = string.Empty;
     public string RemainingNuyen { get => _strRemainingNuyen; set => SetField(ref _strRemainingNuyen, value); }
@@ -38,8 +56,27 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     private string _strCareerNuyen = string.Empty;
     public string CareerNuyen { get => _strCareerNuyen; set => SetField(ref _strCareerNuyen, value); }
 
+    public ObservableCollection<CommlinkItemViewModel> Commlinks { get; } = new();
+
+    private CommlinkItemViewModel? _objSelectedCommlink;
+    public CommlinkItemViewModel? SelectedCommlink
+    {
+        get => _objSelectedCommlink;
+        set
+        {
+            if (!SetField(ref _objSelectedCommlink, value) || value == null || _objCharacter == null || _blnUpdatingCommlinks)
+                return;
+
+            _objCharacter.SetActiveCommlink(value.Guid);
+            ReloadCommlinks(_objCharacter);
+            SetFrom(MatrixInitiative, _objCharacter.MatrixInitiative);
+            SetFrom(MatrixInitiativePasses, _objCharacter.MatrixInitiativePasses);
+        }
+    }
+
     public void LoadCharacter(CharacterDocument character)
     {
+        _objCharacter = character;
         RemainingNuyen = character.Nuyen + "¥";
         CareerKarma = character.CareerKarma.ToString();
         CareerNuyen = character.CareerNuyen + "¥";
@@ -66,6 +103,23 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         SetFrom(JudgeIntentions, character.JudgeIntentions);
         SetFrom(LiftAndCarry, character.LiftAndCarry);
         SetFrom(Memory, character.Memory);
+        SetFrom(DamageResistance, character.DamageResistance);
+        WoundModifiers = character.WoundModifiers.ToString();
+        WalkMovement = character.WalkMovement;
+        SwimMovement = string.IsNullOrEmpty(character.SwimMovement) ? "0" : character.SwimMovement;
+        FlyMovement = string.IsNullOrEmpty(character.FlyMovement) ? "0" : character.FlyMovement;
+        ReloadCommlinks(character);
+    }
+
+    private void ReloadCommlinks(CharacterDocument character)
+    {
+        _blnUpdatingCommlinks = true;
+        Commlinks.Clear();
+        foreach (CharacterCommlinkData objCommlink in character.Commlinks)
+            Commlinks.Add(new CommlinkItemViewModel(objCommlink));
+
+        SelectedCommlink = Commlinks.FirstOrDefault(x => x.Active) ?? Commlinks.FirstOrDefault();
+        _blnUpdatingCommlinks = false;
     }
 
     private static void SetFrom(DerivedValueViewModel target, CharacterDerivedValueData data)
@@ -79,4 +133,23 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         target.Value = data.Display;
         target.Tooltip = data.Tooltip;
     }
+}
+
+public sealed class CommlinkItemViewModel
+{
+    internal CommlinkItemViewModel(CharacterCommlinkData objData)
+    {
+        Guid = objData.Guid;
+        Name = objData.Name;
+        Response = objData.Response;
+        Equipped = objData.Equipped;
+        Active = objData.Active;
+    }
+
+    public string Guid { get; }
+    public string Name { get; }
+    public int Response { get; }
+    public bool Equipped { get; }
+    public bool Active { get; }
+    public string DisplayName => Equipped ? Name + " (R " + Response + ")" : Name + " (nicht ausgerüstet)";
 }
