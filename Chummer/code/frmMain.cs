@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Chummer.Core;
 using Serilog;
 
 namespace Chummer
@@ -11,7 +12,6 @@ namespace Chummer
 	public partial class frmMain : Form
 	{
 		private frmDiceRoller _frmRoller;
-		private readonly RunnersPointAuth _objCloudAuth = new RunnersPointAuth();
 
 		#region Control Events
 		public frmMain()
@@ -196,7 +196,7 @@ namespace Chummer
 			// Override the defaults for the setting.
 			objCharacter.IgnoreRules = true;
 			objCharacter.IsCritter = true;
-			objCharacter.BuildMethod = CharacterBuildMethod.BP;
+			objCharacter.BuildMethod = CharacterBuildMethod.Bp;
 			objCharacter.BuildPoints = 0;
 
 			// Make sure that Running Wild is one of the allowed source books since most of the Critter Powers come from this book.
@@ -640,6 +640,8 @@ namespace Chummer
 			Tuple<string, string> objCloudIds = PeekCloudIds(strFileName);
 			if (objCloudIds == null)
 				return true;
+			if (!EnsureCloudLoginForOpen())
+				return false;
 			string strDocumentId = objCloudIds.Item1;
 			string strLastKnownRevisionId = objCloudIds.Item2;
 			// A file linked before CloudLastKnownRevisionId existed (or one that's never actually been
@@ -648,7 +650,7 @@ namespace Chummer
 			if (string.IsNullOrEmpty(strLastKnownRevisionId))
 				return true;
 
-			IRunnersPointApiClient objApiClient = new RunnersPointApiClient(_objCloudAuth);
+			IRunnersPointApiClient objApiClient = new RunnersPointApiClient(new RunnersPointAuth());
 			RunnersPointDocument objDocument;
 			try
 			{
@@ -704,6 +706,34 @@ namespace Chummer
 					LanguageManager.Instance.GetString("MessageTitle_CloudLoad_DownloadFailed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
+		}
+
+		private bool EnsureCloudLoginForOpen()
+		{
+			RunnersPointAuth objAuth = new RunnersPointAuth();
+			if (objAuth.HasStoredLogin())
+				return true;
+
+			using (frmCloudLoadPrompt frmPrompt = new frmCloudLoadPrompt(
+				LanguageManager.Instance.GetString("MessageTitle_CloudLoad_LoginRequired"),
+				LanguageManager.Instance.GetString("Message_CloudLoad_LoginRequired"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_ConfigureCloud"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_OpenLocalFile"),
+				LanguageManager.Instance.GetString("Button_CloudLoad_Abort")))
+			{
+				frmPrompt.ShowDialog(this);
+				if (frmPrompt.ChosenIndex == 1)
+					return true;
+				if (frmPrompt.ChosenIndex != 0)
+					return false;
+			}
+
+			using (frmCloudDocuments frmCloud = new frmCloudDocuments(null))
+			{
+				frmCloud.ShowDialog(this);
+			}
+
+			return objAuth.HasStoredLogin();
 		}
 
 		private static string MruDisplayText(string strFileName)

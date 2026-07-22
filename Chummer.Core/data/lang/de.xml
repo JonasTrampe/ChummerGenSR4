@@ -718,8 +718,28 @@ Stattdessen lokal gespeichert.</text>
 			<text>RunnersPoint konnte nicht auf eine neuere Version dieser Figur geprüft werden: {0}</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_DocumentMissing</key>
+			<text>Cloud-Dokument nicht gefunden</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DocumentMissing</key>
+			<text>Diese lokale Datei ist mit einem RunnersPoint-Dokument verknüpft, das nicht mehr existiert. Die lokale Datei wird ohne Cloud-Revisionsprüfung geöffnet.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_LoginRequired</key>
+			<text>Cloud-Anmeldung erforderlich</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_LoginRequired</key>
+			<text>Diese Figur ist mit RunnersPoint verknüpft, aber es ist keine gespeicherte Cloud-Anmeldung bzw. kein API-Token eingerichtet. Richten Sie jetzt eine Verbindung ein, um auf eine neuere Cloud-Version zu prüfen.</text>
+		</string>
+		<string>
 			<key>Button_CloudLoad_Abort</key>
 			<text>Abbrechen</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_ConfigureCloud</key>
+			<text>Cloud einrichten</text>
 		</string>
 		<string>
 			<key>Button_CloudLoad_OpenLocalFile</key>
@@ -808,6 +828,14 @@ Stattdessen lokal gespeichert.</text>
 		<string>
 			<key>String_Cloud_ConnectionState_ApiToken</key>
 			<text>Verbunden über API-Token.</text>
+		</string>
+		<string>
+			<key>String_Cloud_TokenPreset_Stored</key>
+			<text>Gespeichertes Token vorhanden.</text>
+		</string>
+		<string>
+			<key>String_Cloud_TokenPreset_NotStored</key>
+			<text>Kein gespeichertes Token vorhanden.</text>
 		</string>
 		<string>
 			<key>String_Cloud_ConnectionState_OAuth</key>

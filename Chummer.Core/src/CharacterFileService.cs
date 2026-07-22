@@ -70,12 +70,28 @@ namespace Chummer.Core
 
         public string Name => GetValue("/character/name", DisplayName);
 
-        public string Alias => GetValue("/character/alias", string.Empty);
+        public string Alias
+        {
+            get => GetValue("/character/alias", string.Empty);
+            set => SetRootValue("alias", value);
+        }
 
         public string CloudDocumentId
         {
             get => GetValue("/character/clouddocumentid", string.Empty);
             set => SetRootValue("clouddocumentid", value);
+        }
+
+        public string CloudLastKnownRevisionId
+        {
+            get => GetValue("/character/cloudlastknownrevisionid", string.Empty);
+            set => SetRootValue("cloudlastknownrevisionid", value);
+        }
+
+        public bool CloudIsShared
+        {
+            get => GetValue("/character/cloudisshared", "False") == "True";
+            set => SetRootValue("cloudisshared", value ? "True" : "False");
         }
 
         public string CloudMetadataDisplayName
@@ -99,6 +115,20 @@ namespace Chummer.Core
         public string Metatype => GetValue("/character/metatype", string.Empty);
 
         public string MetatypeCategory => GetValue("/character/metatypecategory", string.Empty);
+
+        public bool Adept => GetValue("/character/adept", "False") == "True";
+
+        public bool Magician => GetValue("/character/magician", "False") == "True";
+
+        public bool MysticAdept => Adept && Magician;
+
+        public bool Awakened => Adept || Magician;
+
+        public int MysticAdeptAdeptMagSplit =>
+            int.TryParse(GetValue("/character/magsplitadept", "0"), out var i) ? i : 0;
+
+        public int MysticAdeptMagicianMagSplit =>
+            int.TryParse(GetValue("/character/magsplitmagician", "0"), out var i) ? i : 0;
 
         public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
 
@@ -684,33 +714,89 @@ namespace Chummer.Core
             objExpenses.AppendChild(objExpense);
         }
 
-        public string Gender => GetValue("/character/sex", string.Empty);
+        public string Gender
+        {
+            get => GetValue("/character/sex", string.Empty);
+            set => SetRootValue("sex", value);
+        }
 
-        public string EyeColor => GetValue("/character/eyes", string.Empty);
+        public string EyeColor
+        {
+            get => GetValue("/character/eyes", string.Empty);
+            set => SetRootValue("eyes", value);
+        }
 
-        public string HairColor => GetValue("/character/hair", string.Empty);
+        public string HairColor
+        {
+            get => GetValue("/character/hair", string.Empty);
+            set => SetRootValue("hair", value);
+        }
 
-        public string Height => GetValue("/character/height", string.Empty);
+        public string Height
+        {
+            get => GetValue("/character/height", string.Empty);
+            set => SetRootValue("height", value);
+        }
 
-        public string Weight => GetValue("/character/weight", string.Empty);
+        public string Weight
+        {
+            get => GetValue("/character/weight", string.Empty);
+            set => SetRootValue("weight", value);
+        }
 
-        public string SkinColor => GetValue("/character/skin", string.Empty);
+        public string SkinColor
+        {
+            get => GetValue("/character/skin", string.Empty);
+            set => SetRootValue("skin", value);
+        }
 
-        public string PlayerName => GetValue("/character/playername", string.Empty);
+        public string PlayerName
+        {
+            get => GetValue("/character/playername", string.Empty);
+            set => SetRootValue("playername", value);
+        }
 
-        public string StreetCred => GetValue("/character/streetcred", "0");
+        public string StreetCred
+        {
+            get => GetValue("/character/streetcred", "0");
+            set => SetRootValue("streetcred", value);
+        }
 
-        public string Notoriety => GetValue("/character/notoriety", "0");
+        public string Notoriety
+        {
+            get => GetValue("/character/notoriety", "0");
+            set => SetRootValue("notoriety", value);
+        }
 
-        public string PublicAwareness => GetValue("/character/publicawareness", "0");
+        public string PublicAwareness
+        {
+            get => GetValue("/character/publicawareness", "0");
+            set => SetRootValue("publicawareness", value);
+        }
 
-        public string Description => GetValue("/character/description", string.Empty);
+        public string Description
+        {
+            get => GetValue("/character/description", string.Empty);
+            set => SetRootValue("description", value);
+        }
 
-        public string Background => GetValue("/character/background", string.Empty);
+        public string Background
+        {
+            get => GetValue("/character/background", string.Empty);
+            set => SetRootValue("background", value);
+        }
 
-        public string Concept => GetValue("/character/concept", string.Empty);
+        public string Concept
+        {
+            get => GetValue("/character/concept", string.Empty);
+            set => SetRootValue("concept", value);
+        }
 
-        public string Notes => GetValue("/character/notes", string.Empty);
+        public string Notes
+        {
+            get => GetValue("/character/notes", string.Empty);
+            set => SetRootValue("notes", value);
+        }
 
         private string GetValue(string strXPath, string strFallback)
         {
@@ -1144,7 +1230,9 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
                 lstPowers.Add(new CharacterPowerData(GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"),
-                    GetValue(objNode, "pointsperlevel", "0")));
+                    GetValue(objNode, "pointsperlevel", "0"),
+                    GetValue(objNode, "discounted", "False"),
+                    GetValue(objNode, "discountedgeas", "False")));
             return lstPowers;
         }
 
@@ -1513,27 +1601,64 @@ namespace Chummer.Core
 
     public sealed class CharacterPowerData
     {
-        internal CharacterPowerData(string strName, string strExtra, string strRating, string strPointsPerLevel)
+        internal CharacterPowerData(string strName, string strExtra, string strRating, string strPointsPerLevel,
+            string strDiscountedAdeptWay, string strDiscountedGeas)
         {
             Name = strName;
             Extra = strExtra;
             Rating = strRating;
             PointsPerLevel = strPointsPerLevel;
+            DiscountedAdeptWay = bool.TryParse(strDiscountedAdeptWay, out var blnDiscountedAdeptWay)
+                && blnDiscountedAdeptWay;
+            DiscountedGeas = bool.TryParse(strDiscountedGeas, out var blnDiscountedGeas)
+                && blnDiscountedGeas;
         }
 
         public string Name { get; }
         public string Extra { get; }
         public string Rating { get; }
         public string PointsPerLevel { get; }
+        public bool DiscountedAdeptWay { get; }
+        public bool DiscountedGeas { get; }
 
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
+
+        public decimal Discount
+        {
+            get
+            {
+                if (!DiscountedAdeptWay && !DiscountedGeas)
+                    return 1.0m;
+
+                decimal decMultiplier = 1.0m;
+                if (DiscountedAdeptWay)
+                    decMultiplier -= 0.25m;
+                if (DiscountedGeas)
+                    decMultiplier -= 0.25m;
+                return decMultiplier;
+            }
+        }
+
+        public string CalculatedPointsPerLevel
+        {
+            get
+            {
+                if (!decimal.TryParse(PointsPerLevel, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var decPerLevel))
+                    return PointsPerLevel;
+
+                return (decPerLevel * Discount).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            }
+        }
 
         public string TotalPoints
         {
             get
             {
-                if (!decimal.TryParse(PointsPerLevel, out var decPerLevel)
-                    || !decimal.TryParse(Rating, out var decRating))
+                if (!decimal.TryParse(CalculatedPointsPerLevel, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var decPerLevel)
+                    || !decimal.TryParse(Rating, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var decRating))
                     return PointsPerLevel;
                 return (decPerLevel * decRating).ToString(System.Globalization.CultureInfo.InvariantCulture);
             }

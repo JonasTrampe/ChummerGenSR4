@@ -2,6 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -55,7 +58,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -68,8 +71,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            ViewModel.ReportError(ex.Message);
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -81,7 +83,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -91,9 +93,15 @@ public partial class CloudDocumentsDialog : Window
         {
             await ViewModel.LoginWithOAuthAsync();
         }
+        catch (HttpRequestException)
+        {
+            ViewModel.ReportError(T("String_Cloud_ServerUnreachable"));
+            await ShowErrorAsync(T("String_Cloud_ServerUnreachable"));
+        }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            ViewModel.ReportError(string.Format(T("String_Cloud_LoginFailed"), ex.Message));
+            await ShowErrorAsync(string.Format(T("String_Cloud_LoginFailed"), ex.Message));
         }
     }
 
@@ -103,9 +111,14 @@ public partial class CloudDocumentsDialog : Window
         {
             await ViewModel.UseApiTokenAsync();
         }
+        catch (HttpRequestException)
+        {
+            ViewModel.ReportError(T("String_Cloud_ServerUnreachable"));
+            await ShowErrorAsync(T("String_Cloud_ServerUnreachable"));
+        }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -116,7 +129,7 @@ public partial class CloudDocumentsDialog : Window
 
     private async void OnNewFolderClick(object? sender, RoutedEventArgs e)
     {
-        string? strName = await PromptTextAsync("Enter the new folder name.");
+        string? strName = await PromptTextAsync(T("Message_Cloud_PromptNewFolder"));
         if (string.IsNullOrWhiteSpace(strName))
             return;
 
@@ -126,7 +139,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -135,7 +148,7 @@ public partial class CloudDocumentsDialog : Window
         if (ViewModel.SelectedFolder == null)
             return;
 
-        string? strName = await PromptTextAsync("Enter the folder name.", ViewModel.SelectedFolder.Name);
+        string? strName = await PromptTextAsync(T("Message_Cloud_PromptRenameFolder"), ViewModel.SelectedFolder.Name);
         if (string.IsNullOrWhiteSpace(strName))
             return;
 
@@ -145,7 +158,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -154,7 +167,7 @@ public partial class CloudDocumentsDialog : Window
         if (ViewModel.SelectedFolder == null)
             return;
 
-        if (!await ConfirmAsync("Delete the selected folder?"))
+        if (!await ConfirmAsync(string.Format(T("Message_Cloud_ConfirmDeleteFolder"), ViewModel.SelectedFolder.Name)))
             return;
 
         try
@@ -163,7 +176,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -173,9 +186,13 @@ public partial class CloudDocumentsDialog : Window
         {
             await ViewModel.PushCurrentCharacterAsync();
         }
+        catch (RunnersPointApiException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
+        {
+            await HandlePushConflictAsync();
+        }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -184,7 +201,7 @@ public partial class CloudDocumentsDialog : Window
         if (ViewModel.SelectedDocument == null)
             return;
 
-        if (!await ConfirmAsync("Push the active character to the selected shared document?"))
+        if (!await ConfirmAsync(string.Format(T("Message_Cloud_ConfirmPushShared"), ViewModel.SelectedDocument.DisplayName)))
             return;
 
         try
@@ -193,7 +210,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -202,11 +219,13 @@ public partial class CloudDocumentsDialog : Window
         try
         {
             Tuple<byte[], string> objDownload = await ViewModel.DownloadSelectedDocumentAsync();
-            await SaveDownloadAsync(objDownload.Item1, objDownload.Item2);
+            string? strDocumentId = ViewModel.SelectedDocument?.Id;
+            string? strRevisionId = ViewModel.SelectedDocument?.Document.CurrentRevision;
+            await SaveDownloadAsync(objDownload.Item1, objDownload.Item2, strDocumentId, strRevisionId);
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -216,8 +235,8 @@ public partial class CloudDocumentsDialog : Window
             return;
 
         string strPrompt = ViewModel.SelectedDocument.IsArchived
-            ? "Unarchive the selected document?"
-            : "Archive the selected document?";
+            ? string.Format(T("Message_Cloud_ConfirmUnarchive"), ViewModel.SelectedDocument.DisplayName)
+            : string.Format(T("Message_Cloud_ConfirmArchive"), ViewModel.SelectedDocument.DisplayName);
         if (!await ConfirmAsync(strPrompt))
             return;
 
@@ -227,7 +246,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -248,7 +267,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -267,7 +286,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -279,7 +298,7 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
@@ -291,11 +310,12 @@ public partial class CloudDocumentsDialog : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync(ex);
+            await HandleCloudExceptionAsync(ex);
         }
     }
 
-    private async System.Threading.Tasks.Task SaveDownloadAsync(byte[] bytContent, string strSuggestedFileName)
+    private async System.Threading.Tasks.Task SaveDownloadAsync(byte[] bytContent, string strSuggestedFileName,
+        string? strDocumentId = null, string? strRevisionId = null)
     {
         var objStorage = TopLevel.GetTopLevel(this)?.StorageProvider;
         if (objStorage == null)
@@ -303,7 +323,7 @@ public partial class CloudDocumentsDialog : Window
 
         IStorageFile? objFile = await objStorage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save cloud document",
+            Title = T("Title_SaveCloudDocument"),
             SuggestedFileName = string.IsNullOrWhiteSpace(strSuggestedFileName) ? "character.chum" : strSuggestedFileName,
             DefaultExtension = "chum",
             FileTypeChoices = [new FilePickerFileType("Chummer characters") { Patterns = ["*.chum"] }],
@@ -321,9 +341,27 @@ public partial class CloudDocumentsDialog : Window
 
         using MemoryStream objReadStream = new(bytContent);
         CharacterDocument objCharacter = _characterFileService.Load(objReadStream, Path.GetFileName(strLocalPath));
-        if (string.IsNullOrEmpty(objCharacter.CloudDocumentId) && ViewModel.SelectedDocument != null)
+        bool blnUpdatedCloudLink = false;
+        if (!string.IsNullOrWhiteSpace(strDocumentId) && objCharacter.CloudDocumentId != strDocumentId)
         {
-            objCharacter.CloudDocumentId = ViewModel.SelectedDocument.Id;
+            objCharacter.CloudDocumentId = strDocumentId;
+            blnUpdatedCloudLink = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(strRevisionId) && objCharacter.CloudLastKnownRevisionId != strRevisionId)
+        {
+            objCharacter.CloudLastKnownRevisionId = strRevisionId;
+            blnUpdatedCloudLink = true;
+        }
+
+        if (objCharacter.CloudIsShared != ViewModel.SharedMode)
+        {
+            objCharacter.CloudIsShared = ViewModel.SharedMode;
+            blnUpdatedCloudLink = true;
+        }
+
+        if (blnUpdatedCloudLink)
+        {
             await using Stream objUpdateStream = await objFile.OpenWriteAsync();
             _characterFileService.Save(objCharacter, objUpdateStream, Path.GetFileName(strLocalPath));
         }
@@ -338,21 +376,21 @@ public partial class CloudDocumentsDialog : Window
         {
             Width = 420,
             Height = 160,
-            Title = "Input",
+            Title = T("Title_Input"),
             WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
 
         TextBox objTextBox = new() { Text = strInitialValue };
         string? strResult = null;
 
-        Button objOk = new() { Content = "OK", Width = 80 };
+        Button objOk = new() { Content = T("String_OK"), Width = 80 };
         objOk.Click += (_, _) =>
         {
             strResult = objTextBox.Text;
             objDialog.Close();
         };
 
-        Button objCancel = new() { Content = "Cancel", Width = 80 };
+        Button objCancel = new() { Content = T("String_Cancel"), Width = 80 };
         objCancel.Click += (_, _) => objDialog.Close();
 
         objDialog.Content = new Grid
@@ -396,18 +434,18 @@ public partial class CloudDocumentsDialog : Window
         {
             Width = 420,
             Height = 170,
-            Title = "Confirm",
+            Title = T("Title_Confirm"),
             WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
 
-        Button objYes = new() { Content = "Yes", Width = 80 };
+        Button objYes = new() { Content = T("String_Yes"), Width = 80 };
         objYes.Click += (_, _) =>
         {
             blnConfirmed = true;
             objDialog.Close();
         };
 
-        Button objNo = new() { Content = "No", Width = 80 };
+        Button objNo = new() { Content = T("String_No"), Width = 80 };
         objNo.Click += (_, _) => objDialog.Close();
 
         objDialog.Content = new Grid
@@ -433,17 +471,194 @@ public partial class CloudDocumentsDialog : Window
         return blnConfirmed;
     }
 
-    private async System.Threading.Tasks.Task ShowErrorAsync(Exception ex)
+    private async System.Threading.Tasks.Task HandlePushConflictAsync()
+    {
+        CharacterDocument? objLocalCharacter = ViewModel.ActiveCharacter;
+        if (objLocalCharacter == null || string.IsNullOrEmpty(objLocalCharacter.CloudDocumentId))
+        {
+            await ShowErrorAsync(T("String_Cloud_PushStale"));
+            return;
+        }
+
+        CharacterDocument? objServerCharacter = null;
+        try
+        {
+            Tuple<RunnersPointDocument, string> objCurrent = await ViewModel.GetDocumentAsync(objLocalCharacter.CloudDocumentId);
+            Tuple<byte[], string> objDownload = await ViewModel.DownloadRevisionAsync(objLocalCharacter.CloudDocumentId, objCurrent.Item1.CurrentRevision, false);
+            using MemoryStream objStream = new(objDownload.Item1);
+            objServerCharacter = _characterFileService.Load(objStream, objDownload.Item2);
+        }
+        catch (Exception ex)
+        {
+            await HandleCloudExceptionAsync(ex);
+            return;
+        }
+
+        CharacterDiffResult objDiff = CharacterDiff.Compare(objLocalCharacter, objServerCharacter);
+        int intChoice = await ShowChoiceDialogAsync(
+            T("Title_CloudConflict"),
+            BuildConflictMessage(objDiff),
+            T("Button_CloudConflict_OverwriteServer"),
+            T("Button_CloudConflict_SaveLocallyOnly"),
+            T("Button_CloudConflict_Cancel"));
+
+        if (intChoice == 1)
+        {
+            ViewModel.SaveActiveCharacterSnapshot();
+            return;
+        }
+
+        if (intChoice != 0)
+            return;
+
+        try
+        {
+            await ViewModel.ForcePushCurrentCharacterAsync();
+        }
+        catch (Exception ex)
+        {
+            await HandleCloudExceptionAsync(ex);
+        }
+    }
+
+    private async System.Threading.Tasks.Task<int> ShowChoiceDialogAsync(string strTitle, string strPrompt, params string[] astrButtons)
+    {
+        int intChoice = -1;
+        var objDialog = new Window
+        {
+            Width = 640,
+            Height = 320,
+            Title = strTitle,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        StackPanel objButtonsPanel = new()
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Spacing = 8
+        };
+
+        for (int i = 0; i < astrButtons.Length; i++)
+        {
+            int intIndex = i;
+            Button objButton = new() { Content = astrButtons[i], MinWidth = 130 };
+            objButton.Click += (_, _) =>
+            {
+                intChoice = intIndex;
+                objDialog.Close();
+            };
+            objButtonsPanel.Children.Add(objButton);
+        }
+
+        objDialog.Content = new Grid
+        {
+            Margin = new Thickness(12),
+            RowDefinitions = new RowDefinitions("*,Auto"),
+            Children =
+            {
+                new ScrollViewer
+                {
+                    Content = new TextBlock
+                    {
+                        Text = strPrompt,
+                        TextWrapping = TextWrapping.Wrap
+                    }
+                },
+                objButtonsPanel
+            }
+        };
+
+        Grid.SetRow(objButtonsPanel, 1);
+        await objDialog.ShowDialog(this);
+        return intChoice;
+    }
+
+    private static string BuildConflictMessage(CharacterDiffResult objDiff)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine(T("Label_CloudConflict_Explanation"));
+        sb.AppendLine();
+
+        if (!objDiff.HasChanges)
+            return T("String_CloudConflict_NoDetectableDifference");
+
+        foreach (CharacterDiffEntry objEntry in objDiff.Entries)
+        {
+            if (!string.IsNullOrWhiteSpace(objEntry.Collection))
+                sb.Append(objEntry.Collection).Append(": ");
+
+            sb.Append(objEntry.Change).Append(' ').Append(objEntry.Name);
+            if (!string.IsNullOrWhiteSpace(objEntry.Detail))
+                sb.Append(" — ").Append(objEntry.Detail);
+            sb.AppendLine();
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    private string TranslateCloudException(Exception ex)
+    {
+        string strMessage = ex.Message;
+
+        switch (ex)
+        {
+            case HttpRequestException:
+                strMessage = T("String_Cloud_ServerUnreachable");
+                break;
+            case RunnersPointApiException objApiException when objApiException.StatusCode == HttpStatusCode.Unauthorized:
+                if (ViewModel.IsApiTokenLogin())
+                {
+                    strMessage = T("String_Cloud_AuthTokenRejected");
+                }
+                else
+                {
+                    HandleAuthExpired();
+                    strMessage = T("String_Cloud_AuthExpired");
+                }
+
+                break;
+            case RunnersPointApiException objApiException when objApiException.StatusCode == HttpStatusCode.PreconditionFailed:
+                strMessage = T("String_Cloud_PushStale");
+                break;
+            case RunnersPointApiException objApiException when objApiException.StatusCode == HttpStatusCode.Conflict:
+                strMessage = T("String_Cloud_PushIdempotencyConflict");
+                break;
+            case RunnersPointApiException objApiException when objApiException.ProblemCode == "purge_not_eligible":
+                strMessage = T("String_CloudRevisions_PurgeNotEligible");
+                break;
+            case RunnersPointApiException objApiException when objApiException.ProblemCode == "recent_authentication_required":
+                strMessage = T("String_CloudRevisions_RecentAuthRequired");
+                break;
+        }
+
+        return strMessage;
+    }
+
+    private async System.Threading.Tasks.Task HandleCloudExceptionAsync(Exception ex)
+    {
+        string strMessage = TranslateCloudException(ex);
+        ViewModel.ReportError(strMessage);
+        await ShowErrorAsync(strMessage);
+    }
+
+    private void HandleAuthExpired()
+    {
+        if (!ViewModel.IsApiTokenLogin())
+            ViewModel.Logout();
+    }
+
+    private async System.Threading.Tasks.Task ShowErrorAsync(string strMessage)
     {
         var objDialog = new Window
         {
             Width = 520,
             Height = 180,
-            Title = "Cloud Error",
+            Title = T("Title_CloudDocuments"),
             WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
 
-        Button objOk = new() { Content = "OK", Width = 80, HorizontalAlignment = HorizontalAlignment.Right };
+        Button objOk = new() { Content = T("String_OK"), Width = 80, HorizontalAlignment = HorizontalAlignment.Right };
         objOk.Click += (_, _) => objDialog.Close();
 
         objDialog.Content = new Grid
@@ -452,7 +667,7 @@ public partial class CloudDocumentsDialog : Window
             RowDefinitions = new RowDefinitions("*,Auto"),
             Children =
             {
-                new TextBlock { Text = ex.Message, TextWrapping = TextWrapping.Wrap },
+                new TextBlock { Text = strMessage, TextWrapping = TextWrapping.Wrap },
                 new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
@@ -555,7 +770,7 @@ public partial class CloudDocumentsDialog : Window
             }
             catch (Exception ex)
             {
-                await ShowErrorAsync(ex);
+                await HandleCloudExceptionAsync(ex);
             }
         });
     }
@@ -570,20 +785,20 @@ public partial class CloudDocumentsDialog : Window
         {
             Width = 520;
             Height = 260;
-            Title = "Cloud Metadata";
+            Title = T("Title_CloudMetadata");
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             TextBox objDisplayName = new() { Text = strDisplayName };
             TextBox objDescription = new() { Text = strDescription, AcceptsReturn = true, Height = 70, TextWrapping = TextWrapping.Wrap };
             TextBox objImageUrl = new() { Text = strImageUrl };
 
-            Button objOk = new() { Content = "OK", Width = 80 };
+            Button objOk = new() { Content = T("String_OK"), Width = 80 };
             objOk.Click += (_, _) =>
             {
                 Close(new CloudMetadataDialogResult(objDisplayName.Text ?? string.Empty, objDescription.Text ?? string.Empty, objImageUrl.Text ?? string.Empty));
             };
 
-            Button objCancel = new() { Content = "Cancel", Width = 80 };
+            Button objCancel = new() { Content = T("String_Cancel"), Width = 80 };
             objCancel.Click += (_, _) => Close(null);
 
             Content = new Grid
@@ -593,11 +808,11 @@ public partial class CloudDocumentsDialog : Window
                 ColumnDefinitions = new ColumnDefinitions("Auto,*"),
                 Children =
                 {
-                    new TextBlock { Text = "Display Name:", VerticalAlignment = VerticalAlignment.Center },
+                    new TextBlock { Text = T("Label_CloudMetadata_DisplayName"), VerticalAlignment = VerticalAlignment.Center },
                     objDisplayName,
-                    new TextBlock { Text = "Description:", VerticalAlignment = VerticalAlignment.Top },
+                    new TextBlock { Text = T("Label_CloudMetadata_Description"), VerticalAlignment = VerticalAlignment.Top },
                     objDescription,
-                    new TextBlock { Text = "Image URL:", VerticalAlignment = VerticalAlignment.Center },
+                    new TextBlock { Text = T("Label_CloudMetadata_ImageUrl"), VerticalAlignment = VerticalAlignment.Center },
                     objImageUrl,
                     new StackPanel
                     {
@@ -636,7 +851,7 @@ public partial class CloudDocumentsDialog : Window
             CreatedAt = objRevision.CreatedAt.ToLocalTime().ToString("g");
             State = objRevision.ValidationState;
             Size = objRevision.SizeBytes.ToString();
-            Current = blnCurrent ? "Current" : string.Empty;
+            Current = blnCurrent ? T("String_CloudRevisions_Current") : string.Empty;
         }
 
         public RunnersPointRevision Revision { get; }
@@ -671,7 +886,7 @@ public partial class CloudDocumentsDialog : Window
 
             Width = 760;
             Height = 520;
-            Title = "Revisions - " + (string.IsNullOrWhiteSpace(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName);
+            Title = T("Title_CloudRevisions").Replace("{0}", string.IsNullOrWhiteSpace(objDocument.DisplayName) ? objDocument.Id : objDocument.DisplayName);
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             _listBox = new ListBox
@@ -693,15 +908,15 @@ public partial class CloudDocumentsDialog : Window
             };
             _listBox.SelectionChanged += (_, _) => UpdateButtons();
 
-            _downloadButton = new Button { Content = "Download", IsEnabled = false };
+            _downloadButton = new Button { Content = T("Button_CloudRevisions_Download"), IsEnabled = false };
             _downloadButton.Click += OnDownloadRevisionClick;
 
-            _purgeRevisionButton = new Button { Content = "Purge Revision", IsEnabled = false };
+            _purgeRevisionButton = new Button { Content = T("Button_CloudRevisions_PurgeRevision"), IsEnabled = false };
             _purgeRevisionButton.Click += OnPurgeRevisionClick;
 
             _purgeDocumentButton = new Button
             {
-                Content = "Purge Document",
+                Content = T("Button_CloudRevisions_PurgeDocument"),
                 IsEnabled = _canPurge && _document.ValidationState == "archived"
             };
             _purgeDocumentButton.Click += OnPurgeDocumentClick;
@@ -720,10 +935,10 @@ public partial class CloudDocumentsDialog : Window
                         Margin = new Thickness(4,0,4,6),
                         Children =
                         {
-                            new TextBlock { Text = "Created", FontWeight = FontWeight.Bold },
-                            new TextBlock { Text = "State", FontWeight = FontWeight.Bold },
-                            new TextBlock { Text = "Size", FontWeight = FontWeight.Bold },
-                            new TextBlock { Text = "Current", FontWeight = FontWeight.Bold }
+                            new TextBlock { Text = T("String_Cloud_RevisionCreated"), FontWeight = FontWeight.Bold },
+                            new TextBlock { Text = T("String_Cloud_RevisionState"), FontWeight = FontWeight.Bold },
+                            new TextBlock { Text = T("String_Cloud_RevisionSize"), FontWeight = FontWeight.Bold },
+                            new TextBlock { Text = T("String_CloudRevisions_Current"), FontWeight = FontWeight.Bold }
                         }
                     },
                     _listBox,
@@ -738,7 +953,7 @@ public partial class CloudDocumentsDialog : Window
                             _purgeDocumentButton,
                             new Button
                             {
-                                Content = "Close"
+                                Content = T("Button_CloudRevisions_Close")
                             }
                         }
                     },
@@ -763,19 +978,21 @@ public partial class CloudDocumentsDialog : Window
         {
             try
             {
-                _status.Text = "Refreshing...";
+                _status.Text = T("String_Cloud_Refreshing");
                 _revisions.Clear();
                 _currentDocument = (await _viewModel.GetDocumentForRevisionDialogAsync(_document.Id, _shared)).Item1;
                 var lstRevisions = await _viewModel.ListRevisionsAsync(_document.Id, _shared);
                 foreach (RunnersPointRevision objRevision in lstRevisions)
                     _revisions.Add(new CloudRevisionRow(objRevision, objRevision.Id == _currentDocument.CurrentRevision));
-                _status.Text = "Ready";
+                _status.Text = T("String_Cloud_Ready");
                 _purgeDocumentButton.IsEnabled = _canPurge && _currentDocument.ValidationState == "archived";
                 UpdateButtons();
             }
             catch (Exception ex)
             {
-                _status.Text = ex.Message;
+                _status.Text = Owner is CloudDocumentsDialog objDialog
+                    ? objDialog.TranslateCloudException(ex)
+                    : ex.Message;
             }
         }
 
@@ -793,17 +1010,19 @@ public partial class CloudDocumentsDialog : Window
 
             try
             {
-                _status.Text = "Downloading...";
+                _status.Text = T("String_Cloud_Downloading");
                 Tuple<byte[], string> objDownload = await _viewModel.DownloadRevisionAsync(_document.Id, SelectedRevision.Revision.Id, _shared);
 
                 if (Owner is CloudDocumentsDialog objOwner)
-                    await objOwner.SaveDownloadAsync(objDownload.Item1, objDownload.Item2);
+                    await objOwner.SaveDownloadAsync(objDownload.Item1, objDownload.Item2, _document.Id, SelectedRevision.Revision.Id);
 
-                _status.Text = "Ready";
+                _status.Text = T("String_Cloud_Ready");
             }
             catch (Exception ex)
             {
-                _status.Text = ex.Message;
+                _status.Text = Owner is CloudDocumentsDialog objDialog
+                    ? objDialog.TranslateCloudException(ex)
+                    : ex.Message;
             }
         }
 
@@ -812,18 +1031,20 @@ public partial class CloudDocumentsDialog : Window
             if (SelectedRevision == null || !_canPurge)
                 return;
 
-            if (Owner is not CloudDocumentsDialog objOwner || !await objOwner.ConfirmAsync("Purge the selected revision permanently?"))
+            if (Owner is not CloudDocumentsDialog objOwner || !await objOwner.ConfirmAsync(T("Message_CloudRevisions_ConfirmPurgeRevision").Replace("{0}", SelectedRevision.CreatedAt)))
                 return;
 
             try
             {
-                _status.Text = "Purging...";
+                _status.Text = T("String_CloudRevisions_Purging");
                 await _viewModel.PurgeRevisionAsync(_document.Id, SelectedRevision.Revision.Id, _shared);
                 await RefreshAsync();
             }
             catch (Exception ex)
             {
-                _status.Text = ex.Message;
+                _status.Text = Owner is CloudDocumentsDialog objDialog
+                    ? objDialog.TranslateCloudException(ex)
+                    : ex.Message;
             }
         }
 
@@ -832,19 +1053,26 @@ public partial class CloudDocumentsDialog : Window
             if (!_canPurge)
                 return;
 
-            if (Owner is not CloudDocumentsDialog objOwner || !await objOwner.ConfirmAsync("Purge the document permanently?"))
+            if (Owner is not CloudDocumentsDialog objOwner || !await objOwner.ConfirmAsync(T("Message_CloudRevisions_ConfirmPurgeDocument").Replace("{0}", _document.DisplayName ?? _document.Id)))
                 return;
 
             try
             {
-                _status.Text = "Purging...";
+                _status.Text = T("String_CloudRevisions_Purging");
                 await _viewModel.PurgeDocumentAsync(_document.Id, _shared);
                 Close();
             }
             catch (Exception ex)
             {
-                _status.Text = ex.Message;
+                _status.Text = Owner is CloudDocumentsDialog objDialog
+                    ? objDialog.TranslateCloudException(ex)
+                    : ex.Message;
             }
         }
+    }
+
+    private static string T(string strKey)
+    {
+        return App.LanguageCatalog.GetString(strKey);
     }
 }

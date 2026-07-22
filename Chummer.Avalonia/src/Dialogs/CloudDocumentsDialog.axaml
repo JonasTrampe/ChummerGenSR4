@@ -8,30 +8,30 @@
         d:DesignHeight="640"
         Width="980" Height="640"
         WindowStartupLocation="CenterOwner"
-        Title="Cloud Documents">
+        Title="{Binding TitleText}">
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="10" Margin="12">
         <StackPanel Orientation="Horizontal" Spacing="16">
-            <RadioButton Content="My Documents" IsChecked="{Binding MyDocumentsMode, Mode=TwoWay}" />
-            <RadioButton Content="Shared With Me" IsChecked="{Binding SharedWithMeMode, Mode=TwoWay}" />
+            <RadioButton Content="{Binding MyDocumentsText}" IsChecked="{Binding MyDocumentsMode, Mode=TwoWay}" />
+            <RadioButton Content="{Binding SharedWithMeText}" IsChecked="{Binding SharedWithMeMode, Mode=TwoWay}" />
         </StackPanel>
 
         <Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="8">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <RadioButton Content="Use API Token" IsChecked="{Binding UseApiToken, Mode=TwoWay}" />
-                <RadioButton Content="Use OAuth Login" IsChecked="{Binding UseOAuth, Mode=TwoWay}" />
+                <RadioButton Content="{Binding UseApiTokenText}" IsChecked="{Binding UseApiToken, Mode=TwoWay}" />
+                <RadioButton Content="{Binding UseOAuthText}" IsChecked="{Binding UseOAuth, Mode=TwoWay}" />
             </StackPanel>
 
             <Grid Grid.Row="1" ColumnDefinitions="Auto,320,Auto,*" ColumnSpacing="8"
                   IsVisible="{Binding UseApiToken}">
-                <TextBlock Grid.Column="0" Text="API Token:" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="0" Text="{Binding ApiTokenLabelText}" VerticalAlignment="Center" />
                 <TextBox Grid.Column="1" Text="{Binding ApiToken, Mode=TwoWay}"
                          PasswordChar="•" />
-                <Button Grid.Column="2" Content="Use Token" Click="OnUseApiTokenClick" />
+                <Button Grid.Column="2" Content="{Binding UseTokenButtonText}" Click="OnUseApiTokenClick" />
             </Grid>
 
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="8"
                   IsVisible="{Binding UseOAuth}">
-                <Button Grid.Column="0" Content="Log In" Click="OnLoginClick" HorizontalAlignment="Left" />
+                <Button Grid.Column="0" Content="{Binding LoginButtonText}" Click="OnLoginClick" HorizontalAlignment="Left" />
             </Grid>
         </Grid>
 
@@ -48,10 +48,10 @@
                         </TreeView.ItemTemplate>
                     </TreeView>
                     <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="6" Margin="0,10,0,0">
-                        <Button Grid.Column="0" Content="New..." Click="OnNewFolderClick" />
-                        <Button Grid.Column="1" Content="Rename..." Click="OnRenameFolderClick"
+                        <Button Grid.Column="0" Content="{Binding NewFolderButtonText}" Click="OnNewFolderClick" />
+                        <Button Grid.Column="1" Content="{Binding RenameFolderButtonText}" Click="OnRenameFolderClick"
                                 IsEnabled="{Binding CanManageSelectedFolder}" />
-                        <Button Grid.Column="2" Content="Delete" Click="OnDeleteFolderClick"
+                        <Button Grid.Column="2" Content="{Binding DeleteButtonText}" Click="OnDeleteFolderClick"
                                 IsEnabled="{Binding CanManageSelectedFolder}" />
                     </Grid>
                 </Grid>
@@ -61,10 +61,10 @@
                 <Grid RowDefinitions="*,Auto,Auto" RowSpacing="8">
                     <Grid RowDefinitions="Auto,*">
                         <Grid ColumnDefinitions="*,120,150,180" Margin="4,0,4,6">
-                            <TextBlock Grid.Column="0" Text="Name" FontWeight="Bold" />
-                            <TextBlock Grid.Column="1" Text="State" FontWeight="Bold" />
-                            <TextBlock Grid.Column="2" Text="Updated" FontWeight="Bold" />
-                            <TextBlock Grid.Column="3" Text="Share" FontWeight="Bold" />
+                            <TextBlock Grid.Column="0" Text="{Binding NameHeaderText}" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="{Binding StateHeaderText}" FontWeight="Bold" />
+                            <TextBlock Grid.Column="2" Text="{Binding UpdatedHeaderText}" FontWeight="Bold" />
+                            <TextBlock Grid.Column="3" Text="{Binding ShareHeaderText}" FontWeight="Bold" />
                         </Grid>
 
                         <ListBox x:Name="DocumentsList"
@@ -89,25 +89,25 @@
                                   VerticalScrollBarVisibility="Disabled">
                         <StackPanel Orientation="Vertical" Spacing="8">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button Content="Refresh" Click="OnRefreshClick" />
-                                <Button Content="Push Current" Click="OnPushCurrentClick"
+                                <Button Content="{Binding RefreshButtonText}" Click="OnRefreshClick" />
+                                <Button Content="{Binding PushCurrentButtonText}" Click="OnPushCurrentClick"
                                         IsEnabled="{Binding CanPushCurrentCharacter}" />
-                                <Button Content="Push Shared" Click="OnPushSharedClick"
+                                <Button Content="{Binding PushSharedButtonText}" Click="OnPushSharedClick"
                                         IsEnabled="{Binding CanPushSharedDocument}" />
-                                <Button Content="Download" Click="OnDownloadClick"
+                                <Button Content="{Binding DownloadButtonText}" Click="OnDownloadClick"
                                         IsEnabled="{Binding CanDownloadDocument}" />
-                                <Button Content="Revisions..." Click="OnRevisionsClick"
+                                <Button Content="{Binding RevisionsButtonText}" Click="OnRevisionsClick"
                                         IsEnabled="{Binding CanDownloadDocument}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Button Content="{Binding ArchiveButtonText}" Click="OnArchiveClick"
                                         IsEnabled="{Binding CanArchiveDocument}" />
-                                <Button Content="Edit Metadata..." Click="OnEditMetadataClick"
+                                <Button Content="{Binding EditMetadataButtonText}" Click="OnEditMetadataClick"
                                         IsEnabled="{Binding CanEditMetadata}" />
-                                <Button Content="File in Folder" Click="OnFileInFolderClick"
+                                <Button Content="{Binding FileInFolderButtonText}" Click="OnFileInFolderClick"
                                         IsEnabled="{Binding CanFileDocument}" />
-                                <Button Content="Unfile" Click="OnUnfileClick"
+                                <Button Content="{Binding UnfileButtonText}" Click="OnUnfileClick"
                                         IsEnabled="{Binding CanUnfileDocument}" />
                             </StackPanel>
                         </StackPanel>
@@ -119,8 +119,9 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
-            <Button Content="Log Out" Click="OnLogoutClick" />
+            <Button Content="{Binding LogoutButtonText}" Click="OnLogoutClick" />
             <TextBlock Text="{Binding ConnectionState}" VerticalAlignment="Center" Margin="8,0,0,0" />
+            <TextBlock Text="{Binding TokenPresetState}" VerticalAlignment="Center" Margin="8,0,0,0" />
         </StackPanel>
 
         <TextBlock Grid.Row="4" Text="{Binding Status}" TextWrapping="Wrap" />

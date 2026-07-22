@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Chummer.Core;
 using Serilog;
 
 namespace Chummer
@@ -17,6 +18,9 @@ namespace Chummer
 	public partial class frmCloudDocuments : Form
 	{
 		private const string DocumentType = "character";
+		private const int FolderNodeAll = -1;
+		private const int FolderNodeUnfiled = -2;
+		private const string DragDocumentFormat = "Chummer.CloudDocument";
 
 		// Masked placeholder shown in the API Token field when a token is already stored, so the field
 		// isn't just blank and misleadingly implying nothing is configured. Never submitted as-is - it's
@@ -29,6 +33,8 @@ namespace Chummer
 		private readonly Character _objActiveCharacter;
 		private string _strGameProfileId = "";
 		private string _strGameProfileFormat = "";
+		private readonly System.Collections.Generic.List<RunnersPointDocument> _lstDocuments = new System.Collections.Generic.List<RunnersPointDocument>();
+		private readonly System.Collections.Generic.List<RunnersPointFolder> _lstFolders = new System.Collections.Generic.List<RunnersPointFolder>();
 
 		private bool SharedMode => rdoSharedWithMe.Checked;
 
@@ -38,6 +44,11 @@ namespace Chummer
 			InitializeComponent();
 			LanguageManager.Instance.Load(GlobalOptions.Instance.Language, this);
 			LayoutActionButtons();
+		}
+
+		private sealed class FolderTreeNodeTag
+		{
+			public int Id { get; set; }
 		}
 
 		private async void frmCloudDocuments_Load(object sender, EventArgs e)
@@ -77,6 +88,9 @@ namespace Chummer
 			txtApiToken.Visible = rdoAuthApiToken.Checked;
 			cmdUseApiToken.Visible = rdoAuthApiToken.Checked;
 			cmdLogin.Visible = rdoAuthOAuth.Checked;
+			tvFolders.Enabled = _objAuth.HasStoredLogin();
+			cmdNewFolder.Enabled = _objAuth.HasStoredLogin();
+			UpdateResponsiveLayout();
 		}
 
 		/// <summary>
@@ -119,13 +133,15 @@ namespace Chummer
 
 			if (!blnLoggedIn)
 			{
-				lblConnectionState.Text = LanguageManager.Instance.GetString("String_Cloud_ConnectionState_NotConnected");
+				lblConnectionState.Text = LanguageManager.Instance.GetString("String_Cloud_ConnectionState_NotConnected")
+					+ " " + LanguageManager.Instance.GetString("String_Cloud_TokenPreset_NotStored");
 				return;
 			}
 
 			lblConnectionState.Text = _objAuth.IsApiTokenLogin()
 				? LanguageManager.Instance.GetString("String_Cloud_ConnectionState_ApiToken")
 				: LanguageManager.Instance.GetString("String_Cloud_ConnectionState_OAuth");
+			lblConnectionState.Text += " " + LanguageManager.Instance.GetString("String_Cloud_TokenPreset_Stored");
 		}
 
 		private async void cmdLogin_Click(object sender, EventArgs e)
@@ -264,7 +280,11 @@ namespace Chummer
 					_strGameProfileFormat = strFormat;
 				}
 
-				lstDocuments.Items.Clear();
+				_lstFolders.Clear();
+				_lstFolders.AddRange(await _objApiClient.ListFoldersAsync());
+				RebuildFolderTree();
+
+				_lstDocuments.Clear();
 				string strCursor = null;
 				if (SharedMode)
 				{
@@ -272,7 +292,7 @@ namespace Chummer
 					{
 						RunnersPointSharedDocumentPage objPage = await _objApiClient.ListSharedDocumentsAsync(_strGameProfileId, strCursor);
 						foreach (RunnersPointSharedDocument objDocument in objPage.Items)
-							lstDocuments.Items.Add(BuildListItem(objDocument));
+							_lstDocuments.Add(objDocument);
 						strCursor = objPage.NextCursor;
 					} while (!string.IsNullOrEmpty(strCursor));
 				}
@@ -282,11 +302,12 @@ namespace Chummer
 					{
 						RunnersPointDocumentPage objPage = await _objApiClient.ListDocumentsAsync(_strGameProfileId, strCursor);
 						foreach (RunnersPointDocument objDocument in objPage.Items)
-							lstDocuments.Items.Add(BuildListItem(objDocument));
+							_lstDocuments.Add(objDocument);
 						strCursor = objPage.NextCursor;
 					} while (!string.IsNullOrEmpty(strCursor));
 				}
 
+				RefreshDocumentList();
 				UpdateSelectionButtons();
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 			}
@@ -331,9 +352,309 @@ namespace Chummer
 			return objItem;
 		}
 
+		private static int? GetDocumentFolderId(RunnersPointDocument objDocument, bool blnSharedMode)
+		{
+			if (blnSharedMode && objDocument is RunnersPointSharedDocument objShared)
+				return objShared.RecipientFolderId;
+			return objDocument.FolderId;
+		}
+
+		private void RebuildFolderTree()
+		{
+			int intSelectedId = GetSelectedFolderNodeId();
+
+			tvFolders.BeginUpdate();
+			tvFolders.Nodes.Clear();
+
+			TreeNode objAllNode = new TreeNode("All Documents") { Tag = new FolderTreeNodeTag { Id = FolderNodeAll } };
+			TreeNode objUnfiledNode = new TreeNode("Unfiled") { Tag = new FolderTreeNodeTag { Id = FolderNodeUnfiled } };
+			tvFolders.Nodes.Add(objAllNode);
+			tvFolders.Nodes.Add(objUnfiledNode);
+
+			System.Collections.Generic.Dictionary<int, TreeNode> dicNodes = new System.Collections.Generic.Dictionary<int, TreeNode>();
+			foreach (RunnersPointFolder objFolder in _lstFolders.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+				dicNodes[objFolder.Id] = new TreeNode(objFolder.Name) { Tag = objFolder };
+
+			foreach (RunnersPointFolder objFolder in _lstFolders.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+			{
+				TreeNode objNode = dicNodes[objFolder.Id];
+				if (objFolder.ParentFolderId.HasValue && dicNodes.ContainsKey(objFolder.ParentFolderId.Value))
+					dicNodes[objFolder.ParentFolderId.Value].Nodes.Add(objNode);
+				else
+					tvFolders.Nodes.Add(objNode);
+			}
+
+			tvFolders.ExpandAll();
+			SelectFolderNodeById(intSelectedId);
+			if (tvFolders.SelectedNode == null)
+				tvFolders.SelectedNode = objAllNode;
+			tvFolders.EndUpdate();
+		}
+
+		private void RefreshDocumentList()
+		{
+			lstDocuments.BeginUpdate();
+			lstDocuments.Items.Clear();
+			int intFolderFilterId = GetSelectedFolderNodeId();
+			foreach (RunnersPointDocument objDocument in _lstDocuments)
+			{
+				int? intDocumentFolderId = GetDocumentFolderId(objDocument, SharedMode);
+				if (intFolderFilterId == FolderNodeUnfiled)
+				{
+					if (intDocumentFolderId.HasValue)
+						continue;
+				}
+				else if (intFolderFilterId != FolderNodeAll && intDocumentFolderId != intFolderFilterId)
+					continue;
+
+				lstDocuments.Items.Add(BuildListItem(objDocument));
+			}
+			lstDocuments.EndUpdate();
+		}
+
+		private void UpdateResponsiveLayout()
+		{
+			const int intMargin = 12;
+			const int intColumnGap = 6;
+			const int intButtonRowGap = 8;
+			const int intStatusGap = 10;
+			const int intFolderButtonHeight = 23;
+
+			int intBottomRowY = ClientSize.Height - intMargin - lblStatus.Height - intStatusGap - cmdArchive.Height;
+			int intTopRowY = intBottomRowY - intButtonRowGap - cmdLogout.Height;
+			int intFolderButtonsTop = intTopRowY;
+			int intFolderButtonsBottom = intFolderButtonsTop + intFolderButtonHeight;
+
+			int intTopOfLists = tvFolders.Top;
+			int intAvailableListHeight = intFolderButtonsTop - intButtonRowGap - intTopOfLists;
+			if (intAvailableListHeight < 120)
+				intAvailableListHeight = 120;
+
+			tvFolders.Height = intAvailableListHeight;
+			lstDocuments.Height = intAvailableListHeight;
+
+			int intRightX = tvFolders.Right + intColumnGap;
+			lstDocuments.Left = intRightX;
+			lstDocuments.Width = ClientSize.Width - intMargin - lstDocuments.Left;
+
+			cmdLogout.Top = intTopRowY;
+			cmdRefresh.Top = intTopRowY;
+			cmdPushCurrent.Top = intTopRowY;
+			cmdPushShared.Top = intTopRowY;
+			cmdRevisions.Top = intTopRowY;
+			cmdDownload.Top = intTopRowY;
+			cmdNewFolder.Top = intFolderButtonsTop;
+			cmdRenameFolder.Top = intFolderButtonsTop;
+			cmdDeleteFolder.Top = intFolderButtonsTop;
+
+			cmdArchive.Top = intBottomRowY;
+			cmdEditMetadata.Top = intBottomRowY;
+			cmdFileInFolder.Top = intBottomRowY;
+			cmdUnfile.Top = intBottomRowY;
+#if DEBUG
+			cmdDebugInfo.Top = intBottomRowY;
+#endif
+
+			lblStatus.Top = ClientSize.Height - intMargin - lblStatus.Height;
+
+			LayoutActionButtons();
+		}
+
+		private void UpdateFolderButtons()
+		{
+			bool blnHasActualFolder = GetSelectedFolderId(true).HasValue;
+			cmdRenameFolder.Enabled = blnHasActualFolder;
+			cmdDeleteFolder.Enabled = blnHasActualFolder;
+			cmdNewFolder.Enabled = _objAuth.HasStoredLogin();
+		}
+
+		private int? GetSelectedFolderId(bool blnRequireActualFolder)
+		{
+			int intSelectedNodeId = GetSelectedFolderNodeId();
+			if (blnRequireActualFolder && intSelectedNodeId < 0)
+				return null;
+			return intSelectedNodeId >= 0 ? (int?)intSelectedNodeId : null;
+		}
+
+		private int GetSelectedFolderNodeId()
+		{
+			if (tvFolders.SelectedNode == null)
+				return FolderNodeAll;
+			if (tvFolders.SelectedNode.Tag is FolderTreeNodeTag objTag)
+				return objTag.Id;
+			if (tvFolders.SelectedNode.Tag is RunnersPointFolder objFolder)
+				return objFolder.Id;
+			return FolderNodeAll;
+		}
+
+		private void SelectFolderNodeById(int intFolderId)
+		{
+			foreach (TreeNode objNode in tvFolders.Nodes)
+			{
+				TreeNode objMatch = FindFolderNode(objNode, intFolderId);
+				if (objMatch == null)
+					continue;
+				tvFolders.SelectedNode = objMatch;
+				return;
+			}
+		}
+
+		private static TreeNode FindFolderNode(TreeNode objNode, int intFolderId)
+		{
+			if (objNode.Tag is FolderTreeNodeTag objSpecialTag && objSpecialTag.Id == intFolderId)
+				return objNode;
+			if (objNode.Tag is RunnersPointFolder objFolder && objFolder.Id == intFolderId)
+				return objNode;
+			foreach (TreeNode objChild in objNode.Nodes)
+			{
+				TreeNode objMatch = FindFolderNode(objChild, intFolderId);
+				if (objMatch != null)
+					return objMatch;
+			}
+			return null;
+		}
+
 		private async void cmdRefresh_Click(object sender, EventArgs e)
 		{
 			await RefreshAsync();
+		}
+
+		private void frmCloudDocuments_SizeChanged(object sender, EventArgs e)
+		{
+			UpdateResponsiveLayout();
+		}
+
+		private void tvFolders_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			RefreshDocumentList();
+			UpdateFolderButtons();
+			UpdateSelectionButtons();
+		}
+
+		private async void cmdNewFolder_Click(object sender, EventArgs e)
+		{
+			using (frmSelectText frmText = new frmSelectText())
+			{
+				frmText.Description = "Enter the new folder name.";
+				if (frmText.ShowDialog(this) != DialogResult.OK || string.IsNullOrWhiteSpace(frmText.SelectedValue))
+					return;
+
+				try
+				{
+					await _objApiClient.CreateFolderAsync(frmText.SelectedValue.Trim(), GetSelectedFolderId(false));
+					await RefreshAsync();
+				}
+				catch (Exception ex)
+				{
+					Log.Error(ex, "Cloud folder operation failed");
+					UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+				}
+			}
+		}
+
+		private async void cmdRenameFolder_Click(object sender, EventArgs e)
+		{
+			int? intFolderId = GetSelectedFolderId(true);
+			if (!intFolderId.HasValue)
+				return;
+			RunnersPointFolder objFolder = _lstFolders.FirstOrDefault(x => x.Id == intFolderId.Value);
+			if (objFolder == null)
+				return;
+
+			using (frmSelectText frmText = new frmSelectText())
+			{
+				frmText.Description = "Enter the folder name.";
+				frmText.SelectedValue = objFolder.Name;
+				if (frmText.ShowDialog(this) != DialogResult.OK || string.IsNullOrWhiteSpace(frmText.SelectedValue))
+					return;
+
+				try
+				{
+					await _objApiClient.UpdateFolderAsync(objFolder.Id, frmText.SelectedValue.Trim());
+					await RefreshAsync();
+				}
+				catch (Exception ex)
+				{
+					Log.Error(ex, "Cloud folder operation failed");
+					UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+				}
+			}
+		}
+
+		private async void cmdDeleteFolder_Click(object sender, EventArgs e)
+		{
+			int? intFolderId = GetSelectedFolderId(true);
+			if (!intFolderId.HasValue)
+				return;
+			RunnersPointFolder objFolder = _lstFolders.FirstOrDefault(x => x.Id == intFolderId.Value);
+			if (objFolder == null)
+				return;
+			if (MessageBox.Show("Delete the folder \"" + objFolder.Name + "\" and its subfolders? Filed documents will be unfiled.",
+				"Delete folder", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+				return;
+
+			try
+			{
+				await _objApiClient.DeleteFolderAsync(objFolder.Id);
+				await RefreshAsync();
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud folder operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
+		}
+
+		private async void cmdFileInFolder_Click(object sender, EventArgs e)
+		{
+			if (lstDocuments.SelectedItems.Count == 0)
+				return;
+			int? intFolderId = GetSelectedFolderId(true);
+			if (!intFolderId.HasValue)
+			{
+				UpdateStatus("Select a real folder first.");
+				return;
+			}
+
+			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			try
+			{
+				if (SharedMode)
+					await _objApiClient.SetSharedDocumentFolderAsync(objDocument.Id, intFolderId);
+				else
+					await _objApiClient.SetDocumentFolderAsync(objDocument.Id, intFolderId);
+				await RefreshAsync();
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud folder operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
+		}
+
+		private async System.Threading.Tasks.Task MoveDocumentToFolderAsync(RunnersPointDocument objDocument, int? intFolderId)
+		{
+			if (SharedMode)
+				await _objApiClient.SetSharedDocumentFolderAsync(objDocument.Id, intFolderId);
+			else
+				await _objApiClient.SetDocumentFolderAsync(objDocument.Id, intFolderId);
+			await RefreshAsync();
+		}
+
+		private async void cmdUnfile_Click(object sender, EventArgs e)
+		{
+			if (lstDocuments.SelectedItems.Count == 0)
+				return;
+			RunnersPointDocument objDocument = (RunnersPointDocument)lstDocuments.SelectedItems[0].Tag;
+			try
+			{
+				await MoveDocumentToFolderAsync(objDocument, null);
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud folder operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
 		}
 
 		private async void cmdEditMetadata_Click(object sender, EventArgs e)
@@ -631,6 +952,85 @@ namespace Chummer
 			UpdateSelectionButtons();
 		}
 
+		private void lstDocuments_ItemDrag(object sender, ItemDragEventArgs e)
+		{
+			if (!(e.Item is ListViewItem objItem) || !(objItem.Tag is RunnersPointDocument objDocument))
+				return;
+
+			DataObject objData = new DataObject();
+			objData.SetData(DragDocumentFormat, objDocument);
+			DoDragDrop(objData, DragDropEffects.Move);
+		}
+
+		private static bool TryGetDraggedDocument(DragEventArgs e, out RunnersPointDocument objDocument)
+		{
+			objDocument = null;
+			if (!e.Data.GetDataPresent(DragDocumentFormat))
+				return false;
+			objDocument = e.Data.GetData(DragDocumentFormat) as RunnersPointDocument;
+			return objDocument != null;
+		}
+
+		private static int GetFolderNodeDropId(TreeNode objNode)
+		{
+			if (objNode == null)
+				return FolderNodeAll;
+			if (objNode.Tag is FolderTreeNodeTag objTag)
+				return objTag.Id;
+			if (objNode.Tag is RunnersPointFolder objFolder)
+				return objFolder.Id;
+			return FolderNodeAll;
+		}
+
+		private void tvFolders_DragEnter(object sender, DragEventArgs e)
+		{
+			e.Effect = e.Data.GetDataPresent(DragDocumentFormat) ? DragDropEffects.Move : DragDropEffects.None;
+		}
+
+		private void tvFolders_DragOver(object sender, DragEventArgs e)
+		{
+			if (!TryGetDraggedDocument(e, out _))
+			{
+				e.Effect = DragDropEffects.None;
+				return;
+			}
+
+			Point objPoint = tvFolders.PointToClient(new Point(e.X, e.Y));
+			TreeNode objNode = tvFolders.GetNodeAt(objPoint);
+			int intTargetId = GetFolderNodeDropId(objNode);
+			if (intTargetId == FolderNodeAll)
+			{
+				e.Effect = DragDropEffects.None;
+				return;
+			}
+
+			tvFolders.SelectedNode = objNode;
+			e.Effect = DragDropEffects.Move;
+		}
+
+		private async void tvFolders_DragDrop(object sender, DragEventArgs e)
+		{
+			if (!TryGetDraggedDocument(e, out RunnersPointDocument objDocument))
+				return;
+
+			Point objPoint = tvFolders.PointToClient(new Point(e.X, e.Y));
+			TreeNode objNode = tvFolders.GetNodeAt(objPoint);
+			int intTargetId = GetFolderNodeDropId(objNode);
+			if (intTargetId == FolderNodeAll)
+				return;
+
+			int? intFolderId = intTargetId == FolderNodeUnfiled ? (int?)null : intTargetId;
+			try
+			{
+				await MoveDocumentToFolderAsync(objDocument, intFolderId);
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Cloud folder drag-drop operation failed");
+				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Error").Replace("{0}", ex.Message));
+			}
+		}
+
 		/// <summary>
 		/// Whether the selected document's revisions can be purged from this dialog. Owner access
 		/// (My Documents) always permits it; shared access only when the active grant carries the
@@ -663,6 +1063,9 @@ namespace Chummer
 				cmdArchive.Enabled = false;
 				cmdPushShared.Enabled = false;
 				cmdRevisions.Enabled = false;
+				cmdFileInFolder.Enabled = false;
+				cmdUnfile.Enabled = false;
+				UpdateFolderButtons();
 				LayoutActionButtons();
 				return;
 			}
@@ -671,8 +1074,11 @@ namespace Chummer
 			cmdDownload.Enabled = true;
 			cmdArchive.Enabled = !SharedMode;
 			cmdRevisions.Enabled = true;
+			cmdFileInFolder.Enabled = GetSelectedFolderId(true).HasValue;
+			cmdUnfile.Enabled = true;
 			cmdPushShared.Enabled = SharedMode && _objActiveCharacter != null && objTag is RunnersPointSharedDocument objShared
 				&& objShared.Permission == "write" && objShared.ShareStatus == "active";
+			UpdateFolderButtons();
 
 			// Archive and unarchive are mutually exclusive on the same document - reuse one button
 			// rather than needing a second one in an already-tight button row.
@@ -694,8 +1100,17 @@ namespace Chummer
 		{
 			const int intMargin = 12;
 			const int intSpacing = 8;
+			const int intFolderWidth = 220;
+			const int intFolderButtonWidth = (intFolderWidth - (intSpacing * 2)) / 3;
 
-			int intX = intMargin;
+			cmdNewFolder.Width = intFolderButtonWidth;
+			cmdRenameFolder.Width = intFolderButtonWidth;
+			cmdDeleteFolder.Width = intFolderButtonWidth;
+			cmdNewFolder.Left = tvFolders.Left;
+			cmdRenameFolder.Left = cmdNewFolder.Right + intSpacing;
+			cmdDeleteFolder.Left = cmdRenameFolder.Right + intSpacing;
+
+			int intX = lstDocuments.Left;
 			foreach (Button objButton in new[] { cmdLogout, cmdRefresh, cmdPushCurrent, cmdPushShared, cmdRevisions, cmdDownload })
 			{
 				if (!objButton.Visible)
@@ -704,8 +1119,9 @@ namespace Chummer
 				intX += objButton.Width + intSpacing;
 			}
 
-			intX = intMargin;
+			intX = lstDocuments.Left;
 			foreach (Button objButton in new[] { cmdArchive, cmdEditMetadata,
+				cmdFileInFolder, cmdUnfile,
 #if DEBUG
 				cmdDebugInfo,
 #endif

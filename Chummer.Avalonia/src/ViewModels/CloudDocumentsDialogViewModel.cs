@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using Chummer.Core;
 using Chummer.NewUI.Api;
 using RunnersPointAuth = Chummer.NewUI.Api.RunnersPointAuth;
@@ -25,7 +26,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     private FolderNodeViewModel? _selectedFolder;
     private CloudDocumentEntryViewModel? _selectedDocument;
     private string _apiToken = string.Empty;
-    private string _connectionState = "Not connected";
+    private string _connectionState = string.Empty;
     private string _status = string.Empty;
     private bool _sharedMode;
     private bool _useApiToken = true;
@@ -34,6 +35,33 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
 
     public ObservableCollection<FolderNodeViewModel> Folders { get; } = new();
     public ObservableCollection<CloudDocumentEntryViewModel> VisibleDocuments { get; } = new();
+    public string TitleText => T("Title_CloudDocuments");
+    public string MyDocumentsText => T("Radio_Cloud_MyDocuments");
+    public string SharedWithMeText => T("Radio_Cloud_SharedWithMe");
+    public string UseApiTokenText => T("Radio_Cloud_AuthApiToken");
+    public string UseOAuthText => T("Radio_Cloud_AuthOAuth");
+    public string ApiTokenLabelText => T("Label_Cloud_ApiToken");
+    public string UseTokenButtonText => T("Button_Cloud_UseApiToken");
+    public string LoginButtonText => T("Button_Cloud_Login");
+    public string NewFolderButtonText => T("Button_Cloud_NewFolder");
+    public string RenameFolderButtonText => T("Button_Cloud_RenameFolder");
+    public string DeleteButtonText => T("String_Delete");
+    public string RefreshButtonText => T("Button_Cloud_Refresh");
+    public string PushCurrentButtonText => T("Button_Cloud_PushCurrent");
+    public string PushSharedButtonText => T("Button_Cloud_PushShared");
+    public string DownloadButtonText => T("Button_Cloud_Download");
+    public string RevisionsButtonText => T("Button_Cloud_Revisions");
+    public string EditMetadataButtonText => T("Button_Cloud_EditMetadata");
+    public string FileInFolderButtonText => T("Button_Cloud_FileInFolder");
+    public string UnfileButtonText => T("Button_Cloud_Unfile");
+    public string LogoutButtonText => T("Button_Cloud_Logout");
+    public string NameHeaderText => T("Label_Name");
+    public string StateHeaderText => T("String_Cloud_RevisionState");
+    public string UpdatedHeaderText => T("String_Cloud_Updated");
+    public string ShareHeaderText => T("String_Cloud_Share");
+    public string TokenPresetState => _auth.HasStoredLogin()
+        ? T("String_Cloud_TokenPreset_Stored")
+        : T("String_Cloud_TokenPreset_NotStored");
 
     public FolderNodeViewModel? SelectedFolder
     {
@@ -132,7 +160,10 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     }
 
     public bool IsLoggedIn => _auth.HasStoredLogin();
+    public bool IsApiTokenLogin() => _auth.IsApiTokenLogin();
+    public CharacterDocument? ActiveCharacter => _activeCharacter;
     public bool HasActiveCharacter => _activeCharacter != null;
+    public bool HasActiveCharacterPath => !string.IsNullOrWhiteSpace(_activeCharacterPath);
     public bool CanManageSelectedFolder => SelectedFolder != null && SelectedFolder.Id >= 0;
     public bool CanFileDocument => SelectedDocument != null && SelectedFolder != null && SelectedFolder.Id >= 0;
     public bool CanUnfileDocument => SelectedDocument != null;
@@ -141,7 +172,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     public bool CanEditMetadata => _activeCharacter != null;
     public bool CanPushSharedDocument => SelectedDocument?.CanPushShared == true && _activeCharacter != null;
     public bool CanArchiveDocument => SelectedDocument != null && !SharedMode;
-    public string ArchiveButtonText => SelectedDocument?.IsArchived == true ? "Unarchive Selected" : "Archive Selected";
+    public string ArchiveButtonText => SelectedDocument?.IsArchived == true ? T("Button_Cloud_Unarchive") : T("Button_Cloud_Archive");
 
     public CloudDocumentsDialogViewModel(CharacterDocument? objActiveCharacter = null, string? strActiveCharacterPath = null)
     {
@@ -152,7 +183,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
 
     public void ReportError(string strMessage)
     {
-        Status = string.IsNullOrWhiteSpace(strMessage) ? "Cloud operation failed." : strMessage;
+        Status = string.IsNullOrWhiteSpace(strMessage) ? string.Format(T("String_Cloud_Error"), "Cloud operation failed.") : strMessage;
     }
 
     public async System.Threading.Tasks.Task InitializeAsync()
@@ -167,12 +198,12 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         if (IsLoggedIn)
             await RefreshAsync();
         else
-            Status = "Not logged in";
+            Status = T("String_Cloud_NotLoggedIn");
     }
 
     public async System.Threading.Tasks.Task LoginWithOAuthAsync()
     {
-        Status = "Logging in...";
+        Status = T("String_Cloud_LoggingIn");
         await _auth.LoginAsync();
         UpdateConnectionState();
         await RefreshAsync();
@@ -197,18 +228,18 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         Folders.Clear();
         UpdateConnectionState();
         ApiToken = string.Empty;
-        Status = "Not logged in";
+        Status = T("String_Cloud_NotLoggedIn");
     }
 
     public async System.Threading.Tasks.Task RefreshAsync()
     {
         if (!IsLoggedIn)
         {
-            Status = "Not logged in";
+            Status = T("String_Cloud_NotLoggedIn");
             return;
         }
 
-        Status = "Refreshing...";
+        Status = T("String_Cloud_Refreshing");
         await EnsureGameProfileAsync();
 
         _folders.Clear();
@@ -239,7 +270,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         }
 
         RefreshVisibleDocuments();
-        Status = "Ready";
+        Status = T("String_Cloud_Ready");
         RaiseSelectionFlagsChanged();
     }
 
@@ -305,7 +336,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         if (_activeCharacter == null)
             return;
 
-        Status = "Pushing...";
+        Status = T("String_Cloud_Pushing");
         byte[] bytContent = SerializeActiveCharacter();
         RunnersPointRevisionStatus objStatus;
 
@@ -313,20 +344,48 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         {
             objStatus = await _apiClient.CreateDocumentAsync(bytContent, _gameProfileId, _gameProfileFormat);
             _activeCharacter.CloudDocumentId = objStatus.DocumentId;
+            _activeCharacter.CloudLastKnownRevisionId = objStatus.RevisionId;
             SaveActiveCharacterIfPossible();
         }
         else
         {
             Tuple<RunnersPointDocument, string> objCurrent = await _apiClient.GetDocumentAsync(_activeCharacter.CloudDocumentId);
             if (CloudDocumentEntryViewModel.InFlightStates.Contains(objCurrent.Item1.ValidationState))
-                throw new InvalidOperationException("The cloud document is still being processed and cannot be updated yet.");
+                throw new InvalidOperationException(T("String_Cloud_PushInFlight"));
 
             objStatus = await _apiClient.PushRevisionAsync(_activeCharacter.CloudDocumentId, bytContent, objCurrent.Item2,
                 _gameProfileId, _gameProfileFormat);
+            _activeCharacter.CloudLastKnownRevisionId = objStatus.RevisionId;
+            SaveActiveCharacterIfPossible();
         }
 
         Status = BuildAcceptedStatus(objStatus);
         await RefreshAsync();
+    }
+
+    public void SaveActiveCharacterSnapshot()
+    {
+        SaveActiveCharacterIfPossible();
+    }
+
+    public async System.Threading.Tasks.Task<RunnersPointRevisionStatus> ForcePushCurrentCharacterAsync()
+    {
+        if (_activeCharacter == null || string.IsNullOrEmpty(_activeCharacter.CloudDocumentId))
+            throw new InvalidOperationException(T("String_Cloud_NotSavedLocally"));
+
+        Status = T("String_Cloud_Pushing");
+        byte[] bytContent = SerializeActiveCharacter();
+        Tuple<RunnersPointDocument, string> objCurrent = await _apiClient.GetDocumentAsync(_activeCharacter.CloudDocumentId);
+        if (CloudDocumentEntryViewModel.InFlightStates.Contains(objCurrent.Item1.ValidationState))
+            throw new InvalidOperationException(T("String_Cloud_PushInFlight"));
+
+        RunnersPointRevisionStatus objStatus = await _apiClient.PushRevisionAsync(
+            _activeCharacter.CloudDocumentId, bytContent, objCurrent.Item2, _gameProfileId, _gameProfileFormat);
+        _activeCharacter.CloudLastKnownRevisionId = objStatus.RevisionId;
+        SaveActiveCharacterIfPossible();
+        Status = BuildAcceptedStatus(objStatus);
+        await RefreshAsync();
+        return objStatus;
     }
 
     public async System.Threading.Tasks.Task PushSelectedSharedDocumentAsync()
@@ -334,11 +393,11 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         if (_activeCharacter == null || SelectedDocument?.Document is not RunnersPointSharedDocument objDocument)
             return;
 
-        Status = "Pushing...";
+        Status = T("String_Cloud_Pushing");
         byte[] bytContent = SerializeActiveCharacter();
         Tuple<RunnersPointSharedDocument, string> objCurrent = await _apiClient.GetSharedDocumentAsync(objDocument.Id);
         if (CloudDocumentEntryViewModel.InFlightStates.Contains(objCurrent.Item1.ValidationState))
-            throw new InvalidOperationException("The shared document is still being processed and cannot be updated yet.");
+            throw new InvalidOperationException(T("String_Cloud_PushInFlight"));
 
         RunnersPointRevisionStatus objStatus = await _apiClient.PushSharedDocumentRevisionAsync(
             objDocument.Id, bytContent, objCurrent.Item2, _gameProfileId, _gameProfileFormat);
@@ -350,7 +409,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     public async System.Threading.Tasks.Task<Tuple<byte[], string>> DownloadSelectedDocumentAsync()
     {
         if (SelectedDocument == null)
-            throw new InvalidOperationException("No document selected.");
+            throw new InvalidOperationException(string.Format(T("String_Cloud_Error"), "No document selected."));
 
         bool blnShared = SelectedDocument.IsShared;
         RunnersPointDocument objCurrentDocument = blnShared
@@ -358,13 +417,13 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
             : (await _apiClient.GetDocumentAsync(SelectedDocument.Id)).Item1;
 
         if (!CloudDocumentEntryViewModel.DownloadableStates.Contains(objCurrentDocument.ValidationState))
-            throw new InvalidOperationException("The selected document cannot be downloaded while its state is '" + objCurrentDocument.ValidationState + "'.");
+            throw new InvalidOperationException(string.Format(T("String_Cloud_NotDownloadable"), objCurrentDocument.ValidationState));
 
-        Status = "Downloading...";
+        Status = T("String_Cloud_Downloading");
         Tuple<byte[], string> objDownload = blnShared
             ? await _apiClient.DownloadSharedDocumentRevisionAsync(objCurrentDocument.Id, objCurrentDocument.CurrentRevision)
             : await _apiClient.DownloadRevisionAsync(objCurrentDocument.Id, objCurrentDocument.CurrentRevision);
-        Status = "Ready";
+        Status = T("String_Cloud_Ready");
         return objDownload;
     }
 
@@ -437,7 +496,7 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
 
         string strTrimmedImageUrl = strImageUrl.Trim();
         if (!string.IsNullOrWhiteSpace(strTrimmedImageUrl) && !strTrimmedImageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Image URL must start with https://");
+            throw new InvalidOperationException(T("Message_CloudMetadata_ImageUrlMustBeHttps"));
 
         _activeCharacter.CloudMetadataDisplayName = strDisplayName.Trim();
         _activeCharacter.CloudMetadataDescription = strDescription.Trim();
@@ -468,11 +527,11 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         RunnersPointGameProfile? objProfile = objCapabilities.GameProfiles.FirstOrDefault(
             p => p.System.IndexOf("Shadowrun", StringComparison.OrdinalIgnoreCase) >= 0 && p.Edition.Contains("4"));
         if (objProfile == null)
-            throw new InvalidOperationException("No Shadowrun 4 game profile available.");
+            throw new InvalidOperationException(T("String_Cloud_NoGameProfile"));
 
         string? strFormat = objProfile.Formats.FirstOrDefault(f => f == "application/xml") ?? objProfile.Formats.FirstOrDefault();
         if (string.IsNullOrEmpty(strFormat))
-            throw new InvalidOperationException("No supported format available.");
+            throw new InvalidOperationException(T("String_Cloud_UnsupportedDocumentType"));
 
         _gameProfileId = objProfile.Id;
         _gameProfileFormat = strFormat;
@@ -483,8 +542,8 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
         int intSelectedId = SelectedFolder?.Id ?? AllDocumentsFolderId;
         Folders.Clear();
 
-        FolderNodeViewModel objAll = new(AllDocumentsFolderId, "All Documents") { IsExpanded = true };
-        FolderNodeViewModel objUnfiled = new(UnfiledFolderId, "Unfiled");
+        FolderNodeViewModel objAll = new(AllDocumentsFolderId, T("String_Cloud_AllDocuments")) { IsExpanded = true };
+        FolderNodeViewModel objUnfiled = new(UnfiledFolderId, T("String_Cloud_Unfiled"));
         Folders.Add(objAll);
         Folders.Add(objUnfiled);
 
@@ -565,9 +624,10 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     private void UpdateConnectionState()
     {
         ConnectionState = !_auth.HasStoredLogin()
-            ? "Not connected"
-            : _auth.IsApiTokenLogin() ? "Connected via API token" : "Connected via OAuth";
+            ? T("String_Cloud_ConnectionState_NotConnected")
+            : _auth.IsApiTokenLogin() ? T("String_Cloud_ConnectionState_ApiToken") : T("String_Cloud_ConnectionState_OAuth");
         OnPropertyChanged(nameof(IsLoggedIn));
+        OnPropertyChanged(nameof(TokenPresetState));
     }
 
     private byte[] SerializeActiveCharacter()
@@ -602,7 +662,12 @@ public sealed class CloudDocumentsDialogViewModel : ViewModelBase
     private static string BuildAcceptedStatus(RunnersPointRevisionStatus objStatus)
     {
         return objStatus.Messages.Count == 0
-            ? "Push accepted"
-            : "Push accepted " + string.Join(" ", objStatus.Messages);
+            ? T("String_Cloud_PushAccepted")
+            : T("String_Cloud_PushAccepted") + " " + string.Join(" ", objStatus.Messages);
+    }
+
+    private static string T(string strKey)
+    {
+        return App.LanguageCatalog.GetString(strKey);
     }
 }

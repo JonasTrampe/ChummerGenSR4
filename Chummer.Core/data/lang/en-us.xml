@@ -33,6 +33,14 @@
 			<text>Cancel</text>
 		</string>
 		<string>
+			<key>String_Yes</key>
+			<text>Yes</text>
+		</string>
+		<string>
+			<key>String_No</key>
+			<text>No</text>
+		</string>
+		<string>
 			<key>String_Delete</key>
 			<text>Delete</text>
 		</string>
@@ -661,6 +669,22 @@
 			<text>Revisions...</text>
 		</string>
 		<string>
+			<key>Button_Cloud_NewFolder</key>
+			<text>New...</text>
+		</string>
+		<string>
+			<key>Button_Cloud_RenameFolder</key>
+			<text>Rename...</text>
+		</string>
+		<string>
+			<key>Button_Cloud_FileInFolder</key>
+			<text>File in Folder</text>
+		</string>
+		<string>
+			<key>Button_Cloud_Unfile</key>
+			<text>Unfile</text>
+		</string>
+		<string>
 			<key>Title_CloudRevisions</key>
 			<text>Revisions - {0}</text>
 		</string>
@@ -779,8 +803,28 @@ Saved locally instead.</text>
 			<text>Could not check RunnersPoint for a newer revision of this character: {0}</text>
 		</string>
 		<string>
+			<key>MessageTitle_CloudLoad_DocumentMissing</key>
+			<text>Cloud Document Not Found</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_DocumentMissing</key>
+			<text>This local character is linked to a RunnersPoint document that no longer exists. The local file will be opened without checking for a newer cloud revision.</text>
+		</string>
+		<string>
+			<key>MessageTitle_CloudLoad_LoginRequired</key>
+			<text>Cloud Login Required</text>
+		</string>
+		<string>
+			<key>Message_CloudLoad_LoginRequired</key>
+			<text>This character is linked to RunnersPoint, but no stored cloud login or API token is configured. Configure one now to check for a newer cloud revision.</text>
+		</string>
+		<string>
 			<key>Button_CloudLoad_Abort</key>
 			<text>Abort</text>
+		</string>
+		<string>
+			<key>Button_CloudLoad_ConfigureCloud</key>
+			<text>Configure Cloud</text>
 		</string>
 		<string>
 			<key>Button_CloudLoad_OpenLocalFile</key>
@@ -821,6 +865,46 @@ Saved locally instead.</text>
 		<string>
 			<key>Title_CloudMetadata</key>
 			<text>Cloud Document Metadata</text>
+		</string>
+		<string>
+			<key>Title_Input</key>
+			<text>Input</text>
+		</string>
+		<string>
+			<key>Title_Confirm</key>
+			<text>Confirm</text>
+		</string>
+		<string>
+			<key>Title_SaveCloudDocument</key>
+			<text>Save cloud document</text>
+		</string>
+		<string>
+			<key>String_Cloud_AllDocuments</key>
+			<text>All Documents</text>
+		</string>
+		<string>
+			<key>String_Cloud_Unfiled</key>
+			<text>Unfiled</text>
+		</string>
+		<string>
+			<key>String_Cloud_RevisionCreated</key>
+			<text>Created</text>
+		</string>
+		<string>
+			<key>String_Cloud_RevisionState</key>
+			<text>State</text>
+		</string>
+		<string>
+			<key>String_Cloud_RevisionSize</key>
+			<text>Size</text>
+		</string>
+		<string>
+			<key>String_Cloud_Updated</key>
+			<text>Updated</text>
+		</string>
+		<string>
+			<key>String_Cloud_Share</key>
+			<text>Share</text>
 		</string>
 		<string>
 			<key>Label_CloudMetadata_Note</key>
@@ -869,6 +953,14 @@ Saved locally instead.</text>
 		<string>
 			<key>String_Cloud_ConnectionState_ApiToken</key>
 			<text>Connected via API token.</text>
+		</string>
+		<string>
+			<key>String_Cloud_TokenPreset_Stored</key>
+			<text>Stored token preset found.</text>
+		</string>
+		<string>
+			<key>String_Cloud_TokenPreset_NotStored</key>
+			<text>No stored token preset.</text>
 		</string>
 		<string>
 			<key>String_Cloud_ConnectionState_OAuth</key>
@@ -955,8 +1047,24 @@ Saved locally instead.</text>
 			<text>Archive "{0}" in the cloud? This does not delete your local file.</text>
 		</string>
 		<string>
+			<key>Message_Cloud_ConfirmUnarchive</key>
+			<text>Unarchive "{0}" in the cloud?</text>
+		</string>
+		<string>
 			<key>MessageTitle_Cloud_ConfirmArchive</key>
 			<text>Archive Document</text>
+		</string>
+		<string>
+			<key>Message_Cloud_ConfirmDeleteFolder</key>
+			<text>Delete the folder "{0}" and its subfolders? Filed documents will be unfiled.</text>
+		</string>
+		<string>
+			<key>Message_Cloud_PromptNewFolder</key>
+			<text>Enter the new folder name.</text>
+		</string>
+		<string>
+			<key>Message_Cloud_PromptRenameFolder</key>
+			<text>Enter the folder name.</text>
 		</string>
 		<string>
 			<key>Message_Cloud_ConfirmPushShared</key>
