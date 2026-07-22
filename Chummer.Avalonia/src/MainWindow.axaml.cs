@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Chummer.Core;
+using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 using KarmaGpDialog = Chummer.NewUI.Dialogs.KarmaGpDialog;
 using MetatypeDialog = Chummer.NewUI.Dialogs.MetatypeDialog;
@@ -129,6 +130,17 @@ public partial class MainWindow : Window
     {
         var dialog = new SheetPreviewDialog();
         await dialog.ShowDialog(this);
+    }
+
+    private async void OnCloudDocumentsClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new CloudDocumentsDialog(ViewModel.SelectedOpenCharacter?.Character, ViewModel.SelectedOpenCharacter?.SourcePath);
+        await dialog.ShowDialog(this);
+    }
+
+    public void LoadCharacterIntoTabs(CharacterDocument character, string? sourcePath = null)
+    {
+        ViewModel.AddOpenCharacter(character, sourcePath);
     }
 
     private void OnCloseWindowClick(object? sender, RoutedEventArgs e)

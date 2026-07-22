@@ -1,0 +1,128 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.CloudDocumentsDialog"
+        x:DataType="vm:CloudDocumentsDialogViewModel"
+        d:DesignWidth="980"
+        d:DesignHeight="640"
+        Width="980" Height="640"
+        WindowStartupLocation="CenterOwner"
+        Title="Cloud Documents">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="10" Margin="12">
+        <StackPanel Orientation="Horizontal" Spacing="16">
+            <RadioButton Content="My Documents" IsChecked="{Binding MyDocumentsMode, Mode=TwoWay}" />
+            <RadioButton Content="Shared With Me" IsChecked="{Binding SharedWithMeMode, Mode=TwoWay}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <RadioButton Content="Use API Token" IsChecked="{Binding UseApiToken, Mode=TwoWay}" />
+                <RadioButton Content="Use OAuth Login" IsChecked="{Binding UseOAuth, Mode=TwoWay}" />
+            </StackPanel>
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,320,Auto,*" ColumnSpacing="8"
+                  IsVisible="{Binding UseApiToken}">
+                <TextBlock Grid.Column="0" Text="API Token:" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" Text="{Binding ApiToken, Mode=TwoWay}"
+                         PasswordChar="•" />
+                <Button Grid.Column="2" Content="Use Token" Click="OnUseApiTokenClick" />
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="8"
+                  IsVisible="{Binding UseOAuth}">
+                <Button Grid.Column="0" Content="Log In" Click="OnLoginClick" HorizontalAlignment="Left" />
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="260,*" ColumnSpacing="12">
+            <Border BorderBrush="#D0D0D0" BorderThickness="1" Padding="6">
+                <Grid RowDefinitions="*,Auto">
+                    <TreeView x:Name="FoldersTree"
+                              ItemsSource="{Binding Folders}"
+                              SelectedItem="{Binding SelectedFolder, Mode=TwoWay}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate x:DataType="vm:FolderNodeViewModel" ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" />
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="6" Margin="0,10,0,0">
+                        <Button Grid.Column="0" Content="New..." Click="OnNewFolderClick" />
+                        <Button Grid.Column="1" Content="Rename..." Click="OnRenameFolderClick"
+                                IsEnabled="{Binding CanManageSelectedFolder}" />
+                        <Button Grid.Column="2" Content="Delete" Click="OnDeleteFolderClick"
+                                IsEnabled="{Binding CanManageSelectedFolder}" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" BorderBrush="#D0D0D0" BorderThickness="1" Padding="6">
+                <Grid RowDefinitions="*,Auto,Auto" RowSpacing="8">
+                    <Grid RowDefinitions="Auto,*">
+                        <Grid ColumnDefinitions="*,120,150,180" Margin="4,0,4,6">
+                            <TextBlock Grid.Column="0" Text="Name" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="State" FontWeight="Bold" />
+                            <TextBlock Grid.Column="2" Text="Updated" FontWeight="Bold" />
+                            <TextBlock Grid.Column="3" Text="Share" FontWeight="Bold" />
+                        </Grid>
+
+                        <ListBox x:Name="DocumentsList"
+                                 Grid.Row="1"
+                                 ItemsSource="{Binding VisibleDocuments}"
+                                 SelectedItem="{Binding SelectedDocument, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CloudDocumentEntryViewModel">
+                                    <Grid ColumnDefinitions="*,120,150,180" Margin="4,1">
+                                        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding ValidationState}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding UpdatedAt}" />
+                                        <TextBlock Grid.Column="3" Text="{Binding ShareInfo}" TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled">
+                        <StackPanel Orientation="Vertical" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Refresh" Click="OnRefreshClick" />
+                                <Button Content="Push Current" Click="OnPushCurrentClick"
+                                        IsEnabled="{Binding CanPushCurrentCharacter}" />
+                                <Button Content="Push Shared" Click="OnPushSharedClick"
+                                        IsEnabled="{Binding CanPushSharedDocument}" />
+                                <Button Content="Download" Click="OnDownloadClick"
+                                        IsEnabled="{Binding CanDownloadDocument}" />
+                                <Button Content="Revisions..." Click="OnRevisionsClick"
+                                        IsEnabled="{Binding CanDownloadDocument}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="{Binding ArchiveButtonText}" Click="OnArchiveClick"
+                                        IsEnabled="{Binding CanArchiveDocument}" />
+                                <Button Content="Edit Metadata..." Click="OnEditMetadataClick"
+                                        IsEnabled="{Binding CanEditMetadata}" />
+                                <Button Content="File in Folder" Click="OnFileInFolderClick"
+                                        IsEnabled="{Binding CanFileDocument}" />
+                                <Button Content="Unfile" Click="OnUnfileClick"
+                                        IsEnabled="{Binding CanUnfileDocument}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2" IsVisible="False" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+            <Button Content="Log Out" Click="OnLogoutClick" />
+            <TextBlock Text="{Binding ConnectionState}" VerticalAlignment="Center" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="4" Text="{Binding Status}" TextWrapping="Wrap" />
+    </Grid>
+</Window>

@@ -72,6 +72,30 @@ namespace Chummer.Core
 
         public string Alias => GetValue("/character/alias", string.Empty);
 
+        public string CloudDocumentId
+        {
+            get => GetValue("/character/clouddocumentid", string.Empty);
+            set => SetRootValue("clouddocumentid", value);
+        }
+
+        public string CloudMetadataDisplayName
+        {
+            get => GetValue("/character/clouddisplayname", string.Empty);
+            set => SetRootValue("clouddisplayname", value);
+        }
+
+        public string CloudMetadataDescription
+        {
+            get => GetValue("/character/clouddescription", string.Empty);
+            set => SetRootValue("clouddescription", value);
+        }
+
+        public string CloudMetadataImageUrl
+        {
+            get => GetValue("/character/cloudimageurl", string.Empty);
+            set => SetRootValue("cloudimageurl", value);
+        }
+
         public string Metatype => GetValue("/character/metatype", string.Empty);
 
         public string MetatypeCategory => GetValue("/character/metatypecategory", string.Empty);
@@ -109,6 +133,18 @@ namespace Chummer.Core
         public string Karma => GetValue("/character/karma", "0");
 
         public string Nuyen => GetValue("/character/nuyen", "0");
+
+        /// <summary>Saved walking/running movement string (for example "10/25"), written by the
+        /// legacy character save as &lt;movementwalk&gt;.</summary>
+        public string WalkMovement => GetValue("/character/movementwalk", string.Empty);
+
+        /// <summary>Saved swim movement string (for example "5"), written by the legacy save as
+        /// &lt;movementswim&gt;.</summary>
+        public string SwimMovement => GetValue("/character/movementswim", string.Empty);
+
+        /// <summary>Saved fly movement string (for example "45/90"), written by the legacy save as
+        /// &lt;movementfly&gt;. Empty for characters that do not fly.</summary>
+        public string FlyMovement => GetValue("/character/movementfly", string.Empty);
 
         /// <summary>Total Karma earned over the character's career (sum of positive, non-refund
         /// Karma expense entries), ported from clsCharacter.cs's CareerKarma.</summary>
@@ -349,6 +385,20 @@ namespace Chummer.Core
             var objElement = Document.CreateElement(strName);
             objElement.InnerText = strValue;
             objParent.AppendChild(objElement);
+        }
+
+        private void SetRootValue(string strName, string strValue)
+        {
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objElement = objRoot.SelectSingleNode(strName) as XmlElement;
+            if (objElement == null)
+            {
+                objElement = Document.CreateElement(strName);
+                objRoot.AppendChild(objElement);
+            }
+
+            objElement.InnerText = strValue ?? string.Empty;
         }
 
         public IReadOnlyList<CharacterTreeItemData> Gear => ReadTreeItems("/character/gears/gear", "children/gear");
