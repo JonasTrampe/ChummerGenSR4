@@ -1,6 +1,8 @@
+using System;
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace Chummer.NewUI.Controls;
 
@@ -39,6 +41,7 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
         PoolProperty.Changed.AddClassHandler<SkillRow>((r, _) => r.RaisePropertyChanged(nameof(HasPool)));
         IsUnavailableProperty.Changed.AddClassHandler<SkillRow>((r, _) => r.RaisePropertyChanged(nameof(CanEditRating)));
         IsGroupLockedProperty.Changed.AddClassHandler<SkillRow>((r, _) => r.RaisePropertyChanged(nameof(CanEditRating)));
+        IsCreateModeProperty.Changed.AddClassHandler<SkillRow>((r, _) => r.RaisePropertyChanged(nameof(CanEditSpecialization)));
     }
 
     private void RaisePropertyChanged(string propertyName)
@@ -80,6 +83,30 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
     /// specialization - hides that column entirely rather than leaving it empty.</summary>
     public static readonly StyledProperty<bool> IsMetaskillProperty =
         AvaloniaProperty.Register<SkillRow, bool>(nameof(IsMetaskill));
+
+    public static readonly StyledProperty<bool> IsCreateModeProperty =
+        AvaloniaProperty.Register<SkillRow, bool>(nameof(IsCreateMode));
+
+    public static readonly StyledProperty<int> RatingValueProperty =
+        AvaloniaProperty.Register<SkillRow, int>(nameof(RatingValue), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+
+    public static readonly StyledProperty<int> MaxRatingValueProperty =
+        AvaloniaProperty.Register<SkillRow, int>(nameof(MaxRatingValue), 6);
+
+    private bool _blnIsEditingSpecialization;
+    public bool IsEditingSpecialization
+    {
+        get => _blnIsEditingSpecialization;
+        private set
+        {
+            _blnIsEditingSpecialization = value;
+            RaisePropertyChanged(nameof(IsEditingSpecialization));
+            RaisePropertyChanged(nameof(CanEditSpecialization));
+        }
+    }
+
+    public event EventHandler? RaiseClicked;
+    public event EventHandler<string>? SpecializationCommitted;
 
     public SkillRow()
     {
@@ -146,6 +173,45 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
         set => SetValue(IsMetaskillProperty, value);
     }
 
+    public bool IsCreateMode
+    {
+        get => GetValue(IsCreateModeProperty);
+        set => SetValue(IsCreateModeProperty, value);
+    }
+
+    public int RatingValue
+    {
+        get => GetValue(RatingValueProperty);
+        set => SetValue(RatingValueProperty, value);
+    }
+
+    public int MaxRatingValue
+    {
+        get => GetValue(MaxRatingValueProperty);
+        set => SetValue(MaxRatingValueProperty, value);
+    }
+
     public bool HasPool => !string.IsNullOrWhiteSpace(Pool) && Pool.Trim() != "0";
     public bool CanEditRating => !IsUnavailable && !IsGroupLocked;
+    public bool CanEditSpecialization => IsCreateMode || IsEditingSpecialization;
+
+    private void OnRaiseButtonClick(object? sender, RoutedEventArgs e)
+    {
+        RaiseClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnEditSpecializationClick(object? sender, RoutedEventArgs e)
+    {
+        if (IsCreateMode)
+            return;
+        IsEditingSpecialization = true;
+    }
+
+    private void OnSpecializationLostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (!IsEditingSpecialization)
+            return;
+        IsEditingSpecialization = false;
+        SpecializationCommitted?.Invoke(this, Specialization ?? string.Empty);
+    }
 }

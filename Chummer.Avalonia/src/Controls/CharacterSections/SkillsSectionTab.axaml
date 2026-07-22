@@ -16,7 +16,10 @@
                 <ItemsControl ItemsSource="{Binding SkillGroups}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:GroupRowViewModel">
-                            <controls:GroupRow GroupName="{Binding GroupName}" Rating="{Binding Rating}" />
+                            <controls:GroupRow GroupName="{Binding GroupName}" Rating="{Binding Rating}"
+                                                IsCreateMode="{Binding IsCreateMode}"
+                                                RatingValue="{Binding RatingValue, Mode=TwoWay}"
+                                                RaiseClicked="OnRaiseGroupClick" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -27,12 +30,12 @@
 
         <DockPanel Grid.Row="0" Grid.Column="2" Margin="2 8 2 4">
             <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,0,0,6">
-                <Button Grid.Column="0" Content="Exotische Fertigkeit hinzufügen" />
+                <Button Grid.Column="0" Content="Exotische Fertigkeit hinzufügen" Click="OnAddExoticSkillClick" />
                 <TextBlock Grid.Column="2" Classes="gridHeader" Text="Aktionsfertigkeiten"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
-                <ComboBox Grid.Column="3" Width="220" HorizontalAlignment="Right" SelectedIndex="0">
-                    <ComboBoxItem Content="Zeige alle aktiven Fertigkeiten" />
-                </ComboBox>
+                <ComboBox Grid.Column="3" Width="220" HorizontalAlignment="Right"
+                          ItemsSource="{Binding SkillFilters}"
+                          SelectedItem="{Binding SelectedSkillFilter, Mode=TwoWay}" />
             </Grid>
 
             <ScrollViewer>
@@ -49,8 +52,12 @@
                             <controls:SkillRow SkillName="{Binding SkillName}" Attribute="{Binding Attribute}"
                                                 Rating="{Binding Rating}" Pool="{Binding Pool}"
                                                 PoolTooltip="{Binding PoolTooltip}"
-                                                Specialization="{Binding Specialization}"
-                                                IsGroupLocked="{Binding IsGroupLocked}" />
+                                                Specialization="{Binding Specialization, Mode=TwoWay}"
+                                                IsGroupLocked="{Binding IsGroupLocked}"
+                                                IsCreateMode="{Binding IsCreateMode}"
+                                                RatingValue="{Binding RatingValue, Mode=TwoWay}"
+                                                RaiseClicked="OnRaiseSkillClick"
+                                                SpecializationCommitted="OnSpecializationCommitted" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
