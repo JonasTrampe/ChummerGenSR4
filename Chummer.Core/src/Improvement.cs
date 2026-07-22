@@ -51,8 +51,8 @@ public sealed class Improvement
     /// to disabled so a corrupt entry can't silently be double-counted as something else.</summary>
     public static Improvement Load(XmlNode objNode)
     {
-        var blnTypeOk = Enum.TryParse(GetValue(objNode, "improvementttype"), out ImprovementType eType);
-        var blnSourceOk = Enum.TryParse(GetValue(objNode, "improvementsource"), out ImprovementSource eSource);
+        var blnTypeOk = Enum.TryParse(GetValue(objNode, "improvementttype"), ignoreCase: true, out ImprovementType eType);
+        var blnSourceOk = Enum.TryParse(GetValue(objNode, "improvementsource"), ignoreCase: true, out ImprovementSource eSource);
 
         return new Improvement(
             GetValue(objNode, "unique"),

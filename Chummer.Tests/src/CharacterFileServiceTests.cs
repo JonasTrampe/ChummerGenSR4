@@ -213,7 +213,7 @@ public class CharacterFileServiceTests
     {
         CharacterDocument character = LoadFixture();
 
-        Assert.Equal(3, character.Improvements.Count);
+        Assert.Equal(7, character.Improvements.Count);
         Improvement reaBonus = character.Improvements.Single(i => i.ImprovedName == "REA");
         Assert.Equal(ImprovementType.Attribute, reaBonus.Type);
         Assert.Equal(ImprovementSource.Cyberware, reaBonus.Source);

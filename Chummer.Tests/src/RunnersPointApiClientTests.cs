@@ -205,7 +205,7 @@ namespace Chummer.Tests
 
 			Assert.Equal("doc-1", objDocument.Id);
 			Assert.Equal("", objDocument.Type);
-			Assert.Null(objDocument.DisplayName);
+			Assert.Equal("", objDocument.DisplayName);
 		}
 
 		[Fact]
@@ -213,11 +213,11 @@ namespace Chummer.Tests
 		{
 			var bytBody = RunnersPointApiClient.BuildMetadataPatchBody("Kestrel", "A shadowrunner.", "https://example.com/portrait.png");
 
-			var objPatch = JsonSerializer.Deserialize<Dictionary<string, object>>(Encoding.UTF8.GetString(bytBody));
+			var objPatch = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(Encoding.UTF8.GetString(bytBody));
 
-			Assert.Equal("Kestrel", objPatch["displayName"]);
-			Assert.Equal("A shadowrunner.", objPatch["description"]);
-			Assert.Equal("https://example.com/portrait.png", objPatch["imageUrl"]);
+			Assert.Equal("Kestrel", objPatch["displayName"].GetString());
+			Assert.Equal("A shadowrunner.", objPatch["description"].GetString());
+			Assert.Equal("https://example.com/portrait.png", objPatch["imageUrl"].GetString());
 		}
 
 		[Fact]
@@ -296,7 +296,7 @@ namespace Chummer.Tests
 			var objShared = RunnersPointApiClient.ParseSharedDocument(objJson);
 
 			Assert.Equal("doc-1", objShared.Id);
-			Assert.Null(objShared.Permission);
+			Assert.Equal("", objShared.Permission);
 			Assert.False(objShared.ExpiresAt.HasValue);
 		}
 	}
