@@ -75,6 +75,18 @@ namespace Chummer
 			return Guid.NewGuid().ToString("N");
 		}
 
+		private static string GetString(Dictionary<string, object> objJson, string strName)
+		{
+			return objJson.ContainsKey(strName) && objJson[strName] != null ? objJson[strName].ToString() : string.Empty;
+		}
+
+		private static int? GetOptionalInt(Dictionary<string, object> objJson, string strName)
+		{
+			if (!objJson.ContainsKey(strName) || objJson[strName] == null)
+				return null;
+			return Convert.ToInt32(objJson[strName]);
+		}
+
 		/// <summary>
 		/// Reads the raw ETag header value, bypassing HttpResponseMessage.Headers.ETag's strongly-typed
 		/// EntityTagHeaderValue parsing. The server sends ETag as a bare opaque token (e.g. a revision
@@ -230,6 +242,86 @@ namespace Chummer
 			return objCapabilities;
 		}
 
+		internal static RunnersPointFolder ParseFolder(Dictionary<string, object> objJson)
+		{
+			RunnersPointFolder objFolder = new RunnersPointFolder();
+			objFolder.Id = Convert.ToInt32(objJson["id"]);
+			objFolder.Name = GetString(objJson, "name");
+			objFolder.ParentFolderId = GetOptionalInt(objJson, "parentFolderId");
+			if (objJson.ContainsKey("createdAt") && DateTime.TryParse(objJson["createdAt"].ToString(), out DateTime datCreatedAt))
+				objFolder.CreatedAt = datCreatedAt;
+			if (objJson.ContainsKey("updatedAt") && DateTime.TryParse(objJson["updatedAt"].ToString(), out DateTime datUpdatedAt))
+				objFolder.UpdatedAt = datUpdatedAt;
+			return objFolder;
+		}
+
+		public async Task<List<RunnersPointFolder>> ListFoldersAsync()
+		{
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, "/folders"));
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objJson = objSerializer.Deserialize<Dictionary<string, object>>(strBody);
+			List<RunnersPointFolder> lstFolders = new List<RunnersPointFolder>();
+			if (objJson.ContainsKey("items"))
+			{
+				foreach (object objItemObj in (IEnumerable)objJson["items"])
+					lstFolders.Add(ParseFolder((Dictionary<string, object>)objItemObj));
+			}
+
+			return lstFolders;
+		}
+
+		public async Task<RunnersPointFolder> CreateFolderAsync(string strName, int? intParentFolderId = null)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objBody = new Dictionary<string, object>
+			{
+				{ "name", strName }
+			};
+			if (intParentFolderId.HasValue)
+				objBody["parentFolderId"] = intParentFolderId.Value;
+
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Post, "/folders");
+				objRequest.Content = new StringContent(objSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			string strResponseBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseFolder(objSerializer.Deserialize<Dictionary<string, object>>(strResponseBody));
+		}
+
+		public async Task<RunnersPointFolder> UpdateFolderAsync(int intFolderId, string strName = null, int? intParentFolderId = null, bool blnIncludeParentFolderId = false)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objBody = new Dictionary<string, object>();
+			if (strName != null)
+				objBody["name"] = strName;
+			if (blnIncludeParentFolderId)
+				objBody["parentFolderId"] = intParentFolderId.HasValue ? (object)intParentFolderId.Value : null;
+
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(PatchMethod, "/folders/" + intFolderId);
+				objRequest.Content = new StringContent(objSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			string strResponseBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseFolder(objSerializer.Deserialize<Dictionary<string, object>>(strResponseBody));
+		}
+
+		public async Task DeleteFolderAsync(int intFolderId)
+		{
+			HttpResponseMessage objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Delete, "/folders/" + intFolderId));
+			await ThrowIfProblemAsync(objResponse);
+		}
+
 		/// <summary>
 		/// GET /documents. Documents owned by the authenticated user, optionally filtered.
 		/// </summary>
@@ -268,6 +360,7 @@ namespace Chummer
 			objDocument.SchemaVersion = objJson.ContainsKey("schemaVersion") ? objJson["schemaVersion"].ToString() : "";
 			objDocument.CurrentRevision = objJson.ContainsKey("currentRevision") ? objJson["currentRevision"].ToString() : "";
 			objDocument.ValidationState = objJson.ContainsKey("validationState") ? objJson["validationState"].ToString() : "";
+			objDocument.FolderId = GetOptionalInt(objJson, "folderId");
 			if (objJson.ContainsKey("metadata") && objJson["metadata"] is Dictionary<string, object>)
 			{
 				Dictionary<string, object> objMetadata = (Dictionary<string, object>)objJson["metadata"];
@@ -304,6 +397,8 @@ namespace Chummer
 				DisplayName = objBase.DisplayName,
 				UpdatedAt = objBase.UpdatedAt
 			};
+			objShared.FolderId = objBase.FolderId;
+			objShared.RecipientFolderId = GetOptionalInt(objJson, "recipientFolderId");
 
 			if (objJson.ContainsKey("share") && objJson["share"] is Dictionary<string, object> objShare)
 			{
@@ -431,6 +526,25 @@ namespace Chummer
 			}
 
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+		}
+
+		public async Task<RunnersPointDocument> SetDocumentFolderAsync(string strDocumentId, int? intFolderId)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objBody = new Dictionary<string, object>
+			{
+				{ "folderId", intFolderId.HasValue ? (object)intFolderId.Value : null }
+			};
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/documents/" + strDocumentId + "/folder");
+				objRequest.Content = new StringContent(objSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
 		}
 
 		/// <summary>
@@ -713,6 +827,25 @@ namespace Chummer
 			}
 
 			return new Tuple<byte[], string>(bytContent, ParseSuggestedFileName(objResponse));
+		}
+
+		public async Task<RunnersPointSharedDocument> SetSharedDocumentFolderAsync(string strDocumentId, int? intFolderId)
+		{
+			JavaScriptSerializer objSerializer = new JavaScriptSerializer();
+			Dictionary<string, object> objBody = new Dictionary<string, object>
+			{
+				{ "folderId", intFolderId.HasValue ? (object)intFolderId.Value : null }
+			};
+			HttpResponseMessage objResponse = await SendWithRetryAsync(async () =>
+			{
+				HttpRequestMessage objRequest = await CreateRequestAsync(HttpMethod.Put, "/shared/documents/" + strDocumentId + "/folder");
+				objRequest.Content = new StringContent(objSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+
+			string strBody = await objResponse.Content.ReadAsStringAsync();
+			return ParseSharedDocument(objSerializer.Deserialize<Dictionary<string, object>>(strBody));
 		}
 
 		internal static RunnersPointRevision ParseRevision(Dictionary<string, object> objJson)

@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Chummer.Core;
 using Serilog;
 
 namespace Chummer

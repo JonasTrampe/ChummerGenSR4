@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Xml;
 using System.Xml.Xsl;
+using Chummer.Core;
 
 namespace Chummer
 {

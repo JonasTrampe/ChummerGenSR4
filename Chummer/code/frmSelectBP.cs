@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Chummer.Core;
 
 namespace Chummer
 {
@@ -66,7 +67,7 @@ namespace Chummer
 			{
 				_objCharacter.BuildPoints = Convert.ToInt32(nudBP.Value);
 				_objCharacter.NuyenMaximumBP = 50;
-				_objCharacter.BuildMethod = CharacterBuildMethod.BP;
+				_objCharacter.BuildMethod = CharacterBuildMethod.Bp;
 			}
 			else if (cboBuildMethod.SelectedValue.ToString() == "Karma")
 			{

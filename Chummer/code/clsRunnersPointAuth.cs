@@ -168,6 +168,8 @@ namespace ChummerCore
                 throw new InvalidOperationException("RunnersPoint login failed: " + strError);
             if (strReturnedState != strState)
                 throw new InvalidOperationException("RunnersPoint login failed: state mismatch (possible CSRF).");
+            if (string.IsNullOrEmpty(strCode))
+                throw new InvalidOperationException("RunnersPoint login failed: no authorization code was returned.");
 
             await ExchangeCodeForTokensAsync(strCode, strCodeVerifier, strRedirectUri);
         }
@@ -245,13 +247,19 @@ namespace ChummerCore
 
                 var objJson = Deserialize<TokenResponse>(strBody);
 
-                var objTokens = new TokenSet();
-                objTokens.AccessToken = objJson.AccessToken;
-                objTokens.RefreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
+                var accessToken = objJson.AccessToken;
+                var refreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
                     _objCachedTokens != null ? _objCachedTokens.RefreshToken : null;
                 var intExpiresIn = objJson.ExpiresIn > 0 ? objJson.ExpiresIn : 3600;
                 // Refresh a little early so a request doesn't race an expiry that happens mid-flight.
-                objTokens.ExpiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
+                var expiresAtUtc = DateTime.UtcNow.AddSeconds(intExpiresIn - 60);
+
+                var objTokens = new TokenSet
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    ExpiresAtUtc = expiresAtUtc
+                };
 
                 SaveTokens(objTokens);
                 _objCachedTokens = objTokens;
@@ -458,7 +466,7 @@ namespace ChummerCore
         [DataContract]
         private class TokenSet
         {
-            [DataMember(Name = "accessToken")] public string AccessToken { get; set; }
+            [DataMember(Name = "accessToken")] public string AccessToken { get; set; } = string.Empty;
 
             [DataMember(Name = "refreshToken")] public string RefreshToken { get; set; }
 
@@ -473,9 +481,9 @@ namespace ChummerCore
         [DataContract]
         private class TokenResponse
         {
-            [DataMember(Name = "access_token")] public string AccessToken { get; set; }
+            [DataMember(Name = "access_token")] public string AccessToken { get; set; } = string.Empty;
 
-            [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; }
+            [DataMember(Name = "refresh_token")] public string RefreshToken { get; set; } = string.Empty;
 
             [DataMember(Name = "expires_in")] public int ExpiresIn { get; set; }
         }

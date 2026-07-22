@@ -30,7 +30,7 @@ namespace Chummer
 		private static string _strLanguage = "en-us";
 		private static string _strDefaultCharacterSheet = "Shadowrun 4";
 		private static string _strPDFArgumentStyle = "Adobe/Foxit";
-		private static string _strCloudApiBaseUrl = "http://localhost:8000/api/v1";
+		private static string _strCloudApiBaseUrl = "https://runners-point.link/api/v1";
 		private static bool _blnSuppressCloudUnreachableWarning = false;
 		private static bool _blnDatesIncludeTime = true;
 		private static bool _blnPrintToFileFirst = false;
@@ -57,6 +57,32 @@ namespace Chummer
 			if (data != null)
 				return data.ToString();
 			return fallback;
+		}
+
+		static string NormalizeCloudApiBaseUrl(string value)
+		{
+			string strValue = (value ?? string.Empty).Trim();
+			if (string.IsNullOrEmpty(strValue))
+				return "https://runners-point.link/api/v1";
+
+			Uri objUri;
+			if (!Uri.TryCreate(strValue, UriKind.Absolute, out objUri))
+				return strValue.TrimEnd('/');
+
+			if ((string.Equals(objUri.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+			     || string.Equals(objUri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase))
+			    && objUri.Port == 8000)
+				return "https://runners-point.link/api/v1";
+
+			string strPath = objUri.AbsolutePath.TrimEnd('/');
+			if (string.IsNullOrEmpty(strPath))
+				strPath = "/api/v1";
+			else if (string.Equals(strPath, "/v1", StringComparison.OrdinalIgnoreCase))
+				strPath = "/api/v1";
+
+			UriBuilder objBuilder = new UriBuilder(objUri);
+			objBuilder.Path = strPath;
+			return objBuilder.Uri.ToString().TrimEnd('/');
 		}
 
 		static string CheckAndGetRegistryKey(string baseSubkey, string value)
@@ -151,7 +177,7 @@ namespace Chummer
 
 			try
 			{
-				_strCloudApiBaseUrl = CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "http://localhost:8000/api/v1");
+				_strCloudApiBaseUrl = NormalizeCloudApiBaseUrl(CheckAndGetRegistryKeyWithFallback("Software\\Chummer", "cloudapibaseurl", "https://runners-point.link/api/v1"));
 			}
 			catch
 			{
@@ -520,7 +546,7 @@ namespace Chummer
 		}
 
 		/// <summary>
-		/// Base URL (including path prefix, e.g. "http://localhost:8000/api/v1") of the RunnersPoint
+		/// Base URL (including path prefix, e.g. "https://runners-point.link/api/v1") of the RunnersPoint
 		/// Character Document Storage API that Cloud Documents talks to.
 		/// </summary>
 		public string CloudApiBaseUrl
@@ -531,7 +557,7 @@ namespace Chummer
 			}
 			set
 			{
-				_strCloudApiBaseUrl = value;
+				_strCloudApiBaseUrl = NormalizeCloudApiBaseUrl(value);
 			}
 		}
 

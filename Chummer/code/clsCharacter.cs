@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using Chummer.Core;
 
 // MAGEnabledChanged Event Handler
 public delegate void MAGEnabledChangedHandler(Object sender);
@@ -101,7 +102,7 @@ namespace Chummer
 		private decimal _decNuyenMaximumBP = 50m;
 		private decimal _decNuyenBP = 0m;
 		private int _intBuildKarma = 0;
-		private CharacterBuildMethod _objBuildMethod = CharacterBuildMethod.BP;
+		private CharacterBuildMethod _objBuildMethod = CharacterBuildMethod.Bp;
 
 		// Metatype Information.
 		private string _strMetatype = "";
@@ -5296,7 +5297,7 @@ namespace Chummer
 				// If UnrestrictedNueyn is enabled, return the number of BP or Karma the character is being built with, otherwise use the standard value attached to the character.
 				if (_objOptions.UnrestrictedNuyen)
 				{
-					if (_objBuildMethod == CharacterBuildMethod.BP)
+					if (_objBuildMethod == CharacterBuildMethod.Bp)
 					{
 						if (_intBuildPoints > 0)
 							return _intBuildPoints;
@@ -5896,7 +5897,7 @@ namespace Chummer
 				case "Karma":
 					return CharacterBuildMethod.Karma;
 				default:
-					return CharacterBuildMethod.BP;
+					return CharacterBuildMethod.Bp;
 			}
 		}
 

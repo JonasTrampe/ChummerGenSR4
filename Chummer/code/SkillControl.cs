@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
+using Chummer.Core;
 
 // RatingChanged Event Handler.
 public delegate void RatingChangedHandler(Object sender);

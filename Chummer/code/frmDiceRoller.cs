@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Chummer.Core;
 
 namespace Chummer
 {
 	public partial class frmDiceRoller : Form
 	{
 		private readonly frmMain _frmMain;
-        private MTRNG _RNG;
+        private Random _RNG;
 
 		#region Control Events
 		public frmDiceRoller(frmMain frmMainForm, List<Quality> lstQualities = null, int intDice = 1)
@@ -15,7 +16,7 @@ namespace Chummer
 			InitializeComponent();
 			LanguageManager.Instance.Load(GlobalOptions.Instance.Language, this);
 			_frmMain = frmMainForm;
-            _RNG = new MTRNG();
+            _RNG = new Random();
 			nudDice.Value = intDice;
 			if (lstQualities != null)
 			{
