@@ -197,6 +197,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Weapon_CalculatedCostSumsAccessoriesAndMods()
+    {
+        // Weapon.Save() writes an already-resolved TotalCost (unlike Gear's raw formula), and
+        // accessory/mod cost is likewise pre-resolved - CalculatedCost should still just add them
+        // up correctly since the same Rating-substituting evaluator handles plain numbers too.
+        var character = LoadXml("<character><name>Runner</name><weapons><weapon><name>Pistol</name>"
+            + "<cost>250</cost><avail>4R</avail>"
+            + "<accessories><accessory><name>Smartlink</name><cost>200</cost><avail>2</avail></accessory></accessories>"
+            + "<weaponmods><weaponmod><name>Gas Vent</name><cost>50</cost><avail>0</avail></weaponmod></weaponmods>"
+            + "</weapon></weapons></character>");
+
+        CharacterTreeItemData weapon = character.WeaponTrees.Single();
+        Assert.Equal(500, weapon.CalculatedCost);
+        Assert.Equal("4R", weapon.CalculatedAvail);
+    }
+
+    [Fact]
     public void KarmaAndNuyenExpenses_AreSplitByType()
     {
         CharacterDocument character = LoadFixture();
