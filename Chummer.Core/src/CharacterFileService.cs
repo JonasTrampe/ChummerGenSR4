@@ -1174,12 +1174,15 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 var strCode = GetValue(objNode, "name", string.Empty);
-                var strTotalValue = GetValue(objNode, "totalvalue", GetValue(objNode, "value", "0"));
+                var strValue = GetValue(objNode, "value", "0");
+                var strTotalValue = GetValue(objNode, "totalvalue", strValue);
+                var strMinimum = GetValue(objNode, "metatypemin", "0");
                 lstAttributes.Add(new CharacterAttributeData(
-                    strCode, GetValue(objNode, "value", "0"), strTotalValue,
-                    GetValue(objNode, "metatypemin", "0"), GetValue(objNode, "metatypemax", "0"),
+                    strCode, strValue, strTotalValue,
+                    strMinimum, GetValue(objNode, "metatypemax", "0"),
                     GetValue(objNode, "metatypeaugmax", GetValue(objNode, "metatypemax", "0")),
-                    ComputeAttributeAugmented(strCode, strTotalValue)));
+                    ComputeAttributeAugmented(strCode, strTotalValue),
+                    ComputeAttributeKarmaCostToIncrease(strValue, strMinimum)));
             }
 
             return lstAttributes;
@@ -1201,6 +1204,40 @@ namespace Chummer.Core
             AppendContributions(sb, lstContributions);
             sb.Append('\n').Append("Gesamt: ").Append(intTotal);
             return new CharacterDerivedValueData(intTotal, sb.ToString());
+        }
+
+        // Ported from frmCareer.cs's cmdImprove<Attribute>_Click handlers: karma cost to raise an
+        // attribute's base Value by one point is (Value + 1) * KarmaAttribute, discounted by the
+        // AlternateMetatypeAttributeKarma house rule if enabled. The AttributeValueModifiers
+        // (permanent base-value-boosting Improvements targeting "<Code>Base", a rare case none of
+        // the ported fixtures use) and the EDG/MAG/RES Essence-loss adjustment aren't ported yet.
+        private int ComputeAttributeKarmaCostToIncrease(string strValue, string strMinimum)
+        {
+            var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
+            var intMinimum = int.TryParse(strMinimum, out var intParsedMinimum) ? intParsedMinimum : 0;
+            var objOptions = GetCharacterOptions();
+
+            var intCost = (intValue + 1) * objOptions.KarmaAttribute;
+            if (objOptions.AlternateMetatypeAttributeKarma)
+                intCost -= (intMinimum - 1) * objOptions.KarmaAttribute;
+            return intCost;
+        }
+
+        private CharacterOptions _objCharacterOptions;
+
+        // Lazily loaded and cached per CharacterDocument instance - CharacterOptions.Load() reads
+        // a settings file from disk, which is expensive enough to not want to redo for every
+        // attribute/skill/etc. read. A character's <settings> element names the file the legacy
+        // app used; falls back to default.xml when absent (matching CharacterOptions' own default).
+        private CharacterOptions GetCharacterOptions()
+        {
+            if (_objCharacterOptions == null)
+            {
+                _objCharacterOptions = new CharacterOptions();
+                _objCharacterOptions.Load(GetValue("/character/settings", "default.xml"));
+            }
+
+            return _objCharacterOptions;
         }
 
         private IReadOnlyList<CharacterQualityData> ReadQualities()
@@ -1622,7 +1659,7 @@ namespace Chummer.Core
     public sealed class CharacterAttributeData
     {
         internal CharacterAttributeData(string strCode, string strValue, string strTotalValue, string strMinimum,
-            string strMaximum, string strAugmentedMaximum, CharacterDerivedValueData augmented)
+            string strMaximum, string strAugmentedMaximum, CharacterDerivedValueData augmented, int intKarmaCostToIncrease)
         {
             Code = strCode;
             Value = strValue;
@@ -1631,6 +1668,7 @@ namespace Chummer.Core
             Maximum = strMaximum;
             AugmentedMaximum = strAugmentedMaximum;
             Augmented = augmented;
+            KarmaCostToIncrease = intKarmaCostToIncrease;
         }
 
         public string Code { get; private set; }
@@ -1643,6 +1681,10 @@ namespace Chummer.Core
         /// <summary>TotalValue plus any Attribute-type Improvement bonuses (e.g. Wired Reflexes'
         /// Reaction boost) that raise the augmented value without changing TotalValue itself.</summary>
         public CharacterDerivedValueData Augmented { get; private set; }
+
+        /// <summary>Karma cost to raise this attribute's base Value by one point, ported from
+        /// frmCareer.cs's cmdImprove&lt;Attribute&gt;_Click handlers.</summary>
+        public int KarmaCostToIncrease { get; private set; }
     }
 
     public sealed class CharacterConditionData

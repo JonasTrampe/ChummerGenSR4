@@ -238,6 +238,17 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Attributes_KarmaCostToIncreaseUsesCharacterOptionsKarmaAttribute()
+    {
+        CharacterDocument character = LoadFixture();
+
+        // default.xml's karmaattribute is 5 and alternatemetatypeattributekarma is False, so cost
+        // to raise REA's base Value (4) by one point is (4 + 1) * 5 = 25.
+        CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
+        Assert.Equal(25, rea.KarmaCostToIncrease);
+    }
+
+    [Fact]
     public void Condition_ComputesEssenceFromCyberwareAndBioware()
     {
         CharacterDocument character = LoadFixture();

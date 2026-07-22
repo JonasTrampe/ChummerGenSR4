@@ -19,6 +19,13 @@
              to match. Demo/example characters in data\saves ARE included - they're meant to ship. -->
         <None Include="..\Chummer.Core\data\**\*.*"
               Link="data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- CharacterOptions.Load()/Save() (Chummer.Core) look for settings profiles directly
+             under AppContext.BaseDirectory\settings (matching the legacy Chummer.csproj's shipped
+             location), not under \data\settings like the rules-data files above - copy them there
+             too so a character's referenced settings file (or the default.xml fallback) actually
+             resolves instead of silently falling back to CharacterOptions' hardcoded defaults. -->
+        <None Include="..\Chummer.Core\data\settings\*.xml"
+              Link="settings\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Dock.MarkupExtension" Version="12.0.0.2" />
