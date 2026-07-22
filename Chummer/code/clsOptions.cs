@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Chummer.Core;
 
 // MRUChanged Event Handler.
 public delegate void MRUChangedHandler();
@@ -76,9 +77,9 @@ namespace Chummer
 				try
 				{
 					var entry = objRegistry.GetValue(baseValue + i.ToString());
-
-					if (entry != null)
-						list.Add(entry.ToString());
+					string strEntry = entry?.ToString();
+					if (!string.IsNullOrEmpty(strEntry))
+						list.Add(strEntry);
 				}
 				catch
 				{
