@@ -46,15 +46,8 @@ namespace Chummer.Core
             Trace.TraceInformation("Saving Chummer character {0} to {1}", objCharacter.DisplayName, strTargetName);
             try
             {
-                // Plain XmlDocument.Save(Stream) re-indents with its own default writer settings,
-                // which don't match clsCharacter.cs's Save(Stream) (tab indentation, UTF-16) and -
-                // more importantly - expand empty elements like <bonus /> into <bonus>\n\t</bonus>
-                // instead of the self-closing form. Every round-trip through this path (e.g. a
-                // cloud download/reload) was silently bloating the file by ~35% with no content
-                // change. Write through an explicit XmlWriter with matching settings instead, so
-                // this path is byte-for-byte consistent with the legacy save format.
-                // CloseOutput = false: callers (e.g. SerializeActiveCharacter) read the passed-in
-                // Stream back after Save() returns, so this must not close it out from under them.
+                // Match legacy save formatting (tab indent, UTF-16); CloseOutput=false since
+                // callers read the stream back after Save() returns.
                 var objSettings = new XmlWriterSettings
                 {
                     Encoding = Encoding.Unicode,
@@ -241,13 +234,7 @@ namespace Chummer.Core
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
                 ComputePhysicalCm(), ComputeStunCm());
 
-        // Ported from clsCharacter.cs's Essence property. Each Cyberware/Bioware item's Essence
-        // cost is read straight from its saved <ess> element (the legacy app already evaluates
-        // CalculatedESS - grade multiplier, essence discount, rating-based cost expressions - at
-        // save time) rather than re-deriving that formula here. Cyberware and Bioware costs are
-        // totaled separately; the higher total counts in full and the lower at half, matching the
-        // "layered" Essence cost rule. The CyborgEssence fixed-at-0.1 override isn't ported (it
-        // needs a save file that actually uses it to verify against).
+        // Ported from clsCharacter.cs's Essence property (CyborgEssence override not ported).
         private string ComputeEssence()
         {
             double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
@@ -1208,11 +1195,7 @@ namespace Chummer.Core
             return lstAttributes;
         }
 
-        // Ported from clsUnique.cs's Attribute.AttributeModifiers/TotalValue: attribute-boosting
-        // Improvements (e.g. Wired Reflexes) store their bonus in Augmented, not Value, since they
-        // raise the augmented attribute without touching its permanent/base value. Cyberlimb
-        // averaging and the metatype-augmented-maximum clamp aren't ported yet - flag if a save
-        // file needs them.
+        // Ported from clsUnique.cs's Attribute.AttributeModifiers/TotalValue.
         private CharacterDerivedValueData ComputeAttributeAugmented(string strCode, string strTotalValue)
         {
             var intBase = int.TryParse(strTotalValue, out var intParsed) ? intParsed : 0;
@@ -1226,11 +1209,7 @@ namespace Chummer.Core
             return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
-        // Ported from frmCareer.cs's cmdImprove<Attribute>_Click handlers: karma cost to raise an
-        // attribute's base Value by one point is (Value + 1) * KarmaAttribute, discounted by the
-        // AlternateMetatypeAttributeKarma house rule if enabled. The AttributeValueModifiers
-        // (permanent base-value-boosting Improvements targeting "<Code>Base", a rare case none of
-        // the ported fixtures use) and the EDG/MAG/RES Essence-loss adjustment aren't ported yet.
+        // Ported from frmCareer.cs's cmdImprove<Attribute>_Click handlers.
         private int ComputeAttributeKarmaCostToIncrease(string strValue, string strMinimum)
         {
             var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
@@ -1245,10 +1224,6 @@ namespace Chummer.Core
 
         private CharacterOptions _objCharacterOptions;
 
-        // Lazily loaded and cached per CharacterDocument instance - CharacterOptions.Load() reads
-        // a settings file from disk, which is expensive enough to not want to redo for every
-        // attribute/skill/etc. read. A character's <settings> element names the file the legacy
-        // app used; falls back to default.xml when absent (matching CharacterOptions' own default).
         private CharacterOptions GetCharacterOptions()
         {
             if (_objCharacterOptions == null)
@@ -1830,24 +1805,17 @@ namespace Chummer.Core
         /// item types that track it (Gear, Armor, Cyberware all do; not everything does).</summary>
         public bool Equipped { get; }
 
-        /// <summary>Raw saved cost - a plain number for item types whose Save() resolves it first
-        /// (Weapon), or a formula that can reference "Rating" for types that save the rules-data
-        /// string verbatim (Gear, ArmorMod). Use CalculatedCost rather than parsing this directly.</summary>
+        /// <summary>Raw saved cost - a plain number or a "Rating"-formula string. Use CalculatedCost.</summary>
         public string Cost { get; }
 
-        /// <summary>Raw saved availability - a formula/suffix string (e.g. "6R", "Rating*2F").
-        /// Use CalculatedAvail rather than parsing this directly.</summary>
+        /// <summary>Raw saved availability, e.g. "6R". Use CalculatedAvail.</summary>
         public string Avail { get; }
 
         public string Qty { get; }
 
         public List<CharacterTreeItemData> Children { get; }
 
-        /// <summary>Cost with "Rating" substituted and the resulting expression evaluated (ported
-        /// from clsEquipment.cs's Gear.TotalCost), times Qty, plus every child's CalculatedCost.
-        /// Doesn't port the "Gear Cost" parent-cost-reference special case, DiscountCost, or a
-        /// parent's ChildCostMultiplier/CostFor division - narrow cases none of the ported fixtures
-        /// exercise.</summary>
+        /// <summary>Ported from clsEquipment.cs's Gear.TotalCost.</summary>
         public int CalculatedCost
         {
             get
@@ -1858,10 +1826,7 @@ namespace Chummer.Core
             }
         }
 
-        /// <summary>Availability with "Rating" substituted and the leading numeric expression
-        /// evaluated, keeping any trailing Restricted/Forbidden suffix letter (ported from
-        /// clsEquipment.cs's Gear.TotalAvail). Doesn't port summing child/accessory availability
-        /// modifiers into the parent's displayed value.</summary>
+        /// <summary>Ported from clsEquipment.cs's Gear.TotalAvail.</summary>
         public string CalculatedAvail
         {
             get
@@ -1881,10 +1846,7 @@ namespace Chummer.Core
             }
         }
 
-        // Ported from the XPathNavigator-based expression evaluation clsEquipment.cs uses
-        // throughout (Gear.TotalCost, Cyberware.CalculatedESS, etc.) - substituting "Rating" into
-        // the formula string first and letting XPath evaluate the resulting arithmetic handles
-        // every "Rating*100"/"(Rating/2)+5"-shaped cost/avail formula the rules data actually uses.
+        // Substitutes "Rating" and evaluates via XPath, same technique as clsEquipment.cs.
         private static double EvaluateRatingExpression(string strExpression, string strRating)
         {
             if (string.IsNullOrEmpty(strExpression)) return 0;

@@ -120,11 +120,7 @@ public static class ImprovementManager
         return lstContributions;
     }
 
-    /// <summary>Per-source breakdown for <see cref="AugmentedValueOf"/> - one entry per contributing
-    /// Improvement's SourceName and Augmented value, for tooltip display. Unlike
-    /// <see cref="DescribeValueOf"/> this doesn't dedupe same-UniqueName Improvements to their
-    /// highest value; narrow enough (Attribute-type augmented bonuses rarely share a UniqueName)
-    /// to add as its own follow-up once a save file needs it.</summary>
+    /// <summary>Per-source breakdown for <see cref="AugmentedValueOf"/>, for tooltip display.</summary>
     public static IReadOnlyList<(string SourceName, int Value)> DescribeAugmentedValueOf(
         IReadOnlyList<Improvement> lstImprovements, ImprovementType eType, string? strImprovedName = null)
     {
