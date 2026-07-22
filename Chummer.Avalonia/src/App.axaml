@@ -181,6 +181,18 @@
             <Setter Property="Background" Value="#E5F1FB" />
             <Setter Property="BorderBrush" Value="#0078D7" />
         </Style>
+        <Style Selector="Button.spinnerButton">
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.spinnerButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#F0F0F0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
         <Style Selector="TextBox">
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="BorderThickness" Value="1" />
@@ -202,13 +214,9 @@
             <Setter Property="BorderBrush" Value="#C0C0C0" />
             <Setter Property="Padding" Value="4,2" />
             <Setter Property="MinHeight" Value="24" />
+            <Setter Property="MinWidth" Value="96" />
             <Setter Property="Height" Value="24" />
             <Setter Property="FontSize" Value="11" />
-        </Style>
-        <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner">
-            <Setter Property="RenderTransform">
-                <ScaleTransform ScaleX=".6" ScaleY=".6"/>
-            </Setter>
         </Style>
 
         <Style Selector="ListBoxItem">
@@ -219,6 +227,22 @@
             <Setter Property="BorderBrush" Value="#D0D0D0" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Background" Value="White" />
+        </Style>
+        <Style Selector="Border.settingsCard">
+            <Setter Property="BorderBrush" Value="#D8D8D8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+        <Style Selector="TextBlock.settingsHeader">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+        <Style Selector="TextBlock.settingsHint">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="#666666" />
         </Style>
         <Style Selector="Border.toolbarButton">
             <Setter Property="BorderThickness" Value="1" />

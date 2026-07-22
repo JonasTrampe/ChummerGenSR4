@@ -44,8 +44,12 @@
                 <Separator />
                 <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
             </MenuItem>
-            <MenuItem Header="_Zubehör" />
-            <MenuItem Header="_Spezial" />
+            <MenuItem Header="_Zubehör">
+                <MenuItem Header="_Cloud Documents..." Click="OnCloudDocumentsClick" />
+            </MenuItem>
+            <MenuItem Header="_Spezial">
+                <MenuItem Header="_Optionen..." Click="OnOptionsClick" />
+            </MenuItem>
             <MenuItem Header="_Fenster" />
             <MenuItem Header="_Hilfe" />
         </Menu>

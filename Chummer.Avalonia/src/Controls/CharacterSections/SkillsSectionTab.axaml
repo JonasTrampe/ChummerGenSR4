@@ -65,19 +65,22 @@
             <StackPanel Margin="2 8 2 4">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Text="Wissensfertigkeiten" FontWeight="Bold" />
-                    <Button Grid.Column="1" Content="Fertigkeit" />
+                    <Button Grid.Column="1" Content="Fertigkeit" Click="OnAddKnowledgeSkillClick" />
                 </Grid>
                 <!-- Name | Rating | [+] | Pool | Spezialisierung dropdown | [+] | Kategorie dropdown | Löschen -->
                 <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding KnowledgeSkills}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:KnowledgeSkillRowViewModel">
-                            <Grid ColumnDefinitions="140,26,20,26,140,20,110,Auto" Margin="0,2,0,2">
-                                <TextBlock Grid.Column="0" Text="{Binding SkillName}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Text="{Binding Rating}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="3" Text="{Binding Pool}" ToolTip.Tip="{Binding PoolTooltip}"
-                                           VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="4" Text="{Binding Specialization}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="6" Text="{Binding Category}" VerticalAlignment="Center" />
+                            <Grid ColumnDefinitions="160,50,40,160,130,Auto" Margin="0,2,0,2" ColumnSpacing="6">
+                                <TextBox Grid.Column="0" Text="{Binding SkillName}" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1" Text="{Binding Rating}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="{Binding Pool}" ToolTip.Tip="{Binding PoolTooltip}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <TextBox Grid.Column="3" Text="{Binding Specialization}" VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}"
+                                          SelectedItem="{Binding Category}" />
+                                <Button Grid.Column="5" Content="Löschen" Click="OnDeleteKnowledgeSkillClick"
+                                        Tag="{Binding SkillId}" IsEnabled="{Binding AllowDelete}" />
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

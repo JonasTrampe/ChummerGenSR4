@@ -60,7 +60,8 @@
                     </ItemsControl>
 
                     <Border Classes="groupBox" Padding="10" HorizontalAlignment="Left"
-                            Margin="0,4,0,0">
+                            Margin="0,4,0,0"
+                            IsVisible="{Binding ShowMysticAdeptMagSplit}">
                         <StackPanel Spacing="4">
                             <TextBlock Text="Magieadept MAG-Aufteilung" FontWeight="Bold" />
                             <Grid ColumnDefinitions="90,90">
@@ -68,9 +69,9 @@
                                 <TextBlock Grid.Column="1" Text="Adept" FontWeight="SemiBold" />
                             </Grid>
                             <Grid ColumnDefinitions="90,90">
-                                <TextBox Grid.Column="0" Text="3" Width="60"
-                                         HorizontalAlignment="Left" />
-                                <TextBlock Grid.Column="1" Text="3" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="0" Text="{Binding MysticAdeptMagicianMagSplit}" Width="60"
+                                         HorizontalAlignment="Left" IsReadOnly="True" />
+                                <TextBlock Grid.Column="1" Text="{Binding MysticAdeptAdeptMagSplit}" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -79,18 +80,20 @@
                 <StackPanel>
                     <TextBlock Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
                     <Button Content="Connection hinzufügen" HorizontalAlignment="Left"
-                            Margin="0,0,0,6" />
+                            Margin="0,0,0,6" Click="OnAddContactClick" />
                     <ItemsControl ItemsSource="{Binding Contacts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
                                 <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
-                                    <Grid ColumnDefinitions="140,Auto,50,Auto,50" ColumnSpacing="6">
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                                    <Grid ColumnDefinitions="160,Auto,56,Auto,56,Auto" ColumnSpacing="6">
+                                        <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                        <Button Grid.Column="5" Content="Löschen" Click="OnDeleteContactClick"
+                                                Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -101,18 +104,20 @@
                 <StackPanel>
                     <TextBlock Text="Feinde" FontWeight="Bold" Margin="0,0,0,4" />
                     <Button Content="Feind hinzufügen" HorizontalAlignment="Left"
-                            Margin="0,0,0,6" />
+                            Margin="0,0,0,6" Click="OnAddEnemyClick" />
                     <ItemsControl ItemsSource="{Binding Enemies}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
                                 <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
-                                    <Grid ColumnDefinitions="140,Auto,50,Auto,50" ColumnSpacing="6">
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                                    <Grid ColumnDefinitions="160,Auto,56,Auto,56,Auto" ColumnSpacing="6">
+                                        <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
+                                        <Button Grid.Column="5" Content="Löschen" Click="OnDeleteContactClick"
+                                                Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>

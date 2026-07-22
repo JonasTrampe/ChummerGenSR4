@@ -1,28 +1,49 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.KarmaGpDialog"
+        x:DataType="vm:KarmaGpDialogViewModel"
         Width="400" Height="200" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
         Background="White"
         Title="GP-Anzahl auswählen">
-	<StackPanel Margin="12" Spacing="10">
-		<TextBlock Foreground="#2E6B2E" TextWrapping="Wrap"
-		           Text="Geben Sie die Menge an Generierungspunkten ein mit der Sie Ihren Charakter erschaffen dürfen (Gewöhnlich 400)" />
+	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+	<Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+		<TextBlock Grid.Row="0"
+		           Foreground="#2E6B2E"
+		           TextWrapping="Wrap"
+		           MaxWidth="350"
+		           Text="{Binding Description}" />
 
-		<Grid ColumnDefinitions="70,70,Auto,60">
-			<ComboBox Grid.Column="0" SelectedIndex="0"><ComboBoxItem Content="GP" /></ComboBox>
-			<TextBox Grid.Column="1" Text="400" Margin="6,0,0,0" />
-			<TextBlock Grid.Column="2" Text="Max Verf.:" VerticalAlignment="Center" Margin="16,0,6,0" />
-			<TextBox Grid.Column="3" Text="12" />
+		<Grid Grid.Row="1" ColumnDefinitions="70,70,Auto,60" ColumnSpacing="8" HorizontalAlignment="Left">
+			<ComboBox Grid.Column="0"
+			          Width="70"
+			          ItemsSource="{Binding BuildMethods}"
+			          SelectedItem="{Binding BuildMethod, Mode=TwoWay}" />
+			<controls:IntegerSpinner Grid.Column="1"
+			                         Width="104"
+			                         Minimum="0"
+			                         Maximum="5000"
+			                         Value="{Binding BuildPoints, Mode=TwoWay}" />
+			<TextBlock Grid.Column="2" Text="Max Verf.:" VerticalAlignment="Center" Margin="12,0,0,0" />
+			<controls:IntegerSpinner Grid.Column="3"
+			                         Width="104"
+			                         Minimum="0"
+			                         Maximum="99"
+			                         Value="{Binding MaxAvailability, Mode=TwoWay}" />
 		</Grid>
 
-		<CheckBox Content="Ignoriere Charaktererschaffungsregeln" />
+		<CheckBox Grid.Row="2"
+		          Content="Ignoriere Charaktererschaffungsregeln"
+		          IsChecked="{Binding IgnoreCreationRules}" />
 
-		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,20,0,0">
+		<StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
 			<Button Content="Abbruch" Width="80" Click="OnCancel" />
 			<Button Content="OK" Width="80" Click="OnOk" />
 		</StackPanel>
-	</StackPanel>
+	</Grid>
+	</ScrollViewer>
 </Window>

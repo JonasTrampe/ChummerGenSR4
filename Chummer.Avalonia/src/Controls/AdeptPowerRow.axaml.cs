@@ -6,25 +6,25 @@ namespace Chummer.NewUI.Controls;
 public partial class AdeptPowerRow : UserControl
 {
     public static readonly StyledProperty<string?> PowerNameProperty =
-        AvaloniaProperty.Register<SkillRow, string?>(nameof(PowerName));
+        AvaloniaProperty.Register<AdeptPowerRow, string?>(nameof(PowerName));
 
-    public static readonly StyledProperty<string?> PowerLevelProperty =
-        AvaloniaProperty.Register<SkillRow, string?>(nameof(PowerLevel));
+    public static readonly StyledProperty<int> PowerLevelProperty =
+        AvaloniaProperty.Register<AdeptPowerRow, int>(nameof(PowerLevel));
 
     public static readonly StyledProperty<string?> PricePerLevelProperty =
-        AvaloniaProperty.Register<SkillRow, string?>(nameof(PricePerLevel));
+        AvaloniaProperty.Register<AdeptPowerRow, string?>(nameof(PricePerLevel));
 
     public static readonly StyledProperty<string?> TotalCostProperty =
-        AvaloniaProperty.Register<SkillRow, string?>(nameof(TotalCost));
+        AvaloniaProperty.Register<AdeptPowerRow, string?>(nameof(TotalCost));
 
     public static readonly StyledProperty<bool> IsWayOfTheAdeptProperty =
-        AvaloniaProperty.Register<SkillRow, bool>(nameof(IsWayOfTheAdept));
+        AvaloniaProperty.Register<AdeptPowerRow, bool>(nameof(IsWayOfTheAdept));
 
     public static readonly StyledProperty<bool> IsMagicFocusProperty =
-        AvaloniaProperty.Register<SkillRow, bool>(nameof(IsMagicFocus));
+        AvaloniaProperty.Register<AdeptPowerRow, bool>(nameof(IsMagicFocus));
 
     public static readonly StyledProperty<bool> IsNudEnabledProperty =
-        AvaloniaProperty.Register<SkillRow, bool>(nameof(IsNudEnabled));
+        AvaloniaProperty.Register<AdeptPowerRow, bool>(nameof(IsNudEnabled));
 
     public AdeptPowerRow()
     {
@@ -38,7 +38,7 @@ public partial class AdeptPowerRow : UserControl
         set => SetValue(PowerNameProperty, value);
     }
 
-    public string? PowerLevel
+    public int PowerLevel
     {
         get => GetValue(PowerLevelProperty);
         set => SetValue(PowerLevelProperty, value);

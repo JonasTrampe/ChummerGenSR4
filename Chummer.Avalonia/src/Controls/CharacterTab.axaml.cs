@@ -23,6 +23,9 @@ public partial class CharacterTab : UserControl
     public void LoadCharacter(CharacterDocument character)
     {
         Character = character;
+        this.FindControl<TabItem>("AdeptPowersTabItem")!.IsVisible = character.Adept;
+        this.FindControl<TabItem>("SpellsTabItem")!.IsVisible = character.Magician;
+        this.FindControl<TabItem>("InitiationTabItem")!.IsVisible = character.Awakened;
         this.FindControl<GeneralSectionTab>("GeneralTab")!.LoadCharacter(character);
         this.FindControl<SkillsSectionTab>("SkillsTab")!.LoadCharacter(character);
         this.FindControl<MartialArtsSectionTab>("MartialArtsTab")!.LoadCharacter(character);

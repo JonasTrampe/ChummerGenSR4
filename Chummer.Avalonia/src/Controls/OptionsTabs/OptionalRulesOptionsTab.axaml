@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="using:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.OptionsTabs.OptionalRulesOptionsTab"
+             x:DataType="vm:OptionsDialogViewModel">
+    <ScrollViewer Margin="8"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Border Classes="settingsCard" MaxWidth="900">
+        <StackPanel Spacing="8">
+            <TextBlock Classes="settingsHeader" Text="Optionale Regeln" />
+            <CheckBox Content="Tödlichere Spielumgebung (SR4 98)" IsChecked="{Binding CurrentOptions.MoreLethalGameplay, Mode=TwoWay}" />
+            <CheckBox Content="Keine Panzerungsbehinderung, wenn nur ein Panzerungsteil getragen wird (AR 48)" IsChecked="{Binding CurrentOptions.NoSingleArmorEncumbrance, Mode=TwoWay}" />
+            <CheckBox Content="Begrenze Würfelpools auf 20 Würfel oder 2x (natürliches Attribut + Fertigkeitswert) (SR4 83)." IsChecked="{Binding CurrentOptions.CapSkillRating, Mode=TwoWay}" />
+            <CheckBox Content="Erlaube das Regruppieren von Fertigkeiten, wenn alle den selben Wert haben." IsChecked="{Binding CurrentOptions.AllowSkillRegrouping, Mode=TwoWay}" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <CheckBox Content="Karma-Kosten für Metatypen sind gleich der GP-Kosten" IsChecked="{Binding CurrentOptions.MetatypeCostsKarma, Mode=TwoWay}" />
+                <TextBlock Text="x" VerticalAlignment="Center" />
+                <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.MetatypeCostsKarmaMultiplier, Mode=TwoWay}" />
+            </StackPanel>
+            <CheckBox Content="Stärke reduziert den Rückstoß einer Waffe (AR 171)" IsChecked="{Binding CurrentOptions.StrengthAffectsRecoil, Mode=TwoWay}" />
+            <CheckBox Content="Maximale Panzerungsmodifikatoren benutzen (AR 48)" IsChecked="{Binding CurrentOptions.MaximumArmorModifications, Mode=TwoWay}" />
+            <CheckBox Content="Kapazität von Panzeranzügen benutzen (AR 48)" IsChecked="{Binding CurrentOptions.ArmorSuitCapacity, Mode=TwoWay}" />
+            <CheckBox Content="Panzerungsverschleiß erlauben (AR 48)" IsChecked="{Binding CurrentOptions.ArmorDegradation, Mode=TwoWay}" />
+            <CheckBox Content="Nutze errechnete Sensorstufe für Fahrzeuge (AR 111)" IsChecked="{Binding CurrentOptions.UseCalculatedVehicleSensorRatings, Mode=TwoWay}" />
+            <CheckBox Content="Attribut statt Programm für Matrixproben nutzen (VN 42)" IsChecked="{Binding CurrentOptions.AlternateMatrixAttribute, Mode=TwoWay}" />
+            <CheckBox Content="Benutze alternative Kosten für Komplexe Formen (VN 42)" IsChecked="{Binding CurrentOptions.AlternateComplexFormCost, Mode=TwoWay}" />
+            <CheckBox Content="Erlauben Bioware in Transgenetik zu wandeln (BT 96)" IsChecked="{Binding CurrentOptions.AllowCustomTransgenics, Mode=TwoWay}" />
+            <CheckBox Content="Erlauben während der Charakter-Erstellung Skillgruppen aufzutrennen" IsChecked="{Binding CurrentOptions.BreakSkillGroupsInCreateMode, Mode=TwoWay}" />
+            <CheckBox Content="Allow any Detection Spell to be taken as Extended range version (SM 165)" IsChecked="{Binding CurrentOptions.ExtendAnyDetectionSpell, Mode=TwoWay}" />
+        </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>

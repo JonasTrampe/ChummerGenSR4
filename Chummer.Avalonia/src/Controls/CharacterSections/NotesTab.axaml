@@ -4,8 +4,7 @@
              x:Class="Chummer.NewUI.Controls.CharacterSections.NotesTab"
              x:DataType="vm:NotesSectionViewModel">
     <Border Classes="groupBox" Margin="4" Padding="8">
-        <TextBox Text="{Binding Notes}" IsReadOnly="True" AcceptsReturn="True"
-                 TextWrapping="Wrap" VerticalContentAlignment="Top" Background="Transparent"
-                 BorderThickness="0" />
+        <TextBox Text="{Binding Notes}" AcceptsReturn="True"
+                 TextWrapping="Wrap" VerticalContentAlignment="Top" />
     </Border>
 </UserControl>

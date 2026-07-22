@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.NewUI.Controls.IntegerSpinner"
+             x:Name="root">
+    <Border BorderBrush="#C0C0C0"
+            BorderThickness="1"
+            CornerRadius="2"
+            Background="White"
+            Height="28"
+            MinHeight="28">
+        <Grid ColumnDefinitions="*,24"
+              DataContext="{Binding ElementName=root}">
+            <TextBox x:Name="txtValue"
+                     Grid.Column="0"
+                     Text="{Binding ValueText}"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Right"
+                     Padding="6,0,6,0" />
+            <Grid Grid.Column="1" RowDefinitions="*,*">
+                <Button Grid.Row="0"
+                        Classes="spinnerButton"
+                        Padding="0"
+                        Margin="0"
+                        BorderThickness="0,0,0,1"
+                        BorderBrush="#D0D0D0"
+                        Background="Transparent"
+                        Click="OnIncreaseClick">
+                    <Path Width="8" Height="5"
+                          Stretch="Fill"
+                          Fill="#333333"
+                          Data="M 0 5 L 4 0 L 8 5 Z" />
+                </Button>
+                <Button Grid.Row="1"
+                        Classes="spinnerButton"
+                        Padding="0"
+                        Margin="0"
+                        BorderThickness="0"
+                        Background="Transparent"
+                        Click="OnDecreaseClick">
+                    <Path Width="10" Height="6"
+                          Stretch="Fill"
+                          Fill="#333333"
+                          Data="M 0 0 L 4 5 L 8 0 Z" />
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -19,15 +19,15 @@
                         <sections:MartialArtsSectionTab Name="MartialArtsTab" />
                     </TabItem>
                     <!-- Adeptenkräfte: conditional tab - Adept characters only -->
-                    <TabItem Header="Adeptenkräfte">
+                    <TabItem x:Name="AdeptPowersTabItem" Header="Adeptenkräfte">
                         <sections:AdeptPowersSectionTab Name="AdeptPowersTab" />
                     </TabItem>
                     <!-- Sprüche und Geister: conditional tab - Magician/Adept characters -->
-                    <TabItem Header="Sprüche und Geister">
+                    <TabItem x:Name="SpellsTabItem" Header="Sprüche und Geister">
                         <sections:SpellsSectionTab Name="SpellsTab" />
                     </TabItem>
                     <!-- Initiation: conditional tab - Awakened characters only -->
-                    <TabItem Header="Initiation">
+                    <TabItem x:Name="InitiationTabItem" Header="Initiation">
                         <sections:InitiationSectionTab Name="InitiationTab" />
                     </TabItem>
                     <TabItem Header="Cyberware und Bioware">

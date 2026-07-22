@@ -142,10 +142,10 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
         Contacts.Clear();
         foreach (CharacterContactData contact in character.Contacts)
-            Contacts.Add(new ContactRowViewModel(contact));
+            Contacts.Add(new ContactRowViewModel(character, contact));
 
         Enemies.Clear();
         foreach (CharacterContactData enemy in character.Enemies)
-            Enemies.Add(new ContactRowViewModel(enemy));
+            Enemies.Add(new ContactRowViewModel(character, enemy));
     }
 }

@@ -51,4 +51,31 @@ public partial class GeneralSectionTab : UserControl
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
             ViewModel.LoadCharacter(_character);
     }
+
+    private void OnAddContactClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null)
+            return;
+
+        _character.AddContact("Neue Connection", "1", "1", blnEnemy: false);
+        ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnAddEnemyClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null)
+            return;
+
+        _character.AddContact("Neuer Feind", "1", "1", blnEnemy: true);
+        ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnDeleteContactClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || sender is not Button { Tag: int intContactId })
+            return;
+
+        if (_character.RemoveContact(intContactId))
+            ViewModel.LoadCharacter(_character);
+    }
 }

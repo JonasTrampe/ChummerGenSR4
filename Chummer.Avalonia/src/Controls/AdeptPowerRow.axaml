@@ -1,22 +1,48 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chummer.NewUI.Controls.AdeptPowerRow"
              x:Name="root">
 
-    <Grid ColumnDefinitions="250,Auto,150,80,70,130,110,26,Auto" DataContext="{Binding ElementName=root}">
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding PowerName}" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="0" Grid.Column="1" Text="Kraftstufe:" VerticalAlignment="Center" FontSize="10"
+    <Grid ColumnDefinitions="280,Auto,96,120,72,Auto,130,110,Auto,26,Auto"
+          ColumnSpacing="8"
+          VerticalAlignment="Top"
+          DataContext="{Binding ElementName=root}">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding PowerName}"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="1"
+                   Text="Kraftstufe:"
+                   VerticalAlignment="Center"
+                   FontSize="10"
                    Foreground="#666666" />
-        <NumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding PowerLevel}" Width="140"
-                       IsEnabled="{Binding IsNudEnabled}" FormatString="N0" />
-        <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding PricePerLevel}" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding TotalCost}" VerticalAlignment="Center"
+        <controls:IntegerSpinner Grid.Column="2"
+                                 Width="96"
+                                 HorizontalAlignment="Left"
+                                 IsEnabled="{Binding IsNudEnabled}"
+                                 Value="{Binding PowerLevel}" />
+        <TextBlock Grid.Column="3"
+                   Text="{Binding PricePerLevel}"
+                   VerticalAlignment="Center" />
+        <TextBlock Grid.Column="4"
+                   Text="{Binding TotalCost}"
+                   VerticalAlignment="Center"
                    FontWeight="SemiBold" />
-        <CheckBox Grid.Row="0" Grid.Column="5" Content="Weg des Adepten" IsChecked="{Binding IsWayOfTheAdept}" />
-        <CheckBox Grid.Row="0" Grid.Column="6" Content="Zauberfokus" IsChecked="{Binding IsMagicFocus}" />
-        <Button Grid.Row="0" Grid.Column="8" Content="Löschen" />
+        <TextBlock Grid.Column="5"
+                   Text="Vergünstigung durch"
+                   VerticalAlignment="Center"
+                   FontSize="10"
+                   Foreground="#666666" />
+        <CheckBox Grid.Column="6"
+                  Content="Weg des Adepten"
+                  IsChecked="{Binding IsWayOfTheAdept}" />
+        <CheckBox Grid.Column="7"
+                  Content="Zauberfokus"
+                  IsChecked="{Binding IsMagicFocus}" />
+        <Button Grid.Column="10" Content="Löschen" />
     </Grid>
 </UserControl>

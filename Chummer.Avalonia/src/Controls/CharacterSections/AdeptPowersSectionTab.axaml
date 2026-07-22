@@ -15,7 +15,13 @@
             <ItemsControl ItemsSource="{Binding Powers}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:AdeptPowerRowViewModel">
-                        <controls:InfoRow Label="{Binding Label}" Value="{Binding Value}" />
+                        <controls:AdeptPowerRow PowerName="{Binding PowerName}"
+                                                PowerLevel="{Binding PowerLevel}"
+                                                PricePerLevel="{Binding PricePerLevel}"
+                                                TotalCost="{Binding TotalCost}"
+                                                IsWayOfTheAdept="{Binding IsWayOfTheAdept}"
+                                                IsMagicFocus="{Binding IsMagicFocus}"
+                                                IsNudEnabled="{Binding IsNudEnabled}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

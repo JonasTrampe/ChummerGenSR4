@@ -3,16 +3,26 @@ using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
 
-/// <summary>Read-only character notes until the shared Core write path exists.</summary>
 public sealed class NotesSectionViewModel : ViewModelBase
 {
+    private CharacterDocument? _character;
     private string _notes = string.Empty;
 
     public string Notes
     {
         get => _notes;
-        private set => SetField(ref _notes, value);
+        set
+        {
+            if (!SetField(ref _notes, value))
+                return;
+            if (_character != null)
+                _character.Notes = value;
+        }
     }
 
-    public void LoadCharacter(CharacterDocument character) => Notes = character.Notes;
+    public void LoadCharacter(CharacterDocument character)
+    {
+        _character = character;
+        Notes = character.Notes;
+    }
 }

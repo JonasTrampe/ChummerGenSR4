@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="using:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.OptionsTabs.KarmaCostsOptionsTab"
+             x:DataType="vm:OptionsDialogViewModel">
+    <ScrollViewer Margin="8"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12" MaxWidth="980">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Border Grid.Column="0" Classes="settingsCard">
+                    <StackPanel>
+                        <TextBlock Classes="settingsHeader" Text="Allgemeine Karmakosten" />
+                        <Grid ColumnDefinitions="*,110,Auto"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                              ColumnSpacing="12" RowSpacing="8">
+                            <TextBlock Grid.Row="0" Text="Neue Spezialisierung" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="0" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSpecialization, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="1" Text="Neue Wissensfertigkeit" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="1" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNewKnowledgeSkill, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="2" Text="Neue Aktionsfertigkeit" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="2" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNewActiveSkill, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="3" Text="Neue Fertigkeitsgruppe" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="3" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNewSkillGroup, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="4" Text="Steigere Wissensfertigkeit um 1" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="4" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaImproveKnowledgeSkill, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="4" Grid.Column="2" Text="x neuer Wert" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="5" Text="Steigere Aktive Fertigkeit um 1" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="5" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaImproveActiveSkill, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="5" Grid.Column="2" Text="x neuer Wert" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="6" Text="Steigere Fertigkeitsgruppe um 1" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="6" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaImproveSkillGroup, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="6" Grid.Column="2" Text="x neuer Wert" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="7" Text="Steigere Attribut um 1" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="7" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaAttribute, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="7" Grid.Column="2" Text="x neuer Wert" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="8" Text="Gabe/Handicap" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="8" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaQuality, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="8" Grid.Column="2" Text="x GP Kosten" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="9" Text="Neuer Zauberspruch" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="9" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSpell, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="10" Text="Neue Komplexe Form" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="10" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNewComplexForm, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="11" Text="Steigere Komplexe Form um 1" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="11" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaImproveComplexForm, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="11" Grid.Column="2" Text="x neuer Wert" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="12" Text="Komplexe Form Einstellungen" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="12" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaComplexFormOption, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="12" Grid.Column="2" Text="x Stufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="13" Text="Komplexe-Form Talensoft" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="13" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaComplexFormSkillsoft, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="13" Grid.Column="2" Text="x Stufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="14" Text="Geist" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="14" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSpirit, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="14" Grid.Column="2" Text="x geschuldete Dienste" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="15" Text="Kampfmanöver" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="15" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaManeuver, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="16" Text="Nuyen" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="16" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNuyenPer, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="16" Grid.Column="2" Text="pro Karma" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="17" Text="Connections" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="17" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaContact, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="17" Grid.Column="2" Text="x (Connection + Loyalty)" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="18" Text="Übertragen für neuen Charakter" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="18" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaCarryover, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="18" Grid.Column="2" Text="Maximum" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="19" Text="Initiation/Wandlung" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="19" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaInitiation, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="19" Grid.Column="2" Text="x neuer Wert + 10" VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Classes="settingsCard">
+                    <StackPanel>
+                        <TextBlock Classes="settingsHeader" Text="Fokus, Gruppen und Metamagie" />
+                        <Grid ColumnDefinitions="*,110,Auto"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                              ColumnSpacing="12" RowSpacing="8">
+                            <TextBlock Grid.Row="0" Text="Zusätzliche Metamagische Techniken/Wandlungen" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="0" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaMetamagic, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="1" Text="Gruppe/Netzwerk beitreten" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="1" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaJoinGroup, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="2" Text="Gruppe/Netzwerk verlassen" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="2" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaLeaveGroup, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="3" Text="Verankerungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="3" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaAnchoringFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="4" Text="Verbannungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="4" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaBanishingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="4" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="5" Text="Bindungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="5" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaBindingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="5" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="6" Text="Zentrierungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="6" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaCenteringFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="6" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="7" Text="Spruchabwehrfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="7" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaCounterspellingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="7" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="8" Text="Weissagungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="8" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaDiviningFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="8" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="9" Text="Schwingungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="9" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaDowsingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="9" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="10" Text="Infusionsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="10" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaInfusionFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="10" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="11" Text="Maskierungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="11" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaMaskingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="11" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="12" Text="Kraftfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="12" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaPowerFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="12" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="13" Text="Abschirmungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="13" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaShieldingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="13" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="14" Text="Zauberspruchfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="14" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSpellcastingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="14" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="15" Text="Herbeirufungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="15" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSummoningFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="15" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="16" Text="Zauberspeicher" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="16" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSustainingFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="16" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="17" Text="Symbolischer Verbindungsfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="17" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaSymbolicLinkFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="17" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="18" Text="Waffenfokus" VerticalAlignment="Center" />
+                            <controls:IntegerSpinner Grid.Row="18" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaWeaponFocus, Mode=TwoWay}" />
+                            <TextBlock Grid.Row="18" Grid.Column="2" Text="x Kraftstufe" VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <DockPanel LastChildFill="False">
+                <TextBlock Classes="settingsHint"
+                           DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           Text="Komplexe Fokus- und Steigerungswerte sind in zwei Sektionen gruppiert, um das Scannen zu erleichtern." />
+                <Button DockPanel.Dock="Right"
+                        HorizontalAlignment="Right"
+                        Content="Auf Standard zurücksetzen"
+                        Click="OnResetKarma" />
+            </DockPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

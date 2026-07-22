@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:vm="using:Chummer.NewUI.ViewModels"
+             x:Class="Chummer.NewUI.Controls.OptionsTabs.BpCostsOptionsTab"
+             x:DataType="vm:OptionsDialogViewModel">
+    <ScrollViewer Margin="8"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12" MaxWidth="520">
+            <Border Classes="settingsCard">
+                <StackPanel>
+                    <TextBlock Classes="settingsHeader" Text="Grundkosten" />
+                    <Grid ColumnDefinitions="*,110"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          ColumnSpacing="12" RowSpacing="8">
+                        <TextBlock Grid.Row="0" Text="Attribute (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="0" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpAttribute, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="1" Text="Zusatzkosten für Maximierung" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="1" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpAttributeMax, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="2" Text="Connection (pro LOY/CON)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="2" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpContact, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="3" Text="Kampfkunst (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="3" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpMartialArt, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="4" Text="Kampfkunst Manöver" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="4" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpMartialArtManeuver, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="5" Text="Fertigkeitsgruppe (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="5" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpSkillGroup, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="6" Text="Aktionsfertigkeit (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="6" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpActiveSkill, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="7" Text="Spezialisierung der Aktionsfertigkeit" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="7" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpActiveSkillSpecialization, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="8" Text="Wissensfertigkeit (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="8" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpKnowledgeSkill, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="9" Text="Zaubersprüche (pro Spruch)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="9" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpSpell, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="10" Text="Fokus (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="10" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpFocus, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="11" Text="Geist/Sprite (pro Dienst)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="11" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpSpirit, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="12" Text="Komplexe Form (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="12" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpComplexForm, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="13" Text="Komplexe Form Optionen (pro Stufe)" VerticalAlignment="Center" />
+                        <controls:IntegerSpinner Grid.Row="13" Grid.Column="1" Width="96" HorizontalAlignment="Left" Value="{Binding CurrentOptions.BpComplexFormOption, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+            <DockPanel LastChildFill="False">
+                <TextBlock Classes="settingsHint"
+                           DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           Text="Diese Werte steuern die Standard-GP-Kosten für neue Profile." />
+                <Button DockPanel.Dock="Right"
+                        HorizontalAlignment="Right"
+                        Content="Auf Standard zurücksetzen"
+                        Click="OnResetBp" />
+            </DockPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
