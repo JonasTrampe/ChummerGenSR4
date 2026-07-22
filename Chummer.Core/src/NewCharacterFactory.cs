@@ -140,7 +140,7 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "notes", string.Empty);
             AppendElement(objDocument, objRoot, "alias", string.Empty);
             AppendElement(objDocument, objRoot, "playername", string.Empty);
-            AppendElement(objDocument, objRoot, "karma", "0");
+            AppendElement(objDocument, objRoot, "karma", blnKarmaBuild ? intBuildPoints.ToString() : "0");
             AppendElement(objDocument, objRoot, "totalkarma", "0");
             AppendElement(objDocument, objRoot, "streetcred", "0");
             AppendElement(objDocument, objRoot, "notoriety", "0");
