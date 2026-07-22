@@ -151,7 +151,20 @@
   <gears>
     <gear>
       <name>Custom Commlink</name>
-      <children />
+      <rating>3</rating>
+      <qty>1</qty>
+      <cost>Rating*100</cost>
+      <avail>6R</avail>
+      <children>
+        <gear>
+          <name>Renraku Ichi</name>
+          <rating>0</rating>
+          <qty>2</qty>
+          <cost>50</cost>
+          <avail>2</avail>
+          <children />
+        </gear>
+      </children>
     </gear>
   </gears>
   <cyberwares>

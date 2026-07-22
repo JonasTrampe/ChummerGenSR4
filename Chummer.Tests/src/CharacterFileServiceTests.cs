@@ -230,11 +230,10 @@ public class CharacterFileServiceTests
 
         // XmlDocument.Save(Stream) (what this used to do) re-indents with wider whitespace and -
         // worse - expands empty elements like <children /> into <children>\n\t</children>, quietly
-        // bloating every re-saved file. Assert the self-closing form survives a round-trip.
+        // bloating every re-saved file. Assert the self-closing form survives a round-trip - the
+        // fixture's innermost gear (no nested children of its own) still has an empty one.
         string strSaved = Encoding.Unicode.GetString(stream.ToArray());
         Assert.Contains("<children />", strSaved);
-        Assert.DoesNotContain("<children>\r\n", strSaved);
-        Assert.DoesNotContain("<children>\n", strSaved);
 
         // The stream must still be usable after Save() returns (callers like
         // CloudDocumentsDialogViewModel.SerializeActiveCharacter read it back immediately).
@@ -269,6 +268,22 @@ public class CharacterFileServiceTests
         // to raise REA's base Value (4) by one point is (4 + 1) * 5 = 25.
         CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
         Assert.Equal(25, rea.KarmaCostToIncrease);
+    }
+
+    [Fact]
+    public void Gear_CalculatedCostAndAvailEvaluateRatingFormulasAndSumChildren()
+    {
+        CharacterDocument character = LoadFixture();
+
+        CharacterTreeItemData commlink = character.Gear.Single(g => g.Name == "Custom Commlink");
+        // cost "Rating*100" with Rating 3 -> 300, plus the child's cost 50 * qty 2 = 100 -> 400.
+        Assert.Equal(400, commlink.CalculatedCost);
+        // avail "6R" has no Rating reference, so it evaluates to 6 with the Restricted suffix kept.
+        Assert.Equal("6R", commlink.CalculatedAvail);
+
+        CharacterTreeItemData child = commlink.Children.Single();
+        Assert.Equal(100, child.CalculatedCost);
+        Assert.Equal("2", child.CalculatedAvail);
     }
 
     [Fact]

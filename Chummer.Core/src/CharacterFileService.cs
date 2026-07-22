@@ -1655,7 +1655,9 @@ namespace Chummer.Core
         {
             var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty),
                 GetValue(objNode, "category", string.Empty), GetValue(objNode, "rating", "0"),
-                GetValue(objNode, "equipped", "False") == "True");
+                GetValue(objNode, "equipped", "False") == "True",
+                GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
+                GetValue(objNode, "qty", "1"));
             foreach (string strChildXPath in lstChildXPaths)
             {
                 if (string.IsNullOrEmpty(strChildXPath)) continue;
@@ -1804,12 +1806,15 @@ namespace Chummer.Core
     public sealed class CharacterTreeItemData
     {
         internal CharacterTreeItemData(string strName, string strCategory = "", string strRating = "0",
-            bool blnEquipped = false)
+            bool blnEquipped = false, string strCost = "", string strAvail = "", string strQty = "1")
         {
             Name = strName;
             Category = strCategory;
             Rating = strRating;
             Equipped = blnEquipped;
+            Cost = strCost;
+            Avail = strAvail;
+            Qty = strQty;
             Children = new List<CharacterTreeItemData>();
         }
 
@@ -1825,7 +1830,78 @@ namespace Chummer.Core
         /// item types that track it (Gear, Armor, Cyberware all do; not everything does).</summary>
         public bool Equipped { get; }
 
+        /// <summary>Raw saved cost - a plain number for item types whose Save() resolves it first
+        /// (Weapon), or a formula that can reference "Rating" for types that save the rules-data
+        /// string verbatim (Gear, ArmorMod). Use CalculatedCost rather than parsing this directly.</summary>
+        public string Cost { get; }
+
+        /// <summary>Raw saved availability - a formula/suffix string (e.g. "6R", "Rating*2F").
+        /// Use CalculatedAvail rather than parsing this directly.</summary>
+        public string Avail { get; }
+
+        public string Qty { get; }
+
         public List<CharacterTreeItemData> Children { get; }
+
+        /// <summary>Cost with "Rating" substituted and the resulting expression evaluated (ported
+        /// from clsEquipment.cs's Gear.TotalCost), times Qty, plus every child's CalculatedCost.
+        /// Doesn't port the "Gear Cost" parent-cost-reference special case, DiscountCost, or a
+        /// parent's ChildCostMultiplier/CostFor division - narrow cases none of the ported fixtures
+        /// exercise.</summary>
+        public int CalculatedCost
+        {
+            get
+            {
+                var intQty = int.TryParse(Qty, out var intParsedQty) ? intParsedQty : 1;
+                var intOwn = (int)Math.Ceiling(EvaluateRatingExpression(Cost, Rating)) * intQty;
+                return intOwn + Children.Sum(objChild => objChild.CalculatedCost);
+            }
+        }
+
+        /// <summary>Availability with "Rating" substituted and the leading numeric expression
+        /// evaluated, keeping any trailing Restricted/Forbidden suffix letter (ported from
+        /// clsEquipment.cs's Gear.TotalAvail). Doesn't port summing child/accessory availability
+        /// modifiers into the parent's displayed value.</summary>
+        public string CalculatedAvail
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Avail)) return string.Empty;
+                var strSuffix = string.Empty;
+                var strExpression = Avail;
+                var chLast = Avail[Avail.Length - 1];
+                if (chLast == 'R' || chLast == 'F')
+                {
+                    strSuffix = chLast.ToString();
+                    strExpression = Avail.Substring(0, Avail.Length - 1);
+                }
+
+                var intValue = (int)EvaluateRatingExpression(strExpression, Rating);
+                return intValue + strSuffix;
+            }
+        }
+
+        // Ported from the XPathNavigator-based expression evaluation clsEquipment.cs uses
+        // throughout (Gear.TotalCost, Cyberware.CalculatedESS, etc.) - substituting "Rating" into
+        // the formula string first and letting XPath evaluate the resulting arithmetic handles
+        // every "Rating*100"/"(Rating/2)+5"-shaped cost/avail formula the rules data actually uses.
+        private static double EvaluateRatingExpression(string strExpression, string strRating)
+        {
+            if (string.IsNullOrEmpty(strExpression)) return 0;
+            var strSubstituted = strExpression.Replace("Rating", strRating);
+            try
+            {
+                var objNavigator = new System.Xml.XPath.XPathDocument(new StringReader("<i/>")).CreateNavigator();
+                var objExpression = objNavigator.Compile(strSubstituted);
+                return Convert.ToDouble(objNavigator.Evaluate(objExpression), CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return double.TryParse(strSubstituted, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblValue)
+                    ? dblValue
+                    : 0;
+            }
+        }
     }
 
     public sealed class CharacterWeaponData
