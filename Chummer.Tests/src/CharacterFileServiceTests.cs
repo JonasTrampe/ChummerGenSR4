@@ -288,6 +288,48 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RaiseAttribute_DeductsKarmaAndLogsExpenseWhenAffordable()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma>"
+            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
+
+        Assert.True(character.RaiseAttribute("REA"));
+
+        Assert.Equal("5", character.Attributes.Single(a => a.Code == "REA").Value);
+        Assert.Equal("75", character.Karma);
+        Assert.Single(character.KarmaExpenses);
+        Assert.Equal("-25", character.KarmaExpenses[0].Amount);
+    }
+
+    [Fact]
+    public void RaiseAttribute_FailsWithoutMutatingWhenNotEnoughKarma()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>10</karma>"
+            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
+
+        Assert.False(character.RaiseAttribute("REA"));
+
+        Assert.Equal("4", character.Attributes.Single(a => a.Code == "REA").Value);
+        Assert.Equal("10", character.Karma);
+        Assert.Empty(character.KarmaExpenses);
+    }
+
+    [Fact]
+    public void SetAttributeValue_SetsBaseValueWithoutTouchingKarma()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>10</karma>"
+            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
+
+        Assert.True(character.SetAttributeValue("REA", 6));
+
+        Assert.Equal("6", character.Attributes.Single(a => a.Code == "REA").Value);
+        Assert.Equal("10", character.Karma);
+    }
+
+    [Fact]
     public void Gear_CalculatedCostAndAvailEvaluateRatingFormulasAndSumChildren()
     {
         CharacterDocument character = LoadFixture();

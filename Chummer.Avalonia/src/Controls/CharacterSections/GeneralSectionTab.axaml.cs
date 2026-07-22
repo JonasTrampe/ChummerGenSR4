@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
+using Chummer.NewUI.Controls;
 using Chummer.NewUI.ViewModels;
 using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
 
@@ -49,6 +50,15 @@ public partial class GeneralSectionTab : UserControl
 
         var quality = ViewModel.SelectedQualityNode;
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnRaiseAttributeClick(object? sender, System.EventArgs e)
+    {
+        if (_character == null || sender is not AttributeRow { Code: { } strCode })
+            return;
+
+        if (_character.RaiseAttribute(strCode))
             ViewModel.LoadCharacter(_character);
     }
 

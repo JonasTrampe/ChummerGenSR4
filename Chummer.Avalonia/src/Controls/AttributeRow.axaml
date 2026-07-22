@@ -1,15 +1,20 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              x:Class="Chummer.NewUI.Controls.AttributeRow"
              x:Name="root">
-    <!-- One Attributes-table row: Name | Basis | [+] | (Verst.) | Bereich | Quelle.
+    <!-- One Attributes-table row: Name | Basis | [+ or spinner] | (Verst.) | Bereich | Quelle.
 	     Same rationale as SkillRow - identical columns on every instance instead of a
 	     hand-repeated shared Grid, so BOD/AGI/REA/etc. line up automatically. -->
-    <Grid ColumnDefinitions="150,40,46,60,90,60" DataContext="{Binding ElementName=root}" MinHeight="22">
+    <Grid ColumnDefinitions="150,40,110,60,90,60" DataContext="{Binding ElementName=root}" MinHeight="22">
         <TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding AttributeName}" />
-        <TextBlock Grid.Column="1" Classes="rowLabel" Text="{Binding Base}" />
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2">
-            <Button Classes="iconButton">
+        <TextBlock Grid.Column="1" Classes="rowLabel" Text="{Binding Base}" IsVisible="{Binding !IsCreateMode}" />
+        <controls:IntegerSpinner Grid.Column="2" Width="90" HorizontalAlignment="Left"
+                                  IsVisible="{Binding IsCreateMode}"
+                                  Value="{Binding BaseValue, Mode=TwoWay}"
+                                  Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" IsVisible="{Binding !IsCreateMode}">
+            <Button Classes="iconButton" Click="OnRaiseButtonClick">
                 <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" Width="16" Height="16" />
             </Button>
             <Button Classes="iconButton" IsVisible="{Binding ShowRemove}">

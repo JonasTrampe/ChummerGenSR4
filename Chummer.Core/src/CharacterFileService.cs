@@ -189,7 +189,14 @@ namespace Chummer.Core
             }
         }
 
-        public string Karma => GetValue("/character/karma", "0");
+        public string Karma
+        {
+            get => GetValue("/character/karma", "0");
+            set => SetRootValue("karma", value);
+        }
+
+        /// <summary>False during character creation, true once the character has entered career mode.</summary>
+        public bool Created => GetValue("/character/created", "False") == "True";
 
         public string Nuyen
         {
@@ -886,7 +893,8 @@ namespace Chummer.Core
         /// Positive amounts are earnings; negative amounts are expenditures. The caller supplies
         /// the signed amount so refunds can be represented without a second write API.
         /// </summary>
-        public void AddExpense(string strType, decimal decAmount, string strReason, DateTime? datDate = null)
+        public void AddExpense(string strType, decimal decAmount, string strReason, DateTime? datDate = null,
+            ExpenseUndo objUndo = null)
         {
             if (strType != "Karma" && strType != "Nuyen")
                 throw new ArgumentException("An expense must be Karma or Nuyen.", nameof(strType));
@@ -912,6 +920,17 @@ namespace Chummer.Core
             AppendElement(objExpense, "type", strType);
             AppendElement(objExpense, "refund", "False");
             objExpenses.AppendChild(objExpense);
+
+            if (objUndo != null)
+            {
+                var objUndoElement = Document.CreateElement("undo");
+                AppendElement(objUndoElement, "karmatype", objUndo.KarmaType.ToString());
+                AppendElement(objUndoElement, "nuyentype", objUndo.NuyenType.ToString());
+                AppendElement(objUndoElement, "objectid", objUndo.ObjectId);
+                AppendElement(objUndoElement, "qty", objUndo.Qty.ToString());
+                AppendElement(objUndoElement, "extra", objUndo.Extra);
+                objExpense.AppendChild(objUndoElement);
+            }
         }
 
         public string Gender
@@ -1221,6 +1240,40 @@ namespace Chummer.Core
                 intCost -= (intMinimum - 1) * objOptions.KarmaAttribute;
             return intCost;
         }
+
+        /// <summary>Career mode: raises an attribute's base Value by one, deducting Karma and logging an expense+undo. False if not enough Karma.</summary>
+        public bool RaiseAttribute(string strCode)
+        {
+            var objNode = GetAttributeNode(strCode);
+            if (objNode == null) return false;
+
+            var strValue = GetValue(objNode, "value", "0");
+            var strMinimum = GetValue(objNode, "metatypemin", "0");
+            var intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
+            var intKarma = int.TryParse(Karma, out var intParsedKarma) ? intParsedKarma : 0;
+            if (intCost > intKarma) return false;
+
+            var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
+            SetChildValue(objNode, "value", (intValue + 1).ToString());
+            Karma = (intKarma - intCost).ToString();
+
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.ImproveAttribute, strCode);
+            AddExpense("Karma", -intCost, strCode + " " + intValue + " -> " + (intValue + 1), null, objUndo);
+            return true;
+        }
+
+        /// <summary>Create mode: sets an attribute's base Value directly - cost is derived from the whole build's point pool, not charged per call.</summary>
+        public bool SetAttributeValue(string strCode, int intValue)
+        {
+            var objNode = GetAttributeNode(strCode);
+            if (objNode == null) return false;
+            SetChildValue(objNode, "value", intValue.ToString());
+            return true;
+        }
+
+        private XmlNode GetAttributeNode(string strCode)
+            => Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']");
 
         private CharacterOptions _objCharacterOptions;
 

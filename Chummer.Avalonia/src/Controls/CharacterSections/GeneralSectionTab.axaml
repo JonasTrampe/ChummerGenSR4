@@ -50,11 +50,15 @@
                     <ItemsControl ItemsSource="{Binding Attributes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:AttributeRowViewModel">
-                                <controls:AttributeRow AttributeName="{Binding AttributeName}"
+                                <controls:AttributeRow Code="{Binding Code}" AttributeName="{Binding AttributeName}"
                                                         Base="{Binding Base}" Augmented="{Binding Augmented}"
                                                         Range="{Binding Range}" Source="{Binding Source}"
                                                         ShowRemove="{Binding ShowRemove}"
-                                                        IsEnabled="{Binding IsAttributeEnabled}" />
+                                                        IsEnabled="{Binding IsAttributeEnabled}"
+                                                        IsCreateMode="{Binding IsCreateMode}"
+                                                        BaseValue="{Binding BaseValue, Mode=TwoWay}"
+                                                        MinValue="{Binding MinValue}" MaxValue="{Binding MaxValue}"
+                                                        RaiseClicked="OnRaiseAttributeClick" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

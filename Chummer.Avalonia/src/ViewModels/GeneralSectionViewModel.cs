@@ -97,6 +97,17 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
     public ObservableCollection<ContactRowViewModel> Enemies { get; } = new();
 
+    public GeneralSectionViewModel()
+    {
+        foreach (AttributeRowViewModel row in Attributes)
+            row.BaseValueEdited += OnAttributeBaseValueEdited;
+    }
+
+    private void OnAttributeBaseValueEdited(AttributeRowViewModel row, int intNewValue)
+    {
+        _character?.SetAttributeValue(row.Code, intNewValue);
+    }
+
     public void LoadCharacter(CharacterDocument character)
     {
         _character = character;
@@ -123,11 +134,17 @@ public sealed class GeneralSectionViewModel : ViewModelBase
             if (row is null)
                 continue;
 
+            row.IsLoading = true;
             row.Base = attribute.Value;
             row.Augmented = int.TryParse(attribute.Value, out int intBase) && intBase == attribute.Augmented.Value
                 ? string.Empty
                 : "(" + attribute.Augmented.Value + ")";
             row.Range = attribute.Minimum + " / " + attribute.Maximum + " (" + attribute.AugmentedMaximum + ")";
+            row.IsCreateMode = !character.Created;
+            row.BaseValue = intBase;
+            row.MinValue = int.TryParse(attribute.Minimum, out int intMin) ? intMin : 0;
+            row.MaxValue = int.TryParse(attribute.Maximum, out int intMax) ? intMax : 6;
+            row.IsLoading = false;
         }
 
         Qualities.Clear();
