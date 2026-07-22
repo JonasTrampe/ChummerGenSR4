@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
+using Chummer.Core;
 
 namespace Chummer
 {

@@ -8,6 +8,7 @@ using System.Xml;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Linq;
+using Chummer.Core;
 
 namespace Chummer
 {

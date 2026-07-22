@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
+using Chummer.Core;
 
 namespace Chummer
 {
@@ -111,7 +112,7 @@ namespace Chummer
         {
             _blnLoading = true;
             if (!_objCharacter.IsCritter &&
-                (_objCharacter.BuildMethod == CharacterBuildMethod.BP && _objCharacter.BuildPoints == 0) ||
+                (_objCharacter.BuildMethod == CharacterBuildMethod.Bp && _objCharacter.BuildPoints == 0) ||
                 (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objCharacter.BuildKarma == 0))
             {
                 _blnFreestyle = true;
@@ -3834,7 +3835,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -3915,7 +3916,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -3996,7 +3997,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4077,7 +4078,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4158,7 +4159,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4239,7 +4240,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4320,7 +4321,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4401,7 +4402,7 @@ namespace Chummer
 			// Make sure the number of BP spent on attributes does not exceed half of the BP allowed for character creation.
 			if (!_objCharacter.IgnoreRules && !_objOptions.AllowExceedAttributeBP && !_blnFreestyle)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (CalculatePrimaryAttributeBP() > _objCharacter.BuildPoints / 2)
 					{
@@ -4892,7 +4893,7 @@ namespace Chummer
 			int intBPUsed = 0;
 			foreach (ContactControl objContactControl in panEnemies.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating);
 				else
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating) * _objOptions.KarmaQuality;
@@ -4902,7 +4903,7 @@ namespace Chummer
 			int intQualityMax = 0;
 			string strQualityPoints = "";
 			string strEnemyPoints = "";
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intEnemyMax = 25;
 				intQualityMax = 35;
@@ -4931,7 +4932,7 @@ namespace Chummer
 				{
 					MessageBox.Show(LanguageManager.Instance.GetString("Message_NegativeQualityLimit").Replace("{0}", strQualityPoints), LanguageManager.Instance.GetString("MessageTitle_NegativeQualityLimit"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 					ContactControl objSender = (ContactControl)sender;
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						objSender.ConnectionRating -= ((intQualityMax * -1) - (intBPUsed + intNegativeQualityBP));
 					else
 						objSender.ConnectionRating -= (((intQualityMax * -1) - (intBPUsed + intNegativeQualityBP)) / _objOptions.KarmaQuality);
@@ -4964,7 +4965,7 @@ namespace Chummer
 			int intBPUsed = 0;
 			foreach (ContactControl objContactControl in panEnemies.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating);
 				else
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating) * _objOptions.KarmaQuality;
@@ -4974,7 +4975,7 @@ namespace Chummer
 			int intQualityMax = 0;
 			string strEnemyPoints = "";
 			string strQualityPoints = "";
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intEnemyMax = 25;
 				intQualityMax = 35;
@@ -5042,7 +5043,7 @@ namespace Chummer
 			int intBPUsed = 0;
 			foreach (ContactControl objContactControl in panEnemies.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating);
 				else
 					intBPUsed -= (objContactControl.ConnectionRating + objContactControl.LoyaltyRating + objContactControl.GroupRating) * _objOptions.KarmaQuality;
@@ -5052,7 +5053,7 @@ namespace Chummer
 			int intQualityMax = 0;
 			string strEnemyPoints = "";
 			string strQualityPoints = "";
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intEnemyMax = 25;
 				intQualityMax = 35;
@@ -5081,7 +5082,7 @@ namespace Chummer
 				{
 					MessageBox.Show(LanguageManager.Instance.GetString("Message_NegativeQualityLimit").Replace("{0}", strQualityPoints), LanguageManager.Instance.GetString("MessageTitle_NegativeQualityLimit"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 					ContactControl objSender = (ContactControl)sender;
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						objSender.LoyaltyRating -= ((intQualityMax * -1) - (intBPUsed + intNegativeQualityBP));
 					else
 						objSender.LoyaltyRating -= (((intQualityMax * -1) - (intBPUsed + intNegativeQualityBP)) / _objOptions.KarmaQuality);
@@ -5443,7 +5444,7 @@ namespace Chummer
 
 						foreach (MartialArt objCharacterMartialArt in _objCharacter.MartialArts)
 						{
-							if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+							if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 								intBP += objCharacterMartialArt.Rating * 5;
 							else
 								intBP += objCharacterMartialArt.Rating * 5 * _objOptions.KarmaQuality;
@@ -5451,7 +5452,7 @@ namespace Chummer
 
 						if (!_objOptions.ExceedPositiveQualities)
 						{
-							if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+							if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 							{
 								if (intBP > 35 && !_blnLoading && !_objCharacter.IgnoreRules)
 								{
@@ -5613,7 +5614,7 @@ namespace Chummer
 			int intQualityMax = 0;
 			string strEnemyPoints = "";
 			string strQualityPoints = "";
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intBPUsed = -2;
 				intEnemyMax = 25;
@@ -5632,7 +5633,7 @@ namespace Chummer
 
 			foreach (ContactControl objEnemyControl in panEnemies.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBPUsed -= (objEnemyControl.ConnectionRating + objEnemyControl.LoyaltyRating);
 				else
 					intBPUsed -= (objEnemyControl.ConnectionRating + objEnemyControl.LoyaltyRating) * _objOptions.KarmaQuality;
@@ -7195,14 +7196,14 @@ namespace Chummer
 					intBP *= _objOptions.KarmaQuality;
 
 				// Add 5 which is the cost for a new Martial Art at Rating 1.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBP += 5;
 				else
 					intBP += (5 * _objOptions.KarmaQuality);
 
 				foreach (MartialArt objCharacterMartialArt in _objCharacter.MartialArts)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						intBP += objCharacterMartialArt.Rating * 5;
 					else
 						intBP += objCharacterMartialArt.Rating * 5 * _objOptions.KarmaQuality;
@@ -7210,7 +7211,7 @@ namespace Chummer
 
 				if (!_objOptions.ExceedPositiveQualities)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						if (intBP > 35 && !_objCharacter.IgnoreRules)
 						{
@@ -7801,7 +7802,7 @@ namespace Chummer
 			// If the item being checked would cause the limit of 35 BP spent on Positive Qualities to be exceed, do not let it be checked and display a message.
 			string strAmount = "";
 			int intMaxQualityAmount = 0;
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				strAmount = "35 " + LanguageManager.Instance.GetString("String_BP");
 				intMaxQualityAmount = 35;
@@ -7832,7 +7833,7 @@ namespace Chummer
 					intBP *= _objOptions.KarmaQuality;
 
 				// Include the BP used by Enemies.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBP += int.Parse(lblEnemiesBP.Text.Replace(LanguageManager.Instance.GetString("String_BP"), ""));
 				else
 				{
@@ -7843,7 +7844,7 @@ namespace Chummer
 				}
 
 				// Include the amount from Free Negative Quality BP cost Improvements.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBP -= _objImprovementManager.ValueOf(Improvement.ImprovementType.FreeNegativeQualities);
 				else
 					intBP -= (_objImprovementManager.ValueOf(Improvement.ImprovementType.FreeNegativeQualities) * _objOptions.KarmaQuality);
@@ -7872,14 +7873,14 @@ namespace Chummer
 				// Include the BP used by Martial Arts. Each Rating costs 5 BP.
 				foreach (MartialArt objMartialArt in _objCharacter.MartialArts)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						intBP += objMartialArt.Rating * 5;
 					else
 						intBP += objMartialArt.Rating * 5 * _objOptions.KarmaQuality;
 				}
 
 				// Include the amount from Free Negative Quality BP cost Improvements.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intBP -= _objImprovementManager.ValueOf(Improvement.ImprovementType.FreePositiveQualities);
 				else
 					intBP -= (_objImprovementManager.ValueOf(Improvement.ImprovementType.FreePositiveQualities) * _objOptions.KarmaQuality);
@@ -12627,7 +12628,7 @@ namespace Chummer
 			string strPage = objQuality.Page;
 			lblQualitySource.Text = strBook + " " + strPage;
 			tipTooltip.SetToolTip(lblQualitySource, _objOptions.LanguageBookLong(objQuality.Source) + " " + LanguageManager.Instance.GetString("String_Page") + " " + objQuality.Page);
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				lblQualityBP.Text = objQuality.BP.ToString() + " " + LanguageManager.Instance.GetString("String_BP");
 			else
 				lblQualityBP.Text = (objQuality.BP * _objOptions.KarmaQuality).ToString() + " " + LanguageManager.Instance.GetString("String_Karma");
@@ -15090,7 +15091,7 @@ namespace Chummer
 		{
 			int intPoints = 0;
 			string strMethod = "";
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intPoints = _objCharacter.BuildPoints / 2;
 				strMethod = LanguageManager.Instance.GetString("String_BP");
@@ -15154,7 +15155,7 @@ namespace Chummer
 			nudRES.Minimum = _objCharacter.RES.MetatypeMinimum;
 
 			// If we're working with Karma, the Metatype doesn't cost anything.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				lblMetatypeBP.Text = _objCharacter.MetatypeBP.ToString() + " " + LanguageManager.Instance.GetString("String_BP");
 			else if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.MetatypeCostsKarma)
 				lblMetatypeBP.Text = (_objCharacter.MetatypeBP * _objOptions.MetatypeCostsKarmaMultiplier).ToString() + " " + LanguageManager.Instance.GetString("String_Karma");
@@ -15259,7 +15260,7 @@ namespace Chummer
 				{
 					string strAttribute = "";
 					NumericUpDown nudAttribute = objControl;
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						// Each Attribute point costs 10 BP (the first point is free).
 						intBP += ((int)nudAttribute.Value - (int)nudAttribute.Minimum) * _objOptions.BPAttribute;
@@ -15372,7 +15373,7 @@ namespace Chummer
 					// Disabled Attributes should not be included.
 					if (nudAttribute.Enabled)
 					{
-						if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+						if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						{
 							// If the Essence Loss in use is not 0, reduce it by 1 to correct the BP cost since the first point of Special Attributes is always free.
 							if (intUseEssenceLoss != 0)
@@ -15465,7 +15466,7 @@ namespace Chummer
 			string strPoints = "";
 
 			// Determine if cost strings should end in "BP" or "Karma" based on the Build Method being used.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intPointsRemain = _objCharacter.BuildPoints;
 				strPoints = LanguageManager.Instance.GetString("String_BP");
@@ -15477,10 +15478,10 @@ namespace Chummer
 			}
 
 			// Metatype/Metavariant only cost points when working with BP (or when the Metatype Costs Karma option is enabled when working with Karma).
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP || (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.MetatypeCostsKarma))
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp || (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.MetatypeCostsKarma))
 			{
 				// Subtract the BP used for Metatype.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intPointsRemain -= _objCharacter.MetatypeBP;
 				else
 					intPointsRemain -= (_objCharacter.MetatypeBP * _objOptions.MetatypeCostsKarmaMultiplier);
@@ -15492,7 +15493,7 @@ namespace Chummer
 			{
 				if (!objContactControl.Free)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						// The Contact's BP cost = their Connection + Loyalty Rating.
 						intPointsRemain -= (objContactControl.ConnectionRating + objContactControl.GroupRating + objContactControl.LoyaltyRating) * _objOptions.BPContact;
@@ -15553,7 +15554,7 @@ namespace Chummer
 			{
 				if (!objContactControl.Free)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						// The Enemy's BP cost = their Connection + Loyalty Rating.
 						intPointsRemain += (objContactControl.ConnectionRating + objContactControl.GroupRating + objContactControl.LoyaltyRating) * _objOptions.BPContact;
@@ -15580,7 +15581,7 @@ namespace Chummer
 			{
 				if (objQuality.Type == QualityType.Positive && objQuality.ContributeToBP)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						intPointsRemain -= objQuality.BP;
 						intPointsUsed += objQuality.BP;
@@ -15594,7 +15595,7 @@ namespace Chummer
 			}
 
 			// Deduct the amount for free Qualities.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intPointsRemain += _objImprovementManager.ValueOf(Improvement.ImprovementType.FreePositiveQualities);
 				intPointsUsed -= _objImprovementManager.ValueOf(Improvement.ImprovementType.FreePositiveQualities);
@@ -15608,7 +15609,7 @@ namespace Chummer
 			// Include the BP used by Martial Arts. Each Rating costs 5 BP.
 			foreach (MartialArt objMartialArt in _objCharacter.MartialArts)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					intPointsUsed += objMartialArt.Rating * _objOptions.BPMartialArt;
 					intPointsRemain -= objMartialArt.Rating * _objOptions.BPMartialArt;
@@ -15628,7 +15629,7 @@ namespace Chummer
 			{
 				if (objQuality.Type == QualityType.Negative && objQuality.ContributeToBP)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						intPointsRemain -= objQuality.BP;
 						intPointsUsed += objQuality.BP;
@@ -15644,7 +15645,7 @@ namespace Chummer
 			}
 
 			// Deduct the amount for free Qualities.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				intPointsRemain += _objImprovementManager.ValueOf(Improvement.ImprovementType.FreeNegativeQualities);
 				intPointsUsed -= _objImprovementManager.ValueOf(Improvement.ImprovementType.FreeNegativeQualities);
@@ -15662,7 +15663,7 @@ namespace Chummer
 			// If the character is only allowed to gain 35 BP (70 Karma) from Negative Qualities but allowed to take as many as they'd like, limit their refunded points.
 			if (_objOptions.ExceedNegativeQualitiesLimit)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP && intNegativePoints < -35)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp && intNegativePoints < -35)
 				{
 					intNegativePoints += 35;
 					intPointsRemain += intNegativePoints;
@@ -15693,7 +15694,7 @@ namespace Chummer
 			{
 				if (objGroupControl.GroupRating > 0)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						// Each Group Rating costs 10 BP.
 						intPointsRemain -= objGroupControl.GroupRating * _objOptions.BPSkillGroup;
@@ -15726,7 +15727,7 @@ namespace Chummer
 						}
 					}
 
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						intPointsRemain -= intMin * _objOptions.BPSkillGroup;
 						intPointsUsed += intMin * _objOptions.BPSkillGroup;
@@ -15755,7 +15756,7 @@ namespace Chummer
 
 				if (objSkillControl.SkillRating > 0 && !objSkillControl.IsGrouped)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						int intSkillRating = objSkillControl.SkillRating;
 
@@ -15908,7 +15909,7 @@ namespace Chummer
 				// Specialization Cost (Exotic skills do not count since their "Spec" is actually what the Skill is being used for and cannot be Specialized).
 				if (objSkillControl.SkillSpec.Trim() != string.Empty && !objSkillControl.SkillObject.ExoticSkill)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						// Each Specialization costs an additional 2 BP.
 						intPointsRemain -= _objOptions.BPActiveSkillSpecialization;
@@ -15944,7 +15945,7 @@ namespace Chummer
 				
 				if (objSkillControl.SkillSpec.Trim() != string.Empty)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 						intPointsInKnowledgeSkills++;
 					else
 						intPointsInKnowledgeSkills += _objOptions.KarmaSpecialization;
@@ -15959,7 +15960,7 @@ namespace Chummer
 			// If the number of points in Knowledge Skills exceeds the free amount, the remaining amount is deducted from BP.
 			if (intPointsInKnowledgeSkills > _objCharacter.KnowledgeSkillPoints)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each additional Knowledge Skill costs 2 BP.
 					intPointsRemain -= (intPointsInKnowledgeSkills - _objCharacter.KnowledgeSkillPoints) * _objOptions.BPKnowledgeSkill;
@@ -16058,7 +16059,7 @@ namespace Chummer
 					}
 				}
 
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each spell costs 3 BP.
 					intPointsRemain -= intSpellCount * _objOptions.BPSpell;
@@ -16080,7 +16081,7 @@ namespace Chummer
 			intPointsUsed = 0;
 			foreach (Focus objFocus in _objCharacter.Foci)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each Focus costs a number of BP equal to their Force.
 					intPointsRemain -= objFocus.Rating * _objOptions.BPFocus;
@@ -16158,7 +16159,7 @@ namespace Chummer
 			{
 				if (objFocus.Bonded)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						intPointsRemain -= objFocus.TotalForce * _objOptions.BPFocus;
 						intPointsUsed += objFocus.TotalForce * _objOptions.BPFocus;
@@ -16178,7 +16179,7 @@ namespace Chummer
 			intPointsUsed = 0;
 			foreach (SpiritControl objSpiritControl in panSpirits.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// BP = the number of services owed.
 					intPointsRemain -= objSpiritControl.ServicesOwed * _objOptions.BPSpirit;
@@ -16198,7 +16199,7 @@ namespace Chummer
 			intPointsUsed = 0;
 			foreach (SpiritControl objSpriteControl in panSprites.Controls)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// BP = the number of tasks owed.
 					intPointsRemain -= objSpriteControl.ServicesOwed * _objOptions.BPSpirit;
@@ -16218,7 +16219,7 @@ namespace Chummer
 			intPointsUsed = 0;
 			foreach (TechProgram objProgram in _objCharacter.TechPrograms)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					if (!_objOptions.AlternateComplexFormCost)
 					{
@@ -16267,7 +16268,7 @@ namespace Chummer
 				// Include any Program Options attached to the Complex Form.
 				foreach (TechProgramOption objOption in objProgram.Options)
 				{
-					if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+					if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					{
 						if (objOption.Rating == 0)
 						{
@@ -16316,7 +16317,7 @@ namespace Chummer
 			intFreestyleBP += intPointsUsed;
 
 			// Calculate the BP used by Martial Art Maneuvers.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 			{
 				// BP = Maneuvers * 2.
 				intPointsRemain -= _objCharacter.MartialArtManeuvers.Count * _objOptions.BPMartialArtManeuver;
@@ -16354,7 +16355,7 @@ namespace Chummer
 			intFreestyleBP += intPointsUsed;
 
 			// Update the number of BP remaining in the StatusBar.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				tssBP.Text = _objCharacter.BuildPoints.ToString();
 			else
 				tssBP.Text = _objCharacter.BuildKarma.ToString();
@@ -16426,7 +16427,7 @@ namespace Chummer
 
 				// Calculate Free Knowledge Skill Points. Free points = (INT + LOG) * 3.
 				// Characters built using the Karma system do not get free Knowledge Skills.
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP || (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.FreeKarmaKnowledge))
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp || (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.FreeKarmaKnowledge))
 					_objCharacter.KnowledgeSkillPoints = (int)(nudINT.Value + nudLOG.Value) * 3;
 				else
 					_objCharacter.KnowledgeSkillPoints = 0;
@@ -16499,7 +16500,7 @@ namespace Chummer
 					nudNuyen.Maximum = 100000;
 
 				int intNuyen;
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					intNuyen = Convert.ToInt32(nudNuyen.Value) * _objOptions.NuyenPerBP;
 				else
 					intNuyen = Convert.ToInt32(nudNuyen.Value) * _objOptions.KarmaNuyenPer;
@@ -17125,7 +17126,7 @@ namespace Chummer
 		private int CalculateNuyen()
 		{
 			int intNuyen;
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				intNuyen = Convert.ToInt32(nudNuyen.Value) * _objOptions.NuyenPerBP;
 			else
 				intNuyen = Convert.ToInt32(nudNuyen.Value) * _objOptions.KarmaNuyenPer;
@@ -19913,7 +19914,7 @@ namespace Chummer
 			if (intBuildPoints < 0 && !_blnFreestyle)
 			{
 				blnValid = false;
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 					strMessage += "\n\t" + LanguageManager.Instance.GetString("Message_InvalidPointExcess").Replace("{0}", (intBuildPoints * -1).ToString() + " " + LanguageManager.Instance.GetString("String_BP"));
 				else
 					strMessage += "\n\t" + LanguageManager.Instance.GetString("Message_InvalidPointExcess").Replace("{0}", (intBuildPoints * -1).ToString() + " " + LanguageManager.Instance.GetString("String_Karma"));
@@ -22133,7 +22134,7 @@ namespace Chummer
 			tipTooltip.SetToolTip(lblMetatypeSource, _objOptions.LanguageBookLong(objMetatypeNode["source"].InnerText) + " " + LanguageManager.Instance.GetString("String_Page") + " " + strPage);
 
 			// If we're working with Karma, the Metatype doesn't cost anything.
-			if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+			if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				lblMetatypeBP.Text = _objCharacter.MetatypeBP.ToString() + " " + LanguageManager.Instance.GetString("String_BP");
 			else if (_objCharacter.BuildMethod == CharacterBuildMethod.Karma && _objOptions.MetatypeCostsKarma)
 				lblMetatypeBP.Text = (_objCharacter.MetatypeBP * _objOptions.MetatypeCostsKarmaMultiplier).ToString() + " " + LanguageManager.Instance.GetString("String_Karma");

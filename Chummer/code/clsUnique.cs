@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
+using Chummer.Core;
 
 namespace Chummer
 {
@@ -834,7 +835,7 @@ namespace Chummer
 
 			if (_strAbbrev != "EDG" && _strAbbrev != "MAG" && _strAbbrev != "RES")
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each Attribute point costs 10 BP (the first point is free).
 					intBP = (_objCharacter.GetAttribute(_strAbbrev).Value - _objCharacter.GetAttribute(_strAbbrev).TotalMinimum) * _objCharacter.Options.BPAttribute;
@@ -880,7 +881,7 @@ namespace Chummer
 				if (_strAbbrev == "EDG")
 					intUseEssenceLoss = 0;
 
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// If the Essence Loss in use is not 0, reduce it by 1 to correct the BP cost since the first point of Special Attributes is always free.
 					if (intUseEssenceLoss != 0)
@@ -3229,7 +3230,7 @@ namespace Chummer
 
 			if (_intRating > 0 && !_blnIsGrouped)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each Skill Rating costs 4 BP (only look at Skills that are not part of a Skill Group). (doubled if Uneducated and Technical Active, Uncouth and Social Active, or Inform and Physical Active)
 					if ((_objCharacter.Uneducated && _strSkillCategory == "Technical Active") || (_objCharacter.Uncouth && _strSkillCategory == "Social Active") || (_objCharacter.Infirm && _strSkillCategory == "Physical Active"))
@@ -3278,7 +3279,7 @@ namespace Chummer
 			// Specialization Cost (Exotic skills do not count since their "Spec" is actually what the Skill is being used for and cannot be Specialized).
 			if (_strSkillSpec.Trim() != string.Empty && !_blnExoticSkill)
 			{
-				if (_objCharacter.BuildMethod == CharacterBuildMethod.BP)
+				if (_objCharacter.BuildMethod == CharacterBuildMethod.Bp)
 				{
 					// Each Specialization costs an additional 2 BP.
 					intBP += _objCharacter.Options.BPActiveSkillSpecialization;

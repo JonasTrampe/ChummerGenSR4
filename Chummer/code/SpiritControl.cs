@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
+using Chummer.Core;
 
 // ServicesOwedChanged Event Handler.
 public delegate void ServicesOwedChangedHandler(Object sender);
@@ -455,7 +456,7 @@ namespace Chummer
 			// Override the defaults for the setting.
 			objCharacter.IgnoreRules = true;
 			objCharacter.IsCritter = true;
-			objCharacter.BuildMethod = CharacterBuildMethod.BP;
+			objCharacter.BuildMethod = CharacterBuildMethod.Bp;
 			objCharacter.BuildPoints = 0;
 
 			if (txtCritterName.Text != string.Empty)
