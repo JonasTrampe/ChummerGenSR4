@@ -221,6 +221,29 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Save_PreservesCompactFormattingAcrossARoundTrip()
+    {
+        CharacterDocument character = LoadFixture();
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+
+        // XmlDocument.Save(Stream) (what this used to do) re-indents with wider whitespace and -
+        // worse - expands empty elements like <children /> into <children>\n\t</children>, quietly
+        // bloating every re-saved file. Assert the self-closing form survives a round-trip.
+        string strSaved = Encoding.Unicode.GetString(stream.ToArray());
+        Assert.Contains("<children />", strSaved);
+        Assert.DoesNotContain("<children>\r\n", strSaved);
+        Assert.DoesNotContain("<children>\n", strSaved);
+
+        // The stream must still be usable after Save() returns (callers like
+        // CloudDocumentsDialogViewModel.SerializeActiveCharacter read it back immediately).
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(character.Name, reloaded.Name);
+    }
+
+    [Fact]
     public void Attributes_AugmentedValueIncludesAttributeImprovements()
     {
         CharacterDocument character = LoadFixture();

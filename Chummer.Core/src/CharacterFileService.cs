@@ -46,7 +46,27 @@ namespace Chummer.Core
             Trace.TraceInformation("Saving Chummer character {0} to {1}", objCharacter.DisplayName, strTargetName);
             try
             {
-                objCharacter.Document.Save(objStream);
+                // Plain XmlDocument.Save(Stream) re-indents with its own default writer settings,
+                // which don't match clsCharacter.cs's Save(Stream) (tab indentation, UTF-16) and -
+                // more importantly - expand empty elements like <bonus /> into <bonus>\n\t</bonus>
+                // instead of the self-closing form. Every round-trip through this path (e.g. a
+                // cloud download/reload) was silently bloating the file by ~35% with no content
+                // change. Write through an explicit XmlWriter with matching settings instead, so
+                // this path is byte-for-byte consistent with the legacy save format.
+                // CloseOutput = false: callers (e.g. SerializeActiveCharacter) read the passed-in
+                // Stream back after Save() returns, so this must not close it out from under them.
+                var objSettings = new XmlWriterSettings
+                {
+                    Encoding = Encoding.Unicode,
+                    Indent = true,
+                    IndentChars = "\t",
+                    CloseOutput = false
+                };
+                using (var objWriter = XmlWriter.Create(objStream, objSettings))
+                {
+                    objCharacter.Document.Save(objWriter);
+                }
+
                 Trace.TraceInformation("Saved Chummer character {0} to {1}", objCharacter.DisplayName, strTargetName);
             }
             catch (Exception ex)
