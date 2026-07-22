@@ -20,7 +20,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   behind any of them
 - ❌ Cloud save/share (RunnersPoint API) wired into the UI — the API client, auth, and DTOs are
   ported to `Chummer.Core`, but nothing in Avalonia calls them (no share/cloud-open menu item)
-- ❌ MRU / recently-opened files list
+- ✅ MRU / recently-opened files list — Dateimenü shows sticky + normal recent characters via
+  MVVM-bound menu items backed by `GlobalOptions`; local paths reopen directly and stale entries
+  are removed when open fails
 
 ## Character sheet tabs — display
 

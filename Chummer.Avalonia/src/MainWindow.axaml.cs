@@ -1,11 +1,10 @@
 using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.IO;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 using KarmaGpDialog = Chummer.NewUI.Dialogs.KarmaGpDialog;
 using MetatypeDialog = Chummer.NewUI.Dialogs.MetatypeDialog;
 using SettingsProfileDialog = Chummer.NewUI.Dialogs.SettingsProfileDialog;
@@ -13,64 +12,15 @@ using SheetPreviewDialog = Chummer.NewUI.Dialogs.SheetPreviewDialog;
 
 namespace Chummer.NewUI;
 
-public partial class MainWindow : Window, INotifyPropertyChanged
+public partial class MainWindow : Window
 {
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
-    private OpenCharacterTab? _selectedOpenCharacter;
-    private string _strKarmaStatus = "Karma: —";
-    private string _strNuyenStatus = "Nuyen: —";
-    private string _strErrorMessage = string.Empty;
-
-    public ObservableCollection<OpenCharacterTab> OpenCharacters { get; } = new();
-
-    public OpenCharacterTab? SelectedOpenCharacter
-    {
-        get => _selectedOpenCharacter;
-        set
-        {
-            if (ReferenceEquals(_selectedOpenCharacter, value))
-                return;
-
-            _selectedOpenCharacter = value;
-            OnPropertyChanged();
-            ActivateCharacter(value?.Character);
-        }
-    }
-
-    public string KarmaStatus
-    {
-        get => _strKarmaStatus;
-        private set { _strKarmaStatus = value; OnPropertyChanged(); }
-    }
-
-    public string NuyenStatus
-    {
-        get => _strNuyenStatus;
-        private set { _strNuyenStatus = value; OnPropertyChanged(); }
-    }
-
-    public string ErrorMessage
-    {
-        get => _strErrorMessage;
-        private set { _strErrorMessage = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasError)); }
-    }
-
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
-
-    public new event PropertyChangedEventHandler? PropertyChanged;
+    private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
 
     public MainWindow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
-        DataContext = this;
-        try
-        {
-            Title = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " (Default Settings)]";
-        }
-        catch
-        {
-            // The spike remains runnable when language resources are absent during design-time use.
-        }
+        DataContext = new MainWindowViewModel();
     }
 
     // Demo wiring only, for the look-and-feel spike: chains the three real character-creation
@@ -111,33 +61,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 await using var stream = await files[0].OpenReadAsync();
                 CharacterDocument character = _characterFiles.Load(stream, files[0].Name);
-                var tab = new OpenCharacterTab(character);
-                OpenCharacters.Add(tab);
-                SelectedOpenCharacter = tab;
-                ErrorMessage = string.Empty;
+                ViewModel.AddOpenCharacter(character, files[0].TryGetLocalPath());
             }
             catch (Exception ex)
             {
                 // CharacterFileService already traced the failure; surface it in the UI too -
                 // silently swallowing it here made a bad file look identical to "nothing happened".
-                ErrorMessage = "Fehler beim Öffnen von " + files[0].Name + ": " + ex.Message;
+                ViewModel.ReportError("Fehler beim Öffnen von " + files[0].Name + ": " + ex.Message);
             }
         }
-    }
-
-    private void ActivateCharacter(CharacterDocument? character)
-    {
-        if (character is null)
-        {
-            Title = "Chummer";
-            KarmaStatus = "Karma: —";
-            NuyenStatus = "Nuyen: —";
-            return;
-        }
-
-        KarmaStatus = "Karma: " + character.Karma;
-        NuyenStatus = "Nuyen: " + character.Nuyen + "¥";
-        Title = "Chummer - " + character.Name;
     }
 
     private void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
@@ -145,23 +77,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (sender is not Button { DataContext: OpenCharacterTab tab })
             return;
 
-        int index = OpenCharacters.IndexOf(tab);
-        bool closingActiveCharacter = ReferenceEquals(SelectedOpenCharacter, tab);
-        OpenCharacters.Remove(tab);
-        if (!closingActiveCharacter)
-            return;
-
-        SelectedOpenCharacter = OpenCharacters.Count == 0
-            ? null
-            : OpenCharacters[Math.Min(index, OpenCharacters.Count - 1)];
+        ViewModel.CloseCharacter(tab);
     }
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
     {
-        if (SelectedOpenCharacter is not { } tab)
+        if (ViewModel.SelectedOpenCharacter is not { } tab)
             return;
 
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
@@ -180,6 +101,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             await using var stream = await file.OpenWriteAsync();
             _characterFiles.Save(tab.Character, stream, file.Name);
+            string? strLocalPath = file.TryGetLocalPath();
+            if (!string.IsNullOrWhiteSpace(strLocalPath))
+                ViewModel.RememberSavedPath(strLocalPath);
+        }
+    }
+
+    private async void OnOpenRecentCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem { DataContext: RecentCharacterEntryViewModel entry })
+            return;
+
+        try
+        {
+            await using var stream = File.OpenRead(entry.FilePath);
+            CharacterDocument character = _characterFiles.Load(stream, Path.GetFileName(entry.FilePath));
+            ViewModel.AddOpenCharacter(character, entry.FilePath);
+        }
+        catch (Exception ex)
+        {
+            ViewModel.RemoveRecentCharacter(entry.FilePath, entry.IsSticky);
+            ViewModel.ReportError("Fehler beim Öffnen von " + entry.FilePath + ": " + ex.Message);
         }
     }
 

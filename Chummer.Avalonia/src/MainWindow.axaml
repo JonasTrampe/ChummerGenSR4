@@ -3,14 +3,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:newUi="clr-namespace:Chummer.NewUI"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
         x:Class="Chummer.NewUI.MainWindow"
-        x:DataType="newUi:MainWindow"
+        x:DataType="vm:MainWindowViewModel"
         Width="1280" Height="745"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
         Background="White"
-        Title="Chummer - [Karriere Modus (Default Settings)]">
+        Title="{Binding WindowTitle}">
 
     <!-- v2: matches a fuller set of real reference screenshots. Two things the first pass
 	     got wrong, fixed here:
@@ -27,6 +28,16 @@
             <MenuItem Header="_Datei">
                 <MenuItem Header="_Neu" Click="OnNewCharacterClick" />
                 <MenuItem Header="Ö_ffnen..." Click="OnOpenCharacterClick" />
+                <MenuItem Header="_Zuletzt geöffnet" ItemsSource="{Binding RecentCharacters}">
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RecentCharacterEntryViewModel">
+                            <MenuItem Header="{Binding DisplayText}" Click="OnOpenRecentCharacterClick" />
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                    <MenuItem Header="Keine zuletzt geöffneten Dateien"
+                              IsEnabled="False"
+                              IsVisible="{Binding HasNoRecentCharacters}" />
+                </MenuItem>
                 <MenuItem Header="_Speichern" Click="OnSaveCharacterClick" />
                 <Separator />
                 <MenuItem Header="_Drucken" Click="OnPrintClick" />
@@ -74,7 +85,7 @@
 		     toolbar and the per-character content tabs (Allgemein/Fertigkeiten/...) - this is
 		     the actual MDI-replacement mechanism the real app already uses (confirmed from
 		     reference screenshots), not something we need to invent for the Linux port. -->
-        <TabControl DockPanel.Dock="Top" x:DataType="newUi:MainWindow" Classes="characterTabs"
+        <TabControl DockPanel.Dock="Top" Classes="characterTabs"
                     ItemsSource="{Binding OpenCharacters}"
                     SelectedItem="{Binding SelectedOpenCharacter, Mode=TwoWay}">
             <TabControl.ItemTemplate>
