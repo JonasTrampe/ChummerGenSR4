@@ -24,7 +24,7 @@
         <controls:TreeDetailPane.DetailContent>
             <ScrollViewer Margin="2 8 2 4">
             <StackPanel Margin="4,0,4,0" Spacing="10">
-                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,60,Auto,60">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,90,Auto,220">
                     <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
                                Margin="0,0,6,0" />
                     <TextBox Grid.Column="1" Text="{Binding Alias}" Width="260" HorizontalAlignment="Left" />
@@ -34,9 +34,15 @@
                                VerticalAlignment="Center" />
                     <TextBlock Grid.Column="4" Text="Nuyen:" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
-                    <TextBox Grid.Column="5" Text="{Binding Nuyen}" />
+                    <TextBox Grid.Column="5" Text="{Binding Nuyen}" IsVisible="{Binding !IsCreateMode}" />
+                    <controls:IntegerSpinner Grid.Column="5" Width="80" HorizontalAlignment="Left"
+                                              IsVisible="{Binding IsCreateMode}" Minimum="0"
+                                              Maximum="{Binding NuyenPointsMax}"
+                                              Value="{Binding NuyenPoints, Mode=TwoWay}" />
                     <TextBlock Grid.Column="6" Text="{Binding NuyenEquivalent}" VerticalAlignment="Center"
-                               Margin="6,0,0,0" />
+                               Margin="6,0,0,0" IsVisible="{Binding !IsCreateMode}" />
+                    <TextBlock Grid.Column="7" Text="{Binding NuyenPerPointLabel}" VerticalAlignment="Center"
+                               Margin="6,0,0,0" IsVisible="{Binding IsCreateMode}" Foreground="#666666" />
                 </Grid>
 
                 <StackPanel>
@@ -58,6 +64,7 @@
                                                         IsCreateMode="{Binding IsCreateMode}"
                                                         BaseValue="{Binding BaseValue, Mode=TwoWay}"
                                                         MinValue="{Binding MinValue}" MaxValue="{Binding MaxValue}"
+                                                        IsVisible="{Binding IsRowVisible}"
                                                         RaiseClicked="OnRaiseAttributeClick" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

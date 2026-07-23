@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
@@ -46,6 +47,50 @@ public sealed class GeneralSectionViewModel : ViewModelBase
     {
         get => _strNuyenEquivalent;
         set => SetField(ref _strNuyenEquivalent, value);
+    }
+
+    private bool _blnIsCreateMode;
+    public bool IsCreateMode
+    {
+        get => _blnIsCreateMode;
+        set => SetField(ref _blnIsCreateMode, value);
+    }
+
+    private bool _blnIsLoadingNuyen;
+
+    private int _intNuyenPointsMax;
+    public int NuyenPointsMax
+    {
+        get => _intNuyenPointsMax;
+        set => SetField(ref _intNuyenPointsMax, value);
+    }
+
+    private int _intNuyenPoints;
+    public int NuyenPoints
+    {
+        get => _intNuyenPoints;
+        set
+        {
+            if (!SetField(ref _intNuyenPoints, value))
+                return;
+            if (_blnIsLoadingNuyen || _character == null)
+                return;
+
+            int intCurrent = _character.NuyenPoints;
+            while (intCurrent < value && _character.RaiseNuyenCreate())
+                intCurrent++;
+            while (intCurrent > value && _character.LowerNuyenCreate())
+                intCurrent--;
+
+            LoadCharacter(_character);
+        }
+    }
+
+    private string _strNuyenPerPointLabel = string.Empty;
+    public string NuyenPerPointLabel
+    {
+        get => _strNuyenPerPointLabel;
+        set => SetField(ref _strNuyenPerPointLabel, value);
     }
 
     private bool _blnShowMysticAdeptMagSplit;
@@ -105,7 +150,20 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
     private void OnAttributeBaseValueEdited(AttributeRowViewModel row, int intNewValue)
     {
-        _character?.SetAttributeValue(row.Code, intNewValue);
+        if (_character == null)
+            return;
+
+        int intCurrentValue = _character.Attributes.FirstOrDefault(a => a.Code == row.Code) is { } attribute
+            && int.TryParse(attribute.Value, out int intParsed)
+            ? intParsed
+            : row.BaseValue;
+
+        while (intCurrentValue < intNewValue && _character.RaiseAttributeCreate(row.Code))
+            intCurrentValue++;
+        while (intCurrentValue > intNewValue && _character.LowerAttributeCreate(row.Code))
+            intCurrentValue--;
+
+        LoadCharacter(_character);
     }
 
     public void LoadCharacter(CharacterDocument character)
@@ -115,6 +173,14 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         Metatype = character.Metatype;
         Nuyen = character.Nuyen;
         NuyenEquivalent = "= " + character.Nuyen + "¥";
+        IsCreateMode = !character.Created;
+        NuyenPointsMax = character.NuyenPointsMax;
+        NuyenPerPointLabel = character.Nuyen + "¥ (1 Punkt = 1 "
+            + (string.Equals(character.BuildMethod, "Karma", System.StringComparison.OrdinalIgnoreCase) ? "Karma" : "BP")
+            + " = " + character.NuyenPerPoint + "¥)";
+        _blnIsLoadingNuyen = true;
+        NuyenPoints = character.NuyenPoints;
+        _blnIsLoadingNuyen = false;
         ShowMysticAdeptMagSplit = character.MysticAdept;
         MysticAdeptMagicianMagSplit = character.MysticAdept ? character.MysticAdeptMagicianMagSplit.ToString() : string.Empty;
         MysticAdeptAdeptMagSplit = character.MysticAdept ? character.MysticAdeptAdeptMagSplit.ToString() : string.Empty;
@@ -144,6 +210,12 @@ public sealed class GeneralSectionViewModel : ViewModelBase
             row.BaseValue = intBase;
             row.MinValue = int.TryParse(attribute.Minimum, out int intMin) ? intMin : 0;
             row.MaxValue = int.TryParse(attribute.Maximum, out int intMax) ? intMax : 6;
+            row.IsRowVisible = attribute.Code switch
+            {
+                "MAG" => character.Awakened,
+                "RES" => character.Technomancer,
+                _ => true
+            };
             row.IsLoading = false;
         }
 

@@ -194,8 +194,8 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "physicalcmfilled", "0");
             AppendElement(objDocument, objRoot, "stuncmfilled", "0");
 
-            AppendEmptyContainer(objDocument, objRoot, "skillgroups");
-            AppendEmptyContainer(objDocument, objRoot, "skills");
+            AppendSkillGroups(objDocument, objRoot);
+            AppendActiveSkills(objDocument, objRoot);
             AppendEmptyContainer(objDocument, objRoot, "martialarts");
             AppendEmptyContainer(objDocument, objRoot, "martialartmaneuvers");
             AppendEmptyContainer(objDocument, objRoot, "powers");
@@ -245,6 +245,61 @@ namespace Chummer.Core
             }
 
             objMetatype.Metavariants.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void AppendSkillGroups(XmlDocument objDocument, XmlElement objRoot)
+        {
+            XmlElement objGroups = objDocument.CreateElement("skillgroups");
+            objRoot.AppendChild(objGroups);
+
+            XmlDocument objSkillsDoc = XmlManager.Instance.Load("skills.xml");
+            XmlNodeList? objGroupNodes = objSkillsDoc.SelectNodes("/chummer/skillgroups/name");
+            if (objGroupNodes == null)
+                return;
+
+            foreach (XmlNode objGroupNode in objGroupNodes)
+            {
+                XmlElement objGroup = objDocument.CreateElement("skillgroup");
+                objGroups.AppendChild(objGroup);
+                AppendElement(objDocument, objGroup, "name", objGroupNode.InnerText);
+                AppendElement(objDocument, objGroup, "rating", "0");
+            }
+        }
+
+        private static void AppendActiveSkills(XmlDocument objDocument, XmlElement objRoot)
+        {
+            XmlElement objSkills = objDocument.CreateElement("skills");
+            objRoot.AppendChild(objSkills);
+
+            XmlDocument objSkillsDoc = XmlManager.Instance.Load("skills.xml");
+            XmlNodeList? objSkillNodes = objSkillsDoc.SelectNodes("/chummer/skills/skill");
+            if (objSkillNodes == null)
+                return;
+
+            foreach (XmlNode objSkillNode in objSkillNodes)
+            {
+                // Exotic skills (Exotic Melee/Ranged Weapon, Pilot Exotic Vehicle) are added
+                // per-instance via AddExoticSkill, not seeded here.
+                if (GetValue(objSkillNode, "exotic", "No") == "Yes")
+                    continue;
+
+                string strSkillGroup = GetValue(objSkillNode, "skillgroup", string.Empty);
+                XmlElement objSkill = objDocument.CreateElement("skill");
+                objSkills.AppendChild(objSkill);
+                AppendElement(objDocument, objSkill, "name", GetValue(objSkillNode, "name", string.Empty));
+                AppendElement(objDocument, objSkill, "skillgroup", strSkillGroup);
+                AppendElement(objDocument, objSkill, "skillcategory", GetValue(objSkillNode, "category", string.Empty));
+                AppendElement(objDocument, objSkill, "grouped", "False");
+                AppendElement(objDocument, objSkill, "default", GetValue(objSkillNode, "default", "No"));
+                AppendElement(objDocument, objSkill, "rating", "0");
+                AppendElement(objDocument, objSkill, "ratingmax", "6");
+                AppendElement(objDocument, objSkill, "knowledge", "False");
+                AppendElement(objDocument, objSkill, "exotic", "False");
+                AppendElement(objDocument, objSkill, "spec", string.Empty);
+                AppendElement(objDocument, objSkill, "allowdelete", "False");
+                AppendElement(objDocument, objSkill, "attribute", GetValue(objSkillNode, "attribute", string.Empty));
+                AppendElement(objDocument, objSkill, "totalvalue", "0");
+            }
         }
 
         private static void AppendEmptyContainer(XmlDocument objDocument, XmlElement objRoot, string strName)

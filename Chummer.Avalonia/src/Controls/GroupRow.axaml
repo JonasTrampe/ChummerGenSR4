@@ -4,12 +4,12 @@
              x:Class="Chummer.NewUI.Controls.GroupRow"
              x:Name="root">
 	<!-- One Fertigkeitsgruppen row: Name | Rating/spinner | [+]. -->
-	<Grid ColumnDefinitions="*,66,26" DataContext="{Binding ElementName=root}" MinHeight="22">
+	<Grid ColumnDefinitions="118,66,26" DataContext="{Binding ElementName=root}" MinHeight="22">
 		<TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding GroupName}" />
 		<TextBlock Grid.Column="1" Classes="rowLabel" HorizontalAlignment="Right" Text="{Binding Rating}"
                    IsVisible="{Binding !IsCreateMode}" />
 		<controls:IntegerSpinner Grid.Column="1" Width="60" HorizontalAlignment="Right"
-                                  IsVisible="{Binding IsCreateMode}" Minimum="0" Maximum="6"
+                                  IsVisible="{Binding IsCreateMode}" Minimum="0" Maximum="4"
                                   Value="{Binding RatingValue, Mode=TwoWay}" />
 		<Button Grid.Column="2" Classes="iconButton" IsVisible="{Binding !IsCreateMode}"
                 Click="OnRaiseButtonClick">

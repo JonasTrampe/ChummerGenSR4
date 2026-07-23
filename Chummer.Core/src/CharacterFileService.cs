@@ -198,10 +198,91 @@ namespace Chummer.Core
         /// <summary>False during character creation, true once the character has entered career mode.</summary>
         public bool Created => GetValue("/character/created", "False") == "True";
 
+        /// <summary>"Karma" or "BP" - which build method this character was created with.</summary>
+        public string BuildMethod => GetValue("/character/buildmethod", "Karma");
+
+        /// <summary>Remaining Build Points, only meaningful when <see cref="BuildMethod"/> is "BP".</summary>
+        public string Bp
+        {
+            get => GetValue("/character/bp", "0");
+            set => SetRootValue("bp", value);
+        }
+
         public string Nuyen
         {
             get => GetValue("/character/nuyen", "0");
             set => SetRootValue("nuyen", value);
+        }
+
+        /// <summary>Number of points sunk into starting Nuyen during creation (each costs 1 Karma
+        /// or 1 BP, depending on <see cref="BuildMethod"/>, and grants a build-specific Nuyen payout).</summary>
+        public int NuyenPoints => int.TryParse(GetValue("/character/nuyenbp", "0"), out var v) ? v : 0;
+
+        /// <summary>Maximum number of points that may be sunk into starting Nuyen during creation.</summary>
+        public int NuyenPointsMax => int.TryParse(GetValue("/character/nuyenmaxbp", "0"), out var v) ? v : 0;
+
+        /// <summary>Nuyen granted per point spent, for the current <see cref="BuildMethod"/>.</summary>
+        public int NuyenPerPoint
+        {
+            get
+            {
+                var objOptions = GetCharacterOptions();
+                return string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase)
+                    ? objOptions.KarmaNuyenPer
+                    : objOptions.NuyenPerBp;
+            }
+        }
+
+        /// <summary>Create mode: spends one point (1 Karma or 1 BP) on starting Nuyen.</summary>
+        public bool RaiseNuyenCreate()
+        {
+            if (NuyenPoints >= NuyenPointsMax)
+                return false;
+
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            if (blnKarmaBuild)
+            {
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                if (intKarma < 1)
+                    return false;
+                Karma = (intKarma - 1).ToString();
+            }
+            else
+            {
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                if (intBp < 1)
+                    return false;
+                Bp = (intBp - 1).ToString();
+            }
+
+            SetRootValue("nuyenbp", (NuyenPoints + 1).ToString());
+            int intNuyen = int.TryParse(Nuyen, out var n) ? n : 0;
+            Nuyen = (intNuyen + NuyenPerPoint).ToString();
+            return true;
+        }
+
+        /// <summary>Create mode: refunds one point (1 Karma or 1 BP) previously spent on starting Nuyen.</summary>
+        public bool LowerNuyenCreate()
+        {
+            if (NuyenPoints <= 0)
+                return false;
+
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            if (blnKarmaBuild)
+            {
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                Karma = (intKarma + 1).ToString();
+            }
+            else
+            {
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                Bp = (intBp + 1).ToString();
+            }
+
+            SetRootValue("nuyenbp", (NuyenPoints - 1).ToString());
+            int intNuyen = int.TryParse(Nuyen, out var n) ? n : 0;
+            Nuyen = (intNuyen - NuyenPerPoint).ToString();
+            return true;
         }
 
         /// <summary>Saved walking/running movement string (for example "10/25"), written by the
@@ -241,14 +322,14 @@ namespace Chummer.Core
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
                 ComputePhysicalCm(), ComputeStunCm());
 
-        // Ported from clsCharacter.cs's Essence property (CyborgEssence override not ported).
-        private string ComputeEssence()
-        {
-            double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
-                NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsedMax) ? dblParsedMax : 0;
-            var lstEssenceImprovements = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Essence);
-            double dblBase = dblMax + lstEssenceImprovements.Sum(c => c.Value);
+        /// <summary>Sum of installed Cyberware's own Essence cost (excludes Bioware and Essence Holes).</summary>
+        public double CyberwareEssence => SumCyberwareEssence().Cyberware;
 
+        /// <summary>Sum of installed Bioware's own Essence cost (excludes Cyberware and Essence Holes).</summary>
+        public double BiowareEssence => SumCyberwareEssence().Bioware;
+
+        private (double Cyberware, double Bioware, double Holes) SumCyberwareEssence()
+        {
             double dblCyberware = 0, dblBioware = 0, dblHoles = 0;
             var objNodes = Document.SelectNodes("/character/cyberwares/cyberware");
             if (objNodes != null)
@@ -266,6 +347,18 @@ namespace Chummer.Core
                 }
             }
 
+            return (dblCyberware, dblBioware, dblHoles);
+        }
+
+        // Ported from clsCharacter.cs's Essence property (CyborgEssence override not ported).
+        private string ComputeEssence()
+        {
+            double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
+                NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsedMax) ? dblParsedMax : 0;
+            var lstEssenceImprovements = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Essence);
+            double dblBase = dblMax + lstEssenceImprovements.Sum(c => c.Value);
+
+            var (dblCyberware, dblBioware, dblHoles) = SumCyberwareEssence();
             double dblHigher = Math.Max(dblCyberware, dblBioware);
             double dblLower = Math.Min(dblCyberware, dblBioware);
             double dblTotal = dblBase - dblHigher - (dblLower / 2) - dblHoles;
@@ -459,6 +552,138 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Adds a root-level Cyberware or Bioware item in the minimal saved-character tree
+        /// shape used by <see cref="Cyberware"/>/<see cref="Bioware"/> and <see cref="ComputeEssence"/>
+        /// - <paramref name="strEss"/>/<paramref name="strCost"/>/<paramref name="strAvail"/> are the
+        /// already grade-and-rating-resolved values (the picker applies the Standard/Alphaware/
+        /// Betaware/Deltaware multipliers from cyberware.xml/bioware.xml's &lt;grades&gt; before
+        /// calling this - Cyberware.CalculatedESS's own further discount formulas aren't ported).</summary>
+        public void AddCyberware(string strName, string strCategory, string strRating, string strEss,
+            string strCost, string strAvail, string strSource, string strPage, string strGrade = "Standard",
+            bool blnBioware = false)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A cyberware name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objCyberwares = objRoot.SelectSingleNode("cyberwares");
+            if (objCyberwares == null)
+            {
+                objCyberwares = Document.CreateElement("cyberwares");
+                objRoot.AppendChild(objCyberwares);
+            }
+
+            var objCyberware = Document.CreateElement("cyberware");
+            AppendElement(objCyberware, "name", strName.Trim());
+            AppendElement(objCyberware, "category", strCategory);
+            AppendElement(objCyberware, "rating", strRating);
+            AppendElement(objCyberware, "ess", strEss);
+            AppendElement(objCyberware, "cost", strCost);
+            AppendElement(objCyberware, "avail", strAvail);
+            AppendElement(objCyberware, "source", strSource);
+            AppendElement(objCyberware, "page", strPage);
+            AppendElement(objCyberware, "grade", strGrade);
+            AppendElement(objCyberware, "improvementsource", blnBioware ? "Bioware" : "Cyberware");
+            AppendElement(objCyberware, "equipped", "True");
+            objCyberware.AppendChild(Document.CreateElement("children"));
+            objCyberwares.AppendChild(objCyberware);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Removes the first root-level saved Cyberware/Bioware item matching its
+        /// name/category/rating and Cyberware-vs-Bioware source.</summary>
+        public bool RemoveCyberware(string strName, string strCategory, string strRating, bool blnBioware = false)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objNodes == null)
+                return false;
+
+            string strExpectedSource = blnBioware ? "Bioware" : "Cyberware";
+            foreach (XmlNode objCyberware in objNodes)
+            {
+                if (!string.Equals(GetValue(objCyberware, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objCyberware, "category", string.Empty), strCategory, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objCyberware, "rating", "0"), strRating, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objCyberware, "improvementsource", string.Empty), strExpectedSource, StringComparison.Ordinal))
+                    continue;
+
+                objCyberware.ParentNode?.RemoveChild(objCyberware);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Adds a root-level Weapon in the minimal saved-character tree shape used by
+        /// <see cref="Weapons"/>/<see cref="WeaponTrees"/> - <paramref name="strDamage"/>/
+        /// <paramref name="strAp"/>/<paramref name="strMode"/>/<paramref name="strRc"/>/
+        /// <paramref name="strAmmo"/> are copied as-is from weapons.xml (no STR-substitution or
+        /// underbarrel/accessory bonus math is ported for the damage code).</summary>
+        public void AddWeapon(string strName, string strCategory, string strDamage, string strAp, string strMode,
+            string strRc, string strAmmo, string strCost, string strAvail, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A weapon name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objWeapons = objRoot.SelectSingleNode("weapons");
+            if (objWeapons == null)
+            {
+                objWeapons = Document.CreateElement("weapons");
+                objRoot.AppendChild(objWeapons);
+            }
+
+            var objWeapon = Document.CreateElement("weapon");
+            AppendElement(objWeapon, "name", strName.Trim());
+            AppendElement(objWeapon, "category", strCategory);
+            AppendElement(objWeapon, "damage", strDamage);
+            AppendElement(objWeapon, "ap", strAp);
+            AppendElement(objWeapon, "mode", strMode);
+            AppendElement(objWeapon, "rc", strRc);
+            AppendElement(objWeapon, "ammo", strAmmo);
+            AppendElement(objWeapon, "cost", strCost);
+            AppendElement(objWeapon, "avail", strAvail);
+            AppendElement(objWeapon, "source", strSource);
+            AppendElement(objWeapon, "page", strPage);
+            AppendElement(objWeapon, "equipped", "True");
+            objWeapon.AppendChild(Document.CreateElement("accessories"));
+            objWeapon.AppendChild(Document.CreateElement("weaponmods"));
+            objWeapon.AppendChild(Document.CreateElement("gears"));
+            objWeapon.AppendChild(Document.CreateElement("ammos"));
+            objWeapons.AppendChild(objWeapon);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Removes the first root-level saved weapon matching its name/category.</summary>
+        public bool RemoveWeapon(string strName, string strCategory)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/weapons/weapon");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objWeapon in objNodes)
+            {
+                if (!string.Equals(GetValue(objWeapon, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objWeapon, "category", string.Empty), strCategory, StringComparison.Ordinal))
+                    continue;
+
+                objWeapon.ParentNode?.RemoveChild(objWeapon);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>Removes the first saved spell with the supplied name.</summary>
         public bool RemoveSpell(string strName)
         {
@@ -489,6 +714,11 @@ namespace Chummer.Core
             objParent.AppendChild(objElement);
         }
 
+        /// <summary>Fires whenever a root-level value (Karma, Bp, Nuyen, ...) changes, so a host
+        /// UI showing those totals (e.g. the main window's status bar) can refresh without needing
+        /// to know about every individual mutator that might have spent points.</summary>
+        public event Action? Changed;
+
         private void SetRootValue(string strName, string strValue)
         {
             var objRoot = Document.DocumentElement
@@ -501,6 +731,7 @@ namespace Chummer.Core
             }
 
             objElement.InnerText = strValue ?? string.Empty;
+            Changed?.Invoke();
         }
 
         private void SetChildValue(XmlNode objParent, string strName, string strValue)
@@ -840,6 +1071,80 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Create mode: raises an active skill's rating by one, deducting from the Karma
+        /// or BP pool depending on <see cref="BuildMethod"/>. False if not enough points, the skill
+        /// is grouped, or the skill is already at its ratingmax.</summary>
+        public bool RaiseActiveSkillCreate(int intSkillId)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+                return false;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            int intRatingMax = int.TryParse(GetValue(objNode, "ratingmax", "6"), out var rm) ? rm : 6;
+            if (intRating >= intRatingMax)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+
+            if (blnKarmaBuild)
+            {
+                int intCost = intRating == 0
+                    ? objOptions.KarmaNewActiveSkill
+                    : (intRating + 1) * objOptions.KarmaImproveActiveSkill * (intRating >= 6 ? 2 : 1);
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                if (intCost > intKarma)
+                    return false;
+                Karma = (intKarma - intCost).ToString();
+            }
+            else
+            {
+                int intCost = objOptions.BpActiveSkill;
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                if (intCost > intBp)
+                    return false;
+                Bp = (intBp - intCost).ToString();
+            }
+
+            SetChildValue(objNode, "rating", (intRating + 1).ToString());
+            return true;
+        }
+
+        /// <summary>Create mode: lowers an active skill's rating by one, refunding the Karma or BP
+        /// that was spent to reach the current rank.</summary>
+        public bool LowerActiveSkillCreate(int intSkillId)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+                return false;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            if (intRating <= 0)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intPreviousRating = intRating - 1;
+
+            if (blnKarmaBuild)
+            {
+                int intRefund = intPreviousRating == 0
+                    ? objOptions.KarmaNewActiveSkill
+                    : intRating * objOptions.KarmaImproveActiveSkill * (intPreviousRating >= 6 ? 2 : 1);
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                Karma = (intKarma + intRefund).ToString();
+            }
+            else
+            {
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                Bp = (intBp + objOptions.BpActiveSkill).ToString();
+            }
+
+            SetChildValue(objNode, "rating", intPreviousRating.ToString());
+            return true;
+        }
+
         /// <summary>Career mode: raises a skill group's rating by one, deducting Karma, and keeps
         /// every grouped member skill's own rating in sync with the new group rating.</summary>
         public bool RaiseSkillGroup(string strGroupName)
@@ -879,15 +1184,95 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Create mode: raises a skill group's rating by one, deducting from the Karma or
+        /// BP pool depending on <see cref="BuildMethod"/>, and syncs member skills.</summary>
+        public bool RaiseSkillGroupCreate(string strGroupName)
+        {
+            XmlNode? objNode = GetSkillGroupNode(strGroupName);
+            if (objNode == null)
+                return false;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            // Skill groups may only be raised to 4 during character creation - the 5/6 ranks
+            // are career-mode-only (frmCreate.cs caps nudActiveSkillGroup at 4).
+            if (intRating >= 4)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+
+            if (blnKarmaBuild)
+            {
+                int intCost = intRating == 0 ? objOptions.KarmaNewSkillGroup : (intRating + 1) * objOptions.KarmaImproveSkillGroup;
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                if (intCost > intKarma)
+                    return false;
+                Karma = (intKarma - intCost).ToString();
+            }
+            else
+            {
+                int intCost = objOptions.BpSkillGroup;
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                if (intCost > intBp)
+                    return false;
+                Bp = (intBp - intCost).ToString();
+            }
+
+            int intNewRating = intRating + 1;
+            SetChildValue(objNode, "rating", intNewRating.ToString());
+            SyncGroupedSkillRatings(strGroupName, intNewRating);
+            return true;
+        }
+
+        /// <summary>Create mode: lowers a skill group's rating by one, refunding the Karma or BP
+        /// that was spent to reach the current rank, and syncs member skills.</summary>
+        public bool LowerSkillGroupCreate(string strGroupName)
+        {
+            XmlNode? objNode = GetSkillGroupNode(strGroupName);
+            if (objNode == null)
+                return false;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            if (intRating <= 0)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intPreviousRating = intRating - 1;
+
+            if (blnKarmaBuild)
+            {
+                int intRefund = intPreviousRating == 0 ? objOptions.KarmaNewSkillGroup : intRating * objOptions.KarmaImproveSkillGroup;
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                Karma = (intKarma + intRefund).ToString();
+            }
+            else
+            {
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                Bp = (intBp + objOptions.BpSkillGroup).ToString();
+            }
+
+            SetChildValue(objNode, "rating", intPreviousRating.ToString());
+            SyncGroupedSkillRatings(strGroupName, intPreviousRating);
+            return true;
+        }
+
+        /// <summary>Keeps every skill in <paramref name="strGroupName"/> locked to the group's own
+        /// rating and cost. Once the group has a rating above 0, its member skills are marked
+        /// "grouped" (locking them - see <see cref="RaiseActiveSkillCreate"/>/<see cref="RaiseActiveSkill"/>)
+        /// and their own rating is overwritten to match, so the group's cost is what governs them
+        /// and any individual skill cost no longer applies. Dropping the group back to 0 unlocks them.</summary>
         private void SyncGroupedSkillRatings(string strGroupName, int intRating)
         {
             var objNodes = Document.SelectNodes("/character/skills/skill");
             if (objNodes == null) return;
             foreach (XmlNode objSkillNode in objNodes)
             {
-                if (GetValue(objSkillNode, "skillgroup", string.Empty) == strGroupName
-                    && GetValue(objSkillNode, "grouped", "False") == "True")
-                    SetChildValue(objSkillNode, "rating", intRating.ToString());
+                if (GetValue(objSkillNode, "skillgroup", string.Empty) != strGroupName)
+                    continue;
+
+                SetChildValue(objSkillNode, "grouped", intRating > 0 ? "True" : "False");
+                SetChildValue(objSkillNode, "rating", intRating.ToString());
             }
         }
 
@@ -1425,6 +1810,7 @@ namespace Chummer.Core
 
             var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
             SetChildValue(objNode, "value", (intValue + 1).ToString());
+            SetChildValue(objNode, "totalvalue", (intValue + 1).ToString());
             Karma = (intKarma - intCost).ToString();
 
             var objUndo = new ExpenseUndo();
@@ -1439,7 +1825,116 @@ namespace Chummer.Core
             var objNode = GetAttributeNode(strCode);
             if (objNode == null) return false;
             SetChildValue(objNode, "value", intValue.ToString());
+            SetChildValue(objNode, "totalvalue", intValue.ToString());
             return true;
+        }
+
+        /// <summary>Create mode: raises an attribute's base Value by one, deducting from the Karma
+        /// or BP pool depending on <see cref="BuildMethod"/>. Enforces the metatype maximum and the
+        /// SR4 chargen rule that only one attribute may be raised to its natural maximum.</summary>
+        public bool RaiseAttributeCreate(string strCode)
+        {
+            var objNode = GetAttributeNode(strCode);
+            if (objNode == null) return false;
+
+            var strValue = GetValue(objNode, "value", "0");
+            var strMinimum = GetValue(objNode, "metatypemin", "0");
+            var strMaximum = GetValue(objNode, "metatypemax", "0");
+            int intValue = int.TryParse(strValue, out var v) ? v : 0;
+            int intMaximum = int.TryParse(strMaximum, out var mx) ? mx : 0;
+            if (intValue >= intMaximum)
+                return false;
+
+            bool blnReachesMax = intValue + 1 == intMaximum;
+            if (blnReachesMax && s_astrPrimaryAttributeCodes.Contains(strCode) && AnyOtherAttributeAtMax(strCode))
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+
+            if (blnKarmaBuild)
+            {
+                int intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                if (intCost > intKarma)
+                    return false;
+                Karma = (intKarma - intCost).ToString();
+            }
+            else
+            {
+                int intCost = objOptions.BpAttribute + (blnReachesMax ? objOptions.BpAttributeMax : 0);
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                if (intCost > intBp)
+                    return false;
+                Bp = (intBp - intCost).ToString();
+            }
+
+            SetChildValue(objNode, "value", (intValue + 1).ToString());
+            SetChildValue(objNode, "totalvalue", (intValue + 1).ToString());
+            return true;
+        }
+
+        /// <summary>Create mode: lowers an attribute's base Value by one, refunding the Karma or BP
+        /// that was spent to reach the current rank.</summary>
+        public bool LowerAttributeCreate(string strCode)
+        {
+            var objNode = GetAttributeNode(strCode);
+            if (objNode == null) return false;
+
+            var strValue = GetValue(objNode, "value", "0");
+            var strMinimum = GetValue(objNode, "metatypemin", "0");
+            int intValue = int.TryParse(strValue, out var v) ? v : 0;
+            int intMinimum = int.TryParse(strMinimum, out var mn) ? mn : 0;
+            if (intValue <= intMinimum)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intMaximum = int.TryParse(GetValue(objNode, "metatypemax", "0"), out var mx) ? mx : 0;
+            bool blnWasAtMax = intValue == intMaximum;
+
+            if (blnKarmaBuild)
+            {
+                int intRefund = ComputeAttributeKarmaCostToIncrease((intValue - 1).ToString(), strMinimum);
+                int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+                Karma = (intKarma + intRefund).ToString();
+            }
+            else
+            {
+                int intRefund = objOptions.BpAttribute + (blnWasAtMax ? objOptions.BpAttributeMax : 0);
+                int intBp = int.TryParse(Bp, out var b) ? b : 0;
+                Bp = (intBp + intRefund).ToString();
+            }
+
+            SetChildValue(objNode, "value", (intValue - 1).ToString());
+            SetChildValue(objNode, "totalvalue", (intValue - 1).ToString());
+            return true;
+        }
+
+        // The SR4 chargen rule "only one attribute may reach its natural maximum" applies only to
+        // the 8 primary physical/mental attributes - Edge, Magic, and Resonance each have their
+        // own separate cost/cap rules and neither trigger nor are blocked by this rule. Essence
+        // isn't a chargen attribute at all (it only decreases from cyber/bioware).
+        private static readonly string[] s_astrPrimaryAttributeCodes =
+        {
+            "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL"
+        };
+
+        private bool AnyOtherAttributeAtMax(string strExcludeCode)
+        {
+            var objNodes = Document.SelectNodes("/character/attributes/attribute");
+            if (objNodes == null) return false;
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strCode = GetValue(objNode, "name", string.Empty);
+                if (strCode == strExcludeCode || !s_astrPrimaryAttributeCodes.Contains(strCode))
+                    continue;
+                int intValue = int.TryParse(GetValue(objNode, "value", "0"), out var v) ? v : 0;
+                int intMaximum = int.TryParse(GetValue(objNode, "metatypemax", "0"), out var mx) ? mx : 0;
+                if (intMaximum > 0 && intValue >= intMaximum)
+                    return true;
+            }
+            return false;
         }
 
         private XmlNode GetAttributeNode(string strCode)
@@ -2002,6 +2497,32 @@ namespace Chummer.Core
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 
+    /// <summary>Substitutes "Rating" into a rules-data cost/avail/essence formula (e.g.
+    /// "Rating * 3000") and evaluates it, same technique as legacy clsEquipment.cs. Shared by
+    /// <see cref="CharacterTreeItemData"/>'s CalculatedCost/CalculatedAvail (post-save, resolved
+    /// from the saved character) and any picker UI that needs to preview the value for a rating
+    /// the user hasn't committed to yet.</summary>
+    public static class RatingExpression
+    {
+        public static double Evaluate(string strExpression, string strRating)
+        {
+            if (string.IsNullOrEmpty(strExpression)) return 0;
+            var strSubstituted = strExpression.Replace("Rating", strRating);
+            try
+            {
+                var objNavigator = new System.Xml.XPath.XPathDocument(new StringReader("<i/>")).CreateNavigator();
+                var objExpression = objNavigator.Compile(strSubstituted);
+                return Convert.ToDouble(objNavigator.Evaluate(objExpression), CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return double.TryParse(strSubstituted, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblValue)
+                    ? dblValue
+                    : 0;
+            }
+        }
+    }
+
     public sealed class CharacterTreeItemData
     {
         internal CharacterTreeItemData(string strName, string strCategory = "", string strRating = "0",
@@ -2070,24 +2591,8 @@ namespace Chummer.Core
             }
         }
 
-        // Substitutes "Rating" and evaluates via XPath, same technique as clsEquipment.cs.
         private static double EvaluateRatingExpression(string strExpression, string strRating)
-        {
-            if (string.IsNullOrEmpty(strExpression)) return 0;
-            var strSubstituted = strExpression.Replace("Rating", strRating);
-            try
-            {
-                var objNavigator = new System.Xml.XPath.XPathDocument(new StringReader("<i/>")).CreateNavigator();
-                var objExpression = objNavigator.Compile(strSubstituted);
-                return Convert.ToDouble(objNavigator.Evaluate(objExpression), CultureInfo.InvariantCulture);
-            }
-            catch
-            {
-                return double.TryParse(strSubstituted, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblValue)
-                    ? dblValue
-                    : 0;
-            }
-        }
+            => RatingExpression.Evaluate(strExpression, strRating);
     }
 
     public sealed class CharacterWeaponData

@@ -79,7 +79,7 @@
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
                 <TextBlock Text="{Binding KarmaStatus}" />
-                <TextBlock Text="Essenz: 0,80" />
+                <TextBlock Text="{Binding EssenceStatus}" />
                 <TextBlock Text="{Binding NuyenStatus}" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" IsVisible="{Binding HasError}" />
             </StackPanel>

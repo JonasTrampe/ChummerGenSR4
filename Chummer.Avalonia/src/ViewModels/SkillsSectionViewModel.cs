@@ -9,6 +9,7 @@ namespace Chummer.NewUI.ViewModels;
 public sealed class GroupRowViewModel : ViewModelBase
 {
     private readonly CharacterDocument _character;
+    private readonly Action? _reload;
 
     public string GroupName { get; }
     public bool IsCreateMode { get; private set; }
@@ -29,14 +30,22 @@ public sealed class GroupRowViewModel : ViewModelBase
         {
             if (!SetField(ref _intRatingValue, value))
                 return;
-            if (!IsLoading)
-                _character.SetSkillGroupRating(GroupName, value);
+            if (IsLoading)
+                return;
+
+            int intCurrent = int.TryParse(Rating, out int intParsed) ? intParsed : 0;
+            while (intCurrent < value && _character.RaiseSkillGroupCreate(GroupName))
+                intCurrent++;
+            while (intCurrent > value && _character.LowerSkillGroupCreate(GroupName))
+                intCurrent--;
+            _reload?.Invoke();
         }
     }
 
-    public GroupRowViewModel(CharacterDocument character, CharacterSkillGroupData group)
+    public GroupRowViewModel(CharacterDocument character, CharacterSkillGroupData group, Action? reload = null)
     {
         _character = character;
+        _reload = reload;
         GroupName = group.Name;
         Load(group);
     }
@@ -56,6 +65,7 @@ public sealed class GroupRowViewModel : ViewModelBase
 public sealed class SkillRowViewModel : ViewModelBase
 {
     private readonly CharacterDocument _character;
+    private readonly Action? _reload;
 
     public int SkillId { get; }
     public string SkillName { get; }
@@ -79,8 +89,15 @@ public sealed class SkillRowViewModel : ViewModelBase
         {
             if (!SetField(ref _intRatingValue, value))
                 return;
-            if (!IsLoading)
-                _character.SetActiveSkillRating(SkillId, value);
+            if (IsLoading)
+                return;
+
+            int intCurrent = int.TryParse(Rating, out int intParsed) ? intParsed : 0;
+            while (intCurrent < value && _character.RaiseActiveSkillCreate(SkillId))
+                intCurrent++;
+            while (intCurrent > value && _character.LowerActiveSkillCreate(SkillId))
+                intCurrent--;
+            _reload?.Invoke();
         }
     }
 
@@ -97,9 +114,10 @@ public sealed class SkillRowViewModel : ViewModelBase
         }
     }
 
-    public SkillRowViewModel(CharacterDocument character, CharacterSkillData skill)
+    public SkillRowViewModel(CharacterDocument character, CharacterSkillData skill, Action? reload = null)
     {
         _character = character;
+        _reload = reload;
         SkillId = skill.SkillId;
         SkillName = skill.Name;
         Attribute = skill.Attribute;
@@ -259,7 +277,7 @@ public sealed class SkillsSectionViewModel : ViewModelBase
 
         SkillGroups.Clear();
         foreach (CharacterSkillGroupData group in character.SkillGroups)
-            SkillGroups.Add(new GroupRowViewModel(character, group));
+            SkillGroups.Add(new GroupRowViewModel(character, group, () => LoadCharacter(character)));
 
         _lstAllSkills = character.Skills.ToList();
         BuildSkillFilters();
@@ -306,6 +324,6 @@ public sealed class SkillsSectionViewModel : ViewModelBase
         Func<CharacterSkillData, bool> predicate = SelectedSkillFilter?.Predicate ?? (_ => true);
         ActiveSkills.Clear();
         foreach (CharacterSkillData skill in _lstAllSkills.Where(predicate))
-            ActiveSkills.Add(new SkillRowViewModel(_character, skill));
+            ActiveSkills.Add(new SkillRowViewModel(_character, skill, () => LoadCharacter(_character)));
     }
 }

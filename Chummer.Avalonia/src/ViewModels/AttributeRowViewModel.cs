@@ -12,6 +12,15 @@ public sealed class AttributeRowViewModel : ViewModelBase
     public bool ShowRemove { get; }
     public bool IsAttributeEnabled { get; }
 
+    private bool _blnIsRowVisible = true;
+    /// <summary>False for MAG/RES rows on a character without the matching quality
+    /// (Magician/Adept/Mystic Adept, or Technomancer) - those attributes don't apply otherwise.</summary>
+    public bool IsRowVisible
+    {
+        get => _blnIsRowVisible;
+        set => SetField(ref _blnIsRowVisible, value);
+    }
+
     /// <summary>Set by GeneralSectionViewModel while populating rows from a loaded character, so
     /// setting BaseValue during load doesn't re-trigger a write back to the character.</summary>
     public bool IsLoading { get; set; }

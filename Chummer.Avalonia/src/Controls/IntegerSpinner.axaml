@@ -8,7 +8,7 @@
             Background="White"
             Height="28"
             MinHeight="28">
-        <Grid ColumnDefinitions="*,24"
+        <Grid ColumnDefinitions="*,16"
               DataContext="{Binding ElementName=root}">
             <TextBox x:Name="txtValue"
                      Grid.Column="0"
@@ -16,8 +16,9 @@
                      BorderThickness="0"
                      Background="Transparent"
                      VerticalContentAlignment="Center"
-                     HorizontalContentAlignment="Right"
-                     Padding="6,0,6,0" />
+                     HorizontalContentAlignment="Center"
+                     MinWidth="0"
+                     Padding="0" />
             <Grid Grid.Column="1" RowDefinitions="*,*">
                 <Button Grid.Row="0"
                         Classes="spinnerButton"

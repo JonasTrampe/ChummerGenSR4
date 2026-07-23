@@ -9,6 +9,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 {
     private OpenCharacterTab? _selectedOpenCharacter;
     private string _strKarmaStatus = "Karma: —";
+    private string _strEssenceStatus = "Essenz: —";
     private string _strNuyenStatus = "Nuyen: —";
     private string _strErrorMessage = string.Empty;
     private string _strWindowTitle = "Chummer";
@@ -21,8 +22,14 @@ public sealed class MainWindowViewModel : ViewModelBase
         get => _selectedOpenCharacter;
         set
         {
+            CharacterDocument? previousCharacter = _selectedOpenCharacter?.Character;
             if (!SetField(ref _selectedOpenCharacter, value))
                 return;
+
+            if (previousCharacter != null)
+                previousCharacter.Changed -= OnActiveCharacterChanged;
+            if (value?.Character != null)
+                value.Character.Changed += OnActiveCharacterChanged;
 
             ActivateCharacter(value?.Character);
         }
@@ -32,6 +39,12 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         get => _strKarmaStatus;
         private set => SetField(ref _strKarmaStatus, value);
+    }
+
+    public string EssenceStatus
+    {
+        get => _strEssenceStatus;
+        private set => SetField(ref _strEssenceStatus, value);
     }
 
     public string NuyenStatus
@@ -129,17 +142,26 @@ public sealed class MainWindowViewModel : ViewModelBase
             GlobalOptions.Instance.RemoveFromMruList(filePath);
     }
 
+    private void OnActiveCharacterChanged()
+    {
+        ActivateCharacter(SelectedOpenCharacter?.Character);
+    }
+
     private void ActivateCharacter(CharacterDocument? character)
     {
         if (character is null)
         {
             WindowTitle = "Chummer";
             KarmaStatus = "Karma: —";
+            EssenceStatus = "Essenz: —";
             NuyenStatus = "Nuyen: —";
             return;
         }
 
-        KarmaStatus = "Karma: " + character.Karma;
+        KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+            ? "BP: " + character.Bp + " / Karma: " + character.Karma
+            : "Karma: " + character.Karma;
+        EssenceStatus = "Essenz: " + character.Condition.Essence;
         NuyenStatus = "Nuyen: " + character.Nuyen + "¥";
         WindowTitle = "Chummer - " + character.Name;
     }
