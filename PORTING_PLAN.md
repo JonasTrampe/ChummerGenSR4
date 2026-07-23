@@ -102,8 +102,17 @@ read the stream back immediately still work).
   `KarmaNuyenSectionTab` "verdient"/"ausgegeben" buttons are already stubbed for it).
 - Step 3.3: Once the pattern is proven, generalize to gear/cyberware/spells/contacts — these
   are all "append a `<foo>` node with these fields" in the legacy `Save()`, same shape as
-  Quality. 🟡 Spell is complete; Gear now has a tested Core add/remove/save/reload API plus a
-  root-level picker/UI flow. Its quantity and containment semantics still need porting.
+  Quality. 🟡 Spell and Gear are complete (Gear's quantity/containment semantics still need
+  porting). Cyberware/Bioware now has a tested Core `AddCyberware`/`RemoveCyberware` API (shared
+  `<cyberwares>` list, split by `<improvementsource>`) plus a real Avalonia picker
+  (`CyberwareDialog`, reads `cyberware.xml`/`bioware.xml`) wired into `CyberwareSectionTab`'s
+  add/delete buttons and live Essence-consumed totals, plus a Grade selector
+  (Standard/Alphaware/Betaware/Deltaware and their Second-Hand/Adapsin variants) that live-
+  multiplies Essence/cost/availability from each file's `<grades>` data. Weapon now has the same
+  `AddWeapon`/`RemoveWeapon` + `WeaponDialog` treatment, wired into the previously-dead "Waffe
+  hinzufügen"/"Löschen" buttons in `GearSectionTab`'s Waffen sub-tab (no accessory/mod cost math,
+  no STR-substituted damage code resolution). Contacts and Armor still need their own write path
+  - Armor's "Panzerung hinzufügen" button is still dead, same shape as Weapon was before this.
 
 ## Phase 4 — Item picker dialogs (the `frmSelectXxx` → real Avalonia dialogs)
 
