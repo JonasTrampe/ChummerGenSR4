@@ -9,6 +9,7 @@ using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
+using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -70,6 +71,31 @@ public partial class GearSectionTab : UserControl
             return;
 
         if (_character.RemoveGear(ViewModel.SelectedGear.SourceName, ViewModel.SelectedGear.Category, ViewModel.SelectedGear.Rating))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new WeaponDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedWeapon != null)
+        {
+            var weapon = dialog.SelectedWeapon;
+            _character.AddWeapon(weapon.Name, weapon.Category, weapon.Damage, weapon.Ap, weapon.Mode, weapon.Rc,
+                weapon.Ammo, weapon.Cost, weapon.Availability, weapon.SourcePage, string.Empty);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon == null || ViewModel.SelectedWeapon.Parent != null)
+            return;
+
+        if (_character.RemoveWeapon(ViewModel.SelectedWeapon.SourceName, ViewModel.SelectedWeapon.Category))
             ViewModel.LoadCharacter(_character);
     }
 

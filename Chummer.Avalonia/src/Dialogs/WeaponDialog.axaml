@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.WeaponDialog"
+        x:DataType="vm:WeaponDialogViewModel"
+        Width="640" Height="520" WindowStartupLocation="CenterOwner" Title="Waffe auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,150,Auto,*" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="Kategorie:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}"
+                      SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+            <TextBlock Grid.Column="2" Text="Suche:" VerticalAlignment="Center" Margin="16,0,6,0" />
+            <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" />
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,220">
+            <ListBox ItemsSource="{Binding WeaponOptions}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:WeaponOptionViewModel">
+                        <StackPanel Margin="4,2">
+                            <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" />
+                            <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
+                <TextBlock Text="Kategorie:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Category, TargetNullValue=–}" />
+                <TextBlock Text="Schaden:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Damage, TargetNullValue=–}" />
+                <TextBlock Text="Panzerdurchdringung:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Ap, TargetNullValue=–}" />
+                <TextBlock Text="Modus:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Mode, TargetNullValue=–}" />
+                <TextBlock Text="Munition:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Ammo, TargetNullValue=–}" />
+                <TextBlock Text="Verfügbarkeit:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Availability, TargetNullValue=–}" />
+                <TextBlock Text="Kosten:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedWeapon.Cost, TargetNullValue=–}" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding SelectedWeapon.SourcePage, TargetNullValue=–}" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+        </Grid>
+    </Grid>
+</Window>

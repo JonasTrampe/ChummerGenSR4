@@ -59,8 +59,8 @@
             <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Waffe hinzufügen" />
-                        <Button Content="Löschen" />
+                        <Button Content="Waffe hinzufügen" Click="OnAddWeaponClick" />
+                        <Button Content="Löschen" Click="OnDeleteWeaponClick" />
                         <Button Content="Ort hinzufügen" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
