@@ -135,6 +135,116 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddWeapon_MutatesCharacterTreeAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15",
+            "350", "4R", "SR4", "313");
+
+        CharacterTreeItemData added = Assert.Single(character.WeaponTrees);
+        Assert.Equal("Ares Predator IV", added.Name);
+        Assert.Equal("Heavy Pistols", added.Category);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterWeaponData savedWeapon = Assert.Single(reloaded.Weapons);
+        Assert.Equal("Ares Predator IV", savedWeapon.Name);
+        Assert.Equal("6P", savedWeapon.Damage);
+    }
+
+    [Fact]
+    public void RemoveWeapon_RemovesOnlyMatchingRootLevelEntry()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><weapons>"
+            + "<weapon><name>Ares Predator IV</name><category>Heavy Pistols</category></weapon>"
+            + "<weapon><name>Ares Predator IV</name><category>Exotic Ranged Weapon</category></weapon>"
+            + "</weapons></character>");
+
+        Assert.True(character.RemoveWeapon("Ares Predator IV", "Heavy Pistols"));
+        CharacterTreeItemData remaining = Assert.Single(character.WeaponTrees);
+        Assert.Equal("Exotic Ranged Weapon", remaining.Category);
+    }
+
+    [Fact]
+    public void AddCyberware_FiresChangedEvent_SoTheMainWindowStatusBarRefreshesItsEssenceDisplay()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        int intChangedCount = 0;
+        character.Changed += () => intChangedCount++;
+
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        Assert.True(intChangedCount > 0);
+
+        Assert.True(character.RemoveCyberware("Cybereyes", "Cyberlimb", "0"));
+        Assert.True(intChangedCount > 1);
+    }
+
+    [Fact]
+    public void AddCyberware_MutatesCharacterTreeAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "Rating * 1000", "8R", "SR4", "339");
+
+        CharacterTreeItemData added = Assert.Single(character.Cyberware);
+        Assert.Equal("Cybereyes", added.Name);
+        Assert.Equal("Cyberlimb", added.Category);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Cybereyes", Assert.Single(reloaded.Cyberware).Name);
+        Assert.Empty(reloaded.Bioware);
+    }
+
+    [Fact]
+    public void AddCyberware_Bioware_GoesIntoTheBiowareTreeNotCyberware()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCyberware("Muscle Toner", "Basic", "2", "0.4", "Rating * 8000", "8R", "SR4", "339", blnBioware: true);
+
+        Assert.Empty(character.Cyberware);
+        CharacterTreeItemData added = Assert.Single(character.Bioware);
+        Assert.Equal("Muscle Toner", added.Name);
+    }
+
+    [Fact]
+    public void AddCyberware_EssenceCostFeedsIntoComputedEssence()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>ESS</name><metatypemax>6</metatypemax></attribute></attributes></character>");
+        Assert.Equal("6", character.Condition.Essence);
+
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        Assert.Equal("5.8", character.Condition.Essence);
+    }
+
+    [Fact]
+    public void RemoveCyberware_RemovesOnlyMatchingRootLevelEntryAndDistinguishesFromBioware()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><cyberwares>"
+            + "<cyberware><name>Datajack</name><category>Headware</category><rating>0</rating><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "<cyberware><name>Datajack</name><category>Headware</category><rating>0</rating><improvementsource>Bioware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+
+        Assert.True(character.RemoveCyberware("Datajack", "Headware", "0"));
+        Assert.Empty(character.Cyberware);
+        Assert.Single(character.Bioware);
+    }
+
+    [Fact]
+    public void RatingExpression_EvaluatesFlatNumbersAndRatingFormulasAlike()
+    {
+        Assert.Equal(0.2, RatingExpression.Evaluate("0.2", "3"));
+        Assert.Equal(3000, RatingExpression.Evaluate("Rating * 1000", "3"));
+        Assert.Equal(0, RatingExpression.Evaluate("", "3"));
+    }
+
+    [Fact]
     public void RemoveSpell_RemovesOnlyTheMatchingSavedSpell()
     {
         CharacterDocument character = LoadXml("<character><spells><spell><name>Acid Stream</name></spell><spell><name>Clout</name></spell></spells></character>");

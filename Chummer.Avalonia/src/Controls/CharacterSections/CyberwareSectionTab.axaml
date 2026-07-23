@@ -7,13 +7,13 @@
     <controls:TreeDetailPane TreeWidth="330" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                <Button Content="Cyberware hinzufügen" />
-                <Button Content="Bioware hinzufügen" />
-                <Button Content="Löschen" />
+                <Button Content="Cyberware hinzufügen" Click="OnAddCyberwareClick" />
+                <Button Content="Bioware hinzufügen" Click="OnAddBiowareClick" />
+                <Button Content="Löschen" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView ItemsSource="{Binding Roots}">
+            <TreeView ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />
@@ -23,28 +23,21 @@
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>
             <StackPanel Margin="8,0,0,0" Spacing="6">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Width="80" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedNode.Name, TargetNullValue=–}" />
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Kategorie:" Width="80" />
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verfügbarkeit:" Width="80" />
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Quelle:" Width="80" />
-            </Grid>
-            <Separator Margin="0,4" />
-            <Grid ColumnDefinitions="*,*,*,*">
-                <TextBlock Grid.Column="0" Text="Prozessor:" />
-                <TextBlock Grid.Column="1" Text="Signal:" />
-                <TextBlock Grid.Column="2" Text="System:" />
-                <TextBlock Grid.Column="3" Text="Firewall:" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNode.Category, TargetNullValue=–}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Rating:" Width="80" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNode.Rating, TargetNullValue=–}" />
             </Grid>
             <Separator Margin="0,4" />
             <TextBlock Text="Verbrauchte Essenz" FontWeight="Bold" />
-            <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto,Auto" RowSpacing="2">
+            <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto" RowSpacing="2">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Cyberware:" />
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="4,90" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CyberwareEssence}" />
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Bioware:" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="0,30" />
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Verlorene Essenz:" />
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="0,00" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BiowareEssence}" />
             </Grid>
             </StackPanel>
         </controls:TreeDetailPane.DetailContent>
