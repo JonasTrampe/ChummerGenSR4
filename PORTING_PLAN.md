@@ -54,7 +54,13 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
 - Step 2.2: Physical/Stun condition monitor track size. ✅ `ComputePhysicalCm`/`ComputeStunCm`.
   A.I./technocritter/protosapient special cases aren't ported (Core doesn't read metatype
   category yet).
-- Step 2.3: Armor/ballistic/impact encumbrance and displayed worn armor ratings. ✅
+- Step 2.3: Armor/ballistic/impact encumbrance and displayed worn armor ratings. ✅ Now also
+  covers the SoftWeave STR-based reduction, the ArmorEncumbrancePenalty Improvement, and all
+  three optional house rules (IgnoreArmorEncumbrance, AlternateArmorEncumbrance's BOD+STR
+  threshold, NoSingleArmorEncumbrance) - only ArmorMod bonuses to base ballistic/impact aren't
+  ported. Surfaced in `GearSectionTab`'s Panzerung sub-tab: per-item B/I rating in the tree and
+  detail pane, plus the aggregate worn rating and encumbrance penalty. Armor can also be equipped/
+  unequipped now via `SetArmorEquipped` (the checkbox used to be permanently disabled).
 - Step 2.4: Skill dice pools (Skill + Attribute + Improvement + gear bonuses). ✅
   `ComputeSkillDicePool` — Skill/SkillGroup/SkillCategory contributions, rating vs. pool-only
   bonuses, wound modifiers, specialization note.
@@ -111,8 +117,10 @@ read the stream back immediately still work).
   multiplies Essence/cost/availability from each file's `<grades>` data. Weapon now has the same
   `AddWeapon`/`RemoveWeapon` + `WeaponDialog` treatment, wired into the previously-dead "Waffe
   hinzufügen"/"Löschen" buttons in `GearSectionTab`'s Waffen sub-tab (no accessory/mod cost math,
-  no STR-substituted damage code resolution). Contacts and Armor still need their own write path
-  - Armor's "Panzerung hinzufügen" button is still dead, same shape as Weapon was before this.
+  no STR-substituted damage code resolution). Armor now has the same `AddArmor`/`RemoveArmor` +
+  `ArmorDialog` treatment, wired into the Panzerung sub-tab's previously-dead buttons - the picker
+  also handles armor.xml's `Variable(min-max)` cost items (generic Clothing) with a cost spinner
+  in that range rather than silently resolving to 0. Contacts still needs its own write path.
 
 ## Phase 4 — Item picker dialogs (the `frmSelectXxx` → real Avalonia dialogs)
 

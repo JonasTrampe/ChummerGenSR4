@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
+using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 
@@ -96,6 +97,41 @@ public partial class GearSectionTab : UserControl
             return;
 
         if (_character.RemoveWeapon(ViewModel.SelectedWeapon.SourceName, ViewModel.SelectedWeapon.Category))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ArmorDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedArmor != null)
+        {
+            var armor = dialog.SelectedArmor;
+            _character.AddArmor(armor.Name, armor.Category, armor.Ballistic, armor.Impact, armor.Capacity,
+                armor.Cost, armor.Availability, armor.SourcePage, string.Empty);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor == null || ViewModel.SelectedArmor.Parent != null)
+            return;
+
+        if (_character.RemoveArmor(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnToggleArmorEquippedClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor == null || sender is not CheckBox checkBox)
+            return;
+
+        bool blnEquipped = checkBox.IsChecked == true;
+        if (_character.SetArmorEquipped(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category, blnEquipped))
             ViewModel.LoadCharacter(_character);
     }
 

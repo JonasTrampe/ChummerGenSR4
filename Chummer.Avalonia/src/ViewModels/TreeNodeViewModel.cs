@@ -14,6 +14,16 @@ public sealed class TreeNodeViewModel
     public string Rating { get; }
     public bool Equipped { get; }
     public string SourceName { get; }
+
+    /// <summary>Ballistic/impact armor rating - only set for Armor tree nodes, empty otherwise.</summary>
+    public string Ballistic { get; private set; } = string.Empty;
+
+    public string Impact { get; private set; } = string.Empty;
+
+    /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes that have one.</summary>
+    public string DisplayName => string.IsNullOrEmpty(Ballistic) && string.IsNullOrEmpty(Impact)
+        ? Name
+        : Name + " (B " + Ballistic + " / I " + Impact + ")";
     public ObservableCollection<TreeNodeViewModel> Children { get; } = new();
     public bool IsExpanded { get; set; }
 
@@ -41,7 +51,11 @@ public sealed class TreeNodeViewModel
     public static TreeNodeViewModel FromTreeItem(CharacterTreeItemData item)
     {
         var node = new TreeNodeViewModel(item.Name, item.Children.Count > 0, item.Category, item.Rating,
-            item.Equipped, item.Name);
+            item.Equipped, item.Name)
+        {
+            Ballistic = item.Ballistic,
+            Impact = item.Impact
+        };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));
         return node;

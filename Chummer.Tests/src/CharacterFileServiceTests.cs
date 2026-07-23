@@ -169,6 +169,127 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddArmor_MutatesCharacterTreeAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        CharacterTreeItemData added = Assert.Single(character.Armor);
+        Assert.Equal("Leather Jacket", added.Name);
+        Assert.Equal("Clothing", added.Category);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Leather Jacket", Assert.Single(reloaded.Armor).Name);
+    }
+
+    [Fact]
+    public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
+    {
+        // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count
+        // toward the total) push total Ballistic to 4 - under threshold, so add a third heavier
+        // piece to push it over: total 10 vs threshold 8 -> ceil((10-8)/2) = 1 penalty.
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>4</value><totalvalue>4</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        character.AddArmor("Heavy Jacket", "Clothing", "8", "8", "0", "500", "0", "SR4", "326");
+
+        Assert.Equal(-1, character.ArmorEncumbrance.BallisticPenalty.Value);
+    }
+
+    [Fact]
+    public void ArmorEncumbrance_IgnoreArmorEncumbranceHouseRule_ZeroesThePenalty()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>1</value><totalvalue>1</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
+        character.AddArmor("Heavy Jacket", "Clothing", "20", "20", "0", "500", "0", "SR4", "326");
+        Assert.NotEqual(0, character.ArmorEncumbrance.BallisticPenalty.Value);
+
+        var objOptions = new CharacterOptions { IgnoreArmorEncumbrance = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
+    }
+
+    [Fact]
+    public void ArmorEncumbrance_NoSingleArmorEncumbranceHouseRule_ZeroesThePenaltyForOnePiece()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>1</value><totalvalue>1</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
+        character.AddArmor("Heavy Jacket", "Clothing", "20", "20", "0", "500", "0", "SR4", "326");
+
+        var objOptions = new CharacterOptions { NoSingleArmorEncumbrance = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
+
+        // A second piece means it's no longer "a single piece", so the penalty applies again.
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        Assert.NotEqual(0, character.ArmorEncumbrance.BallisticPenalty.Value);
+    }
+
+    [Fact]
+    public void ArmorEncumbrance_AlternateArmorEncumbranceHouseRule_UsesBodPlusStrThreshold()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>4</value><totalvalue>4</totalvalue></attribute><attribute><name>STR</name><value>4</value><totalvalue>4</totalvalue></attribute></attributes></character>");
+        character.AddArmor("Heavy Jacket", "Clothing", "8", "8", "0", "500", "0", "SR4", "326");
+
+        // Standard rule: threshold = BOD*2 = 8, total 8 -> no penalty.
+        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
+
+        // Alternate rule: threshold = BOD*1 + STR = 4 + 4 = 8 - still exactly at threshold here,
+        // so bump BOD up via a second piece instead to make the difference observable.
+        var objOptions = new CharacterOptions { AlternateArmorEncumbrance = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+        character.AddArmor("Leather Jacket", "Clothing", "3", "3", "0", "200", "0", "SR4", "326");
+        // Total 11, alternate threshold 8 -> ceil((11-8)/2) = 2.
+        Assert.Equal(-2, character.ArmorEncumbrance.BallisticPenalty.Value);
+    }
+
+    [Fact]
+    public void AddArmor_EquippedByDefault_FeedsIntoArmorEncumbranceAndRating()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>4</value></attribute></attributes></character>");
+
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
+        Assert.Equal(2, encumbrance.BallisticRating.Value);
+        Assert.Equal(2, encumbrance.ImpactRating.Value);
+    }
+
+    [Fact]
+    public void SetArmorEquipped_UnequippingRemovesItFromArmorEncumbrance()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>4</value></attribute></attributes></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        Assert.Equal(2, character.ArmorEncumbrance.BallisticRating.Value);
+
+        Assert.True(character.SetArmorEquipped("Leather Jacket", "Clothing", false));
+        Assert.Equal(0, character.ArmorEncumbrance.BallisticRating.Value);
+
+        Assert.True(character.SetArmorEquipped("Leather Jacket", "Clothing", true));
+        Assert.Equal(2, character.ArmorEncumbrance.BallisticRating.Value);
+    }
+
+    [Fact]
+    public void RemoveArmor_RemovesOnlyMatchingRootLevelEntry()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><armors>"
+            + "<armor><name>Leather Jacket</name><category>Clothing</category></armor>"
+            + "<armor><name>Leather Jacket</name><category>Armor Vest</category></armor>"
+            + "</armors></character>");
+
+        Assert.True(character.RemoveArmor("Leather Jacket", "Clothing"));
+        CharacterTreeItemData remaining = Assert.Single(character.Armor);
+        Assert.Equal("Armor Vest", remaining.Category);
+    }
+
+    [Fact]
     public void AddCyberware_FiresChangedEvent_SoTheMainWindowStatusBarRefreshesItsEssenceDisplay()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

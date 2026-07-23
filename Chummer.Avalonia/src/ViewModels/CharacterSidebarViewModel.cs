@@ -76,7 +76,11 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
     public void LoadCharacter(CharacterDocument character)
     {
+        if (_objCharacter != null)
+            _objCharacter.Changed -= OnCharacterChanged;
         _objCharacter = character;
+        _objCharacter.Changed += OnCharacterChanged;
+
         RemainingNuyen = character.Nuyen + "¥";
         CareerKarma = character.CareerKarma.ToString();
         CareerNuyen = character.CareerNuyen + "¥";
@@ -109,6 +113,12 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         SwimMovement = string.IsNullOrEmpty(character.SwimMovement) ? "0" : character.SwimMovement;
         FlyMovement = string.IsNullOrEmpty(character.FlyMovement) ? "0" : character.FlyMovement;
         ReloadCommlinks(character);
+    }
+
+    private void OnCharacterChanged()
+    {
+        if (_objCharacter != null)
+            LoadCharacter(_objCharacter);
     }
 
     private void ReloadCommlinks(CharacterDocument character)

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Chummer.Tests")]
+
 namespace Chummer.Core
 {
     /// <summary>
@@ -684,6 +686,93 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Adds a root-level Armor in the minimal saved-character tree shape used by
+        /// <see cref="Armor"/> and the armor-encumbrance calc - <paramref name="strB"/>/
+        /// <paramref name="strI"/> are the ballistic/impact ratings copied as-is from armor.xml
+        /// (including a leading "+" for stacking bonus armor, same as the encumbrance calc already
+        /// handles via ParseArmorRating).</summary>
+        public void AddArmor(string strName, string strCategory, string strB, string strI, string strCapacity,
+            string strCost, string strAvail, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("An armor name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objArmors = objRoot.SelectSingleNode("armors");
+            if (objArmors == null)
+            {
+                objArmors = Document.CreateElement("armors");
+                objRoot.AppendChild(objArmors);
+            }
+
+            var objArmor = Document.CreateElement("armor");
+            AppendElement(objArmor, "name", strName.Trim());
+            AppendElement(objArmor, "category", strCategory);
+            AppendElement(objArmor, "b", strB);
+            AppendElement(objArmor, "i", strI);
+            AppendElement(objArmor, "armorcapacity", strCapacity);
+            AppendElement(objArmor, "cost", strCost);
+            AppendElement(objArmor, "avail", strAvail);
+            AppendElement(objArmor, "source", strSource);
+            AppendElement(objArmor, "page", strPage);
+            AppendElement(objArmor, "equipped", "True");
+            objArmor.AppendChild(Document.CreateElement("armormods"));
+            objArmor.AppendChild(Document.CreateElement("gears"));
+            objArmors.AppendChild(objArmor);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Removes the first root-level saved armor matching its name/category.</summary>
+        public bool RemoveArmor(string strName, string strCategory)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/armors/armor");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objArmor in objNodes)
+            {
+                if (!string.Equals(GetValue(objArmor, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objArmor, "category", string.Empty), strCategory, StringComparison.Ordinal))
+                    continue;
+
+                objArmor.ParentNode?.RemoveChild(objArmor);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Equips or unequips the first root-level saved armor matching its name/category -
+        /// only equipped armor counts toward <see cref="ArmorEncumbrance"/> and the worn ballistic/
+        /// impact rating shown elsewhere.</summary>
+        public bool SetArmorEquipped(string strName, string strCategory, bool blnEquipped)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/armors/armor");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objArmor in objNodes)
+            {
+                if (!string.Equals(GetValue(objArmor, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objArmor, "category", string.Empty), strCategory, StringComparison.Ordinal))
+                    continue;
+
+                SetChildValue(objArmor, "equipped", blnEquipped ? "True" : "False");
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>Removes the first saved spell with the supplied name.</summary>
         public bool RemoveSpell(string strName)
         {
@@ -761,14 +850,14 @@ namespace Chummer.Core
         public IReadOnlyList<CharacterTreeItemData> Armor => ReadArmorTree();
 
         /// <summary>Armor encumbrance penalty (a negative dice-pool modifier, 0 if under threshold),
-        /// ported from clsCharacter.cs's BallisticArmorEncumbrance/ImpactArmorEncumbrance. This is a
-        /// deliberately scoped-down v1: it covers the vanilla rule (BOD*2, or *3 if any worn armor is
-        /// Military Grade, Form-Fitting armor counted at half rating) but not yet:
-        ///  - ArmorMod bonuses to ballistic/impact rating (base &lt;b&gt;/&lt;i&gt; values only)
-        ///  - the SoftWeave Improvement's STR-based reduction
-        ///  - the IgnoreArmorEncumbrance / AlternateArmorEncumbrance / NoSingleArmorEncumbrance house
-        ///    rules (CharacterOptions isn't loaded per-character yet - see PORTING_PLAN.md Phase 3)
-        /// </summary>
+        /// ported from clsCharacter.cs's BallisticArmorEncumbrance/ImpactArmorEncumbrance. Covers the
+        /// vanilla rule (BOD*2, or *3 if any worn armor is Military Grade, Form-Fitting counted at
+        /// half rating), the SoftWeave Improvement's STR-based reduction, the ArmorEncumbrancePenalty
+        /// Improvement, and all three optional house rules (IgnoreArmorEncumbrance,
+        /// AlternateArmorEncumbrance's BOD+STR threshold, NoSingleArmorEncumbrance - Helmets and
+        /// Shields/SecureTech PPP System don't count as a "piece" for that last rule, matching
+        /// clsCharacter.cs). Not yet ported: ArmorMod bonuses to ballistic/impact rating (base
+        /// &lt;b&gt;/&lt;i&gt; values only).</summary>
         public CharacterEncumbranceData ArmorEncumbrance => ComputeArmorEncumbrance();
 
         /// <summary>Composure (WIL + CHA + Improvements), ported from clsCharacter.cs.</summary>
@@ -1622,19 +1711,29 @@ namespace Chummer.Core
 
         private CharacterEncumbranceData ComputeArmorEncumbrance()
         {
+            var objOptions = GetCharacterOptions();
             var objNodes = Document.SelectNodes("/character/armors/armor[equipped = 'True']");
             var dblBod = double.TryParse(GetAttributeValue("BOD"), out var d) ? d : 0;
+            var dblStr = double.TryParse(GetAttributeValue("STR"), out var dStr) ? dStr : 0;
 
             var intMultiplier = 2;
             var intTotalBallistic = 0;
             var intTotalImpact = 0;
+            var intArmorCount = 0;
             var lstWorn = new List<string>();
             if (objNodes != null)
             {
                 foreach (XmlNode objNode in objNodes)
                 {
-                    if (GetValue(objNode, "category", string.Empty) == "Military Grade Armor")
+                    var strCategory = GetValue(objNode, "category", string.Empty);
+                    if (strCategory == "Military Grade Armor")
                         intMultiplier = 3;
+
+                    // Helmets/Shields/SecureTech PPP System don't count as a "piece" for the
+                    // NoSingleArmorEncumbrance house rule (you can wear one plus a base suit
+                    // without it counting as "two pieces").
+                    if (strCategory != "Helmets and Shields" && strCategory != "SecureTech PPP System")
+                        intArmorCount++;
 
                     var strName = GetValue(objNode, "name", string.Empty);
                     var blnFormFitting = strName.StartsWith("Form-Fitting");
@@ -1649,18 +1748,40 @@ namespace Chummer.Core
                 }
             }
 
-            var intThreshold = (int)(dblBod * intMultiplier);
-            var strThresholdNote = "Schwelle: Konstitution " + dblBod + " x " + intMultiplier + " = " + intThreshold
-                + (intMultiplier == 3 ? " (Militärgraderüstung getragen)" : "");
-
             var intBallisticRating = ComputeArmorRating(objNodes, "b", ImprovementType.BallisticArmor);
             var intImpactRating = ComputeArmorRating(objNodes, "i", ImprovementType.ImpactArmor);
+
+            // SoftWeave reduces the highest worn Ballistic/Impact rating (capped at STR) out of
+            // the encumbrance total only - the displayed rating itself is unaffected.
+            var blnSoftWeave = Improvements.Any(i => i.Type == ImprovementType.SoftWeave && i.Enabled);
+            if (blnSoftWeave)
+            {
+                intTotalBallistic -= (int)Math.Min(intBallisticRating, dblStr);
+                intTotalImpact -= (int)Math.Min(intImpactRating, dblStr);
+            }
+
+            // Alternate Armor Encumbrance house rule: threshold is BOD*(X-1) + STR instead of BOD*X.
+            if (objOptions.AlternateArmorEncumbrance)
+                intMultiplier--;
+            var intThreshold = objOptions.AlternateArmorEncumbrance
+                ? (int)(dblBod * intMultiplier + dblStr)
+                : (int)(dblBod * intMultiplier);
+            var strThresholdNote = objOptions.AlternateArmorEncumbrance
+                ? "Schwelle: Konstitution " + dblBod + " x " + intMultiplier + " + Stärke " + dblStr + " = " + intThreshold
+                : "Schwelle: Konstitution " + dblBod + " x " + intMultiplier + " = " + intThreshold
+                    + (intMultiplier == 3 ? " (Militärgraderüstung getragen)" : "");
+
+            int intArmorEncumbrancePenaltyBonus = ImprovementManager.ValueOf(Improvements, ImprovementType.ArmorEncumbrancePenalty);
+            bool blnIgnoreEncumbrance = objOptions.IgnoreArmorEncumbrance;
+            bool blnNoSinglePiecePenalty = objOptions.NoSingleArmorEncumbrance && intArmorCount == 1;
 
             return new CharacterEncumbranceData(
                 BuildArmorRatingValue(intBallisticRating, "b", "ballistisch", objNodes, ImprovementType.BallisticArmor),
                 BuildArmorRatingValue(intImpactRating, "i", "Stoß", objNodes, ImprovementType.ImpactArmor),
-                BuildEncumbranceValue(intTotalBallistic, intThreshold, "ballistisch", strThresholdNote, lstWorn),
-                BuildEncumbranceValue(intTotalImpact, intThreshold, "Stoß", strThresholdNote, lstWorn));
+                BuildEncumbranceValue(intTotalBallistic, intThreshold, "ballistisch", strThresholdNote, lstWorn,
+                    blnIgnoreEncumbrance, blnNoSinglePiecePenalty, intArmorEncumbrancePenaltyBonus),
+                BuildEncumbranceValue(intTotalImpact, intThreshold, "Stoß", strThresholdNote, lstWorn,
+                    blnIgnoreEncumbrance, blnNoSinglePiecePenalty, intArmorEncumbrancePenaltyBonus));
         }
 
         private int ComputeArmorRating(XmlNodeList? objNodes, string strElement, ImprovementType eImprovementType)
@@ -1695,15 +1816,32 @@ namespace Chummer.Core
         }
 
         private static CharacterDerivedValueData BuildEncumbranceValue(int intTotal, int intThreshold,
-            string strKind, string strThresholdNote, IReadOnlyList<string> lstWorn)
+            string strKind, string strThresholdNote, IReadOnlyList<string> lstWorn, bool blnIgnoreEncumbrance,
+            bool blnNoSinglePiecePenalty, int intPenaltyBonus)
         {
-            var intPenalty = ComputeEncumbrancePenalty(intTotal, intThreshold);
             var sb = new StringBuilder();
             sb.Append("Getragene Panzerung (").Append(strKind).Append("): ").Append(intTotal);
             foreach (var strItem in lstWorn)
                 sb.Append('\n').Append("  ").Append(strItem);
             sb.Append('\n').Append(strThresholdNote);
-            sb.Append('\n').Append("Behinderung: ").Append(intPenalty);
+
+            int intPenalty;
+            if (blnIgnoreEncumbrance)
+            {
+                intPenalty = 0;
+                sb.Append('\n').Append("Behinderung durch Panzerung ignoriert (Hausregel)");
+            }
+            else if (blnNoSinglePiecePenalty && intTotal > intThreshold)
+            {
+                intPenalty = 0;
+                sb.Append('\n').Append("Keine Behinderung bei nur einem Panzerungsstück (Hausregel)");
+            }
+            else
+            {
+                intPenalty = ComputeEncumbrancePenalty(intTotal, intThreshold) - intPenaltyBonus;
+                sb.Append('\n').Append("Behinderung: ").Append(intPenalty);
+            }
+
             return new CharacterDerivedValueData(intPenalty, sb.ToString());
         }
 
@@ -1953,6 +2091,10 @@ namespace Chummer.Core
             return _objCharacterOptions;
         }
 
+        /// <summary>Test-only hook to exercise settings-driven behavior (house rules, karma/BP
+        /// costs, ...) without needing a real settings/*.xml file on disk.</summary>
+        internal void SetCharacterOptionsForTesting(CharacterOptions objOptions) => _objCharacterOptions = objOptions;
+
         private IReadOnlyList<CharacterQualityData> ReadQualities()
         {
             var lstQualities = new List<CharacterQualityData>();
@@ -1984,6 +2126,7 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
+                objArmor.SetArmorRatings(GetValue(objNode, "b", "0"), GetValue(objNode, "i", "0"));
                 string strSetName = GetValue(objNode, "armorname", string.Empty);
                 if (string.IsNullOrWhiteSpace(strSetName))
                 {
@@ -2557,6 +2700,18 @@ namespace Chummer.Core
         public string Avail { get; }
 
         public string Qty { get; }
+
+        /// <summary>Raw saved ballistic/impact armor rating (e.g. "+3") - only set for Armor tree
+        /// nodes, empty otherwise. See CharacterDocument.ArmorEncumbrance for the aggregate rules.</summary>
+        public string Ballistic { get; private set; } = string.Empty;
+
+        public string Impact { get; private set; } = string.Empty;
+
+        internal void SetArmorRatings(string strBallistic, string strImpact)
+        {
+            Ballistic = strBallistic;
+            Impact = strImpact;
+        }
 
         public List<CharacterTreeItemData> Children { get; }
 

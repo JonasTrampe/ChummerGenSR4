@@ -39,6 +39,20 @@ public sealed class GearSectionViewModel : ViewModelBase
         set => SetField(ref _strLifestyleCost, value);
     }
 
+    private string _strArmorRating = string.Empty;
+    public string ArmorRating
+    {
+        get => _strArmorRating;
+        set => SetField(ref _strArmorRating, value);
+    }
+
+    private string _strArmorEncumbrance = string.Empty;
+    public string ArmorEncumbrance
+    {
+        get => _strArmorEncumbrance;
+        set => SetField(ref _strArmorEncumbrance, value);
+    }
+
     public void LoadCharacter(CharacterDocument character)
     {
         Gear.Clear();
@@ -55,6 +69,12 @@ public sealed class GearSectionViewModel : ViewModelBase
         foreach (CharacterTreeItemData item in character.Armor)
             Armor.Add(TreeNodeViewModel.FromTreeItem(item));
         SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
+
+        CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
+        ArmorRating = "Panzerungswert: Ballistisch " + encumbrance.BallisticRating.Value
+            + " / Stoß " + encumbrance.ImpactRating.Value;
+        ArmorEncumbrance = "Behinderung: Ballistisch " + encumbrance.BallisticPenalty.Value
+            + " / Stoß " + encumbrance.ImpactPenalty.Value;
 
         Lifestyles.Clear();
         decimal decTotalCost = 0;

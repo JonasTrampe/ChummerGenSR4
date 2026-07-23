@@ -24,8 +24,8 @@
             <controls:TreeDetailPane TreeWidth="220" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Panzerung hinzufügen" />
-                        <Button Content="Löschen" />
+                        <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
+                        <Button Content="Löschen" Click="OnDeleteArmorClick" />
                         <Button Content="Panzerungsset hinzufügen" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
@@ -33,7 +33,7 @@
                     <TreeView ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="{Binding DisplayName}" />
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
@@ -45,11 +45,19 @@
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedArmor.Name, TargetNullValue=–}" FontWeight="SemiBold" />
                         <TextBlock Grid.Row="1" Text="Kategorie:" Width="90" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedArmor.Category, TargetNullValue=–}" />
-                        <TextBlock Grid.Row="2" Text="Stufe:" Width="90" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedArmor.Rating, TargetNullValue=–}" />
+                        <TextBlock Grid.Row="2" Text="Ballistisch / Stoß:" Width="90" />
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding SelectedArmor.Ballistic, TargetNullValue=–}" />
+                            <TextBlock Text="/" />
+                            <TextBlock Text="{Binding SelectedArmor.Impact, TargetNullValue=–}" />
+                        </StackPanel>
                         <TextBlock Grid.Row="3" Text="Angelegt:" Width="90" />
-                        <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedArmor.Equipped}" IsEnabled="False" />
+                        <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedArmor.Equipped}"
+                                  Click="OnToggleArmorEquippedClick" />
                     </Grid>
+                    <Separator Margin="0,4" />
+                    <TextBlock Text="{Binding ArmorRating}" FontWeight="Bold" />
+                    <TextBlock Text="{Binding ArmorEncumbrance}" Foreground="#666666" />
                     </StackPanel>
                 </controls:TreeDetailPane.DetailContent>
             </controls:TreeDetailPane>
