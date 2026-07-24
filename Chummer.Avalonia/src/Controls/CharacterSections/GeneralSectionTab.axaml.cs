@@ -4,6 +4,8 @@ using Avalonia.Markup.Xaml;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
 using Chummer.NewUI.ViewModels;
+using ContactGroupDialog = Chummer.NewUI.Dialogs.ContactGroupDialog;
+using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
 using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
@@ -87,5 +89,35 @@ public partial class GeneralSectionTab : UserControl
 
         if (_character.RemoveContact(intContactId))
             ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditContactNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || sender is not Button { Tag: ContactRowViewModel contact })
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = contact.Notes };
+        bool? saved = await dialog.ShowDialog<bool?>(window);
+        if (saved == true)
+            contact.Notes = dialog.Notes;
+    }
+
+    private async void OnEditContactGroupClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || sender is not Button { Tag: ContactRowViewModel contact })
+            return;
+
+        var dialog = new ContactGroupDialog();
+        dialog.ViewModel.LoadFrom(contact);
+        bool? saved = await dialog.ShowDialog<bool?>(window);
+        if (saved == true)
+        {
+            contact.UpdateGroup(dialog.ViewModel.GroupName, dialog.ViewModel.SelectedMembership?.Value ?? 0,
+                dialog.ViewModel.SelectedAreaOfInfluence?.Value ?? 0, dialog.ViewModel.SelectedMagicalResources?.Value ?? 0,
+                dialog.ViewModel.SelectedMatrixResources?.Value ?? 0);
+            ViewModel.LoadCharacter(_character);
+        }
     }
 }

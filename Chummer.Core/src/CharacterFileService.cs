@@ -1486,6 +1486,7 @@ namespace Chummer.Core
             AppendElement(objContact, "colour", "0");
             AppendElement(objContact, "free", "False");
             objContacts.AppendChild(objContact);
+            Changed?.Invoke();
         }
 
         public bool UpdateContact(int intContactId, string strName, string strConnection, string strLoyalty)
@@ -1497,6 +1498,7 @@ namespace Chummer.Core
             SetChildValue(objNode, "name", strName);
             SetChildValue(objNode, "connection", strConnection);
             SetChildValue(objNode, "loyalty", strLoyalty);
+            Changed?.Invoke();
             return true;
         }
 
@@ -1507,8 +1509,88 @@ namespace Chummer.Core
                 return false;
 
             objNode.ParentNode.RemoveChild(objNode);
+            Changed?.Invoke();
             return true;
         }
+
+        public bool UpdateContactNotes(int intContactId, string strNotes)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "notes", strNotes);
+            return true;
+        }
+
+        public bool SetContactFree(int intContactId, bool blnFree)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "free", blnFree ? "True" : "False");
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Sets a Group contact's profession label and the four modifiers that sum into
+        /// its Group Rating - ported from frmSelectContactConnection.cs.</summary>
+        public bool UpdateContactGroup(int intContactId, string strGroupName, int intMembership,
+            int intAreaOfInfluence, int intMagicalResources, int intMatrixResources)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "groupname", strGroupName);
+            SetChildValue(objNode, "membership", intMembership.ToString());
+            SetChildValue(objNode, "areaofinfluence", intAreaOfInfluence.ToString());
+            SetChildValue(objNode, "magicalresources", intMagicalResources.ToString());
+            SetChildValue(objNode, "matrixresources", intMatrixResources.ToString());
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Karma/BP spent at chargen on Contacts, minus what Enemies refund, after the
+        /// FreeContacts (CHA x multiplier) and FreeContactsFlat house rules - ported from
+        /// frmCreate.cs. This is purely informational (unlike attribute/skill Karma, legacy doesn't
+        /// deduct it from the Karma pool directly - it only feeds the BP/Karma summary panel).</summary>
+        public int ContactPointsUsed
+        {
+            get
+            {
+                var objOptions = GetCharacterOptions();
+                bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                int intRate = blnKarmaBuild ? objOptions.KarmaContact : objOptions.BpContact;
+
+                int intUsed = Contacts.Where(c => !c.Free)
+                    .Sum(c => (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty)) * intRate);
+                int intRefund = Enemies.Where(c => !c.Free)
+                    .Sum(c => (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty)) * intRate);
+                intUsed -= intRefund;
+
+                if (objOptions.FreeContacts)
+                {
+                    int intFreePoints = GetAttributeInt("CHA") * objOptions.FreeContactsMultiplier;
+                    if (blnKarmaBuild)
+                        intFreePoints *= objOptions.KarmaContact;
+                    intUsed = Math.Max(0, intUsed - intFreePoints);
+                }
+
+                if (objOptions.FreeContactsFlat)
+                {
+                    int intFreePoints = objOptions.FreeContactsFlatNumber;
+                    if (blnKarmaBuild)
+                        intFreePoints *= objOptions.KarmaContact;
+                    intUsed = Math.Max(0, intUsed - intFreePoints);
+                }
+
+                return intUsed;
+            }
+        }
+
+        private static int ParseInt(string strValue) => int.TryParse(strValue, out var intValue) ? intValue : 0;
 
         public IReadOnlyList<CharacterMartialArtData> MartialArts => ReadMartialArts();
 
@@ -2350,7 +2432,14 @@ namespace Chummer.Core
                         GetValue(objNode, "name", string.Empty),
                         GetValue(objNode, "connection", "0"),
                         GetValue(objNode, "loyalty", "0"),
-                        blnIsEnemy));
+                        blnIsEnemy,
+                        GetValue(objNode, "notes", string.Empty),
+                        GetValue(objNode, "free", "False") == "True",
+                        GetValue(objNode, "groupname", string.Empty),
+                        ParseInt(GetValue(objNode, "membership", "0")),
+                        ParseInt(GetValue(objNode, "areaofinfluence", "0")),
+                        ParseInt(GetValue(objNode, "magicalresources", "0")),
+                        ParseInt(GetValue(objNode, "matrixresources", "0"))));
                 }
 
                 intContactId++;
@@ -2879,13 +2968,21 @@ namespace Chummer.Core
     public sealed class CharacterContactData
     {
         internal CharacterContactData(int intContactId, string strName, string strConnection, string strLoyalty,
-            bool blnIsEnemy)
+            bool blnIsEnemy, string strNotes, bool blnFree, string strGroupName, int intMembership,
+            int intAreaOfInfluence, int intMagicalResources, int intMatrixResources)
         {
             ContactId = intContactId;
             Name = strName;
             Connection = strConnection;
             Loyalty = strLoyalty;
             IsEnemy = blnIsEnemy;
+            Notes = strNotes;
+            Free = blnFree;
+            GroupName = strGroupName;
+            Membership = intMembership;
+            AreaOfInfluence = intAreaOfInfluence;
+            MagicalResources = intMagicalResources;
+            MatrixResources = intMatrixResources;
         }
 
         public int ContactId { get; }
@@ -2893,6 +2990,22 @@ namespace Chummer.Core
         public string Connection { get; }
         public string Loyalty { get; }
         public bool IsEnemy { get; }
+        public string Notes { get; }
+
+        /// <summary>Doesn't cost Karma/BP to add - matches the legacy "Free" checkbox.</summary>
+        public bool Free { get; }
+
+        /// <summary>Free-text profession/organization label for a Group contact (e.g. "Hacker").</summary>
+        public string GroupName { get; }
+
+        public int Membership { get; }
+        public int AreaOfInfluence { get; }
+        public int MagicalResources { get; }
+        public int MatrixResources { get; }
+
+        /// <summary>Sum of the four Group modifiers - adds to Connection+Loyalty in the cost
+        /// formula, ported from frmSelectContactConnection.cs's Total Connection Modifier.</summary>
+        public int GroupRating => Membership + AreaOfInfluence + MagicalResources + MatrixResources;
     }
 
     public sealed class CharacterMartialArtData

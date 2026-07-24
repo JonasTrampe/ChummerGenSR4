@@ -89,7 +89,10 @@
                 </StackPanel>
 
                 <StackPanel>
-                    <TextBlock Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Grid.Column="0" Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Grid.Column="2" Text="{Binding ContactPointsUsed}" Foreground="#666666" />
+                    </Grid>
                     <Button Content="Connection hinzufügen" HorizontalAlignment="Left"
                             Margin="0,0,0,6" Click="OnAddContactClick" />
                     <ItemsControl ItemsSource="{Binding Contacts}">
@@ -97,13 +100,22 @@
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
                                 <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
-                                    <Grid ColumnDefinitions="160,Auto,56,Auto,56,Auto" ColumnSpacing="6">
+                                    <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
-                                        <TextBox Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <controls:IntegerSpinner Grid.Column="2" Width="70" Minimum="0" Maximum="6"
+                                                                  Value="{Binding Connection, Mode=TwoWay}" />
                                         <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
-                                        <TextBox Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
-                                        <Button Grid.Column="5" Content="Löschen" Click="OnDeleteContactClick"
+                                        <controls:IntegerSpinner Grid.Column="4" Width="70" Minimum="1" Maximum="6"
+                                                                  Value="{Binding Loyalty, Mode=TwoWay}" />
+                                        <TextBlock Grid.Column="5" Text="{Binding GroupRating, StringFormat='Gruppe {0}'}"
+                                                   VerticalAlignment="Center" ToolTip.Tip="{Binding GroupName}" />
+                                        <Button Grid.Column="6" Content="..." Click="OnEditContactGroupClick"
+                                                Tag="{Binding}" />
+                                        <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
+                                                Tag="{Binding}" />
+                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free}" />
+                                        <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>
@@ -121,13 +133,22 @@
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
                                 <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
-                                    <Grid ColumnDefinitions="160,Auto,56,Auto,56,Auto" ColumnSpacing="6">
+                                    <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
-                                        <TextBox Grid.Column="2" Text="{Binding Connection}" VerticalAlignment="Center" />
+                                        <controls:IntegerSpinner Grid.Column="2" Width="70" Minimum="0" Maximum="6"
+                                                                  Value="{Binding Connection, Mode=TwoWay}" />
                                         <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
-                                        <TextBox Grid.Column="4" Text="{Binding Loyalty}" VerticalAlignment="Center" />
-                                        <Button Grid.Column="5" Content="Löschen" Click="OnDeleteContactClick"
+                                        <controls:IntegerSpinner Grid.Column="4" Width="70" Minimum="1" Maximum="6"
+                                                                  Value="{Binding Loyalty, Mode=TwoWay}" />
+                                        <TextBlock Grid.Column="5" Text="{Binding GroupRating, StringFormat='Gruppe {0}'}"
+                                                   VerticalAlignment="Center" ToolTip.Tip="{Binding GroupName}" />
+                                        <Button Grid.Column="6" Content="..." Click="OnEditContactGroupClick"
+                                                Tag="{Binding}" />
+                                        <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
+                                                Tag="{Binding}" />
+                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free}" />
+                                        <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>

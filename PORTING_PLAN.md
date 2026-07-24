@@ -120,7 +120,15 @@ read the stream back immediately still work).
   no STR-substituted damage code resolution). Armor now has the same `AddArmor`/`RemoveArmor` +
   `ArmorDialog` treatment, wired into the Panzerung sub-tab's previously-dead buttons - the picker
   also handles armor.xml's `Variable(min-max)` cost items (generic Clothing) with a cost spinner
-  in that range rather than silently resolving to 0. Contacts still needs its own write path.
+  in that range rather than silently resolving to 0. Contacts/Enemies had basic CRUD already
+  (Add/Update/Remove); now also has the real SR4 Karma/BP cost rule ported from `frmCreate.cs` -
+  `ContactPointsUsed` computes `(Connection + GroupRating + Loyalty) × KarmaContact/BpContact`,
+  Enemies refund instead of costing, the `Free` per-contact flag and both `FreeContacts`/
+  `FreeContactsFlat` house rules are honored, and a Group contact's Membership/Area of Influence/
+  Magical/Matrix Resources modifiers (via a new `ContactGroupDialog`, exact point values ported
+  from `frmSelectContactConnection.cs`) feed into that Group Rating. Connection/Loyalty are now
+  spinners (0-6/1-6, matching the legacy NumericUpDown ranges) and Notes moved to its own
+  `ContactNotesDialog` instead of an inline box.
 
 ## Phase 4 — Item picker dialogs (the `frmSelectXxx` → real Avalonia dialogs)
 

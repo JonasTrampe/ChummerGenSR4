@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.ContactGroupDialog"
+        x:DataType="vm:ContactGroupDialogViewModel"
+        Width="420" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        Title="Zusätzliche Connectioneinstellungen">
+    <StackPanel Margin="16" Spacing="8">
+        <TextBlock Text="Berufsgruppe:" FontWeight="Bold" />
+        <TextBox Text="{Binding GroupName, Mode=TwoWay}" />
+
+        <TextBlock Text="Mitgliedschaft:" FontWeight="Bold" Margin="0,8,0,0" />
+        <ComboBox ItemsSource="{Binding MembershipOptions}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch" />
+
+        <TextBlock Text="Einflussbereich:" FontWeight="Bold" Margin="0,8,0,0" />
+        <ComboBox ItemsSource="{Binding AreaOfInfluenceOptions}" SelectedItem="{Binding SelectedAreaOfInfluence, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch" />
+
+        <TextBlock Text="Magische Ressourcen:" FontWeight="Bold" Margin="0,8,0,0" />
+        <ComboBox ItemsSource="{Binding MagicalResourcesOptions}" SelectedItem="{Binding SelectedMagicalResources, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch" />
+
+        <TextBlock Text="Matrix-Ressourcen:" FontWeight="Bold" Margin="0,8,0,0" />
+        <ComboBox ItemsSource="{Binding MatrixResourcesOptions}" SelectedItem="{Binding SelectedMatrixResources, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch" />
+
+        <Grid ColumnDefinitions="Auto,*" Margin="0,12,0,0">
+            <TextBlock Grid.Column="0" Text="Gesamtverbindungen Modifikator:" FontWeight="Bold" />
+            <TextBlock Grid.Column="1" Text="{Binding TotalConnectionModifier}" Margin="6,0,0,0" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,16,0,0">
+            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="OK" Width="80" Click="OnOk" />
+        </Grid>
+    </StackPanel>
+</Window>

@@ -142,6 +142,13 @@ public sealed class GeneralSectionViewModel : ViewModelBase
 
     public ObservableCollection<ContactRowViewModel> Enemies { get; } = new();
 
+    private string _strContactPointsUsed = string.Empty;
+    public string ContactPointsUsed
+    {
+        get => _strContactPointsUsed;
+        set => SetField(ref _strContactPointsUsed, value);
+    }
+
     public GeneralSectionViewModel()
     {
         foreach (AttributeRowViewModel row in Attributes)
@@ -248,5 +255,7 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         Enemies.Clear();
         foreach (CharacterContactData enemy in character.Enemies)
             Enemies.Add(new ContactRowViewModel(character, enemy));
+
+        ContactPointsUsed = "Punkte für Kontakte: " + character.ContactPointsUsed;
     }
 }
