@@ -27,6 +27,9 @@
                         <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
                         <Button Content="Löschen" Click="OnDeleteArmorClick" />
                         <Button Content="Panzerungsset hinzufügen" />
+                        <ComboBox ItemsSource="{Binding ArmorCategories}"
+                                  SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"
+                                  Margin="6,0,0,0" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>

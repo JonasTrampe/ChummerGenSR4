@@ -46,11 +46,11 @@
                 </Grid>
 
                 <StackPanel>
-                    <Grid ColumnDefinitions="150,40,26,60,90,60" Margin="0,0,0,2">
+                    <Grid ColumnDefinitions="150,40,110,60,130,60" Margin="0,0,0,2">
                         <TextBlock Grid.Column="0" Classes="gridHeader" Text="Attribute" />
                         <TextBlock Grid.Column="1" Classes="gridHeader" Text="Basis" />
                         <TextBlock Grid.Column="3" Classes="gridHeader" Text="(Verst.)" />
-                        <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp Begrenzu." />
+                        <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp-Grenze" />
                         <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
                     </Grid>
                     <ItemsControl ItemsSource="{Binding Attributes}">

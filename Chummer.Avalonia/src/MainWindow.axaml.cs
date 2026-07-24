@@ -172,6 +172,12 @@ public partial class MainWindow : Window
     {
         var dialog = new OptionsDialog();
         await dialog.ShowDialog(this);
+
+        // House rules/karma-BP costs may have just changed on disk - reload every open character
+        // so settings-dependent values (armor encumbrance, karma costs, ...) reflect it immediately
+        // instead of only after closing and reopening the character.
+        foreach (var tab in ViewModel.OpenCharacters)
+            tab.Content.LoadCharacter(tab.Character);
     }
 
     public void LoadCharacterIntoTabs(CharacterDocument character, string? sourcePath = null)

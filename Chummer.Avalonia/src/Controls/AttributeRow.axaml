@@ -6,7 +6,7 @@
     <!-- One Attributes-table row: Name | Basis | [+ or spinner] | (Verst.) | Bereich | Quelle.
 	     Same rationale as SkillRow - identical columns on every instance instead of a
 	     hand-repeated shared Grid, so BOD/AGI/REA/etc. line up automatically. -->
-    <Grid ColumnDefinitions="150,40,110,60,90,60" DataContext="{Binding ElementName=root}" MinHeight="22">
+    <Grid ColumnDefinitions="150,40,110,60,130,60" DataContext="{Binding ElementName=root}" MinHeight="22">
         <TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding AttributeName}" />
         <TextBlock Grid.Column="1" Classes="rowLabel" Text="{Binding Base}" IsVisible="{Binding !IsCreateMode}" />
         <controls:IntegerSpinner Grid.Column="2" Width="90" HorizontalAlignment="Left"

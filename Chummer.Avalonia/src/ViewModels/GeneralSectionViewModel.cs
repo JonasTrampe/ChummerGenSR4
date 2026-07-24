@@ -166,9 +166,19 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         LoadCharacter(_character);
     }
 
+    private void OnCharacterChanged()
+    {
+        if (_character != null)
+            LoadCharacter(_character);
+    }
+
     public void LoadCharacter(CharacterDocument character)
     {
+        if (_character != null)
+            _character.Changed -= OnCharacterChanged;
         _character = character;
+        _character.Changed += OnCharacterChanged;
+
         Alias = character.Alias;
         Metatype = character.Metatype;
         Nuyen = character.Nuyen;

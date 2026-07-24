@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
@@ -27,14 +28,32 @@ public sealed class SettingsProfileDialogViewModel : ViewModelBase
             foreach (string strFilePath in Directory.GetFiles(strSettingsDirectory, "*.xml"))
             {
                 string strFileName = Path.GetFileName(strFilePath);
-                SettingsProfiles.Add(new ListItem { Name = Path.GetFileNameWithoutExtension(strFileName), Value = strFileName });
+                // Use the profile's own <name> (e.g. "Darkness in the Heart of Texas") rather than
+                // its raw filename (e.g. "Darkness_in_the_heart_of_texas.xml") for the label.
+                string strDisplayName = strFileName;
+                try
+                {
+                    var objOptions = new CharacterOptions();
+                    objOptions.Load(strFileName);
+                    if (!string.IsNullOrWhiteSpace(objOptions.Name))
+                        strDisplayName = objOptions.Name;
+                }
+                catch
+                {
+                    // Fall back to the filename if the profile fails to parse.
+                }
+
+                SettingsProfiles.Add(new ListItem { Name = strDisplayName, Value = strFileName });
             }
         }
 
         if (SettingsProfiles.Count == 0)
             SettingsProfiles.Add(new ListItem { Name = "Default Settings", Value = "default.xml" });
 
-        SelectedProfile = SettingsProfiles[0];
+        // "default.xml" is always the default selection, regardless of how other profiles sort
+        // alphabetically ahead of it.
+        SelectedProfile = SettingsProfiles.FirstOrDefault(p => string.Equals(p.Value as string, "default.xml", System.StringComparison.OrdinalIgnoreCase))
+            ?? SettingsProfiles[0];
     }
 
     public CharacterOptions LoadSelectedOptions()

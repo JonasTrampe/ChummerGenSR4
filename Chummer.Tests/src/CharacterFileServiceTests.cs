@@ -495,12 +495,14 @@ public class CharacterFileServiceTests
     {
         CharacterDocument character = LoadFixture();
 
-        // REA totalvalue 4, plus the fixture's Wired Reflexes +2 REA Improvement (stored in
-        // Augmented, not Value - it boosts the augmented attribute without raising the base).
+        // REA totalvalue 4, plus the fixture's Wired Reflexes +2 REA Improvement, minus 1 from
+        // the fixture's own worn armor pushing ballistic encumbrance to -1 (BOD 4 -> threshold 8;
+        // Actioneer Business Clothes b6 + Form-Fitting Bodysuit b6/2 = 9 total, ceil((9-8)/2) = 1).
         CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
         Assert.Equal("4", rea.TotalValue);
-        Assert.Equal(6, rea.Augmented.Value);
+        Assert.Equal(5, rea.Augmented.Value);
         Assert.Contains("Wired Reflexes", rea.Augmented.Tooltip);
+        Assert.Contains("Rüstungsbehinderung (ballistisch)", rea.Augmented.Tooltip);
 
         // BOD has no Attribute-type Improvements in the fixture, so Augmented == TotalValue.
         CharacterAttributeData bod = character.Attributes.Single(a => a.Code == "BOD");

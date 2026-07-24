@@ -1,15 +1,32 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
 
 public sealed class GearSectionViewModel : ViewModelBase
 {
+    private List<CharacterTreeItemData> _lstAllArmor = new();
+
     public ObservableCollection<TreeNodeViewModel> Gear { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
+    public ObservableCollection<string> ArmorCategories { get; } = new();
     public ObservableCollection<string> Lifestyles { get; } = new();
+
+    private string? _strSelectedArmorCategory;
+    public string? SelectedArmorCategory
+    {
+        get => _strSelectedArmorCategory;
+        set
+        {
+            if (!SetField(ref _strSelectedArmorCategory, value))
+                return;
+            ApplyArmorFilter();
+        }
+    }
 
     private TreeNodeViewModel? _selectedGear;
     public TreeNodeViewModel? SelectedGear
@@ -65,10 +82,15 @@ public sealed class GearSectionViewModel : ViewModelBase
             Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
         SelectedWeapon = Weapons.Count > 0 ? Weapons[0] : null;
 
-        Armor.Clear();
-        foreach (CharacterTreeItemData item in character.Armor)
-            Armor.Add(TreeNodeViewModel.FromTreeItem(item));
-        SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
+        _lstAllArmor = character.Armor.ToList();
+        ArmorCategories.Clear();
+        ArmorCategories.Add("Alle");
+        foreach (string strCategory in _lstAllArmor.Select(a => a.Category).Where(c => !string.IsNullOrEmpty(c))
+                     .Distinct().OrderBy(c => c))
+            ArmorCategories.Add(strCategory);
+        _strSelectedArmorCategory = "Alle";
+        OnPropertyChanged(nameof(SelectedArmorCategory));
+        ApplyArmorFilter();
 
         CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
         ArmorRating = "Panzerungswert: Ballistisch " + encumbrance.BallisticRating.Value
@@ -86,5 +108,17 @@ public sealed class GearSectionViewModel : ViewModelBase
         }
 
         LifestyleCost = "Kosten/Monat: " + decTotalCost.ToString("N0", CultureInfo.InvariantCulture) + "¥";
+    }
+
+    private void ApplyArmorFilter()
+    {
+        Armor.Clear();
+        IEnumerable<CharacterTreeItemData> query = _lstAllArmor;
+        if (!string.IsNullOrEmpty(SelectedArmorCategory) && SelectedArmorCategory != "Alle")
+            query = query.Where(a => a.Category == SelectedArmorCategory);
+
+        foreach (CharacterTreeItemData item in query)
+            Armor.Add(TreeNodeViewModel.FromTreeItem(item));
+        SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
     }
 }

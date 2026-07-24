@@ -1784,16 +1784,37 @@ namespace Chummer.Core
                     blnIgnoreEncumbrance, blnNoSinglePiecePenalty, intArmorEncumbrancePenaltyBonus));
         }
 
+        // Ported from clsCharacter.cs's BallisticArmorRating/ImpactArmorRating: a "+"-prefixed
+        // rating (e.g. "+3") is stacking bonus armor, not a suit that supersedes others. Non-"+"
+        // items only the single highest counts; "+" Clothing items sum among themselves and that
+        // sum competes with the highest as an alternative base; "+" non-Clothing items always add
+        // on top of whichever base wins.
         private int ComputeArmorRating(XmlNodeList? objNodes, string strElement, ImprovementType eImprovementType)
         {
             var intHighest = 0;
+            var intStacking = 0;
+            var intClothing = 0;
             if (objNodes != null)
             {
                 foreach (XmlNode objNode in objNodes)
-                    intHighest = Math.Max(intHighest, ParseArmorRating(GetValue(objNode, strElement, "0")));
+                {
+                    var strRating = GetValue(objNode, strElement, "0");
+                    var intRating = ParseArmorRating(strRating);
+                    if (!strRating.StartsWith("+"))
+                    {
+                        intHighest = Math.Max(intHighest, intRating);
+                        continue;
+                    }
+
+                    if (GetValue(objNode, "category", string.Empty) == "Clothing")
+                        intClothing += intRating;
+                    else
+                        intStacking += intRating;
+                }
             }
 
-            return intHighest + ImprovementManager.ValueOf(Improvements, eImprovementType);
+            var intArmor = Math.Max(intHighest, intClothing);
+            return intArmor + intStacking + ImprovementManager.ValueOf(Improvements, eImprovementType);
         }
 
         private CharacterDerivedValueData BuildArmorRatingValue(int intTotal, string strElement, string strKind,
@@ -1845,14 +1866,15 @@ namespace Chummer.Core
             return new CharacterDerivedValueData(intPenalty, sb.ToString());
         }
 
-        // Armor ratings in the save file can carry a "+2" style mod suffix on top of the base
-        // number (matching the legacy TotalBallistic/TotalImpact display format) - only the
-        // leading integer is used here since per-mod bonuses aren't modeled yet (see
+        // Armor ratings in the save file can carry a leading "+" marking stacking bonus armor
+        // (see ComputeArmorRating) - int.TryParse already accepts a leading "+" so this just
+        // strips anything trailing the number (per-mod bonuses aren't modeled yet, see
         // ArmorEncumbrance's doc comment).
         private static int ParseArmorRating(string strRating)
         {
-            var strLeading = new string(strRating.TakeWhile(c => char.IsDigit(c) || c == '-').ToArray());
-            return int.TryParse(strLeading, out var intValue) ? intValue : 0;
+            var strLeading = new string(strRating.TakeWhile(c => char.IsDigit(c) || c == '-' || c == '+').ToArray());
+            return int.TryParse(strLeading, NumberStyles.Integer | NumberStyles.AllowLeadingSign,
+                CultureInfo.InvariantCulture, out var intValue) ? intValue : 0;
         }
 
         private static int ComputeEncumbrancePenalty(int intTotal, int intThreshold)
@@ -1911,7 +1933,21 @@ namespace Chummer.Core
         private CharacterDerivedValueData ComputeAttributeAugmented(string strCode, string strTotalValue)
         {
             var intBase = int.TryParse(strTotalValue, out var intParsed) ? intParsed : 0;
-            var lstContributions = ImprovementManager.DescribeAugmentedValueOf(Improvements, ImprovementType.Attribute, strCode);
+            var lstContributions = ImprovementManager.DescribeAugmentedValueOf(Improvements, ImprovementType.Attribute, strCode)
+                .ToList();
+
+            // Ported from frmCareer.cs/frmCreate.cs: a negative ballistic/impact armor encumbrance
+            // penalty is dynamically applied as an AGI and REA reduction (not just a skill dice
+            // pool note), each source counted separately if both are negative.
+            if (strCode == "AGI" || strCode == "REA")
+            {
+                CharacterEncumbranceData encumbrance = ArmorEncumbrance;
+                if (encumbrance.BallisticPenalty.Value < 0)
+                    lstContributions.Add(("Rüstungsbehinderung (ballistisch)", encumbrance.BallisticPenalty.Value));
+                if (encumbrance.ImpactPenalty.Value < 0)
+                    lstContributions.Add(("Rüstungsbehinderung (Stoß)", encumbrance.ImpactPenalty.Value));
+            }
+
             var intTotal = intBase + lstContributions.Sum(c => c.Value);
 
             var sb = new StringBuilder();
@@ -2078,22 +2114,24 @@ namespace Chummer.Core
         private XmlNode GetAttributeNode(string strCode)
             => Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']");
 
-        private CharacterOptions _objCharacterOptions;
+        private CharacterOptions _objCharacterOptionsOverride;
 
+        // Deliberately not cached: house rules/karma-BP costs can change from the Options dialog
+        // while a character stays open, and a stale cached CharacterOptions would silently ignore
+        // that (a real bug this fixes - see PORTING_PLAN.md).
         private CharacterOptions GetCharacterOptions()
         {
-            if (_objCharacterOptions == null)
-            {
-                _objCharacterOptions = new CharacterOptions();
-                _objCharacterOptions.Load(GetValue("/character/settings", "default.xml"));
-            }
+            if (_objCharacterOptionsOverride != null)
+                return _objCharacterOptionsOverride;
 
-            return _objCharacterOptions;
+            var objOptions = new CharacterOptions();
+            objOptions.Load(GetValue("/character/settings", "default.xml"));
+            return objOptions;
         }
 
         /// <summary>Test-only hook to exercise settings-driven behavior (house rules, karma/BP
         /// costs, ...) without needing a real settings/*.xml file on disk.</summary>
-        internal void SetCharacterOptionsForTesting(CharacterOptions objOptions) => _objCharacterOptions = objOptions;
+        internal void SetCharacterOptionsForTesting(CharacterOptions objOptions) => _objCharacterOptionsOverride = objOptions;
 
         private IReadOnlyList<CharacterQualityData> ReadQualities()
         {
