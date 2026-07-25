@@ -8,7 +8,9 @@ namespace Chummer.NewUI.ViewModels;
 
 public sealed class GearSectionViewModel : ViewModelBase
 {
+    private CharacterDocument? _character;
     private List<CharacterTreeItemData> _lstAllArmor = new();
+    private bool _blnIsLoadingGearQuantity;
 
     public ObservableCollection<TreeNodeViewModel> Gear { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
@@ -32,7 +34,31 @@ public sealed class GearSectionViewModel : ViewModelBase
     public TreeNodeViewModel? SelectedGear
     {
         get => _selectedGear;
-        set => SetField(ref _selectedGear, value);
+        set
+        {
+            if (!SetField(ref _selectedGear, value))
+                return;
+
+            _blnIsLoadingGearQuantity = true;
+            SelectedGearQuantity = int.TryParse(value?.Qty, out int intQty) ? intQty : 1;
+            _blnIsLoadingGearQuantity = false;
+        }
+    }
+
+    private int _intSelectedGearQuantity = 1;
+    public int SelectedGearQuantity
+    {
+        get => _intSelectedGearQuantity;
+        set
+        {
+            if (!SetField(ref _intSelectedGearQuantity, value))
+                return;
+            if (_blnIsLoadingGearQuantity || _character == null || SelectedGear is not { GearId: >= 0 } node)
+                return;
+
+            if (_character.SetGearQuantity(node.GearId, value.ToString()))
+                LoadCharacter(_character);
+        }
     }
 
     private TreeNodeViewModel? _selectedArmor;
@@ -72,6 +98,7 @@ public sealed class GearSectionViewModel : ViewModelBase
 
     public void LoadCharacter(CharacterDocument character)
     {
+        _character = character;
         Gear.Clear();
         foreach (CharacterTreeItemData item in character.Gear)
             Gear.Add(TreeNodeViewModel.FromTreeItem(item));

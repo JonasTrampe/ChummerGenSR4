@@ -9,7 +9,7 @@
         <ContentPresenter DockPanel.Dock="Top" Content="{Binding HeaderContent, ElementName=root}" />
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding TreeWidth, ElementName=root}" />
+                <ColumnDefinition Width="{Binding TreeWidth, ElementName=root, FallbackValue=90}" />
                 <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>

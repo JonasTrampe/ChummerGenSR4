@@ -67,7 +67,7 @@
         </TabItem>
 
         <TabItem Header="Waffen">
-            <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+            <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Waffe hinzufügen" Click="OnAddWeaponClick" />
@@ -104,10 +104,11 @@
         </TabItem>
 
         <TabItem Header="Ausrüstung">
-            <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+            <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
+                        <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
                         <Button Content="Löschen" Click="OnDeleteGearClick" />
                         <Button Content="Ort hinzufügen" />
                         <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
@@ -120,7 +121,7 @@
                     <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="{Binding DisplayName}" />
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
@@ -129,7 +130,7 @@
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Name:" Width="90" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Name, TargetNullValue=–}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.TranslatedName, TargetNullValue=–}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Kategorie:" Width="90" />
@@ -140,9 +141,37 @@
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Installiert:" Width="90" />
-                            <CheckBox Grid.Column="1" IsChecked="{Binding SelectedGear.Equipped}" IsEnabled="False" />
+                            <TextBlock Grid.Column="0" Text="Menge:" Width="90" />
+                            <controls:IntegerSpinner Grid.Column="1" Width="90" HorizontalAlignment="Left" Minimum="1" Maximum="9999"
+                                                      Value="{Binding SelectedGearQuantity, Mode=TwoWay}" />
                         </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Installiert:" Width="90" />
+                            <CheckBox Grid.Column="1" IsChecked="{Binding SelectedGear.Equipped}"
+                                      Click="OnToggleGearEquippedClick" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kapazität:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.CapacityDisplay, TargetNullValue=–}" />
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding SelectedGear.HasCommlinkStats}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Prozessor:" FontWeight="Bold" />
+                                <TextBlock Text="{Binding SelectedGear.EffectiveResponse, TargetNullValue=–}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Signal:" FontWeight="Bold" />
+                                <TextBlock Text="{Binding SelectedGear.EffectiveSignal, TargetNullValue=–}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="System:" FontWeight="Bold" />
+                                <TextBlock Text="{Binding SelectedGear.EffectiveSystem, TargetNullValue=–}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Firewall:" FontWeight="Bold" />
+                                <TextBlock Text="{Binding SelectedGear.EffectiveFirewall, TargetNullValue=–}" />
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
                 </controls:TreeDetailPane.DetailContent>
             </controls:TreeDetailPane>

@@ -21,10 +21,8 @@ public partial class TreeDetailPane : UserControl
     public static readonly StyledProperty<object?> DetailContentProperty =
         AvaloniaProperty.Register<TreeDetailPane, object?>(nameof(DetailContent));
 
-    /// <summary>Width of the left (tree/list) column - each tab used its own fixed value before
-    /// (220/280/300/330), so this stays per-instance rather than a shared constant.</summary>
     public static readonly StyledProperty<double> TreeWidthProperty =
-        AvaloniaProperty.Register<TreeDetailPane, double>(nameof(TreeWidth), 220);
+        AvaloniaProperty.Register<TreeDetailPane, double>(nameof(TreeWidth), 90);
 
     public static readonly StyledProperty<Thickness> ContentMarginProperty =
         AvaloniaProperty.Register<TreeDetailPane, Thickness>(nameof(ContentMargin), new Thickness(4));

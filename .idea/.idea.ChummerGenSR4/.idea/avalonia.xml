@@ -11,7 +11,12 @@
         <entry key="Chummer.Avalonia/Dialogs/SheetPreviewDialog.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
         <entry key="Chummer.Avalonia/Dialogs/SpellDialog.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
         <entry key="Chummer.Avalonia/MainWindow.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
+        <entry key="Chummer.Avalonia/src/Controls/CharacterSections/GearSectionTab.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
+        <entry key="Chummer.Avalonia/src/Controls/CharacterSections/GeneralSectionTab.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
         <entry key="Chummer.Avalonia/src/Controls/CharacterSections/InitiationSectionTab.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
+        <entry key="Chummer.Avalonia/src/Controls/CharacterSections/SkillsSectionTab.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
+        <entry key="Chummer.Avalonia/src/Controls/CharacterTab.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
+        <entry key="Chummer.Avalonia/src/Controls/TreeDetailPane.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
         <entry key="Chummer.Avalonia/src/MainWindow.axaml" value="Chummer.Avalonia/Chummer.Avalonia.csproj" />
         <entry key="Chummer.AvaloniaSpike/App.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />
         <entry key="Chummer.AvaloniaSpike/Controls/AdeptPowerRow.axaml" value="Chummer.AvaloniaSpike/Chummer.AvaloniaSpike.csproj" />

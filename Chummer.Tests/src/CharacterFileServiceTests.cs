@@ -129,9 +129,51 @@ public class CharacterFileServiceTests
     {
         CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");
 
-        Assert.True(character.RemoveGear("Medkit", "Biotech", "6"));
+        int intGearId = character.Gear[0].GearId;
+        Assert.True(character.RemoveGear(intGearId));
         CharacterTreeItemData remaining = Assert.Single(character.Gear);
         Assert.Equal("3", remaining.Rating);
+    }
+
+    [Fact]
+    public void AddGear_WritesQuantityCostAvailAndSource()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Stim Patch", "Biotech", "0", "5", "50", "4", "SR4 60");
+
+        CharacterTreeItemData added = Assert.Single(character.Gear);
+        Assert.Equal("5", added.Qty);
+        Assert.Equal("50", added.Cost);
+        Assert.Equal("4", added.Avail);
+        Assert.True(added.GearId >= 0);
+    }
+
+    [Fact]
+    public void AddChildGear_NestsUnderTheParentAndCanBeRemovedById()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0");
+        int intParentId = character.Gear[0].GearId;
+
+        Assert.True(character.AddChildGear(intParentId, "Certified Credstick, Silver", "Commlink Accessory", "0"));
+        CharacterTreeItemData parent = character.Gear[0];
+        CharacterTreeItemData child = Assert.Single(parent.Children);
+        Assert.Equal("Certified Credstick, Silver", child.Name);
+        Assert.True(child.GearId > intParentId);
+
+        Assert.True(character.RemoveGear(child.GearId));
+        Assert.Empty(character.Gear[0].Children);
+    }
+
+    [Fact]
+    public void SetGearQuantity_UpdatesAnExistingItemsCount()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Stim Patch", "Biotech", "0", "1");
+        int intGearId = character.Gear[0].GearId;
+
+        Assert.True(character.SetGearQuantity(intGearId, "10"));
+        Assert.Equal("10", character.Gear[0].Qty);
     }
 
     [Fact]
@@ -851,7 +893,7 @@ public class CharacterFileServiceTests
     {
         var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
             + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
-            + "<category>Commlinks</category><equipped>True</equipped><active>True</active>"
+            + "<category>Commlink</category><equipped>True</equipped><active>True</active>"
             + "<response>5</response></gear></gears></character>");
 
         Assert.Equal(9, character.MatrixInitiative.Base); // INT(4) + Response(5)
@@ -863,7 +905,7 @@ public class CharacterFileServiceTests
     {
         var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
             + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
-            + "<category>Commlinks</category><equipped>True</equipped><active>False</active>"
+            + "<category>Commlink</category><equipped>True</equipped><active>False</active>"
             + "<response>5</response></gear></gears></character>");
 
         Assert.Equal(4, character.MatrixInitiative.Base); // Response not counted - commlink isn't active.

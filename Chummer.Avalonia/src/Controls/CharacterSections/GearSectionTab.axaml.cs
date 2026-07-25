@@ -56,22 +56,65 @@ public partial class GearSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new GearDialog();
-        bool added = await dialog.ShowDialog<bool>(window);
-        if (added && dialog.SelectedGear != null)
+        bool continueAdding;
+        do
         {
-            var gear = dialog.SelectedGear;
-            _character.AddGear(gear.Name, gear.Category, gear.Rating);
-            ViewModel.LoadCharacter(_character);
-        }
+            var dialog = new GearDialog();
+            bool added = await dialog.ShowDialog<bool>(window);
+            if (added && dialog.SelectedGear != null)
+            {
+                var gear = dialog.SelectedGear;
+                _character.AddGear(gear.SourceName, gear.Category, gear.Rating, gear.Quantity.ToString(),
+                    gear.Cost, gear.Availability, gear.SourcePage, string.Empty,
+                    gear.Capacity, gear.Response, gear.Signal, gear.SystemRating, gear.Firewall);
+            }
+            continueAdding = added && dialog.ContinueAdding;
+        } while (continueAdding);
+
+        ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Adds gear nested under the currently selected gear item (e.g. a Certified
+    /// Credstick under a Commlink) instead of at the root of the Ausrüstung tree.</summary>
+    private async void OnAddChildGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedGear is not { GearId: >= 0 } parent)
+            return;
+
+        bool continueAdding;
+        do
+        {
+            var dialog = new GearDialog();
+            bool added = await dialog.ShowDialog<bool>(window);
+            if (added && dialog.SelectedGear != null)
+            {
+                var gear = dialog.SelectedGear;
+                _character.AddChildGear(parent.GearId, gear.SourceName, gear.Category, gear.Rating, gear.Quantity.ToString(),
+                    gear.Cost, gear.Availability, gear.SourcePage, string.Empty,
+                    gear.Capacity, gear.Response, gear.Signal, gear.SystemRating, gear.Firewall);
+            }
+            continueAdding = added && dialog.ContinueAdding;
+        } while (continueAdding);
+
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnDeleteGearClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedGear == null || ViewModel.SelectedGear.Parent != null)
+        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node)
             return;
 
-        if (_character.RemoveGear(ViewModel.SelectedGear.SourceName, ViewModel.SelectedGear.Category, ViewModel.SelectedGear.Rating))
+        if (_character.RemoveGear(node.GearId))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnToggleGearEquippedClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node || sender is not CheckBox checkBox)
+            return;
+
+        if (_character.SetGearEquipped(node.GearId, checkBox.IsChecked == true))
             ViewModel.LoadCharacter(_character);
     }
 

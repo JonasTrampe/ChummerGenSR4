@@ -10,6 +10,11 @@ namespace Chummer.NewUI.ViewModels;
 public sealed class TreeNodeViewModel
 {
     public string Name { get; }
+
+    /// <summary>Name to display - the data file's &lt;translate&gt; value if the current language
+    /// pack provides one for this item (only wired up for Gear tree nodes so far), otherwise Name.</summary>
+    public string TranslatedName { get; private set; }
+
     public string Category { get; }
     public string Rating { get; }
     public bool Equipped { get; }
@@ -20,10 +25,47 @@ public sealed class TreeNodeViewModel
 
     public string Impact { get; private set; } = string.Empty;
 
-    /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes that have one.</summary>
-    public string DisplayName => string.IsNullOrEmpty(Ballistic) && string.IsNullOrEmpty(Impact)
-        ? Name
-        : Name + " (B " + Ballistic + " / I " + Impact + ")";
+    /// <summary>Depth-first position within the &lt;gears&gt; tree - only set (>=0) for Gear tree
+    /// nodes. Stable identity for adding/removing nested gear and editing quantity.</summary>
+    public int GearId { get; private set; } = -1;
+
+    public string Qty { get; private set; } = "1";
+
+    /// <summary>Raw saved capacity - only set for Gear tree nodes.</summary>
+    public string Capacity { get; private set; } = string.Empty;
+
+    public string CapacityRemaining { get; private set; } = string.Empty;
+    public string CapacityDisplay { get; private set; } = string.Empty;
+
+    /// <summary>Commlink stats - only set (non-empty) for Commlink-category Gear nodes.</summary>
+    public string Response { get; private set; } = string.Empty;
+
+    public string Signal { get; private set; } = string.Empty;
+    public string System { get; private set; } = string.Empty;
+    public string Firewall { get; private set; } = string.Empty;
+
+    /// <summary>Crawled from this node and its descendants (e.g. a Commlink's own Response/Signal
+    /// plus its installed Operating System's System/Firewall) - see CharacterTreeItemData.EffectiveStat.</summary>
+    public string EffectiveResponse { get; private set; } = string.Empty;
+
+    public string EffectiveSignal { get; private set; } = string.Empty;
+    public string EffectiveSystem { get; private set; } = string.Empty;
+    public string EffectiveFirewall { get; private set; } = string.Empty;
+    public bool HasCommlinkStats { get; private set; }
+
+    /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes, or the
+    /// quantity appended for Gear tree nodes with more than one.</summary>
+    public string DisplayName
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Ballistic) || !string.IsNullOrEmpty(Impact))
+                return TranslatedName + " (B " + Ballistic + " / I " + Impact + ")";
+            if (GearId >= 0 && Qty != "1")
+                return TranslatedName + " x" + Qty;
+            return TranslatedName;
+        }
+    }
     public ObservableCollection<TreeNodeViewModel> Children { get; } = new();
     public bool IsExpanded { get; set; }
 
@@ -35,6 +77,7 @@ public sealed class TreeNodeViewModel
         string strRating = "0", bool blnEquipped = false, string strSourceName = "")
     {
         Name = strName;
+        TranslatedName = strName;
         IsExpanded = blnExpanded;
         Category = strCategory;
         Rating = strRating;
@@ -53,8 +96,23 @@ public sealed class TreeNodeViewModel
         var node = new TreeNodeViewModel(item.Name, item.Children.Count > 0, item.Category, item.Rating,
             item.Equipped, item.Name)
         {
+            TranslatedName = item.TranslatedName,
             Ballistic = item.Ballistic,
-            Impact = item.Impact
+            Impact = item.Impact,
+            GearId = item.GearId,
+            Qty = item.Qty,
+            Capacity = item.Capacity,
+            CapacityRemaining = item.CapacityRemaining,
+            CapacityDisplay = item.CapacityDisplay,
+            Response = item.Response,
+            Signal = item.Signal,
+            System = item.System,
+            Firewall = item.Firewall,
+            EffectiveResponse = item.EffectiveResponse,
+            EffectiveSignal = item.EffectiveSignal,
+            EffectiveSystem = item.EffectiveSystem,
+            EffectiveFirewall = item.EffectiveFirewall,
+            HasCommlinkStats = item.HasCommlinkStats
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));

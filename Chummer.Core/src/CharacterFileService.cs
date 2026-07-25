@@ -172,7 +172,7 @@ namespace Chummer.Core
         private int ActiveCommlinkResponse()
         {
             var objNodes = Document.SelectNodes(
-                "//gear[category = 'Commlinks' and equipped = 'True' and active = 'True']/response");
+                "//gear[category = 'Commlink' and equipped = 'True' and active = 'True']/response");
             return objNodes is { Count: > 0 } && int.TryParse(objNodes[0]!.InnerText, out var intResponse)
                 ? intResponse
                 : 0;
@@ -180,7 +180,7 @@ namespace Chummer.Core
 
         public void SetActiveCommlink(string strGuid)
         {
-            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlinks']");
+            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlink']");
             if (objNodes == null)
                 return;
 
@@ -506,8 +506,13 @@ namespace Chummer.Core
             objSpells.AppendChild(objSpell);
         }
 
-        /// <summary>Adds a root-level gear item in the minimal saved-character tree shape.</summary>
-        public void AddGear(string strName, string strCategory, string strRating = "0")
+        /// <summary>Adds a root-level gear item in the minimal saved-character tree shape. Deducts its
+        /// cost (evaluated at the given rating, times quantity) from Nuyen, matching the legacy
+        /// "buying gear costs money" rule.</summary>
+        public void AddGear(string strName, string strCategory, string strRating = "0", string strQty = "1",
+            string strCost = "", string strAvail = "", string strSource = "", string strPage = "",
+            string strCapacity = "", string strResponse = "", string strSignal = "", string strSystemRating = "",
+            string strFirewall = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A gear name is required.", nameof(strName));
@@ -521,37 +526,155 @@ namespace Chummer.Core
                 objRoot.AppendChild(objGears);
             }
 
+            AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
+                strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            DeductGearCost(strCost, strRating, strQty);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Adds gear nested under an existing gear item (e.g. a Certified Credstick under
+        /// a Commlink) - <paramref name="intParentGearId"/> is a <see cref="Gear"/> node's GearId,
+        /// assigned in the same depth-first order the tree is displayed in. Also deducts its cost
+        /// from Nuyen.</summary>
+        public bool AddChildGear(int intParentGearId, string strName, string strCategory, string strRating = "0",
+            string strQty = "1", string strCost = "", string strAvail = "", string strSource = "", string strPage = "",
+            string strCapacity = "", string strResponse = "", string strSignal = "", string strSystemRating = "",
+            string strFirewall = "")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A gear name is required.", nameof(strName));
+
+            XmlNode? objParent = GetGearNodeById(intParentGearId);
+            if (objParent == null)
+                return false;
+
+            var objChildren = objParent.SelectSingleNode("children") as XmlElement;
+            if (objChildren == null)
+            {
+                objChildren = Document.CreateElement("children");
+                objParent.AppendChild(objChildren);
+            }
+
+            AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
+                strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            DeductGearCost(strCost, strRating, strQty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private void DeductGearCost(string strCost, string strRating, string strQty)
+        {
+            int intQty = int.TryParse(strQty, out var q) ? q : 1;
+            double dblCost = RatingExpression.Evaluate(strCost, strRating) * intQty;
+            double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) ? n : 0;
+            Nuyen = (dblNuyen - dblCost).ToString(CultureInfo.InvariantCulture);
+        }
+
+        private void AppendGearNode(XmlNode objParentList, string strName, string strCategory, string strRating,
+            string strQty, string strCost, string strAvail, string strSource, string strPage, string strCapacity,
+            string strResponse, string strSignal, string strSystemRating, string strFirewall)
+        {
             var objGear = Document.CreateElement("gear");
             AppendElement(objGear, "name", strName.Trim());
             AppendElement(objGear, "category", strCategory);
             AppendElement(objGear, "rating", strRating);
+            AppendElement(objGear, "qty", strQty);
+            AppendElement(objGear, "cost", strCost);
+            AppendElement(objGear, "avail", strAvail);
+            AppendElement(objGear, "capacity", strCapacity);
+            AppendElement(objGear, "source", strSource);
+            AppendElement(objGear, "page", strPage);
             AppendElement(objGear, "equipped", "False");
+            // <guid>/<active> are what CharacterDocument.Commlinks matches Commlink-category gear
+            // by - always written (harmless for non-Commlink gear) so a newly bought Commlink is
+            // immediately recognized by the existing Commlink dropdown/MatrixInitiative calc.
+            AppendElement(objGear, "guid", Guid.NewGuid().ToString());
+            AppendElement(objGear, "active", "False");
+            if (!string.IsNullOrEmpty(strResponse)) AppendElement(objGear, "response", strResponse);
+            if (!string.IsNullOrEmpty(strSignal)) AppendElement(objGear, "signal", strSignal);
+            if (!string.IsNullOrEmpty(strSystemRating)) AppendElement(objGear, "system", strSystemRating);
+            if (!string.IsNullOrEmpty(strFirewall)) AppendElement(objGear, "firewall", strFirewall);
             objGear.AppendChild(Document.CreateElement("children"));
-            objGears.AppendChild(objGear);
+            objParentList.AppendChild(objGear);
         }
 
-        /// <summary>Removes the first root-level saved gear item matching its name/category/rating.</summary>
-        public bool RemoveGear(string strName, string strCategory, string strRating = "0")
+        /// <summary>Removes the gear matching this <see cref="Gear"/> tree's GearId, wherever it
+        /// is nested (root-level or as another item's child).</summary>
+        public bool RemoveGear(int intGearId)
         {
-            if (string.IsNullOrWhiteSpace(strName))
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear?.ParentNode == null)
                 return false;
 
+            objGear.ParentNode.RemoveChild(objGear);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Equips or unequips a gear item - matches the legacy tree's "angelegt" checkbox.</summary>
+        public bool SetGearEquipped(int intGearId, bool blnEquipped)
+        {
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear == null)
+                return false;
+
+            SetChildValue(objGear, "equipped", blnEquipped ? "True" : "False");
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Sets a gear item's quantity directly - matches the legacy tree's editable
+        /// quantity spinner.</summary>
+        public bool SetGearQuantity(int intGearId, string strQty)
+        {
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear == null)
+                return false;
+
+            SetChildValue(objGear, "qty", strQty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Depth-first (parent before children, root order preserved) walk of the whole
+        /// &lt;gears&gt; tree - the same order <see cref="Gear"/> assigns GearIds in, so an ID
+        /// found in the UI tree always resolves back to the same node here.</summary>
+        private IEnumerable<XmlNode> EnumerateGearNodesDfs()
+        {
             var objNodes = Document.SelectNodes("/character/gears/gear");
-            if (objNodes == null)
-                return false;
+            if (objNodes == null) yield break;
 
-            foreach (XmlNode objGear in objNodes)
+            foreach (XmlNode objNode in objNodes)
             {
-                if (!string.Equals(GetValue(objGear, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
-                    || !string.Equals(GetValue(objGear, "category", string.Empty), strCategory, StringComparison.Ordinal)
-                    || !string.Equals(GetValue(objGear, "rating", "0"), strRating, StringComparison.Ordinal))
-                    continue;
+                foreach (XmlNode objDescendant in EnumerateGearNodeAndChildren(objNode))
+                    yield return objDescendant;
+            }
+        }
 
-                objGear.ParentNode?.RemoveChild(objGear);
-                return true;
+        private IEnumerable<XmlNode> EnumerateGearNodeAndChildren(XmlNode objNode)
+        {
+            yield return objNode;
+            var objChildren = objNode.SelectNodes("children/gear");
+            if (objChildren == null) yield break;
+
+            foreach (XmlNode objChild in objChildren)
+            {
+                foreach (XmlNode objDescendant in EnumerateGearNodeAndChildren(objChild))
+                    yield return objDescendant;
+            }
+        }
+
+        private XmlNode? GetGearNodeById(int intGearId)
+        {
+            int intCurrentId = 0;
+            foreach (XmlNode objNode in EnumerateGearNodesDfs())
+            {
+                if (intCurrentId == intGearId)
+                    return objNode;
+                intCurrentId++;
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>Adds a root-level Cyberware or Bioware item in the minimal saved-character tree
@@ -835,7 +958,74 @@ namespace Chummer.Core
             objNode.InnerText = strValue ?? string.Empty;
         }
 
-        public IReadOnlyList<CharacterTreeItemData> Gear => ReadTreeItems("/character/gears/gear", "children/gear");
+        public IReadOnlyList<CharacterTreeItemData> Gear => ReadGearTree();
+
+        private IReadOnlyList<CharacterTreeItemData> ReadGearTree()
+        {
+            var objNodes = Document.SelectNodes("/character/gears/gear");
+            var lstItems = new List<CharacterTreeItemData>();
+            if (objNodes == null) return lstItems;
+
+            int intNextId = 0;
+            foreach (XmlNode objNode in objNodes)
+                lstItems.Add(ReadGearTreeItem(objNode, ref intNextId));
+            return lstItems;
+        }
+
+        // Assigns GearId in the same depth-first order EnumerateGearNodesDfs walks the raw XML in,
+        // so an ID handed back from the UI always resolves to the same node via GetGearNodeById.
+        private static Dictionary<string, string>? _dicGearNameTranslations;
+        private static string? _strGearTranslationsLanguage;
+
+        // Cached per-language, same "<translate> child element" mechanism the Avalonia gear
+        // picker (GearDialogViewModel) uses - keeps the Ausrüstung tree's names in sync with
+        // whatever language pack the user has selected, instead of always showing the raw
+        // (English) name that's actually saved in the character file.
+        private static string GetGearTranslatedName(string strName)
+        {
+            string strLanguage = GlobalOptions.Instance.Language;
+            if (_dicGearNameTranslations == null || _strGearTranslationsLanguage != strLanguage)
+            {
+                _dicGearNameTranslations = BuildGearNameTranslations();
+                _strGearTranslationsLanguage = strLanguage;
+            }
+            return _dicGearNameTranslations.TryGetValue(strName, out string? strTranslate) ? strTranslate : strName;
+        }
+
+        private static Dictionary<string, string> BuildGearNameTranslations()
+        {
+            var dicResult = new Dictionary<string, string>();
+            XmlDocument objDocument = XmlManager.Instance.Load("gear.xml");
+            XmlNodeList? objNodes = objDocument.SelectNodes("/chummer/gears/gear");
+            if (objNodes == null) return dicResult;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strName = objNode["name"]?.InnerText ?? string.Empty;
+                string? strTranslate = objNode["translate"]?.InnerText;
+                if (!string.IsNullOrEmpty(strName) && !string.IsNullOrEmpty(strTranslate))
+                    dicResult[strName] = strTranslate!;
+            }
+            return dicResult;
+        }
+
+        private CharacterTreeItemData ReadGearTreeItem(XmlNode objNode, ref int intNextId)
+        {
+            var objItem = ReadTreeItem(objNode);
+            objItem.SetTranslatedName(GetGearTranslatedName(objItem.Name));
+            objItem.SetGearId(intNextId);
+            objItem.SetGearDetails(GetValue(objNode, "capacity", string.Empty), GetValue(objNode, "response", string.Empty),
+                GetValue(objNode, "signal", string.Empty), GetValue(objNode, "system", string.Empty),
+                GetValue(objNode, "firewall", string.Empty), GetValue(objNode, "active", "False") == "True");
+            intNextId++;
+
+            var objChildren = objNode.SelectNodes("children/gear");
+            if (objChildren == null) return objItem;
+
+            foreach (XmlNode objChild in objChildren)
+                objItem.Children.Add(ReadGearTreeItem(objChild, ref intNextId));
+            return objItem;
+        }
 
         // Cyberware and bioware are saved to the same <cyberwares> list and only distinguished by
         // <improvementsource> ("Cyberware" vs "Bioware") - split here so each gets its own tree.
@@ -2594,7 +2784,7 @@ namespace Chummer.Core
         private IReadOnlyList<CharacterCommlinkData> ReadCommlinks()
         {
             var lstCommlinks = new List<CharacterCommlinkData>();
-            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlinks']");
+            XmlNodeList? objNodes = Document.SelectNodes("//gear[category = 'Commlink']");
             if (objNodes == null)
                 return lstCommlinks;
 
@@ -2799,6 +2989,7 @@ namespace Chummer.Core
             bool blnEquipped = false, string strCost = "", string strAvail = "", string strQty = "1")
         {
             Name = strName;
+            TranslatedName = strName;
             Category = strCategory;
             Rating = strRating;
             Equipped = blnEquipped;
@@ -2809,6 +3000,13 @@ namespace Chummer.Core
         }
 
         public string Name { get; private set; }
+
+        /// <summary>Name to display in the UI - the &lt;translate&gt; value from the data file if
+        /// the current language pack provides one for this item, otherwise the same as Name. Only
+        /// set (non-default) for Gear tree nodes so far.</summary>
+        public string TranslatedName { get; private set; }
+
+        internal void SetTranslatedName(string strTranslatedName) => TranslatedName = strTranslatedName;
 
         /// <summary>Empty for item types that don't save one (e.g. Quality nodes don't reuse this
         /// class). Gear/Cyberware/Armor/Weapon all use the same &lt;category&gt; element name.</summary>
@@ -2838,6 +3036,88 @@ namespace Chummer.Core
         {
             Ballistic = strBallistic;
             Impact = strImpact;
+        }
+
+        /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
+        /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,
+        /// since name+category+rating isn't unique once gear can nest under other gear.</summary>
+        public int GearId { get; private set; } = -1;
+
+        internal void SetGearId(int intGearId) => GearId = intGearId;
+
+        /// <summary>Raw saved capacity (e.g. "8" or "[2]") - only set for Gear tree nodes.</summary>
+        public string Capacity { get; private set; } = string.Empty;
+
+        /// <summary>Commlink stats - only set (non-empty) for Commlink-category Gear nodes.</summary>
+        public string Response { get; private set; } = string.Empty;
+
+        public string Signal { get; private set; } = string.Empty;
+        public string System { get; private set; } = string.Empty;
+        public string Firewall { get; private set; } = string.Empty;
+        public bool Active { get; private set; }
+
+        internal void SetGearDetails(string strCapacity, string strResponse, string strSignal, string strSystem,
+            string strFirewall, bool blnActive)
+        {
+            Capacity = strCapacity;
+            Response = strResponse;
+            Signal = strSignal;
+            System = strSystem;
+            Firewall = strFirewall;
+            Active = blnActive;
+        }
+
+        /// <summary>Own capacity minus the sum of children's own capacity (each child's Capacity is
+        /// treated as how much of the parent's slots it consumes) - a simplified version of
+        /// clsEquipment.cs's Gear.CapacityRemaining that doesn't handle bracketed "[x]" capacity
+        /// styles or per-item capacity-consumption overrides.</summary>
+        public string CapacityRemaining
+        {
+            get
+            {
+                double dblOwn = double.TryParse(Capacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var d0) ? d0 : 0;
+                double dblUsed = Children.Sum(c =>
+                    double.TryParse(c.Capacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0);
+                return (dblOwn - dblUsed).ToString("0.##", CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <summary>"capacity (remaining verbleibend)" - matches the legacy UI's always-shown
+        /// capacity line, defaulting to 0 for items (e.g. Commlinks) that don't save a capacity.</summary>
+        public string CapacityDisplay
+        {
+            get
+            {
+                double dblOwn = double.TryParse(Capacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var d0) ? d0 : 0;
+                return $"{dblOwn.ToString("0.##", CultureInfo.InvariantCulture)} ({CapacityRemaining} verbleibend)";
+            }
+        }
+
+        /// <summary>The highest Response/Signal/System/Firewall value found across this node and
+        /// its descendants - e.g. a Commlink's base hardware supplies Response/Signal, an installed
+        /// Operating System gear supplies System/Firewall, and Commlink/OS Upgrade gear (which save
+        /// a flat replacement rating, not a bonus) can raise any of the four further.</summary>
+        public string EffectiveResponse => EffectiveStat(g => g.Response);
+        public string EffectiveSignal => EffectiveStat(g => g.Signal);
+        public string EffectiveSystem => EffectiveStat(g => g.System);
+        public string EffectiveFirewall => EffectiveStat(g => g.Firewall);
+
+        public bool HasCommlinkStats => !string.IsNullOrEmpty(EffectiveResponse) || !string.IsNullOrEmpty(EffectiveSignal)
+            || !string.IsNullOrEmpty(EffectiveSystem) || !string.IsNullOrEmpty(EffectiveFirewall);
+
+        private string EffectiveStat(Func<CharacterTreeItemData, string> funcSelector)
+        {
+            double? dblMax = null;
+            CollectMaxStat(funcSelector, ref dblMax);
+            return dblMax.HasValue ? dblMax.Value.ToString("0.##", CultureInfo.InvariantCulture) : string.Empty;
+        }
+
+        private void CollectMaxStat(Func<CharacterTreeItemData, string> funcSelector, ref double? dblMax)
+        {
+            if (double.TryParse(funcSelector(this), NumberStyles.Float, CultureInfo.InvariantCulture, out var dblOwn))
+                dblMax = dblMax.HasValue ? Math.Max(dblMax.Value, dblOwn) : dblOwn;
+            foreach (CharacterTreeItemData objChild in Children)
+                objChild.CollectMaxStat(funcSelector, ref dblMax);
         }
 
         public List<CharacterTreeItemData> Children { get; }
