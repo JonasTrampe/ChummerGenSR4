@@ -168,6 +168,22 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnAddPetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null)
+            return;
+        _character.AddPet("Neues Haustier");
+        ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnDeletePetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedPet == null)
+            return;
+        if (_character.RemoveContact(ViewModel.SelectedPet.ContactId))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnToggleArmorEquippedClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedArmor == null || sender is not CheckBox checkBox)

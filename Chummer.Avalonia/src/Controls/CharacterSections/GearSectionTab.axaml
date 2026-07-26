@@ -180,10 +180,13 @@
 
         <TabItem Header="Haustiere und Begleiter">
             <StackPanel Margin="8" Spacing="6">
-                <Button Content="Haustier hinzufügen" HorizontalAlignment="Left" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Content="Haustier hinzufügen" Click="OnAddPetClick" />
+                    <Button Content="Löschen" Click="OnDeletePetClick" />
+                </StackPanel>
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
-                <ItemsControl ItemsSource="{Binding Pets}">
-                    <ItemsControl.ItemTemplate>
+                <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="core:CharacterContactData">
                             <Grid ColumnDefinitions="180,*,Auto" ColumnSpacing="8" Margin="0,2">
                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
@@ -191,8 +194,8 @@
                                 <TextBlock Grid.Column="2" Text="{Binding Free, StringFormat='Kostenlos: {0}'}" />
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </TabItem>
     </TabControl>

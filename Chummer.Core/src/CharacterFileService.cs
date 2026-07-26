@@ -1725,7 +1725,8 @@ namespace Chummer.Core
         /// <summary>Pets are persisted as Contact entries with <c>type=Pet</c>, matching the legacy app.</summary>
         public IReadOnlyList<CharacterContactData> Pets => ReadPets();
 
-        public void AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy)
+        public void AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy,
+            string strType = "")
         {
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -1744,7 +1745,7 @@ namespace Chummer.Core
             AppendElement(objContact, "areaofinfluence", "0");
             AppendElement(objContact, "magicalresources", "0");
             AppendElement(objContact, "matrixresources", "0");
-            AppendElement(objContact, "type", blnEnemy ? "Enemy" : "Contact");
+            AppendElement(objContact, "type", string.IsNullOrEmpty(strType) ? (blnEnemy ? "Enemy" : "Contact") : strType);
             AppendElement(objContact, "file", string.Empty);
             AppendElement(objContact, "notes", string.Empty);
             AppendElement(objContact, "groupname", string.Empty);
@@ -1753,6 +1754,9 @@ namespace Chummer.Core
             objContacts.AppendChild(objContact);
             Changed?.Invoke();
         }
+
+        /// <summary>Adds a Pet contact, the same representation used by the legacy PetControl.</summary>
+        public void AddPet(string strName) => AddContact(strName, "0", "0", blnEnemy: false, strType: "Pet");
 
         public bool UpdateContact(int intContactId, string strName, string strConnection, string strLoyalty)
         {
