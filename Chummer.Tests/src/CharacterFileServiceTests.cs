@@ -1062,6 +1062,17 @@ public class CharacterFileServiceTests
             week => { Assert.Equal(2073, week.Year); Assert.Equal(2, week.Week); Assert.Equal("Second", week.Notes); });
     }
 
+    [Fact]
+    public void Lifestyles_CanBeAddedRemovedAndPersisted()
+    {
+        CharacterDocument character = LoadXml("<character />");
+        character.AddLifestyle("Low", "2000");
+        Assert.Single(character.Lifestyles);
+        Assert.Equal("Low", character.Lifestyles[0].Name);
+        Assert.True(character.RemoveLifestyle("Low"));
+        Assert.Empty(character.Lifestyles);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

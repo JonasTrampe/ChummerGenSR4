@@ -13,6 +13,7 @@ using Chummer.NewUI.ViewModels;
 using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
+using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -51,6 +52,24 @@ public partial class GearSectionTab : UserControl
     {
         _character = character;
         ViewModel.LoadCharacter(character);
+    }
+
+    private async void OnAddLifestyleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
+        var dialog = new LifestyleDialog();
+        if (await dialog.ShowDialog<bool>(window) && dialog.SelectedLifestyle != null)
+        {
+            var lifestyle = dialog.SelectedLifestyle;
+            _character.AddLifestyle(lifestyle.Name, lifestyle.Cost, "1");
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteLifestyleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedLifestyle == null) return;
+        if (_character.RemoveLifestyle(ViewModel.SelectedLifestyle.Name)) ViewModel.LoadCharacter(_character);
     }
 
     private async void OnAddGearClick(object? sender, RoutedEventArgs e)

@@ -2093,6 +2093,37 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();
 
+        /// <summary>Adds a base lifestyle using the character-file shape written by the legacy application.</summary>
+        public void AddLifestyle(string strName, string strCost, string strMonths = "1")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A lifestyle name is required.", nameof(strName));
+            var objRoot = Document.DocumentElement ?? throw new InvalidOperationException("Character document has no root element.");
+            var objLifestyles = objRoot.SelectSingleNode("lifestyles") as XmlElement;
+            if (objLifestyles == null) { objLifestyles = Document.CreateElement("lifestyles"); objRoot.AppendChild(objLifestyles); }
+            var objLifestyle = Document.CreateElement("lifestyle");
+            AppendElement(objLifestyle, "lifestylename", strName);
+            AppendElement(objLifestyle, "cost", strCost);
+            AppendElement(objLifestyle, "months", strMonths);
+            objLifestyles.AppendChild(objLifestyle);
+            Changed?.Invoke();
+        }
+
+        public bool RemoveLifestyle(string strName)
+        {
+            XmlNodeList? objLifestyles = Document.SelectNodes("/character/lifestyles/lifestyle");
+            if (objLifestyles == null) return false;
+            foreach (XmlNode objLifestyle in objLifestyles)
+            {
+                string strSavedName = GetValue(objLifestyle, "lifestylename", GetValue(objLifestyle, "name", string.Empty));
+                if (!string.Equals(strSavedName, strName, StringComparison.Ordinal)) continue;
+                objLifestyle.ParentNode?.RemoveChild(objLifestyle);
+                Changed?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
         public IReadOnlyList<CharacterVehicleData> Vehicles => ReadVehicles();
 
         // Karma and Nuyen history entries are saved into the same <expenses> list and only

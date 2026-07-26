@@ -16,7 +16,9 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
-    public ObservableCollection<string> Lifestyles { get; } = new();
+    public ObservableCollection<LifestyleRowViewModel> Lifestyles { get; } = new();
+    private LifestyleRowViewModel? _selectedLifestyle;
+    public LifestyleRowViewModel? SelectedLifestyle { get => _selectedLifestyle; set => SetField(ref _selectedLifestyle, value); }
     public ObservableCollection<ContactRowViewModel> Pets { get; } = new();
     private ContactRowViewModel? _selectedPet;
     public ContactRowViewModel? SelectedPet { get => _selectedPet; set => SetField(ref _selectedPet, value); }
@@ -132,12 +134,13 @@ public sealed class GearSectionViewModel : ViewModelBase
         decimal decTotalCost = 0;
         foreach (CharacterLifestyleData lifestyle in character.Lifestyles)
         {
-            Lifestyles.Add(lifestyle.Name);
+            Lifestyles.Add(new LifestyleRowViewModel(lifestyle));
             if (decimal.TryParse(lifestyle.Cost, out var decCost))
                 decTotalCost += decCost;
         }
 
         LifestyleCost = "Kosten/Monat: " + decTotalCost.ToString("N0", CultureInfo.InvariantCulture) + "¥";
+        SelectedLifestyle = Lifestyles.Count > 0 ? Lifestyles[0] : null;
 
         Pets.Clear();
         foreach (CharacterContactData pet in character.Pets)
@@ -156,4 +159,19 @@ public sealed class GearSectionViewModel : ViewModelBase
             Armor.Add(TreeNodeViewModel.FromTreeItem(item));
         SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
     }
+}
+
+public sealed class LifestyleRowViewModel
+{
+    public LifestyleRowViewModel(CharacterLifestyleData lifestyle)
+    {
+        Name = lifestyle.Name;
+        Cost = lifestyle.Cost;
+        Months = lifestyle.Months;
+        DisplayName = Name + " (" + Cost + "¥/Monat)";
+    }
+    public string Name { get; }
+    public string Cost { get; }
+    public string Months { get; }
+    public string DisplayName { get; }
 }

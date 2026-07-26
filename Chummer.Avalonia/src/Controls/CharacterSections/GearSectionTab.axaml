@@ -9,8 +9,15 @@
         <TabItem Header="Lebensstil">
             <Grid ColumnDefinitions="200,4,*" Margin="4">
                 <DockPanel Grid.Column="0">
-                    <Button DockPanel.Dock="Top" Content="Lebensstil hinzufügen" Margin="0,0,0,4" />
-                    <ListBox ItemsSource="{Binding Lifestyles}" />
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                        <Button Content="Lebensstil hinzufügen" Click="OnAddLifestyleClick" />
+                        <Button Content="Löschen" Click="OnDeleteLifestyleClick" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </DockPanel>
                 <GridSplitter Grid.Column="1" Background="#E4E4E4" />
                 <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
