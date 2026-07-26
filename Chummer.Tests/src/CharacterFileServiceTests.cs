@@ -1005,6 +1005,14 @@ public class CharacterFileServiceTests
         Assert.Equal(3, character.Edge.Remaining);
     }
 
+    [Fact]
+    public void WoundModifiers_ApplyBothConditionMonitorTracks()
+    {
+        CharacterDocument character = LoadXml("<character><physicalcmfilled>3</physicalcmfilled><stuncmfilled>4</stuncmfilled></character>");
+
+        Assert.Equal(-3, character.WoundModifiers);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

@@ -1253,15 +1253,21 @@ namespace Chummer.Core
             }
         }
 
-        /// <summary>Dice-pool penalty from current Physical/Stun damage, ported from clsCharacter.cs's
-        /// WoundModifiers. Despite the name this doesn't actually look at how many condition-monitor
-        /// boxes are filled in - the legacy implementation only sums Improvements sourced from
-        /// ConditionMonitor (i.e. this is 0 unless something is granting/removing wound-penalty
-        /// immunity, not a live "you're hurt" calculation); kept as its own property so Initiative
-        /// below reads the same way the original does.</summary>
-        public int WoundModifiers => Improvements
-            .Where(i => i.Enabled && i.Source == ImprovementSource.ConditionMonitor)
-            .Sum(i => i.Value);
+        /// <summary>Dice-pool penalty from filled Physical/Stun condition-monitor boxes. SR4 applies
+        /// -1 for every three filled boxes on each track; ConditionMonitor Improvements then adjust
+        /// that result (for example, wound-penalty mitigation).</summary>
+        public int WoundModifiers
+        {
+            get
+            {
+                int intPhysical = int.TryParse(GetValue("/character/physicalcmfilled", "0"), out var p) ? p : 0;
+                int intStun = int.TryParse(GetValue("/character/stuncmfilled", "0"), out var s) ? s : 0;
+                int intDamagePenalty = -((Math.Max(0, intPhysical) + 2) / 3) - ((Math.Max(0, intStun) + 2) / 3);
+                int intImprovement = Improvements.Where(i => i.Enabled && i.Source == ImprovementSource.ConditionMonitor)
+                    .Sum(i => i.Value);
+                return intDamagePenalty + intImprovement;
+            }
+        }
 
         /// <summary>Initiative (INT + REA, base/augmented shown as "base (augmented)" when they
         /// differ), ported from clsCharacter.cs. Simplified: the legacy version also clamps to a

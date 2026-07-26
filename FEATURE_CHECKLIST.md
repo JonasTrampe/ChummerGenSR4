@@ -84,9 +84,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Walk/Swim/Fly movement rates, including MovementPercent/SwimPercent/FlyPercent and FlySpeed Improvements
 - ✅ Worn armor rating (Ballistische/Stoßpanzerung sidebar rows) — uses the highest equipped
   armor value plus BallisticArmor/ImpactArmor Improvements, with a source tooltip
-- ❌ Live wound modifier / current condition-monitor-filled-boxes penalty (`WoundModifiers` today
-  only reflects Improvements, not how much damage is actually marked — see the derived-stats
-  commit history for why)
+- ✅ Live wound modifier from physical/stun condition-monitor boxes, with ConditionMonitor Improvement adjustments
 - ✅ Damage resistance dice pool sidebar row, including Improvement contributions and tooltip
 - ✅ Edge tracking ("X von Y verbleibend"), including spend/regain controls persisted as legacy `EdgeUse` Improvements
 - ❌ Costs: adept power point cost, attribute karma-cost curves, cyberware/bioware essence cost,
