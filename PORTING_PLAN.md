@@ -73,10 +73,11 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   `CharacterTreeItemData.CalculatedCost`/`CalculatedAvail` (Rating-substituted expression
   evaluator via `XPathNavigator`, same technique as Essence — works for both raw formulas (Gear)
   and pre-resolved values (Weapon/accessories/mods) with no rules-data XML lookup needed, since
-  the character file already carries whichever form that item type saves). **Vehicles are still
-  a flat name+category stub with no mods/gear/cost tree** — tracked as its own follow-up, not
-  a quick extension of the above (needs a proper `CharacterTreeItemData` tree plus Avalonia
-  `VehiclesSectionTab`/`ViewModel` changes to consume it).
+  the character file already carries whichever form that item type saves). **Vehicles now have a
+  read-only saved-stat tree** — Core exposes handling/acceleration/speed/pilot/body/armor/sensor,
+  availability/cost/slots, and installed vehicle mods, onboard gear, and weapons; the Avalonia
+  vehicle tab renders that tree and binds its detail pane to the selected vehicle. Vehicle add/edit,
+  rules-data calculation, and location management remain separate follow-ups.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then
 (where a UI slot already existed) one Avalonia section tab wired to stop showing a hardcoded

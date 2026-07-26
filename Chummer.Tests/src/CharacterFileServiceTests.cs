@@ -125,6 +125,29 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Vehicles_ReadSavedStatsAndInstalledItemTree()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><vehicles><vehicle>"
+            + "<name>Hyundai Shin-Hyung</name><category>Cars</category><handling>3</handling>"
+            + "<accel>15</accel><speed>180</speed><pilot>2</pilot><body>10</body><armor>6</armor>"
+            + "<sensor>2</sensor><devicerating>3</devicerating><avail>4</avail><cost>16000</cost><addslots>2</addslots>"
+            + "<source>SR4</source><page>351</page><physicalcmfilled>1</physicalcmfilled>"
+            + "<mods><mod><name>Armor</name><category>Vehicle Mod</category><rating>2</rating><cost>1000</cost></mod></mods>"
+            + "<gears><gear><name>Vehicle Toolkit</name><category>Tools</category><qty>1</qty></gear></gears>"
+            + "<weapons><weapon><name>LMG</name><category>Machine Guns</category><damage>6P</damage></weapon></weapons>"
+            + "</vehicle></vehicles></character>");
+
+        CharacterVehicleData vehicle = Assert.Single(character.Vehicles);
+        Assert.Equal("180", vehicle.Speed);
+        Assert.Equal("16000", vehicle.Cost);
+        Assert.Equal(3, vehicle.Children.Count);
+        Assert.Equal("Armor", vehicle.Children[0].Name);
+        Assert.Equal("Vehicle Toolkit", vehicle.Children[1].Name);
+        Assert.Equal("LMG", vehicle.Children[2].Name);
+    }
+
+    [Fact]
     public void RemoveGear_RemovesOnlyMatchingRootLevelEntry()
     {
         CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");

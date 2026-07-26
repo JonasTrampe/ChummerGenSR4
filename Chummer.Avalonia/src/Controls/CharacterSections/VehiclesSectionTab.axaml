@@ -13,7 +13,7 @@
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView ItemsSource="{Binding Vehicles}">
+            <TreeView ItemsSource="{Binding Vehicles}" SelectedItem="{Binding SelectedVehicle, Mode=TwoWay}">
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />
@@ -26,73 +26,36 @@
                 <StackPanel Margin="8,0,0,0" Spacing="6">
                     <Grid ColumnDefinitions="Auto,*">
                         <TextBlock Text="Name:" Width="70" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Name}" />
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
                         <TextBlock Text="Kategorie:" Width="70" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Category}" />
                     </Grid>
                     <Separator Margin="0,2" />
                     <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="Handling:" />
-                        <TextBlock Grid.Column="1" Text="Beschleunigung:" />
-                        <TextBlock Grid.Column="2" Text="Geschwindigkeit:" />
-                        <TextBlock Grid.Column="3" Text="Gerät:" />
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Handling, StringFormat='Handling: {0}'}" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Acceleration, StringFormat='Beschleunigung: {0}'}" />
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.Speed, StringFormat='Geschwindigkeit: {0}'}" />
+                        <TextBlock Grid.Column="3" Text="{Binding SelectedVehicle.DeviceRating, StringFormat='Gerät: {0}'}" />
                     </Grid>
                     <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="Pilot:" />
-                        <TextBlock Grid.Column="1" Text="Rumpf:" />
-                        <TextBlock Grid.Column="2" Text="Panzerung:" />
-                        <TextBlock Grid.Column="3" Text="Sensor:" />
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Pilot, StringFormat='Pilot: {0}'}" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Body, StringFormat='Rumpf: {0}'}" />
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.VehicleArmor, StringFormat='Panzerung: {0}'}" />
+                        <TextBlock Grid.Column="3" Text="{Binding SelectedVehicle.Sensor, StringFormat='Sensor: {0}'}" />
                     </Grid>
                     <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="Firewall:" />
-                        <TextBlock Grid.Column="1" Text="Signal:" />
-                        <TextBlock Grid.Column="2" Text="Prozessor:" />
-                        <TextBlock Grid.Column="3" Text="System:" />
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Source, StringFormat='Quelle: {0}'}" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Page, StringFormat='Seite: {0}'}" />
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.PhysicalCmFilled, StringFormat='Schaden: {0}'}" />
                     </Grid>
                     <Separator Margin="0,2" />
                     <Grid ColumnDefinitions="*,*,*">
-                        <TextBlock Grid.Column="0" Text="Verfügbarkeit:" />
-                        <TextBlock Grid.Column="1" Text="Kosten:" />
-                        <TextBlock Grid.Column="2" Text="Slots:" />
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Kosten: {0}¥'}" />
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.Slots, StringFormat='Slots: {0}'}" />
                     </Grid>
-                    <StackPanel Orientation="Horizontal" Spacing="16">
-                        <CheckBox Content="Teil der Grundwaffe" />
-                        <CheckBox Content="Installiert" />
-                    </StackPanel>
-
-                    <Separator Margin="0,6" />
-                    <TextBlock Text="Ingram White Knight" FontWeight="Bold" />
-                    <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="Schaden:" />
-                        <TextBlock Grid.Column="1" Text="PB:" />
-                        <TextBlock Grid.Column="2" Text="Modus:" />
-                        <TextBlock Grid.Column="3" Text="Muni:" />
-                    </Grid>
-                    <TextBlock Text="Reichweite" FontWeight="Bold" Margin="0,4,0,0" />
-                    <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="kurz" />
-                        <TextBlock Grid.Column="1" Text="mittel" />
-                        <TextBlock Grid.Column="2" Text="lang" />
-                        <TextBlock Grid.Column="3" Text="extrem" />
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,6,0,0">
-                        <TextBlock Grid.Column="0" Text="Verbleibende Munition:"
-                                   VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="2" Width="90" />
-                        <Button Grid.Column="3" Content="Schießen!" Margin="6,0,0,0" />
-                    </Grid>
-                    <Button Content="Nachladen" HorizontalAlignment="Left" />
-                    <controls:InfoRow Label="Würfelpool:" Value="2" />
-
-                    <TextBlock Text="Zustandsmonitor" FontWeight="Bold" Margin="0,6,0,0" />
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Border Classes="cmBox" /><Border Classes="cmBox" />
-                        <Border Classes="cmBox" /><Border Classes="cmBox" />
-                        <Border Classes="cmBox" />
-                        <Border Classes="cmBox" /><Border Classes="cmBox" />
-                        <Border Classes="cmBox" /><Border Classes="cmBox" />
-                        <Border Classes="cmBox" />
-                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </controls:TreeDetailPane.DetailContent>

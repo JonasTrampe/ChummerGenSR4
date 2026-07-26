@@ -1796,7 +1796,7 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();
 
-        public IReadOnlyList<CharacterWeaponData> Vehicles => ReadVehicles();
+        public IReadOnlyList<CharacterVehicleData> Vehicles => ReadVehicles();
 
         // Karma and Nuyen history entries are saved into the same <expenses> list and only
         // distinguished by <type> - split here to feed the two separate history lists/charts.
@@ -2754,15 +2754,47 @@ namespace Chummer.Core
             return lstLifestyles;
         }
 
-        private IReadOnlyList<CharacterWeaponData> ReadVehicles()
+        private IReadOnlyList<CharacterVehicleData> ReadVehicles()
         {
-            var lstVehicles = new List<CharacterWeaponData>();
+            var lstVehicles = new List<CharacterVehicleData>();
             var objNodes = Document.SelectNodes("/character/vehicles/vehicle");
             if (objNodes == null) return lstVehicles;
             foreach (XmlNode objNode in objNodes)
-                lstVehicles.Add(new CharacterWeaponData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "category", string.Empty), string.Empty, string.Empty));
+            {
+                var objVehicle = new CharacterVehicleData(
+                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty),
+                    GetValue(objNode, "handling", string.Empty), GetValue(objNode, "accel", string.Empty),
+                    GetValue(objNode, "speed", string.Empty), GetValue(objNode, "pilot", string.Empty),
+                    GetValue(objNode, "body", string.Empty), GetValue(objNode, "armor", string.Empty),
+                    GetValue(objNode, "sensor", string.Empty), GetValue(objNode, "devicerating", string.Empty),
+                    GetValue(objNode, "avail", string.Empty), GetValue(objNode, "cost", string.Empty),
+                    GetValue(objNode, "addslots", string.Empty), GetValue(objNode, "source", string.Empty),
+                    GetValue(objNode, "page", string.Empty), GetValue(objNode, "physicalcmfilled", "0"));
+                AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("mods/mod"), "Vehicle Mod");
+                AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("gears/gear"), "Gear");
+                AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
+                lstVehicles.Add(objVehicle);
+            }
             return lstVehicles;
+        }
+
+        private static void AddVehicleChildren(List<CharacterTreeItemData> lstChildren, XmlNodeList? objNodes,
+            string strFallbackCategory)
+        {
+            if (objNodes == null)
+                return;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                var objItem = new CharacterTreeItemData(GetValue(objNode, "name", string.Empty),
+                    GetValue(objNode, "category", strFallbackCategory), GetValue(objNode, "rating", "0"),
+                    GetValue(objNode, "installed", GetValue(objNode, "equipped", "False")) == "True",
+                    GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
+                    GetValue(objNode, "qty", "1"));
+                AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
+                AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
+                lstChildren.Add(objItem);
+            }
         }
 
         private IReadOnlyList<CharacterExpenseData> ReadExpenses(string strType)
@@ -3180,6 +3212,51 @@ namespace Chummer.Core
                 return string.IsNullOrEmpty(strDetails) ? Name : Name + " (" + strDetails + ")";
             }
         }
+    }
+
+    /// <summary>Read-only vehicle record with its saved stats and installed mods, gear, and weapons.</summary>
+    public sealed class CharacterVehicleData
+    {
+        internal CharacterVehicleData(string strName, string strCategory, string strHandling, string strAcceleration,
+            string strSpeed, string strPilot, string strBody, string strArmor, string strSensor,
+            string strDeviceRating, string strAvail, string strCost, string strSlots, string strSource,
+            string strPage, string strPhysicalCmFilled)
+        {
+            Name = strName;
+            Category = strCategory;
+            Handling = strHandling;
+            Acceleration = strAcceleration;
+            Speed = strSpeed;
+            Pilot = strPilot;
+            Body = strBody;
+            Armor = strArmor;
+            Sensor = strSensor;
+            DeviceRating = strDeviceRating;
+            Avail = strAvail;
+            Cost = strCost;
+            Slots = strSlots;
+            Source = strSource;
+            Page = strPage;
+            PhysicalCmFilled = strPhysicalCmFilled;
+        }
+
+        public string Name { get; }
+        public string Category { get; }
+        public string Handling { get; }
+        public string Acceleration { get; }
+        public string Speed { get; }
+        public string Pilot { get; }
+        public string Body { get; }
+        public string Armor { get; }
+        public string Sensor { get; }
+        public string DeviceRating { get; }
+        public string Avail { get; }
+        public string Cost { get; }
+        public string Slots { get; }
+        public string Source { get; }
+        public string Page { get; }
+        public string PhysicalCmFilled { get; }
+        public List<CharacterTreeItemData> Children { get; } = new();
     }
 
     public sealed class CharacterSkillGroupData

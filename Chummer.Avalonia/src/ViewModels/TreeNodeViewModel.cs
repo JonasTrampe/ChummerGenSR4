@@ -53,6 +53,23 @@ public sealed class TreeNodeViewModel
     public string EffectiveFirewall { get; private set; } = string.Empty;
     public bool HasCommlinkStats { get; private set; }
 
+    /// <summary>Saved vehicle values, populated only for vehicle root nodes.</summary>
+    public string Handling { get; private set; } = string.Empty;
+    public string Acceleration { get; private set; } = string.Empty;
+    public string Speed { get; private set; } = string.Empty;
+    public string Pilot { get; private set; } = string.Empty;
+    public string Body { get; private set; } = string.Empty;
+    public string VehicleArmor { get; private set; } = string.Empty;
+    public string Sensor { get; private set; } = string.Empty;
+    public string DeviceRating { get; private set; } = string.Empty;
+    public string Avail { get; private set; } = string.Empty;
+    public string Cost { get; private set; } = string.Empty;
+    public string Slots { get; private set; } = string.Empty;
+    public string Source { get; private set; } = string.Empty;
+    public string Page { get; private set; } = string.Empty;
+    public string PhysicalCmFilled { get; private set; } = string.Empty;
+    public bool HasVehicleDetails { get; private set; }
+
     /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes, or the
     /// quantity appended for Gear tree nodes with more than one.</summary>
     public string DisplayName
@@ -113,6 +130,31 @@ public sealed class TreeNodeViewModel
             EffectiveSystem = item.EffectiveSystem,
             EffectiveFirewall = item.EffectiveFirewall,
             HasCommlinkStats = item.HasCommlinkStats
+        };
+        foreach (CharacterTreeItemData child in item.Children)
+            node.AddChild(FromTreeItem(child));
+        return node;
+    }
+
+    public static TreeNodeViewModel FromVehicle(CharacterVehicleData item)
+    {
+        var node = new TreeNodeViewModel(item.Name, item.Children.Count > 0, item.Category)
+        {
+            Handling = item.Handling,
+            Acceleration = item.Acceleration,
+            Speed = item.Speed,
+            Pilot = item.Pilot,
+            Body = item.Body,
+            VehicleArmor = item.Armor,
+            Sensor = item.Sensor,
+            DeviceRating = item.DeviceRating,
+            Avail = item.Avail,
+            Cost = item.Cost,
+            Slots = item.Slots,
+            Source = item.Source,
+            Page = item.Page,
+            PhysicalCmFilled = item.PhysicalCmFilled,
+            HasVehicleDetails = true
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));
