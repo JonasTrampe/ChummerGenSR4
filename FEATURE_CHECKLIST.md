@@ -63,11 +63,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 3 of ~41: `QualityDialog` and `SpellDialog` support their full selected-item flows.
-  `GearDialog` now reads `gear.xml`, shows its key rules data, and adds/removes root-level gear
-  items at their default rating; quantity and containers are not yet supported.
-- ❌ The other ~38 (Cyberware, Armor, Weapon, Vehicle, Skill, MartialArt, Metamagic, Lifestyle,
-  CritterPower, ContactConnection, ...) don't exist yet
+- 🟡 9 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+  Weapon, Vehicle, Lifestyle, and exotic Skills. The implementations remain deliberately scoped
+  (for example, no vehicle-mod picker and no advanced lifestyle construction).
+- ❌ The remaining pickers (Skill beyond exotic skills, MartialArt, Metamagic, CritterPower,
+  ContactConnection, and others) don't exist yet.
 
 ## Derived stats / calculations
 
@@ -124,8 +124,6 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Test infrastructure
 
-- 🟡 `Chummer.Tests` has real coverage for everything `CharacterFileService` computes, growing
-  with each derived-stat port, but `dotnet test`/`vstest` itself doesn't run in this sandbox (an
-  `Avalonia.Base.dll` resolution failure unrelated to the test code) — every verification in this
-  session used a throwaway console harness instead. Needs someone on a clean machine to confirm
-  `dotnet test` actually works and wire it into CI.
+- ✅ `Chummer.Tests` has real coverage for `CharacterFileService`; targeted `dotnet test` runs
+  successfully in this workspace. The project still emits a known `System.Net.Http` MSBuild
+  conflict warning while building tests.
