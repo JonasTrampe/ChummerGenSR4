@@ -46,8 +46,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
   add/delete root vehicles and deduct their cost. Rules-data vehicle modifications can be selected
   (including rating), persisted, charged with Body-aware formulas, and removed. Root vehicles support
-  persistent physical-damage tracking with add/repair controls. Editing onboard gear/weapons,
-  locations, drones, mod eligibility/slot validation, and rules-data-derived totals remain unported.
+  persistent physical-damage tracking with add/repair controls. Direct onboard gear can be selected
+  from the existing gear picker, persisted, charged, and removed. Editing onboard weapons, locations,
+  drones, mod eligibility/slot validation, and rules-data-derived totals remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)

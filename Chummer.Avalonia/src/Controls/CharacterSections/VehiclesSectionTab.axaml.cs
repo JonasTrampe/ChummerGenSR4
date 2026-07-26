@@ -50,8 +50,9 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
         else if (vehicle.Parent is { Parent: null } vehicleRoot
             && Guid.TryParse(vehicleRoot.VehicleGuid, out guiVehicleId)
-            && Guid.TryParse(vehicle.ItemGuid, out Guid guiModId)
-            && _character.RemoveVehicleMod(guiVehicleId, guiModId))
+            && Guid.TryParse(vehicle.ItemGuid, out Guid guiItemId)
+            && (_character.RemoveVehicleMod(guiVehicleId, guiItemId)
+                || _character.RemoveVehicleGear(guiVehicleId, guiItemId)))
             ViewModel.LoadCharacter(_character);
     }
 
@@ -74,6 +75,23 @@ public partial class VehiclesSectionTab : UserControl
         if (_character.AddVehicleMod(guiVehicleId, mod.Name, mod.Category,
                 dialog.Rating.ToString(CultureInfo.InvariantCulture), mod.Slots, mod.Availability,
                 mod.Cost, mod.Source, mod.Page, mod.Limit))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddVehicleGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedVehicle is not { } selected)
+            return;
+        TreeNodeViewModel vehicle = selected.Parent == null ? selected : selected.Parent;
+        if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
+
+        var dialog = new GearDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (!added || dialog.SelectedGear is not { } gear) return;
+        if (_character.AddVehicleGear(guiVehicleId, gear.SourceName, gear.Category, gear.Rating,
+                gear.Quantity.ToString(), gear.Cost, gear.Availability, gear.Source, gear.Page, gear.Capacity,
+                gear.Response, gear.Signal, gear.SystemRating, gear.Firewall))
             ViewModel.LoadCharacter(_character);
     }
 

@@ -1111,6 +1111,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleGear_CanBeAddedAndRemovedWithoutEnteringCharacterGearTree()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><gears />"
+            + "</vehicle></vehicles></character>");
+
+        Assert.True(character.AddVehicleGear(vehicleId, "Vehicle Toolkit", "Tools", "0", "2", "250", "4", "SR4", "320"));
+        CharacterTreeItemData gear = Assert.Single(character.Vehicles.Single().Children);
+        Assert.Equal("Vehicle Toolkit", gear.Name);
+        Assert.Equal("4500", character.Nuyen);
+        Assert.Empty(character.Gear);
+        Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
+        Assert.True(character.RemoveVehicleGear(vehicleId, gearId));
+        Assert.Empty(character.Vehicles.Single().Children);
+    }
+
+    [Fact]
     public void ArmorSets_CanBeCreatedAssignedAndDissolved()
     {
         CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");

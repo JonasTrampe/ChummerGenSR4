@@ -9,6 +9,7 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
                 <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
+                <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>

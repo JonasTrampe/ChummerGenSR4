@@ -80,8 +80,10 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   vehicle tab renders that tree and binds its detail pane to the selected vehicle. A filterable
   `vehicles.xml` picker now also adds/deletes root vehicles with persisted XML and Nuyen deduction.
   Vehicle modifications can be selected from `vehicles.xml`, rated, persisted in the legacy
-  `VehicleMod.Save` shape, costed (including Body-based formulas), and removed by GUID. Onboard
-  gear/weapons editing, location management, vehicle-mod eligibility/slot validation, and
+  `VehicleMod.Save` shape, costed (including Body-based formulas), and removed by GUID. Direct
+  onboard gear can also be selected from `gear.xml`, stored with the legacy `Gear.Save` fields,
+  costed, and removed by GUID. Onboard weapons editing, location management, vehicle-mod
+  eligibility/slot validation, and
   rules-data-derived totals remain separate follow-ups.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then

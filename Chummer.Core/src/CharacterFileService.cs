@@ -1094,6 +1094,33 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Adds directly installed onboard gear to a vehicle using the legacy Gear.Save
+        /// shape. This is separate from the character's root-level gear tree and is charged once
+        /// at the selected rating and quantity.</summary>
+        public bool AddVehicleGear(Guid guiVehicleId, string strName, string strCategory, string strRating = "0",
+            string strQty = "1", string strCost = "", string strAvail = "", string strSource = "", string strPage = "",
+            string strCapacity = "", string strResponse = "", string strSignal = "", string strSystemRating = "",
+            string strFirewall = "")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A vehicle gear name is required.", nameof(strName));
+
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+            XmlNode? objGears = objVehicle.SelectSingleNode("gears");
+            if (objGears == null)
+            {
+                objGears = Document.CreateElement("gears");
+                objVehicle.AppendChild(objGears);
+            }
+            AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
+                strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            DeductGearCost(strCost, strRating, strQty);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Removes a direct vehicle modification identified by its persisted GUID.</summary>
         public bool RemoveVehicleMod(Guid guiVehicleId, Guid guiModId)
         {
@@ -1103,6 +1130,18 @@ namespace Chummer.Core
                 return false;
 
             objMod.ParentNode.RemoveChild(objMod);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a direct onboard-gear item by its persisted GUID.</summary>
+        public bool RemoveVehicleGear(Guid guiVehicleId, Guid guiGearId)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objGear = objVehicle?.SelectSingleNode($"gears/gear[guid = '{guiGearId}']");
+            if (objGear?.ParentNode == null)
+                return false;
+            objGear.ParentNode.RemoveChild(objGear);
             Changed?.Invoke();
             return true;
         }

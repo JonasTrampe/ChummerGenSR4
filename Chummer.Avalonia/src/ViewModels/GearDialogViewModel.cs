@@ -141,6 +141,8 @@ public sealed class GearOptionViewModel : ViewModelBase
         Signal = signal;
         SystemRating = systemRating;
         Firewall = firewall;
+        Source = source;
+        Page = page;
     }
 
     public string Capacity { get; }
@@ -148,6 +150,8 @@ public sealed class GearOptionViewModel : ViewModelBase
     public string Signal { get; }
     public string SystemRating { get; }
     public string Firewall { get; }
+    public string Source { get; }
+    public string Page { get; }
     public bool IsCommlink => !string.IsNullOrEmpty(Response);
 
     /// <summary>Canonical (untranslated) name as saved in the character file - matches the rules
