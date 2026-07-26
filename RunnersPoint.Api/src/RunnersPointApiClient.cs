@@ -493,6 +493,98 @@ namespace RunnersPoint.Api
 			return objDocument;
 		}
 
+		public static RunnersPointDocumentLink ParseDocumentLink(Dictionary<string, object>? objJson)
+		{
+			if (objJson == null)
+				throw new InvalidOperationException("Got an empty document link object");
+
+			var objLink = new RunnersPointDocumentLink
+			{
+				Id = GetString(objJson, "id"),
+				OwnerDocumentId = GetString(objJson, "ownerDocumentId"),
+				TargetDocumentId = GetString(objJson, "targetDocumentId"),
+				TargetRevisionId = GetOptionalString(objJson, "targetRevisionId"),
+				RelationType = GetString(objJson, "relationType"),
+				DisplayName = GetOptionalString(objJson, "displayName")
+			};
+			if (objJson.TryGetValue("createdAt", out var objCreatedAt)
+				&& DateTime.TryParse(GetStringValue(objCreatedAt), out var datCreatedAt))
+				objLink.CreatedAt = datCreatedAt;
+			if (objJson.TryGetValue("updatedAt", out var objUpdatedAt)
+				&& DateTime.TryParse(GetStringValue(objUpdatedAt), out var datUpdatedAt))
+				objLink.UpdatedAt = datUpdatedAt;
+			return objLink;
+		}
+
+		/// <summary>Lists directed links owned by a document. The server also exposes the same
+		/// collection through its generic document-link resource for administrative clients.</summary>
+		public async Task<RunnersPointDocumentLinkPage> ListDocumentLinksAsync(string strOwnerDocumentId,
+			string? strCursor = null, int intPageSize = 25)
+		{
+			var strPath = "/documents/" + Uri.EscapeDataString(strOwnerDocumentId) + "/links?pageSize=" + intPageSize;
+			if (!string.IsNullOrEmpty(strCursor))
+				strPath += "&cursor=" + Uri.EscapeDataString(strCursor);
+
+			var objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Get, strPath));
+			await ThrowIfProblemAsync(objResponse);
+			var objJson = JsonSerializer.Deserialize<Dictionary<string, object>>(await objResponse.Content.ReadAsStringAsync());
+			if (objJson == null)
+				return new RunnersPointDocumentLinkPage();
+
+			var objPage = new RunnersPointDocumentLinkPage { NextCursor = GetOptionalString(objJson, "nextCursor") };
+			if (objJson.TryGetValue("items", out var objItems))
+			{
+				foreach (var objItem in GetArrayValues(objItems))
+				{
+					var objLink = GetObjectValue(objItem);
+					if (objLink != null)
+						objPage.Items.Add(ParseDocumentLink(objLink));
+				}
+			}
+			return objPage;
+		}
+
+		/// <summary>Creates a directed, typed link. An omitted target revision tracks the target
+		/// document's current revision; a supplied revision creates a deliberate snapshot link.</summary>
+		public async Task<RunnersPointDocumentLink> CreateDocumentLinkAsync(string strOwnerDocumentId,
+			string strTargetDocumentId, string strRelationType, string? strTargetRevisionId = null,
+			string? strDisplayName = null)
+		{
+			if (string.IsNullOrWhiteSpace(strTargetDocumentId))
+				throw new ArgumentException("A target document ID is required.", nameof(strTargetDocumentId));
+			if (string.IsNullOrWhiteSpace(strRelationType))
+				throw new ArgumentException("A relation type is required.", nameof(strRelationType));
+
+			var objBody = new Dictionary<string, object>
+			{
+				["targetDocumentId"] = strTargetDocumentId,
+				["relationType"] = strRelationType
+			};
+			if (!string.IsNullOrWhiteSpace(strTargetRevisionId))
+				objBody["targetRevisionId"] = strTargetRevisionId;
+			if (!string.IsNullOrWhiteSpace(strDisplayName))
+				objBody["displayName"] = strDisplayName;
+
+			var objResponse = await SendWithRetryAsync(async () =>
+			{
+				var objRequest = await CreateRequestAsync(HttpMethod.Post,
+					"/documents/" + Uri.EscapeDataString(strOwnerDocumentId) + "/links");
+				objRequest.Headers.Add("Idempotency-Key", NewIdempotencyKey());
+				objRequest.Content = new StringContent(JsonSerializer.Serialize(objBody), Encoding.UTF8, "application/json");
+				return objRequest;
+			});
+			await ThrowIfProblemAsync(objResponse);
+			return ParseDocumentLink(JsonSerializer.Deserialize<Dictionary<string, object>>(
+				await objResponse.Content.ReadAsStringAsync()));
+		}
+
+		public async Task DeleteDocumentLinkAsync(string strLinkId)
+		{
+			var objResponse = await SendWithRetryAsync(() => CreateRequestAsync(HttpMethod.Delete,
+				"/document-links/" + Uri.EscapeDataString(strLinkId)));
+			await ThrowIfProblemAsync(objResponse);
+		}
+
 		/// <summary>
 		/// Parses a SharedDocument - the same envelope as Document, plus a required `share` grant
 		/// (permission/status/expiresAt) describing what the authenticated user is allowed to do with it.

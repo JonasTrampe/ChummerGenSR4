@@ -18,6 +18,13 @@ namespace RunnersPoint.Api
         Task<RunnersPointDocumentPage> ListDocumentsAsync(string strGameProfileId, string strCursor = "",
             int intPageSize = 25);
 
+        Task<RunnersPointDocumentLinkPage> ListDocumentLinksAsync(string strOwnerDocumentId,
+            string strCursor = "", int intPageSize = 25);
+        Task<RunnersPointDocumentLink> CreateDocumentLinkAsync(string strOwnerDocumentId,
+            string strTargetDocumentId, string strRelationType, string? strTargetRevisionId = null,
+            string? strDisplayName = null);
+        Task DeleteDocumentLinkAsync(string strLinkId);
+
         Task<Tuple<RunnersPointDocument, string>> GetDocumentAsync(string strDocumentId);
         Task<RunnersPointRevisionStatus> CreateDocumentAsync(byte[] bytContent, string strGameProfileId, string strFormat);
 

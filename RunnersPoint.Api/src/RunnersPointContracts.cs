@@ -26,6 +26,29 @@ namespace RunnersPoint.Api
         public string? NextCursor { get; set; }
     }
 
+    /// <summary>
+    /// A directed relationship between two RunnersPoint documents. <see cref="TargetDocumentId"/>
+    /// always identifies the live target document; when <see cref="TargetRevisionId"/> is set, the
+    /// relationship deliberately pins that target to the specified historical revision.
+    /// </summary>
+    public class RunnersPointDocumentLink
+    {
+        public string Id { get; set; } = string.Empty;
+        public string OwnerDocumentId { get; set; } = string.Empty;
+        public string TargetDocumentId { get; set; } = string.Empty;
+        public string? TargetRevisionId { get; set; }
+        public string RelationType { get; set; } = string.Empty;
+        public string? DisplayName { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class RunnersPointDocumentLinkPage
+    {
+        public List<RunnersPointDocumentLink> Items { get; set; } = new();
+        public string? NextCursor { get; set; }
+    }
+
     public class RunnersPointRevisionStatus
     {
         public string DocumentId { get; set; } = string.Empty;

@@ -209,6 +209,32 @@ namespace Chummer.Tests
 		}
 
 		[Fact]
+		public void ParseDocumentLink_MapsLiveAndSnapshotFields()
+		{
+			var objJson = new Dictionary<string, object>
+			{
+				{ "id", "link-1" },
+				{ "ownerDocumentId", "runner-1" },
+				{ "targetDocumentId", "companion-1" },
+				{ "targetRevisionId", "revision-42" },
+				{ "relationType", "companion" },
+				{ "displayName", "Sparky" },
+				{ "createdAt", "2026-07-26T12:00:00+00:00" },
+				{ "updatedAt", "2026-07-26T13:00:00+00:00" },
+			};
+
+			var objLink = RunnersPointApiClient.ParseDocumentLink(objJson);
+
+			Assert.Equal("link-1", objLink.Id);
+			Assert.Equal("runner-1", objLink.OwnerDocumentId);
+			Assert.Equal("companion-1", objLink.TargetDocumentId);
+			Assert.Equal("revision-42", objLink.TargetRevisionId);
+			Assert.Equal("companion", objLink.RelationType);
+			Assert.Equal("Sparky", objLink.DisplayName);
+			Assert.Equal(new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc), objLink.CreatedAt.ToUniversalTime());
+		}
+
+		[Fact]
 		public void BuildMetadataPatchBody_SetsNonEmptyValues()
 		{
 			var bytBody = RunnersPointApiClient.BuildMetadataPatchBody("Kestrel", "A shadowrunner.", "https://example.com/portrait.png");
