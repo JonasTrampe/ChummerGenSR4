@@ -40,8 +40,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Straßenausrüstung → Lebensstil, Panzerung (inkl. Mods/Sets), Waffen (inkl. Zubehör/Mods), Ausrüstung
 - ❌ Straßenausrüstung → Haustiere und Begleiter (still a static mockup, no data model)
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
-  and the installed mods/onboard gear/weapons tree are displayed. Vehicle add/edit, locations,
-  damage tracking, and rules-data-derived totals remain unported.
+  and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
+  add/delete root vehicles and deduct their cost. Editing installed items, locations, damage tracking,
+  and rules-data-derived totals remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)

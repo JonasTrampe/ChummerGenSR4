@@ -76,8 +76,10 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   the character file already carries whichever form that item type saves). **Vehicles now have a
   read-only saved-stat tree** — Core exposes handling/acceleration/speed/pilot/body/armor/sensor,
   availability/cost/slots, and installed vehicle mods, onboard gear, and weapons; the Avalonia
-  vehicle tab renders that tree and binds its detail pane to the selected vehicle. Vehicle add/edit,
-  rules-data calculation, and location management remain separate follow-ups.
+  vehicle tab renders that tree and binds its detail pane to the selected vehicle. A filterable
+  `vehicles.xml` picker now also adds/deletes root vehicles with persisted XML and Nuyen deduction.
+  Vehicle mods/gear/weapons editing, location management, and rules-data-derived totals remain
+  separate follow-ups.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then
 (where a UI slot already existed) one Avalonia section tab wired to stop showing a hardcoded

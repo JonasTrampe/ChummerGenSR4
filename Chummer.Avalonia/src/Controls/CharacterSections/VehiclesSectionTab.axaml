@@ -7,8 +7,8 @@
     <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                <Button Content="Fahrzeug hinzufügen" />
-                <Button Content="Löschen" />
+                <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
+                <Button Content="Löschen" Click="OnDeleteVehicleClick" />
                 <Button Content="Ort hinzufügen" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
