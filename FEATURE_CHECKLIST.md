@@ -47,8 +47,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)
-- ✅ Kalender (read-only saved calendar weeks and notes; editing remains blocked on the shared
-  write path)
+- ✅ Kalender (saved weeks, persistent notes editing, adding weeks, and shifting the calendar start date)
 - ✅ Notizen
 - ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
   status; editing remains blocked on the shared write path)

@@ -91,6 +91,7 @@
       <AdditionalFiles Include="src\Dialogs\KarmaGpDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\ExpenseDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\CloudDocumentsDialog.axaml" />
+      <AdditionalFiles Include="src\Dialogs\CalendarWeekDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\GearDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\MetatypeDialog.axaml" />
       <AdditionalFiles Include="src\Dialogs\OptionsDialog.axaml" />

@@ -526,6 +526,76 @@ namespace Chummer.Core
         public IReadOnlyList<Improvement> Improvements => ReadImprovements();
         public IReadOnlyList<CalendarWeek> Calendar => ReadCalendar();
 
+        /// <summary>Adds a calendar week in the same save-file representation as the legacy
+        /// calendar. Years are unrestricted; weeks use Shadowrun's 1-52 calendar range.</summary>
+        public CalendarWeek AddCalendarWeek(int intYear, int intWeek, string strNotes = "")
+        {
+            if (intWeek is < 1 or > 52)
+                throw new ArgumentOutOfRangeException(nameof(intWeek), "A calendar week must be between 1 and 52.");
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objCalendar = objRoot.SelectSingleNode("calendar") as XmlElement;
+            if (objCalendar == null)
+            {
+                objCalendar = Document.CreateElement("calendar");
+                objRoot.AppendChild(objCalendar);
+            }
+
+            var objWeek = new CalendarWeek(intYear, intWeek) { Notes = strNotes ?? string.Empty };
+            var objNode = Document.CreateElement("week");
+            AppendElement(objNode, "guid", objWeek.InternalId);
+            AppendElement(objNode, "year", intYear.ToString());
+            AppendElement(objNode, "week", intWeek.ToString());
+            AppendElement(objNode, "notes", objWeek.Notes);
+            objCalendar.AppendChild(objNode);
+            Changed?.Invoke();
+            return objWeek;
+        }
+
+        /// <summary>Changes a saved calendar week's note text.</summary>
+        public bool UpdateCalendarWeekNotes(string strInternalId, string strNotes)
+        {
+            XmlNode? objWeek = FindCalendarWeek(strInternalId);
+            if (objWeek == null)
+                return false;
+
+            SetChildValue(objWeek, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Moves the complete saved calendar so its first week starts at the selected
+        /// year/week, retaining the relative sequence of every following entry.</summary>
+        public bool ChangeCalendarStart(int intYear, int intWeek)
+        {
+            if (intWeek is < 1 or > 52)
+                throw new ArgumentOutOfRangeException(nameof(intWeek), "A calendar week must be between 1 and 52.");
+
+            XmlNodeList? objWeeks = Document.SelectNodes("/character/calendar/week");
+            if (objWeeks is not { Count: > 0 })
+                return false;
+
+            XmlNode objFirst = objWeeks[0]!;
+            int intOldYear = int.TryParse(GetValue(objFirst, "year", "0"), out var intParsedYear) ? intParsedYear : intYear;
+            int intOldWeek = int.TryParse(GetValue(objFirst, "week", "1"), out var intParsedWeek) ? intParsedWeek : intWeek;
+            int intWeekOffset = (intYear - intOldYear) * 52 + intWeek - intOldWeek;
+
+            foreach (XmlNode objWeek in objWeeks)
+            {
+                int intCurrentYear = int.TryParse(GetValue(objWeek, "year", "0"), out var intParsedCurrentYear) ? intParsedCurrentYear : intOldYear;
+                int intCurrentWeek = int.TryParse(GetValue(objWeek, "week", "1"), out var intParsedCurrentWeek) ? intParsedCurrentWeek : intOldWeek;
+                int intAbsoluteWeek = intCurrentYear * 52 + (intCurrentWeek - 1) + intWeekOffset;
+                int intNewYear = Math.DivRem(intAbsoluteWeek, 52, out int intNewWeekIndex);
+                if (intNewWeekIndex < 0) { intNewYear--; intNewWeekIndex += 52; }
+                SetChildValue(objWeek, "year", intNewYear.ToString());
+                SetChildValue(objWeek, "week", (intNewWeekIndex + 1).ToString());
+            }
+
+            Changed?.Invoke();
+            return true;
+        }
+
         public IReadOnlyList<CharacterQualityData> Qualities => ReadQualities();
 
         /// <summary>
@@ -2393,6 +2463,19 @@ namespace Chummer.Core
                 lstWeeks.Add(objWeek);
             }
             return lstWeeks;
+        }
+
+        private XmlNode? FindCalendarWeek(string strInternalId)
+        {
+            if (!Guid.TryParse(strInternalId, out _))
+                return null;
+            XmlNodeList? objWeeks = Document.SelectNodes("/character/calendar/week");
+            if (objWeeks == null)
+                return null;
+            foreach (XmlNode objWeek in objWeeks)
+                if (string.Equals(GetValue(objWeek, "guid", string.Empty), strInternalId, StringComparison.OrdinalIgnoreCase))
+                    return objWeek;
+            return null;
         }
 
         private IReadOnlyList<CharacterAttributeData> ReadAttributes()

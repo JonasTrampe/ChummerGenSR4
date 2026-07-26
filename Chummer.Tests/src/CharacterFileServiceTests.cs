@@ -1035,6 +1035,20 @@ public class CharacterFileServiceTests
         Assert.Equal("1", reloaded.Condition.StunDamage);
     }
 
+    [Fact]
+    public void CalendarWeeks_CanBeAddedEditedAndMoved()
+    {
+        CharacterDocument character = LoadXml("<character />");
+        CalendarWeek first = character.AddCalendarWeek(2072, 52, "Start");
+        character.AddCalendarWeek(2073, 1, "Second");
+
+        Assert.True(character.UpdateCalendarWeekNotes(first.InternalId, "Edited"));
+        Assert.True(character.ChangeCalendarStart(2073, 1));
+        Assert.Collection(character.Calendar,
+            week => { Assert.Equal(2073, week.Year); Assert.Equal(1, week.Week); Assert.Equal("Edited", week.Notes); },
+            week => { Assert.Equal(2073, week.Year); Assert.Equal(2, week.Week); Assert.Equal("Second", week.Notes); });
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

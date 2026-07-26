@@ -5,15 +5,15 @@
              x:DataType="vm:CalendarSectionViewModel">
     <DockPanel Margin="4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-            <Button Content="Wochen hinzufügen" />
-            <Button Content="Woche bearbeiten" />
-            <Button Content="Startdatum ändern" HorizontalAlignment="Right" />
+            <Button Content="Woche hinzufügen" Click="OnAddWeekClick" />
+            <Button Content="Woche bearbeiten" Click="OnEditWeekClick" />
+            <Button Content="Startdatum ändern" HorizontalAlignment="Right" Click="OnChangeStartClick" />
         </StackPanel>
         <Grid ColumnDefinitions="120,*" Margin="0,0,0,4">
             <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
             <TextBlock Grid.Column="1" Classes="gridHeader" Text="Notizen" />
         </Grid>
-        <ListBox ItemsSource="{Binding Weeks}">
+        <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek}">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:CalendarWeekRowViewModel">
                 <Grid ColumnDefinitions="120,*">
