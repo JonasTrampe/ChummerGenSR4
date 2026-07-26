@@ -187,10 +187,10 @@
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
                 <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="core:CharacterContactData">
+                        <DataTemplate x:DataType="vm:ContactRowViewModel">
                             <Grid ColumnDefinitions="180,*,Auto" ColumnSpacing="8" Margin="0,2">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                <TextBlock Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Foreground="#666666" />
+                                <TextBox Text="{Binding Name, Mode=TwoWay}" FontWeight="SemiBold" />
+                                <TextBox Grid.Column="1" Text="{Binding Notes, Mode=TwoWay}" PlaceholderText="Notizen" />
                                 <TextBlock Grid.Column="2" Text="{Binding Free, StringFormat='Kostenlos: {0}'}" />
                             </Grid>
                         </DataTemplate>

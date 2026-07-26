@@ -17,9 +17,9 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
     public ObservableCollection<string> Lifestyles { get; } = new();
-    public ObservableCollection<CharacterContactData> Pets { get; } = new();
-    private CharacterContactData? _selectedPet;
-    public CharacterContactData? SelectedPet { get => _selectedPet; set => SetField(ref _selectedPet, value); }
+    public ObservableCollection<ContactRowViewModel> Pets { get; } = new();
+    private ContactRowViewModel? _selectedPet;
+    public ContactRowViewModel? SelectedPet { get => _selectedPet; set => SetField(ref _selectedPet, value); }
 
     private string? _strSelectedArmorCategory;
     public string? SelectedArmorCategory
@@ -141,7 +141,7 @@ public sealed class GearSectionViewModel : ViewModelBase
 
         Pets.Clear();
         foreach (CharacterContactData pet in character.Pets)
-            Pets.Add(pet);
+            Pets.Add(new ContactRowViewModel(character, pet));
         SelectedPet = Pets.Count > 0 ? Pets[0] : null;
     }
 
