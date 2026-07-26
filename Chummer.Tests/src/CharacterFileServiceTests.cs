@@ -1110,6 +1110,20 @@ public class CharacterFileServiceTests
         Assert.Empty(character.ArmorSets);
     }
 
+    [Fact]
+    public void WeaponLocations_CanBeCreatedAssignedAndDissolved()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name><category>Pistols</category></weapon></weapons></character>");
+        Assert.True(character.AddWeaponLocation("Concealed"));
+        Assert.True(character.SetWeaponLocation("Ares Predator", "Pistols", "Concealed"));
+        CharacterTreeItemData location = Assert.Single(character.WeaponTrees);
+        Assert.Equal("Concealed", location.Name);
+        Assert.Equal("Weapon location", location.Category);
+        Assert.Single(location.Children);
+        Assert.True(character.RemoveWeaponLocation("Concealed"));
+        Assert.Equal("Ares Predator", Assert.Single(character.WeaponTrees).Name);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

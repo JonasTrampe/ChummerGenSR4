@@ -165,6 +165,14 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnAddWeaponLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
+        var dialog = new ArmorSetDialog { Title = "Waffenort hinzufügen" };
+        if (await dialog.ShowDialog<bool>(window) && _character.AddWeaponLocation(dialog.SetName))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnToggleWeaponEquippedClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedWeapon is not { Parent: null } weapon || sender is not CheckBox checkBox)

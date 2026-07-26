@@ -87,7 +87,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Waffe hinzufügen" Click="OnAddWeaponClick" />
                         <Button Content="Löschen" Click="OnDeleteWeaponClick" />
-                        <Button Content="Ort hinzufügen" />
+                        <Button Content="Ort hinzufügen" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
@@ -111,6 +111,11 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
                             <TextBlock Grid.Row="3" Text="Installiert:" Width="90" />
                             <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Ort:" Width="90" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding WeaponLocations}"
+                                      SelectedItem="{Binding SelectedWeaponLocation, Mode=TwoWay}" />
                         </Grid>
                         </StackPanel>
                     </ScrollViewer>

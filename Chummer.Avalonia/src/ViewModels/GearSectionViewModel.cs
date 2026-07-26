@@ -17,6 +17,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     private bool _blnShowOnlyCommlinks;
     public bool ShowOnlyCommlinks { get => _blnShowOnlyCommlinks; set { if (SetField(ref _blnShowOnlyCommlinks, value)) ApplyGearFilter(); } }
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
+    public ObservableCollection<string> WeaponLocations { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
     public ObservableCollection<string> ArmorSets { get; } = new();
@@ -102,10 +103,32 @@ public sealed class GearSectionViewModel : ViewModelBase
     }
 
     private TreeNodeViewModel? _selectedWeapon;
+    private string _strSelectedWeaponLocation = "Kein Ort";
+    private bool _blnIsLoadingWeaponLocation;
     public TreeNodeViewModel? SelectedWeapon
     {
         get => _selectedWeapon;
-        set => SetField(ref _selectedWeapon, value);
+        set
+        {
+            if (!SetField(ref _selectedWeapon, value)) return;
+            _blnIsLoadingWeaponLocation = true;
+            SelectedWeaponLocation = value is { Category: not "Weapon location" } ?
+                (string.IsNullOrEmpty(value.Location) ? "Kein Ort" : value.Location) : "Kein Ort";
+            _blnIsLoadingWeaponLocation = false;
+            OnPropertyChanged(nameof(IsWeaponLocationSelected));
+        }
+    }
+    public bool IsWeaponLocationSelected => SelectedWeapon?.Category == "Weapon location";
+    public string SelectedWeaponLocation
+    {
+        get => _strSelectedWeaponLocation;
+        set
+        {
+            if (!SetField(ref _strSelectedWeaponLocation, value) || _blnIsLoadingWeaponLocation || _character == null
+                || SelectedWeapon is not { Category: not "Weapon location" } weapon) return;
+            _character.SetWeaponLocation(weapon.SourceName, weapon.Category, value == "Kein Ort" ? string.Empty : value);
+            LoadCharacter(_character);
+        }
     }
 
     private string _strLifestyleCost = "Kosten/Monat:";
@@ -138,6 +161,9 @@ public sealed class GearSectionViewModel : ViewModelBase
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
             Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
+        WeaponLocations.Clear();
+        WeaponLocations.Add("Kein Ort");
+        foreach (string strLocation in character.WeaponLocations) WeaponLocations.Add(strLocation);
         SelectedWeapon = Weapons.Count > 0 ? Weapons[0] : null;
 
         _lstAllArmor = character.Armor.ToList();

@@ -1047,6 +1047,7 @@ namespace Chummer.Core
             AppendElement(objWeapon, "avail", strAvail);
             AppendElement(objWeapon, "source", strSource);
             AppendElement(objWeapon, "page", strPage);
+            AppendElement(objWeapon, "location", string.Empty);
             AppendElement(objWeapon, "equipped", "True");
             objWeapon.AppendChild(Document.CreateElement("accessories"));
             objWeapon.AppendChild(Document.CreateElement("weaponmods"));
@@ -1054,6 +1055,62 @@ namespace Chummer.Core
             objWeapon.AppendChild(Document.CreateElement("ammos"));
             objWeapons.AppendChild(objWeapon);
             Changed?.Invoke();
+        }
+
+        /// <summary>Named weapon locations remain persisted even while empty.</summary>
+        public IReadOnlyList<string> WeaponLocations => (IReadOnlyList<string>?)Document.SelectNodes("/character/weaponlocations/weaponlocation")?
+            .Cast<XmlNode>().Select(objNode => objNode.InnerText).Where(strName => !string.IsNullOrWhiteSpace(strName))
+            .Distinct(StringComparer.Ordinal).ToList() ?? Array.Empty<string>();
+
+        public bool AddWeaponLocation(string strName)
+        {
+            strName = strName.Trim();
+            if (strName.Length == 0 || WeaponLocations.Contains(strName, StringComparer.Ordinal)) return false;
+            var objRoot = Document.DocumentElement;
+            if (objRoot == null) return false;
+            XmlElement? objLocations = objRoot.SelectSingleNode("weaponlocations") as XmlElement;
+            if (objLocations == null)
+            {
+                objLocations = Document.CreateElement("weaponlocations");
+                objRoot.AppendChild(objLocations);
+            }
+            AppendElement(objLocations, "weaponlocation", strName);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool SetWeaponLocation(string strName, string strCategory, string strLocation)
+        {
+            strLocation = strLocation.Trim();
+            if (!string.IsNullOrEmpty(strLocation) && !WeaponLocations.Contains(strLocation, StringComparer.Ordinal)) return false;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/weapons/weapon");
+            if (objNodes == null) return false;
+            foreach (XmlNode objWeapon in objNodes)
+            {
+                if (!string.Equals(GetValue(objWeapon, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objWeapon, "category", string.Empty), strCategory, StringComparison.Ordinal)) continue;
+                if (string.Equals(GetValue(objWeapon, "location", string.Empty), strLocation, StringComparison.Ordinal)) return false;
+                SetChildValue(objWeapon, "location", strLocation);
+                Changed?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
+        public bool RemoveWeaponLocation(string strName)
+        {
+            strName = strName.Trim();
+            XmlNode? objLocation = Document.SelectNodes("/character/weaponlocations/weaponlocation")?.Cast<XmlNode>()
+                .FirstOrDefault(objNode => string.Equals(objNode.InnerText, strName, StringComparison.Ordinal));
+            if (objLocation?.ParentNode == null) return false;
+            objLocation.ParentNode.RemoveChild(objLocation);
+            XmlNodeList? objWeapons = Document.SelectNodes("/character/weapons/weapon");
+            if (objWeapons != null)
+                foreach (XmlNode objWeapon in objWeapons)
+                    if (string.Equals(GetValue(objWeapon, "location", string.Empty), strName, StringComparison.Ordinal))
+                        SetChildValue(objWeapon, "location", string.Empty);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Removes the first root-level saved weapon matching its name/category.</summary>
@@ -2918,10 +2975,25 @@ namespace Chummer.Core
         private IReadOnlyList<CharacterTreeItemData> ReadWeaponTrees()
         {
             var lstWeapons = new List<CharacterTreeItemData>();
+            var dicLocations = new Dictionary<string, CharacterTreeItemData>(StringComparer.Ordinal);
+            foreach (string strLocation in WeaponLocations)
+            {
+                var objLocation = new CharacterTreeItemData(strLocation, "Weapon location");
+                dicLocations.Add(strLocation, objLocation);
+                lstWeapons.Add(objLocation);
+            }
             var objNodes = Document.SelectNodes("/character/weapons/weapon");
             if (objNodes == null) return lstWeapons;
             foreach (XmlNode objNode in objNodes)
-                lstWeapons.Add(ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo"));
+            {
+                var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo");
+                string strLocation = GetValue(objNode, "location", string.Empty);
+                objWeapon.SetLocation(strLocation);
+                if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
+                    objLocation.Children.Add(objWeapon);
+                else
+                    lstWeapons.Add(objWeapon);
+            }
             return lstWeapons;
         }
 
@@ -3548,6 +3620,7 @@ namespace Chummer.Core
 
         public string Impact { get; private set; } = string.Empty;
         public string ArmorSetName { get; private set; } = string.Empty;
+        public string Location { get; private set; } = string.Empty;
 
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
@@ -3556,6 +3629,7 @@ namespace Chummer.Core
         }
 
         internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
+        internal void SetLocation(string strLocation) => Location = strLocation;
 
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,

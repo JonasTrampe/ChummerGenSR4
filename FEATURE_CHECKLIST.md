@@ -39,7 +39,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
-  können), Waffen (inkl. Zubehör/Mods), Ausrüstung
+  können), Waffen (inkl. Zubehör/Mods und persistenter Standorte), Ausrüstung
 - 🟡 Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
