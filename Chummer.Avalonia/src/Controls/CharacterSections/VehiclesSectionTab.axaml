@@ -50,6 +50,10 @@
                         <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Page, StringFormat='Seite: {0}'}" />
                         <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.PhysicalCmFilled, StringFormat='Schaden: {0}'}" />
                     </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Content="Reparieren" Click="OnRepairVehicleClick" />
+                        <Button Content="Schaden +1" Click="OnDamageVehicleClick" />
+                    </StackPanel>
                     <Separator Margin="0,2" />
                     <Grid ColumnDefinitions="*,*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />

@@ -42,8 +42,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
-  add/delete root vehicles and deduct their cost. Editing installed items, locations, damage tracking,
-  and rules-data-derived totals remain unported.
+  add/delete root vehicles and deduct their cost. Root vehicles support persistent physical-damage
+  tracking with add/repair controls. Editing installed items, locations, drones, and
+  rules-data-derived totals remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)

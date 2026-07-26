@@ -996,6 +996,25 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Adjusts the filled physical condition-monitor boxes of a root vehicle.</summary>
+        public bool AdjustVehicleDamage(string strName, string strCategory, int intDelta)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/vehicles/vehicle");
+            if (objNodes == null) return false;
+            foreach (XmlNode objVehicle in objNodes)
+            {
+                if (!string.Equals(GetValue(objVehicle, "name", string.Empty), strName, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objVehicle, "category", string.Empty), strCategory, StringComparison.Ordinal)) continue;
+                int intCurrent = int.TryParse(GetValue(objVehicle, "physicalcmfilled", "0"), out var intValue) ? intValue : 0;
+                int intNewValue = Math.Max(0, intCurrent + intDelta);
+                if (intNewValue == intCurrent) return false;
+                SetChildValue(objVehicle, "physicalcmfilled", intNewValue.ToString());
+                Changed?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>Adds a root-level Weapon in the minimal saved-character tree shape used by
         /// <see cref="Weapons"/>/<see cref="WeaponTrees"/> - <paramref name="strDamage"/>/
         /// <paramref name="strAp"/>/<paramref name="strMode"/>/<paramref name="strRc"/>/

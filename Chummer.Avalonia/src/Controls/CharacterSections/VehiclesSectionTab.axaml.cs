@@ -46,4 +46,13 @@ public partial class VehiclesSectionTab : UserControl
         if (_character.RemoveVehicle(vehicle.Name, vehicle.Category))
             ViewModel.LoadCharacter(_character);
     }
+
+    private void OnDamageVehicleClick(object? sender, RoutedEventArgs e) => AdjustSelectedVehicleDamage(1);
+    private void OnRepairVehicleClick(object? sender, RoutedEventArgs e) => AdjustSelectedVehicleDamage(-1);
+
+    private void AdjustSelectedVehicleDamage(int delta)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle) return;
+        if (_character.AdjustVehicleDamage(vehicle.Name, vehicle.Category, delta)) ViewModel.LoadCharacter(_character);
+    }
 }

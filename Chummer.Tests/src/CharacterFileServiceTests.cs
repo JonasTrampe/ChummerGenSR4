@@ -1081,6 +1081,16 @@ public class CharacterFileServiceTests
         Assert.False(character.WeaponTrees.Single().Equipped);
     }
 
+    [Fact]
+    public void VehicleDamage_CanBeAdjustedWithoutGoingBelowZero()
+    {
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle><name>Americar</name><category>Cars</category><physicalcmfilled>1</physicalcmfilled></vehicle></vehicles></character>");
+        Assert.True(character.AdjustVehicleDamage("Americar", "Cars", 2));
+        Assert.Equal("3", character.Vehicles.Single().PhysicalCmFilled);
+        Assert.True(character.AdjustVehicleDamage("Americar", "Cars", -5));
+        Assert.Equal("0", character.Vehicles.Single().PhysicalCmFilled);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
