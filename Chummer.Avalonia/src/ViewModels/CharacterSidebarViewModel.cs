@@ -47,6 +47,9 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     private string _strFlyMovement = string.Empty;
     public string FlyMovement { get => _strFlyMovement; set => SetField(ref _strFlyMovement, value); }
 
+    private string _strEdge = "0 von 0 verbleibend";
+    public string Edge { get => _strEdge; set => SetField(ref _strEdge, value); }
+
     private string _strRemainingNuyen = string.Empty;
     public string RemainingNuyen { get => _strRemainingNuyen; set => SetField(ref _strRemainingNuyen, value); }
 
@@ -112,8 +115,12 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         WalkMovement = character.WalkMovement;
         SwimMovement = string.IsNullOrEmpty(character.SwimMovement) ? "0" : character.SwimMovement;
         FlyMovement = string.IsNullOrEmpty(character.FlyMovement) ? "0" : character.FlyMovement;
+        Edge = character.Edge.Remaining + " von " + character.Edge.Maximum + " verbleibend";
         ReloadCommlinks(character);
     }
+
+    public void SpendEdge() { if (_objCharacter?.SpendEdge() == true) LoadCharacter(_objCharacter); }
+    public void RegainEdge() { if (_objCharacter?.RegainEdge() == true) LoadCharacter(_objCharacter); }
 
     private void OnCharacterChanged()
     {

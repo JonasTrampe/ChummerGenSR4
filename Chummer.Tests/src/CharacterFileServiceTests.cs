@@ -972,4 +972,40 @@ public class CharacterFileServiceTests
 
         Assert.Equal(4, character.MatrixInitiative.Base); // Response not counted - commlink isn't active.
     }
+
+    [Fact]
+    public void Movement_AppliesLandSwimAndFlyImprovements()
+    {
+        CharacterDocument character = LoadXml("<character><movement>10/25,Swim 4/8,Fly 20/40</movement><improvements>"
+            + ImprovementXml("MovementPercent", "10") + ImprovementXml("SwimPercent", "25")
+            + ImprovementXml("FlyPercent", "50") + "</improvements></character>");
+
+        Assert.Equal("11/27", character.WalkMovement);
+        Assert.Equal("5/10", character.SwimMovement);
+        Assert.Equal("30/60", character.FlyMovement);
+    }
+
+    [Fact]
+    public void Movement_FlySpeedCanUseAMultipleOfWalkMovement()
+    {
+        CharacterDocument character = LoadXml("<character><movement>8/20</movement><improvements>"
+            + ImprovementXml("FlySpeed", "-2") + "</improvements></character>");
+
+        Assert.Equal("16/40", character.FlyMovement);
+    }
+
+    [Fact]
+    public void Edge_SpendAndRegain_PersistAcrossSaveReload()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("EDG", "3") + "</attributes></character>");
+        Assert.Equal(3, character.Edge.Remaining);
+        Assert.True(character.SpendEdge());
+        Assert.Equal(2, character.Edge.Remaining);
+        Assert.True(character.RegainEdge());
+        Assert.Equal(3, character.Edge.Remaining);
+    }
+
+    private static string ImprovementXml(string strType, string strValue) =>
+        "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
+        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
 }

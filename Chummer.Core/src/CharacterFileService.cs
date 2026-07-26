@@ -287,17 +287,60 @@ namespace Chummer.Core
             return true;
         }
 
-        /// <summary>Saved walking/running movement string (for example "10/25"), written by the
-        /// legacy character save as &lt;movementwalk&gt;.</summary>
-        public string WalkMovement => GetValue("/character/movementwalk", string.Empty);
+        /// <summary>Calculated walking/running movement, including MovementPercent Improvements.</summary>
+        public string WalkMovement => ComputeMovement("land", ImprovementType.MovementPercent);
 
-        /// <summary>Saved swim movement string (for example "5"), written by the legacy save as
-        /// &lt;movementswim&gt;.</summary>
-        public string SwimMovement => GetValue("/character/movementswim", string.Empty);
+        /// <summary>Calculated swim movement, including SwimPercent Improvements.</summary>
+        public string SwimMovement => ComputeMovement("Swim", ImprovementType.SwimPercent);
 
-        /// <summary>Saved fly movement string (for example "45/90"), written by the legacy save as
-        /// &lt;movementfly&gt;. Empty for characters that do not fly.</summary>
-        public string FlyMovement => GetValue("/character/movementfly", string.Empty);
+        /// <summary>Calculated fly movement, including FlyPercent/FlySpeed Improvements.</summary>
+        public string FlyMovement => ComputeFlyMovement();
+
+        /// <summary>Current and maximum Edge. Spent Edge is stored by the legacy application as
+        /// an EdgeUse Attribute improvement with a negative augmented value.</summary>
+        public CharacterEdgeData Edge
+        {
+            get
+            {
+                int intMaximum = GetAttributeInt("EDG");
+                int intUsed = Improvements.Where(i => i.Enabled && i.Source == ImprovementSource.EdgeUse
+                    && i.Type == ImprovementType.Attribute && i.ImprovedName == "EDG")
+                    .Sum(i => i.Augmented * i.Rating);
+                return new CharacterEdgeData(Math.Clamp(intMaximum + intUsed, 0, intMaximum), intMaximum);
+            }
+        }
+
+        public bool SpendEdge() => SetEdgeRemaining(Edge.Remaining - 1);
+
+        public bool RegainEdge() => SetEdgeRemaining(Edge.Remaining + 1);
+
+        private bool SetEdgeRemaining(int intRemaining)
+        {
+            int intMaximum = Edge.Maximum;
+            if (intRemaining < 0 || intRemaining > intMaximum) return false;
+            XmlElement objImprovements = Document.DocumentElement?.SelectSingleNode("improvements") as XmlElement
+                ?? Document.CreateElement("improvements");
+            if (objImprovements.ParentNode == null) Document.DocumentElement?.AppendChild(objImprovements);
+            XmlNode? objExisting = objImprovements.SelectSingleNode("improvement[improvementsource = 'EdgeUse' and improvedname = 'EDG']");
+            if (intRemaining == intMaximum)
+            {
+                if (objExisting != null) objImprovements.RemoveChild(objExisting);
+            }
+            else
+            {
+                XmlElement objImprovement = objExisting as XmlElement ?? Document.CreateElement("improvement");
+                if (objExisting == null) objImprovements.AppendChild(objImprovement);
+                SetChildValue(objImprovement, "improvementttype", "Attribute");
+                SetChildValue(objImprovement, "improvementsource", "EdgeUse");
+                SetChildValue(objImprovement, "improvedname", "EDG");
+                SetChildValue(objImprovement, "sourcename", "edgeuse");
+                SetChildValue(objImprovement, "aug", (intRemaining - intMaximum).ToString());
+                SetChildValue(objImprovement, "rating", "1");
+                SetChildValue(objImprovement, "enabled", "True");
+            }
+            Changed?.Invoke();
+            return true;
+        }
 
         /// <summary>Total Karma earned over the character's career (sum of positive, non-refund
         /// Karma expense entries), ported from clsCharacter.cs's CareerKarma.</summary>
@@ -317,6 +360,59 @@ namespace Chummer.Core
             }
 
             return intTotal;
+        }
+
+        private string ComputeMovement(string strKind, ImprovementType objPercentType)
+        {
+            string strMovement = GetValue("/character/movement", string.Empty);
+            if (string.Equals(strMovement, "Special", StringComparison.OrdinalIgnoreCase))
+                return "0";
+            if (string.IsNullOrWhiteSpace(strMovement))
+            {
+                string strSaved = strKind == "land" ? GetValue("/character/movementwalk", string.Empty)
+                    : strKind == "Swim" ? GetValue("/character/movementswim", string.Empty)
+                    : GetValue("/character/movementfly", string.Empty);
+                return string.IsNullOrWhiteSpace(strSaved) ? "0" : strSaved;
+            }
+
+            foreach (string strEntry in strMovement.Split(','))
+            {
+                string strValue = strEntry.Trim();
+                bool blnSwim = strValue.StartsWith("Swim", StringComparison.OrdinalIgnoreCase);
+                bool blnFly = strValue.StartsWith("Fly", StringComparison.OrdinalIgnoreCase);
+                if ((strKind == "land" && (blnSwim || blnFly)) || (strKind == "Swim" && !blnSwim))
+                    continue;
+                if (strKind == "Swim") strValue = strValue.Substring(4).Trim();
+                if (strKind == "land" || strKind == "Swim")
+                    return ApplyMovementPercent(strValue, ImprovementManager.ValueOf(Improvements, objPercentType));
+            }
+            return "0";
+        }
+
+        private string ComputeFlyMovement()
+        {
+            string strMovement = GetValue("/character/movement", string.Empty);
+            if (string.Equals(strMovement, "Special", StringComparison.OrdinalIgnoreCase)) return "0";
+            foreach (string strEntry in strMovement.Split(','))
+                if (strEntry.Trim().StartsWith("Fly", StringComparison.OrdinalIgnoreCase))
+                    return ApplyMovementPercent(strEntry.Trim().Substring(3).Trim(), ImprovementManager.ValueOf(Improvements, ImprovementType.FlyPercent));
+
+            int intFlySpeed = ImprovementManager.ValueOf(Improvements, ImprovementType.FlySpeed);
+            if (intFlySpeed == 0) return "0";
+            string strBase = intFlySpeed > 0 ? intFlySpeed.ToString() : MultiplyMovement(WalkMovement, -intFlySpeed);
+            return ApplyMovementPercent(strBase, ImprovementManager.ValueOf(Improvements, ImprovementType.FlyPercent));
+        }
+
+        private static string MultiplyMovement(string strMovement, int intMultiplier)
+        {
+            string[] parts = strMovement.Split('/');
+            return string.Join("/", parts.Select(p => int.TryParse(p, out int value) ? (value * intMultiplier).ToString() : "0"));
+        }
+
+        private static string ApplyMovementPercent(string strMovement, int intPercent)
+        {
+            return string.Join("/", strMovement.Split('/').Select(p => int.TryParse(p.Trim(), out int value)
+                ? (value + (int)Math.Floor(value * (intPercent / 100.0))).ToString() : "0"));
         }
 
         public CharacterConditionData Condition =>
@@ -3437,6 +3533,18 @@ namespace Chummer.Core
         public bool KnowledgeSkill { get; private set; }
         public string SkillGroup { get; private set; }
         public bool Exotic { get; private set; }
+    }
+
+    public sealed class CharacterEdgeData
+    {
+        internal CharacterEdgeData(int intRemaining, int intMaximum)
+        {
+            Remaining = intRemaining;
+            Maximum = intMaximum;
+        }
+
+        public int Remaining { get; }
+        public int Maximum { get; }
     }
 
     public sealed class CharacterContactData

@@ -108,12 +108,12 @@
 
                     <TextBlock Text="Zurück erhalten/Ausgeben von Edge" Margin="0,10,0,0"
                                TextWrapping="Wrap" />
-                    <TextBlock Text="3 von 3 verbleibend" />
+                    <TextBlock Text="{Binding Edge}" />
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Classes="iconButton">
+                        <Button Classes="iconButton" Click="OnRegainEdgeClick">
                             <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
                         </Button>
-                        <Button Classes="iconButton">
+                        <Button Classes="iconButton" Click="OnSpendEdgeClick">
                             <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" />
                         </Button>
                     </StackPanel>
