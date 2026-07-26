@@ -103,7 +103,7 @@
                             <TextBlock Grid.Row="2" Text="Stufe:" Width="90" />
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
                             <TextBlock Grid.Row="3" Text="Installiert:" Width="90" />
-                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" IsEnabled="False" />
+                            <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
                         </Grid>
                         </StackPanel>
                     </ScrollViewer>

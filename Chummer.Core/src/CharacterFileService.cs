@@ -1061,6 +1061,22 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Sets the equipped state of the first root-level weapon matching name and category.</summary>
+        public bool SetWeaponEquipped(string strName, string strCategory, bool blnEquipped)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/weapons/weapon");
+            if (objNodes == null) return false;
+            foreach (XmlNode objWeapon in objNodes)
+            {
+                if (!string.Equals(GetValue(objWeapon, "name", string.Empty), strName, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objWeapon, "category", string.Empty), strCategory, StringComparison.Ordinal)) continue;
+                SetChildValue(objWeapon, "equipped", blnEquipped ? "True" : "False");
+                Changed?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>Adds a root-level Armor in the minimal saved-character tree shape used by
         /// <see cref="Armor"/> and the armor-encumbrance calc - <paramref name="strB"/>/
         /// <paramref name="strI"/> are the ballistic/impact ratings copied as-is from armor.xml

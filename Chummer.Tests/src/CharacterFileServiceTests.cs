@@ -1073,6 +1073,14 @@ public class CharacterFileServiceTests
         Assert.Empty(character.Lifestyles);
     }
 
+    [Fact]
+    public void WeaponEquippedState_CanBeChanged()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name><category>Pistols</category><equipped>True</equipped></weapon></weapons></character>");
+        Assert.True(character.SetWeaponEquipped("Ares Predator", "Pistols", false));
+        Assert.False(character.WeaponTrees.Single().Equipped);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

@@ -164,6 +164,14 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnToggleWeaponEquippedClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null } weapon || sender is not CheckBox checkBox)
+            return;
+        if (_character.SetWeaponEquipped(weapon.SourceName, weapon.Category, checkBox.IsChecked == true))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddArmorClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
