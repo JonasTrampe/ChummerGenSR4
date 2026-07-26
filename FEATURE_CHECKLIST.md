@@ -38,7 +38,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil, Panzerung (inkl. Mods/Sets), Waffen (inkl. Zubehör/Mods), Ausrüstung
-- ❌ Straßenausrüstung → Haustiere und Begleiter (still a static mockup, no data model)
+- 🟡 Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries are displayed
+  with their name, notes, and free status. Adding, deleting, and linking a companion character
+  file remain unported.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
   add/delete root vehicles and deduct their cost. Editing installed items, locations, damage tracking,

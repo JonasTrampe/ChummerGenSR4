@@ -17,6 +17,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
     public ObservableCollection<string> Lifestyles { get; } = new();
+    public ObservableCollection<CharacterContactData> Pets { get; } = new();
 
     private string? _strSelectedArmorCategory;
     public string? SelectedArmorCategory
@@ -135,6 +136,10 @@ public sealed class GearSectionViewModel : ViewModelBase
         }
 
         LifestyleCost = "Kosten/Monat: " + decTotalCost.ToString("N0", CultureInfo.InvariantCulture) + "¥";
+
+        Pets.Clear();
+        foreach (CharacterContactData pet in character.Pets)
+            Pets.Add(pet);
     }
 
     private void ApplyArmorFilter()

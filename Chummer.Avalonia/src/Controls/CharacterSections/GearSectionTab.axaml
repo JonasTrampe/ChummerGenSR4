@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:core="using:Chummer.Core"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.GearSectionTab"
              x:DataType="vm:GearSectionViewModel">
@@ -180,18 +181,18 @@
         <TabItem Header="Haustiere und Begleiter">
             <StackPanel Margin="8" Spacing="6">
                 <Button Content="Haustier hinzufügen" HorizontalAlignment="Left" />
-                <Grid ColumnDefinitions="Auto,140,Auto,140,20,20,Auto" ColumnSpacing="6">
-                    <TextBlock Grid.Column="0" Text="Name:" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Text="asd" />
-                    <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center" />
-                    <Border Grid.Column="4" Classes="iconButton">
-                        <Image Source="avares://Chummer.Avalonia/assets/icons/link.png" />
-                    </Border>
-                    <Border Grid.Column="5" Classes="iconButton">
-                        <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
-                    </Border>
-                    <Button Grid.Column="6" Content="Löschen" />
-                </Grid>
+                <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
+                <ItemsControl ItemsSource="{Binding Pets}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="core:CharacterContactData">
+                            <Grid ColumnDefinitions="180,*,Auto" ColumnSpacing="8" Margin="0,2">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Foreground="#666666" />
+                                <TextBlock Grid.Column="2" Text="{Binding Free, StringFormat='Kostenlos: {0}'}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </TabItem>
     </TabControl>

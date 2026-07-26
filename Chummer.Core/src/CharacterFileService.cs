@@ -1722,6 +1722,9 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterContactData> Enemies => ReadContacts(blnEnemies: true);
 
+        /// <summary>Pets are persisted as Contact entries with <c>type=Pet</c>, matching the legacy app.</summary>
+        public IReadOnlyList<CharacterContactData> Pets => ReadPets();
+
         public void AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy)
         {
             var objRoot = Document.DocumentElement
@@ -2708,6 +2711,28 @@ namespace Chummer.Core
             }
 
             return lstContacts;
+        }
+
+        private IReadOnlyList<CharacterContactData> ReadPets()
+        {
+            var lstPets = new List<CharacterContactData>();
+            var objNodes = Document.SelectNodes("/character/contacts/contact");
+            if (objNodes == null) return lstPets;
+            int intContactId = 0;
+            foreach (XmlNode objNode in objNodes)
+            {
+                if (GetValue(objNode, "type", "Contact") == "Pet")
+                {
+                    lstPets.Add(new CharacterContactData(intContactId, GetValue(objNode, "name", string.Empty),
+                        GetValue(objNode, "connection", "0"), GetValue(objNode, "loyalty", "0"), false,
+                        GetValue(objNode, "notes", string.Empty), GetValue(objNode, "free", "False") == "True",
+                        GetValue(objNode, "groupname", string.Empty), ParseInt(GetValue(objNode, "membership", "0")),
+                        ParseInt(GetValue(objNode, "areaofinfluence", "0")), ParseInt(GetValue(objNode, "magicalresources", "0")),
+                        ParseInt(GetValue(objNode, "matrixresources", "0"))));
+                }
+                intContactId++;
+            }
+            return lstPets;
         }
 
         private XmlNode? GetContactNode(int intContactId)
