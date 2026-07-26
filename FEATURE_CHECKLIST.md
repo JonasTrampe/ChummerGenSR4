@@ -102,11 +102,10 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Settings / options
 
-- 🟡 `GlobalOptions`/`CharacterOptions` ported to `Chummer.Core` and used internally (house
-  rules aren't consumed by calculations yet, per above) — but there's no options/settings **UI**
-  at all; `SettingsProfileDialog` is a static mockup
-- ❌ Language selection UI (the `LanguageManager` engine works and is used for exactly one
-  string today — `Title_CareerMode` — nothing else in the UI is localized through it)
+- ✅ Options/settings UI: settings profiles, sourcebooks, build/karma/BP values, optional and
+  house rules, global update/PDF/cloud options, and persistence through `SettingsStore`
+- 🟡 Language selection UI exists in Options and reloads the language catalog; most Avalonia UI
+  strings still remain hard-coded and are therefore not translated yet.
 
 ## Drag-and-drop / interaction niceties
 
