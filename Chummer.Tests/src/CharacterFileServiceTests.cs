@@ -1147,6 +1147,20 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleLocations_CanBeAddedRemovedAndReloaded()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle><guid>" + vehicleId
+            + "</guid><name>Americar</name><category>Cars</category></vehicle></vehicles></character>");
+
+        Assert.True(character.AddVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.Contains("Kofferraum", character.Vehicles.Single().Locations);
+        Assert.False(character.AddVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.True(character.RemoveVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.Empty(character.Vehicles.Single().Locations);
+    }
+
+    [Fact]
     public void ArmorSets_CanBeCreatedAssignedAndDissolved()
     {
         CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");

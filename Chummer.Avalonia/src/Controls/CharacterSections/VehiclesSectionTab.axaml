@@ -11,6 +11,8 @@
                 <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
                 <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
                 <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick" />
+                <Button Content="Ort hinzufügen" Click="OnAddVehicleLocationClick" />
+                <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
@@ -56,6 +58,11 @@
                         <Button Content="Reparieren" Click="OnRepairVehicleClick" />
                         <Button Content="Schaden +1" Click="OnDamageVehicleClick" />
                     </StackPanel>
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Text="Orte:" Width="70" />
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding SelectedVehicle.VehicleLocations}"
+                                  SelectedItem="{Binding SelectedVehicleLocation, Mode=TwoWay}" />
+                    </Grid>
                     <Separator Margin="0,2" />
                     <Grid ColumnDefinitions="*,*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />

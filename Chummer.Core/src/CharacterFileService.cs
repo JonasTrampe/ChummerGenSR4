@@ -1221,6 +1221,40 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Persists a named storage/location bucket on a vehicle. Existing onboard gear
+        /// is intentionally not reassigned here; assignment is a separate UI workflow.</summary>
+        public bool AddVehicleLocation(Guid guiVehicleId, string strName)
+        {
+            strName = strName.Trim();
+            if (strName.Length == 0) return false;
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null || objVehicle.SelectNodes("locations/location")?.Cast<XmlNode>()
+                    .Any(node => string.Equals(node.InnerText, strName, StringComparison.Ordinal)) == true)
+                return false;
+            XmlElement? objLocations = objVehicle.SelectSingleNode("locations") as XmlElement;
+            if (objLocations == null)
+            {
+                objLocations = Document.CreateElement("locations");
+                objVehicle.AppendChild(objLocations);
+            }
+            AppendElement(objLocations, "location", strName);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a named vehicle location. Items which currently reference that name
+        /// retain their saved value until the assignment workflow is ported.</summary>
+        public bool RemoveVehicleLocation(Guid guiVehicleId, string strName)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objLocation = objVehicle?.SelectNodes("locations/location")?.Cast<XmlNode>()
+                .FirstOrDefault(node => string.Equals(node.InnerText, strName, StringComparison.Ordinal));
+            if (objLocation?.ParentNode == null) return false;
+            objLocation.ParentNode.RemoveChild(objLocation);
+            Changed?.Invoke();
+            return true;
+        }
+
         private XmlNode? GetVehicleNode(Guid guiVehicleId)
             => Document.SelectSingleNode($"/character/vehicles/vehicle[guid = '{guiVehicleId}']");
 
@@ -3548,6 +3582,10 @@ namespace Chummer.Core
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("mods/mod"), "Vehicle Mod");
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("gears/gear"), "Gear");
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
+                XmlNodeList? objLocations = objNode.SelectNodes("locations/location");
+                if (objLocations != null)
+                    foreach (XmlNode objLocation in objLocations)
+                        if (!string.IsNullOrWhiteSpace(objLocation.InnerText)) objVehicle.Locations.Add(objLocation.InnerText);
                 lstVehicles.Add(objVehicle);
             }
             return lstVehicles;
@@ -4042,6 +4080,7 @@ namespace Chummer.Core
         public string Source { get; }
         public string Page { get; }
         public string PhysicalCmFilled { get; }
+        public List<string> Locations { get; } = new();
         public List<CharacterTreeItemData> Children { get; } = new();
     }
 

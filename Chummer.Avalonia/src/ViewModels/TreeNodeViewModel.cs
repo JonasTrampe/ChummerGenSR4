@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Chummer.Core;
 
@@ -72,6 +74,7 @@ public sealed class TreeNodeViewModel
     public string Source { get; private set; } = string.Empty;
     public string Page { get; private set; } = string.Empty;
     public string PhysicalCmFilled { get; private set; } = string.Empty;
+    public IReadOnlyList<string> VehicleLocations { get; private set; } = Array.Empty<string>();
     public bool HasVehicleDetails { get; private set; }
 
     /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes, or the
@@ -162,6 +165,7 @@ public sealed class TreeNodeViewModel
             Source = item.Source,
             Page = item.Page,
             PhysicalCmFilled = item.PhysicalCmFilled,
+            VehicleLocations = item.Locations,
             HasVehicleDetails = true
         };
         foreach (CharacterTreeItemData child in item.Children)

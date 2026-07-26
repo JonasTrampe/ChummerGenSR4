@@ -95,6 +95,25 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnAddVehicleLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedVehicle is not { Parent: null } vehicle
+            || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
+        var dialog = new ArmorSetDialog { Title = "Fahrzeugort hinzufügen" };
+        if (await dialog.ShowDialog<bool>(window) && _character.AddVehicleLocation(guiVehicleId, dialog.SetName))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnRemoveVehicleLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle
+            || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
+            || string.IsNullOrWhiteSpace(ViewModel.SelectedVehicleLocation)) return;
+        if (_character.RemoveVehicleLocation(guiVehicleId, ViewModel.SelectedVehicleLocation))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddVehicleGearClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window
