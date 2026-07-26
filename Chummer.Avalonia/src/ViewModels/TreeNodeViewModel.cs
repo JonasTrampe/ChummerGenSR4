@@ -24,6 +24,7 @@ public sealed class TreeNodeViewModel
     public string Ballistic { get; private set; } = string.Empty;
 
     public string Impact { get; private set; } = string.Empty;
+    public string ArmorSetName { get; private set; } = string.Empty;
 
     /// <summary>Depth-first position within the &lt;gears&gt; tree - only set (>=0) for Gear tree
     /// nodes. Stable identity for adding/removing nested gear and editing quantity.</summary>
@@ -116,6 +117,7 @@ public sealed class TreeNodeViewModel
             TranslatedName = item.TranslatedName,
             Ballistic = item.Ballistic,
             Impact = item.Impact,
+            ArmorSetName = item.ArmorSetName,
             GearId = item.GearId,
             Qty = item.Qty,
             Capacity = item.Capacity,

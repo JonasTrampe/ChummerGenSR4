@@ -1126,11 +1126,76 @@ namespace Chummer.Core
             AppendElement(objArmor, "avail", strAvail);
             AppendElement(objArmor, "source", strSource);
             AppendElement(objArmor, "page", strPage);
+            AppendElement(objArmor, "armorname", string.Empty);
             AppendElement(objArmor, "equipped", "True");
             objArmor.AppendChild(Document.CreateElement("armormods"));
             objArmor.AppendChild(Document.CreateElement("gears"));
             objArmors.AppendChild(objArmor);
             Changed?.Invoke();
+        }
+
+        /// <summary>Creates a named armor bundle. A bundle is persisted independently so that an
+        /// empty set remains visible and can receive armor later.</summary>
+        public bool AddArmorSet(string strName)
+        {
+            strName = strName.Trim();
+            if (strName.Length == 0 || ArmorSets.Contains(strName, StringComparer.Ordinal))
+                return false;
+
+            var objRoot = Document.DocumentElement;
+            if (objRoot == null)
+                return false;
+            XmlElement? objSets = objRoot.SelectSingleNode("armorbundles") as XmlElement;
+            if (objSets == null)
+            {
+                objSets = Document.CreateElement("armorbundles");
+                objRoot.AppendChild(objSets);
+            }
+            AppendElement(objSets, "armorbundle", strName);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Assigns a root-level armor item to a bundle, or to the ungrouped root when
+        /// <paramref name="strSetName"/> is empty.</summary>
+        public bool SetArmorSet(string strName, string strCategory, string strSetName)
+        {
+            strSetName = strSetName.Trim();
+            if (!string.IsNullOrEmpty(strSetName) && !ArmorSets.Contains(strSetName, StringComparer.Ordinal))
+                return false;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/armors/armor");
+            if (objNodes == null)
+                return false;
+            foreach (XmlNode objArmor in objNodes)
+            {
+                if (!string.Equals(GetValue(objArmor, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objArmor, "category", string.Empty), strCategory, StringComparison.Ordinal))
+                    continue;
+                if (string.Equals(GetValue(objArmor, "armorname", string.Empty), strSetName, StringComparison.Ordinal))
+                    return false;
+                SetChildValue(objArmor, "armorname", strSetName);
+                Changed?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Deletes a bundle and moves all of its armor back to the ungrouped root.</summary>
+        public bool RemoveArmorSet(string strName)
+        {
+            strName = strName.Trim();
+            XmlNode? objSet = Document.SelectNodes("/character/armorbundles/armorbundle")?
+                .Cast<XmlNode>().FirstOrDefault(objNode => string.Equals(objNode.InnerText, strName, StringComparison.Ordinal));
+            if (objSet?.ParentNode == null)
+                return false;
+            objSet.ParentNode.RemoveChild(objSet);
+            XmlNodeList? objArmor = Document.SelectNodes("/character/armors/armor");
+            if (objArmor != null)
+                foreach (XmlNode objNode in objArmor)
+                    if (string.Equals(GetValue(objNode, "armorname", string.Empty), strName, StringComparison.Ordinal))
+                        SetChildValue(objNode, "armorname", string.Empty);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Removes the first root-level saved armor matching its name/category.</summary>
@@ -1338,6 +1403,11 @@ namespace Chummer.Core
         /// <summary>Armor is represented as a tree so installed armor modifications and optional
         /// saved armor sets remain visible instead of being flattened into a list.</summary>
         public IReadOnlyList<CharacterTreeItemData> Armor => ReadArmorTree();
+
+        /// <summary>Persisted armor-bundle names, including empty bundles.</summary>
+        public IReadOnlyList<string> ArmorSets => (IReadOnlyList<string>?)Document.SelectNodes("/character/armorbundles/armorbundle")?
+            .Cast<XmlNode>().Select(objNode => objNode.InnerText).Where(strName => !string.IsNullOrWhiteSpace(strName))
+            .Distinct(StringComparer.Ordinal).ToList() ?? Array.Empty<string>();
 
         /// <summary>Armor encumbrance penalty (a negative dice-pool modifier, 0 if under threshold),
         /// ported from clsCharacter.cs's BallisticArmorEncumbrance/ImpactArmorEncumbrance. Covers the
@@ -2812,6 +2882,12 @@ namespace Chummer.Core
         {
             var lstArmor = new List<CharacterTreeItemData>();
             var dicSets = new Dictionary<string, CharacterTreeItemData>(StringComparer.Ordinal);
+            foreach (string strSetName in ArmorSets)
+            {
+                var objSet = new CharacterTreeItemData(strSetName, "Armor set");
+                dicSets.Add(strSetName, objSet);
+                lstArmor.Add(objSet);
+            }
             var objNodes = Document.SelectNodes("/character/armors/armor");
             if (objNodes == null) return lstArmor;
 
@@ -2820,6 +2896,7 @@ namespace Chummer.Core
                 var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
                 objArmor.SetArmorRatings(GetValue(objNode, "b", "0"), GetValue(objNode, "i", "0"));
                 string strSetName = GetValue(objNode, "armorname", string.Empty);
+                objArmor.SetArmorSetName(strSetName);
                 if (string.IsNullOrWhiteSpace(strSetName))
                 {
                     lstArmor.Add(objArmor);
@@ -3470,12 +3547,15 @@ namespace Chummer.Core
         public string Ballistic { get; private set; } = string.Empty;
 
         public string Impact { get; private set; } = string.Empty;
+        public string ArmorSetName { get; private set; } = string.Empty;
 
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
             Ballistic = strBallistic;
             Impact = strImpact;
         }
+
+        internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
 
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,

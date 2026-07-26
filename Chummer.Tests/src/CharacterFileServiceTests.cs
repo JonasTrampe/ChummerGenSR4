@@ -1091,6 +1091,25 @@ public class CharacterFileServiceTests
         Assert.Equal("0", character.Vehicles.Single().PhysicalCmFilled);
     }
 
+    [Fact]
+    public void ArmorSets_CanBeCreatedAssignedAndDissolved()
+    {
+        CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");
+
+        Assert.True(character.AddArmorSet("Einsatzanzug"));
+        Assert.Contains("Einsatzanzug", character.ArmorSets);
+        Assert.True(character.SetArmorSet("Armor Jacket", "Armor", "Einsatzanzug"));
+        CharacterTreeItemData set = Assert.Single(character.Armor);
+        Assert.Equal("Einsatzanzug", set.Name);
+        Assert.Equal("Armor set", set.Category);
+        Assert.Single(set.Children);
+
+        Assert.True(character.RemoveArmorSet("Einsatzanzug"));
+        CharacterTreeItemData armor = Assert.Single(character.Armor);
+        Assert.Equal("Armor Jacket", armor.Name);
+        Assert.Empty(character.ArmorSets);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

@@ -19,6 +19,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
+    public ObservableCollection<string> ArmorSets { get; } = new();
     public ObservableCollection<LifestyleRowViewModel> Lifestyles { get; } = new();
     private LifestyleRowViewModel? _selectedLifestyle;
     public LifestyleRowViewModel? SelectedLifestyle { get => _selectedLifestyle; set => SetField(ref _selectedLifestyle, value); }
@@ -70,10 +71,34 @@ public sealed class GearSectionViewModel : ViewModelBase
     }
 
     private TreeNodeViewModel? _selectedArmor;
+    private string _strSelectedArmorSet = "Kein Set";
+    private bool _blnIsLoadingArmorSet;
     public TreeNodeViewModel? SelectedArmor
     {
         get => _selectedArmor;
-        set => SetField(ref _selectedArmor, value);
+        set
+        {
+            if (!SetField(ref _selectedArmor, value)) return;
+            _blnIsLoadingArmorSet = true;
+            SelectedArmorSet = value is { Category: not "Armor set" } ?
+                (string.IsNullOrEmpty(value.ArmorSetName) ? "Kein Set" : value.ArmorSetName) : "Kein Set";
+            _blnIsLoadingArmorSet = false;
+            OnPropertyChanged(nameof(IsArmorSetSelected));
+        }
+    }
+
+    public bool IsArmorSetSelected => SelectedArmor?.Category == "Armor set";
+
+    public string SelectedArmorSet
+    {
+        get => _strSelectedArmorSet;
+        set
+        {
+            if (!SetField(ref _strSelectedArmorSet, value) || _blnIsLoadingArmorSet || _character == null
+                || SelectedArmor is not { Category: not "Armor set" } armor) return;
+            _character.SetArmorSet(armor.SourceName, armor.Category, value == "Kein Set" ? string.Empty : value);
+            LoadCharacter(_character);
+        }
     }
 
     private TreeNodeViewModel? _selectedWeapon;
@@ -124,6 +149,11 @@ public sealed class GearSectionViewModel : ViewModelBase
         _strSelectedArmorCategory = "Alle";
         OnPropertyChanged(nameof(SelectedArmorCategory));
         ApplyArmorFilter();
+
+        ArmorSets.Clear();
+        ArmorSets.Add("Kein Set");
+        foreach (string strSetName in character.ArmorSets)
+            ArmorSets.Add(strSetName);
 
         CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
         ArmorRating = "Panzerungswert: Ballistisch " + encumbrance.BallisticRating.Value

@@ -14,6 +14,7 @@ using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
+using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -190,11 +191,32 @@ public partial class GearSectionTab : UserControl
 
     private void OnDeleteArmorClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedArmor == null || ViewModel.SelectedArmor.Parent != null)
+        if (_character == null || ViewModel.SelectedArmor == null)
             return;
 
+        if (ViewModel.SelectedArmor.Category == "Armor set")
+        {
+            if (_character.RemoveArmorSet(ViewModel.SelectedArmor.Name)) ViewModel.LoadCharacter(_character);
+            return;
+        }
         if (_character.RemoveArmor(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category))
             ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddArmorSetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        var dialog = new ArmorSetDialog();
+        if (await dialog.ShowDialog<bool>(window) && _character.AddArmorSet(dialog.SetName))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnRemoveArmorSetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { Category: "Armor set" } armorSet)
+            return;
+        if (_character.RemoveArmorSet(armorSet.Name)) ViewModel.LoadCharacter(_character);
     }
 
     private void OnAddPetClick(object? sender, RoutedEventArgs e)
