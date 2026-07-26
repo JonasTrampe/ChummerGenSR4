@@ -1146,6 +1146,81 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Adds a direct vehicle weapon in the legacy Weapon.Save shape. Mount and
+        /// vehicle-class eligibility are intentionally handled by a later rules-validation pass.</summary>
+        public bool AddVehicleWeapon(Guid guiVehicleId, string strName, string strCategory, string strDamage,
+            string strAp, string strMode, string strRc, string strAmmo, string strCost, string strAvail,
+            string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A vehicle weapon name is required.", nameof(strName));
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null) return false;
+            XmlNode? objWeapons = objVehicle.SelectSingleNode("weapons");
+            if (objWeapons == null)
+            {
+                objWeapons = Document.CreateElement("weapons");
+                objVehicle.AppendChild(objWeapons);
+            }
+
+            var objWeapon = Document.CreateElement("weapon");
+            AppendElement(objWeapon, "guid", Guid.NewGuid().ToString());
+            AppendElement(objWeapon, "name", strName.Trim());
+            AppendElement(objWeapon, "category", strCategory);
+            AppendElement(objWeapon, "type", string.Empty);
+            AppendElement(objWeapon, "spec", string.Empty);
+            AppendElement(objWeapon, "spec2", string.Empty);
+            AppendElement(objWeapon, "reach", "0");
+            AppendElement(objWeapon, "damage", strDamage);
+            AppendElement(objWeapon, "ap", strAp);
+            AppendElement(objWeapon, "mode", strMode);
+            AppendElement(objWeapon, "rc", strRc);
+            AppendElement(objWeapon, "ammo", strAmmo);
+            AppendElement(objWeapon, "ammocategory", string.Empty);
+            AppendElement(objWeapon, "ammoremaining", "0");
+            AppendElement(objWeapon, "ammoremaining2", "0");
+            AppendElement(objWeapon, "ammoremaining3", "0");
+            AppendElement(objWeapon, "ammoremaining4", "0");
+            AppendElement(objWeapon, "ammoloaded", Guid.Empty.ToString());
+            AppendElement(objWeapon, "ammoloaded2", Guid.Empty.ToString());
+            AppendElement(objWeapon, "ammoloaded3", Guid.Empty.ToString());
+            AppendElement(objWeapon, "ammoloaded4", Guid.Empty.ToString());
+            AppendElement(objWeapon, "conceal", "0");
+            AppendElement(objWeapon, "avail", strAvail);
+            AppendElement(objWeapon, "cost", strCost);
+            AppendElement(objWeapon, "useskill", string.Empty);
+            AppendElement(objWeapon, "range", string.Empty);
+            AppendElement(objWeapon, "rangemultiply", "1");
+            AppendElement(objWeapon, "fullburst", "0");
+            AppendElement(objWeapon, "suppressive", "0");
+            AppendElement(objWeapon, "source", strSource);
+            AppendElement(objWeapon, "page", strPage);
+            AppendElement(objWeapon, "weaponname", string.Empty);
+            AppendElement(objWeapon, "included", "False");
+            AppendElement(objWeapon, "installed", "True");
+            AppendElement(objWeapon, "requireammo", "True");
+            objWeapon.AppendChild(Document.CreateElement("accessories"));
+            objWeapon.AppendChild(Document.CreateElement("weaponmods"));
+            AppendElement(objWeapon, "location", string.Empty);
+            AppendElement(objWeapon, "notes", string.Empty);
+            AppendElement(objWeapon, "discountedcost", "False");
+            objWeapons.AppendChild(objWeapon);
+            DeductGearCost(strCost, "0", "1");
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a direct vehicle weapon by its persisted GUID.</summary>
+        public bool RemoveVehicleWeapon(Guid guiVehicleId, Guid guiWeaponId)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objWeapon = objVehicle?.SelectSingleNode($"weapons/weapon[guid = '{guiWeaponId}']");
+            if (objWeapon?.ParentNode == null) return false;
+            objWeapon.ParentNode.RemoveChild(objWeapon);
+            Changed?.Invoke();
+            return true;
+        }
+
         private XmlNode? GetVehicleNode(Guid guiVehicleId)
             => Document.SelectSingleNode($"/character/vehicles/vehicle[guid = '{guiVehicleId}']");
 

@@ -52,7 +52,8 @@ public partial class VehiclesSectionTab : UserControl
             && Guid.TryParse(vehicleRoot.VehicleGuid, out guiVehicleId)
             && Guid.TryParse(vehicle.ItemGuid, out Guid guiItemId)
             && (_character.RemoveVehicleMod(guiVehicleId, guiItemId)
-                || _character.RemoveVehicleGear(guiVehicleId, guiItemId)))
+                || _character.RemoveVehicleGear(guiVehicleId, guiItemId)
+                || _character.RemoveVehicleWeapon(guiVehicleId, guiItemId)))
             ViewModel.LoadCharacter(_character);
     }
 
@@ -75,6 +76,22 @@ public partial class VehiclesSectionTab : UserControl
         if (_character.AddVehicleMod(guiVehicleId, mod.Name, mod.Category,
                 dialog.Rating.ToString(CultureInfo.InvariantCulture), mod.Slots, mod.Availability,
                 mod.Cost, mod.Source, mod.Page, mod.Limit))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddVehicleWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedVehicle is not { } selected)
+            return;
+        TreeNodeViewModel vehicle = selected.Parent == null ? selected : selected.Parent;
+        if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
+
+        var dialog = new WeaponDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (!added || dialog.SelectedWeapon is not { } weapon) return;
+        if (_character.AddVehicleWeapon(guiVehicleId, weapon.Name, weapon.Category, weapon.Damage, weapon.Ap,
+                weapon.Mode, weapon.Rc, weapon.Ammo, weapon.Cost, weapon.Availability, weapon.Source, weapon.Page))
             ViewModel.LoadCharacter(_character);
     }
 

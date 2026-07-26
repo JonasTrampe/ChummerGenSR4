@@ -108,6 +108,8 @@ public sealed class WeaponOptionViewModel
         Ammo = ammo;
         Availability = availability;
         Cost = cost;
+        Source = source;
+        Page = page;
         SourcePage = string.IsNullOrWhiteSpace(page) ? source : source + " " + page;
     }
 
@@ -120,5 +122,7 @@ public sealed class WeaponOptionViewModel
     public string Ammo { get; }
     public string Availability { get; }
     public string Cost { get; }
+    public string Source { get; }
+    public string Page { get; }
     public string SourcePage { get; }
 }

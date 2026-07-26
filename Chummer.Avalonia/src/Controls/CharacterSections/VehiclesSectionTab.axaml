@@ -10,6 +10,7 @@
                 <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
                 <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
                 <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
+                <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>

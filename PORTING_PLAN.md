@@ -82,8 +82,9 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   Vehicle modifications can be selected from `vehicles.xml`, rated, persisted in the legacy
   `VehicleMod.Save` shape, costed (including Body-based formulas), and removed by GUID. Direct
   onboard gear can also be selected from `gear.xml`, stored with the legacy `Gear.Save` fields,
-  costed, and removed by GUID. Onboard weapons editing, location management, vehicle-mod
-  eligibility/slot validation, and
+  costed, and removed by GUID. Direct onboard weapons can also be selected from `weapons.xml`,
+  stored with the legacy `Weapon.Save` fields, costed, and removed by GUID. Location management,
+  vehicle weapon-mount/mod eligibility/slot validation, and
   rules-data-derived totals remain separate follow-ups.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then

@@ -1129,6 +1129,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleWeapons_CanBeAddedRemovedAndCharged()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons />"
+            + "</vehicle></vehicles></character>");
+
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
+        CharacterTreeItemData weapon = Assert.Single(character.Vehicles.Single().Children);
+        Assert.Equal("Ares Alpha", weapon.Name);
+        Assert.Equal("7500", character.Nuyen);
+        Assert.True(Guid.TryParse(weapon.ItemGuid, out Guid weaponId));
+        Assert.True(character.RemoveVehicleWeapon(vehicleId, weaponId));
+        Assert.Empty(character.Vehicles.Single().Children);
+    }
+
+    [Fact]
     public void ArmorSets_CanBeCreatedAssignedAndDissolved()
     {
         CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");
