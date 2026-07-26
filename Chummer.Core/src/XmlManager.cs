@@ -244,7 +244,7 @@ namespace Chummer.Core
 									{
 										if (objChild["specs"] != null)
 										{
-											foreach (XmlNode objSpec in objChild.SelectNodes("specs/spec"))
+											foreach (XmlNode objSpec in SelectNodes(objChild, "specs/spec"))
 											{
 												if (objSpec.Attributes["translate"] != null)
 												{
@@ -264,7 +264,7 @@ namespace Chummer.Core
 									{
 										if (objChild["metavariants"] != null)
 										{
-											foreach (XmlNode objMetavariant in objChild.SelectNodes("metavariants/metavariant"))
+											foreach (XmlNode objMetavariant in SelectNodes(objChild, "metavariants/metavariant"))
 											{
 												if (objMetavariant["translate"] != null)
 												{
@@ -287,7 +287,7 @@ namespace Chummer.Core
 									{
 										if (objChild["advantages"] != null)
 										{
-											foreach (XmlNode objAdvantage in objChild.SelectNodes("advantages/advantage"))
+											foreach (XmlNode objAdvantage in SelectNodes(objChild, "advantages/advantage"))
 											{
 												if (objAdvantage.Attributes["translate"] != null)
 												{
@@ -307,7 +307,7 @@ namespace Chummer.Core
 									{
 										if (objChild["choices"] != null)
 										{
-											foreach (XmlNode objChoice in objChild.SelectNodes("choices/choice"))
+											foreach (XmlNode objChoice in SelectNodes(objChild, "choices/choice"))
 											{
 												if (objChoice["translate"] != null)
 												{
@@ -358,7 +358,7 @@ namespace Chummer.Core
 							if (objChild["name"] != null)
 							{
 								var objNodeList = objReturnDocument.SelectNodes("/chummer/" + objChild.ParentNode.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerText + "\"]");
-								if (objNodeList.Count > 0)
+								if (objNodeList?.Count > 0)
 								{
 									lstDelete.Add(objChild);
 								}
@@ -372,7 +372,7 @@ namespace Chummer.Core
 
 						// Append the entire child node to the new document.
 						var objImported = objReturnDocument.ImportNode(objNode, true);
-						objReturnDocument.DocumentElement.AppendChild(objImported);
+							objReturnDocument.DocumentElement?.AppendChild(objImported);
 					}
 				}
 			}
@@ -537,7 +537,7 @@ namespace Chummer.Core
 											{
 												if (objChild["metavariants"] != null)
 												{
-													foreach (XmlNode objMetavariant in objChild.SelectNodes("metavariants/metavariant"))
+											foreach (XmlNode objMetavariant in SelectNodes(objChild, "metavariants/metavariant"))
 													{
 														var objTranslate = objLanguageRoot.SelectSingleNode("metatypes/metatype[name = \"" + objChild["name"].InnerText + "\"]/metavariants/metavariant[name = \"" + objMetavariant["name"].InnerText + "\"]");
 														if (objTranslate != null)
@@ -586,7 +586,7 @@ namespace Chummer.Core
 											{
 												if (objChild["advantages"] != null)
 												{
-													foreach (XmlNode objAdvantage in objChild.SelectNodes("advantages/advantage"))
+											foreach (XmlNode objAdvantage in SelectNodes(objChild, "advantages/advantage"))
 													{
 														var objTranslate = objLanguageRoot.SelectSingleNode("martialarts/martialart[name = \"" + objChild["name"].InnerText + "\"]/advantages/advantage[. = \"" + objAdvantage.InnerText + "\"]");
 														if (objTranslate != null)
