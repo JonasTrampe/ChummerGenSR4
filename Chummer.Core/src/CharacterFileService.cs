@@ -636,6 +636,78 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Adds a vehicle in the same persisted shape as the legacy Vehicle.Save method.
+        /// The purchase price is deducted from Nuyen just like root-level gear.</summary>
+        public void AddVehicle(string strName, string strCategory, string strHandling, string strAcceleration,
+            string strSpeed, string strPilot, string strBody, string strArmor, string strSensor,
+            string strDeviceRating, string strAvail, string strCost, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A vehicle name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objVehicles = objRoot.SelectSingleNode("vehicles");
+            if (objVehicles == null)
+            {
+                objVehicles = Document.CreateElement("vehicles");
+                objRoot.AppendChild(objVehicles);
+            }
+
+            var objVehicle = Document.CreateElement("vehicle");
+            AppendElement(objVehicle, "guid", Guid.NewGuid().ToString());
+            AppendElement(objVehicle, "name", strName.Trim());
+            AppendElement(objVehicle, "category", strCategory);
+            AppendElement(objVehicle, "handling", strHandling);
+            AppendElement(objVehicle, "accel", strAcceleration);
+            AppendElement(objVehicle, "speed", strSpeed);
+            AppendElement(objVehicle, "pilot", strPilot);
+            AppendElement(objVehicle, "body", strBody);
+            AppendElement(objVehicle, "armor", strArmor);
+            AppendElement(objVehicle, "sensor", strSensor);
+            AppendElement(objVehicle, "devicerating", strDeviceRating);
+            AppendElement(objVehicle, "avail", strAvail);
+            AppendElement(objVehicle, "cost", strCost);
+            AppendElement(objVehicle, "addslots", "0");
+            AppendElement(objVehicle, "source", strSource);
+            AppendElement(objVehicle, "page", strPage);
+            AppendElement(objVehicle, "physicalcmfilled", "0");
+            AppendElement(objVehicle, "vehiclename", string.Empty);
+            AppendElement(objVehicle, "homenode", "False");
+            objVehicle.AppendChild(Document.CreateElement("mods"));
+            objVehicle.AppendChild(Document.CreateElement("gears"));
+            objVehicle.AppendChild(Document.CreateElement("weapons"));
+            AppendElement(objVehicle, "notes", string.Empty);
+            AppendElement(objVehicle, "discountedcost", "False");
+            objVehicles.AppendChild(objVehicle);
+            DeductGearCost(strCost, "0", "1");
+            Changed?.Invoke();
+        }
+
+        /// <summary>Removes one root-level vehicle identified by its saved name and category.</summary>
+        public bool RemoveVehicle(string strName, string strCategory)
+        {
+            XmlNode? objVehicle = null;
+            XmlNodeList? objVehicles = Document.SelectNodes("/character/vehicles/vehicle");
+            if (objVehicles != null)
+            {
+                foreach (XmlNode objCandidate in objVehicles)
+                {
+                    if (GetValue(objCandidate, "name", string.Empty) != strName
+                        || GetValue(objCandidate, "category", string.Empty) != strCategory)
+                        continue;
+                    objVehicle = objCandidate;
+                    break;
+                }
+            }
+            if (objVehicle?.ParentNode == null)
+                return false;
+
+            objVehicle.ParentNode.RemoveChild(objVehicle);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Depth-first (parent before children, root order preserved) walk of the whole
         /// &lt;gears&gt; tree - the same order <see cref="Gear"/> assigns GearIds in, so an ID
         /// found in the UI tree always resolves back to the same node here.</summary>

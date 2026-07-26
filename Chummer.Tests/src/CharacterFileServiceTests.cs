@@ -148,6 +148,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddAndRemoveVehicle_PersistsTheLegacyVehicleShapeAndDeductsCost()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen></character>");
+        character.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "15", "180", "2", "10", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+
+        CharacterVehicleData vehicle = Assert.Single(character.Vehicles);
+        Assert.Equal("180", vehicle.Speed);
+        Assert.Equal("34000", character.Nuyen);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Hyundai Shin-Hyung", Assert.Single(reloaded.Vehicles).Name);
+        Assert.True(reloaded.RemoveVehicle("Hyundai Shin-Hyung", "Cars"));
+        Assert.Empty(reloaded.Vehicles);
+    }
+
+    [Fact]
     public void RemoveGear_RemovesOnlyMatchingRootLevelEntry()
     {
         CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");
