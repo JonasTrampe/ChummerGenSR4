@@ -119,7 +119,7 @@
                         <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
                         <Button Content="Löschen" Click="OnDeleteGearClick" />
                         <Button Content="Ort hinzufügen" />
-                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" />
+                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks}" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>

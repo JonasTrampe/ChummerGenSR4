@@ -10,9 +10,12 @@ public sealed class GearSectionViewModel : ViewModelBase
 {
     private CharacterDocument? _character;
     private List<CharacterTreeItemData> _lstAllArmor = new();
+    private List<CharacterTreeItemData> _lstAllGear = new();
     private bool _blnIsLoadingGearQuantity;
 
     public ObservableCollection<TreeNodeViewModel> Gear { get; } = new();
+    private bool _blnShowOnlyCommlinks;
+    public bool ShowOnlyCommlinks { get => _blnShowOnlyCommlinks; set { if (SetField(ref _blnShowOnlyCommlinks, value)) ApplyGearFilter(); } }
     public ObservableCollection<TreeNodeViewModel> Weapons { get; } = new();
     public ObservableCollection<TreeNodeViewModel> Armor { get; } = new();
     public ObservableCollection<string> ArmorCategories { get; } = new();
@@ -104,10 +107,8 @@ public sealed class GearSectionViewModel : ViewModelBase
     public void LoadCharacter(CharacterDocument character)
     {
         _character = character;
-        Gear.Clear();
-        foreach (CharacterTreeItemData item in character.Gear)
-            Gear.Add(TreeNodeViewModel.FromTreeItem(item));
-        SelectedGear = Gear.Count > 0 ? Gear[0] : null;
+        _lstAllGear = character.Gear.ToList();
+        ApplyGearFilter();
 
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
@@ -158,6 +159,15 @@ public sealed class GearSectionViewModel : ViewModelBase
         foreach (CharacterTreeItemData item in query)
             Armor.Add(TreeNodeViewModel.FromTreeItem(item));
         SelectedArmor = Armor.Count > 0 ? Armor[0] : null;
+    }
+
+    private void ApplyGearFilter()
+    {
+        Gear.Clear();
+        IEnumerable<CharacterTreeItemData> query = _lstAllGear;
+        if (ShowOnlyCommlinks) query = query.Where(item => item.Category == "Commlink");
+        foreach (CharacterTreeItemData item in query) Gear.Add(TreeNodeViewModel.FromTreeItem(item));
+        SelectedGear = Gear.Count > 0 ? Gear[0] : null;
     }
 }
 
