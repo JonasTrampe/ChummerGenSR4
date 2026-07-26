@@ -951,6 +951,19 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MatrixInitiative_SpriteUsesSavedIniMetatypeMinimum()
+    {
+        CharacterDocument character = LoadXml("<character><metatype>Courier Sprite</metatype><attributes>"
+            + "<attribute><name>INI</name><totalvalue>1</totalvalue><metatypemin>12</metatypemin></attribute>"
+            + AttributeXml("INT", "7") + "</attributes><physicalcmfilled>3</physicalcmfilled></character>");
+
+        Assert.True(character.IsSprite);
+        Assert.Equal(12, character.MatrixInitiative.Base);
+        Assert.Equal(11, character.MatrixInitiative.Augmented);
+        Assert.Contains("Sprite-Metatype-Initiative: 12", character.MatrixInitiative.Tooltip);
+    }
+
+    [Fact]
     public void MatrixInitiative_DefaultPath_AddsActiveEquippedCommlinkResponse()
     {
         var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"

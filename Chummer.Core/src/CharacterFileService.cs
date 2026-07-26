@@ -162,6 +162,11 @@ namespace Chummer.Core
         public bool IsMatrixNative => Metatype.EndsWith("A.I.")
             || MetatypeCategory is "Technocritters" or "Protosapients";
 
+        /// <summary>Sprites use their metatype's fixed Initiative minimum for Matrix Initiative,
+        /// rather than INT/Response or a living persona. The resolved minimum is persisted in a
+        /// character save's INI attribute, just as the legacy character model consumes it.</summary>
+        public bool IsSprite => Metatype.EndsWith("Sprite", StringComparison.Ordinal);
+
         /// <summary>Response rating of the character's equipped, active Commlink (0 if none),
         /// ported from clsCommonFunctions.FindCommlinks + Commlink.TotalResponse as used by
         /// MatrixInitiative. Searches every &lt;gear&gt; node anywhere in the document (so this
@@ -1430,16 +1435,17 @@ namespace Chummer.Core
             }
         }
 
-        /// <summary>Matrix Initiative, ported from clsCharacter.cs. Covers three of the four
+        /// <summary>Matrix Initiative, ported from clsCharacter.cs. Covers all legacy branches:
         /// legacy branches:
         ///  - A.I./technocritter/protosapient: INT + Response (checked first - it overrides
         ///    everything else, same order as the legacy version).
         ///  - Technomancer (and not A.I.): (INT x 2) + 1 + LivingPersonaResponse Improvements.
+        ///  - Sprite: fixed INI metatype minimum (overrides the normal/Technomancer branches but
+        ///    is itself overridden by the A.I. branch, matching the legacy evaluation order).
         ///  - Otherwise: INT + active Commlink's Response + MatrixInitiative Improvements (the
         ///    default human/non-awakened path) - see ActiveCommlinkResponse's doc comment for its
         ///    scoped-down Gear search.
-        /// NOT ported: Sprites using a fixed metatype-minimum value (that value comes from
-        /// metatypes.xml data Core doesn't load), and the TechnomancerAllowCommlink house rule
+        /// NOT ported: the TechnomancerAllowCommlink house rule
         /// (which would let a Technomancer use this branch instead of their own).</summary>
         public CharacterInitiativeData MatrixInitiative
         {
@@ -1456,6 +1462,11 @@ namespace Chummer.Core
                     intBase = intInt + intResponse;
                     sb.Append("Intuition: ").Append(intInt);
                     sb.Append('\n').Append("System: ").Append(intResponse);
+                }
+                else if (IsSprite)
+                {
+                    intBase = GetAttributeMinimum("INI");
+                    sb.Append("Sprite-Metatype-Initiative: ").Append(intBase);
                 }
                 else if (Technomancer)
                 {
@@ -2234,6 +2245,12 @@ namespace Chummer.Core
 
         private int GetAttributeInt(string strCode)
             => int.TryParse(GetAttributeValue(strCode), out var intValue) ? intValue : 0;
+
+        private int GetAttributeMinimum(string strCode)
+        {
+            var objNode = Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']/metatypemin");
+            return int.TryParse(objNode?.InnerText, out var intValue) ? intValue : 0;
+        }
 
         // Ported from clsCharacter.cs's PhysicalCM/StunCM properties. The A.I./technocritter/
         // protosapient special cases (no BOD -> half System instead, no Stun track at all)
