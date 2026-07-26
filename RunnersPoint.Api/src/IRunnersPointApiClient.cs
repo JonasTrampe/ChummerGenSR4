@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Chummer.Core
+namespace RunnersPoint.Api
 {
     /// <summary>
     ///     Cross-platform contract for RunnersPoint document storage and sharing operations.
@@ -12,7 +12,7 @@ namespace Chummer.Core
         Task<RunnersPointCapabilities> GetCapabilitiesAsync();
         Task<List<RunnersPointFolder>> ListFoldersAsync();
         Task<RunnersPointFolder> CreateFolderAsync(string strName, int? intParentFolderId = null);
-        Task<RunnersPointFolder> UpdateFolderAsync(int intFolderId, string strName = null, int? intParentFolderId = null, bool blnIncludeParentFolderId = false);
+        Task<RunnersPointFolder> UpdateFolderAsync(int intFolderId, string? strName = null, int? intParentFolderId = null, bool blnIncludeParentFolderId = false);
         Task DeleteFolderAsync(int intFolderId);
 
         Task<RunnersPointDocumentPage> ListDocumentsAsync(string strGameProfileId, string strCursor = "",

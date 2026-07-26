@@ -8,12 +8,12 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using Chummer.Core;
-using Chummer.NewUI.Api;
+using RunnersPoint.Api;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 using KarmaGpDialog = Chummer.NewUI.Dialogs.KarmaGpDialog;
 using MetatypeDialog = Chummer.NewUI.Dialogs.MetatypeDialog;
-using RunnersPointAuth = Chummer.NewUI.Api.RunnersPointAuth;
+using RunnersPointAuth = RunnersPoint.Api.RunnersPointAuth;
 using SettingsProfileDialog = Chummer.NewUI.Dialogs.SettingsProfileDialog;
 using SheetPreviewDialog = Chummer.NewUI.Dialogs.SheetPreviewDialog;
 

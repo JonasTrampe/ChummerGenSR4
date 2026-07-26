@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -9,10 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Chummer.Core;
-using Serilog;
 
-namespace Chummer.NewUI.Api
+namespace RunnersPoint.Api
 {
 	/// <summary>
 	/// Thin wrapper over the RunnersPoint Character Document Storage API (v1, draft.6). Covers personal
@@ -22,10 +21,8 @@ namespace Chummer.NewUI.Api
 	/// </summary>
 	public class RunnersPointApiClient : IRunnersPointApiClient
 	{
-		// Configurable via Options > Cloud Documents server (GlobalOptions.CloudApiBaseUrl), so it can
-		// point at a local dev server, a staging deployment, or eventually a real production host
-		// without a rebuild. Defaults to the local Symfony dev server's actual route prefix (/api/v1,
-		// not the /v1 the OpenAPI spec's example server URL still shows).
+		// Hosts can supply their own endpoint (production, staging, or a local API server) without
+		// referencing an application-specific settings singleton.
 		private readonly string _strBaseUrl;
 		private const string ClientName = "ChummerGenSR4";
 		// System.Net.Http.HttpMethod.Patch isn't available on the .NET Framework 4.8 build of
@@ -36,7 +33,7 @@ namespace Chummer.NewUI.Api
 		private readonly IRunnersPointAuth _objAuth;
 
 		public RunnersPointApiClient(IRunnersPointAuth objAuth)
-			: this(objAuth, GlobalOptions.Instance.CloudApiBaseUrl)
+			: this(objAuth, new RunnersPointApiOptions().BaseUrl)
 		{
 		}
 
@@ -214,7 +211,7 @@ namespace Chummer.NewUI.Api
 			if (!await _objAuth.TryForceRefreshAsync())
 				return objResponse;
 
-			Log.Information("RunnersPoint API call got 401 - refreshed the access token and retrying once");
+			Trace.TraceInformation("RunnersPoint API call got 401 - refreshed the access token and retrying once");
 			objResponse.Dispose();
 			var objRetryRequest = await requestFactory();
 			return await _objHttpClient.SendAsync(objRetryRequest);
@@ -258,12 +255,11 @@ namespace Chummer.NewUI.Api
 			if (objResponse.StatusCode == (HttpStatusCode)429)
 			{
 				var strRetryAfter = objResponse.Headers.TryGetValues("Retry-After", out var lstRetryAfter) ? string.Join(",", lstRetryAfter) : "unknown";
-				Log.Warning("RunnersPoint API {Method} {Path} rate limited - retry after {RetryAfter}s (correlationId={CorrelationId})", strMethod, strPath, strRetryAfter, strCorrelationId);
+				Trace.TraceWarning("RunnersPoint API " + strMethod + " " + strPath + " rate limited - retry after " + strRetryAfter + "s (correlationId=" + strCorrelationId + ")");
 				throw new RunnersPointApiException(objResponse.StatusCode, "Rate limited - retry after " + strRetryAfter + "s", strCode!, strCorrelationId!);
 			}
 
-			Log.Warning("RunnersPoint API {Method} {Path} failed with {StatusCode}: {Title} (code={Code}, correlationId={CorrelationId})",
-				strMethod, strPath, (int)objResponse.StatusCode, strTitle, strCode, strCorrelationId);
+			Trace.TraceWarning("RunnersPoint API " + strMethod + " " + strPath + " failed with " + (int)objResponse.StatusCode + ": " + strTitle + " (code=" + strCode + ", correlationId=" + strCorrelationId + ")");
 			throw new RunnersPointApiException(objResponse.StatusCode, strTitle!, strCode!, strCorrelationId!);
 		}
 

@@ -11,9 +11,8 @@ using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Chummer.Core;
 
-namespace Chummer.NewUI.Api
+namespace RunnersPoint.Api
 {
     /// <summary>
     ///     Authentication against the RunnersPoint API. Supports two mechanisms:
@@ -72,7 +71,8 @@ namespace Chummer.NewUI.Api
                 return objTokens.AccessToken;
 
             await RefreshTokensAsync(objTokens);
-            return _objCachedTokens?.AccessToken ?? string.Empty;
+            return _objCachedTokens?.AccessToken
+                   ?? throw new InvalidOperationException("RunnersPoint token refresh did not return an access token.");
         }
 
         /// <summary>
@@ -167,7 +167,6 @@ namespace Chummer.NewUI.Api
                 throw new InvalidOperationException("RunnersPoint login failed: " + strError);
             if (strReturnedState != strState)
                 throw new InvalidOperationException("RunnersPoint login failed: state mismatch (possible CSRF).");
-
             if (string.IsNullOrEmpty(strCode))
                 throw new InvalidOperationException("RunnersPoint login failed: no authorization code was returned.");
 
@@ -199,7 +198,7 @@ namespace Chummer.NewUI.Api
             var objTokens = new TokenSet
             {
                 AccessToken = strToken,
-                RefreshToken = string.Empty,
+                RefreshToken = null,
                 IsApiToken = true,
                 ExpiresAtUtc = DateTime.MaxValue
             };
@@ -229,7 +228,7 @@ namespace Chummer.NewUI.Api
             var objFormData = new Dictionary<string, string>
             {
                 { "grant_type", "refresh_token" },
-                { "refresh_token", objExpiredTokens.RefreshToken },
+                { "refresh_token", objExpiredTokens.RefreshToken! },
                 { "client_id", ClientId }
             };
             await RequestAndStoreTokensAsync(objFormData);
@@ -246,11 +245,8 @@ namespace Chummer.NewUI.Api
                                                         "): " + strBody);
 
                 var objJson = Deserialize<TokenResponse>(strBody);
-                if (objJson == null)
-                {
-                    throw new InvalidOperationException("Could not deserialize token response: " + strBody);
-                }
-                
+
+
                 var accessToken = objJson.AccessToken;
                 var refreshToken = !string.IsNullOrEmpty(objJson.RefreshToken) ? objJson.RefreshToken :
                     _objCachedTokens?.RefreshToken;
@@ -264,7 +260,7 @@ namespace Chummer.NewUI.Api
                     RefreshToken = refreshToken,
                     ExpiresAtUtc = expiresAtUtc,
                 };
-
+                
                 SaveTokens(objTokens);
                 _objCachedTokens = objTokens;
             }
@@ -296,7 +292,7 @@ namespace Chummer.NewUI.Api
             }
 
             var objTokens = Deserialize<TokenSet>(Encoding.UTF8.GetString(bytJson));
-            
+
             objTokens.ExpiresAtUtc = objTokens.ExpiresAtUtc.ToUniversalTime();
 
             _objCachedTokens = objTokens;
@@ -349,8 +345,8 @@ namespace Chummer.NewUI.Api
         {
             using (var objStream = new MemoryStream(Encoding.UTF8.GetBytes(strJson)))
             {
-                return new DataContractJsonSerializer(typeof(T)).ReadObject(objStream) as T
-                    ?? throw new SerializationException("RunnersPoint response did not contain a " + typeof(T).Name + " object.");
+                return (T?)new DataContractJsonSerializer(typeof(T)).ReadObject(objStream)
+                       ?? throw new SerializationException("RunnersPoint returned an empty JSON payload.");
             }
         }
 
@@ -365,7 +361,7 @@ namespace Chummer.NewUI.Api
 
         private static bool TryLoadSecret(out string strSecret)
         {
-            strSecret = "";
+            strSecret = string.Empty;
             try
             {
                 var objStartInfo = new ProcessStartInfo(SecretToolName, "lookup " + SecretAttributeArguments)

@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Xunit;
 using System.Text.Json;
-using Chummer.NewUI.Api;
+using RunnersPoint.Api;
 
 namespace Chummer.Tests
 {

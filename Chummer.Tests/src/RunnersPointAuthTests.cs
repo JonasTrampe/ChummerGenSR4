@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Xunit;
 
 namespace Chummer.Tests

@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Chummer.Avalonia\Chummer.Avalonia.csproj" />
     <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj" />
+    <ProjectReference Include="..\RunnersPoint.Api\RunnersPoint.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

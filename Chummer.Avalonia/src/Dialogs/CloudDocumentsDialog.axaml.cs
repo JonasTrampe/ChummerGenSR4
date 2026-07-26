@@ -17,6 +17,7 @@ using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Dialogs;

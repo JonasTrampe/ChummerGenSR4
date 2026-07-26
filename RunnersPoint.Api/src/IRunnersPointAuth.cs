@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Chummer.Core
+namespace RunnersPoint.Api
 {
     /// <summary>
     ///     Credential provider required by the RunnersPoint HTTP transport.

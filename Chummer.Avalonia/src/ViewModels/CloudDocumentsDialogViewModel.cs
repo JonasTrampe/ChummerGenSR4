@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Chummer.Core;
-using Chummer.NewUI.Api;
-using RunnersPointAuth = Chummer.NewUI.Api.RunnersPointAuth;
+using RunnersPoint.Api;
+using RunnersPointAuth = RunnersPoint.Api.RunnersPointAuth;
 
 namespace Chummer.NewUI.ViewModels;
 

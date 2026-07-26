@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Chummer.Core
+namespace RunnersPoint.Api
 {
     public class RunnersPointDocument
     {

@@ -1,4 +1,4 @@
-namespace Chummer.Core
+namespace RunnersPoint.Api
 {
     /// <summary>
     ///     Host-neutral connection settings for the RunnersPoint document API.
