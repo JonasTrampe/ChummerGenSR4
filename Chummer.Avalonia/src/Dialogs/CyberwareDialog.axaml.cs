@@ -10,6 +10,11 @@ public partial class CyberwareDialog : Window
     public CyberwareOptionViewModel? SelectedCyberware => ViewModel.SelectedCyberware;
     public bool IsBioware { get; }
 
+    // Required by Avalonia's runtime XAML loader (and useful for designer tooling).
+    public CyberwareDialog() : this(false)
+    {
+    }
+
     public CyberwareDialog(bool blnBioware = false)
     {
         IsBioware = blnBioware;

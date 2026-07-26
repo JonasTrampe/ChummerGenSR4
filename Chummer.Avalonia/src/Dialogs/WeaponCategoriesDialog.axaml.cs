@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
@@ -10,6 +11,11 @@ namespace Chummer.NewUI.Dialogs;
 public partial class WeaponCategoriesDialog : Window
 {
     public ObservableCollection<WeaponCategorySelectionItemViewModel> Categories { get; }
+
+    // Required by Avalonia's runtime XAML loader; normal callers use the typed constructor below.
+    public WeaponCategoriesDialog() : this(Array.Empty<WeaponCategorySelectionItemViewModel>())
+    {
+    }
 
     public WeaponCategoriesDialog(IEnumerable<WeaponCategorySelectionItemViewModel> lstCategories)
     {
