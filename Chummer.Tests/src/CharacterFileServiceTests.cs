@@ -1092,6 +1092,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleMods_CanBeAddedRemovedAndChargeBodyBasedCost()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods />"
+            + "</vehicle></vehicles></character>");
+
+        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R",
+            "Body * 200", "AR", "132"));
+        CharacterTreeItemData mod = Assert.Single(character.Vehicles.Single().Children);
+        Assert.Equal("Anti-Theft", mod.Name);
+        Assert.Equal("Standard", mod.Category);
+        Assert.Equal(4200d, double.Parse(character.Nuyen, System.Globalization.CultureInfo.InvariantCulture));
+        Assert.True(Guid.TryParse(mod.ItemGuid, out Guid modId));
+        Assert.True(character.RemoveVehicleMod(vehicleId, modId));
+        Assert.Empty(character.Vehicles.Single().Children);
+    }
+
+    [Fact]
     public void ArmorSets_CanBeCreatedAssignedAndDissolved()
     {
         CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");

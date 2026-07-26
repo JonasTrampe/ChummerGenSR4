@@ -888,6 +888,19 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Removes one root vehicle by its persisted GUID. New UI code should prefer this
+        /// overload because a character may own more than one vehicle with the same name.</summary>
+        public bool RemoveVehicle(Guid guiVehicleId)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle?.ParentNode == null)
+                return false;
+
+            objVehicle.ParentNode.RemoveChild(objVehicle);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Depth-first (parent before children, root order preserved) walk of the whole
         /// &lt;gears&gt; tree - the same order <see cref="Gear"/> assigns GearIds in, so an ID
         /// found in the UI tree always resolves back to the same node here.</summary>
@@ -1013,6 +1026,97 @@ namespace Chummer.Core
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Adjusts the filled physical condition-monitor boxes of a vehicle by GUID.</summary>
+        public bool AdjustVehicleDamage(Guid guiVehicleId, int intDelta)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+
+            int intCurrent = int.TryParse(GetValue(objVehicle, "physicalcmfilled", "0"), out var intParsed)
+                ? intParsed : 0;
+            SetChildValue(objVehicle, "physicalcmfilled", Math.Max(0, intCurrent + intDelta).ToString(CultureInfo.InvariantCulture));
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Adds a rules-data vehicle modification in the same persisted shape as
+        /// <c>VehicleMod.Save</c>. The caller supplies the already selected rating; costs that
+        /// reference Body are resolved against the owning vehicle before being deducted.</summary>
+        public bool AddVehicleMod(Guid guiVehicleId, string strName, string strCategory, string strRating,
+            string strSlots, string strAvail, string strCost, string strSource, string strPage, string strLimit = "")
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A vehicle modification name is required.", nameof(strName));
+
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+
+            XmlNode? objMods = objVehicle.SelectSingleNode("mods");
+            if (objMods == null)
+            {
+                objMods = Document.CreateElement("mods");
+                objVehicle.AppendChild(objMods);
+            }
+
+            var objMod = Document.CreateElement("mod");
+            AppendElement(objMod, "guid", Guid.NewGuid().ToString());
+            AppendElement(objMod, "name", strName.Trim());
+            AppendElement(objMod, "category", strCategory);
+            AppendElement(objMod, "limit", strLimit);
+            AppendElement(objMod, "slots", strSlots);
+            AppendElement(objMod, "rating", strRating);
+            AppendElement(objMod, "maxrating", strRating);
+            AppendElement(objMod, "response", "0");
+            AppendElement(objMod, "system", "0");
+            AppendElement(objMod, "firewall", "0");
+            AppendElement(objMod, "signal", "0");
+            AppendElement(objMod, "pilot", "0");
+            AppendElement(objMod, "avail", strAvail);
+            AppendElement(objMod, "cost", strCost);
+            AppendElement(objMod, "extra", string.Empty);
+            AppendElement(objMod, "source", strSource);
+            AppendElement(objMod, "page", strPage);
+            AppendElement(objMod, "included", "False");
+            AppendElement(objMod, "installed", "True");
+            AppendElement(objMod, "subsystems", string.Empty);
+            objMod.AppendChild(Document.CreateElement("weapons"));
+            AppendElement(objMod, "notes", string.Empty);
+            AppendElement(objMod, "discountedcost", "False");
+            objMods.AppendChild(objMod);
+
+            var strBody = GetValue(objVehicle, "body", "0");
+            DeductVehicleModCost(strCost, strRating, strBody);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a direct vehicle modification identified by its persisted GUID.</summary>
+        public bool RemoveVehicleMod(Guid guiVehicleId, Guid guiModId)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objMod = objVehicle?.SelectSingleNode($"mods/mod[guid = '{guiModId}']");
+            if (objMod?.ParentNode == null)
+                return false;
+
+            objMod.ParentNode.RemoveChild(objMod);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetVehicleNode(Guid guiVehicleId)
+            => Document.SelectSingleNode($"/character/vehicles/vehicle[guid = '{guiVehicleId}']");
+
+        private void DeductVehicleModCost(string strCost, string strRating, string strBody)
+        {
+            string strExpression = strCost.Replace("Body", strBody, StringComparison.OrdinalIgnoreCase);
+            double dblCost = RatingExpression.Evaluate(strExpression, strRating);
+            double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsed)
+                ? dblParsed : 0;
+            Nuyen = (dblNuyen - dblCost).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>Adds a root-level Weapon in the minimal saved-character tree shape used by
@@ -3318,6 +3422,7 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 var objVehicle = new CharacterVehicleData(
+                    GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty),
                     GetValue(objNode, "handling", string.Empty), GetValue(objNode, "accel", string.Empty),
                     GetValue(objNode, "speed", string.Empty), GetValue(objNode, "pilot", string.Empty),
@@ -3347,6 +3452,7 @@ namespace Chummer.Core
                     GetValue(objNode, "installed", GetValue(objNode, "equipped", "False")) == "True",
                     GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
                     GetValue(objNode, "qty", "1"));
+                objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
                 lstChildren.Add(objItem);
@@ -3621,6 +3727,8 @@ namespace Chummer.Core
         public string Impact { get; private set; } = string.Empty;
         public string ArmorSetName { get; private set; } = string.Empty;
         public string Location { get; private set; } = string.Empty;
+        /// <summary>Persisted GUID for items that have one (including vehicle modifications).</summary>
+        public string ItemGuid { get; private set; } = string.Empty;
 
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
@@ -3630,6 +3738,7 @@ namespace Chummer.Core
 
         internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
         internal void SetLocation(string strLocation) => Location = strLocation;
+        internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
 
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,
@@ -3778,11 +3887,12 @@ namespace Chummer.Core
     /// <summary>Read-only vehicle record with its saved stats and installed mods, gear, and weapons.</summary>
     public sealed class CharacterVehicleData
     {
-        internal CharacterVehicleData(string strName, string strCategory, string strHandling, string strAcceleration,
+        internal CharacterVehicleData(string strGuid, string strName, string strCategory, string strHandling, string strAcceleration,
             string strSpeed, string strPilot, string strBody, string strArmor, string strSensor,
             string strDeviceRating, string strAvail, string strCost, string strSlots, string strSource,
             string strPage, string strPhysicalCmFilled)
         {
+            Guid = strGuid;
             Name = strName;
             Category = strCategory;
             Handling = strHandling;
@@ -3801,6 +3911,7 @@ namespace Chummer.Core
             PhysicalCmFilled = strPhysicalCmFilled;
         }
 
+        public string Guid { get; }
         public string Name { get; }
         public string Category { get; }
         public string Handling { get; }

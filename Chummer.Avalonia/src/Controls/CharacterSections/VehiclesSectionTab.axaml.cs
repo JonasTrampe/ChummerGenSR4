@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using System;
+using System.Globalization;
 using Chummer.Core;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
@@ -41,9 +43,37 @@ public partial class VehiclesSectionTab : UserControl
 
     private void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle)
+        if (_character == null || ViewModel.SelectedVehicle is not { } vehicle)
             return;
-        if (_character.RemoveVehicle(vehicle.Name, vehicle.Category))
+        if (vehicle.Parent == null && Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
+            && _character.RemoveVehicle(guiVehicleId))
+            ViewModel.LoadCharacter(_character);
+        else if (vehicle.Parent is { Parent: null } vehicleRoot
+            && Guid.TryParse(vehicleRoot.VehicleGuid, out guiVehicleId)
+            && Guid.TryParse(vehicle.ItemGuid, out Guid guiModId)
+            && _character.RemoveVehicleMod(guiVehicleId, guiModId))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddVehicleModClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedVehicle is not { } selected)
+            return;
+
+        TreeNodeViewModel vehicle = selected.Parent == null ? selected : selected.Parent;
+        if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId))
+            return;
+
+        var dialog = new VehicleModDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (!added || dialog.SelectedMod == null)
+            return;
+
+        VehicleModOptionViewModel mod = dialog.SelectedMod;
+        if (_character.AddVehicleMod(guiVehicleId, mod.Name, mod.Category,
+                dialog.Rating.ToString(CultureInfo.InvariantCulture), mod.Slots, mod.Availability,
+                mod.Cost, mod.Source, mod.Page, mod.Limit))
             ViewModel.LoadCharacter(_character);
     }
 
@@ -52,7 +82,8 @@ public partial class VehiclesSectionTab : UserControl
 
     private void AdjustSelectedVehicleDamage(int delta)
     {
-        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle) return;
-        if (_character.AdjustVehicleDamage(vehicle.Name, vehicle.Category, delta)) ViewModel.LoadCharacter(_character);
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle
+            || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
+        if (_character.AdjustVehicleDamage(guiVehicleId, delta)) ViewModel.LoadCharacter(_character);
     }
 }

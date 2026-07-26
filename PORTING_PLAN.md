@@ -5,8 +5,9 @@ the derived stats the Avalonia UI shows through it (Phase 2 ✅) — attribute a
 Essence, condition-monitor track size, encumbrance, skill dice pools, adept power point cost,
 attribute karma-cost-to-increase, and Gear/Weapon cost & availability all read through
 `Improvements`/`ImprovementManager` or a Rating-substituting expression evaluator instead of a
-raw XML passthrough. What's left in that vein: Vehicles are still a flat name+category stub with
-no mods/gear/cost tree (tracked as its own item below), and there's still no broad typed-model →
+raw XML passthrough. Vehicles now have persisted stats, stable GUID identity, a rendered component
+tree, root-vehicle editing, condition damage, and a rules-data vehicle-mod picker. There is still no
+broad typed-model →
 XML write path — Quality, Spell, Gear (root-level), and Karma/Nuyen mutations prove the pattern,
 but most of the legacy game-logic (character creation math, item picker rules-data lookups) still
 lives in the legacy WinForms files (`clsCharacter.cs` 6.2k lines, `clsUnique.cs` 7.4k,
@@ -78,8 +79,10 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   availability/cost/slots, and installed vehicle mods, onboard gear, and weapons; the Avalonia
   vehicle tab renders that tree and binds its detail pane to the selected vehicle. A filterable
   `vehicles.xml` picker now also adds/deletes root vehicles with persisted XML and Nuyen deduction.
-  Vehicle mods/gear/weapons editing, location management, and rules-data-derived totals remain
-  separate follow-ups.
+  Vehicle modifications can be selected from `vehicles.xml`, rated, persisted in the legacy
+  `VehicleMod.Save` shape, costed (including Body-based formulas), and removed by GUID. Onboard
+  gear/weapons editing, location management, vehicle-mod eligibility/slot validation, and
+  rules-data-derived totals remain separate follow-ups.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then
 (where a UI slot already existed) one Avalonia section tab wired to stop showing a hardcoded
@@ -208,8 +211,8 @@ rather than as a separate cleanup pass later:
 
 1. ~~Nullable + test-fixture prep~~ ✅ (fixture exists, used throughout Phase 1/2)
 2. ~~Phase 1 (Improvement engine)~~ ✅
-3. ~~Phase 2 (Essence → CM → encumbrance → dice pools → costs)~~ ✅ except the Vehicles tree
-   follow-up noted above
+3. ~~Phase 2 (Essence → CM → encumbrance → dice pools → costs)~~ ✅; vehicle component editing
+   is underway, with onboard gear/weapons and rule validation still open
 4. Phase 3.3 next: generalize the proven write path (Quality/Spell/Karma-Nuyen/Gear-root) to
    cyberware and contacts, and finish Gear's quantity/containment semantics
 5. Phase 4.1–4.3 (dialog service + the two already-half-wired dialogs)

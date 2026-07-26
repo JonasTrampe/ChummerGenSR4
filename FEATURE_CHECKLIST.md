@@ -44,9 +44,10 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
-  add/delete root vehicles and deduct their cost. Root vehicles support persistent physical-damage
-  tracking with add/repair controls. Editing installed items, locations, drones, and
-  rules-data-derived totals remain unported.
+  add/delete root vehicles and deduct their cost. Rules-data vehicle modifications can be selected
+  (including rating), persisted, charged with Body-aware formulas, and removed. Root vehicles support
+  persistent physical-damage tracking with add/repair controls. Editing onboard gear/weapons,
+  locations, drones, mod eligibility/slot validation, and rules-data-derived totals remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)
@@ -63,9 +64,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 9 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
-  Weapon, Vehicle, Lifestyle, and exotic Skills. The implementations remain deliberately scoped
-  (for example, no vehicle-mod picker and no advanced lifestyle construction).
+- 🟡 10 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+  Weapon, Vehicle, Vehicle Mod, Lifestyle, and exotic Skills. The implementations remain deliberately scoped
+  (for example, no advanced vehicle-mod eligibility validation and no advanced lifestyle construction).
 - ❌ The remaining pickers (Skill beyond exotic skills, MartialArt, Metamagic, CritterPower,
   ContactConnection, and others) don't exist yet.
 
