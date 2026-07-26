@@ -420,6 +420,15 @@ namespace Chummer.Core
                 GetValue("/character/physicalcmfilled", "0"), GetValue("/character/stuncmfilled", "0"),
                 ComputePhysicalCm(), ComputeStunCm());
 
+        /// <summary>Adjusts filled Physical condition-monitor boxes. The stored value is always
+        /// clamped to the currently calculated monitor size, matching the usable range in the
+        /// legacy career form.</summary>
+        public bool AdjustPhysicalDamage(int intDelta) => AdjustConditionDamage("physicalcmfilled", ComputePhysicalCm().Value, intDelta);
+
+        /// <summary>Adjusts filled Stun condition-monitor boxes. The stored value is always
+        /// clamped to the currently calculated monitor size.</summary>
+        public bool AdjustStunDamage(int intDelta) => AdjustConditionDamage("stuncmfilled", ComputeStunCm().Value, intDelta);
+
         /// <summary>Sum of installed Cyberware's own Essence cost (excludes Bioware and Essence Holes).</summary>
         public double CyberwareEssence => SumCyberwareEssence().Cyberware;
 
@@ -1112,6 +1121,19 @@ namespace Chummer.Core
 
             objElement.InnerText = strValue ?? string.Empty;
             Changed?.Invoke();
+        }
+
+        private bool AdjustConditionDamage(string strElementName, int intMaximum, int intDelta)
+        {
+            int intCurrent = int.TryParse(GetValue("/character/" + strElementName, "0"), out var intValue)
+                ? intValue
+                : 0;
+            int intNewValue = Math.Clamp(intCurrent + intDelta, 0, Math.Max(0, intMaximum));
+            if (intNewValue == intCurrent)
+                return false;
+
+            SetRootValue(strElementName, intNewValue.ToString());
+            return true;
         }
 
         private void SetChildValue(XmlNode objParent, string strName, string strValue)

@@ -70,7 +70,7 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Derived stats / calculations
 
 - ✅ Essence
-- ✅ Condition monitor size (Physical/Stun)
+- ✅ Condition monitor size (Physical/Stun), live damage-box display, and persisted heal/damage controls
 - ✅ Armor encumbrance penalty
 - ✅ Skill dice pools, including skill-rating augmentation display
 - ✅ Composure, Judge Intentions, Lift and Carry, Memory

@@ -20,4 +20,8 @@ public partial class CharacterSidebar : UserControl
 
     private void OnRegainEdgeClick(object? sender, RoutedEventArgs e) => ViewModel.RegainEdge();
     private void OnSpendEdgeClick(object? sender, RoutedEventArgs e) => ViewModel.SpendEdge();
+    private void OnAddPhysicalDamageClick(object? sender, RoutedEventArgs e) => ViewModel.AddPhysicalDamage();
+    private void OnHealPhysicalDamageClick(object? sender, RoutedEventArgs e) => ViewModel.HealPhysicalDamage();
+    private void OnAddStunDamageClick(object? sender, RoutedEventArgs e) => ViewModel.AddStunDamage();
+    private void OnHealStunDamageClick(object? sender, RoutedEventArgs e) => ViewModel.HealStunDamage();
 }

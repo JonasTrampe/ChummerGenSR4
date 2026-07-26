@@ -1013,6 +1013,28 @@ public class CharacterFileServiceTests
         Assert.Equal(-3, character.WoundModifiers);
     }
 
+    [Fact]
+    public void ConditionDamage_AdjustmentClampsToMonitorAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("BOD", "4")
+            + AttributeXml("WIL", "2") + "</attributes></character>");
+
+        Assert.True(character.AdjustPhysicalDamage(20));
+        Assert.Equal("10", character.Condition.PhysicalDamage);
+        Assert.False(character.AdjustPhysicalDamage(1));
+        Assert.True(character.AdjustPhysicalDamage(-2));
+        Assert.Equal("8", character.Condition.PhysicalDamage);
+        Assert.True(character.AdjustStunDamage(1));
+        Assert.Equal("1", character.Condition.StunDamage);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("8", reloaded.Condition.PhysicalDamage);
+        Assert.Equal("1", reloaded.Condition.StunDamage);
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

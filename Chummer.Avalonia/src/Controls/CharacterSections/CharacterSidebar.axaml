@@ -69,41 +69,40 @@
                     <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="{Binding DamageResistance.Value}"
                                       Tooltip="{Binding DamageResistance.Tooltip}" />
 
-                    <TextBlock Text="physisch" Margin="0,6,0,0" />
-                    <StackPanel Spacing="2">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-1" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-2" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-3" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" Background="#A0A0A0" />
-                            <Border Classes="cmBox" Background="#A0A0A0" />
-                            <TextBlock Text="D" VerticalAlignment="Center" />
-                        </StackPanel>
+                    <TextBlock Text="Physisch" Margin="0,6,0,0" />
+                    <ItemsControl ItemsSource="{Binding PhysicalMonitorBoxes}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel ItemWidth="22" ItemHeight="22" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ConditionMonitorBoxViewModel">
+                                <Border Classes="cmBox" Background="{Binding Background}" ToolTip.Tip="{Binding Tooltip}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Content="Heilen" Click="OnHealPhysicalDamageClick" />
+                        <Button Content="Schaden +1" Click="OnAddPhysicalDamageClick" />
                     </StackPanel>
 
                     <TextBlock Text="Geistig" Margin="0,6,0,0" />
-                    <StackPanel Spacing="2">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-1" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-2" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border Classes="cmBox" /><Border Classes="cmBox" />
-                            <TextBlock Text="-3" VerticalAlignment="Center" />
-                        </StackPanel>
+                    <ItemsControl ItemsSource="{Binding StunMonitorBoxes}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel ItemWidth="22" ItemHeight="22" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ConditionMonitorBoxViewModel">
+                                <Border Classes="cmBox" Background="{Binding Background}" ToolTip.Tip="{Binding Tooltip}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Content="Heilen" Click="OnHealStunDamageClick" />
+                        <Button Content="Schaden +1" Click="OnAddStunDamageClick" />
                     </StackPanel>
 
                     <TextBlock Text="Zurück erhalten/Ausgeben von Edge" Margin="0,10,0,0"

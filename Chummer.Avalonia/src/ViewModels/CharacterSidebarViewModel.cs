@@ -1,4 +1,5 @@
 using Chummer.Core;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -34,6 +35,8 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     public DerivedValueViewModel LiftAndCarry { get; } = new();
     public DerivedValueViewModel Memory { get; } = new();
     public DerivedValueViewModel DamageResistance { get; } = new();
+    public ObservableCollection<ConditionMonitorBoxViewModel> PhysicalMonitorBoxes { get; } = new();
+    public ObservableCollection<ConditionMonitorBoxViewModel> StunMonitorBoxes { get; } = new();
 
     private string _strWoundModifiers = "0";
     public string WoundModifiers { get => _strWoundModifiers; set => SetField(ref _strWoundModifiers, value); }
@@ -94,6 +97,8 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         StunDamage = condition.StunDamage;
         SetFrom(PhysicalMonitor, condition.PhysicalCm);
         SetFrom(StunMonitor, condition.StunCm);
+        ReloadConditionMonitor(PhysicalMonitorBoxes, condition.PhysicalCm.Value, condition.PhysicalDamage);
+        ReloadConditionMonitor(StunMonitorBoxes, condition.StunCm.Value, condition.StunDamage);
 
         CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
         SetFrom(BallisticArmor, encumbrance.BallisticRating);
@@ -121,6 +126,10 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
     public void SpendEdge() { if (_objCharacter?.SpendEdge() == true) LoadCharacter(_objCharacter); }
     public void RegainEdge() { if (_objCharacter?.RegainEdge() == true) LoadCharacter(_objCharacter); }
+    public void AddPhysicalDamage() { if (_objCharacter?.AdjustPhysicalDamage(1) == true) LoadCharacter(_objCharacter); }
+    public void HealPhysicalDamage() { if (_objCharacter?.AdjustPhysicalDamage(-1) == true) LoadCharacter(_objCharacter); }
+    public void AddStunDamage() { if (_objCharacter?.AdjustStunDamage(1) == true) LoadCharacter(_objCharacter); }
+    public void HealStunDamage() { if (_objCharacter?.AdjustStunDamage(-1) == true) LoadCharacter(_objCharacter); }
 
     private void OnCharacterChanged()
     {
@@ -137,6 +146,15 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
         SelectedCommlink = Commlinks.FirstOrDefault(x => x.Active) ?? Commlinks.FirstOrDefault();
         _blnUpdatingCommlinks = false;
+    }
+
+    private static void ReloadConditionMonitor(ObservableCollection<ConditionMonitorBoxViewModel> boxes,
+        int intMaximum, string strDamage)
+    {
+        int intFilled = int.TryParse(strDamage, out var intValue) ? Math.Clamp(intValue, 0, Math.Max(0, intMaximum)) : 0;
+        boxes.Clear();
+        for (int intIndex = 1; intIndex <= Math.Max(0, intMaximum); intIndex++)
+            boxes.Add(new ConditionMonitorBoxViewModel(intIndex <= intFilled, intIndex));
     }
 
     private static void SetFrom(DerivedValueViewModel target, CharacterDerivedValueData data)
@@ -169,4 +187,17 @@ public sealed class CommlinkItemViewModel
     public bool Equipped { get; }
     public bool Active { get; }
     public string DisplayName => Equipped ? Name + " (R " + Response + ")" : Name + " (nicht ausgerüstet)";
+}
+
+public sealed class ConditionMonitorBoxViewModel
+{
+    internal ConditionMonitorBoxViewModel(bool blnFilled, int intPosition)
+    {
+        IsFilled = blnFilled;
+        Tooltip = "Kästchen " + intPosition + (blnFilled ? " (Schaden)" : " (frei)");
+    }
+
+    public bool IsFilled { get; }
+    public string Tooltip { get; }
+    public string Background => IsFilled ? "#B64C4C" : "White";
 }
