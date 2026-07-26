@@ -182,9 +182,12 @@
             <StackPanel Margin="8" Spacing="6">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Button Content="Haustier hinzufügen" Click="OnAddPetClick" />
+                    <Button Content="Charakter verknüpfen" Click="OnLinkPetClick" />
                     <Button Content="Löschen" Click="OnDeletePetClick" />
                 </StackPanel>
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
+                <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"
+                           Foreground="#666666" TextTrimming="CharacterEllipsis" />
                 <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ContactRowViewModel">

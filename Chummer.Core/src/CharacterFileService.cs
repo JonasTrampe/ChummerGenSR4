@@ -1792,6 +1792,19 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Associates a Contact/Pet with another saved character file.</summary>
+        public bool UpdateContactFile(int intContactId, string strFileName, string strRelativeFileName)
+        {
+            XmlNode? objNode = GetContactNode(intContactId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "file", strFileName);
+            SetChildValue(objNode, "relative", strRelativeFileName);
+            Changed?.Invoke();
+            return true;
+        }
+
         public bool SetContactFree(int intContactId, bool blnFree)
         {
             XmlNode? objNode = GetContactNode(intContactId);
@@ -2708,7 +2721,9 @@ namespace Chummer.Core
                         ParseInt(GetValue(objNode, "membership", "0")),
                         ParseInt(GetValue(objNode, "areaofinfluence", "0")),
                         ParseInt(GetValue(objNode, "magicalresources", "0")),
-                        ParseInt(GetValue(objNode, "matrixresources", "0"))));
+                        ParseInt(GetValue(objNode, "matrixresources", "0")),
+                        GetValue(objNode, "file", string.Empty),
+                        GetValue(objNode, "relative", string.Empty)));
                 }
 
                 intContactId++;
@@ -2732,7 +2747,8 @@ namespace Chummer.Core
                         GetValue(objNode, "notes", string.Empty), GetValue(objNode, "free", "False") == "True",
                         GetValue(objNode, "groupname", string.Empty), ParseInt(GetValue(objNode, "membership", "0")),
                         ParseInt(GetValue(objNode, "areaofinfluence", "0")), ParseInt(GetValue(objNode, "magicalresources", "0")),
-                        ParseInt(GetValue(objNode, "matrixresources", "0"))));
+                        ParseInt(GetValue(objNode, "matrixresources", "0")),
+                        GetValue(objNode, "file", string.Empty), GetValue(objNode, "relative", string.Empty)));
                 }
                 intContactId++;
             }
@@ -3427,7 +3443,8 @@ namespace Chummer.Core
     {
         internal CharacterContactData(int intContactId, string strName, string strConnection, string strLoyalty,
             bool blnIsEnemy, string strNotes, bool blnFree, string strGroupName, int intMembership,
-            int intAreaOfInfluence, int intMagicalResources, int intMatrixResources)
+            int intAreaOfInfluence, int intMagicalResources, int intMatrixResources, string strFileName = "",
+            string strRelativeFileName = "")
         {
             ContactId = intContactId;
             Name = strName;
@@ -3441,6 +3458,8 @@ namespace Chummer.Core
             AreaOfInfluence = intAreaOfInfluence;
             MagicalResources = intMagicalResources;
             MatrixResources = intMatrixResources;
+            FileName = strFileName;
+            RelativeFileName = strRelativeFileName;
         }
 
         public int ContactId { get; }
@@ -3460,6 +3479,12 @@ namespace Chummer.Core
         public int AreaOfInfluence { get; }
         public int MagicalResources { get; }
         public int MatrixResources { get; }
+
+        /// <summary>Absolute path of a character file linked to this contact, when available.</summary>
+        public string FileName { get; }
+
+        /// <summary>Path of the linked character relative to the application directory.</summary>
+        public string RelativeFileName { get; }
 
         /// <summary>Sum of the four Group modifiers - adds to Connection+Loyalty in the cost
         /// formula, ported from frmSelectContactConnection.cs's Total Connection Modifier.</summary>

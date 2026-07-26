@@ -5,7 +5,9 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using System.IO;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
@@ -182,6 +184,23 @@ public partial class GearSectionTab : UserControl
             return;
         if (_character.RemoveContact(ViewModel.SelectedPet.ContactId))
             ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnLinkPetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedPet == null || TopLevel.GetTopLevel(this) is not { StorageProvider: { } storage })
+            return;
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Begleiter-Charakter auswählen",
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("Chummer character") { Patterns = ["*.chum"] }]
+        });
+        if (files.Count == 0 || files[0].TryGetLocalPath() is not { } path)
+            return;
+        _character.UpdateContactFile(ViewModel.SelectedPet.ContactId, path,
+            Path.GetRelativePath(AppContext.BaseDirectory, path));
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnToggleArmorEquippedClick(object? sender, RoutedEventArgs e)

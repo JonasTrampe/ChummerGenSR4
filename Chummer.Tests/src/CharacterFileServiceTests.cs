@@ -46,6 +46,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void PetCharacterLink_PersistsAcrossSaveReload()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddPet("Sparky");
+        int intPetId = Assert.Single(character.Pets).ContactId;
+
+        Assert.True(character.UpdateContactFile(intPetId, "/characters/sparky.chum", "../characters/sparky.chum"));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterContactData pet = Assert.Single(reloaded.Pets);
+
+        Assert.Equal("/characters/sparky.chum", pet.FileName);
+        Assert.Equal("../characters/sparky.chum", pet.RelativeFileName);
+    }
+
+    [Fact]
     public void AddQuality_MutatesCharacterAndPersistsTheMinimalSaveShape()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

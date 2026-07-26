@@ -23,6 +23,7 @@ public sealed class ContactRowViewModel : ViewModelBase
         MagicalResources = contact.MagicalResources;
         MatrixResources = contact.MatrixResources;
         GroupRating = contact.GroupRating;
+        FileName = contact.FileName;
     }
 
     public string GroupName { get; private set; }
@@ -30,6 +31,8 @@ public sealed class ContactRowViewModel : ViewModelBase
     public int AreaOfInfluence { get; private set; }
     public int MagicalResources { get; private set; }
     public int MatrixResources { get; private set; }
+    public string FileName { get; }
+    public bool HasLinkedCharacter => !string.IsNullOrWhiteSpace(FileName);
 
     private int _intGroupRating;
     /// <summary>Sum of the four Group modifiers - adds to Connection+Loyalty in the Karma/BP
