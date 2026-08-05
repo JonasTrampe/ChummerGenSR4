@@ -4403,8 +4403,14 @@ namespace Chummer.Core
         public string EffectiveSystem => EffectiveStat(g => g.System);
         public string EffectiveFirewall => EffectiveStat(g => g.Firewall);
 
-        public bool HasCommlinkStats => !string.IsNullOrEmpty(EffectiveResponse) || !string.IsNullOrEmpty(EffectiveSignal)
-            || !string.IsNullOrEmpty(EffectiveSystem) || !string.IsNullOrEmpty(EffectiveFirewall);
+        // Legacy always saves a <response>/<signal>/<system>/<firewall> element on every Gear node
+        // (defaulting to "0" for non-Commlink items), so a plain non-empty check here would treat
+        // every piece of Gear as a Commlink - require a positive value instead.
+        public bool HasCommlinkStats => IsPositive(EffectiveResponse) || IsPositive(EffectiveSignal)
+            || IsPositive(EffectiveSystem) || IsPositive(EffectiveFirewall);
+
+        private static bool IsPositive(string strValue)
+            => double.TryParse(strValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) && d > 0;
 
         private string EffectiveStat(Func<CharacterTreeItemData, string> funcSelector)
         {

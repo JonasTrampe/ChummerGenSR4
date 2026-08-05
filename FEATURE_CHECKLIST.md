@@ -125,8 +125,17 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Output / tooling
 
-- ❌ Print / character sheet rendering (XSLT transform) — `SheetPreviewDialog` is a fully static
-  HTML mockup; nothing in Core produces the character export XML the real sheets consume
+- 🟡 Print / character sheet rendering (XSLT transform) — `CharacterSheetExporter` builds the
+  print-XML (Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
+  Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks, Armor, Karma/Nuyen expenses) and
+  transforms it through a real `.xsl` file via `XslCompiledTransform`; `SheetPreviewDialog` renders
+  the actual open character instead of static mockup content. Only wired to `Text-Only.xsl` so
+  far (the other shipped sheets - `Shadowrun 4.xsl`, `Dossier.xsl`, etc. - expect more fields than
+  this pass covers), and Weapon dice pool/AP/RC, Complex Forms, Critter Powers, and Vehicles are
+  not in the export XML yet. Also fixed a real bug found while building this:
+  `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
+  legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
+  tested for non-empty rather than positive.
 - ❌ PDF sourcebook page linking
 - ❌ Dice roller
 - ❌ Update checker (arguably a non-goal for a Linux/AppImage distribution model rather than a

@@ -158,7 +158,7 @@ public partial class MainWindow : Window
 
     private async void OnPrintClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new SheetPreviewDialog();
+        var dialog = new SheetPreviewDialog(ViewModel.SelectedOpenCharacter?.Character);
         await dialog.ShowDialog(this);
     }
 

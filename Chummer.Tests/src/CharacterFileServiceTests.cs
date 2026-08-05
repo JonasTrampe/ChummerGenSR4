@@ -462,6 +462,30 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_RendersRealFixtureDataThroughTextOnlySheet()
+    {
+        CharacterDocument character = LoadFixture();
+
+        string html = CharacterSheetExporter.RenderSheet(character, "Text-Only.xsl");
+
+        Assert.Contains("Pistolen", html);
+        Assert.Contains("Custom Commlink", html);
+        Assert.Contains("Wired Reflexes", html);
+        // The character has no positive Response saved on its gear, so nothing should be
+        // misclassified into the Commlink section - see the HasCommlinkStats fix.
+        Assert.DoesNotContain("== Commlink ==", html);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_ThrowsForAMissingSheetFile()
+    {
+        CharacterDocument character = LoadFixture();
+
+        Assert.Throws<FileNotFoundException>(() =>
+            CharacterSheetExporter.RenderSheet(character, "Does Not Exist.xsl"));
+    }
+
+    [Fact]
     public void RatingExpression_EvaluatesFlatNumbersAndRatingFormulasAlike()
     {
         Assert.Equal(0.2, RatingExpression.Evaluate("0.2", "3"));
