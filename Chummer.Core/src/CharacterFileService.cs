@@ -2499,6 +2499,34 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
 
+        // Ported from frmCareer.cs/frmCreate.cs's CalculatePowerPoints().
+        public CharacterDerivedValueData AdeptPowerPoints
+        {
+            get
+            {
+                var decUsed = AdeptPowers.Sum(p =>
+                    decimal.TryParse(p.TotalPoints, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 0m);
+
+                // Mystic Adepts split MAG between the Magician and Adept portions; a pure Adept
+                // uses the character's full MAG.
+                var intMag = MysticAdept ? MysticAdeptAdeptMagSplit : GetAttributeInt("MAG");
+                var lstContributions = ImprovementManager
+                    .DescribeAugmentedValueOf(Improvements, ImprovementType.AdeptPowerPoints)
+                    .ToList();
+                var intTotal = intMag + lstContributions.Sum(c => c.Value);
+
+                var sb = new StringBuilder();
+                sb.Append("MAG").Append(MysticAdept ? " (Adept-Anteil)" : string.Empty).Append(": ").Append(intMag);
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
+                sb.Append('\n').Append("Verbraucht: ").Append(decUsed);
+                var decRemaining = intTotal - decUsed;
+                sb.Append('\n').Append("Übrig: ").Append(decRemaining);
+                return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
+            }
+        }
+
         public IReadOnlyList<CharacterSpellData> Spells => ReadSpells();
 
         public IReadOnlyList<CharacterSpiritData> Spirits => ReadSpirits();

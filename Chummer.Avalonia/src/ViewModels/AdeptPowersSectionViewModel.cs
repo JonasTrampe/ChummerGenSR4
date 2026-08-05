@@ -36,10 +36,28 @@ public sealed class AdeptPowersSectionViewModel : ViewModelBase
 {
     public ObservableCollection<AdeptPowerRowViewModel> Powers { get; } = new();
 
+    private string _powerPointsText = string.Empty;
+    public string PowerPointsText
+    {
+        get => _powerPointsText;
+        private set => SetField(ref _powerPointsText, value);
+    }
+
+    private string _powerPointsTooltip = string.Empty;
+    public string PowerPointsTooltip
+    {
+        get => _powerPointsTooltip;
+        private set => SetField(ref _powerPointsTooltip, value);
+    }
+
     public void LoadCharacter(CharacterDocument character)
     {
         Powers.Clear();
         foreach (CharacterPowerData power in character.AdeptPowers)
             Powers.Add(new AdeptPowerRowViewModel(power));
+
+        CharacterDerivedValueData points = character.AdeptPowerPoints;
+        PowerPointsText = "Kraftpunkte: " + points.Value + " verbleibend";
+        PowerPointsTooltip = points.Tooltip;
     }
 }

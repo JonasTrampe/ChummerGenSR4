@@ -1196,4 +1196,49 @@ public class CharacterFileServiceTests
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
+
+    private static string ImprovementAugXml(string strType, string strAug) =>
+        "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
+        + "<aug>" + strAug + "</aug><enabled>True</enabled></improvement>";
+
+    [Fact]
+    public void AdeptPowerPoints_PureAdept_UsesFullMagAttribute()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>False</magician><attributes>"
+            + AttributeXml("MAG", "4") + "</attributes><powers>"
+            + "<power><name>Astral Perception</name><rating>1</rating><pointsperlevel>1</pointsperlevel></power>"
+            + "<power><name>Killing Hands</name><rating>1</rating><pointsperlevel>0.5</pointsperlevel></power>"
+            + "</powers></character>");
+
+        CharacterDerivedValueData points = character.AdeptPowerPoints;
+        // 4 MAG - (1 + 0.5) used = 2.5 remaining, truncated to 2.
+        Assert.Equal(2, points.Value);
+        Assert.Contains("Verbraucht: 1,5", points.Tooltip);
+    }
+
+    [Fact]
+    public void AdeptPowerPoints_MysticAdept_UsesAdeptMagSplitNotFullMag()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>True</magician>"
+            + "<magsplitadept>3</magsplitadept><magsplitmagician>3</magsplitmagician><attributes>"
+            + AttributeXml("MAG", "6") + "</attributes><powers>"
+            + "<power><name>Astral Perception</name><rating>1</rating><pointsperlevel>1</pointsperlevel></power>"
+            + "</powers></character>");
+
+        CharacterDerivedValueData points = character.AdeptPowerPoints;
+        // Only the 3-point Adept split applies, not the full MAG of 6.
+        Assert.Equal(2, points.Value);
+    }
+
+    [Fact]
+    public void AdeptPowerPoints_AddsAdeptPowerPointsImprovementBonus()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>False</magician><attributes>"
+            + AttributeXml("MAG", "2") + "</attributes><powers></powers><improvements>"
+            + ImprovementAugXml("AdeptPowerPoints", "2") + "</improvements></character>");
+
+        CharacterDerivedValueData points = character.AdeptPowerPoints;
+        Assert.Equal(4, points.Value);
+        Assert.Contains("Verfügbar: 4", points.Tooltip);
+    }
 }

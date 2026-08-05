@@ -92,8 +92,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Live wound modifier from physical/stun condition-monitor boxes, with ConditionMonitor Improvement adjustments
 - ✅ Damage resistance dice pool sidebar row, including Improvement contributions and tooltip
 - ✅ Edge tracking ("X von Y verbleibend"), including spend/regain controls persisted as legacy `EdgeUse` Improvements
-- ❌ Costs: adept power point cost, attribute karma-cost curves, cyberware/bioware essence cost,
-  gear/weapon/vehicle availability & cost calculations
+- ✅ Adept power point cost — per-power point-per-level (with Way-of-the-Adept/Geas discounts)
+  and a total-pool "used vs. available" figure (MAG or the Mystic Adept MAG-Adept split, plus
+  AdeptPowerPoints Improvements), with a source-breakdown tooltip
+- ✅ Attribute karma-cost curve (`ComputeAttributeKarmaCostToIncrease`, house-rule aware via
+  `AlternateMetatypeAttributeKarma`)
+- ❌ Costs: cyberware/bioware essence cost, gear/weapon/vehicle availability & cost calculations
 - ❌ House-rule (`CharacterOptions`) awareness in any calculation — everything above computes the
   vanilla-rules result regardless of what the character's settings profile says (e.g.
   `IgnoreArmorEncumbrance`, `EnforceMaximumSkillRatingModifier`, `CapSkillRating` are all ignored)
