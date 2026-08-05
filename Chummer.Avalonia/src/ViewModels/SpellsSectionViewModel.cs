@@ -8,10 +8,19 @@ public sealed class SpiritRowViewModel
     public string Label { get; }
     public string Value { get; }
 
+    /// <summary>Fields needed to identify this row for RemoveSpirit - see
+    /// CharacterDocument.RemoveSpirit's first-occurrence-by-fields matching.</summary>
+    public string Name { get; }
+    public string Type { get; }
+    public string Force { get; }
+
     public SpiritRowViewModel(CharacterSpiritData spirit)
     {
         Label = spirit.DisplayName + " (Kraft " + spirit.Force + (spirit.Bound ? ", gebunden" : "") + "):";
         Value = spirit.Services;
+        Name = spirit.Name;
+        Type = spirit.Type;
+        Force = spirit.Force;
     }
 }
 
@@ -34,6 +43,13 @@ public sealed class SpellsSectionViewModel : ViewModelBase
     }
 
     public ObservableCollection<SpiritRowViewModel> Spirits { get; } = new();
+
+    private SpiritRowViewModel? _selectedSpirit;
+    public SpiritRowViewModel? SelectedSpirit
+    {
+        get => _selectedSpirit;
+        set => SetField(ref _selectedSpirit, value);
+    }
 
     public SpellsSectionViewModel()
     {

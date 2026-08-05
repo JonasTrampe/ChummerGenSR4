@@ -54,14 +54,17 @@
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <StackPanel>
                 <TextBlock Text="Geister" FontWeight="Bold" Margin="0,0,0,4" />
-                <Button Content="Geist" HorizontalAlignment="Left" Margin="0,0,0,6" />
-                <ItemsControl ItemsSource="{Binding Spirits}">
-                    <ItemsControl.ItemTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
+                    <Button Content="Geist" Click="OnAddSpiritClick" />
+                    <Button Content="Löschen" Click="OnDeleteSpiritClick" />
+                </StackPanel>
+                <ListBox ItemsSource="{Binding Spirits}" SelectedItem="{Binding SelectedSpirit, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:SpiritRowViewModel">
                             <controls:InfoRow Label="{Binding Label}" Value="{Binding Value}" />
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </Border>
         </Grid>

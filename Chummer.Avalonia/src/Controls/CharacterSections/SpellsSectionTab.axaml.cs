@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
+using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 using SpellDialog = Chummer.NewUI.Dialogs.SpellDialog;
 
@@ -47,6 +48,29 @@ public partial class SpellsSectionTab : UserControl
             return;
 
         if (_character.RemoveSpell(ViewModel.SelectedSpellNode.Name))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddSpiritClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new SpiritDialog();
+        bool? added = await dialog.ShowDialog<bool?>(window);
+        if (added == true)
+        {
+            _character.AddSpirit(dialog.SpiritName, dialog.CritterName, dialog.Type, dialog.Force, dialog.Services);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedSpirit is not { } selected)
+            return;
+
+        if (_character.RemoveSpirit(selected.Name, selected.Type, selected.Force))
             ViewModel.LoadCharacter(_character);
     }
 }

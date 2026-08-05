@@ -582,6 +582,40 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddSpirit_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "2");
+
+        CharacterSpiritData spirit = Assert.Single(character.Spirits);
+        Assert.Equal("Fire Spirit", spirit.Name);
+        Assert.Equal("Elemental", spirit.CritterName);
+        Assert.Equal("Spirit", spirit.Type);
+        Assert.Equal("6", spirit.Force);
+        Assert.Equal("2", spirit.Services);
+        Assert.False(spirit.Bound);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Fire Spirit", Assert.Single(reloaded.Spirits).Name);
+    }
+
+    [Fact]
+    public void RemoveSpirit_RemovesOnlyTheMatchingSpirit()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "2");
+        character.AddSpirit("Task Sprite", "", "Sprite", "3", "1");
+
+        Assert.True(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
+        Assert.False(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
+        CharacterSpiritData remaining = Assert.Single(character.Spirits);
+        Assert.Equal("Task Sprite", remaining.Name);
+    }
+
+    [Fact]
     public void Cyberware_And_Bioware_AreSplitByImprovementSource()
     {
         CharacterDocument character = LoadFixture();

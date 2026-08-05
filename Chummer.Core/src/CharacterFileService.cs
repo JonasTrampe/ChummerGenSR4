@@ -2609,6 +2609,58 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterSpiritData> Spirits => ReadSpirits();
 
+        /// <summary>Ported from frmCareer.cs's cmdAddSpirit_Click, simplified to the fields the
+        /// port's Spirits list actually displays - Spirits/Sprites are freely typed (no rules-data
+        /// cross-reference like Gear/Cyberware), so this doesn't need a picker dialog.</summary>
+        public void AddSpirit(string strName, string strCritterName, string strType, string strForce,
+            string strServices, bool blnBound = false)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A spirit name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objSpirits = objRoot.SelectSingleNode("spirits");
+            if (objSpirits == null)
+            {
+                objSpirits = Document.CreateElement("spirits");
+                objRoot.AppendChild(objSpirits);
+            }
+
+            var objSpirit = Document.CreateElement("spirit");
+            AppendElement(objSpirit, "name", strName.Trim());
+            AppendElement(objSpirit, "crittername", strCritterName);
+            AppendElement(objSpirit, "services", strServices);
+            AppendElement(objSpirit, "force", strForce);
+            AppendElement(objSpirit, "bound", blnBound ? "True" : "False");
+            AppendElement(objSpirit, "type", strType);
+            objSpirits.AppendChild(objSpirit);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Removes the first saved Spirit/Sprite matching name+type+force - legacy has no
+        /// stable per-entry identity for Spirits either, so this matches the same
+        /// first-occurrence-by-fields approach RemoveLifestyle/RemoveCyberware already use.</summary>
+        public bool RemoveSpirit(string strName, string strType, string strForce)
+        {
+            var objNodes = Document.SelectNodes("/character/spirits/spirit");
+            if (objNodes == null) return false;
+
+            foreach (XmlNode objSpirit in objNodes)
+            {
+                if (!string.Equals(GetValue(objSpirit, "name", string.Empty), strName, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objSpirit, "type", "Spirit"), strType, StringComparison.Ordinal)
+                    || !string.Equals(GetValue(objSpirit, "force", "0"), strForce, StringComparison.Ordinal))
+                    continue;
+
+                objSpirit.ParentNode?.RemoveChild(objSpirit);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
         public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades => ReadInitiationGrades();
 
         public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();

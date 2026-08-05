@@ -61,9 +61,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Character sheet tabs — editing
 
-- 🟡 **Add Quality, Spell, Gear, and Karma/Nuyen history entries** work end-to-end (UI → character XML →
-  save/reload); selected Qualities, Spells, and root-level Gear entries can also be deleted. All other
-  add/delete/edit operations remain unwired.
+- 🟡 **Add Quality, Spell, Gear, Spirit/Sprite, and Karma/Nuyen history entries** work end-to-end
+  (UI → character XML → save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites,
+  and Martial Arts/Maneuvers can also be deleted, and Karma/Nuyen history entries can be edited
+  in place (amount/reason/date). Character-Information's portrait (mugshot) also loads/changes/clears.
+  Manual Improvement add/edit/delete, Adept Power/Metamagic/Martial-Art add (blocked on their
+  pickers), and most other operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
