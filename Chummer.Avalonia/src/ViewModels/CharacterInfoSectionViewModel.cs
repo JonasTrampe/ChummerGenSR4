@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using Avalonia.Media.Imaging;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
@@ -5,6 +8,56 @@ namespace Chummer.NewUI.ViewModels;
 public sealed class CharacterInfoSectionViewModel : ViewModelBase
 {
     private CharacterDocument? _character;
+
+    private Bitmap? _mugshot;
+    public Bitmap? Mugshot
+    {
+        get => _mugshot;
+        private set => SetField(ref _mugshot, value);
+    }
+
+    public bool HasMugshot => Mugshot != null;
+
+    /// <summary>Reads the image file, stores it base64-encoded on the character (matching the
+    /// legacy &lt;mugshot&gt; format), and refreshes the preview.</summary>
+    public void SetMugshotFromFile(string strPath)
+    {
+        if (_character == null) return;
+        byte[] abytImage = File.ReadAllBytes(strPath);
+        _character.Mugshot = Convert.ToBase64String(abytImage);
+        RefreshMugshot();
+    }
+
+    public void ClearMugshot()
+    {
+        if (_character == null) return;
+        _character.Mugshot = string.Empty;
+        RefreshMugshot();
+    }
+
+    private void RefreshMugshot()
+    {
+        string strBase64 = _character?.Mugshot ?? string.Empty;
+        if (string.IsNullOrEmpty(strBase64))
+        {
+            Mugshot = null;
+        }
+        else
+        {
+            try
+            {
+                using var stream = new MemoryStream(Convert.FromBase64String(strBase64));
+                Mugshot = new Bitmap(stream);
+            }
+            catch (Exception)
+            {
+                // A corrupt/unreadable mugshot shouldn't block loading the rest of the character.
+                Mugshot = null;
+            }
+        }
+
+        OnPropertyChanged(nameof(HasMugshot));
+    }
 
     private string _strGender = string.Empty;
     public string Gender
@@ -205,5 +258,6 @@ public sealed class CharacterInfoSectionViewModel : ViewModelBase
         Background = character.Background;
         Concept = character.Concept;
         Notes = character.Notes;
+        RefreshMugshot();
     }
 }

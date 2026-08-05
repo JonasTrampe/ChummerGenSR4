@@ -45,9 +45,15 @@
             </Grid>
 
             <StackPanel Orientation="Horizontal" Spacing="6">
-                <TextBlock Text="Portrait: (210px x 310px)" VerticalAlignment="Center" />
-                <Button Content="Ändern" />
-                <Button Content="Löschen" />
+                <Image Source="{Binding Mugshot}" IsVisible="{Binding HasMugshot}"
+                       Width="105" Height="155" Stretch="Uniform" />
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Portrait: (210px x 310px)" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Content="Ändern" Click="OnChangeMugshotClick" />
+                        <Button Content="Löschen" Click="OnDeleteMugshotClick" />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
 
             <StackPanel>

@@ -507,6 +507,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Mugshot_RoundTripsBase64ThroughSaveAndReload()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.Equal(string.Empty, character.Mugshot);
+
+        character.Mugshot = "Zm9vYmFy";
+        Assert.Equal("Zm9vYmFy", character.Mugshot);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "test");
+        Assert.Equal("Zm9vYmFy", reloaded.Mugshot);
+
+        character.Mugshot = string.Empty;
+        Assert.Equal(string.Empty, character.Mugshot);
+    }
+
+    [Fact]
     public void AddExpense_MutatesCharacterAndPersistsSignedHistory()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

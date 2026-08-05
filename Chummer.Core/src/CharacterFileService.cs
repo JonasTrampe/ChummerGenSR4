@@ -2733,6 +2733,14 @@ namespace Chummer.Core
             set => SetRootValue("skin", value);
         }
 
+        /// <summary>Portrait image, base64-encoded - matches the legacy &lt;mugshot&gt; element
+        /// (clsCharacter.cs's Save()), which stores the image inline rather than as a file path.</summary>
+        public string Mugshot
+        {
+            get => GetValue("/character/mugshot", string.Empty);
+            set => SetRootValue("mugshot", value);
+        }
+
         public string PlayerName
         {
             get => GetValue("/character/playername", string.Empty);
