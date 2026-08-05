@@ -61,20 +61,23 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Character sheet tabs — editing
 
-- 🟡 **Add Quality, Spell, Gear, Spirit/Sprite, and Karma/Nuyen history entries** work end-to-end
-  (UI → character XML → save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites,
-  and Martial Arts/Maneuvers can also be deleted, and Karma/Nuyen history entries can be edited
-  in place (amount/reason/date). Character-Information's portrait (mugshot) also loads/changes/clears.
-  Manual Improvement add/edit/delete, Adept Power/Metamagic/Martial-Art add (blocked on their
-  pickers), and most other operations remain unwired.
+- 🟡 **Add Quality, Spell, Gear, Spirit/Sprite, Martial Art, Martial Art Maneuver, Adept Power,
+  Metamagic, and Karma/Nuyen history entries** work end-to-end (UI → character XML →
+  save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites, Martial
+  Arts/Maneuvers, Adept Powers, and Metamagics can also be deleted, and Karma/Nuyen history
+  entries can be edited in place (amount/reason/date). Character-Information's portrait
+  (mugshot) also loads/changes/clears. Manual Improvement add/edit/delete and most other
+  operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 10 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
-  Weapon, Vehicle, Vehicle Mod, Lifestyle, and exotic Skills. The implementations remain deliberately scoped
-  (for example, no advanced vehicle-mod eligibility validation and no advanced lifestyle construction).
-- ❌ The remaining pickers (Skill beyond exotic skills, MartialArt, Metamagic, CritterPower,
-  ContactConnection, and others) don't exist yet.
+- 🟡 14 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+  Weapon, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial Art, Martial Art Maneuver, Adept
+  Power, and Metamagic. The implementations remain deliberately scoped (for example, no advanced
+  vehicle-mod eligibility validation, no advanced lifestyle construction, and Metamagic/Adept Power
+  additions don't apply their rules-data Improvement bonuses).
+- ❌ The remaining pickers (Skill beyond exotic skills, CritterPower, ContactConnection, and
+  others) don't exist yet.
 
 ## Derived stats / calculations
 
