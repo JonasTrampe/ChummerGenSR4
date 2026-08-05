@@ -10,6 +10,8 @@
         <TabItem Header="Weitere Informationen">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
+                    <Button Content="Charakter fertigstellen" IsVisible="{Binding IsCreateMode}"
+                            Click="OnFinalizeCreationClick" Margin="0,0,0,6" />
                     <controls:InfoRow Label="Körperlicher Zustandsmonitor:" Value="{Binding PhysicalMonitor.Value}"
                                        Tooltip="{Binding PhysicalMonitor.Tooltip}" />
                     <controls:InfoRow Label="Geistiger Zustandsmonitor:" Value="{Binding StunMonitor.Value}"

@@ -20,10 +20,14 @@ public partial class MetatypeDialog : Window
         if (ViewModel.SelectedMetatype == null)
             return;
 
+        var magicTypeBox = this.FindControl<ComboBox>("MagicTypeBox");
+        string strMagicType = (magicTypeBox?.SelectedItem as ComboBoxItem)?.Tag as string ?? "None";
+
         Close(new MetatypeSelection
         {
             Metatype = ViewModel.SelectedMetatype,
-            MetavariantName = ViewModel.SelectedMetavariant == "-" ? string.Empty : ViewModel.SelectedMetavariant
+            MetavariantName = ViewModel.SelectedMetavariant == "-" ? string.Empty : ViewModel.SelectedMetavariant,
+            MagicType = strMagicType
         });
     }
 

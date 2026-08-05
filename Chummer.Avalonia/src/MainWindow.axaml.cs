@@ -59,7 +59,8 @@ public partial class MainWindow : Window
             objBuildSelection.MaxAvailability,
             objMetatypeSelection.Metatype,
             objMetatypeSelection.MetavariantName,
-            objBuildSelection.IgnoreCreationRules);
+            objBuildSelection.IgnoreCreationRules,
+            objMetatypeSelection.MagicType);
         ViewModel.AddOpenCharacter(objCharacter, null);
     }
 

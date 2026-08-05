@@ -16,9 +16,19 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   profile/general fields such as alias, notes, biography text, street-cred values, and Nuyen
   also write back to the loaded XML. Many other edits remain read-only or unwired.
 - ✅ Multiple characters open in tabs at once
-- ❌ Character creation flow (priority/point-buy system, `frmCreate` equivalent) — only three
-  mockup dialogs (Settings Profile → Karma/GP → Metatype) chained together with no real logic
-  behind any of them
+- 🟡 Character creation flow (Karma/BP point-buy system, `frmCreate` equivalent) — this was more
+  complete than previously documented here: Settings Profile → Karma/GP → Metatype (now with a
+  Magie/Resonanz choice: Magician/Adept/Technomancer/none) produces a real seeded character via
+  `NewCharacterFactory`, and every attribute/skill/skill-group/starting-Nuyen row already has
+  working Create-mode point-spending (`RaiseXCreate`/`LowerXCreate`, toggled by `IsCreateMode`
+  throughout the UI) instead of the career-mode Karma cost. What was actually missing end-to-end -
+  a way to leave creation mode at all - is now wired: a "Charakter fertigstellen" button
+  (`CharacterSidebar`, create-mode only) calls the new `FinalizeCreation()`, which flips `Created`
+  and switches every already-built `IsCreateMode` binding over to normal career-mode Karma
+  spending. Verified end-to-end with a scratch harness: create Adept → raise BOD/Pistolen via
+  Create-mode Karma costs → finalize → raise AGI via the career-mode Karma formula, all against
+  the same character. Not a true priority-table system (Karma/BP only, no A-E priority letters),
+  no starting-Lifestyle-Nuyen dice roll, and Mystic Adept (both Adept+Magician) isn't offered.
 - 🟡 Cloud save/share (RunnersPoint API) wired into the UI — Avalonia now has a Cloud Documents
   menu entry and dialog with OAuth/API-token login, folder tree, shared-documents toggle,
   push/download/archive/unarchive, metadata editing, revisions, and document-to-folder drag/drop.

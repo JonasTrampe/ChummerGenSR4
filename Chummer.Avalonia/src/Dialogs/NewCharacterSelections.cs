@@ -23,4 +23,8 @@ public sealed class MetatypeSelection
 {
     public NewCharacterMetatype Metatype { get; init; } = new();
     public string MetavariantName { get; init; } = string.Empty;
+
+    /// <summary>"None", "Magician", "Adept", or "Technomancer" - which of the three mutually
+    /// exclusive SR4 magic/resonance paths (if any) this character starts with.</summary>
+    public string MagicType { get; init; } = "None";
 }

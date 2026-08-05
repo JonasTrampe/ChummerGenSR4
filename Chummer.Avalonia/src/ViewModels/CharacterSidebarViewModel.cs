@@ -62,6 +62,9 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     private string _strCareerNuyen = string.Empty;
     public string CareerNuyen { get => _strCareerNuyen; set => SetField(ref _strCareerNuyen, value); }
 
+    private bool _blnIsCreateMode;
+    public bool IsCreateMode { get => _blnIsCreateMode; set => SetField(ref _blnIsCreateMode, value); }
+
     public ObservableCollection<CommlinkItemViewModel> Commlinks { get; } = new();
 
     private CommlinkItemViewModel? _objSelectedCommlink;
@@ -122,7 +125,10 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         FlyMovement = string.IsNullOrEmpty(character.FlyMovement) ? "0" : character.FlyMovement;
         Edge = character.Edge.Remaining + " von " + character.Edge.Maximum + " verbleibend";
         ReloadCommlinks(character);
+        IsCreateMode = !character.Created;
     }
+
+    public void FinalizeCreation() { if (_objCharacter?.FinalizeCreation() == true) LoadCharacter(_objCharacter); }
 
     public void SpendEdge() { if (_objCharacter?.SpendEdge() == true) LoadCharacter(_objCharacter); }
     public void RegainEdge() { if (_objCharacter?.RegainEdge() == true) LoadCharacter(_objCharacter); }

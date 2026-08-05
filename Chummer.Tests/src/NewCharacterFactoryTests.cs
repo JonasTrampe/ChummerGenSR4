@@ -261,4 +261,39 @@ public class NewCharacterFactoryTests
         Assert.True(character.LowerAttributeCreate("BOD"));
         Assert.Equal(intStartBp, int.Parse(character.Bp));
     }
+
+    [Theory]
+    [InlineData("None", false, false, false, false)]
+    [InlineData("Adept", true, false, false, true)]
+    [InlineData("Magician", false, true, false, true)]
+    [InlineData("Technomancer", false, false, true, false)]
+    public void CreateNewCharacter_MagicType_SetsAdeptMagicianTechnomancerAndAwakenedFlags(
+        string strMagicType, bool blnAdept, bool blnMagician, bool blnTechnomancer, bool blnAwakened)
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman(), strMagicType: strMagicType);
+
+        Assert.Equal(blnAdept, character.Adept);
+        Assert.Equal(blnMagician, character.Magician);
+        Assert.Equal(blnTechnomancer, character.Technomancer);
+        Assert.Equal(blnAwakened, character.Awakened);
+    }
+
+    [Fact]
+    public void FinalizeCreation_SetsCreatedAndFiresChangedOnce()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        Assert.False(character.Created);
+        int intChangedCount = 0;
+        character.Changed += () => intChangedCount++;
+
+        Assert.True(character.FinalizeCreation());
+        Assert.True(character.Created);
+        Assert.Equal(1, intChangedCount);
+
+        // Already created - finalizing again is a no-op.
+        Assert.False(character.FinalizeCreation());
+        Assert.Equal(1, intChangedCount);
+    }
 }

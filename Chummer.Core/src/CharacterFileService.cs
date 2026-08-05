@@ -205,6 +205,23 @@ namespace Chummer.Core
         /// <summary>False during character creation, true once the character has entered career mode.</summary>
         public bool Created => GetValue("/character/created", "False") == "True";
 
+        /// <summary>Ported from frmCreate.cs's ConfirmSaveCreatedCharacter: flips the character
+        /// into career mode, at which point every UI already bound to IsCreateMode/Created
+        /// (attribute/skill spinners, Nuyen entry, etc.) switches from the Create-suffixed
+        /// point-spending methods to the normal Karma-spending ones. Deliberately simplified vs.
+        /// the legacy flow: no starting-Lifestyle-Nuyen dice roll (a player can already add a
+        /// Lifestyle and set starting Nuyen manually before finalizing) and no validation gate -
+        /// unspent Karma/BP simply stays on the character as-is (for Karma builds this is exactly
+        /// what legacy does too, since Karma left over from creation carries over as career Karma).</summary>
+        public bool FinalizeCreation()
+        {
+            if (Created)
+                return false;
+
+            SetRootValue("created", "True");
+            return true;
+        }
+
         /// <summary>"Karma" or "BP" - which build method this character was created with.</summary>
         public string BuildMethod => GetValue("/character/buildmethod", "Karma");
 

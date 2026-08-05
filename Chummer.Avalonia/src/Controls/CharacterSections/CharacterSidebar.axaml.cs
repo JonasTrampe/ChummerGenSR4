@@ -24,4 +24,5 @@ public partial class CharacterSidebar : UserControl
     private void OnHealPhysicalDamageClick(object? sender, RoutedEventArgs e) => ViewModel.HealPhysicalDamage();
     private void OnAddStunDamageClick(object? sender, RoutedEventArgs e) => ViewModel.AddStunDamage();
     private void OnHealStunDamageClick(object? sender, RoutedEventArgs e) => ViewModel.HealStunDamage();
+    private void OnFinalizeCreationClick(object? sender, RoutedEventArgs e) => ViewModel.FinalizeCreation();
 }

@@ -75,6 +75,16 @@
 					<TextBlock Grid.Column="0" Text="Essenz" FontWeight="Bold" />
 					<TextBlock Grid.Column="1" Text="{Binding SelectedMetatype.EssRange}" />
 				</Grid>
+
+				<StackPanel Grid.Row="5" Spacing="4" VerticalAlignment="Bottom">
+					<TextBlock Text="Magie/Resonanz:" />
+					<ComboBox Width="220" HorizontalAlignment="Left" Name="MagicTypeBox" SelectedIndex="0">
+						<ComboBoxItem Content="Keine" Tag="None" />
+						<ComboBoxItem Content="Magier" Tag="Magician" />
+						<ComboBoxItem Content="Adept" Tag="Adept" />
+						<ComboBoxItem Content="Technomancer" Tag="Technomancer" />
+					</ComboBox>
+				</StackPanel>
 			</Grid>
 		</Grid>
 

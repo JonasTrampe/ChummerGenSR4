@@ -108,8 +108,11 @@ namespace Chummer.Core
 
         public static CharacterDocument CreateNewCharacter(string strDisplayName, string strSettingsFileName,
             string strBuildMethod, int intBuildPoints, int intMaxAvailability, NewCharacterMetatype objMetatype,
-            string strMetavariantName = "", bool blnIgnoreRules = false)
+            string strMetavariantName = "", bool blnIgnoreRules = false, string strMagicType = "None")
         {
+            bool blnAdept = strMagicType == "Adept";
+            bool blnMagician = strMagicType == "Magician";
+            bool blnTechnomancer = strMagicType == "Technomancer";
             bool blnKarmaBuild = string.Equals(strBuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
             XmlDocument objDocument = new XmlDocument();
             XmlElement objRoot = objDocument.CreateElement("character");
@@ -156,9 +159,9 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "knowpts", "0");
             AppendElement(objDocument, objRoot, "nuyenbp", "0");
             AppendElement(objDocument, objRoot, "nuyenmaxbp", blnKarmaBuild ? "100" : "50");
-            AppendElement(objDocument, objRoot, "adept", "False");
-            AppendElement(objDocument, objRoot, "magician", "False");
-            AppendElement(objDocument, objRoot, "technomancer", "False");
+            AppendElement(objDocument, objRoot, "adept", blnAdept.ToString());
+            AppendElement(objDocument, objRoot, "magician", blnMagician.ToString());
+            AppendElement(objDocument, objRoot, "technomancer", blnTechnomancer.ToString());
             AppendElement(objDocument, objRoot, "initiationoverride", "False");
             AppendElement(objDocument, objRoot, "critter", "False");
             AppendElement(objDocument, objRoot, "uneducated", "False");
@@ -183,9 +186,9 @@ namespace Chummer.Core
                 AppendElement(objDocument, objAttribute, "totalvalue", strAttributeCode == "ESS" ? "6" : objRange.Min);
             }
 
-            AppendElement(objDocument, objRoot, "magenabled", "False");
+            AppendElement(objDocument, objRoot, "magenabled", (blnAdept || blnMagician).ToString());
             AppendElement(objDocument, objRoot, "initiategrade", "0");
-            AppendElement(objDocument, objRoot, "resenabled", "False");
+            AppendElement(objDocument, objRoot, "resenabled", blnTechnomancer.ToString());
             AppendElement(objDocument, objRoot, "submersiongrade", "0");
             AppendElement(objDocument, objRoot, "groupmember", "False");
             AppendElement(objDocument, objRoot, "totaless", "6");
