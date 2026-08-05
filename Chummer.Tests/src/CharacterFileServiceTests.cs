@@ -1458,6 +1458,74 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleSlots_ComputedFromBodyAndSummedAcrossInstalledMods()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>6</body><mods />"
+            + "</vehicle></vehicles></character>");
+
+        CharacterVehicleData vehicle = character.Vehicles.Single();
+        // Body(6) > 4, so TotalSlots = Body, not the 4-slot floor.
+        Assert.Equal(6, vehicle.TotalSlots);
+        Assert.Equal(0, vehicle.SlotsUsed);
+        Assert.Equal(6, vehicle.SlotsRemaining);
+
+        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "Body * 200", "AR", "132"));
+        vehicle = character.Vehicles.Single();
+        Assert.Equal(2, vehicle.SlotsUsed);
+        Assert.Equal(4, vehicle.SlotsRemaining);
+    }
+
+    [Fact]
+    public void VehicleSlots_LowBodyVehicleFloorsAtFourSlots()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Dodge Scoot</name><category>Bikes</category><body>2</body><mods />"
+            + "</vehicle></vehicles></character>");
+
+        // Body(2) < 4, so TotalSlots floors at 4 (clsEquipment.cs's Vehicle.Slots).
+        Assert.Equal(4, character.Vehicles.Single().TotalSlots);
+    }
+
+    [Fact]
+    public void AddVehicleMod_RejectsAModThatWouldExceedRemainingSlots()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods />"
+            + "</vehicle></vehicles></character>");
+
+        // TotalSlots = 4 (Body floor). A mod needing 5 slots doesn't fit.
+        Assert.False(character.AddVehicleMod(vehicleId, "Oversized Mod", "Standard", "0", "5", "6R",
+            "Body * 200", "AR", "132"));
+        Assert.Empty(character.Vehicles.Single().Children);
+
+        // But one that exactly fits does, and a second one that would push past the limit is rejected.
+        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "4", "6R",
+            "Body * 200", "AR", "132"));
+        Assert.False(character.AddVehicleMod(vehicleId, "Another Mod", "Standard", "0", "1", "6R",
+            "Body * 200", "AR", "132"));
+        Assert.Single(character.Vehicles.Single().Children);
+    }
+
+    [Fact]
+    public void VehicleMod_IncludedInVehicle_DoesNotCountTowardSlotsUsed()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods>"
+            + "<mod><guid>" + Guid.NewGuid() + "</guid><name>Standard Chassis</name><category>Standard</category>"
+            + "<slots>4</slots><rating>0</rating><included>True</included></mod>"
+            + "</mods></vehicle></vehicles></character>");
+
+        CharacterVehicleData vehicle = character.Vehicles.Single();
+        Assert.Equal(0, vehicle.SlotsUsed);
+        Assert.Equal(4, vehicle.SlotsRemaining);
+    }
+
+    [Fact]
     public void VehicleGear_CanBeAddedAndRemovedWithoutEnteringCharacterGearTree()
     {
         Guid vehicleId = Guid.NewGuid();

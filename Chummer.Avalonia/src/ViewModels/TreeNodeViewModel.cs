@@ -71,6 +71,15 @@ public sealed class TreeNodeViewModel
     public string Avail { get; private set; } = string.Empty;
     public string Cost { get; private set; } = string.Empty;
     public string Slots { get; private set; } = string.Empty;
+
+    /// <summary>Only meaningful for vehicle root nodes - see
+    /// CharacterVehicleData.SlotsUsed/TotalSlots/SlotsRemaining. Kept as separate values (not a
+    /// pre-formatted string) so the view composes the display text via its own bindings, the same
+    /// place every other translatable label in this control lives.</summary>
+    public int SlotsUsed { get; private set; }
+
+    public int TotalSlots { get; private set; }
+    public int SlotsRemaining { get; private set; }
     public string Source { get; private set; } = string.Empty;
     public string Page { get; private set; } = string.Empty;
     public string PhysicalCmFilled { get; private set; } = string.Empty;
@@ -166,6 +175,9 @@ public sealed class TreeNodeViewModel
             Avail = item.Avail,
             Cost = item.Cost,
             Slots = item.Slots,
+            SlotsUsed = item.SlotsUsed,
+            TotalSlots = item.TotalSlots,
+            SlotsRemaining = item.SlotsRemaining,
             Source = item.Source,
             Page = item.Page,
             PhysicalCmFilled = item.PhysicalCmFilled,

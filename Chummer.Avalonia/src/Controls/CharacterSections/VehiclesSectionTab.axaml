@@ -67,7 +67,15 @@
                     <Grid ColumnDefinitions="*,*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />
                         <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Kosten: {0}¥'}" />
-                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.Slots, StringFormat='Slots: {0}'}" />
+                        <TextBlock Grid.Column="2">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="Slots: {0}/{1} ({2} frei)">
+                                    <Binding Path="SelectedVehicle.SlotsUsed" />
+                                    <Binding Path="SelectedVehicle.TotalSlots" />
+                                    <Binding Path="SelectedVehicle.SlotsRemaining" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
                     </Grid>
                 </StackPanel>
             </ScrollViewer>

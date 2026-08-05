@@ -1062,11 +1062,22 @@ namespace Chummer.Core
         /// <summary>Adds a rules-data vehicle modification in the same persisted shape as
         /// <c>VehicleMod.Save</c>. The caller supplies the already selected rating; costs that
         /// reference Body are resolved against the owning vehicle before being deducted.</summary>
+        /// <summary>Ported from clsEquipment.cs's Vehicle.Slots/SlotsUsed check that
+        /// frmSelectVehicleMod.cs performs before letting a Mod be added. Returns false (and adds
+        /// nothing) if the vehicle doesn't have enough free Slots left for it.</summary>
         public bool AddVehicleMod(Guid guiVehicleId, string strName, string strCategory, string strRating,
             string strSlots, string strAvail, string strCost, string strSource, string strPage, string strLimit = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A vehicle modification name is required.", nameof(strName));
+
+            CharacterVehicleData? objVehicleData = Vehicles.FirstOrDefault(v => v.Guid == guiVehicleId.ToString());
+            if (objVehicleData == null)
+                return false;
+
+            int intModSlots = (int)RatingExpression.Evaluate(strSlots, strRating);
+            if (intModSlots > objVehicleData.SlotsRemaining)
+                return false;
 
             XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
             if (objVehicle == null)
@@ -4068,6 +4079,8 @@ namespace Chummer.Core
                     GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
                     GetValue(objNode, "qty", "1"));
                 objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
+                if (strFallbackCategory == "Vehicle Mod")
+                    objItem.SetModSlots(GetValue(objNode, "slots", "0"), GetValue(objNode, "included", "False") == "True");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
                 lstChildren.Add(objItem);
@@ -4346,6 +4359,19 @@ namespace Chummer.Core
         /// <summary>Persisted GUID for items that have one (including vehicle modifications).</summary>
         public string ItemGuid { get; private set; } = string.Empty;
 
+        /// <summary>Raw saved slots ("Rating"-formula string) - only set for Vehicle Mod nodes.
+        /// See CharacterVehicleData.SlotsUsed for the evaluated total.</summary>
+        public string ModSlots { get; private set; } = string.Empty;
+
+        /// <summary>Mods that come pre-installed with the vehicle don't consume purchased slots -
+        /// only meaningful when <see cref="IsVehicleMod"/> is true.</summary>
+        public bool IncludedInVehicle { get; private set; }
+
+        /// <summary>True for nodes built from a vehicle's &lt;mods&gt;&lt;mod&gt; list - a saved
+        /// Category isn't a reliable way to tell (mods keep their real rules category, e.g.
+        /// "Standard", not a generic marker), so this is set explicitly instead.</summary>
+        public bool IsVehicleMod { get; private set; }
+
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
             Ballistic = strBallistic;
@@ -4355,6 +4381,12 @@ namespace Chummer.Core
         internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
         internal void SetLocation(string strLocation) => Location = strLocation;
         internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
+        internal void SetModSlots(string strSlots, bool blnIncluded)
+        {
+            ModSlots = strSlots;
+            IncludedInVehicle = blnIncluded;
+            IsVehicleMod = true;
+        }
 
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,
@@ -4552,6 +4584,19 @@ namespace Chummer.Core
         public string PhysicalCmFilled { get; }
         public List<string> Locations { get; } = new();
         public List<CharacterTreeItemData> Children { get; } = new();
+
+        /// <summary>Ported from clsEquipment.cs's Vehicle.Slots: 4 or the vehicle's Body, whichever
+        /// is higher (the AddSlots-from-mods refinement isn't ported - no shipped vehicle mod
+        /// grants bonus slots via a plain flat &lt;addslots&gt; value in the data this port reads).</summary>
+        public int TotalSlots => Math.Max(4, int.TryParse(Body, out var b) ? b : 0);
+
+        /// <summary>Ported from clsEquipment.cs's Vehicle.SlotsUsed: sums each installed,
+        /// not-included-by-default Mod's Rating-evaluated Slots cost.</summary>
+        public int SlotsUsed => Children
+            .Where(c => c.IsVehicleMod && !c.IncludedInVehicle)
+            .Sum(c => (int)RatingExpression.Evaluate(c.ModSlots, c.Rating));
+
+        public int SlotsRemaining => TotalSlots - SlotsUsed;
     }
 
     public sealed class CharacterSkillGroupData
