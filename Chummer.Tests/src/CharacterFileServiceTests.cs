@@ -851,13 +851,14 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
-    public void Initiative_IsIntPlusRea_WithNoWoundModifiersInFixture()
+    public void Initiative_IsIntPlusRea_MinusFixturesWoundModifier()
     {
         CharacterDocument character = LoadFixture();
 
+        // The fixture has 1 filled physical CM box -> -((1+2)/3) = -1 wound modifier.
         Assert.Equal(8, character.Initiative.Base); // INT(4) + REA(4)
-        Assert.Equal(8, character.Initiative.Augmented);
-        Assert.Equal("8", character.Initiative.Display);
+        Assert.Equal(7, character.Initiative.Augmented);
+        Assert.Equal("8 (7)", character.Initiative.Display);
     }
 
     [Fact]
@@ -880,8 +881,9 @@ public class CharacterFileServiceTests
         Assert.Equal("4", pistolen.BaseRating);
         Assert.Equal("4 (5)", pistolen.Rating);
 
-        // Pool = augmented rating(5) + Smartlink's +2 pool-only bonus + AGI(6) = 13.
-        Assert.Equal("13", pistolen.TotalValue);
+        // Pool = augmented rating(5) + Smartlink's +2 pool-only bonus + AGI(6) - fixture's -1
+        // wound modifier (1 filled physical CM box) = 12.
+        Assert.Equal("12", pistolen.TotalValue);
         Assert.Contains("Muscle Toner: +1", pistolen.PoolTooltip);
         Assert.Contains("Smartlink: +2", pistolen.PoolTooltip);
     }
@@ -892,10 +894,11 @@ public class CharacterFileServiceTests
         CharacterDocument character = LoadFixture();
         CharacterSkillData knowledgeSkill = character.KnowledgeSkills.Single(s => s.Name == "Straßenwissen");
 
-        // Straßenwissen: rating 3, attribute INT(4) -> pool 7, no Improvements targeting it.
+        // Straßenwissen: rating 3, attribute INT(4) -> pool 7, no Improvements targeting it,
+        // minus the fixture's -1 wound modifier (1 filled physical CM box) = 6.
         Assert.Equal("3", knowledgeSkill.BaseRating);
         Assert.Equal("3", knowledgeSkill.Rating);
-        Assert.Equal("7", knowledgeSkill.TotalValue);
+        Assert.Equal("6", knowledgeSkill.TotalValue);
     }
 
     [Fact]
@@ -903,9 +906,9 @@ public class CharacterFileServiceTests
     {
         CharacterDocument character = LoadFixture();
 
-        // INT(4) * 2 = 8, no wound modifiers in the fixture.
+        // INT(4) * 2 = 8, minus the fixture's -1 wound modifier (1 filled physical CM box).
         Assert.Equal(8, character.AstralInitiative.Base);
-        Assert.Equal(8, character.AstralInitiative.Augmented);
+        Assert.Equal(7, character.AstralInitiative.Augmented);
 
         // Default non-Technomancer path: just INT(4), no MatrixInitiative Improvements.
         Assert.Equal(4, character.MatrixInitiative.Base);
