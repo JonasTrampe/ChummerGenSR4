@@ -8,14 +8,20 @@ namespace Chummer.NewUI.ViewModels;
 
 public sealed class ExpenseRowViewModel
 {
+    public string Guid { get; }
     public string Date { get; }
+    public string RawDate { get; }
     public string Amount { get; }
+    public string RawAmount { get; }
     public string Reason { get; }
 
     public ExpenseRowViewModel(CharacterExpenseData expense)
     {
+        Guid = expense.Guid;
         Date = expense.DisplayDate;
+        RawDate = expense.Date;
         Amount = expense.Amount;
+        RawAmount = expense.Amount;
         Reason = expense.Reason;
     }
 }
@@ -24,6 +30,20 @@ public sealed class KarmaNuyenSectionViewModel : ViewModelBase
 {
     public ObservableCollection<ExpenseRowViewModel> KarmaExpenses { get; } = new();
     public ObservableCollection<ExpenseRowViewModel> NuyenExpenses { get; } = new();
+
+    private ExpenseRowViewModel? _selectedKarmaExpense;
+    public ExpenseRowViewModel? SelectedKarmaExpense
+    {
+        get => _selectedKarmaExpense;
+        set => SetField(ref _selectedKarmaExpense, value);
+    }
+
+    private ExpenseRowViewModel? _selectedNuyenExpense;
+    public ExpenseRowViewModel? SelectedNuyenExpense
+    {
+        get => _selectedNuyenExpense;
+        set => SetField(ref _selectedNuyenExpense, value);
+    }
 
     // ScottPlot's own MVVM pattern (see https://scottplot.net/quickstart/wpf/, same shape for
     // Avalonia): the ViewModel owns the AvaPlot instance directly instead of the View naming it

@@ -2697,6 +2697,53 @@ namespace Chummer.Core
             }
         }
 
+        /// <summary>Ported from frmCareer.cs's Karma/Nuyen expense edit dialog: Reason and Date are
+        /// always editable; Amount is included here too (legacy locks it for non-manual entries via
+        /// Undo.KarmaType/NuyenType, which this port's AddExpense never attaches, so every entry the
+        /// Avalonia UI creates is effectively "manual" and editable).</summary>
+        public bool UpdateExpense(string strGuid, string strReason, decimal decAmount, DateTime datDate)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+
+            XmlNode? objExpense = FindExpenseNode(strGuid);
+            if (objExpense == null)
+                return false;
+
+            SetChildValue(objExpense, "reason", strReason.Trim());
+            SetChildValue(objExpense, "amount", decAmount.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            SetChildValue(objExpense, "date", datDate.ToString("O"));
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool RemoveExpense(string strGuid)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+
+            XmlNode? objExpense = FindExpenseNode(strGuid);
+            if (objExpense == null)
+                return false;
+
+            objExpense.ParentNode?.RemoveChild(objExpense);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? FindExpenseNode(string strGuid)
+        {
+            var objNodes = Document.SelectNodes("/character/expenses/expense");
+            if (objNodes == null) return null;
+            foreach (XmlNode objExpense in objNodes)
+            {
+                if (string.Equals(GetValue(objExpense, "guid", string.Empty), strGuid, StringComparison.Ordinal))
+                    return objExpense;
+            }
+
+            return null;
+        }
+
         public string Gender
         {
             get => GetValue("/character/sex", string.Empty);
@@ -3794,7 +3841,8 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 if (GetValue(objNode, "type", string.Empty) != strType) continue;
-                lstExpenses.Add(new CharacterExpenseData(GetValue(objNode, "date", string.Empty),
+                lstExpenses.Add(new CharacterExpenseData(GetValue(objNode, "guid", string.Empty),
+                    GetValue(objNode, "date", string.Empty),
                     GetValue(objNode, "amount", "0"), GetValue(objNode, "reason", string.Empty),
                     GetValue(objNode, "refund", "False") == "True"));
             }
@@ -4572,13 +4620,18 @@ namespace Chummer.Core
 
     public sealed class CharacterExpenseData
     {
-        internal CharacterExpenseData(string strDate, string strAmount, string strReason, bool blnRefund)
+        internal CharacterExpenseData(string strGuid, string strDate, string strAmount, string strReason, bool blnRefund)
         {
+            Guid = strGuid;
             Date = strDate;
             Amount = strAmount;
             Reason = strReason;
             Refund = blnRefund;
         }
+
+        /// <summary>Stable identity for UpdateExpense/RemoveExpense - assigned by AddExpense at
+        /// creation time. Empty for entries saved before this field existed.</summary>
+        public string Guid { get; }
 
         public string Date { get; }
         public string Amount { get; }

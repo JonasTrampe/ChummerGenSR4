@@ -9,7 +9,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="Karma verdient" Click="OnKarmaEarnedClick" />
                     <Button Content="Karma ausgegeben" Click="OnKarmaSpentClick" />
-                    <Button Content="Aufwendungen bearbeiten" />
+                    <Button Content="Aufwendungen bearbeiten" Click="OnEditKarmaExpenseClick" />
                 </StackPanel>
                 <Grid Grid.Row="1" ColumnDefinitions="80,50,*" Margin="0,0,0,2">
                     <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
@@ -17,6 +17,7 @@
                     <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
                 </Grid>
                 <ListBox Grid.Row="2" ItemsSource="{Binding KarmaExpenses}"
+                         SelectedItem="{Binding SelectedKarmaExpense, Mode=TwoWay}"
                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ExpenseRowViewModel">
@@ -33,7 +34,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="Nuyen verdient" Click="OnNuyenEarnedClick" />
                     <Button Content="Nuyen ausgegeben" Click="OnNuyenSpentClick" />
-                    <Button Content="Aufwendungen bearbeiten" />
+                    <Button Content="Aufwendungen bearbeiten" Click="OnEditNuyenExpenseClick" />
                 </StackPanel>
                 <Grid Grid.Row="1" ColumnDefinitions="80,60,*" Margin="0,0,0,2">
                     <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
@@ -41,6 +42,7 @@
                     <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
                 </Grid>
                 <ListBox Grid.Row="2" ItemsSource="{Binding NuyenExpenses}"
+                         SelectedItem="{Binding SelectedNuyenExpense, Mode=TwoWay}"
                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ExpenseRowViewModel">

@@ -28,6 +28,8 @@ public partial class KarmaNuyenSectionTab : UserControl
     private async void OnKarmaSpentClick(object? sender, RoutedEventArgs e) => await AddExpenseAsync("Karma", "Karma ausgegeben", -1);
     private async void OnNuyenEarnedClick(object? sender, RoutedEventArgs e) => await AddExpenseAsync("Nuyen", "Nuyen verdient", 1);
     private async void OnNuyenSpentClick(object? sender, RoutedEventArgs e) => await AddExpenseAsync("Nuyen", "Nuyen ausgegeben", -1);
+    private async void OnEditKarmaExpenseClick(object? sender, RoutedEventArgs e) => await EditExpenseAsync(ViewModel.SelectedKarmaExpense, "Karma-Aufwendung bearbeiten");
+    private async void OnEditNuyenExpenseClick(object? sender, RoutedEventArgs e) => await EditExpenseAsync(ViewModel.SelectedNuyenExpense, "Nuyen-Aufwendung bearbeiten");
 
     private async System.Threading.Tasks.Task AddExpenseAsync(string type, string title, int sign)
     {
@@ -41,5 +43,26 @@ public partial class KarmaNuyenSectionTab : UserControl
             _character.AddExpense(type, dialog.Amount, dialog.Reason);
             ViewModel.LoadCharacter(_character);
         }
+    }
+
+    private async System.Threading.Tasks.Task EditExpenseAsync(ExpenseRowViewModel? selected, string title)
+    {
+        if (_character == null || selected == null || string.IsNullOrEmpty(selected.Guid)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        decimal decAmount = decimal.TryParse(selected.RawAmount, System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out decimal d) ? d : 0m;
+
+        var dialog = new ExpenseDialog(title, decAmount, selected.Reason);
+        bool? edited = await dialog.ShowDialog<bool?>(window);
+        if (edited != true)
+            return;
+
+        System.DateTime datDate = System.DateTime.TryParse(selected.RawDate, System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.RoundtripKind, out System.DateTime dt) ? dt : System.DateTime.Now;
+
+        if (_character.UpdateExpense(selected.Guid, dialog.Reason, dialog.Amount, datDate))
+            ViewModel.LoadCharacter(_character);
     }
 }

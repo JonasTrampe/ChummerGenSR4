@@ -14,7 +14,7 @@
         <TextBlock Grid.Row="3" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
         <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
             <Button Content="Abbruch" Width="80" Click="OnCancel" />
-            <Button Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button x:Name="OkButton" Content="Hinzufügen" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>
 </Window>

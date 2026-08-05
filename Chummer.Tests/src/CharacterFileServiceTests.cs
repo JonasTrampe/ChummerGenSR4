@@ -546,6 +546,42 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void UpdateExpense_ChangesReasonAmountAndDateForTheMatchingEntry()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
+        character.AddExpense("Karma", 2, "Another entry", new DateTime(2026, 7, 23));
+        string strGuid = character.KarmaExpenses[0].Guid;
+        Assert.NotEmpty(strGuid);
+
+        Assert.True(character.UpdateExpense(strGuid, "Corrected reward", 6, new DateTime(2026, 7, 24)));
+        Assert.False(character.UpdateExpense("missing-guid", "x", 1, DateTime.Now));
+
+        CharacterExpenseData updated = character.KarmaExpenses.Single(e => e.Guid == strGuid);
+        Assert.Equal("Corrected reward", updated.Reason);
+        Assert.Equal("6", updated.Amount);
+        Assert.Equal("24.07.2026", updated.DisplayDate);
+        // The other entry is untouched.
+        Assert.Equal("Another entry", character.KarmaExpenses.Single(e => e.Guid != strGuid).Reason);
+        // Updated entry (6) + the other, untouched entry (2) = 8.
+        Assert.Equal(8, character.CareerKarma);
+    }
+
+    [Fact]
+    public void RemoveExpense_RemovesOnlyTheMatchingEntry()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
+        character.AddExpense("Karma", 2, "Another entry", new DateTime(2026, 7, 23));
+        string strGuid = character.KarmaExpenses[0].Guid;
+
+        Assert.True(character.RemoveExpense(strGuid));
+        Assert.False(character.RemoveExpense(strGuid));
+        CharacterExpenseData remaining = Assert.Single(character.KarmaExpenses);
+        Assert.Equal("Another entry", remaining.Reason);
+    }
+
+    [Fact]
     public void Cyberware_And_Bioware_AreSplitByImprovementSource()
     {
         CharacterDocument character = LoadFixture();
