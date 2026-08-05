@@ -147,7 +147,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
   tested for non-empty rather than positive.
 - ❌ PDF sourcebook page linking
-- ❌ Dice roller
+- ✅ Dice roller — ported frmDiceRoller.cs's roll/hit/glitch logic (Standard/Large/Really Large
+  methods, Rule of 6, Cinematic Gameplay, Rushed Job, Gremlins rating, Threshold) into a
+  standalone, character-independent `Zubehör → Würfeln...` dialog
 - ❌ Update checker (arguably a non-goal for a Linux/AppImage distribution model rather than a
   gap — worth an explicit decision rather than silent omission)
 

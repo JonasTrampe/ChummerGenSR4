@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="using:Chummer.NewUI.Controls"
+        x:Class="Chummer.NewUI.Dialogs.DiceRollerDialog"
+        x:DataType="vm:DiceRollerDialogViewModel"
+        Width="380" Height="480" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="Würfeln">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="130,*">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Würfelanzahl:" VerticalAlignment="Center" />
+        <controls:IntegerSpinner Grid.Row="0" Grid.Column="1" Width="90" HorizontalAlignment="Left"
+                                  Minimum="1" Maximum="200" Value="{Binding DiceCount, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Methode:" VerticalAlignment="Center" Margin="0,6,0,0" />
+        <ComboBox Grid.Row="1" Grid.Column="1" Width="160" HorizontalAlignment="Left" Margin="0,6,0,0"
+                  ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Gremlins-Wertung:" VerticalAlignment="Center" Margin="0,6,0,0" />
+        <controls:IntegerSpinner Grid.Row="2" Grid.Column="1" Width="90" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                  Minimum="0" Maximum="6" Value="{Binding Gremlins, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Schwellenwert:" VerticalAlignment="Center" Margin="0,6,0,0" />
+        <controls:IntegerSpinner Grid.Row="3" Grid.Column="1" Width="90" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                  Minimum="0" Maximum="50" Value="{Binding Threshold, Mode=TwoWay}" />
+
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+            <CheckBox Content="Regel der 6" IsChecked="{Binding RuleOf6, Mode=TwoWay}" />
+            <CheckBox Content="Kinematisches Spiel" IsChecked="{Binding CinematicGameplay, Mode=TwoWay}" />
+        </StackPanel>
+        <CheckBox Grid.Row="5" Grid.ColumnSpan="2" Content="Eiliger Auftrag (Patzer schon bei 1-2)"
+                   IsChecked="{Binding RushedJob, Mode=TwoWay}" Margin="0,4,0,0" />
+
+        <Border Grid.Row="6" Grid.ColumnSpan="2" BorderBrush="#D0D0D0" BorderThickness="1" Margin="0,10,0,0">
+            <ScrollViewer>
+                <StackPanel Margin="8" Spacing="6">
+                    <TextBlock Text="{Binding RollsText}" TextWrapping="Wrap" FontFamily="monospace" />
+                    <TextBlock Text="{Binding ResultText}" TextWrapping="Wrap" FontWeight="Bold"
+                               Foreground="{Binding ResultColor}" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Spacing="6" Margin="0,10,0,0">
+            <Button Content="Schließen" Width="90" Click="OnClose" />
+            <Button Content="Würfeln" Width="90" Click="OnRollClick" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -46,6 +46,7 @@
             </MenuItem>
             <MenuItem Header="_Zubehör">
                 <MenuItem Header="_Cloud Documents..." Click="OnCloudDocumentsClick" />
+                <MenuItem Header="_Würfeln..." Click="OnDiceRollerClick" />
             </MenuItem>
             <MenuItem Header="_Spezial">
                 <MenuItem Header="_Optionen..." Click="OnOptionsClick" />

@@ -169,6 +169,12 @@ public partial class MainWindow : Window
         await dialog.ShowDialog(this);
     }
 
+    private async void OnDiceRollerClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new DiceRollerDialog();
+        await dialog.ShowDialog(this);
+    }
+
     private async void OnOptionsClick(object? sender, RoutedEventArgs e)
     {
         var dialog = new OptionsDialog();
