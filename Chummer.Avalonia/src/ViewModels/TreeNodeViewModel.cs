@@ -139,7 +139,11 @@ public sealed class TreeNodeViewModel
             EffectiveSignal = item.EffectiveSignal,
             EffectiveSystem = item.EffectiveSystem,
             EffectiveFirewall = item.EffectiveFirewall,
-            HasCommlinkStats = item.HasCommlinkStats
+            HasCommlinkStats = item.HasCommlinkStats,
+            // Rating-formula cost/avail, evaluated (CalculatedCost includes children, e.g. a
+            // Commlink plus its installed Operating System).
+            Cost = string.IsNullOrEmpty(item.Cost) ? string.Empty : item.CalculatedCost.ToString(),
+            Avail = item.CalculatedAvail
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));

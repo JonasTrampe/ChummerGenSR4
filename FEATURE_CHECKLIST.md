@@ -97,10 +97,18 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   AdeptPowerPoints Improvements), with a source-breakdown tooltip
 - ✅ Attribute karma-cost curve (`ComputeAttributeKarmaCostToIncrease`, house-rule aware via
   `AlternateMetatypeAttributeKarma`)
-- ❌ Costs: cyberware/bioware essence cost, gear/weapon/vehicle availability & cost calculations
-- ❌ House-rule (`CharacterOptions`) awareness in any calculation — everything above computes the
-  vanilla-rules result regardless of what the character's settings profile says (e.g.
-  `IgnoreArmorEncumbrance`, `EnforceMaximumSkillRatingModifier`, `CapSkillRating` are all ignored)
+- ✅ Cyberware/bioware essence cost — the item-selection dialog applies the chosen Grade's
+  Essence multiplier live (`CyberwareDialogViewModel.FinalEssence`); already-installed items read
+  the `ess` value the write path saved at add-time
+- ✅ Gear/weapon/armor/cyberware availability & cost calculations — `CharacterTreeItemData`
+  evaluates `Rating`-formula `cost`/`avail` strings (as saved verbatim by the write path) and sums
+  cost across children; now surfaced in the Gear/Armor/Waffen/Cyberware detail panes (previously
+  computed in Core but not shown anywhere in the UI). Vehicle mod/vehicle-level cost/avail
+  totals and eligibility/slot validation remain unported.
+- 🟡 House-rule (`CharacterOptions`) awareness in calculations — attribute karma cost respects
+  `AlternateMetatypeAttributeKarma`, but most other calculations (e.g. `IgnoreArmorEncumbrance`,
+  `EnforceMaximumSkillRatingModifier`, `CapSkillRating`) still compute the vanilla-rules result
+  regardless of the character's settings profile
 
 ## Output / tooling
 

@@ -67,6 +67,14 @@
                                   Click="OnToggleArmorEquippedClick" />
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding SelectedArmor.Cost, TargetNullValue=–}" />
+                            <TextBlock Text="¥ /" />
+                            <TextBlock Text="{Binding SelectedArmor.Avail, TargetNullValue=–}" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*">
                         <TextBlock Text="Set:" Width="90" />
                         <ComboBox Grid.Column="1" ItemsSource="{Binding ArmorSets}"
                                   SelectedItem="{Binding SelectedArmorSet, Mode=TwoWay}" />
@@ -111,6 +119,14 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
                             <TextBlock Grid.Row="3" Text="Installiert:" Width="90" />
                             <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding SelectedWeapon.Cost, TargetNullValue=–}" />
+                                <TextBlock Text="¥ /" />
+                                <TextBlock Text="{Binding SelectedWeapon.Avail, TargetNullValue=–}" />
+                            </StackPanel>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Ort:" Width="90" />
@@ -173,6 +189,14 @@
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Kapazität:" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.CapacityDisplay, TargetNullValue=–}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding SelectedGear.Cost, TargetNullValue=–}" />
+                                <TextBlock Text="¥ /" />
+                                <TextBlock Text="{Binding SelectedGear.Avail, TargetNullValue=–}" />
+                            </StackPanel>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding SelectedGear.HasCommlinkStats}">
                             <StackPanel Orientation="Horizontal" Spacing="4">

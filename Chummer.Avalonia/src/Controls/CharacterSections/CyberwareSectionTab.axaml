@@ -31,6 +31,14 @@
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Rating:" Width="80" />
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNode.Rating, TargetNullValue=–}" />
             </Grid>
+            <Grid ColumnDefinitions="Auto,*">
+                <TextBlock Text="Kosten / Verf.:" Width="80" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="{Binding SelectedNode.Cost, TargetNullValue=–}" />
+                    <TextBlock Text="¥ /" />
+                    <TextBlock Text="{Binding SelectedNode.Avail, TargetNullValue=–}" />
+                </StackPanel>
+            </Grid>
             <Separator Margin="0,4" />
             <TextBlock Text="Verbrauchte Essenz" FontWeight="Bold" />
             <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto" RowSpacing="2">
