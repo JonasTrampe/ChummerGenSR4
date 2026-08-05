@@ -944,6 +944,65 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Skill_DicePool_RatingZero_DefaultsOffLinkedAttributeMinusOneWhenAllowed()
+    {
+        // "Animal Handling" is <default>Yes</default> in skills.xml.
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("CHA", "4")
+            + "</attributes><skills><skill><name>Animal Handling</name><attribute>CHA</attribute><rating>0</rating>"
+            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills></character>");
+
+        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Animal Handling");
+        // CHA(4) - 1 = 3, no wound modifier in this synthetic character.
+        Assert.Equal("3", skill.TotalValue);
+        Assert.Contains("default", skill.PoolTooltip);
+    }
+
+    [Fact]
+    public void Skill_DicePool_RatingZero_StaysZeroWhenSkillDoesNotAllowDefaulting()
+    {
+        // "Arcana" is <default>No</default> in skills.xml.
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("LOG", "6")
+            + "</attributes><skills><skill><name>Arcana</name><attribute>LOG</attribute><rating>0</rating>"
+            + "<skillcategory>Magisch</skillcategory><knowledge>False</knowledge></skill></skills></character>");
+
+        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Arcana");
+        Assert.Equal("0", skill.TotalValue);
+    }
+
+    [Fact]
+    public void Skill_DicePool_RatingZero_KnowledgeSkillsAlwaysDefault()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("INT", "5")
+            + "</attributes><skills><skill><name>Erfundenes Wissen</name><attribute>INT</attribute><rating>0</rating>"
+            + "<skillcategory>Interest</skillcategory><knowledge>True</knowledge></skill></skills></character>");
+
+        CharacterSkillData skill = character.KnowledgeSkills.Single(s => s.Name == "Erfundenes Wissen");
+        // INT(5) - 1 = 4, since Knowledge Skills can always default regardless of skills.xml.
+        Assert.Equal("4", skill.TotalValue);
+    }
+
+    [Fact]
+    public void Skill_DicePool_RatingZero_SkillDefaultingIncludesModifiersHouseRule_AddsRatingAndPoolBonuses()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("CHA", "4")
+            + "</attributes><skills><skill><name>Animal Handling</name><attribute>CHA</attribute><rating>0</rating>"
+            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
+            + "<improvements>" + SkillRatingImprovementXml("Animal Handling", "1")
+            + SkillPoolImprovementXml("Animal Handling", "2") + "</improvements></character>");
+
+        // Without the house rule, Rating/Pool Improvements are ignored while defaulting: CHA(4) - 1 = 3.
+        CharacterSkillData withoutModifiers = character.Skills.Single(s => s.Name == "Animal Handling");
+        Assert.Equal("3", withoutModifiers.TotalValue);
+
+        var objOptions = new CharacterOptions { SkillDefaultingIncludesModifiers = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        // With the house rule: CHA(4) - 1 + 1 (rating) + 2 (pool) = 6.
+        CharacterSkillData withModifiers = character.Skills.Single(s => s.Name == "Animal Handling");
+        Assert.Equal("6", withModifiers.TotalValue);
+    }
+
+    [Fact]
     public void KnowledgeSkill_DicePool_ComputedTheSameWayAsActiveSkills()
     {
         CharacterDocument character = LoadFixture();

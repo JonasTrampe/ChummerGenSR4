@@ -1666,6 +1666,35 @@ namespace Chummer.Core
             return _dicGearNameTranslations.TryGetValue(strName, out string? strTranslate) ? strTranslate : strName;
         }
 
+        private static Dictionary<string, bool>? _dicSkillDefaulting;
+
+        // Ported from clsUnique.cs's Skill.Default: only used for the Rating-0 "defaulting" pool
+        // (Attribute - 1), cross-referenced from skills.xml since the character file itself
+        // doesn't save whether a Skill allows it.
+        private static bool SkillAllowsDefaulting(string strName)
+        {
+            if (_dicSkillDefaulting == null)
+                _dicSkillDefaulting = BuildSkillDefaultingLookup();
+            return _dicSkillDefaulting.TryGetValue(strName, out bool blnDefault) && blnDefault;
+        }
+
+        private static Dictionary<string, bool> BuildSkillDefaultingLookup()
+        {
+            var dicResult = new Dictionary<string, bool>();
+            XmlDocument objDocument = XmlManager.Instance.Load("skills.xml");
+            XmlNodeList? objNodes = objDocument.SelectNodes("/chummer/skills/skill");
+            if (objNodes == null) return dicResult;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strName = objNode["name"]?.InnerText ?? string.Empty;
+                if (strName.Length == 0) continue;
+                dicResult[strName] = objNode["default"]?.InnerText == "Yes";
+            }
+
+            return dicResult;
+        }
+
         private static Dictionary<string, string> BuildGearNameTranslations()
         {
             var dicResult = new Dictionary<string, string>();
@@ -3359,8 +3388,11 @@ namespace Chummer.Core
             bool blnKnowledge = GetValue(objNode, "knowledge", "False") == "True";
 
             bool blnExotic = GetValue(objNode, "exotic", "False") == "True";
+            // Knowledge/Language Skills can always be used untrained (SR4 65); active Skills can
+            // only default if skills.xml says so (exotic Active Skills never allow it).
+            bool blnCanDefault = blnKnowledge || (!blnExotic && SkillAllowsDefaulting(strName));
             (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
-                strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization);
+                strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization, blnCanDefault);
 
             return new CharacterSkillData(intSkillId, strName, strAttribute, intRating.ToString(), strRatingDisplay,
                 intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked, blnAllowDelete,
@@ -3377,12 +3409,11 @@ namespace Chummer.Core
         ///
         /// Deliberately NOT ported (all narrow, all house-rule or edge-case paths): Skillsoft/
         /// Activesoft rating overrides, the Mystic Adept MAG-split, SwapSkillAttribute, Enhanced
-        /// Articulation, defaulting with Rating 0 (a skill at Rating 0 always computes to a Pool
-        /// of 0 here, whereas the legacy game rules let some skills default off the linked
-        /// attribute alone), and the metatype-talent MetaRatingModifier bonus.
+        /// Articulation, and the metatype-talent MetaRatingModifier bonus.
         /// </summary>
         private (string RatingDisplay, int Pool, string Tooltip) ComputeSkillDicePool(string strName,
-            string strSkillGroup, string strCategory, string strAttribute, int intRating, string strSpecialization)
+            string strSkillGroup, string strCategory, string strAttribute, int intRating, string strSpecialization,
+            bool blnCanDefault)
         {
             var objOptions = GetCharacterOptions();
             var lstRatingContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: true);
@@ -3397,35 +3428,65 @@ namespace Chummer.Core
                 ? intRating.ToString()
                 : intRating + " (" + intAugmentedRating + ")";
 
-            // House rule: the modified Rating (before DicePoolModifiers/Attribute) may not exceed
-            // 1.5x the base Rating, rounded down.
-            int intPoolRatingContribution = intAugmentedRating;
-            if (objOptions.EnforceMaximumSkillRatingModifier)
-            {
-                int intMaxModified = (int)Math.Floor(intRating * 1.5);
-                if (intPoolRatingContribution > intMaxModified)
-                    intPoolRatingContribution = intMaxModified;
-            }
-
-            int intPool = intRating == 0
-                ? 0
-                : Math.Max(0, intPoolRatingContribution + intPoolMod + intAttributeValue + intWound);
-
-            // House rule: cap the total pool to the greater of 20 or 2x (natural, unaugmented
-            // attribute + base Rating).
-            if (objOptions.CapSkillRating)
-            {
-                int intMax = Math.Max(20, (GetAttributeBaseInt(strAttribute) + intRating) * 2);
-                intPool = Math.Min(intMax, intPool);
-            }
-
             var sb = new StringBuilder();
             sb.Append("Fertigkeitswert: ").Append(intRating);
-            AppendContributions(sb, lstRatingContributions);
-            if (objOptions.EnforceMaximumSkillRatingModifier && intPoolRatingContribution != intAugmentedRating)
-                sb.Append('\n').Append("(Hausregel: max. 1,5x Fertigkeitswert -> ").Append(intPoolRatingContribution).Append(')');
-            sb.Append('\n').Append("Attribut (").Append(strAttribute).Append("): ").Append(intAttributeValue);
-            AppendContributions(sb, lstPoolContributions);
+            int intPool;
+            if (intRating == 0 && blnCanDefault)
+            {
+                // Ported from clsUnique.cs's Skill.TotalRating defaulting branch: a Rating-0 Skill
+                // that allows defaulting rolls Attribute - 1, optionally including the Rating/Pool
+                // Improvements if the house rule is on.
+                intPool = intAttributeValue - 1;
+                sb.Append(" (default)\n").Append("Attribut (").Append(strAttribute).Append(") - 1: ").Append(intPool);
+                if (objOptions.SkillDefaultingIncludesModifiers)
+                {
+                    int intModSum = intRatingMod + intPoolMod;
+                    intPool += intModSum;
+                    AppendContributions(sb, lstRatingContributions);
+                    AppendContributions(sb, lstPoolContributions);
+                }
+
+                if (objOptions.CapSkillRating)
+                {
+                    int intMax = Math.Max(20, (GetAttributeBaseInt(strAttribute) + intRating) * 2);
+                    intPool = Math.Min(intMax, intPool);
+                }
+
+                intPool += intWound;
+            }
+            else
+            {
+                // House rule: the modified Rating (before DicePoolModifiers/Attribute) may not
+                // exceed 1.5x the base Rating, rounded down.
+                int intPoolRatingContribution = intAugmentedRating;
+                if (objOptions.EnforceMaximumSkillRatingModifier)
+                {
+                    int intMaxModified = (int)Math.Floor(intRating * 1.5);
+                    if (intPoolRatingContribution > intMaxModified)
+                        intPoolRatingContribution = intMaxModified;
+                }
+
+                intPool = intRating == 0
+                    ? 0
+                    : intPoolRatingContribution + intPoolMod + intAttributeValue + intWound;
+
+                // House rule: cap the total pool to the greater of 20 or 2x (natural, unaugmented
+                // attribute + base Rating).
+                if (objOptions.CapSkillRating)
+                {
+                    int intMax = Math.Max(20, (GetAttributeBaseInt(strAttribute) + intRating) * 2);
+                    intPool = Math.Min(intMax, intPool);
+                }
+
+                AppendContributions(sb, lstRatingContributions);
+                if (objOptions.EnforceMaximumSkillRatingModifier && intPoolRatingContribution != intAugmentedRating)
+                    sb.Append('\n').Append("(Hausregel: max. 1,5x Fertigkeitswert -> ").Append(intPoolRatingContribution).Append(')');
+                sb.Append('\n').Append("Attribut (").Append(strAttribute).Append("): ").Append(intAttributeValue);
+                AppendContributions(sb, lstPoolContributions);
+            }
+
+            intPool = Math.Max(0, intPool);
+
             if (intWound != 0)
                 sb.Append('\n').Append("Verletzungsmodifikator: ").Append(FormatSigned(intWound));
             if (!string.IsNullOrEmpty(strSpecialization))

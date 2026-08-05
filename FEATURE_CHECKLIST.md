@@ -105,13 +105,17 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   cost across children; now surfaced in the Gear/Armor/Waffen/Cyberware detail panes (previously
   computed in Core but not shown anywhere in the UI). Vehicle mod/vehicle-level cost/avail
   totals and eligibility/slot validation remain unported.
+- ✅ Skill defaulting at Rating 0 — a Skill that allows defaulting (per skills.xml, cross-referenced
+  by name; Knowledge/Language Skills always allow it) rolls Attribute - 1 instead of a flat 0 pool,
+  respecting the `SkillDefaultingIncludesModifiers` house rule. Verified against a real save: every
+  magic/technical Rating-0 skill (Spellcasting, Hacking, Medicine, ...) correctly stays at pool 0,
+  every defaultable physical/social one (Etiquette, Escape Artist, Diving, ...) gets a real pool.
 - 🟡 House-rule (`CharacterOptions`) awareness in calculations — armor encumbrance
   (`IgnoreArmorEncumbrance`/`AlternateArmorEncumbrance`/`NoSingleArmorEncumbrance`), attribute
   karma cost (`AlternateMetatypeAttributeKarma`), and skill dice pools
-  (`EnforceMaximumSkillRatingModifier`/`CapSkillRating`) are now house-rule aware; most Karma/BP
-  costs (contacts, skills, skill groups) already read their rates from the settings profile.
-  Remaining gaps: `SkillDefaultingIncludesModifiers` and the defaulting-with-Rating-0 path, plus
-  most Improvement-driven house rules outside these areas.
+  (`EnforceMaximumSkillRatingModifier`/`CapSkillRating`/`SkillDefaultingIncludesModifiers`) are now
+  house-rule aware; most Karma/BP costs (contacts, skills, skill groups) already read their rates
+  from the settings profile. Most other Improvement-driven house rules remain unported.
 
 ## Output / tooling
 
