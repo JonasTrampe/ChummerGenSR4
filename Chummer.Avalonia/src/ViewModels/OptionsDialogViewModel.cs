@@ -300,6 +300,22 @@ public sealed class OptionsDialogViewModel : ViewModelBase
         objRegistry.SetValue("pdfapppath", PdfAppPath);
         objRegistry.SetValue("cloudapibaseurl", CloudApiBaseUrl);
         objRegistry.SetValue("suppresscloudunreachablewarning", SuppressCloudUnreachableWarning.ToString());
+
+        // Ported from clsCommon.cs's SourcebookInfo load: one registry value per book code,
+        // "path|offset" - only written for books that actually have a path configured.
+        GlobalOptions.Instance.SourcebookInfo.Clear();
+        foreach (OptionsBookItemViewModel objBook in Sourcebooks)
+        {
+            if (string.IsNullOrWhiteSpace(objBook.PdfPath))
+                continue;
+            objRegistry.SetValue(objBook.Code, objBook.PdfPath + "|" + objBook.PdfOffset);
+            GlobalOptions.Instance.SourcebookInfo.Add(new SourcebookInfo
+            {
+                Code = objBook.Code,
+                Path = objBook.PdfPath,
+                Offset = objBook.PdfOffset
+            });
+        }
     }
 
     public void RestoreBpDefaults()
@@ -462,12 +478,15 @@ public sealed class OptionsDialogViewModel : ViewModelBase
             string strName = objBookNode["translate"]?.InnerText
                              ?? objBookNode["name"]?.InnerText
                              ?? strCode;
+            SourcebookInfo? objInfo = GlobalOptions.Instance.SourcebookInfo.Find(i => i.Code == strCode);
             Sourcebooks.Add(new OptionsBookItemViewModel
             {
                 Code = strCode,
                 DisplayName = strName,
                 IsRequired = strCode == "SR4",
-                IsSelected = CurrentOptions.BookEnabled(strCode) || strCode == "SR4"
+                IsSelected = CurrentOptions.BookEnabled(strCode) || strCode == "SR4",
+                PdfPath = objInfo?.Path ?? string.Empty,
+                PdfOffset = objInfo?.Offset ?? 0
             });
         }
 

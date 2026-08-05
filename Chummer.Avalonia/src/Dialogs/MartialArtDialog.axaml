@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="using:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.MartialArtDialog"
         x:DataType="vm:MartialArtDialogViewModel"
         Width="560" Height="480" CanResize="True"
@@ -21,7 +22,7 @@
                 <TextBlock Text="Vorteile:" FontWeight="Bold" />
                 <TextBlock Text="{Binding Selected.AdvantagesDisplay, TargetNullValue=–}" TextWrapping="Wrap" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
-                <TextBlock Text="{Binding Selected.SourcePage, TargetNullValue=–}" />
+                <controls:SourceLink SourcePage="{Binding Selected.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">

@@ -24,4 +24,10 @@ public sealed class OptionsBookItemViewModel : ViewModelBase
             SetField(ref _isSelected, value);
         }
     }
+
+    private string _strPdfPath = string.Empty;
+    public string PdfPath { get => _strPdfPath; set => SetField(ref _strPdfPath, value); }
+
+    private int _intPdfOffset;
+    public int PdfOffset { get => _intPdfOffset; set => SetField(ref _intPdfOffset, value); }
 }

@@ -13,10 +13,23 @@
                     <ItemsControl ItemsSource="{Binding Sourcebooks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:OptionsBookItemViewModel">
-                                <CheckBox Margin="6,2"
-                                          Content="{Binding DisplayName}"
-                                          IsEnabled="{Binding CanToggle}"
-                                          IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                <StackPanel Margin="6,2" Spacing="2">
+                                    <CheckBox Content="{Binding DisplayName}"
+                                              IsEnabled="{Binding CanToggle}"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                    <!-- PDF sourcebook page linking (clsCommon.cs's OpenPDF): per-book
+                                         path + page offset, only meaningful once a PDF reader is also
+                                         configured on the Global tab above. -->
+                                    <Grid ColumnDefinitions="*,Auto,50" ColumnSpacing="4" Margin="20,0,0,0">
+                                        <TextBox Grid.Column="0" Text="{Binding PdfPath, Mode=TwoWay}"
+                                                  PlaceholderText="PDF-Pfad (optional)" FontSize="10" />
+                                        <Button Grid.Column="1" Content="..." Click="OnBrowseSourcebookPdf"
+                                                Padding="6,0" MinWidth="0" />
+                                        <controls:IntegerSpinner Grid.Column="2" Minimum="-100" Maximum="100"
+                                                                  Value="{Binding PdfOffset, Mode=TwoWay}"
+                                                                  ToolTip.Tip="Seitenversatz" />
+                                    </Grid>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

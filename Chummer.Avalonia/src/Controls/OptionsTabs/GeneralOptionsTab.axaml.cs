@@ -29,4 +29,10 @@ public partial class GeneralOptionsTab : UserControl
     {
         GetOwnerDialog()?.OnBrowsePdfApp(sender, e);
     }
+
+    private void OnBrowseSourcebookPdf(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control { DataContext: Chummer.NewUI.ViewModels.OptionsBookItemViewModel book })
+            GetOwnerDialog()?.OnBrowseSourcebookPdf(book);
+    }
 }

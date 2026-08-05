@@ -146,7 +146,14 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
   legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
   tested for non-empty rather than positive.
-- ❌ PDF sourcebook page linking
+- 🟡 PDF sourcebook page linking — ported clsCommon.cs's OpenPDF as `PdfLinkService`; the PDF
+  reader path and argument style were already wired in Options (General tab) but per-book
+  paths/page-offsets weren't editable anywhere, so added those to the Sourcebooks list there. A
+  new `SourceLink` control (plain text when unconfigured, a clickable link once a reader + that
+  book's path are set) replaces the raw "Quelle:" text in the Spell/Power/MartialArt/Metamagic
+  picker dialogs. Not yet wired into the character-tab detail panes' own "Quelle:" labels (Allgemein,
+  Kampfkünste, Verbessern, Initiation, and every other tab still show plain text there) or the
+  ~10 other picker dialogs built earlier this session.
 - ✅ Dice roller — ported frmDiceRoller.cs's roll/hit/glitch logic (Standard/Large/Really Large
   methods, Rule of 6, Cinematic Gameplay, Rushed Job, Gremlins rating, Threshold) into a
   standalone, character-independent `Zubehör → Würfeln...` dialog

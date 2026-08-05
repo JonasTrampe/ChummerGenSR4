@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="using:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.SpellDialog"
         x:DataType="vm:SpellDialogViewModel"
         Width="620" Height="520" CanResize="True"
@@ -36,7 +37,7 @@
                 <TextBlock Text="Entzugsformel:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.DrainValue, TargetNullValue=–}" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
-                <TextBlock Text="{Binding SelectedSpell.SourcePage, TargetNullValue=–}" />
+                <controls:SourceLink SourcePage="{Binding SelectedSpell.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
