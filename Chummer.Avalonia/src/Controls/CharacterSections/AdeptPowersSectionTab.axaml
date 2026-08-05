@@ -6,7 +6,7 @@
              x:DataType="vm:AdeptPowersSectionViewModel">
     <DockPanel Margin="2 8 2 4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
-            <Button Content="Kraft" />
+            <Button Content="Kraft" Click="OnAddPowerClick" />
             <TextBlock Text="{Binding PowerPointsText}" FontWeight="Bold"
                        VerticalAlignment="Center" ToolTip.Tip="{Binding PowerPointsTooltip}" />
 
@@ -21,7 +21,8 @@
                                                 TotalCost="{Binding TotalCost}"
                                                 IsWayOfTheAdept="{Binding IsWayOfTheAdept}"
                                                 IsMagicFocus="{Binding IsMagicFocus}"
-                                                IsNudEnabled="{Binding IsNudEnabled}" />
+                                                IsNudEnabled="{Binding IsNudEnabled}"
+                                                DeleteClicked="OnDeletePowerClick" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

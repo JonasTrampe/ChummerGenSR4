@@ -2636,6 +2636,55 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
 
+        /// <summary>Ported from frmSelectPower.cs's cmdOK_Click.</summary>
+        public void AddAdeptPower(string strName, string strRating, string strPointsPerLevel)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A power name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objPowers = objRoot.SelectSingleNode("powers");
+            if (objPowers == null)
+            {
+                objPowers = Document.CreateElement("powers");
+                objRoot.AppendChild(objPowers);
+            }
+
+            var objPower = Document.CreateElement("power");
+            AppendElement(objPower, "name", strName.Trim());
+            AppendElement(objPower, "extra", string.Empty);
+            AppendElement(objPower, "rating", strRating);
+            AppendElement(objPower, "pointsperlevel", strPointsPerLevel);
+            AppendElement(objPower, "discounted", "False");
+            AppendElement(objPower, "discountedgeas", "False");
+            objPowers.AppendChild(objPower);
+            Changed?.Invoke();
+        }
+
+        public bool RemoveAdeptPower(string strName)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/powers/power");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objPower in objNodes)
+            {
+                if (!string.Equals(GetValue(objPower, "name", string.Empty), strName.Trim(),
+                        StringComparison.Ordinal))
+                    continue;
+
+                objPower.ParentNode?.RemoveChild(objPower);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
         // Ported from frmCareer.cs/frmCreate.cs's CalculatePowerPoints().
         public CharacterDerivedValueData AdeptPowerPoints
         {

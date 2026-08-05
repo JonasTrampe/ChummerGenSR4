@@ -481,6 +481,37 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddAdeptPower_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddAdeptPower("Improved Reflexes", "2", "1.5");
+
+        CharacterPowerData added = Assert.Single(character.AdeptPowers);
+        Assert.Equal("Improved Reflexes", added.Name);
+        Assert.Equal("2", added.Rating);
+        Assert.Equal("3.00", added.TotalPoints);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Improved Reflexes", Assert.Single(reloaded.AdeptPowers).Name);
+    }
+
+    [Fact]
+    public void RemoveAdeptPower_RemovesOnlyTheMatchingPower()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddAdeptPower("Improved Reflexes", "1", "1.5");
+        character.AddAdeptPower("Killing Hands", "1", "0.5");
+
+        Assert.True(character.RemoveAdeptPower("Improved Reflexes"));
+        Assert.False(character.RemoveAdeptPower("Improved Reflexes"));
+        CharacterPowerData remaining = Assert.Single(character.AdeptPowers);
+        Assert.Equal("Killing Hands", remaining.Name);
+    }
+
+    [Fact]
     public void AddMartialArt_SnapshotsAdvantagesAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

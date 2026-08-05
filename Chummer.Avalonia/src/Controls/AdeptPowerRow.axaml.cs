@@ -26,10 +26,15 @@ public partial class AdeptPowerRow : UserControl
     public static readonly StyledProperty<bool> IsNudEnabledProperty =
         AvaloniaProperty.Register<AdeptPowerRow, bool>(nameof(IsNudEnabled));
 
+    public event System.EventHandler? DeleteClicked;
+
     public AdeptPowerRow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
+
+    private void OnDeleteButtonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => DeleteClicked?.Invoke(this, System.EventArgs.Empty);
 
 
     public string? PowerName

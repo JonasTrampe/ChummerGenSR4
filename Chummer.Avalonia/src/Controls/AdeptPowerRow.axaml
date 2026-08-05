@@ -43,6 +43,6 @@
         <CheckBox Grid.Column="7"
                   Content="Zauberfokus"
                   IsChecked="{Binding IsMagicFocus}" />
-        <Button Grid.Column="10" Content="Löschen" />
+        <Button Grid.Column="10" Content="Löschen" Click="OnDeleteButtonClick" />
     </Grid>
 </UserControl>
