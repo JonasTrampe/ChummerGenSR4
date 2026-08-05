@@ -2526,6 +2526,65 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterMartialArtManeuverData> MartialArtManeuvers => ReadMartialArtManeuvers();
 
+        /// <summary>Ported from frmSelectMartialArt.cs: adds the Martial Art with its full set of
+        /// rules-data advantages snapshotted in (matches how ReadMartialArts expects to find them
+        /// nested under martialartadvantages, not re-resolved from martialarts.xml every load).</summary>
+        public void AddMartialArt(string strName, IReadOnlyList<string> lstAdvantages, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A martial art name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objMartialArts = objRoot.SelectSingleNode("martialarts");
+            if (objMartialArts == null)
+            {
+                objMartialArts = Document.CreateElement("martialarts");
+                objRoot.AppendChild(objMartialArts);
+            }
+
+            var objMartialArt = Document.CreateElement("martialart");
+            AppendElement(objMartialArt, "name", strName.Trim());
+            AppendElement(objMartialArt, "rating", "1");
+            AppendElement(objMartialArt, "source", strSource);
+            AppendElement(objMartialArt, "page", strPage);
+            var objAdvantages = Document.CreateElement("martialartadvantages");
+            foreach (string strAdvantage in lstAdvantages)
+            {
+                var objAdvantage = Document.CreateElement("martialartadvantage");
+                AppendElement(objAdvantage, "guid", Guid.NewGuid().ToString());
+                AppendElement(objAdvantage, "name", strAdvantage);
+                objAdvantages.AppendChild(objAdvantage);
+            }
+            objMartialArt.AppendChild(objAdvantages);
+            objMartialArts.AppendChild(objMartialArt);
+            Changed?.Invoke();
+        }
+
+        /// <summary>Ported from frmSelectMartialArt.cs's Maneuver tab.</summary>
+        public void AddMartialArtManeuver(string strName, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A maneuver name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objManeuvers = objRoot.SelectSingleNode("martialartmaneuvers");
+            if (objManeuvers == null)
+            {
+                objManeuvers = Document.CreateElement("martialartmaneuvers");
+                objRoot.AppendChild(objManeuvers);
+            }
+
+            var objManeuver = Document.CreateElement("martialartmaneuver");
+            AppendElement(objManeuver, "guid", Guid.NewGuid().ToString());
+            AppendElement(objManeuver, "name", strName.Trim());
+            AppendElement(objManeuver, "source", strSource);
+            AppendElement(objManeuver, "page", strPage);
+            objManeuvers.AppendChild(objManeuver);
+            Changed?.Invoke();
+        }
+
         /// <summary>Removes the first saved Martial Art matching its name (and any nested
         /// martialartadvantage entries with it).</summary>
         public bool RemoveMartialArt(string strName)

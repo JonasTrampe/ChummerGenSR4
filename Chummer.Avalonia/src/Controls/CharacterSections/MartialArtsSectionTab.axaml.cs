@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
+using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
@@ -37,5 +38,33 @@ public partial class MartialArtsSectionTab : UserControl
         };
         if (removed)
             ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddMartialArtClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new MartialArtDialog(_character);
+        bool? added = await dialog.ShowDialog<bool?>(window);
+        if (added == true && dialog.SelectedMartialArt is { } selected)
+        {
+            _character.AddMartialArt(selected.Name, selected.Advantages, selected.Source, selected.Page);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private async void OnAddManeuverClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new MartialArtManeuverDialog(_character);
+        bool? added = await dialog.ShowDialog<bool?>(window);
+        if (added == true && dialog.SelectedManeuver is { } selected)
+        {
+            _character.AddMartialArtManeuver(selected.Name, selected.Source, selected.Page);
+            ViewModel.LoadCharacter(_character);
+        }
     }
 }

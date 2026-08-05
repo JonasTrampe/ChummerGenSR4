@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.MartialArtManeuverDialog"
+        x:DataType="vm:MartialArtManeuverDialogViewModel"
+        Width="420" Height="480" CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="Manöver auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <TextBlock Grid.Row="0" Text="Wähle ein noch nicht vorhandenes Manöver aus den installierten Regeln aus." Margin="0,0,0,8" />
+        <ListBox Grid.Row="1" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:MartialArtManeuverOptionViewModel">
+                    <StackPanel Margin="4,2">
+                        <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" />
+                        <TextBlock Text="{Binding SourcePage}" FontSize="10" Foreground="#666666" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+        </Grid>
+    </Grid>
+</Window>

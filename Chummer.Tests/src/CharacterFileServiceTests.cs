@@ -481,6 +481,34 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddMartialArt_SnapshotsAdvantagesAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddMartialArt("Krav Maga", new[] { "Extra attack", "+1 die of Subduing" }, "AR", "156");
+
+        CharacterMartialArtData added = Assert.Single(character.MartialArts);
+        Assert.Equal("Krav Maga", added.Name);
+        Assert.Equal(new[] { "Extra attack", "+1 die of Subduing" }, added.Advantages);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterMartialArtData reloadedArt = Assert.Single(reloaded.MartialArts);
+        Assert.Equal(2, reloadedArt.Advantages.Count);
+    }
+
+    [Fact]
+    public void AddMartialArtManeuver_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddMartialArtManeuver("Sweep", "AR", "160");
+
+        CharacterMartialArtManeuverData added = Assert.Single(character.MartialArtManeuvers);
+        Assert.Equal("Sweep", added.Name);
+    }
+
+    [Fact]
     public void RemoveMartialArt_RemovesOnlyTheMatchingSavedMartialArt()
     {
         CharacterDocument character = LoadXml(

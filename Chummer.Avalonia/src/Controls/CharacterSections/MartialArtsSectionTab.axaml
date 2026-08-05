@@ -13,8 +13,8 @@
     <controls:TreeDetailPane TreeWidth="220" ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                <Button Content="Kampfkunst hinzufügen" />
-                <Button Content="Manöver hinzufügen" />
+                <Button Content="Kampfkunst hinzufügen" Click="OnAddMartialArtClick" />
+                <Button Content="Manöver hinzufügen" Click="OnAddManeuverClick" />
                 <Button Content="Löschen" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
