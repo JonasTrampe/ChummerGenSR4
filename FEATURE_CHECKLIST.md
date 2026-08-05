@@ -105,10 +105,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   cost across children; now surfaced in the Gear/Armor/Waffen/Cyberware detail panes (previously
   computed in Core but not shown anywhere in the UI). Vehicle mod/vehicle-level cost/avail
   totals and eligibility/slot validation remain unported.
-- 🟡 House-rule (`CharacterOptions`) awareness in calculations — attribute karma cost respects
-  `AlternateMetatypeAttributeKarma`, but most other calculations (e.g. `IgnoreArmorEncumbrance`,
-  `EnforceMaximumSkillRatingModifier`, `CapSkillRating`) still compute the vanilla-rules result
-  regardless of the character's settings profile
+- 🟡 House-rule (`CharacterOptions`) awareness in calculations — armor encumbrance
+  (`IgnoreArmorEncumbrance`/`AlternateArmorEncumbrance`/`NoSingleArmorEncumbrance`), attribute
+  karma cost (`AlternateMetatypeAttributeKarma`), and skill dice pools
+  (`EnforceMaximumSkillRatingModifier`/`CapSkillRating`) are now house-rule aware; most Karma/BP
+  costs (contacts, skills, skill groups) already read their rates from the settings profile.
+  Remaining gaps: `SkillDefaultingIncludesModifiers` and the defaulting-with-Rating-0 path, plus
+  most Improvement-driven house rules outside these areas.
 
 ## Output / tooling
 

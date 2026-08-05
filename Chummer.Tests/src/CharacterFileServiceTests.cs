@@ -888,6 +888,61 @@ public class CharacterFileServiceTests
         Assert.Contains("Smartlink: +2", pistolen.PoolTooltip);
     }
 
+    private static string SkillRatingImprovementXml(string strSkillName, string strValue) =>
+        "<improvement><improvementttype>Skill</improvementttype><improvementsource>Quality</improvementsource>"
+        + "<improvedname>" + strSkillName + "</improvedname><addtorating>True</addtorating>"
+        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
+
+    [Fact]
+    public void Skill_DicePool_EnforceMaximumSkillRatingModifierHouseRule_CapsAugmentedRatingAt1Point5x()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "3")
+            + "</attributes><skills><skill><name>Schleichen</name><attribute>AGI</attribute><rating>2</rating>"
+            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
+            + "<improvements>" + SkillRatingImprovementXml("Schleichen", "3") + "</improvements></character>");
+
+        // EnforceMaximumSkillRatingModifier defaults to True (it's SR4's core rule, not really a
+        // house rule) - disable it first to see the uncapped value: augmented 5 + AGI(3) = 8.
+        character.SetCharacterOptionsForTesting(new CharacterOptions { EnforceMaximumSkillRatingModifier = false });
+        CharacterSkillData uncapped = character.Skills.Single(s => s.Name == "Schleichen");
+        Assert.Equal("2 (5)", uncapped.Rating);
+        Assert.Equal("8", uncapped.TotalValue);
+
+        var objOptions = new CharacterOptions { EnforceMaximumSkillRatingModifier = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        // floor(2 * 1.5) = 3 caps the augmented-rating contribution -> pool = 3 + AGI(3) = 6.
+        CharacterSkillData capped = character.Skills.Single(s => s.Name == "Schleichen");
+        Assert.Equal("6", capped.TotalValue);
+        Assert.Contains("Hausregel", capped.PoolTooltip);
+    }
+
+    private static string SkillPoolImprovementXml(string strSkillName, string strValue) =>
+        "<improvement><improvementttype>Skill</improvementttype><improvementsource>Quality</improvementsource>"
+        + "<improvedname>" + strSkillName + "</improvedname><addtorating>False</addtorating>"
+        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
+
+    [Fact]
+    public void Skill_DicePool_CapSkillRatingHouseRule_CapsPoolAgainstNaturalAttributePlusBaseRating()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "2")
+            + "</attributes><skills><skill><name>Schleichen</name><attribute>AGI</attribute><rating>1</rating>"
+            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
+            + "<improvements>" + SkillPoolImprovementXml("Schleichen", "25") + "</improvements></character>");
+
+        // Uncapped: rating(1) + pool Improvement(+25) + AGI(2) = 28.
+        CharacterSkillData uncapped = character.Skills.Single(s => s.Name == "Schleichen");
+        Assert.Equal("28", uncapped.TotalValue);
+
+        var objOptions = new CharacterOptions { CapSkillRating = true };
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        // Natural AGI(2) + base Rating(1) = 3, doubled = 6; the house rule floors the cap at 20,
+        // so the pool is capped to 20 even though 6 < 28.
+        CharacterSkillData capped = character.Skills.Single(s => s.Name == "Schleichen");
+        Assert.Equal("20", capped.TotalValue);
+    }
+
     [Fact]
     public void KnowledgeSkill_DicePool_ComputedTheSameWayAsActiveSkills()
     {

@@ -2719,6 +2719,15 @@ namespace Chummer.Core
         private int GetAttributeInt(string strCode)
             => int.TryParse(GetAttributeValue(strCode), out var intValue) ? intValue : 0;
 
+        /// <summary>The natural (unaugmented) attribute Value, as opposed to GetAttributeInt's
+        /// TotalValue - only used by the CapSkillRating house rule, which caps against the
+        /// character's "real" attribute rather than its cyberware/magic-boosted total.</summary>
+        private int GetAttributeBaseInt(string strCode)
+        {
+            var objNode = Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']/value");
+            return int.TryParse(objNode?.InnerText, out var intValue) ? intValue : 0;
+        }
+
         private int GetAttributeMinimum(string strCode)
         {
             var objNode = Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']/metatypemin");
@@ -3370,12 +3379,12 @@ namespace Chummer.Core
         /// Activesoft rating overrides, the Mystic Adept MAG-split, SwapSkillAttribute, Enhanced
         /// Articulation, defaulting with Rating 0 (a skill at Rating 0 always computes to a Pool
         /// of 0 here, whereas the legacy game rules let some skills default off the linked
-        /// attribute alone), the EnforceMaximumSkillRatingModifier/CapSkillRating house rules, and
-        /// the metatype-talent MetaRatingModifier bonus.
+        /// attribute alone), and the metatype-talent MetaRatingModifier bonus.
         /// </summary>
         private (string RatingDisplay, int Pool, string Tooltip) ComputeSkillDicePool(string strName,
             string strSkillGroup, string strCategory, string strAttribute, int intRating, string strSpecialization)
         {
+            var objOptions = GetCharacterOptions();
             var lstRatingContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: true);
             var lstPoolContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: false);
             int intRatingMod = lstRatingContributions.Sum(c => c.Value);
@@ -3388,13 +3397,33 @@ namespace Chummer.Core
                 ? intRating.ToString()
                 : intRating + " (" + intAugmentedRating + ")";
 
+            // House rule: the modified Rating (before DicePoolModifiers/Attribute) may not exceed
+            // 1.5x the base Rating, rounded down.
+            int intPoolRatingContribution = intAugmentedRating;
+            if (objOptions.EnforceMaximumSkillRatingModifier)
+            {
+                int intMaxModified = (int)Math.Floor(intRating * 1.5);
+                if (intPoolRatingContribution > intMaxModified)
+                    intPoolRatingContribution = intMaxModified;
+            }
+
             int intPool = intRating == 0
                 ? 0
-                : Math.Max(0, intAugmentedRating + intPoolMod + intAttributeValue + intWound);
+                : Math.Max(0, intPoolRatingContribution + intPoolMod + intAttributeValue + intWound);
+
+            // House rule: cap the total pool to the greater of 20 or 2x (natural, unaugmented
+            // attribute + base Rating).
+            if (objOptions.CapSkillRating)
+            {
+                int intMax = Math.Max(20, (GetAttributeBaseInt(strAttribute) + intRating) * 2);
+                intPool = Math.Min(intMax, intPool);
+            }
 
             var sb = new StringBuilder();
             sb.Append("Fertigkeitswert: ").Append(intRating);
             AppendContributions(sb, lstRatingContributions);
+            if (objOptions.EnforceMaximumSkillRatingModifier && intPoolRatingContribution != intAugmentedRating)
+                sb.Append('\n').Append("(Hausregel: max. 1,5x Fertigkeitswert -> ").Append(intPoolRatingContribution).Append(')');
             sb.Append('\n').Append("Attribut (").Append(strAttribute).Append("): ").Append(intAttributeValue);
             AppendContributions(sb, lstPoolContributions);
             if (intWound != 0)
