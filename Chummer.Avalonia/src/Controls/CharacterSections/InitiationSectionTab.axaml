@@ -5,8 +5,23 @@
              x:DataType="vm:InitiationSectionViewModel">
     <Grid ColumnDefinitions="220,4,*" Margin="8">
         <DockPanel Grid.Column="0">
-            <Button DockPanel.Dock="Top" Content="Metamagie Hinzufügen" Margin="0,0,0,4" />
-            <ListBox ItemsSource="{Binding Grades}" />
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                <Button Content="Metamagie Hinzufügen" Click="OnAddMetamagicClick" />
+                <Button Content="Löschen" Click="OnDeleteMetamagicClick" />
+            </StackPanel>
+            <TextBlock DockPanel.Dock="Top" Text="Initiatengrade" FontWeight="Bold" Margin="0,0,0,2" />
+            <ListBox DockPanel.Dock="Top" Height="90" ItemsSource="{Binding Grades}" />
+            <TextBlock DockPanel.Dock="Top" Text="Metamagien" FontWeight="Bold" Margin="0,8,0,2" />
+            <ListBox ItemsSource="{Binding Metamagics}" SelectedItem="{Binding SelectedMetamagic, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MetamagicRowViewModel">
+                        <StackPanel Margin="0,2">
+                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding SourcePage}" FontSize="10" Foreground="#666666" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </DockPanel>
 
         <GridSplitter Grid.Column="1" Background="#E4E4E4" />

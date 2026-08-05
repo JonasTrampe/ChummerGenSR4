@@ -2771,6 +2771,70 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades => ReadInitiationGrades();
 
+        public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
+
+        /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, simplified to skip the
+        /// &lt;bonus&gt; Improvement-creation path (matches how AddCyberware/AddQuality etc. don't
+        /// apply their rules-data bonuses either in this port yet).</summary>
+        public void AddMetamagic(string strName, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A metamagic name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objMetamagics = objRoot.SelectSingleNode("metamagics");
+            if (objMetamagics == null)
+            {
+                objMetamagics = Document.CreateElement("metamagics");
+                objRoot.AppendChild(objMetamagics);
+            }
+
+            var objMetamagic = Document.CreateElement("metamagic");
+            AppendElement(objMetamagic, "guid", Guid.NewGuid().ToString());
+            AppendElement(objMetamagic, "name", strName.Trim());
+            AppendElement(objMetamagic, "source", strSource);
+            AppendElement(objMetamagic, "paidwithkarma", "False");
+            AppendElement(objMetamagic, "page", strPage);
+            AppendElement(objMetamagic, "improvementsource", "Metamagic");
+            objMetamagics.AppendChild(objMetamagic);
+            Changed?.Invoke();
+        }
+
+        public bool RemoveMetamagic(string strGuid)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/metamagics/metamagic");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objMetamagic in objNodes)
+            {
+                if (!string.Equals(GetValue(objMetamagic, "guid", string.Empty), strGuid, StringComparison.Ordinal))
+                    continue;
+
+                objMetamagic.ParentNode?.RemoveChild(objMetamagic);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        private IReadOnlyList<CharacterMetamagicData> ReadMetamagics()
+        {
+            var lstMetamagics = new List<CharacterMetamagicData>();
+            var objNodes = Document.SelectNodes("/character/metamagics/metamagic");
+            if (objNodes == null) return lstMetamagics;
+            foreach (XmlNode objNode in objNodes)
+                lstMetamagics.Add(new CharacterMetamagicData(GetValue(objNode, "guid", string.Empty),
+                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "source", string.Empty),
+                    GetValue(objNode, "page", string.Empty)));
+            return lstMetamagics;
+        }
+
         public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();
 
         /// <summary>Adds a base lifestyle using the character-file shape written by the legacy application.</summary>
@@ -4619,6 +4683,23 @@ namespace Chummer.Core
         }
 
         public string Name { get; }
+    }
+
+    public sealed class CharacterMetamagicData
+    {
+        internal CharacterMetamagicData(string strGuid, string strName, string strSource, string strPage)
+        {
+            Guid = strGuid;
+            Name = strName;
+            Source = strSource;
+            Page = strPage;
+        }
+
+        public string Guid { get; }
+        public string Name { get; }
+        public string Source { get; }
+        public string Page { get; }
+        public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
     }
 
     public sealed class CharacterPowerData

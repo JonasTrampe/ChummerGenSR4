@@ -481,6 +481,38 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddMetamagic_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddMetamagic("Centering", "SR4", "198");
+
+        CharacterMetamagicData added = Assert.Single(character.Metamagics);
+        Assert.Equal("Centering", added.Name);
+        Assert.NotEmpty(added.Guid);
+        Assert.Equal("SR4 198", added.SourcePage);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Centering", Assert.Single(reloaded.Metamagics).Name);
+    }
+
+    [Fact]
+    public void RemoveMetamagic_RemovesOnlyTheMatchingEntry()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddMetamagic("Centering", "SR4", "198");
+        character.AddMetamagic("Masking", "SR4", "198");
+        string strGuid = character.Metamagics[0].Guid;
+
+        Assert.True(character.RemoveMetamagic(strGuid));
+        Assert.False(character.RemoveMetamagic(strGuid));
+        CharacterMetamagicData remaining = Assert.Single(character.Metamagics);
+        Assert.Equal("Masking", remaining.Name);
+    }
+
+    [Fact]
     public void AddAdeptPower_MutatesCharacterAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
