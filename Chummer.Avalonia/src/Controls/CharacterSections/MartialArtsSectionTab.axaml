@@ -15,11 +15,11 @@
             <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                 <Button Content="Kampfkunst hinzufügen" />
                 <Button Content="Manöver hinzufügen" />
-                <Button Content="Löschen" />
+                <Button Content="Löschen" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <ListBox ItemsSource="{Binding Items}">
+            <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:MartialArtsListItemViewModel">
                         <TextBlock Text="{Binding Text}" Classes.header="{Binding IsHeader}"

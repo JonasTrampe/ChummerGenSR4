@@ -481,6 +481,32 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RemoveMartialArt_RemovesOnlyTheMatchingSavedMartialArt()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><martialarts><martialart><name>Krav Maga</name><rating>1</rating></martialart>"
+            + "<martialart><name>Capoeira</name><rating>1</rating></martialart></martialarts></character>");
+
+        Assert.True(character.RemoveMartialArt("Krav Maga"));
+        Assert.False(character.RemoveMartialArt("Missing style"));
+        CharacterMartialArtData remaining = Assert.Single(character.MartialArts);
+        Assert.Equal("Capoeira", remaining.Name);
+    }
+
+    [Fact]
+    public void RemoveMartialArtManeuver_RemovesOnlyTheMatchingSavedManeuver()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><martialartmaneuvers><martialartmaneuver><name>Sweep</name></martialartmaneuver>"
+            + "<martialartmaneuver><name>Constrictor's Crush</name></martialartmaneuver></martialartmaneuvers></character>");
+
+        Assert.True(character.RemoveMartialArtManeuver("Sweep"));
+        Assert.False(character.RemoveMartialArtManeuver("Missing maneuver"));
+        CharacterMartialArtManeuverData remaining = Assert.Single(character.MartialArtManeuvers);
+        Assert.Equal("Constrictor's Crush", remaining.Name);
+    }
+
+    [Fact]
     public void AddExpense_MutatesCharacterAndPersistsSignedHistory()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

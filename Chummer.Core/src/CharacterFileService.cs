@@ -2526,6 +2526,55 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterMartialArtManeuverData> MartialArtManeuvers => ReadMartialArtManeuvers();
 
+        /// <summary>Removes the first saved Martial Art matching its name (and any nested
+        /// martialartadvantage entries with it).</summary>
+        public bool RemoveMartialArt(string strName)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/martialarts/martialart");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objMartialArt in objNodes)
+            {
+                if (!string.Equals(GetValue(objMartialArt, "name", string.Empty), strName.Trim(),
+                        StringComparison.Ordinal))
+                    continue;
+
+                objMartialArt.ParentNode?.RemoveChild(objMartialArt);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Removes the first saved Martial Art Maneuver matching its name.</summary>
+        public bool RemoveMartialArtManeuver(string strName)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/martialartmaneuvers/martialartmaneuver");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objManeuver in objNodes)
+            {
+                if (!string.Equals(GetValue(objManeuver, "name", string.Empty), strName.Trim(),
+                        StringComparison.Ordinal))
+                    continue;
+
+                objManeuver.ParentNode?.RemoveChild(objManeuver);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
         public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
 
         // Ported from frmCareer.cs/frmCreate.cs's CalculatePowerPoints().
