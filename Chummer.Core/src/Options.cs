@@ -52,7 +52,8 @@ public sealed class GlobalOptions
 	static string CheckAndGetRegistryKeyWithFallback(string baseSubkey, string value, string fallback)
 	{
 		var data = SettingsStore.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
-		return data.ToString() ?? "";
+		var strValue = data?.ToString();
+		return strValue == null || strValue.Length == 0 ? fallback : strValue;
 	}
 
 	static string NormalizeCloudApiBaseUrl(string value)
