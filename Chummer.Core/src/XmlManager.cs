@@ -460,7 +460,7 @@ namespace Chummer.Core
 										// Look for a matching entry in the Language file.
 										if (objChild["name"] != null)
 										{
-											var objNode = objLanguageRoot.SelectSingleNode(objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"].InnerText + "\"]");
+											var objNode = objLanguageRoot!.SelectSingleNode(objType.Name + "/" + objChild.Name + "[name = \"" + objChild["name"]!.InnerText + "\"]");
 											if (objNode != null)
 											{
 												// A match was found, so see what elements, if any, are missing.
@@ -623,7 +623,7 @@ namespace Chummer.Core
 										else if (objChild.InnerText != null)
 										{
 											// The item does not have a name which means it should have a translate Attribute instead.
-											var objNode = objLanguageRoot.SelectSingleNode(objType.Name + "/" + objChild.Name + "[. = \"" + objChild.InnerText + "\"]");
+											var objNode = objLanguageRoot!.SelectSingleNode(objType.Name + "/" + objChild.Name + "[. = \"" + objChild.InnerText + "\"]");
 											if (objNode != null)
 											{
 												// Make sure the translate attribute is populated.
@@ -656,7 +656,7 @@ namespace Chummer.Core
 						}
 
 						// Now loop through the translation file and determine if there are any entries in there that are not part of the base content.
-						foreach (XmlNode objType in objLanguageRoot.ChildNodes)
+						foreach (XmlNode objType in objLanguageRoot!.ChildNodes)
 						{
 							foreach (XmlNode objChild in objType.ChildNodes)
 							{

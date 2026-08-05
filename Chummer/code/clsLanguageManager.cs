@@ -55,7 +55,6 @@ namespace Chummer
 		static readonly LanguageStringCatalog _objCatalog = new LanguageStringCatalog();
 		static bool _blnLoaded = false;
 		static readonly XmlDocument _objXmlDocument = new XmlDocument();
-		static XmlDocument _objXmlDataDocument;
 
 		#region Constructor and Instance
 		static LanguageManager()

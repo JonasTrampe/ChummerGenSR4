@@ -9,6 +9,7 @@
     <RootNamespace>Chummer</RootNamespace>
     <AssemblyName>ChummerGenSR4</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -44,7 +45,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AssemblyName>ChummerGenSR4</AssemblyName>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
@@ -56,7 +56,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AssemblyName>ChummerGenSR4</AssemblyName>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -127,6 +126,7 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -142,12 +142,17 @@
       <Project>{0A8EA1FE-BF7D-4424-A696-DCE573730831}</Project>
       <Name>Chummer.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RunnersPoint.Api\RunnersPoint.Api.csproj">
+      <Project>{B1249D53-D3C2-4D56-B93D-ACF54AF85E24}</Project>
+      <Name>RunnersPoint.Api</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="code\clsCommon.cs" />
     <Compile Include="code\clsCharacterDiff.cs" />
     <Compile Include="code\clsCloudSaveHelper.cs" />
     <Compile Include="code\clsRunnersPointApiClient.cs" />
+    <Compile Include="code\clsRunnersPointAuth.cs" />
     <Compile Include="code\frmCloudDocuments.cs">
       <SubType>Form</SubType>
     </Compile>

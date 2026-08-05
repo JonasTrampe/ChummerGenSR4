@@ -2,7 +2,8 @@
 using System;
 using System.Xml;
 
-namespace Chummer.Core;
+namespace Chummer.Core
+{
 
 /// <summary>
 /// A single bonus/modifier record, ported from clsImprovement.cs's <c>Improvement</c> class.
@@ -79,4 +80,5 @@ public sealed class Improvement
 
     private static bool GetBool(XmlNode objNode, string strName, bool blnFallback = false)
         => bool.TryParse(objNode[strName]?.InnerText, out var blnValue) ? blnValue : blnFallback;
+}
 }

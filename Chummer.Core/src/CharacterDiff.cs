@@ -101,7 +101,7 @@ namespace Chummer.Core
             Dictionary<string, int> dicCounts = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (T objItem in lstItems ?? Array.Empty<T>())
             {
-                string strSignature = Signature(objItem);
+                string strSignature = Signature(objItem!);
                 if (dicCounts.ContainsKey(strSignature))
                     dicCounts[strSignature]++;
                 else
@@ -159,12 +159,12 @@ namespace Chummer.Core
         private static string GetDisplayName(object objItem)
         {
             Type objType = objItem.GetType();
-            string strDisplayName = objType.GetProperty("DisplayName")?.GetValue(objItem, null) as string;
-            if (!string.IsNullOrWhiteSpace(strDisplayName))
+            string? strDisplayName = objType.GetProperty("DisplayName")?.GetValue(objItem, null) as string;
+            if (strDisplayName != null && !string.IsNullOrWhiteSpace(strDisplayName))
                 return strDisplayName;
 
-            string strName = objType.GetProperty("Name")?.GetValue(objItem, null) as string;
-            return string.IsNullOrWhiteSpace(strName) ? "(unnamed)" : strName;
+            string? strName = objType.GetProperty("Name")?.GetValue(objItem, null) as string;
+            return strName == null || string.IsNullOrWhiteSpace(strName) ? "(unnamed)" : strName;
         }
 
         private static int TotalChildCount(object objItem)

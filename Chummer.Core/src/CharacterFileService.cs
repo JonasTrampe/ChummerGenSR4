@@ -328,7 +328,7 @@ namespace Chummer.Core
                 int intUsed = Improvements.Where(i => i.Enabled && i.Source == ImprovementSource.EdgeUse
                     && i.Type == ImprovementType.Attribute && i.ImprovedName == "EDG")
                     .Sum(i => i.Augmented * i.Rating);
-                return new CharacterEdgeData(Math.Clamp(intMaximum + intUsed, 0, intMaximum), intMaximum);
+                return new CharacterEdgeData(ClampInt(intMaximum + intUsed, 0, intMaximum), intMaximum);
             }
         }
 
@@ -1288,7 +1288,7 @@ namespace Chummer.Core
 
         private void DeductVehicleModCost(string strCost, string strRating, string strBody)
         {
-            string strExpression = strCost.Replace("Body", strBody, StringComparison.OrdinalIgnoreCase);
+            string strExpression = ReplaceOrdinalIgnoreCase(strCost, "Body", strBody);
             double dblCost = RatingExpression.Evaluate(strExpression, strRating);
             double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsed)
                 ? dblParsed : 0;
@@ -1640,7 +1640,7 @@ namespace Chummer.Core
             int intCurrent = int.TryParse(GetValue("/character/" + strElementName, "0"), out var intValue)
                 ? intValue
                 : 0;
-            int intNewValue = Math.Clamp(intCurrent + intDelta, 0, Math.Max(0, intMaximum));
+            int intNewValue = ClampInt(intCurrent + intDelta, 0, Math.Max(0, intMaximum));
             if (intNewValue == intCurrent)
                 return false;
 
@@ -1658,6 +1658,38 @@ namespace Chummer.Core
             }
 
             objNode.InnerText = strValue ?? string.Empty;
+        }
+
+        private static int ClampInt(int intValue, int intMin, int intMax)
+        {
+            if (intValue < intMin)
+                return intMin;
+            if (intValue > intMax)
+                return intMax;
+            return intValue;
+        }
+
+        private static string ReplaceOrdinalIgnoreCase(string strSource, string strOldValue, string strNewValue)
+        {
+            if (string.IsNullOrEmpty(strSource) || string.IsNullOrEmpty(strOldValue))
+                return strSource;
+
+            int intIndex = strSource.IndexOf(strOldValue, StringComparison.OrdinalIgnoreCase);
+            if (intIndex < 0)
+                return strSource;
+
+            var sbdResult = new StringBuilder(strSource.Length);
+            int intStart = 0;
+            while (intIndex >= 0)
+            {
+                sbdResult.Append(strSource, intStart, intIndex - intStart);
+                sbdResult.Append(strNewValue ?? string.Empty);
+                intStart = intIndex + strOldValue.Length;
+                intIndex = strSource.IndexOf(strOldValue, intStart, StringComparison.OrdinalIgnoreCase);
+            }
+
+            sbdResult.Append(strSource, intStart, strSource.Length - intStart);
+            return sbdResult.ToString();
         }
 
         public IReadOnlyList<CharacterTreeItemData> Gear => ReadGearTree();
@@ -2910,7 +2942,7 @@ namespace Chummer.Core
         /// the signed amount so refunds can be represented without a second write API.
         /// </summary>
         public void AddExpense(string strType, decimal decAmount, string strReason, DateTime? datDate = null,
-            ExpenseUndo objUndo = null)
+            ExpenseUndo? objUndo = null)
         {
             if (strType != "Karma" && strType != "Nuyen")
                 throw new ArgumentException("An expense must be Karma or Nuyen.", nameof(strType));
@@ -3091,14 +3123,16 @@ namespace Chummer.Core
         private string GetValue(string strXPath, string strFallback)
         {
             var objNode = Document.SelectSingleNode(strXPath);
-            return string.IsNullOrEmpty(objNode == null ? null : objNode.InnerText) ? strFallback : objNode.InnerText;
+            string? strValue = objNode?.InnerText;
+            return strValue == null || strValue.Length == 0 ? strFallback : strValue;
         }
 
         private string GetAttributeValue(string strCode)
         {
             var objNode =
                 Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']/totalvalue");
-            return string.IsNullOrEmpty(objNode == null ? null : objNode.InnerText) ? "0" : objNode.InnerText;
+            string? strValue = objNode?.InnerText;
+            return strValue == null || strValue.Length == 0 ? "0" : strValue;
         }
 
         private int GetAttributeInt(string strCode)
@@ -3569,7 +3603,7 @@ namespace Chummer.Core
         private XmlNode GetAttributeNode(string strCode)
             => Document.SelectSingleNode("/character/attributes/attribute[name = '" + strCode + "']");
 
-        private CharacterOptions _objCharacterOptionsOverride;
+        private CharacterOptions? _objCharacterOptionsOverride;
 
         // Deliberately not cached: house rules/karma-BP costs can change from the Options dialog
         // while a character stays open, and a stale cached CharacterOptions would silently ignore
@@ -4149,9 +4183,8 @@ namespace Chummer.Core
         private static string GetValue(XmlNode objNode, string strName, string strFallback)
         {
             var objChild = objNode.SelectSingleNode(strName);
-            return string.IsNullOrEmpty(objChild == null ? null : objChild.InnerText)
-                ? strFallback
-                : objChild.InnerText;
+            string? strValue = objChild?.InnerText;
+            return strValue == null || strValue.Length == 0 ? strFallback : strValue;
         }
     }
 

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace Chummer.Core;
+namespace Chummer.Core
+{
 
 /// <summary>
 /// Platform-neutral UI-string language manager, ported from the legacy WinForms
@@ -99,4 +100,5 @@ public sealed class LanguageManager
             return strExtra;
         }
     }
+}
 }

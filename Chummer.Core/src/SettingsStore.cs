@@ -22,12 +22,12 @@ namespace Chummer.Core
     /// </summary>
     public static class SettingsStore
     {
-        private static readonly string[] LegacySubKeyPaths = ["Software\\Chummer", "Software\\Chummer\\Sourcebook"];
+        private static readonly string[] LegacySubKeyPaths = new[] { "Software\\Chummer", "Software\\Chummer\\Sourcebook" };
 
         private static readonly string SettingsFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ChummerGenSR4", "settings.xml");
 
-        private static Dictionary<string, Dictionary<string, string>> _dicData = [];
+        private static Dictionary<string, Dictionary<string, string>> _dicData = new Dictionary<string, Dictionary<string, string>>();
         private static readonly object LockObject = new();
 
         public static SettingsRegistryKey CurrentUser => new();
@@ -62,14 +62,14 @@ namespace Chummer.Core
                 foreach (var objKeyElement in objDocument.Root?.Elements("key") ?? Enumerable.Empty<XElement>())
                 {
                     var strPath = objKeyElement.Attribute("path")?.Value;
-                    if (string.IsNullOrEmpty(strPath))
+                    if (strPath == null || strPath.Length == 0)
                         continue;
 
                     var dicValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var objValueElement in objKeyElement.Elements("value"))
                     {
                         var strName = objValueElement.Attribute("name")?.Value;
-                        if (!string.IsNullOrEmpty(strName))
+                        if (strName != null && strName.Length != 0)
                             dicValues[strName] = objValueElement.Value;
                     }
 

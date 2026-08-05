@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
 using Chummer.Core;
+using RunnersPoint.Api;
 
 namespace Chummer
 {
@@ -1309,7 +1310,7 @@ namespace Chummer
 					{
 						ToolStripManager.RevertMerge("toolStrip");
 					}
-					catch (Exception exception)
+					catch (Exception)
 					{
 					}
 				}
@@ -1432,14 +1433,14 @@ namespace Chummer
 			{
 				ToolStripManager.RevertMerge("toolStrip");
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 			try
 			{
 				ToolStripManager.Merge(toolStrip, "toolStrip");
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 		}
@@ -18067,6 +18068,7 @@ namespace Chummer
 		/// </summary>
 		private async Task<bool> SaveCharacterAs(bool blnEscapeAfterSave = false)
 		{
+			await Task.CompletedTask;
 			bool blnSaved = false;
 
 			// If the Created is checked, make sure the user wants to actually save this character.
@@ -18161,7 +18163,7 @@ namespace Chummer
 			_blnSkipToolStripRevert = true;
 			_objCharacter.Save();
 
-			GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false);
+				_ = GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false);
 			this.Close();
 		}
 

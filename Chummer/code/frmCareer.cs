@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
 using Chummer.Core;
+using RunnersPoint.Api;
 
 public delegate void DiceRollerOpenHandler(Object sender);
 public delegate void DiceRollerOpenIntHandler(Chummer.Character objCharacter, int intDice);
@@ -2247,7 +2248,7 @@ namespace Chummer
 			}
 
 			for (int i = 1; i <= intClones; i++)
-				GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false, _objCharacter.Alias + " " + i.ToString(), true);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false, _objCharacter.Alias + " " + i.ToString(), true);
 		}
 
 		private void mnuSpecialReapplyImprovements_Click(object sender, EventArgs e)
@@ -2929,7 +2930,7 @@ namespace Chummer
 					objMerge = null;
 					objVessel = null;
 
-					GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile);
+						_ = GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile);
 				}
 				else
 				{
@@ -3111,7 +3112,7 @@ namespace Chummer
 				string strOpenFile = objMerge.FileName;
 				objMerge = null;
 
-				GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile);
 			}
 			else
 			{
@@ -23698,6 +23699,7 @@ namespace Chummer
 		/// </summary>
 		private async Task<bool> SaveCharacterAs()
 		{
+			await Task.CompletedTask;
 			bool blnSaved = false;
 
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
