@@ -138,14 +138,23 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - 🟡 Print / character sheet rendering (XSLT transform) — `CharacterSheetExporter` builds the
   print-XML (Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
   Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks, Armor, Karma/Nuyen expenses) and
-  transforms it through a real `.xsl` file via `XslCompiledTransform`; `SheetPreviewDialog` renders
-  the actual open character instead of static mockup content. Only wired to `Text-Only.xsl` so
-  far (the other shipped sheets - `Shadowrun 4.xsl`, `Dossier.xsl`, etc. - expect more fields than
-  this pass covers), and Weapon dice pool/AP/RC, Complex Forms, Critter Powers, and Vehicles are
-  not in the export XML yet. Also fixed a real bug found while building this:
-  `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
-  legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
-  tested for non-empty rather than positive.
+  transforms it through a real `.xsl` file via `XslCompiledTransform`. `SheetPreviewDialog` renders
+  the actual open character (with a template picker covering every non-"Base" sheet under
+  `data/sheets`, defaulting to the Options-configured `DefaultCharacterSheet`) instead of static
+  mockup content. Weapon dice pool/AP/RC, Complex Forms, Critter Powers, and Vehicles are still
+  not in the export XML, so sheets that expect them render those sections blank. Fixed two real
+  bugs found while building/verifying this:
+  - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
+    legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
+    tested for non-empty rather than positive.
+  - Sheets that `xsl:include` a shared base stylesheet (`Shadowrun 4.xsl` and both "Grouped
+    Skills" variants, not just `Text-Only.xsl`) failed to load at all - .NET's default
+    `XmlReader.Create` resolver refuses to follow `xsl:include` as an "external URI". Fixed by
+    loading via `XslCompiledTransform.Load(path, XsltSettings.TrustedXslt, new XmlUrlResolver())`.
+  - The dialog's HTML-to-plain-text conversion (Avalonia has no built-in HTML renderer) left every
+    sheet's embedded `&lt;style&gt;`/`&lt;script&gt;` block contents visible as raw CSS/JS text -
+    never caught earlier because verification only inspected the raw HTML output, not what the
+    dialog's TextBox actually displays.
 - 🟡 PDF sourcebook page linking — ported clsCommon.cs's OpenPDF as `PdfLinkService`; the PDF
   reader path and argument style were already wired in Options (General tab) but per-book
   paths/page-offsets weren't editable anywhere, so added those to the Sourcebooks list there. A

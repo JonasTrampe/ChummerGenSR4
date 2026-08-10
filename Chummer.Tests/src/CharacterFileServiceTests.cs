@@ -476,6 +476,21 @@ public class CharacterFileServiceTests
         Assert.DoesNotContain("== Commlink ==", html);
     }
 
+    [Theory]
+    [InlineData("Shadowrun 4.xsl")]
+    [InlineData("Shadowrun 4 (Grouped Skills by Name).xsl")]
+    [InlineData("Shadowrun 4 (Grouped Skills by Rating).xsl")]
+    public void CharacterSheetExporter_RendersSheetsThatXslIncludeASharedBaseStylesheet(string strSheetName)
+    {
+        // These xsl:include "Shadowrun 4 Base.xslt" - regression test for the XmlResolver fix
+        // (XmlReader.Create's default resolver refuses to follow xsl:include as an "external URI").
+        CharacterDocument character = LoadFixture();
+
+        string html = CharacterSheetExporter.RenderSheet(character, strSheetName);
+
+        Assert.Contains("Pistolen", html);
+    }
+
     [Fact]
     public void CharacterSheetExporter_ThrowsForAMissingSheetFile()
     {

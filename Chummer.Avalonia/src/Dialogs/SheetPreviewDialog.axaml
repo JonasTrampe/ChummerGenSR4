@@ -9,6 +9,8 @@
         Title="Charakterbogen Vorschau">
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+            <TextBlock Text="Vorlage:" VerticalAlignment="Center" />
+            <ComboBox Name="SheetSelector" Width="220" SelectionChanged="OnSheetSelectionChanged" />
             <Button Content="Drucken" />
             <Button Content="Als PDF exportieren" />
             <Button Content="Schließen" Click="OnClose" />

@@ -57,9 +57,12 @@ namespace Chummer.Core
             if (!File.Exists(strSheetPath))
                 throw new FileNotFoundException("Character sheet not found.", strSheetPath);
 
+            // Several shipped sheets (Shadowrun 4.xsl, the "Grouped Skills" variants) xsl:include
+            // a shared base stylesheet from the same folder - XmlReader.Create's default resolver
+            // refuses that as an "external URI" under .NET's hardened-by-default settings, so load
+            // via the path overload with an explicit resolver instead.
             var transform = new XslCompiledTransform();
-            using (var xmlReader = XmlReader.Create(strSheetPath))
-                transform.Load(xmlReader);
+            transform.Load(strSheetPath, XsltSettings.TrustedXslt, new XmlUrlResolver());
 
             XmlDocument exportXml = BuildExportXml(character);
             var sb = new StringBuilder();

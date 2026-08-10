@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -8,6 +10,8 @@ namespace Chummer.NewUI.Dialogs;
 
 public partial class SheetPreviewDialog : Window
 {
+    private CharacterDocument? _character;
+
     // Raw XHTML from CharacterSheetExporter.RenderSheet - kept around for a future "export" action
     // (e.g. saving straight to a .html file) even though the TextBox below only shows the
     // tag-stripped SheetText, since Avalonia has no first-party cross-platform HTML renderer.
@@ -22,15 +26,48 @@ public partial class SheetPreviewDialog : Window
     public SheetPreviewDialog(CharacterDocument? character)
         : this()
     {
-        if (character == null)
+        _character = character;
+
+        var selector = this.FindControl<ComboBox>("SheetSelector")!;
+        string strSheetDir = Path.Combine(AppContext.BaseDirectory, "data", "sheets");
+        var lstSheets = Directory.Exists(strSheetDir)
+            ? Directory.GetFiles(strSheetDir, "*.xsl")
+                .Concat(Directory.GetFiles(strSheetDir, "*.xslt"))
+                .Where(f => !Path.GetFileName(f).Contains("Base", StringComparison.OrdinalIgnoreCase))
+                .Select(Path.GetFileName)
+                .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+                .ToList()
+            : new System.Collections.Generic.List<string?>();
+
+        selector.ItemsSource = lstSheets;
+        selector.SelectedItem = lstSheets.FirstOrDefault(f =>
+            string.Equals(Path.GetFileNameWithoutExtension(f), GlobalOptions.Instance.DefaultCharacterSheet,
+                StringComparison.OrdinalIgnoreCase)) ?? lstSheets.FirstOrDefault(f => f == "Text-Only.xsl")
+            ?? lstSheets.FirstOrDefault();
+
+        RenderSelectedSheet();
+    }
+
+    private void OnSheetSelectionChanged(object? sender, SelectionChangedEventArgs e) => RenderSelectedSheet();
+
+    private void RenderSelectedSheet()
+    {
+        var selector = this.FindControl<ComboBox>("SheetSelector")!;
+        string? strSheetName = selector.SelectedItem as string;
+
+        if (_character == null)
         {
             SheetText = "Kein Charakter geöffnet.";
+        }
+        else if (strSheetName == null)
+        {
+            SheetText = "Kein Charakterbogen gefunden.";
         }
         else
         {
             try
             {
-                SheetHtml = CharacterSheetExporter.RenderSheet(character, "Text-Only.xsl");
+                SheetHtml = CharacterSheetExporter.RenderSheet(_character, strSheetName);
                 SheetText = HtmlToPlainText(SheetHtml);
             }
             catch (Exception ex)
@@ -47,9 +84,19 @@ public partial class SheetPreviewDialog : Window
     // showing raw markup.
     private static string HtmlToPlainText(string strHtml)
     {
-        string strText = Regex.Replace(strHtml, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase);
+        // Strip <style>/<script> blocks including their contents first - the generic tag-strip
+        // below only removes the tags themselves, which would otherwise leave raw CSS/JS visible
+        // as text (every shipped sheet embeds both, not just the fancier ones).
+        string strText = Regex.Replace(strHtml, "<style[^>]*>.*?</style>", string.Empty,
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        strText = Regex.Replace(strText, "<script[^>]*>.*?</script>", string.Empty,
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        strText = Regex.Replace(strText, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase);
+        strText = Regex.Replace(strText, "</(p|div|tr|table|h[1-6])>", "\n", RegexOptions.IgnoreCase);
+        strText = Regex.Replace(strText, "<td[^>]*>", "  ", RegexOptions.IgnoreCase);
         strText = Regex.Replace(strText, "<[^>]+>", string.Empty);
         strText = System.Net.WebUtility.HtmlDecode(strText);
+        strText = Regex.Replace(strText, "\n{3,}", "\n\n");
         return strText.Trim();
     }
 
