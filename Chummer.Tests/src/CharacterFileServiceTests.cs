@@ -524,6 +524,50 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ComplexForms_ReadNameExtraRatingAndProgramOptions()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><techprograms><techprogram><name>Diagnostics</name><extra>Firewall</extra>"
+            + "<rating>4</rating><programoptions><programoption><name>Optimization</name>"
+            + "<rating>2</rating></programoption></programoptions></techprogram></techprograms></character>");
+
+        CharacterComplexFormData form = Assert.Single(character.ComplexForms);
+        Assert.Equal("Diagnostics", form.Name);
+        Assert.Equal("Firewall", form.Extra);
+        Assert.Equal("4", form.Rating);
+        (string strName, string strRating) = Assert.Single(form.Options);
+        Assert.Equal("Optimization", strName);
+        Assert.Equal("2", strRating);
+    }
+
+    [Fact]
+    public void CritterPowers_ReadNameExtraAndPoints()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><critterpowers><critterpower><name>Fear</name><extra></extra>"
+            + "<points>2</points></critterpower></critterpowers></character>");
+
+        CharacterCritterPowerData power = Assert.Single(character.CritterPowers);
+        Assert.Equal("Fear", power.Name);
+        Assert.Equal("2", power.Points);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_IncludesComplexFormsAndCritterPowersInTheExportXml()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><techprograms><techprogram><name>Diagnostics</name><extra></extra>"
+            + "<rating>4</rating></techprogram></techprograms>"
+            + "<critterpowers><critterpower><name>Fear</name><extra></extra><points>2</points></critterpower>"
+            + "</critterpowers></character>");
+
+        string html = CharacterSheetExporter.RenderSheet(character, "Text-Only.xsl");
+
+        Assert.Contains("Diagnostics", html);
+        Assert.Contains("Fear", html);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_RendersRealFixtureDataThroughTextOnlySheet()
     {
         CharacterDocument character = LoadFixture();

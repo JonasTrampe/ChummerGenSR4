@@ -12,10 +12,11 @@ namespace Chummer.Core
     ///     into a rendered sheet - ported from clsCharacter.cs's PrintToStream, matching the field
     ///     names/shape Text-Only.xsl expects (the simplest of the shipped sheets and the first one
     ///     this port targets). Deliberately scoped to the sections a typical character actually uses:
-    ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers, Martial
-    ///     Arts, Lifestyles, Cyberware/Bioware, Gear (incl. Commlinks), Armor, and Weapons (incl.
-    ///     dice pool). Not yet covered: Complex Forms, Critter Powers, and Vehicles - all read-only
-    ///     gaps rather than incorrect output, since the XSLT simply skips an empty/missing section.
+    ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
+    ///     Complex Forms, Critter Powers, Martial Arts, Lifestyles, Cyberware/Bioware, Gear (incl.
+    ///     Commlinks), Armor, and Weapons (incl. dice pool). Not yet covered: Vehicles - a
+    ///     read-only gap rather than incorrect output, since the XSLT simply skips an empty/missing
+    ///     section.
     /// </summary>
     public static class CharacterSheetExporter
     {
@@ -35,6 +36,8 @@ namespace Chummer.Core
             AppendQualities(doc, charEl, character);
             AppendSpells(doc, charEl, character);
             AppendPowers(doc, charEl, character);
+            AppendComplexForms(doc, charEl, character);
+            AppendCritterPowers(doc, charEl, character);
             AppendMartialArts(doc, charEl, character);
             AppendLifestyles(doc, charEl, character);
             AppendCyberware(doc, charEl, character);
@@ -213,6 +216,43 @@ namespace Chummer.Core
                 AddEl(doc, powerEl, "name", power.Name);
                 AddEl(doc, powerEl, "extra", power.Extra);
                 AddEl(doc, powerEl, "rating", power.Rating);
+            }
+        }
+
+        private static void AppendComplexForms(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement formsEl = doc.CreateElement("techprograms");
+            charEl.AppendChild(formsEl);
+            foreach (CharacterComplexFormData form in c.ComplexForms)
+            {
+                XmlElement formEl = doc.CreateElement("techprogram");
+                formsEl.AppendChild(formEl);
+                AddEl(doc, formEl, "name", form.Name);
+                AddEl(doc, formEl, "extra", form.Extra);
+                AddEl(doc, formEl, "rating", form.Rating);
+                XmlElement optionsEl = doc.CreateElement("programoptions");
+                formEl.AppendChild(optionsEl);
+                foreach ((string strOptionName, string strOptionRating) in form.Options)
+                {
+                    XmlElement optionEl = doc.CreateElement("programoption");
+                    optionsEl.AppendChild(optionEl);
+                    AddEl(doc, optionEl, "name", strOptionName);
+                    AddEl(doc, optionEl, "rating", strOptionRating);
+                }
+            }
+        }
+
+        private static void AppendCritterPowers(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement powersEl = doc.CreateElement("critterpowers");
+            charEl.AppendChild(powersEl);
+            foreach (CharacterCritterPowerData power in c.CritterPowers)
+            {
+                XmlElement powerEl = doc.CreateElement("critterpower");
+                powersEl.AppendChild(powerEl);
+                AddEl(doc, powerEl, "name", power.Name);
+                AddEl(doc, powerEl, "extra", power.Extra);
+                AddEl(doc, powerEl, "rating", power.Points);
             }
         }
 

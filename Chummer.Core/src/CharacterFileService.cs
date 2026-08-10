@@ -2801,6 +2801,46 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
 
+        /// <summary>A Technomancer's Complex Forms - ported (read-only) from clsUnique.cs's
+        /// TechProgram class. No add/remove/picker yet, only read+print support.</summary>
+        public IReadOnlyList<CharacterComplexFormData> ComplexForms => ReadComplexForms();
+
+        private IReadOnlyList<CharacterComplexFormData> ReadComplexForms()
+        {
+            var lstForms = new List<CharacterComplexFormData>();
+            var objNodes = Document.SelectNodes("/character/techprograms/techprogram");
+            if (objNodes == null) return lstForms;
+            foreach (XmlNode objNode in objNodes)
+            {
+                var lstOptions = new List<(string Name, string Rating)>();
+                var objOptionNodes = objNode.SelectNodes("programoptions/programoption");
+                if (objOptionNodes != null)
+                    foreach (XmlNode objOptionNode in objOptionNodes)
+                        lstOptions.Add((GetValue(objOptionNode, "name", string.Empty),
+                            GetValue(objOptionNode, "rating", "0")));
+
+                lstForms.Add(new CharacterComplexFormData(GetValue(objNode, "name", string.Empty),
+                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"), lstOptions));
+            }
+
+            return lstForms;
+        }
+
+        /// <summary>A Critter/Free Spirit's innate powers - ported (read-only) from clsUnique.cs's
+        /// CritterPower class. No add/remove/picker yet, only read+print support.</summary>
+        public IReadOnlyList<CharacterCritterPowerData> CritterPowers => ReadCritterPowers();
+
+        private IReadOnlyList<CharacterCritterPowerData> ReadCritterPowers()
+        {
+            var lstPowers = new List<CharacterCritterPowerData>();
+            var objNodes = Document.SelectNodes("/character/critterpowers/critterpower");
+            if (objNodes == null) return lstPowers;
+            foreach (XmlNode objNode in objNodes)
+                lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "name", string.Empty),
+                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0")));
+            return lstPowers;
+        }
+
         /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, simplified to skip the
         /// &lt;bonus&gt; Improvement-creation path (matches how AddCyberware/AddQuality etc. don't
         /// apply their rules-data bonuses either in this port yet).</summary>
@@ -4905,6 +4945,39 @@ namespace Chummer.Core
         public string Source { get; }
         public string Page { get; }
         public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
+    }
+
+    public sealed class CharacterComplexFormData
+    {
+        internal CharacterComplexFormData(string strName, string strExtra, string strRating,
+            IReadOnlyList<(string Name, string Rating)> lstOptions)
+        {
+            Name = strName;
+            Extra = strExtra;
+            Rating = strRating;
+            Options = lstOptions;
+        }
+
+        public string Name { get; }
+        public string Extra { get; }
+        public string Rating { get; }
+        public IReadOnlyList<(string Name, string Rating)> Options { get; }
+        public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
+    }
+
+    public sealed class CharacterCritterPowerData
+    {
+        internal CharacterCritterPowerData(string strName, string strExtra, string strPoints)
+        {
+            Name = strName;
+            Extra = strExtra;
+            Points = strPoints;
+        }
+
+        public string Name { get; }
+        public string Extra { get; }
+        public string Points { get; }
+        public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 
     public sealed class CharacterPowerData

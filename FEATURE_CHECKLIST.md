@@ -45,6 +45,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Kampfkünste (martial arts + advantages + maneuvers)
 - ✅ Adeptenkräfte
 - ✅ Sprüche und Geister (spells by category, spirits)
+- ❌ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — Core reads both
+  (`CharacterDocument.ComplexForms`/`CritterPowers`, used by the print sheet) but there's no
+  Avalonia tab or tree showing them at all yet, and no add/remove/picker
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
@@ -141,13 +144,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 - 🟡 Print / character sheet rendering (XSLT transform) — `CharacterSheetExporter` builds the
   print-XML (Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
-  Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks, Armor, Weapons (incl. dice pool),
-  Karma/Nuyen expenses) and transforms it through a real `.xsl` file via `XslCompiledTransform`.
-  `SheetPreviewDialog` renders the actual open character (with a template picker covering every
-  non-"Base" sheet under `data/sheets`, defaulting to the Options-configured
-  `DefaultCharacterSheet`) instead of static mockup content. Complex Forms, Critter Powers, and
-  Vehicles are still not in the export XML, so sheets that expect them render those sections
-  blank. Fixed two real bugs found while building/verifying this:
+  Complex Forms, Critter Powers, Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks,
+  Armor, Weapons (incl. dice pool), Karma/Nuyen expenses) and transforms it through a real `.xsl`
+  file via `XslCompiledTransform`. `SheetPreviewDialog` renders the actual open character (with a
+  template picker covering every non-"Base" sheet under `data/sheets`, defaulting to the
+  Options-configured `DefaultCharacterSheet`) instead of static mockup content. Only Vehicles
+  remain outside the export XML, so sheets that expect that section render it blank. Fixed two
+  real bugs found while building/verifying this:
   - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
     legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
     tested for non-empty rather than positive.
