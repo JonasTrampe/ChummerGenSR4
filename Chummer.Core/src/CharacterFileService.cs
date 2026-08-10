@@ -3663,6 +3663,10 @@ namespace Chummer.Core
                 var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo");
                 string strLocation = GetValue(objNode, "location", string.Empty);
                 objWeapon.SetLocation(strLocation);
+                (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(
+                    GetValue(objNode, "category", string.Empty), GetValue(objNode, "name", string.Empty),
+                    WeaponNodeHasSmartgun(objNode));
+                objWeapon.SetWeaponDicePool(strPoolDisplay, strTooltip);
                 if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
                     objLocation.Children.Add(objWeapon);
                 else
@@ -3671,16 +3675,118 @@ namespace Chummer.Core
             return lstWeapons;
         }
 
+        private bool WeaponNodeHasSmartgun(XmlNode objWeaponNode)
+        {
+            var objAccessoryNodes = objWeaponNode.SelectNodes("accessories/accessory");
+            if (objAccessoryNodes != null)
+                foreach (XmlNode objAccessoryNode in objAccessoryNodes)
+                    if (GetValue(objAccessoryNode, "name", string.Empty).StartsWith("Smartgun System", StringComparison.Ordinal)
+                        && GetValue(objAccessoryNode, "installed", "True") == "True")
+                        return true;
+            var objModNodes = objWeaponNode.SelectNodes("weaponmods/weaponmod");
+            if (objModNodes != null)
+                foreach (XmlNode objModNode in objModNodes)
+                    if (GetValue(objModNode, "name", string.Empty).StartsWith("Smartgun System", StringComparison.Ordinal)
+                        && GetValue(objModNode, "installed", "True") == "True")
+                        return true;
+            return false;
+        }
+
         private IReadOnlyList<CharacterWeaponData> ReadWeapons()
         {
             var lstWeapons = new List<CharacterWeaponData>();
             var objNodes = Document.SelectNodes("/character/weapons/weapon");
             if (objNodes == null) return lstWeapons;
             foreach (XmlNode objNode in objNodes)
-                lstWeapons.Add(new CharacterWeaponData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "category", string.Empty), GetValue(objNode, "damage", string.Empty),
-                    GetValue(objNode, "ammo", string.Empty)));
+            {
+                string strName = GetValue(objNode, "name", string.Empty);
+                string strCategory = GetValue(objNode, "category", string.Empty);
+                (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(strCategory, strName,
+                    WeaponNodeHasSmartgun(objNode));
+
+                lstWeapons.Add(new CharacterWeaponData(strName, strCategory, GetValue(objNode, "damage", string.Empty),
+                    GetValue(objNode, "ammo", string.Empty), GetValue(objNode, "ap", string.Empty),
+                    GetValue(objNode, "rc", string.Empty), strPoolDisplay, strTooltip));
+            }
             return lstWeapons;
+        }
+
+        // Ported from clsEquipment.cs's Weapon.DicePool: which Active Skill a weapon Category
+        // rolls against. Not ported: the strRange-based "Special Weapons" disambiguation and a
+        // per-weapon UseSkill override, since neither is saved anywhere in this port's write path.
+        private static readonly Dictionary<string, string> s_dicWeaponCategorySkills = new(StringComparer.Ordinal)
+        {
+            ["Bows"] = "Archery",
+            ["Crossbows"] = "Archery",
+            ["Assault Rifles"] = "Automatics",
+            ["Machine Pistols"] = "Automatics",
+            ["Submachine Guns"] = "Automatics",
+            ["Battle Rifles"] = "Automatics",
+            ["Blades"] = "Blades",
+            ["Cyberware Blades"] = "Blades",
+            ["Clubs"] = "Clubs",
+            ["Assault Cannons"] = "Heavy Weapons",
+            ["Grenade Launchers"] = "Heavy Weapons",
+            ["Missile Launchers"] = "Heavy Weapons",
+            ["Mortar Launchers"] = "Heavy Weapons",
+            ["Light Machine Guns"] = "Heavy Weapons",
+            ["Medium Machine Guns"] = "Heavy Weapons",
+            ["Heavy Machine Guns"] = "Heavy Weapons",
+            ["Shotguns"] = "Longarms",
+            ["Sniper Rifles"] = "Longarms",
+            ["Sports Rifles"] = "Longarms",
+            ["Throwing Weapons"] = "Throwing Weapons",
+            ["Cyberware Throwing Weapons"] = "Throwing Weapons",
+            ["Unarmed"] = "Unarmed Combat",
+            ["Cyberware Clubs"] = "Unarmed Combat",
+            ["Cyberware"] = "Unarmed Combat"
+        };
+
+        // A Smartgun System only grants its bonus for skills SR4 actually pairs with smartguns.
+        private static readonly HashSet<string> s_setSmartlinkEligibleSkills = new(StringComparer.Ordinal)
+        {
+            "Automatics", "Exotic Ranged Weapon", "Heavy Weapons", "Longarms", "Pistols"
+        };
+
+        private (string PoolDisplay, string Tooltip) ComputeWeaponDicePool(string strCategory, string strWeaponName,
+            bool blnHasSmartgun)
+        {
+            string strSkillName = s_dicWeaponCategorySkills.TryGetValue(strCategory, out var strMapped)
+                ? strMapped
+                : strCategory is "Exotic Melee Weapons" or "Exotic Ranged Weapons" or "Cyberware Exotic Melee Weapons"
+                    or "Cyberware Exotic Ranged Weapons"
+                    ? (strCategory.Contains("Melee") ? "Exotic Melee Weapon" : "Exotic Ranged Weapon")
+                    : "Pistols";
+
+            CharacterSkillData? objSkill = Skills.FirstOrDefault(s => s.Name == strSkillName
+                && (!s.Exotic || s.Specialization == strWeaponName));
+            if (objSkill == null)
+                return (string.Empty, string.Empty);
+
+            int intPool = int.TryParse(objSkill.TotalValue, out var intParsed) ? intParsed : 0;
+            var sb = new StringBuilder();
+            sb.Append("Fertigkeit: ").Append(objSkill.Name).Append(" (").Append(objSkill.TotalValue).Append(')');
+
+            int intSmartlinkBonus = 0;
+            if (blnHasSmartgun && s_setSmartlinkEligibleSkills.Contains(strSkillName))
+            {
+                intSmartlinkBonus = ImprovementManager.ValueOf(Improvements, ImprovementType.Smartlink);
+                if (intSmartlinkBonus != 0)
+                    sb.Append('\n').Append("Smartgun System: ").Append(FormatSigned(intSmartlinkBonus));
+            }
+
+            intPool += intSmartlinkBonus;
+            string strDisplay = intPool.ToString();
+
+            if (!string.IsNullOrEmpty(objSkill.Specialization)
+                && (objSkill.Specialization == strWeaponName || objSkill.Specialization == strCategory))
+            {
+                strDisplay += " (" + (intPool + 2) + ")";
+                sb.Append('\n').Append("Spezialisierung \"").Append(objSkill.Specialization).Append("\": +2");
+            }
+
+            sb.Append('\n').Append("Würfelpool: ").Append(strDisplay);
+            return (strDisplay, sb.ToString());
         }
 
         private IReadOnlyList<CharacterSkillGroupData> ReadSkillGroups()
@@ -4389,6 +4495,18 @@ namespace Chummer.Core
             IsVehicleMod = true;
         }
 
+        /// <summary>Only set (non-empty) for Weapon root nodes - see
+        /// CharacterDocument.ComputeWeaponDicePool.</summary>
+        public string WeaponDicePool { get; private set; } = string.Empty;
+
+        public string WeaponDicePoolTooltip { get; private set; } = string.Empty;
+
+        internal void SetWeaponDicePool(string strDicePool, string strTooltip)
+        {
+            WeaponDicePool = strDicePool;
+            WeaponDicePoolTooltip = strTooltip;
+        }
+
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,
         /// since name+category+rating isn't unique once gear can nest under other gear.</summary>
@@ -4516,18 +4634,33 @@ namespace Chummer.Core
 
     public sealed class CharacterWeaponData
     {
-        internal CharacterWeaponData(string strName, string strCategory, string strDamage, string strAmmo)
+        internal CharacterWeaponData(string strName, string strCategory, string strDamage, string strAmmo,
+            string strAp = "", string strRc = "", string strDicePool = "", string strDicePoolTooltip = "")
         {
             Name = strName;
             Category = strCategory;
             Damage = strDamage;
             Ammo = strAmmo;
+            Ap = strAp;
+            Rc = strRc;
+            DicePool = strDicePool;
+            DicePoolTooltip = strDicePoolTooltip;
         }
 
         public string Name { get; }
         public string Category { get; }
         public string Damage { get; }
         public string Ammo { get; private set; }
+        public string Ap { get; }
+        public string Rc { get; }
+
+        /// <summary>Ported from clsEquipment.cs's Weapon.DicePool - the linked Active Skill's
+        /// dice pool plus a Smartgun System bonus where applicable, formatted as "12" or
+        /// "12 (14)" when a matching specialization applies. Empty if no matching Skill is found
+        /// (e.g. a Skill the character never raised past a defaulting-disallowed 0).</summary>
+        public string DicePool { get; }
+
+        public string DicePoolTooltip { get; }
 
         public string DisplayName
         {

@@ -129,6 +129,11 @@
                             </StackPanel>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Würfelpool:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponDicePool, TargetNullValue=–}"
+                                       ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Ort:" Width="90" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding WeaponLocations}"
                                       SelectedItem="{Binding SelectedWeaponLocation, Mode=TwoWay}" />

@@ -259,6 +259,68 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Weapon_DicePool_MatchesTheLinkedActiveSkillsTotalValue()
+    {
+        // "Assault Rifles" maps to Automatics per clsEquipment.cs's Weapon.DicePool switch.
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "5")
+            + "</attributes><skills><skill><name>Automatics</name><attribute>AGI</attribute><rating>4</rating>"
+            + "<skillcategory>Combat Active</skillcategory><knowledge>False</knowledge></skill></skills>"
+            + "<weapons><weapon><name>Ares Alpha</name><category>Assault Rifles</category>"
+            + "<damage>7P</damage><ap>-1</ap><rc>1</rc><accessories /></weapon></weapons></character>");
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Automatics");
+        Assert.Equal(skill.TotalValue, weapon.DicePool);
+        Assert.Equal("-1", weapon.Ap);
+        Assert.Equal("1", weapon.Rc);
+    }
+
+    [Fact]
+    public void Weapon_DicePool_AddsSmartlinkBonusWhenAccessoryAndImprovementBothPresent()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")
+            + "</attributes><skills><skill><name>Pistols</name><attribute>AGI</attribute><rating>3</rating>"
+            + "<skillcategory>Combat Active</skillcategory><knowledge>False</knowledge></skill></skills>"
+            + "<weapons><weapon><name>Ares Predator IV</name><category>Heavy Pistols</category>"
+            + "<accessories><accessory><name>Smartgun System</name><installed>True</installed></accessory></accessories>"
+            + "</weapon></weapons><improvements>" + SmartlinkImprovementXml() + "</improvements></character>");
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Pistols");
+        int intSkillTotal = int.Parse(skill.TotalValue);
+        // Skill total + Smartgun's +2 (the fixed Smartlink Improvement value SR4 uses).
+        Assert.Equal((intSkillTotal + 2).ToString(), weapon.DicePool);
+    }
+
+    private static string SmartlinkImprovementXml() =>
+        "<improvement><improvementttype>Smartlink</improvementttype><improvementsource>Gear</improvementsource>"
+        + "<val>2</val><enabled>True</enabled></improvement>";
+
+    [Fact]
+    public void Weapon_DicePool_NoMatchingSkill_IsEmpty()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Katana</name>"
+            + "<category>Blades</category><accessories /></weapon></weapons></character>");
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        Assert.Equal(string.Empty, weapon.DicePool);
+    }
+
+    [Fact]
+    public void Weapon_DicePool_SpecializationMatchingWeaponNameAddsTwoToTheDisplay()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")
+            + "</attributes><skills><skill><name>Pistols</name><attribute>AGI</attribute><rating>3</rating>"
+            + "<spec>Ares Predator IV</spec><skillcategory>Combat Active</skillcategory>"
+            + "<knowledge>False</knowledge></skill></skills>"
+            + "<weapons><weapon><name>Ares Predator IV</name><category>Heavy Pistols</category>"
+            + "<accessories /></weapon></weapons></character>");
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        Assert.Contains("(", weapon.DicePool);
+    }
+
+    [Fact]
     public void RemoveWeapon_RemovesOnlyMatchingRootLevelEntry()
     {
         CharacterDocument character = LoadXml(

@@ -80,6 +80,12 @@ public sealed class TreeNodeViewModel
 
     public int TotalSlots { get; private set; }
     public int SlotsRemaining { get; private set; }
+
+    /// <summary>Only set (non-empty) for Weapon root nodes - see
+    /// CharacterDocument.ComputeWeaponDicePool.</summary>
+    public string WeaponDicePool { get; private set; } = string.Empty;
+
+    public string WeaponDicePoolTooltip { get; private set; } = string.Empty;
     public string Source { get; private set; } = string.Empty;
     public string Page { get; private set; } = string.Empty;
     public string PhysicalCmFilled { get; private set; } = string.Empty;
@@ -152,7 +158,9 @@ public sealed class TreeNodeViewModel
             // Rating-formula cost/avail, evaluated (CalculatedCost includes children, e.g. a
             // Commlink plus its installed Operating System).
             Cost = string.IsNullOrEmpty(item.Cost) ? string.Empty : item.CalculatedCost.ToString(),
-            Avail = item.CalculatedAvail
+            Avail = item.CalculatedAvail,
+            WeaponDicePool = item.WeaponDicePool,
+            WeaponDicePoolTooltip = item.WeaponDicePoolTooltip
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));

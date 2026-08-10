@@ -95,6 +95,10 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Condition monitor size (Physical/Stun), live damage-box display, and persisted heal/damage controls
 - ✅ Armor encumbrance penalty
 - ✅ Skill dice pools, including skill-rating augmentation display
+- ✅ Weapon dice pools (category→Active Skill mapping, Smartgun System bonus, specialization
+  match), shown in the Waffen tab's detail pane and included in the print sheet. Not ported:
+  accessory/mod dice pool bonuses (no field for it in this port's saved data yet) and loaded-ammo
+  pool bonuses.
 - ✅ Composure, Judge Intentions, Lift and Carry, Memory
 - ✅ Initiative, Initiative Passes
 - ✅ Astral Initiative
@@ -137,13 +141,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 - 🟡 Print / character sheet rendering (XSLT transform) — `CharacterSheetExporter` builds the
   print-XML (Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
-  Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks, Armor, Karma/Nuyen expenses) and
-  transforms it through a real `.xsl` file via `XslCompiledTransform`. `SheetPreviewDialog` renders
-  the actual open character (with a template picker covering every non-"Base" sheet under
-  `data/sheets`, defaulting to the Options-configured `DefaultCharacterSheet`) instead of static
-  mockup content. Weapon dice pool/AP/RC, Complex Forms, Critter Powers, and Vehicles are still
-  not in the export XML, so sheets that expect them render those sections blank. Fixed two real
-  bugs found while building/verifying this:
+  Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks, Armor, Weapons (incl. dice pool),
+  Karma/Nuyen expenses) and transforms it through a real `.xsl` file via `XslCompiledTransform`.
+  `SheetPreviewDialog` renders the actual open character (with a template picker covering every
+  non-"Base" sheet under `data/sheets`, defaulting to the Options-configured
+  `DefaultCharacterSheet`) instead of static mockup content. Complex Forms, Critter Powers, and
+  Vehicles are still not in the export XML, so sheets that expect them render those sections
+  blank. Fixed two real bugs found while building/verifying this:
   - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
     legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
     tested for non-empty rather than positive.

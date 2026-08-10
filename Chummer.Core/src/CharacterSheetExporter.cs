@@ -13,10 +13,9 @@ namespace Chummer.Core
     ///     names/shape Text-Only.xsl expects (the simplest of the shipped sheets and the first one
     ///     this port targets). Deliberately scoped to the sections a typical character actually uses:
     ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers, Martial
-    ///     Arts, Lifestyles, Cyberware/Bioware, Gear (incl. Commlinks), and Armor. Not yet covered:
-    ///     Weapon dice pool/AP/RC (never computed elsewhere in Core), Complex Forms, Critter Powers,
-    ///     and Vehicles - all read-only gaps rather than incorrect output, since the XSLT simply
-    ///     skips an empty/missing section.
+    ///     Arts, Lifestyles, Cyberware/Bioware, Gear (incl. Commlinks), Armor, and Weapons (incl.
+    ///     dice pool). Not yet covered: Complex Forms, Critter Powers, and Vehicles - all read-only
+    ///     gaps rather than incorrect output, since the XSLT simply skips an empty/missing section.
     /// </summary>
     public static class CharacterSheetExporter
     {
@@ -41,6 +40,7 @@ namespace Chummer.Core
             AppendCyberware(doc, charEl, character);
             AppendGear(doc, charEl, character);
             AppendArmor(doc, charEl, character);
+            AppendWeapons(doc, charEl, character);
             AppendExpenses(doc, charEl, character);
 
             return doc;
@@ -311,6 +311,25 @@ namespace Chummer.Core
                 AddEl(doc, armorEl, "armorname", string.Empty);
                 AddEl(doc, armorEl, "b", item.Ballistic);
                 AddEl(doc, armorEl, "i", item.Impact);
+            }
+        }
+
+        private static void AppendWeapons(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement weaponsEl = doc.CreateElement("weapons");
+            charEl.AppendChild(weaponsEl);
+            foreach (CharacterWeaponData weapon in c.Weapons)
+            {
+                XmlElement weaponEl = doc.CreateElement("weapon");
+                weaponsEl.AppendChild(weaponEl);
+                AddEl(doc, weaponEl, "name", weapon.Name);
+                AddEl(doc, weaponEl, "weaponname", string.Empty);
+                AddEl(doc, weaponEl, "dicepool", weapon.DicePool);
+                AddEl(doc, weaponEl, "damage", weapon.Damage);
+                AddEl(doc, weaponEl, "ap", weapon.Ap);
+                AddEl(doc, weaponEl, "rc", weapon.Rc);
+                weaponEl.AppendChild(doc.CreateElement("accessories"));
+                weaponEl.AppendChild(doc.CreateElement("mods"));
             }
         }
 
