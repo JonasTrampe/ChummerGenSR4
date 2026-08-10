@@ -27,14 +27,18 @@ public sealed class MartialArtsListItemViewModel
     /// empty for headers and advantages.</summary>
     public string Name { get; }
 
+    /// <summary>"&lt;book&gt; &lt;page&gt;" - only set (non-empty) for MartialArt rows.</summary>
+    public string SourcePage { get; }
+
     public MartialArtsListItemViewModel(string strText, bool blnIsHeader = false, bool blnIsIndented = false,
-        MartialArtsItemKind eKind = MartialArtsItemKind.Header, string strName = "")
+        MartialArtsItemKind eKind = MartialArtsItemKind.Header, string strName = "", string strSourcePage = "")
     {
         Text = strText;
         IsHeader = blnIsHeader;
         IndentLeft = blnIsIndented ? 16 : 0;
         Kind = eKind;
         Name = strName;
+        SourcePage = strSourcePage;
     }
 }
 
@@ -56,7 +60,8 @@ public sealed class MartialArtsSectionViewModel : ViewModelBase
         foreach (CharacterMartialArtData martialArt in character.MartialArts)
         {
             Items.Add(new MartialArtsListItemViewModel(martialArt.Name + " (" + martialArt.Rating + ")",
-                eKind: MartialArtsItemKind.MartialArt, strName: martialArt.Name));
+                eKind: MartialArtsItemKind.MartialArt, strName: martialArt.Name,
+                strSourcePage: martialArt.SourcePage));
             foreach (string strAdvantage in martialArt.Advantages)
                 Items.Add(new MartialArtsListItemViewModel(strAdvantage, blnIsIndented: true,
                     eKind: MartialArtsItemKind.Advantage));

@@ -36,7 +36,10 @@
                         <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
                     </Button>
                 </Grid>
-                <TextBlock Text="Quelle:" />
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="Quelle:" />
+                    <controls:SourceLink SourcePage="{Binding SelectedItem.SourcePage}" />
+                </StackPanel>
             </StackPanel>
         </controls:TreeDetailPane.DetailContent>
     </controls:TreeDetailPane>

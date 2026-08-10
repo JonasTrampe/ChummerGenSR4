@@ -3955,7 +3955,8 @@ namespace Chummer.Core
                         lstAdvantages.Add(GetValue(objAdvantageNode, "name", string.Empty));
 
                 lstMartialArts.Add(new CharacterMartialArtData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "rating", "0"), GetValue(objNode, "source", string.Empty), lstAdvantages));
+                    GetValue(objNode, "rating", "0"), GetValue(objNode, "source", string.Empty),
+                    GetValue(objNode, "page", string.Empty), lstAdvantages));
             }
 
             return lstMartialArts;
@@ -4728,18 +4729,21 @@ namespace Chummer.Core
 
     public sealed class CharacterMartialArtData
     {
-        internal CharacterMartialArtData(string strName, string strRating, string strSource,
+        internal CharacterMartialArtData(string strName, string strRating, string strSource, string strPage,
             IReadOnlyList<string> lstAdvantages)
         {
             Name = strName;
             Rating = strRating;
             Source = strSource;
+            Page = strPage;
             Advantages = lstAdvantages;
         }
 
         public string Name { get; }
         public string Rating { get; }
         public string Source { get; }
+        public string Page { get; }
+        public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
         public IReadOnlyList<string> Advantages { get; }
     }
 
