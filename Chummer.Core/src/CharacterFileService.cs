@@ -4228,6 +4228,8 @@ namespace Chummer.Core
                 objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
                 if (strFallbackCategory == "Vehicle Mod")
                     objItem.SetModSlots(GetValue(objNode, "slots", "0"), GetValue(objNode, "included", "False") == "True");
+                if (strFallbackCategory == "Weapon")
+                    objItem.IsVehicleWeapon = true;
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
                 lstChildren.Add(objItem);
@@ -4518,6 +4520,11 @@ namespace Chummer.Core
         /// Category isn't a reliable way to tell (mods keep their real rules category, e.g.
         /// "Standard", not a generic marker), so this is set explicitly instead.</summary>
         public bool IsVehicleMod { get; private set; }
+
+        /// <summary>True for nodes built from a &lt;weapons&gt;&lt;weapon&gt; list nested under a
+        /// vehicle or vehicle Mod - same rationale as IsVehicleMod (Category is the weapon's real
+        /// rules category, not a marker).</summary>
+        public bool IsVehicleWeapon { get; internal set; }
 
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {

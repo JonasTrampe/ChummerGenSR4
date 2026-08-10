@@ -145,12 +145,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - 🟡 Print / character sheet rendering (XSLT transform) — `CharacterSheetExporter` builds the
   print-XML (Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
   Complex Forms, Critter Powers, Martial Arts, Lifestyles, Cyberware/Bioware, Gear/Commlinks,
-  Armor, Weapons (incl. dice pool), Karma/Nuyen expenses) and transforms it through a real `.xsl`
-  file via `XslCompiledTransform`. `SheetPreviewDialog` renders the actual open character (with a
-  template picker covering every non-"Base" sheet under `data/sheets`, defaulting to the
-  Options-configured `DefaultCharacterSheet`) instead of static mockup content. Only Vehicles
-  remain outside the export XML, so sheets that expect that section render it blank. Fixed two
-  real bugs found while building/verifying this:
+  Armor, Weapons (incl. dice pool), Vehicles (mods/gear/weapons), Karma/Nuyen expenses) and
+  transforms it through a real `.xsl` file via `XslCompiledTransform`. `SheetPreviewDialog` renders
+  the actual open character (with a template picker covering every non-"Base" sheet under
+  `data/sheets`, defaulting to the Options-configured `DefaultCharacterSheet`) instead of static
+  mockup content. Every section the shipped sheets read is now covered; vehicle-mounted Weapons
+  don't carry damage/AP/RC in this port's saved tree data, so those three fields render blank for
+  them specifically. Fixed two real bugs found while building/verifying this:
   - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
     legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
     tested for non-empty rather than positive.

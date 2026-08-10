@@ -14,9 +14,8 @@ namespace Chummer.Core
     ///     this port targets). Deliberately scoped to the sections a typical character actually uses:
     ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
     ///     Complex Forms, Critter Powers, Martial Arts, Lifestyles, Cyberware/Bioware, Gear (incl.
-    ///     Commlinks), Armor, and Weapons (incl. dice pool). Not yet covered: Vehicles - a
-    ///     read-only gap rather than incorrect output, since the XSLT simply skips an empty/missing
-    ///     section.
+    ///     Commlinks), Armor, Weapons (incl. dice pool), and Vehicles (mods/gear/weapons, though
+    ///     vehicle-mounted Weapons don't carry damage/AP/RC in this port's saved tree data yet).
     /// </summary>
     public static class CharacterSheetExporter
     {
@@ -44,6 +43,7 @@ namespace Chummer.Core
             AppendGear(doc, charEl, character);
             AppendArmor(doc, charEl, character);
             AppendWeapons(doc, charEl, character);
+            AppendVehicles(doc, charEl, character);
             AppendExpenses(doc, charEl, character);
 
             return doc;
@@ -370,6 +370,56 @@ namespace Chummer.Core
                 AddEl(doc, weaponEl, "rc", weapon.Rc);
                 weaponEl.AppendChild(doc.CreateElement("accessories"));
                 weaponEl.AppendChild(doc.CreateElement("mods"));
+            }
+        }
+
+        private static void AppendVehicles(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement vehiclesEl = doc.CreateElement("vehicles");
+            charEl.AppendChild(vehiclesEl);
+            foreach (CharacterVehicleData vehicle in c.Vehicles)
+            {
+                XmlElement vehicleEl = doc.CreateElement("vehicle");
+                vehiclesEl.AppendChild(vehicleEl);
+                AddEl(doc, vehicleEl, "name", vehicle.Name);
+                AddEl(doc, vehicleEl, "vehiclename", string.Empty);
+
+                XmlElement modsEl = doc.CreateElement("mods");
+                vehicleEl.AppendChild(modsEl);
+                XmlElement gearsEl = doc.CreateElement("gears");
+                vehicleEl.AppendChild(gearsEl);
+                XmlElement weaponsEl = doc.CreateElement("weapons");
+                vehicleEl.AppendChild(weaponsEl);
+
+                foreach (CharacterTreeItemData item in vehicle.Children)
+                {
+                    if (item.IsVehicleMod)
+                    {
+                        XmlElement modEl = doc.CreateElement("mod");
+                        modsEl.AppendChild(modEl);
+                        AddEl(doc, modEl, "name", item.TranslatedName);
+                        AddEl(doc, modEl, "rating", item.Rating);
+                        modEl.AppendChild(doc.CreateElement("cyberwares"));
+                    }
+                    else if (item.IsVehicleWeapon)
+                    {
+                        XmlElement weaponEl = doc.CreateElement("weapon");
+                        weaponsEl.AppendChild(weaponEl);
+                        AddEl(doc, weaponEl, "name", item.TranslatedName);
+                        AddEl(doc, weaponEl, "weaponname", string.Empty);
+                        // Vehicle-mounted weapons don't carry damage/AP/RC in this port's saved
+                        // tree data (only name/rating/cost/avail) - left blank rather than wrong.
+                        AddEl(doc, weaponEl, "damage", string.Empty);
+                        AddEl(doc, weaponEl, "ap", string.Empty);
+                        AddEl(doc, weaponEl, "rc", string.Empty);
+                        weaponEl.AppendChild(doc.CreateElement("accessories"));
+                        weaponEl.AppendChild(doc.CreateElement("mods"));
+                    }
+                    else
+                    {
+                        AppendGearLikeItem(doc, gearsEl, "gear", item, includeChildren: true);
+                    }
+                }
             }
         }
 

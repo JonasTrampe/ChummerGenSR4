@@ -553,6 +553,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_IncludesVehiclesWithModsGearAndWeaponsInTheExportXml()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category>"
+            + "<body>4</body><mods /><gears /><weapons /></vehicle></vehicles></character>");
+        character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "Body * 200", "AR", "132");
+        character.AddVehicleGear(vehicleId, "Vehicle Toolkit", "Tools", "0", "1", "250", "4", "SR4", "320");
+        character.AddVehicleWeapon(vehicleId, "Mounted Gun", "Machine Pistols", "6P", "0", "SA",
+            "0", "20", "500", "8R", "SR4", "100");
+
+        string html = CharacterSheetExporter.RenderSheet(character, "Text-Only.xsl");
+
+        Assert.Contains("Americar", html);
+        Assert.Contains("Anti-Theft", html);
+        Assert.Contains("Vehicle Toolkit", html);
+        Assert.Contains("Mounted Gun", html);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_IncludesComplexFormsAndCritterPowersInTheExportXml()
     {
         CharacterDocument character = LoadXml(
