@@ -24,6 +24,21 @@ public sealed class SpiritRowViewModel
     }
 }
 
+/// <summary>Read-only row for a Complex Form or Critter Power - neither has an add/remove path
+/// yet (see FEATURE_CHECKLIST.md), so this is display-only, same as the fixed "SM 194" mockup
+/// this tab used to show for a Spell's source before that got wired to real data.</summary>
+public sealed class ReadOnlyPowerRowViewModel
+{
+    public string Label { get; }
+    public string Value { get; }
+
+    public ReadOnlyPowerRowViewModel(string strLabel, string strValue)
+    {
+        Label = strLabel;
+        Value = strValue;
+    }
+}
+
 public sealed class SpellsSectionViewModel : ViewModelBase
 {
     private readonly TreeNodeViewModel _combat = new("Kampfzauber auswählen", blnExpanded: true);
@@ -50,6 +65,12 @@ public sealed class SpellsSectionViewModel : ViewModelBase
         get => _selectedSpirit;
         set => SetField(ref _selectedSpirit, value);
     }
+
+    public ObservableCollection<ReadOnlyPowerRowViewModel> ComplexForms { get; } = new();
+    public ObservableCollection<ReadOnlyPowerRowViewModel> CritterPowers { get; } = new();
+    public bool HasComplexForms => ComplexForms.Count > 0;
+    public bool HasCritterPowers => CritterPowers.Count > 0;
+    public bool HasComplexFormsOrCritterPowers => HasComplexForms || HasCritterPowers;
 
     public SpellsSectionViewModel()
     {
@@ -89,5 +110,17 @@ public sealed class SpellsSectionViewModel : ViewModelBase
         Spirits.Clear();
         foreach (CharacterSpiritData spirit in character.Spirits)
             Spirits.Add(new SpiritRowViewModel(spirit));
+
+        ComplexForms.Clear();
+        foreach (CharacterComplexFormData form in character.ComplexForms)
+            ComplexForms.Add(new ReadOnlyPowerRowViewModel(form.DisplayName, form.Rating));
+
+        CritterPowers.Clear();
+        foreach (CharacterCritterPowerData power in character.CritterPowers)
+            CritterPowers.Add(new ReadOnlyPowerRowViewModel(power.DisplayName, power.Points));
+
+        OnPropertyChanged(nameof(HasComplexForms));
+        OnPropertyChanged(nameof(HasCritterPowers));
+        OnPropertyChanged(nameof(HasComplexFormsOrCritterPowers));
     }
 }

@@ -45,9 +45,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Kampfkünste (martial arts + advantages + maneuvers)
 - ✅ Adeptenkräfte
 - ✅ Sprüche und Geister (spells by category, spirits)
-- ❌ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — Core reads both
-  (`CharacterDocument.ComplexForms`/`CritterPowers`, used by the print sheet) but there's no
-  Avalonia tab or tree showing them at all yet, and no add/remove/picker
+- 🟡 Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — now displayed (read-only)
+  in the Sprüche und Geister tab, below Geister, only shown at all once a character actually has
+  some. No add/remove/picker for either yet.
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
