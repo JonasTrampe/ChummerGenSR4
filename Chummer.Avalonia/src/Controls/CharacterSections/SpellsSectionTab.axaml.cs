@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -81,11 +82,53 @@ public partial class SpellsSectionTab : UserControl
 
         var dialog = new ComplexFormDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
-        if (added && dialog.SelectedForm is { } selected)
+        if (!added || dialog.SelectedForm is not { } selected)
+            return;
+
+        var (blnProceed, strExtra) = await CollectSelectionAsync(window, selected.Name,
+            _character.ComplexFormRequiresTextSelection(selected.Name),
+            _character.GetComplexFormSkillSelectionOptions(selected.Name),
+            Array.Empty<string>());
+        if (!blnProceed)
+            return;
+
+        _character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page, strExtra);
+        ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Shared selecttext/selectskill/selectattribute prompt for CritterPower/ComplexForm
+    /// adds - ported from clsImprovement.cs's respective handlers, same pattern as
+    /// GeneralSectionTab's Quality flow.</summary>
+    private static async System.Threading.Tasks.Task<(bool Proceed, string Extra)> CollectSelectionAsync(
+        Window window, string strItemName, bool blnRequiresText,
+        System.Collections.Generic.IReadOnlyList<string> lstSkillOptions,
+        System.Collections.Generic.IReadOnlyList<string> lstAttributeOptions)
+    {
+        if (blnRequiresText)
         {
-            _character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page);
-            ViewModel.LoadCharacter(_character);
+            var textDialog = new TextSelectionDialog($"„{strItemName}“ benötigt eine Detailangabe:");
+            return await textDialog.ShowDialog<bool>(window)
+                ? (true, textDialog.EnteredText)
+                : (false, string.Empty);
         }
+
+        if (lstSkillOptions.Count > 0)
+        {
+            var listDialog = new ListSelectionDialog($"„{strItemName}“ - Fertigkeit auswählen:", lstSkillOptions);
+            return await listDialog.ShowDialog<bool>(window) && listDialog.SelectedValue != null
+                ? (true, listDialog.SelectedValue)
+                : (false, string.Empty);
+        }
+
+        if (lstAttributeOptions.Count > 0)
+        {
+            var listDialog = new ListSelectionDialog($"„{strItemName}“ - Attribut auswählen:", lstAttributeOptions);
+            return await listDialog.ShowDialog<bool>(window) && listDialog.SelectedValue != null
+                ? (true, listDialog.SelectedValue)
+                : (false, string.Empty);
+        }
+
+        return (true, string.Empty);
     }
 
     private void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
@@ -104,11 +147,18 @@ public partial class SpellsSectionTab : UserControl
 
         var dialog = new CritterPowerDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
-        if (added && dialog.SelectedPower is { } selected)
-        {
-            _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page);
-            ViewModel.LoadCharacter(_character);
-        }
+        if (!added || dialog.SelectedPower is not { } selected)
+            return;
+
+        var (blnProceed, strExtra) = await CollectSelectionAsync(window, selected.Name,
+            _character.CritterPowerRequiresTextSelection(selected.Name),
+            _character.GetCritterPowerSkillSelectionOptions(selected.Name),
+            _character.GetCritterPowerAttributeSelectionOptions(selected.Name));
+        if (!blnProceed)
+            return;
+
+        _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page, strExtra);
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnDeleteCritterPowerClick(object? sender, RoutedEventArgs e)

@@ -8,6 +8,7 @@ using ContactGroupDialog = Chummer.NewUI.Dialogs.ContactGroupDialog;
 using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
 using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
 using TextSelectionDialog = Chummer.NewUI.Dialogs.TextSelectionDialog;
+using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -29,21 +30,42 @@ public partial class GeneralSectionTab : UserControl
         ViewModel.LoadCharacter(character);
     }
 
-    /// <summary>Ported from clsImprovement.cs's selecttext handler: some Qualities (e.g. Allergy,
-    /// Codeslinger, Prejudiced) prompt the player for a free-text detail when added. Returns
-    /// (true, text) to proceed, (true, "") if no prompt was needed, or (false, "") if the player
-    /// cancelled the prompt.</summary>
+    /// <summary>Ported from clsImprovement.cs's selecttext/selectskill/selectattribute handlers:
+    /// some Qualities (e.g. Allergy, Codeslinger, Aptitude, Exceptional Attribute) prompt the
+    /// player for a free-text detail, a skill, or an attribute when added. Returns (true, value)
+    /// to proceed (value is "" if no prompt was needed), or (false, "") if the player cancelled.</summary>
     private async System.Threading.Tasks.Task<(bool Proceed, string Extra)> CollectQualityExtraAsync(
         Window window, string strQualityName)
     {
-        if (_character == null || !_character.QualityRequiresTextSelection(strQualityName))
+        if (_character == null)
             return (true, string.Empty);
 
-        var textDialog = new TextSelectionDialog($"„{strQualityName}“ benötigt eine Detailangabe:");
-        if (!await textDialog.ShowDialog<bool>(window))
-            return (false, string.Empty);
+        if (_character.QualityRequiresTextSelection(strQualityName))
+        {
+            var textDialog = new TextSelectionDialog($"„{strQualityName}“ benötigt eine Detailangabe:");
+            return await textDialog.ShowDialog<bool>(window)
+                ? (true, textDialog.EnteredText)
+                : (false, string.Empty);
+        }
 
-        return (true, textDialog.EnteredText);
+        var skillOptions = _character.GetQualitySkillSelectionOptions(strQualityName);
+        if (skillOptions.Count > 0)
+            return await ShowListSelectionAsync(window, $"„{strQualityName}“ - Fertigkeit auswählen:", skillOptions);
+
+        var attributeOptions = _character.GetQualityAttributeSelectionOptions(strQualityName);
+        if (attributeOptions.Count > 0)
+            return await ShowListSelectionAsync(window, $"„{strQualityName}“ - Attribut auswählen:", attributeOptions);
+
+        return (true, string.Empty);
+    }
+
+    private static async System.Threading.Tasks.Task<(bool Proceed, string Extra)> ShowListSelectionAsync(
+        Window window, string strDescription, System.Collections.Generic.IReadOnlyList<string> lstOptions)
+    {
+        var listDialog = new ListSelectionDialog(strDescription, lstOptions);
+        return await listDialog.ShowDialog<bool>(window) && listDialog.SelectedValue != null
+            ? (true, listDialog.SelectedValue)
+            : (false, string.Empty);
     }
 
     private async void OnAddQualityClick(object? sender, RoutedEventArgs e)

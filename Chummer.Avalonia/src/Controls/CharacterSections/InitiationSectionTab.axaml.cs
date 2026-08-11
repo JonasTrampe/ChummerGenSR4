@@ -32,11 +32,20 @@ public partial class InitiationSectionTab : UserControl
 
         var dialog = new MetamagicDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedMetamagic is { } selected)
+        if (added != true || dialog.SelectedMetamagic is not { } selected)
+            return;
+
+        string strSelected = string.Empty;
+        if (_character.MetamagicRequiresTextSelection(selected.Name))
         {
-            _character.AddMetamagic(selected.Name, selected.Source, selected.Page);
-            ViewModel.LoadCharacter(_character);
+            var textDialog = new TextSelectionDialog($"„{selected.Name}“ benötigt eine Detailangabe:");
+            if (!await textDialog.ShowDialog<bool>(window))
+                return;
+            strSelected = textDialog.EnteredText;
         }
+
+        _character.AddMetamagic(selected.Name, selected.Source, selected.Page, strSelected);
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnDeleteMetamagicClick(object? sender, RoutedEventArgs e)

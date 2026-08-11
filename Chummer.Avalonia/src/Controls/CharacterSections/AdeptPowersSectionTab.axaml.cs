@@ -49,7 +49,20 @@ public partial class AdeptPowersSectionTab : UserControl
             return;
         }
 
-        _character.AddAdeptPower(selected.Name, strRating, selected.PointsPerLevel);
+        string strSelected = string.Empty;
+        var skillOptions = _character.GetAdeptPowerSkillSelectionOptions(selected.Name);
+        var attributeOptions = _character.GetAdeptPowerAttributeSelectionOptions(selected.Name);
+        if (skillOptions.Count > 0 || attributeOptions.Count > 0)
+        {
+            var listDialog = new ListSelectionDialog($"„{selected.Name}“ - "
+                    + (skillOptions.Count > 0 ? "Fertigkeit auswählen:" : "Attribut auswählen:"),
+                skillOptions.Count > 0 ? skillOptions : attributeOptions);
+            if (!await listDialog.ShowDialog<bool>(window) || listDialog.SelectedValue == null)
+                return;
+            strSelected = listDialog.SelectedValue;
+        }
+
+        _character.AddAdeptPower(selected.Name, strRating, selected.PointsPerLevel, strSelected);
         ViewModel.LoadCharacter(_character);
     }
 

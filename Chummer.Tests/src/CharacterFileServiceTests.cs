@@ -175,6 +175,81 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void GetQualitySkillSelectionOptions_Aptitude_ListsAllOwnedActiveSkills()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(3); // "Pistolen", Combat Active, Firearms group.
+
+        var options = character.GetQualitySkillSelectionOptions("Aptitude"); // No filter on real data.
+
+        Assert.Contains("Pistolen", options);
+    }
+
+    [Fact]
+    public void AddQuality_Aptitude_AppliesSelectedSkillsMaxBonus()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(3);
+        character.AddQuality("Aptitude", "Positive", "Pistolen");
+
+        var improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Skill, improvement.Type);
+        Assert.Equal("Pistolen", improvement.ImprovedName);
+        Assert.Equal(1, improvement.Maximum); // Aptitude's <max>1</max>.
+
+        Assert.True(character.RemoveQuality("Aptitude", "Positive", "Pistolen"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void GetQualityAttributeSelectionOptions_ExceptionalAttribute_ExcludesEdgMagRes()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        var options = character.GetQualityAttributeSelectionOptions("Exceptional Attribute");
+
+        Assert.Contains("STR", options);
+        Assert.DoesNotContain("EDG", options);
+        Assert.DoesNotContain("MAG", options); // Not a Magician, so excluded anyway - but also explicitly excluded.
+        Assert.DoesNotContain("RES", options);
+    }
+
+    [Fact]
+    public void AddQuality_ExceptionalAttribute_AppliesSelectedAttributesMaxBonus()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Exceptional Attribute", "Positive", "STR");
+
+        var improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Attribute, improvement.Type);
+        Assert.Equal("STR", improvement.ImprovedName);
+        Assert.Equal(1, improvement.Maximum); // Exceptional Attribute's <max>1</max>.
+    }
+
+    [Fact]
+    public void AddAdeptPower_ImprovedAbilityCombat_AppliesRatingScaledSkillBonusToSelectedSkill()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(3); // "Pistolen", Combat Active.
+        character.AddAdeptPower("Improved Ability (Combat)", "2", ".5", "Pistolen");
+
+        var improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Skill, improvement.Type);
+        Assert.Equal("Pistolen", improvement.ImprovedName);
+        Assert.Equal(2, improvement.Value); // val = Rating, Rating = 2.
+        Assert.True(improvement.AddToRating);
+    }
+
+    [Fact]
+    public void GetAdeptPowerSkillSelectionOptions_ImprovedAbilityCombat_OnlyListsCombatActiveSkills()
+    {
+        CharacterDocument character = LoadCharacterWithSkill(3); // "Pistolen", Combat Active.
+
+        var combatOptions = character.GetAdeptPowerSkillSelectionOptions("Improved Ability (Combat)");
+        Assert.Contains("Pistolen", combatOptions);
+
+        var nonCombatOptions = character.GetAdeptPowerSkillSelectionOptions("Improved Ability (Non-Combat)");
+        Assert.DoesNotContain("Pistolen", nonCombatOptions); // excludecategory="Combat Active,...".
+    }
+
+    [Fact]
     public void AddSpell_MutatesCharacterAndPersistsRuleFields()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -790,6 +865,33 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCritterPower_ArmorBallistic_AppliesItsRatingOneArmorBonus()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCritterPower("Armor (Ballistic)", "1", "RW", "204");
+
+        // <armor><b>Rating</b></armor>, applied at Rating 1 (no critter-power Rating input yet).
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.BallisticArmor));
+
+        string strGuid = character.CritterPowers[0].Guid;
+        Assert.True(character.RemoveCritterPower(strGuid));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddCritterPower_ElementalAttack_AppliesThePlayerEnteredTextAsAnImprovement()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.CritterPowerRequiresTextSelection("Elemental Attack"));
+
+        character.AddCritterPower("Elemental Attack", "1", "RW", "210", "Fire");
+
+        var textImprovement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Text, textImprovement.Type);
+        Assert.Equal("Fire", textImprovement.ImprovedName);
+    }
+
+    [Fact]
     public void AddComplexForm_MutatesCharacterAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -819,6 +921,34 @@ public class CharacterFileServiceTests
         Assert.False(character.RemoveComplexForm(strGuid));
         CharacterComplexFormData remaining = Assert.Single(character.ComplexForms);
         Assert.Equal("Analyze", remaining.Name);
+    }
+
+    [Fact]
+    public void AddComplexForm_EmpathySoftware_AppliesItsSkillCategoryBonus()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddComplexForm("Empathy Software", "Sensor Software", "AR", "1");
+
+        // <skillcategory><name>Social Active</name><bonus>Rating</bonus></skillcategory>,
+        // applied at Rating 1 (the always-1 saved techprogram Rating).
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.SkillCategory, "Social Active"));
+
+        string strGuid = character.ComplexForms[0].Guid;
+        Assert.True(character.RemoveComplexForm(strGuid));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddComplexForm_Knowsoft_AppliesThePlayerEnteredTextAsAnImprovement()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.ComplexFormRequiresTextSelection("Knowsoft"));
+
+        character.AddComplexForm("Knowsoft", "Skillsofts", "SR4", "330", "Geographic Knowledge");
+
+        var textImprovement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Text, textImprovement.Type);
+        Assert.Equal("Geographic Knowledge", textImprovement.ImprovedName);
     }
 
     [Fact]
@@ -946,6 +1076,25 @@ public class CharacterFileServiceTests
         Assert.False(character.RemoveMetamagic(strGuid));
         CharacterMetamagicData remaining = Assert.Single(character.Metamagics);
         Assert.Equal("Masking", remaining.Name);
+    }
+
+    [Fact]
+    public void AddMetamagic_AttunementAnimal_AppliesThePlayerEnteredTextAsAnImprovement()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.MetamagicRequiresTextSelection("Attunement (Animal)"));
+        Assert.False(character.MetamagicRequiresTextSelection("Centering"));
+
+        character.AddMetamagic("Attunement (Animal)", "SM", "53", "Wolf");
+
+        var textImprovement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Text, textImprovement.Type);
+        Assert.Equal("Wolf", textImprovement.ImprovedName);
+        Assert.Equal("Attunement (Animal)", textImprovement.SourceName);
+
+        string strGuid = character.Metamagics[0].Guid;
+        Assert.True(character.RemoveMetamagic(strGuid));
+        Assert.Empty(character.Improvements);
     }
 
     [Fact]

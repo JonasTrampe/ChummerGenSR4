@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.ListSelectionDialog"
+        Width="360" Height="420" WindowStartupLocation="CenterOwner"
+        Title="Auswahl">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ListBox x:Name="OptionsList" Grid.Row="1" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0" Spacing="8">
+            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="OK" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

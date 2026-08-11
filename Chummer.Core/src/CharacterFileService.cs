@@ -804,20 +804,121 @@ namespace Chummer.Core
         /// clsImprovement.cs's selecttext bonus node (e.g. Allergy's substance, Prejudiced's
         /// target). The UI should collect this from the player and pass it as <see
         /// cref="AddQuality"/>'s <paramref name="strName"/>-matching <c>strExtra</c>.</summary>
-        public bool QualityRequiresTextSelection(string strName)
+        public bool QualityRequiresTextSelection(string strName) =>
+            FindBonusChild("qualities.xml", "qualities", "quality", strName, "selecttext") != null;
+
+        /// <summary>Same as <see cref="QualityRequiresTextSelection"/> but for a Critter Power's
+        /// &lt;selecttext&gt; bonus (e.g. Elemental Attack).</summary>
+        public bool CritterPowerRequiresTextSelection(string strName) =>
+            FindBonusChild("critterpowers.xml", "powers", "power", strName, "selecttext") != null;
+
+        /// <summary>Same as <see cref="QualityRequiresTextSelection"/> but for a Complex Form's
+        /// &lt;selecttext&gt; bonus (e.g. Knowsoft, Linguasoft).</summary>
+        public bool ComplexFormRequiresTextSelection(string strName) =>
+            FindBonusChild("programs.xml", "programs", "program", strName, "selecttext") != null;
+
+        /// <summary>Same as <see cref="GetQualitySkillSelectionOptions"/> but for a Critter
+        /// Power's &lt;selectskill&gt; bonus.</summary>
+        public IReadOnlyList<string> GetCritterPowerSkillSelectionOptions(string strName) =>
+            ExtractSkillSelectionOptions(FindBonusChild("critterpowers.xml", "powers", "power", strName, "selectskill"));
+
+        /// <summary>Same as <see cref="GetQualityAttributeSelectionOptions"/> but for a Critter
+        /// Power's &lt;selectattribute&gt; bonus.</summary>
+        public IReadOnlyList<string> GetCritterPowerAttributeSelectionOptions(string strName) =>
+            ExtractAttributeSelectionOptions(FindBonusChild("critterpowers.xml", "powers", "power", strName, "selectattribute"));
+
+        /// <summary>Same as <see cref="GetQualitySkillSelectionOptions"/> but for a Complex
+        /// Form's &lt;selectskill&gt; bonus (e.g. Activesoft).</summary>
+        public IReadOnlyList<string> GetComplexFormSkillSelectionOptions(string strName) =>
+            ExtractSkillSelectionOptions(FindBonusChild("programs.xml", "programs", "program", strName, "selectskill"));
+
+        /// <summary>Options to offer the player when this Quality's &lt;bonus&gt; is (or
+        /// includes) a &lt;selectskill&gt; node - ported from clsImprovement.cs's selectskill
+        /// handler's skillgroup/skillcategory/excludecategory filtering. Empty if not applicable.</summary>
+        public IReadOnlyList<string> GetQualitySkillSelectionOptions(string strName) =>
+            ExtractSkillSelectionOptions(FindBonusChild("qualities.xml", "qualities", "quality", strName, "selectskill"));
+
+        /// <summary>Same as <see cref="GetQualitySkillSelectionOptions"/> but for an Adept
+        /// Power's &lt;selectskill&gt; bonus (e.g. Improved Ability).</summary>
+        public IReadOnlyList<string> GetAdeptPowerSkillSelectionOptions(string strName) =>
+            ExtractSkillSelectionOptions(FindBonusChild("powers.xml", "powers", "power", strName, "selectskill"));
+
+        /// <summary>Options to offer the player when this Quality's &lt;bonus&gt; is (or
+        /// includes) a &lt;selectattribute&gt; node - ported from clsImprovement.cs's
+        /// selectattribute handler's attribute/excludeattribute filtering (plus MAG/RES only
+        /// being offered when the character actually has them). Empty if not applicable.</summary>
+        public IReadOnlyList<string> GetQualityAttributeSelectionOptions(string strName) =>
+            ExtractAttributeSelectionOptions(FindBonusChild("qualities.xml", "qualities", "quality", strName, "selectattribute"));
+
+        /// <summary>Same as <see cref="GetQualityAttributeSelectionOptions"/> but for an Adept
+        /// Power's &lt;selectattribute&gt; bonus (e.g. Improved Physical Attribute).</summary>
+        public IReadOnlyList<string> GetAdeptPowerAttributeSelectionOptions(string strName) =>
+            ExtractAttributeSelectionOptions(FindBonusChild("powers.xml", "powers", "power", strName, "selectattribute"));
+
+        private static XmlNode? FindBonusChild(string strDataFile, string strContainerTag, string strItemTag,
+            string strName, string strChildTag)
         {
-            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
-            XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
-                $"/chummer/qualities/quality[name = '{strName.Trim()}']");
-            return objXmlQuality?.SelectSingleNode("bonus/selecttext") != null;
+            XmlDocument objDoc = XmlManager.Instance.Load(strDataFile);
+            XmlNode? objXmlItem = objDoc.SelectSingleNode(
+                $"/chummer/{strContainerTag}/{strItemTag}[name = '{strName.Trim()}']");
+            return objXmlItem?.SelectSingleNode($"bonus/{strChildTag}");
+        }
+
+        private IReadOnlyList<string> ExtractSkillSelectionOptions(XmlNode? objNode)
+        {
+            if (objNode == null)
+                return Array.Empty<string>();
+
+            IEnumerable<CharacterSkillData> query = Skills.Where(s => !s.KnowledgeSkill);
+
+            string? strSkillGroup = objNode.Attributes?["skillgroup"]?.InnerText;
+            if (!string.IsNullOrEmpty(strSkillGroup))
+                query = query.Where(s => s.SkillGroup == strSkillGroup);
+
+            string? strCategory = objNode.Attributes?["skillcategory"]?.InnerText;
+            if (!string.IsNullOrEmpty(strCategory))
+                query = query.Where(s => s.Category == strCategory);
+
+            string? strExcludeCategory = objNode.Attributes?["excludecategory"]?.InnerText;
+            if (!string.IsNullOrEmpty(strExcludeCategory))
+            {
+                var setExcluded = new HashSet<string>(strExcludeCategory.Split(','), StringComparer.Ordinal);
+                query = query.Where(s => !setExcluded.Contains(s.Category));
+            }
+
+            return query.Select(s => s.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList();
+        }
+
+        private IReadOnlyList<string> ExtractAttributeSelectionOptions(XmlNode? objNode)
+        {
+            if (objNode == null)
+                return Array.Empty<string>();
+
+            var lstAll = new List<string> { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL" };
+            if (Magician) lstAll.Add("MAG");
+            if (Technomancer) lstAll.Add("RES");
+
+            var lstInclude = objNode.SelectNodes("attribute")?.Cast<XmlNode>().Select(n => n.InnerText).ToList();
+            if (lstInclude is { Count: > 0 })
+                lstAll = lstAll.Where(lstInclude.Contains).ToList();
+
+            var setExclude = objNode.SelectNodes("excludeattribute")?.Cast<XmlNode>()
+                .Select(n => n.InnerText).ToHashSet();
+            if (setExclude is { Count: > 0 })
+                lstAll = lstAll.Where(a => !setExclude.Contains(a)).ToList();
+
+            return lstAll;
         }
 
         /// <summary>Ported from frmSelectQuality.cs's cmdOK_Click/clsQuality.Create: also applies
         /// the quality's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>), matching
         /// legacy's CreateImprovements call on add. When the bonus is (or includes) a
-        /// &lt;selecttext&gt; node (see <see cref="QualityRequiresTextSelection"/>), <paramref
-        /// name="strExtra"/> becomes a Text Improvement, ported from clsImprovement.cs's
-        /// selecttext handler.</summary>
+        /// &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node (see <see
+        /// cref="QualityRequiresTextSelection"/>/<see cref="GetQualitySkillSelectionOptions"/>/
+        /// <see cref="GetQualityAttributeSelectionOptions"/>), <paramref name="strExtra"/> becomes
+        /// the corresponding Improvement - ported from clsImprovement.cs's
+        /// selecttext/selectskill/selectattribute handlers. No real qualities.xml Quality combines
+        /// more than one of these, so a single strExtra value is unambiguous.</summary>
         public void AddQuality(string strName, string strType, string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -845,10 +946,51 @@ namespace Chummer.Core
                 $"/chummer/qualities/quality[name = '{strName.Trim()}']");
             XmlNode? objXmlBonus = objXmlQuality?.SelectSingleNode("bonus");
             ApplyBonus(objXmlBonus, ImprovementSource.Quality, strName.Trim());
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.Quality, strName.Trim(), strExtra, "1");
+        }
 
-            if (objXmlBonus?.SelectSingleNode("selecttext") != null && !string.IsNullOrWhiteSpace(strExtra))
-                AppendImprovement(new ImprovementSpec(ImprovementType.Text, strExtra.Trim()),
-                    ImprovementSource.Quality, strName.Trim());
+        /// <summary>Shared selecttext/selectskill/selectattribute application, ported from
+        /// clsImprovement.cs's respective handlers - used by both <see cref="AddQuality"/> and
+        /// <see cref="AddAdeptPower"/>. <paramref name="strRating"/> resolves any "Rating"
+        /// reference in the selected node's own val/max/aug formulas (e.g. Improved Ability's
+        /// "Rating"-scaled skill bonus) - Qualities always pass "1" since they have no Rating.</summary>
+        private void ApplySelectedImprovement(XmlNode? objXmlBonus, ImprovementSource eSource, string strSourceName,
+            string strSelected, string strRating)
+        {
+            if (objXmlBonus == null || string.IsNullOrWhiteSpace(strSelected))
+                return;
+
+            if (objXmlBonus.SelectSingleNode("selecttext") != null)
+            {
+                AppendImprovement(new ImprovementSpec(ImprovementType.Text, strSelected.Trim()), eSource, strSourceName);
+                return;
+            }
+
+            XmlNode? objSelectSkill = objXmlBonus.SelectSingleNode("selectskill");
+            if (objSelectSkill != null)
+            {
+                bool blnAddToRating = objSelectSkill["applytorating"]?.InnerText == "yes";
+                if (objSelectSkill["val"] != null)
+                    AppendImprovement(new ImprovementSpec(ImprovementType.Skill, strSelected.Trim(),
+                        Value: (int)RatingExpression.Evaluate(objSelectSkill["val"]!.InnerText, strRating),
+                        AddToRating: blnAddToRating), eSource, strSourceName);
+                if (objSelectSkill["max"] != null)
+                    AppendImprovement(new ImprovementSpec(ImprovementType.Skill, strSelected.Trim(),
+                        Maximum: (int)RatingExpression.Evaluate(objSelectSkill["max"]!.InnerText, strRating),
+                        AddToRating: blnAddToRating), eSource, strSourceName);
+                return;
+            }
+
+            XmlNode? objSelectAttribute = objXmlBonus.SelectSingleNode("selectattribute");
+            if (objSelectAttribute != null)
+            {
+                AppendImprovement(new ImprovementSpec(ImprovementType.Attribute, strSelected.Trim(),
+                    Minimum: (int)RatingExpression.Evaluate(objSelectAttribute["min"]?.InnerText ?? string.Empty, strRating),
+                    Maximum: (int)RatingExpression.Evaluate(objSelectAttribute["max"]?.InnerText ?? string.Empty, strRating),
+                    Augmented: (int)RatingExpression.Evaluate(objSelectAttribute["val"]?.InnerText ?? string.Empty, strRating),
+                    AugmentedMaximum: (int)RatingExpression.Evaluate(objSelectAttribute["aug"]?.InnerText ?? string.Empty, strRating)),
+                    eSource, strSourceName);
+            }
         }
 
         /// <summary>Removes the first saved quality matching its name, type, and optional detail,
@@ -3379,10 +3521,13 @@ namespace Chummer.Core
 
         /// <summary>Ported from frmSelectPower.cs's cmdOK_Click. Also applies the power's own
         /// rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>) at the power's Rating,
-        /// matching legacy's CreateImprovements call on add. Note: &lt;selectsenseware&gt; (Improved
-        /// Sense) isn't a <see cref="BonusApplier"/>-covered node - see <see
-        /// cref="AddImprovedSensePower"/> for that dedicated flow.</summary>
-        public void AddAdeptPower(string strName, string strRating, string strPointsPerLevel)
+        /// matching legacy's CreateImprovements call on add - including &lt;selectskill&gt;/
+        /// &lt;selectattribute&gt; (see <see cref="GetAdeptPowerSkillSelectionOptions"/>/<see
+        /// cref="GetAdeptPowerAttributeSelectionOptions"/>), whose player-picked
+        /// <paramref name="strSelected"/> becomes the corresponding Improvement. Note:
+        /// &lt;selectsenseware&gt; (Improved Sense) isn't a <see cref="BonusApplier"/>-covered
+        /// node - see <see cref="AddImprovedSensePower"/> for that dedicated flow.</summary>
+        public void AddAdeptPower(string strName, string strRating, string strPointsPerLevel, string strSelected = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A power name is required.", nameof(strName));
@@ -3398,7 +3543,7 @@ namespace Chummer.Core
 
             var objPower = Document.CreateElement("power");
             AppendElement(objPower, "name", strName.Trim());
-            AppendElement(objPower, "extra", string.Empty);
+            AppendElement(objPower, "extra", strSelected.Trim());
             AppendElement(objPower, "rating", strRating);
             AppendElement(objPower, "pointsperlevel", strPointsPerLevel);
             AppendElement(objPower, "discounted", "False");
@@ -3407,7 +3552,9 @@ namespace Chummer.Core
 
             XmlDocument objPowersDoc = XmlManager.Instance.Load("powers.xml");
             XmlNode? objXmlPower = objPowersDoc.SelectSingleNode($"/chummer/powers/power[name = '{strName.Trim()}']");
-            ApplyBonus(objXmlPower?.SelectSingleNode("bonus"), ImprovementSource.Power, strName.Trim(), strRating);
+            XmlNode? objXmlBonus = objXmlPower?.SelectSingleNode("bonus");
+            ApplyBonus(objXmlBonus, ImprovementSource.Power, strName.Trim(), strRating);
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.Power, strName.Trim(), strSelected, strRating);
 
             Changed?.Invoke();
         }
@@ -3790,7 +3937,13 @@ namespace Chummer.Core
             return lstForms;
         }
 
-        public void AddComplexForm(string strName, string strCategory, string strSource, string strPage)
+        /// <summary>Ported from clsUnique.cs's TechProgram.Create/Save. Also applies the program's
+        /// own rules-data &lt;bonus&gt; block at Rating 1 (matching the always-1 saved Rating), and,
+        /// when the bonus is a &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node,
+        /// <paramref name="strExtra"/> becomes the corresponding Improvement (see <see
+        /// cref="ApplySelectedImprovement"/>).</summary>
+        public void AddComplexForm(string strName, string strCategory, string strSource, string strPage,
+            string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A complex form name is required.", nameof(strName));
@@ -3809,10 +3962,18 @@ namespace Chummer.Core
             AppendElement(objForm, "name", strName.Trim());
             AppendElement(objForm, "category", strCategory);
             AppendElement(objForm, "rating", "1");
-            AppendElement(objForm, "extra", string.Empty);
+            AppendElement(objForm, "extra", strExtra.Trim());
             AppendElement(objForm, "source", strSource);
             AppendElement(objForm, "page", strPage);
             objForms.AppendChild(objForm);
+
+            XmlDocument objProgramsDoc = XmlManager.Instance.Load("programs.xml");
+            XmlNode? objXmlProgram = objProgramsDoc.SelectSingleNode(
+                $"/chummer/programs/program[name = '{strName.Trim()}']");
+            XmlNode? objXmlBonus = objXmlProgram?.SelectSingleNode("bonus");
+            ApplyBonus(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim());
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
+
             Changed?.Invoke();
         }
 
@@ -3830,7 +3991,9 @@ namespace Chummer.Core
                 if (!string.Equals(GetValue(objForm, "guid", string.Empty), strGuid, StringComparison.Ordinal))
                     continue;
 
+                string strName = GetValue(objForm, "name", string.Empty);
                 objForm.ParentNode?.RemoveChild(objForm);
+                RemoveBonusImprovements(ImprovementSource.ComplexForm, strName);
                 Changed?.Invoke();
                 return true;
             }
@@ -3856,7 +4019,14 @@ namespace Chummer.Core
 
         /// <summary>Ported from clsUnique.cs's CritterPower.Create/Save, simplified to skip the
         /// &lt;bonus&gt; Improvement-creation path (matches AddMetamagic/AddCyberware etc.).</summary>
-        public void AddCritterPower(string strName, string strPoints, string strSource, string strPage)
+        /// <summary>Ported from clsUnique.cs's CritterPower.Create/Save. Also applies the power's
+        /// own rules-data &lt;bonus&gt; block at Rating 1 (this port has no critter-power Rating
+        /// input yet, so tier-1 &lt;bonus&gt; nodes always apply at their Rating-1 value), and, when
+        /// the bonus is a &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node,
+        /// <paramref name="strExtra"/> becomes the corresponding Improvement (see <see
+        /// cref="ApplySelectedImprovement"/>).</summary>
+        public void AddCritterPower(string strName, string strPoints, string strSource, string strPage,
+            string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A critter power name is required.", nameof(strName));
@@ -3873,11 +4043,19 @@ namespace Chummer.Core
             var objPower = Document.CreateElement("critterpower");
             AppendElement(objPower, "guid", Guid.NewGuid().ToString());
             AppendElement(objPower, "name", strName.Trim());
-            AppendElement(objPower, "extra", string.Empty);
+            AppendElement(objPower, "extra", strExtra.Trim());
             AppendElement(objPower, "points", strPoints);
             AppendElement(objPower, "source", strSource);
             AppendElement(objPower, "page", strPage);
             objPowers.AppendChild(objPower);
+
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("critterpowers.xml");
+            XmlNode? objXmlPower = objPowersDoc.SelectSingleNode(
+                $"/chummer/powers/power[name = '{strName.Trim()}']");
+            XmlNode? objXmlBonus = objXmlPower?.SelectSingleNode("bonus");
+            ApplyBonus(objXmlBonus, ImprovementSource.CritterPower, strName.Trim());
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.CritterPower, strName.Trim(), strExtra, "1");
+
             Changed?.Invoke();
         }
 
@@ -3895,7 +4073,9 @@ namespace Chummer.Core
                 if (!string.Equals(GetValue(objPower, "guid", string.Empty), strGuid, StringComparison.Ordinal))
                     continue;
 
+                string strName = GetValue(objPower, "name", string.Empty);
                 objPower.ParentNode?.RemoveChild(objPower);
+                RemoveBonusImprovements(ImprovementSource.CritterPower, strName);
                 Changed?.Invoke();
                 return true;
             }
@@ -3903,9 +4083,17 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Whether adding this Metamagic prompts for a free-text detail - ported from
+        /// clsImprovement.cs's selecttext bonus node (e.g. Attunement (Animal/Item)'s target).</summary>
+        public bool MetamagicRequiresTextSelection(string strName) =>
+            FindBonusChild("metamagic.xml", "metamagics", "metamagic", strName, "selecttext") != null;
+
         /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, also applying the
-        /// metamagic's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>).</summary>
-        public void AddMetamagic(string strName, string strSource, string strPage)
+        /// metamagic's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>) and,
+        /// when the bonus is a &lt;selecttext&gt; node (see <see
+        /// cref="MetamagicRequiresTextSelection"/>), <paramref name="strSelected"/> becomes a Text
+        /// Improvement (see <see cref="ApplySelectedImprovement"/>).</summary>
+        public void AddMetamagic(string strName, string strSource, string strPage, string strSelected = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A metamagic name is required.", nameof(strName));
@@ -3931,7 +4119,9 @@ namespace Chummer.Core
             XmlDocument objMetamagicsDoc = XmlManager.Instance.Load("metamagic.xml");
             XmlNode? objXmlMetamagic = objMetamagicsDoc.SelectSingleNode(
                 $"/chummer/metamagics/metamagic[name = '{strName.Trim()}']");
-            ApplyBonus(objXmlMetamagic?.SelectSingleNode("bonus"), ImprovementSource.Metamagic, strName.Trim());
+            XmlNode? objXmlBonus = objXmlMetamagic?.SelectSingleNode("bonus");
+            ApplyBonus(objXmlBonus, ImprovementSource.Metamagic, strName.Trim());
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.Metamagic, strName.Trim(), strSelected, "1");
 
             Changed?.Invoke();
         }

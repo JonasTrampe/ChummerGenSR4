@@ -310,27 +310,35 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   Mind's Skill bonuses, Improved Reflexes 2's InitiativePass/REA bonuses (with its `precedence`
   attribute), and Wired Reflexes' Rating-scaled InitiativePass/REA bonuses (including cleanup on
   removal).
-  Deliberately NOT covered, matching how the tier-1 scope was chosen (frequency-ranked against this
-  port's own data, not an exhaustive port of legacy's ~109-branch if-chain):
-  - `selectskill`/`selectattribute`/`selectsenseware` (the last has its own dedicated flow - see
-    below) still need a real picker over rules data (a list of skills/attributes/senseware to
-    choose from). `selecttext` is now covered (see below) since it's just free text, no list.
-  - CritterPower/ComplexForm additions still don't call `ApplyBonus` (most CritterPower/ComplexForm
-    entries in this port's data don't carry bonus-relevant `<bonus>` content beyond
-    selectables/effects out of tier-1 scope; revisit if a real gap surfaces).
+  CritterPower/ComplexForm additions now call `ApplyBonus` too (`AddCritterPower`/
+  `AddComplexForm`, cleaned up by the matching `RemoveCritterPower`/`RemoveComplexForm`) - at
+  Rating 1, since neither this port's CritterPower picker nor its saved ComplexForm Rating (always
+  "1") model a real Rating input yet. Verified against real data: Armor (Ballistic)'s
+  `<armor><b>Rating</b></armor>` and Empathy Software's Rating-scaled `skillcategory` bonus.
 
-  **Selectable Improvement flow (`selecttext` only):** `CharacterDocument.QualityRequiresTextSelection`
-  detects a Quality's `<bonus>` containing `<selecttext>` (63 of this port's 1629 qualities.xml
-  entries - Allergy, Codeslinger, Prejudiced, etc. - previously always silently applied nothing for
-  their required detail); the new `TextSelectionDialog` (ported from frmSelectText.cs - a plain
-  free-text prompt, matching legacy's own lack of a curated list for these) collects it, and
-  `AddQuality` applies the entered text as a `Text` Improvement when the bonus needs one - reusing
-  the already-existing `strExtra` parameter (previously only used for display, e.g. "Allergy
-  (Silver)"), so no new persisted field was needed. Wired into both the General tab's Quality-add
-  and Quality-swap flows. Verified against real data (Codeslinger). `selecttext` sources other than
-  Quality (some Metamagics, e.g. Attunement (Animal)) aren't wired yet - `AddMetamagic` has no
-  `strExtra`-equivalent parameter/persisted field today, so this would need its own small follow-up
-  rather than reusing the Quality plumbing as-is.
+  **Selectable Improvement flow:** all three interactive bonus node types are now covered, not
+  just `selecttext`:
+  - `selecttext` (free-text prompt, `TextSelectionDialog`, ported from frmSelectText.cs) - wired
+    into Quality (add + swap), Metamagic, Critter Power, and Complex Form adds. Verified against
+    real data: Codeslinger (Quality), Attunement (Animal) (Metamagic), Elemental Attack (Critter
+    Power), Knowsoft (Complex Form).
+  - `selectskill`/`selectattribute` (a plain list picker, `ListSelectionDialog`, ported from
+    frmSelectSkill.cs/frmSelectAttribute.cs with no category/rating extras this port doesn't
+    otherwise model) - `GetQualitySkillSelectionOptions`/`GetQualityAttributeSelectionOptions` and
+    their Adept Power/Critter Power/Complex Form equivalents list the eligible options (skills:
+    the character's own owned active skills, filtered by the bonus's optional skillgroup/
+    skillcategory/excludecategory attribute; attributes: the 8 physical/mental attributes plus
+    MAG/RES when applicable, filtered by the bonus's optional attribute/excludeattribute list),
+    wired into the same add flows as `selecttext`. Verified against real data: Aptitude and
+    Exceptional Attribute (Quality), Improved Ability (Combat/Non-Combat) (Adept Power, including
+    its Rating-scaled bonus and skillcategory/excludecategory filtering).
+
+  All three share one apply path, `CharacterFileService.ApplySelectedImprovement` - the player's
+  choice becomes a Text/Skill/Attribute Improvement, reusing each source's existing `strExtra`/
+  `strSelected` parameter (Quality/Adept Power/Critter Power/Complex Form already had one for
+  display purposes, e.g. "Allergy (Silver)"; Metamagic gained one). No real qualities.xml/
+  powers.xml/critterpowers.xml/programs.xml/metamagic.xml entry combines more than one of
+  `selecttext`/`selectskill`/`selectattribute`, so a single value per add is unambiguous.
 
   The Metamagic Improvement refresh on Initiation Grade raise is now ported too - see the
   Initiation entry above.
