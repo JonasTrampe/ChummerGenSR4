@@ -761,6 +761,8 @@ public class CharacterFileServiceTests
             + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category>"
             + "<body>4</body><mods /><gears /><weapons /></vehicle></vehicles></character>");
         character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "Body * 200", "AR", "132");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
         character.AddVehicleGear(vehicleId, "Vehicle Toolkit", "Tools", "0", "1", "250", "4", "SR4", "320");
         character.AddVehicleWeapon(vehicleId, "Mounted Gun", "Machine Pistols", "6P", "0", "SA",
             "0", "20", "500", "8R", "SR4", "100");
@@ -2113,15 +2115,58 @@ public class CharacterFileServiceTests
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><vehicles><vehicle>"
             + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons />"
             + "</vehicle></vehicles></character>");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
 
         Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
             "1", "42(c)", "2500", "12F", "SR4", "312"));
-        CharacterTreeItemData weapon = Assert.Single(character.Vehicles.Single().Children);
-        Assert.Equal("Ares Alpha", weapon.Name);
-        Assert.Equal("7500", character.Nuyen);
+        CharacterTreeItemData weapon = character.Vehicles.Single().Children.Single(c => c.Name == "Ares Alpha");
+        Assert.Equal("6000", character.Nuyen); // 10000 - 1500(mount) - 2500(weapon)
         Assert.True(Guid.TryParse(weapon.ItemGuid, out Guid weaponId));
         Assert.True(character.RemoveVehicleWeapon(vehicleId, weaponId));
+        Assert.Single(character.Vehicles.Single().Children); // the mount mod itself is still there
+    }
+
+    [Fact]
+    public void AddVehicleWeapon_RejectedWithoutAnAvailableMount()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons /><mods />"
+            + "</vehicle></vehicles></character>");
+
+        // No Weapon Mount/Mechanical Arm mod installed at all.
+        Assert.False(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
         Assert.Empty(character.Vehicles.Single().Children);
+
+        // A regular (non-mount) mod doesn't count.
+        character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "200", "AR", "132");
+        Assert.False(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
+    }
+
+    [Fact]
+    public void AddVehicleWeapon_LimitsDirectWeaponsToTheInstalledMountCount()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>100000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons /><mods />"
+            + "</vehicle></vehicles></character>");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
+
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
+        // The single mount is already occupied - a second direct weapon is rejected.
+        Assert.False(character.AddVehicleWeapon(vehicleId, "Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA",
+            "0", "15", "350", "4R", "SR4", "313"));
+
+        // Installing a second mount frees up room for a second weapon.
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA",
+            "0", "15", "350", "4R", "SR4", "313"));
     }
 
     [Fact]

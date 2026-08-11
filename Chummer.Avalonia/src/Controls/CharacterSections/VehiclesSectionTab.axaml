@@ -10,7 +10,8 @@
                 <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
                 <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
                 <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
-                <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick" />
+                <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick"
+                        ToolTip.Tip="Benötigt einen noch freien 'Weapon Mount'/'Mechanical Arm'-Modifikation - je eine Waffe pro installierter Halterung." />
                 <Button Content="Ort hinzufügen" Click="OnAddVehicleLocationClick" />
                 <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />

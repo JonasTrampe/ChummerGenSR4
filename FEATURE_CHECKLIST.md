@@ -113,8 +113,14 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   in legacy - a Drone is just a Vehicle whose category happens to be "Drones: Micro"/"Drones:
   Small"/etc. in vehicles.xml, and this port's vehicle picker/add/edit path is already
   category-agnostic, so Drones already work end to end through the exact same code as cars.
-  Weapon-mount eligibility (validating a vehicle weapon add against an actual mount slot, rather
-  than just adding it unconditionally like `AddVehicleWeapon` does today) remains unported. Mod
+  Weapon-mount eligibility is now enforced too - researched frmCareer.cs's
+  tsVehicleAddWeaponWeapon_Click and found legacy actually requires selecting a specific installed
+  "Weapon Mount"/"Mechanical Arm" VehicleMod before it'll let you add a vehicle weapon at all (and
+  nests the new weapon under that specific mod node). `AddVehicleWeapon` now checks the vehicle has
+  more installed mount-type mods than it already has direct weapons - simplified from legacy's
+  per-mount nesting to a simple count check (still one weapon per mount, just not tracking which
+  mount each occupies), since this port's existing "direct onboard weapon" UI already attaches at
+  the vehicle root rather than under a specific mod. Mod
   "class eligibility" (a mod's `<limit>` field, e.g.
   "Groundcraft Only") turns out not to be a real gap: checked frmSelectVehicleMod.cs and legacy
   itself never validates it either, it's purely informational text next to the mod name - already
