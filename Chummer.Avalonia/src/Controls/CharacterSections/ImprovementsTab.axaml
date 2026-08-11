@@ -8,14 +8,17 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Verbesserung hinzufügen" />
-                    <Button Content="Verbesserung bearbeiten" />
+                    <Button Content="Verbesserung hinzufügen" IsEnabled="False"
+                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md (frmCreateImprovement.cs braucht einen generischen Bonus-XML-Interpreter, den dieser Port noch nicht hat)." />
+                    <Button Content="Verbesserung bearbeiten" IsEnabled="False"
+                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md." />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="Löschen" Click="OnDeleteImprovementClick"
                             IsEnabled="{Binding SelectedImprovement.IsCustom}"
                             ToolTip.Tip="Nur manuell angelegte Verbesserungen können hier gelöscht werden - alle anderen sind eine Nebenwirkung einer anderen Position (Gabe/Cyberware/Metamagie/...) und müssen über diese entfernt werden." />
-                    <Button Content="Gruppe hinzufügen" />
+                    <Button Content="Gruppe hinzufügen" IsEnabled="False"
+                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md." />
                 </StackPanel>
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
