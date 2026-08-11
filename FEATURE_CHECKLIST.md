@@ -234,7 +234,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   `data/sheets`, defaulting to the Options-configured `DefaultCharacterSheet`) instead of static
   mockup content. Every section the shipped sheets read is now covered; vehicle-mounted Weapons
   don't carry damage/AP/RC in this port's saved tree data, so those three fields render blank for
-  them specifically. Fixed two real bugs found while building/verifying this:
+  them specifically. "Als HTML exportieren" (found sitting unwired in the XAML as "Als PDF
+  exportieren") now saves the actual rendered XHTML to disk - no PDF library or cross-platform
+  print backend is referenced anywhere in this port, so real PDF export/native "Drucken" remain
+  out of reach without adding a new dependency; "Drucken" stays disabled with a tooltip explaining
+  why instead of silently doing nothing. Fixed two real bugs found while building/verifying this:
   - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
     legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
     tested for non-empty rather than positive.

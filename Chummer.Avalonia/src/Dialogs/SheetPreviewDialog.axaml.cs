@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Chummer.Core;
 
 namespace Chummer.NewUI.Dialogs;
@@ -98,6 +99,30 @@ public partial class SheetPreviewDialog : Window
         strText = System.Net.WebUtility.HtmlDecode(strText);
         strText = Regex.Replace(strText, "\n{3,}", "\n\n");
         return strText.Trim();
+    }
+
+    /// <summary>Saves the raw rendered XHTML to disk - the closest this port gets to "export" or
+    /// "print" for now: there's no PDF library referenced and no cross-platform print backend
+    /// wired up, but the actual rendered sheet (not just the tag-stripped preview text) is already
+    /// sitting in SheetHtml, so at minimum the user can open/print/convert it externally.</summary>
+    private async void OnExportHtmlClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(SheetHtml) || TopLevel.GetTopLevel(this)?.StorageProvider is not { } storage)
+            return;
+
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Charakterbogen als HTML exportieren",
+            DefaultExtension = "html",
+            SuggestedFileName = _character?.Name ?? "Charakterbogen",
+            FileTypeChoices = [new FilePickerFileType("HTML-Datei") { Patterns = ["*.html", "*.htm"] }],
+        });
+        if (file is null)
+            return;
+
+        await using var stream = await file.OpenWriteAsync();
+        await using var writer = new StreamWriter(stream);
+        await writer.WriteAsync(SheetHtml);
     }
 
     private void OnClose(object? sender, RoutedEventArgs e) => Close();
