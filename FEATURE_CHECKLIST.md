@@ -45,10 +45,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Kampfkünste (martial arts + advantages + maneuvers)
 - ✅ Adeptenkräfte
 - ✅ Sprüche und Geister (spells by category, spirits)
-- 🟡 Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
-  Sprüche und Geister tab, below Geister. Kritter-Kräfte now support add (via a `critterpowers.xml`
-  picker dialog) and delete (by saved guid), always shown. Komplexe Formen remains read-only and
-  only shown once a character actually has some — no add/remove/picker for it yet.
+- ✅ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
+  Sprüche und Geister tab, below Geister, and both now support add (via a `programs.xml`/
+  `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
@@ -76,22 +75,26 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Character sheet tabs — editing
 
 - 🟡 **Add Quality, Spell, Gear, Spirit/Sprite, Martial Art, Martial Art Maneuver, Adept Power,
-  Metamagic, and Karma/Nuyen history entries** work end-to-end (UI → character XML →
-  save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites, Martial
-  Arts/Maneuvers, Adept Powers, and Metamagics can also be deleted, and Karma/Nuyen history
-  entries can be edited in place (amount/reason/date). Character-Information's portrait
-  (mugshot) also loads/changes/clears. Manual Improvement add/edit/delete and most other
-  operations remain unwired.
+  Metamagic, Complex Form, Critter Power, and Karma/Nuyen history entries** work end-to-end
+  (UI → character XML → save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites,
+  Martial Arts/Maneuvers, Adept Powers, Metamagics, Complex Forms, and Critter Powers can also be
+  deleted, and Karma/Nuyen history entries can be edited in place (amount/reason/date).
+  Character-Information's portrait (mugshot) also loads/changes/clears. Manual Improvement
+  add/edit/delete and most other operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 15 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+- 🟡 17 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
   Weapon, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial Art, Martial Art Maneuver, Adept
-  Power, Metamagic, and CritterPower. The implementations remain deliberately scoped (for example,
-  no advanced vehicle-mod eligibility validation, no advanced lifestyle construction, and
-  Metamagic/Adept Power/CritterPower additions don't apply their rules-data Improvement bonuses).
-- ❌ The remaining pickers (Skill beyond exotic skills, ContactConnection, and others) don't exist
-  yet.
+  Power, Metamagic, CritterPower, ComplexForm, and ContactConnection. The implementations remain
+  deliberately scoped (for example, no advanced vehicle-mod eligibility validation, no advanced
+  lifestyle construction, and Metamagic/Adept Power/CritterPower/ComplexForm additions don't apply
+  their rules-data Improvement bonuses).
+- ✅ ContactConnection (Group Network rating: Membership/Area of Influence/Magical/Matrix Resources
+  + group name/colour/free flag) — `ContactGroupDialog` wired to `UpdateContactGroup`.
+- ❌ The remaining pickers (Skill beyond exotic skills — active/knowledge skills come from a fixed
+  list plus freeform knowledge-skill entries, so no picker is actually needed there — and others)
+  don't exist yet.
 
 ## Derived stats / calculations
 

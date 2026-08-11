@@ -24,17 +24,17 @@ public sealed class SpiritRowViewModel
     }
 }
 
-/// <summary>Read-only row for a Complex Form - no add/remove path yet (see
-/// FEATURE_CHECKLIST.md).</summary>
-public sealed class ReadOnlyPowerRowViewModel
+public sealed class ComplexFormRowViewModel
 {
+    public string Guid { get; }
     public string Label { get; }
     public string Value { get; }
 
-    public ReadOnlyPowerRowViewModel(string strLabel, string strValue)
+    public ComplexFormRowViewModel(CharacterComplexFormData form)
     {
-        Label = strLabel;
-        Value = strValue;
+        Guid = form.Guid;
+        Label = form.DisplayName;
+        Value = form.Rating;
     }
 }
 
@@ -79,9 +79,15 @@ public sealed class SpellsSectionViewModel : ViewModelBase
         set => SetField(ref _selectedSpirit, value);
     }
 
-    public ObservableCollection<ReadOnlyPowerRowViewModel> ComplexForms { get; } = new();
+    public ObservableCollection<ComplexFormRowViewModel> ComplexForms { get; } = new();
     public ObservableCollection<CritterPowerRowViewModel> CritterPowers { get; } = new();
-    public bool HasComplexForms => ComplexForms.Count > 0;
+
+    private ComplexFormRowViewModel? _selectedComplexForm;
+    public ComplexFormRowViewModel? SelectedComplexForm
+    {
+        get => _selectedComplexForm;
+        set => SetField(ref _selectedComplexForm, value);
+    }
 
     private CritterPowerRowViewModel? _selectedCritterPower;
     public CritterPowerRowViewModel? SelectedCritterPower
@@ -131,12 +137,10 @@ public sealed class SpellsSectionViewModel : ViewModelBase
 
         ComplexForms.Clear();
         foreach (CharacterComplexFormData form in character.ComplexForms)
-            ComplexForms.Add(new ReadOnlyPowerRowViewModel(form.DisplayName, form.Rating));
+            ComplexForms.Add(new ComplexFormRowViewModel(form));
 
         CritterPowers.Clear();
         foreach (CharacterCritterPowerData power in character.CritterPowers)
             CritterPowers.Add(new CritterPowerRowViewModel(power));
-
-        OnPropertyChanged(nameof(HasComplexForms));
     }
 }

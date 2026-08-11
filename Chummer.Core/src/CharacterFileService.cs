@@ -2801,8 +2801,8 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
 
-        /// <summary>A Technomancer's Complex Forms - ported (read-only) from clsUnique.cs's
-        /// TechProgram class. No add/remove/picker yet, only read+print support.</summary>
+        /// <summary>A Technomancer's Complex Forms - ported from clsUnique.cs's TechProgram class,
+        /// data drawn from programs.xml (see frmSelectProgram.cs).</summary>
         public IReadOnlyList<CharacterComplexFormData> ComplexForms => ReadComplexForms();
 
         private IReadOnlyList<CharacterComplexFormData> ReadComplexForms()
@@ -2819,11 +2819,60 @@ namespace Chummer.Core
                         lstOptions.Add((GetValue(objOptionNode, "name", string.Empty),
                             GetValue(objOptionNode, "rating", "0")));
 
-                lstForms.Add(new CharacterComplexFormData(GetValue(objNode, "name", string.Empty),
+                lstForms.Add(new CharacterComplexFormData(GetValue(objNode, "guid", string.Empty),
+                    GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"), lstOptions));
             }
 
             return lstForms;
+        }
+
+        public void AddComplexForm(string strName, string strCategory, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A complex form name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objForms = objRoot.SelectSingleNode("techprograms");
+            if (objForms == null)
+            {
+                objForms = Document.CreateElement("techprograms");
+                objRoot.AppendChild(objForms);
+            }
+
+            var objForm = Document.CreateElement("techprogram");
+            AppendElement(objForm, "guid", Guid.NewGuid().ToString());
+            AppendElement(objForm, "name", strName.Trim());
+            AppendElement(objForm, "category", strCategory);
+            AppendElement(objForm, "rating", "1");
+            AppendElement(objForm, "extra", string.Empty);
+            AppendElement(objForm, "source", strSource);
+            AppendElement(objForm, "page", strPage);
+            objForms.AppendChild(objForm);
+            Changed?.Invoke();
+        }
+
+        public bool RemoveComplexForm(string strGuid)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/techprograms/techprogram");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objForm in objNodes)
+            {
+                if (!string.Equals(GetValue(objForm, "guid", string.Empty), strGuid, StringComparison.Ordinal))
+                    continue;
+
+                objForm.ParentNode?.RemoveChild(objForm);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>A Critter/Free Spirit's innate powers - ported (read-only) from clsUnique.cs's
@@ -5006,15 +5055,17 @@ namespace Chummer.Core
 
     public sealed class CharacterComplexFormData
     {
-        internal CharacterComplexFormData(string strName, string strExtra, string strRating,
+        internal CharacterComplexFormData(string strGuid, string strName, string strExtra, string strRating,
             IReadOnlyList<(string Name, string Rating)> lstOptions)
         {
+            Guid = strGuid;
             Name = strName;
             Extra = strExtra;
             Rating = strRating;
             Options = lstOptions;
         }
 
+        public string Guid { get; }
         public string Name { get; }
         public string Extra { get; }
         public string Rating { get; }

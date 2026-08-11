@@ -585,6 +585,38 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddComplexForm_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddComplexForm("Editor", "Common Use", "SR4", "232");
+
+        CharacterComplexFormData added = Assert.Single(character.ComplexForms);
+        Assert.Equal("Editor", added.Name);
+        Assert.Equal("1", added.Rating);
+        Assert.NotEmpty(added.Guid);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Editor", Assert.Single(reloaded.ComplexForms).Name);
+    }
+
+    [Fact]
+    public void RemoveComplexForm_RemovesOnlyTheMatchingEntry()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddComplexForm("Editor", "Common Use", "SR4", "232");
+        character.AddComplexForm("Analyze", "Common Use", "SR4", "232");
+        string strGuid = character.ComplexForms[0].Guid;
+
+        Assert.True(character.RemoveComplexForm(strGuid));
+        Assert.False(character.RemoveComplexForm(strGuid));
+        CharacterComplexFormData remaining = Assert.Single(character.ComplexForms);
+        Assert.Equal("Analyze", remaining.Name);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_IncludesVehiclesWithModsGearAndWeaponsInTheExportXml()
     {
         Guid vehicleId = Guid.NewGuid();

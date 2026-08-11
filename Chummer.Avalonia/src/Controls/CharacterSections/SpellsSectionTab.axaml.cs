@@ -74,6 +74,29 @@ public partial class SpellsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnAddComplexFormClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ComplexFormDialog(_character);
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedForm is { } selected)
+        {
+            _character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedComplexForm is not { } selected)
+            return;
+
+        if (_character.RemoveComplexForm(selected.Guid))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddCritterPowerClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
