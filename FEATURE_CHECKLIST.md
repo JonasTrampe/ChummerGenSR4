@@ -91,9 +91,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.
 - ✅ Initiation (grades list, and raising the Initiate/Submersion Grade now works too - ported
   from frmCareer.cs's cmdImproveInitiation_Click, including the Group/Ordeal -20% cost discounts
-  and the MAG/RES attribute cap; not ported: the MAG-boosting Improvement and the Metamagic
-  Improvement refresh legacy also does on raise - see the bonus-application engine note below for
-  what's now covered vs. not)
+  and the MAG/RES attribute cap. Also now ports the MAG/RES-boosting Improvement (replaced
+  wholesale each raise, matching legacy's RemoveImprovements+CreateImprovement pair) and the
+  Metamagic Improvement refresh: any owned Metamagic whose rules-data `<bonus>` XML references
+  "Rating" gets its Improvements rebuilt at the new Grade as the Rating - none of this port's
+  shipped `metamagic.xml` entries actually use "Rating" today, so this is verified against the
+  guard condition (an unaffected real Metamagic) plus the MAG-boosting Improvement itself, not an
+  end-to-end Rating-scaled Metamagic example)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
@@ -314,8 +318,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   - CritterPower/ComplexForm additions still don't call `ApplyBonus` (most CritterPower/ComplexForm
     entries in this port's data don't carry bonus-relevant `<bonus>` content beyond
     selectables/effects out of tier-1 scope; revisit if a real gap surfaces).
-  - The Metamagic Improvement refresh on Initiation Grade raise (legacy re-runs
-    `CreateImprovements` on every owned Metamagic each time Grade increases) still isn't ported.
+
+  The Metamagic Improvement refresh on Initiation Grade raise is now ported too - see the
+  Initiation entry above.
 
   `ImprovedSenseFullRating`/`selectsenseware` (the original trigger for building this engine) is
   now done, as a dedicated flow on top of `BonusApplier` rather than a generalized "Selectable

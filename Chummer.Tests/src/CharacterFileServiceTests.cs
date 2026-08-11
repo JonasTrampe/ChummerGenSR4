@@ -1987,6 +1987,34 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RaiseInitiateGrade_ReplacesTheMagBoostingImprovementEachRaise()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>1000</karma>"
+            + "<attributes>" + AttributeXml("MAG", "6") + "</attributes></character>");
+
+        Assert.True(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        Assert.Equal(1, Assert.Single(character.Improvements, i => i.SourceName == "Initiation").Maximum);
+
+        Assert.True(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        // Replaced, not stacked - still exactly one Initiation Improvement, now at Grade 2.
+        Assert.Equal(2, Assert.Single(character.Improvements, i => i.SourceName == "Initiation").Maximum);
+    }
+
+    [Fact]
+    public void RaiseInitiateGrade_MetamagicWithoutRatingInBonus_IsNotRebuilt()
+    {
+        // "Quickening" is a real metamagic.xml entry whose <bonus> doesn't reference "Rating" -
+        // the refresh pass's Contains("Rating") guard must leave it alone.
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>1000</karma>"
+            + "<attributes>" + AttributeXml("MAG", "6") + "</attributes></character>");
+        character.AddMetamagic("Quickening", "SR4", "198");
+
+        Assert.True(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+
+        Assert.DoesNotContain(character.Improvements, i => i.SourceName == "Quickening");
+    }
+
+    [Fact]
     public void RaiseInitiateGrade_RejectedWithoutEnoughKarma()
     {
         CharacterDocument character = LoadXml("<character><magician>True</magician><karma>5</karma>"

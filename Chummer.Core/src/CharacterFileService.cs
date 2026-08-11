@@ -2123,9 +2123,17 @@ namespace Chummer.Core
             string strRating = "1", string strUnique = "")
         {
             IReadOnlyList<ImprovementSpec> lstSpecs = BonusApplier.Parse(nodBonus, strRating, strUnique);
-            if (lstSpecs.Count == 0)
-                return;
+            foreach (ImprovementSpec objSpec in lstSpecs)
+                AppendImprovement(objSpec, eSource, strSourceName);
+        }
 
+        /// <summary>Persists one <see cref="ImprovementSpec"/> as an &lt;improvement&gt; element,
+        /// in the shape <see cref="Improvement.Load"/> expects. Shared by <see cref="ApplyBonus"/>
+        /// (rules-data-driven specs) and callers that construct a spec directly, like <see
+        /// cref="RaiseInitiateGrade"/>'s MAG/RES-boosting Improvement (ported from
+        /// clsImprovement.cs's CreateImprovement's actual XML write).</summary>
+        private void AppendImprovement(ImprovementSpec objSpec, ImprovementSource eSource, string strSourceName)
+        {
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objImprovements = objRoot.SelectSingleNode("improvements") as XmlElement;
@@ -2135,25 +2143,22 @@ namespace Chummer.Core
                 objRoot.AppendChild(objImprovements);
             }
 
-            foreach (ImprovementSpec objSpec in lstSpecs)
-            {
-                var objImprovement = Document.CreateElement("improvement");
-                AppendElement(objImprovement, "improvementttype", objSpec.Type.ToString());
-                AppendElement(objImprovement, "improvedname", objSpec.ImprovedName);
-                AppendElement(objImprovement, "sourcename", strSourceName);
-                AppendElement(objImprovement, "min", objSpec.Minimum.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "max", objSpec.Maximum.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "aug", objSpec.Augmented.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "augmax", objSpec.AugmentedMaximum.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "val", objSpec.Value.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "rating", objSpec.Rating.ToString(CultureInfo.InvariantCulture));
-                AppendElement(objImprovement, "unique", objSpec.UniqueName);
-                AppendElement(objImprovement, "improvementsource", eSource.ToString());
-                AppendElement(objImprovement, "addtorating", objSpec.AddToRating.ToString());
-                AppendElement(objImprovement, "enabled", "True");
-                AppendElement(objImprovement, "custom", "False");
-                objImprovements.AppendChild(objImprovement);
-            }
+            var objImprovement = Document.CreateElement("improvement");
+            AppendElement(objImprovement, "improvementttype", objSpec.Type.ToString());
+            AppendElement(objImprovement, "improvedname", objSpec.ImprovedName);
+            AppendElement(objImprovement, "sourcename", strSourceName);
+            AppendElement(objImprovement, "min", objSpec.Minimum.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "max", objSpec.Maximum.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "aug", objSpec.Augmented.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "augmax", objSpec.AugmentedMaximum.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "val", objSpec.Value.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "rating", objSpec.Rating.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objImprovement, "unique", objSpec.UniqueName);
+            AppendElement(objImprovement, "improvementsource", eSource.ToString());
+            AppendElement(objImprovement, "addtorating", objSpec.AddToRating.ToString());
+            AppendElement(objImprovement, "enabled", "True");
+            AppendElement(objImprovement, "custom", "False");
+            objImprovements.AppendChild(objImprovement);
         }
 
         /// <summary>Removes every &lt;improvement&gt; sharing <paramref name="eSource"/> and
@@ -3656,10 +3661,11 @@ namespace Chummer.Core
         public int InitiateGrade => InitiationGrades.Count;
 
         /// <summary>Raises the character's Initiate/Submersion Grade by one, deducting Karma -
-        /// ported from frmCareer.cs's cmdImproveInitiation_Click. Not ported: the MAG-boosting
-        /// Improvement and the Metamagic Improvement refresh pass legacy also does here, since
-        /// neither Metamagic nor Improvement creation apply rules-data bonuses anywhere in this
-        /// port yet (same scoped-down treatment already noted for Metamagic/Adept Power additions).</summary>
+        /// ported from frmCareer.cs's cmdImproveInitiation_Click, including the MAG/RES-boosting
+        /// Improvement (replaced wholesale each raise, matching legacy's
+        /// RemoveImprovements(Initiation, "Initiation") + CreateImprovement pair) and the
+        /// Metamagic Improvement refresh (any owned Metamagic whose rules-data &lt;bonus&gt;
+        /// references "Rating" gets its Improvements rebuilt at the new Grade as the Rating).</summary>
         public bool RaiseInitiateGrade(bool blnGroup, bool blnOrdeal)
         {
             if (!Magician && !Technomancer)
@@ -3699,11 +3705,41 @@ namespace Chummer.Core
 
             Karma = (intKarma - intKarmaCost).ToString();
 
+            int intNewGrade = intCurrentGrade + 1;
+            RemoveBonusImprovements(ImprovementSource.Initiation, "Initiation");
+            AppendImprovement(new ImprovementSpec(ImprovementType.Attribute, Technomancer ? "RES" : "MAG",
+                Maximum: intNewGrade), ImprovementSource.Initiation, "Initiation");
+            RefreshRatingScaledMetamagicImprovements(intNewGrade);
+
             var objUndo = new ExpenseUndo();
             objUndo.CreateKarma(KarmaExpenseType.ImproveInitiateGrade, (intCurrentGrade + 1).ToString());
             AddExpense("Karma", -intKarmaCost, "Initiate Grade " + intCurrentGrade + " -> " + (intCurrentGrade + 1), null, objUndo);
             Changed?.Invoke();
             return true;
+        }
+
+        /// <summary>Ported from frmCareer.cs's cmdImproveInitiation_Click's Metamagic-refresh loop:
+        /// any owned Metamagic whose rules-data &lt;bonus&gt; XML references "Rating" (a simple
+        /// substring check, matching legacy) has its Improvements rebuilt with the new Initiation
+        /// Grade as the Rating - e.g. a Metamagic granting "+Rating to some pool" gets stronger as
+        /// the character initiates further.</summary>
+        private void RefreshRatingScaledMetamagicImprovements(int intNewGrade)
+        {
+            if (Metamagics.Count == 0)
+                return;
+
+            XmlDocument objMetamagicsDoc = XmlManager.Instance.Load("metamagic.xml");
+            foreach (CharacterMetamagicData objMetamagic in Metamagics)
+            {
+                XmlNode? objXmlMetamagic = objMetamagicsDoc.SelectSingleNode(
+                    $"/chummer/metamagics/metamagic[name = '{objMetamagic.Name}']");
+                XmlNode? objXmlBonus = objXmlMetamagic?.SelectSingleNode("bonus");
+                if (objXmlBonus == null || !objXmlBonus.InnerXml.Contains("Rating"))
+                    continue;
+
+                RemoveBonusImprovements(ImprovementSource.Metamagic, objMetamagic.Name);
+                ApplyBonus(objXmlBonus, ImprovementSource.Metamagic, objMetamagic.Name, intNewGrade.ToString());
+            }
         }
 
         public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
