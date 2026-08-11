@@ -43,7 +43,7 @@
                 <TextBlock Text="Kosten:" FontWeight="Bold" />
                 <TextBlock Text="{Binding FinalCost}" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
-                <TextBlock Text="{Binding SelectedCyberware.SourcePage, TargetNullValue=–}" />
+                <controls:SourceLink SourcePage="{Binding SelectedCyberware.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">

@@ -43,7 +43,7 @@
                                           IsVisible="{Binding SelectedArmor.IsCostVariable}"
                                           Width="110" HorizontalAlignment="Left" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
-                <TextBlock Text="{Binding SelectedArmor.SourcePage, TargetNullValue=–}" />
+                <controls:SourceLink SourcePage="{Binding SelectedArmor.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">

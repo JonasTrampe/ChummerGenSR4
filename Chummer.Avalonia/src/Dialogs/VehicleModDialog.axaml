@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.VehicleModDialog"
         x:DataType="vm:VehicleModDialogViewModel"
         Width="680" Height="540" WindowStartupLocation="CenterOwner" Title="Fahrzeugmodifikation auswählen">
@@ -23,7 +24,7 @@
                 <TextBlock Text="Einschränkung:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Limit, TargetNullValue=–}" TextWrapping="Wrap" />
                 <TextBlock Text="Rating:" FontWeight="Bold" IsVisible="{Binding HasRating}" />
                 <NumericUpDown Minimum="0" Maximum="100" Value="{Binding Rating, Mode=TwoWay}" IsVisible="{Binding HasRating}" />
-                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,8,0,0" /><TextBlock Text="{Binding SelectedMod.SourcePage, TargetNullValue=–}" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding SelectedMod.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0"><Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" /><Button Grid.Column="2" Content="Hinzufügen" Width="90" Click="OnOk" /></Grid>

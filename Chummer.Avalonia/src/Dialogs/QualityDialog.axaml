@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.QualityDialog"
         x:DataType="vm:QualityDialogViewModel"
         Width="620" Height="520" CanResize="True"
@@ -29,7 +30,7 @@
                 <TextBlock Text="GP:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedQuality.Cost, TargetNullValue=–}" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" />
-                <TextBlock Text="{Binding SelectedQuality.SourcePage, TargetNullValue=–}" />
+                <controls:SourceLink SourcePage="{Binding SelectedQuality.SourcePage}" />
                 <TextBlock Text="Kategorie:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedQuality.Category, TargetNullValue=–}" />
             </StackPanel>

@@ -178,7 +178,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   out not to be real book+page references (Allgemein/Initiation's detail panes are still static
   mockup content unrelated to this gap; Verbessern's "Quelle" is the Improvement's *granting
   source* - Quality/Cyberware/etc. - not a sourcebook page) so there was nothing to wire there.
-  Still not wired into the ~10 other picker dialogs built earlier this session.
+  Now wired into every remaining picker dialog too (Cyberware/Bioware, Gear, Quality, Armor,
+  Vehicle Mod, Weapon - the rest already had it from when they were originally built).
 - ✅ Dice roller — ported frmDiceRoller.cs's roll/hit/glitch logic (Standard/Large/Really Large
   methods, Rule of 6, Cinematic Gameplay, Rushed Job, Gremlins rating, Threshold) into a
   standalone, character-independent `Zubehör → Würfeln...` dialog
