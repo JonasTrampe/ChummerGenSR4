@@ -7,6 +7,7 @@ using Chummer.NewUI.ViewModels;
 using ContactGroupDialog = Chummer.NewUI.Dialogs.ContactGroupDialog;
 using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
 using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
+using TextSelectionDialog = Chummer.NewUI.Dialogs.TextSelectionDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -28,6 +29,23 @@ public partial class GeneralSectionTab : UserControl
         ViewModel.LoadCharacter(character);
     }
 
+    /// <summary>Ported from clsImprovement.cs's selecttext handler: some Qualities (e.g. Allergy,
+    /// Codeslinger, Prejudiced) prompt the player for a free-text detail when added. Returns
+    /// (true, text) to proceed, (true, "") if no prompt was needed, or (false, "") if the player
+    /// cancelled the prompt.</summary>
+    private async System.Threading.Tasks.Task<(bool Proceed, string Extra)> CollectQualityExtraAsync(
+        Window window, string strQualityName)
+    {
+        if (_character == null || !_character.QualityRequiresTextSelection(strQualityName))
+            return (true, string.Empty);
+
+        var textDialog = new TextSelectionDialog($"„{strQualityName}“ benötigt eine Detailangabe:");
+        if (!await textDialog.ShowDialog<bool>(window))
+            return (false, string.Empty);
+
+        return (true, textDialog.EnteredText);
+    }
+
     private async void OnAddQualityClick(object? sender, RoutedEventArgs e)
     {
         if (TopLevel.GetTopLevel(this) is not Window window)
@@ -38,11 +56,15 @@ public partial class GeneralSectionTab : UserControl
 
         var dialog = new QualityDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedQuality != null)
-        {
-            _character.AddQuality(dialog.SelectedQuality.Name, dialog.SelectedQuality.Category);
-            ViewModel.LoadCharacter(_character);
-        }
+        if (added != true || dialog.SelectedQuality is not { } selected)
+            return;
+
+        var (blnProceed, strExtra) = await CollectQualityExtraAsync(window, selected.Name);
+        if (!blnProceed)
+            return;
+
+        _character.AddQuality(selected.Name, selected.Category, strExtra);
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
@@ -73,9 +95,13 @@ public partial class GeneralSectionTab : UserControl
         if (added != true || dialog.SelectedQuality is not { } selected)
             return;
 
+        var (blnProceed, strExtra) = await CollectQualityExtraAsync(window, selected.Name);
+        if (!blnProceed)
+            return;
+
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
         {
-            _character.AddQuality(selected.Name, selected.Category);
+            _character.AddQuality(selected.Name, selected.Category, strExtra);
             ViewModel.LoadCharacter(_character);
         }
     }

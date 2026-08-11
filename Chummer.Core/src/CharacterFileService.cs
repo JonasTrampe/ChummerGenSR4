@@ -800,9 +800,24 @@ namespace Chummer.Core
         /// chosen name, optional selection detail, and positive/negative category. Because this
         /// mutates the backing document, <see cref="CharacterFileService.Save"/> persists it.
         /// </summary>
+        /// <summary>Whether adding this Quality prompts for a free-text detail - ported from
+        /// clsImprovement.cs's selecttext bonus node (e.g. Allergy's substance, Prejudiced's
+        /// target). The UI should collect this from the player and pass it as <see
+        /// cref="AddQuality"/>'s <paramref name="strName"/>-matching <c>strExtra</c>.</summary>
+        public bool QualityRequiresTextSelection(string strName)
+        {
+            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
+            XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
+                $"/chummer/qualities/quality[name = '{strName.Trim()}']");
+            return objXmlQuality?.SelectSingleNode("bonus/selecttext") != null;
+        }
+
         /// <summary>Ported from frmSelectQuality.cs's cmdOK_Click/clsQuality.Create: also applies
         /// the quality's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>), matching
-        /// legacy's CreateImprovements call on add.</summary>
+        /// legacy's CreateImprovements call on add. When the bonus is (or includes) a
+        /// &lt;selecttext&gt; node (see <see cref="QualityRequiresTextSelection"/>), <paramref
+        /// name="strExtra"/> becomes a Text Improvement, ported from clsImprovement.cs's
+        /// selecttext handler.</summary>
         public void AddQuality(string strName, string strType, string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -828,7 +843,12 @@ namespace Chummer.Core
             XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
             XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
                 $"/chummer/qualities/quality[name = '{strName.Trim()}']");
-            ApplyBonus(objXmlQuality?.SelectSingleNode("bonus"), ImprovementSource.Quality, strName.Trim());
+            XmlNode? objXmlBonus = objXmlQuality?.SelectSingleNode("bonus");
+            ApplyBonus(objXmlBonus, ImprovementSource.Quality, strName.Trim());
+
+            if (objXmlBonus?.SelectSingleNode("selecttext") != null && !string.IsNullOrWhiteSpace(strExtra))
+                AppendImprovement(new ImprovementSpec(ImprovementType.Text, strExtra.Trim()),
+                    ImprovementSource.Quality, strName.Trim());
         }
 
         /// <summary>Removes the first saved quality matching its name, type, and optional detail,

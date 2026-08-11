@@ -142,6 +142,39 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void QualityRequiresTextSelection_TrueForSelecttextQualities_FalseOtherwise()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        Assert.True(character.QualityRequiresTextSelection("Codeslinger")); // Real selecttext-only quality.
+        Assert.False(character.QualityRequiresTextSelection("Analytical Mind"));
+    }
+
+    [Fact]
+    public void AddQuality_Codeslinger_AppliesThePlayerEnteredTextAsAnImprovement()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Codeslinger", "Positive", "Hacking (Firewall)");
+
+        var textImprovement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Text, textImprovement.Type);
+        Assert.Equal("Hacking (Firewall)", textImprovement.ImprovedName);
+        Assert.Equal("Codeslinger", textImprovement.SourceName);
+
+        Assert.True(character.RemoveQuality("Codeslinger", "Positive", "Hacking (Firewall)"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddQuality_Codeslinger_NoImprovementWithoutAnEnteredExtra()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Codeslinger", "Positive");
+
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void AddSpell_MutatesCharacterAndPersistsRuleFields()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

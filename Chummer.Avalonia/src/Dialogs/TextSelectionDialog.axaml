@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.TextSelectionDialog"
+        Width="420" Height="160" WindowStartupLocation="CenterOwner"
+        Title="Detail eingeben" CanResize="False">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16" RowSpacing="10">
+        <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" />
+        <TextBox x:Name="ValueBox" Watermark="Text eingeben..." />
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="OK" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

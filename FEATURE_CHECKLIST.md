@@ -312,12 +312,25 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   removal).
   Deliberately NOT covered, matching how the tier-1 scope was chosen (frequency-ranked against this
   port's own data, not an exhaustive port of legacy's ~109-branch if-chain):
-  - Any `<select*>` node (`selecttext`, `selectskill`, `selectattribute`, `selectsenseware`, ...) -
-    these need a player-facing picker ("Selectable Improvement" flow), which is a separate,
-    not-yet-built system.
+  - `selectskill`/`selectattribute`/`selectsenseware` (the last has its own dedicated flow - see
+    below) still need a real picker over rules data (a list of skills/attributes/senseware to
+    choose from). `selecttext` is now covered (see below) since it's just free text, no list.
   - CritterPower/ComplexForm additions still don't call `ApplyBonus` (most CritterPower/ComplexForm
     entries in this port's data don't carry bonus-relevant `<bonus>` content beyond
     selectables/effects out of tier-1 scope; revisit if a real gap surfaces).
+
+  **Selectable Improvement flow (`selecttext` only):** `CharacterDocument.QualityRequiresTextSelection`
+  detects a Quality's `<bonus>` containing `<selecttext>` (63 of this port's 1629 qualities.xml
+  entries - Allergy, Codeslinger, Prejudiced, etc. - previously always silently applied nothing for
+  their required detail); the new `TextSelectionDialog` (ported from frmSelectText.cs - a plain
+  free-text prompt, matching legacy's own lack of a curated list for these) collects it, and
+  `AddQuality` applies the entered text as a `Text` Improvement when the bonus needs one - reusing
+  the already-existing `strExtra` parameter (previously only used for display, e.g. "Allergy
+  (Silver)"), so no new persisted field was needed. Wired into both the General tab's Quality-add
+  and Quality-swap flows. Verified against real data (Codeslinger). `selecttext` sources other than
+  Quality (some Metamagics, e.g. Attunement (Animal)) aren't wired yet - `AddMetamagic` has no
+  `strExtra`-equivalent parameter/persisted field today, so this would need its own small follow-up
+  rather than reusing the Quality plumbing as-is.
 
   The Metamagic Improvement refresh on Initiation Grade raise is now ported too - see the
   Initiation entry above.
