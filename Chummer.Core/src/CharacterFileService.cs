@@ -1420,6 +1420,11 @@ namespace Chummer.Core
             }
 
             var objWeapon = Document.CreateElement("weapon");
+            // Legacy characters (and this port's own weapons before this feature) don't necessarily
+            // have a <guid> - name+category matching (RemoveWeapon/SetWeaponEquipped/
+            // SetWeaponLocation) still works for those. Only accessory/mod add/remove needs a
+            // stable per-instance identity, so it's the one operation that requires a guid.
+            AppendElement(objWeapon, "guid", Guid.NewGuid().ToString());
             AppendElement(objWeapon, "name", strName.Trim());
             AppendElement(objWeapon, "category", strCategory);
             AppendElement(objWeapon, "damage", strDamage);
@@ -1535,6 +1540,99 @@ namespace Chummer.Core
                 return true;
             }
             return false;
+        }
+
+        private XmlNode? GetWeaponNodeByGuid(Guid guiWeaponId)
+            => Document.SelectSingleNode($"/character/weapons/weapon[guid = '{guiWeaponId}']");
+
+        /// <summary>Adds a Weapon Accessory (ported from clsEquipment.cs's WeaponAccessory.Save) to
+        /// a root-level weapon, deducting its cost. Mount-slot eligibility (accessory's allowed
+        /// mounts vs. the weapon's free mounts) isn't validated - same scoped-down treatment as the
+        /// other picker dialogs in this port.</summary>
+        public bool AddWeaponAccessory(Guid guiWeaponId, string strName, string strMount, string strRc,
+            string strAvail, string strCost, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A weapon accessory name is required.", nameof(strName));
+
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objAccessories = objWeapon?.SelectSingleNode("accessories");
+            if (objAccessories == null)
+                return false;
+
+            var objAccessory = Document.CreateElement("accessory");
+            AppendElement(objAccessory, "guid", Guid.NewGuid().ToString());
+            AppendElement(objAccessory, "name", strName.Trim());
+            AppendElement(objAccessory, "mount", strMount);
+            AppendElement(objAccessory, "rc", strRc);
+            AppendElement(objAccessory, "avail", strAvail);
+            AppendElement(objAccessory, "cost", strCost);
+            AppendElement(objAccessory, "included", "False");
+            AppendElement(objAccessory, "installed", "True");
+            AppendElement(objAccessory, "source", strSource);
+            AppendElement(objAccessory, "page", strPage);
+            objAccessories.AppendChild(objAccessory);
+            DeductGearCost(strCost, "0", "1");
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool RemoveWeaponAccessory(Guid guiWeaponId, Guid guiAccessoryId)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objAccessory = objWeapon?.SelectSingleNode($"accessories/accessory[guid = '{guiAccessoryId}']");
+            if (objAccessory?.ParentNode == null)
+                return false;
+            objAccessory.ParentNode.RemoveChild(objAccessory);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Adds a Weapon Modification (ported from clsEquipment.cs's WeaponMod.Save) to a
+        /// root-level weapon, deducting its cost - <paramref name="strCost"/> may reference "Weapon
+        /// Cost" (substituted with the weapon's own saved cost, matching clsEquipment.cs's mod cost
+        /// formulas) and/or "Rating" (substituted by <see cref="RatingExpression"/>). Slot capacity
+        /// against the weapon's own accessory mounts isn't validated - same scoped-down treatment as
+        /// the other picker dialogs in this port.</summary>
+        public bool AddWeaponMod(Guid guiWeaponId, string strName, string strRating, string strAvail,
+            string strCost, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A weapon mod name is required.", nameof(strName));
+
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objMods = objWeapon?.SelectSingleNode("weaponmods");
+            if (objWeapon == null || objMods == null)
+                return false;
+
+            var objMod = Document.CreateElement("weaponmod");
+            AppendElement(objMod, "guid", Guid.NewGuid().ToString());
+            AppendElement(objMod, "name", strName.Trim());
+            AppendElement(objMod, "rating", strRating);
+            AppendElement(objMod, "avail", strAvail);
+            AppendElement(objMod, "cost", strCost);
+            AppendElement(objMod, "included", "False");
+            AppendElement(objMod, "installed", "True");
+            AppendElement(objMod, "source", strSource);
+            AppendElement(objMod, "page", strPage);
+            objMods.AppendChild(objMod);
+
+            string strWeaponCost = GetValue(objWeapon, "cost", "0");
+            DeductGearCost(strCost.Replace("Weapon Cost", strWeaponCost, StringComparison.OrdinalIgnoreCase),
+                strRating, "1");
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool RemoveWeaponMod(Guid guiWeaponId, Guid guiModId)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objMod = objWeapon?.SelectSingleNode($"weaponmods/weaponmod[guid = '{guiModId}']");
+            if (objMod?.ParentNode == null)
+                return false;
+            objMod.ParentNode.RemoveChild(objMod);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Adds a root-level Armor in the minimal saved-character tree shape used by
@@ -3955,6 +4053,7 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
             {
                 var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo");
+                MarkWeaponAccessoriesAndMods(objWeapon, objNode);
                 string strLocation = GetValue(objNode, "location", string.Empty);
                 objWeapon.SetLocation(strLocation);
                 (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(
@@ -3967,6 +4066,33 @@ namespace Chummer.Core
                     lstWeapons.Add(objWeapon);
             }
             return lstWeapons;
+        }
+
+        /// <summary>Flags <paramref name="objWeapon"/>'s direct children that came from
+        /// &lt;accessories&gt;/&lt;weaponmods&gt; (matched by guid against the raw XML, since
+        /// ReadTreeItem's Children collection loses which xpath each one was read from) so the UI
+        /// can tell them apart from the weapon's Gear/Ammo children.</summary>
+        private static void MarkWeaponAccessoriesAndMods(CharacterTreeItemData objWeapon, XmlNode objWeaponNode)
+        {
+            var setAccessoryGuids = new HashSet<string>(StringComparer.Ordinal);
+            var objAccessoryNodes = objWeaponNode.SelectNodes("accessories/accessory");
+            if (objAccessoryNodes != null)
+                foreach (XmlNode objAccessoryNode in objAccessoryNodes)
+                    setAccessoryGuids.Add(GetValue(objAccessoryNode, "guid", string.Empty));
+
+            var setModGuids = new HashSet<string>(StringComparer.Ordinal);
+            var objModNodes = objWeaponNode.SelectNodes("weaponmods/weaponmod");
+            if (objModNodes != null)
+                foreach (XmlNode objModNode in objModNodes)
+                    setModGuids.Add(GetValue(objModNode, "guid", string.Empty));
+
+            foreach (CharacterTreeItemData objChild in objWeapon.Children)
+            {
+                if (!string.IsNullOrEmpty(objChild.ItemGuid) && setAccessoryGuids.Contains(objChild.ItemGuid))
+                    objChild.IsWeaponAccessory = true;
+                else if (!string.IsNullOrEmpty(objChild.ItemGuid) && setModGuids.Contains(objChild.ItemGuid))
+                    objChild.IsWeaponMod = true;
+            }
         }
 
         private bool WeaponNodeHasSmartgun(XmlNode objWeaponNode)
@@ -4551,6 +4677,7 @@ namespace Chummer.Core
                 GetValue(objNode, "equipped", "False") == "True",
                 GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
                 GetValue(objNode, "qty", "1"));
+            objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
             foreach (string strChildXPath in lstChildXPaths)
             {
                 if (string.IsNullOrEmpty(strChildXPath)) continue;
@@ -4792,6 +4919,15 @@ namespace Chummer.Core
         /// vehicle or vehicle Mod - same rationale as IsVehicleMod (Category is the weapon's real
         /// rules category, not a marker).</summary>
         public bool IsVehicleWeapon { get; internal set; }
+
+        /// <summary>True for a root weapon's &lt;accessories&gt;&lt;accessory&gt; children (used to
+        /// tell them apart from the weapon's own WeaponMod/Gear/Ammo children for add/remove and
+        /// display purposes) - accessory nodes have no Category of their own.</summary>
+        public bool IsWeaponAccessory { get; internal set; }
+
+        /// <summary>True for a root weapon's &lt;weaponmods&gt;&lt;weaponmod&gt; children - same
+        /// rationale as IsWeaponAccessory.</summary>
+        public bool IsWeaponMod { get; internal set; }
 
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {

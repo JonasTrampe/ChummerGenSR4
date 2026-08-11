@@ -340,6 +340,47 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddWeaponAccessory_NestsUnderTheWeaponDeductsCostAndCanBeRemoved()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        Assert.True(character.AddWeaponAccessory(guiWeaponId, "Laser Sight", "Top", string.Empty, "4", "200", "SR4", "321"));
+        CharacterTreeItemData weapon = character.WeaponTrees.Single();
+        CharacterTreeItemData accessory = Assert.Single(weapon.Children);
+        Assert.Equal("Laser Sight", accessory.Name);
+        Assert.True(accessory.IsWeaponAccessory);
+        Assert.False(accessory.IsWeaponMod);
+        Assert.Equal("800", character.Nuyen); // 1000 - 200
+
+        Assert.True(Guid.TryParse(accessory.ItemGuid, out Guid guiAccessoryId));
+        Assert.True(character.RemoveWeaponAccessory(guiWeaponId, guiAccessoryId));
+        Assert.Empty(character.WeaponTrees.Single().Children);
+    }
+
+    [Fact]
+    public void AddWeaponMod_ResolvesWeaponCostAndRatingTokensInTheCostFormula()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        // "Weapon Cost * Rating" with the weapon's own cost (350) at rating 2 -> 700.
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "2", "0", "Weapon Cost * Rating", "SR4", "148"));
+        CharacterTreeItemData weapon = character.WeaponTrees.Single();
+        CharacterTreeItemData mod = Assert.Single(weapon.Children);
+        Assert.Equal("Custom Look", mod.Name);
+        Assert.True(mod.IsWeaponMod);
+        Assert.False(mod.IsWeaponAccessory);
+        Assert.Equal("300", character.Nuyen); // 1000 - 700
+
+        Assert.True(Guid.TryParse(mod.ItemGuid, out Guid guiModId));
+        Assert.True(character.RemoveWeaponMod(guiWeaponId, guiModId));
+        Assert.Empty(character.WeaponTrees.Single().Children);
+    }
+
+    [Fact]
     public void Weapon_DicePool_MatchesTheLinkedActiveSkillsTotalValue()
     {
         // "Assault Rifles" maps to Automatics per clsEquipment.cs's Weapon.DicePool switch.

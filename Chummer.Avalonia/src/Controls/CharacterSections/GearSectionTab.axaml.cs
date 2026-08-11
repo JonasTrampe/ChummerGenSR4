@@ -13,6 +13,8 @@ using Chummer.NewUI.ViewModels;
 using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
+using WeaponAccessoryDialog = Chummer.NewUI.Dialogs.WeaponAccessoryDialog;
+using WeaponModDialog = Chummer.NewUI.Dialogs.WeaponModDialog;
 using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
 using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 
@@ -158,10 +160,64 @@ public partial class GearSectionTab : UserControl
 
     private void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedWeapon == null || ViewModel.SelectedWeapon.Parent != null)
+        if (_character == null || ViewModel.SelectedWeapon is not { } selected)
             return;
 
-        if (_character.RemoveWeapon(ViewModel.SelectedWeapon.SourceName, ViewModel.SelectedWeapon.Category))
+        if (selected.Parent == null)
+        {
+            if (_character.RemoveWeapon(selected.SourceName, selected.Category))
+                ViewModel.LoadCharacter(_character);
+            return;
+        }
+
+        if ((selected.IsWeaponAccessory || selected.IsWeaponMod) && selected.Parent is { } weapon
+            && Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId) && Guid.TryParse(selected.ItemGuid, out Guid guiChildId))
+        {
+            bool removed = selected.IsWeaponAccessory
+                ? _character.RemoveWeaponAccessory(guiWeaponId, guiChildId)
+                : _character.RemoveWeaponMod(guiWeaponId, guiChildId);
+            if (removed)
+                ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    /// <summary>Resolves the root weapon a "Zubehör/Mod hinzufügen" click applies to: the selected
+    /// node itself if it's already a weapon (root-level, or nested under a Weapon location), or its
+    /// direct parent if an accessory/mod/gear/ammo child is selected instead.</summary>
+    private static TreeNodeViewModel? ResolveWeaponNode(TreeNodeViewModel selected)
+    {
+        if (selected.Category == "Weapon location")
+            return null;
+        return selected.Parent == null || selected.Parent.Category == "Weapon location" ? selected : selected.Parent;
+    }
+
+    private async void OnAddWeaponAccessoryClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedWeapon is not { } selected || ResolveWeaponNode(selected) is not { } weapon
+            || !Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId))
+            return;
+
+        var dialog = new WeaponAccessoryDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (!added || dialog.SelectedAccessory is not { } accessory) return;
+        if (_character.AddWeaponAccessory(guiWeaponId, accessory.Name, accessory.Mount, accessory.Rc,
+                accessory.Availability, accessory.Cost, accessory.Source, accessory.Page))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddWeaponModClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedWeapon is not { } selected || ResolveWeaponNode(selected) is not { } weapon
+            || !Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId))
+            return;
+
+        var dialog = new WeaponModDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (!added || dialog.SelectedMod is not { } mod) return;
+        if (_character.AddWeaponMod(guiWeaponId, mod.Name, dialog.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                mod.Availability, mod.Cost, mod.Source, mod.Page))
             ViewModel.LoadCharacter(_character);
     }
 

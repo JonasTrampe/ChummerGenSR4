@@ -99,6 +99,12 @@ public sealed class TreeNodeViewModel
     public IReadOnlyList<string> VehicleLocations { get; private set; } = Array.Empty<string>();
     public bool HasVehicleDetails { get; private set; }
 
+    /// <summary>True for a root weapon's Accessory/Mod children - see
+    /// CharacterTreeItemData.IsWeaponAccessory/IsWeaponMod.</summary>
+    public bool IsWeaponAccessory { get; private set; }
+
+    public bool IsWeaponMod { get; private set; }
+
     /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes, or the
     /// quantity appended for Gear tree nodes with more than one.</summary>
     public string DisplayName
@@ -167,7 +173,9 @@ public sealed class TreeNodeViewModel
             Cost = string.IsNullOrEmpty(item.Cost) ? string.Empty : item.CalculatedCost.ToString(),
             Avail = item.CalculatedAvail,
             WeaponDicePool = item.WeaponDicePool,
-            WeaponDicePoolTooltip = item.WeaponDicePoolTooltip
+            WeaponDicePoolTooltip = item.WeaponDicePoolTooltip,
+            IsWeaponAccessory = item.IsWeaponAccessory,
+            IsWeaponMod = item.IsWeaponMod
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));
