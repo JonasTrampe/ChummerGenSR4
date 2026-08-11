@@ -103,8 +103,14 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   instead of the saved one (`UseCalculatedVehicleSensorRatings`), and a computed total-cost figure
   (`CharacterVehicleData.TotalCost` - the vehicle's own cost plus installed non-included mods,
   included mods' own attached weapons/gear, and direct onboard gear/weapons, ported from
-  clsEquipment.cs's Vehicle.TotalCost) is now shown alongside the base cost. Drones and
-  weapon-mount eligibility remain unported. Mod "class eligibility" (a mod's `<limit>` field, e.g.
+  clsEquipment.cs's Vehicle.TotalCost) is now shown alongside the base cost. "Drones" turn out not
+  to be a separate gap either: checked clsEquipment.cs and there's no distinct Drone class anywhere
+  in legacy - a Drone is just a Vehicle whose category happens to be "Drones: Micro"/"Drones:
+  Small"/etc. in vehicles.xml, and this port's vehicle picker/add/edit path is already
+  category-agnostic, so Drones already work end to end through the exact same code as cars.
+  Weapon-mount eligibility (validating a vehicle weapon add against an actual mount slot, rather
+  than just adding it unconditionally like `AddVehicleWeapon` does today) remains unported. Mod
+  "class eligibility" (a mod's `<limit>` field, e.g.
   "Groundcraft Only") turns out not to be a real gap: checked frmSelectVehicleMod.cs and legacy
   itself never validates it either, it's purely informational text next to the mod name - already
   shown that way here too (`VehicleModOptionViewModel.Limit`).
