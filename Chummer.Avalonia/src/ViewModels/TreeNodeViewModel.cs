@@ -103,6 +103,25 @@ public sealed class TreeNodeViewModel
     public IReadOnlyList<string> VehicleLocations { get; private set; } = Array.Empty<string>();
     public bool HasVehicleDetails { get; private set; }
 
+    /// <summary>Only set for Spell tree nodes - see CharacterSpellData.</summary>
+    public string SpellType { get; private set; } = string.Empty;
+
+    public string SpellRange { get; private set; } = string.Empty;
+    public string SpellDamage { get; private set; } = string.Empty;
+    public string SpellDuration { get; private set; } = string.Empty;
+    public string SpellDv { get; private set; } = string.Empty;
+
+    public void SetSpellDetails(CharacterSpellData spell)
+    {
+        SpellType = spell.Type;
+        SpellRange = spell.Range;
+        SpellDamage = spell.Damage;
+        SpellDuration = spell.Duration;
+        SpellDv = spell.Dv;
+        Source = spell.Source;
+        Page = spell.Page;
+    }
+
     /// <summary>True for a root weapon's Accessory/Mod children - see
     /// CharacterTreeItemData.IsWeaponAccessory/IsWeaponMod.</summary>
     public bool IsWeaponAccessory { get; private set; }

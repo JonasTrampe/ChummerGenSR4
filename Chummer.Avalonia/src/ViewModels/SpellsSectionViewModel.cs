@@ -128,7 +128,9 @@ public sealed class SpellsSectionViewModel : ViewModelBase
                 }
             }
 
-            target.Children.Add(new TreeNodeViewModel(spell.Name));
+            var spellNode = new TreeNodeViewModel(spell.Name, strCategory: spell.Category);
+            spellNode.SetSpellDetails(spell);
+            target.Children.Add(spellNode);
         }
 
         Spirits.Clear();

@@ -62,7 +62,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Fertigkeiten (skill groups, active skills with real dice pools, knowledge skills)
 - ✅ Kampfkünste (martial arts + advantages + maneuvers)
 - ✅ Adeptenkräfte
-- ✅ Sprüche und Geister (spells by category, spirits)
+- ✅ Sprüche und Geister (spells by category, spirits). The detail pane was entirely static mockup
+  content (fake "Indirekt, Elementar"/"Kampfzauber"/"9" Würfelpool text bound to nothing) despite
+  `CharacterSpellData` already carrying every field it needed - now shows the real selected
+  spell's Category/Type/Range/Damage/Duration/Entzugsformel/Quelle. Tradition selection and a real
+  Drain-resistance/spellcasting dice pool aren't tracked/computed anywhere in this port, so those
+  rows were dropped rather than left showing fake numbers.
 - ✅ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
   Sprüche und Geister tab, below Geister, and both now support add (via a `programs.xml`/
   `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.

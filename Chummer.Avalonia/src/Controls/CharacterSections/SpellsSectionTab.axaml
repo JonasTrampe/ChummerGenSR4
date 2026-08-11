@@ -24,29 +24,20 @@
             <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
 
             <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0,0,0" Spacing="6">
-            <Grid ColumnDefinitions="*,*">
-                <TextBlock Grid.Column="0" Text="Eigenschaften: Indirekt, Elementar" />
-                <TextBlock Grid.Column="1" Text="Kategorie: Kampfzauber" />
-            </Grid>
+            <controls:InfoRow Label="Kategorie:" Value="{Binding SelectedSpellNode.Category, TargetNullValue=–}" />
             <Grid ColumnDefinitions="*,*,*">
-                <TextBlock Grid.Column="0" Text="Typ: P" />
-                <TextBlock Grid.Column="1" Text="Reichweite: BF" />
-                <TextBlock Grid.Column="2" Text="Schaden: K" />
+                <TextBlock Grid.Column="0" Text="{Binding SelectedSpellNode.SpellType, StringFormat='Typ: {0}'}" />
+                <TextBlock Grid.Column="1" Text="{Binding SelectedSpellNode.SpellRange, StringFormat='Reichweite: {0}'}" />
+                <TextBlock Grid.Column="2" Text="{Binding SelectedSpellNode.SpellDamage, StringFormat='Schaden: {0}'}" />
             </Grid>
             <Grid ColumnDefinitions="*,*">
-                <TextBlock Grid.Column="0" Text="Dauer: S" />
-                <TextBlock Grid.Column="1" Text="Entzugsformel: (K+2)+3" />
+                <TextBlock Grid.Column="0" Text="{Binding SelectedSpellNode.SpellDuration, StringFormat='Dauer: {0}'}" />
+                <TextBlock Grid.Column="1" Text="{Binding SelectedSpellNode.SpellDv, StringFormat='Entzugsformel: {0}'}" />
             </Grid>
-            <controls:InfoRow Label="Quelle:" Value="SM 194" />
-            <controls:InfoRow Label="Würfelpool:" Value="9" />
-
-            <Grid ColumnDefinitions="Auto,150">
-                <TextBlock Text="Tradition:" VerticalAlignment="Center" Margin="0,0,8,0" />
-                <ComboBox Grid.Column="1" SelectedIndex="0">
-                    <ComboBoxItem Content="Chaosmagie" />
-                </ComboBox>
-            </Grid>
-            <controls:InfoRow Label="Entzug widerstehen: WIL + LOG" Value="2" />
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Text="Quelle:" FontWeight="Bold" />
+                <controls:SourceLink SourcePage="{Binding SelectedSpellNode.SourcePage}" />
+            </StackPanel>
         </StackPanel>
 
         <!-- Geister section spans the full tab width, below the spell tree/detail split -->
