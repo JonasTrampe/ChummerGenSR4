@@ -35,12 +35,23 @@ public sealed class ImprovementRowViewModel
     public string Source { get; }
     public bool IsEnabled { get; }
 
+    /// <summary>The raw &lt;sourcename&gt; - identity for CharacterDocument.RemoveCustomImprovement.</summary>
+    public string SourceName { get; }
+
+    /// <summary>Only "Custom" (manually-created, see frmCreateImprovement.cs) Improvements can be
+    /// deleted from this list - everything else is a side effect of some other owned item
+    /// (Quality/Cyberware/Metamagic/...) and must be removed by removing that item instead, same
+    /// as legacy's own cmdDeleteImprovement_Click.</summary>
+    public bool IsCustom { get; }
+
     public ImprovementRowViewModel(Improvement improvement)
     {
         Type = improvement.Type.ToString();
         Target = improvement.ImprovedName;
         Value = improvement.Value.ToString("+#;-#;0");
         Source = string.IsNullOrEmpty(improvement.SourceName) ? improvement.Source.ToString() : improvement.SourceName;
+        SourceName = improvement.SourceName;
+        IsCustom = improvement.Source == ImprovementSource.Custom;
         IsEnabled = improvement.Enabled;
         Title = string.IsNullOrEmpty(Target) ? Source + ": " + Type : Source + ": " + Type + " (" + Target + ")";
     }

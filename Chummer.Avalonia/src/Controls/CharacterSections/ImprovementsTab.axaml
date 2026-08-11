@@ -12,13 +12,15 @@
                     <Button Content="Verbesserung bearbeiten" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Löschen" />
+                    <Button Content="Löschen" Click="OnDeleteImprovementClick"
+                            IsEnabled="{Binding SelectedImprovement.IsCustom}"
+                            ToolTip.Tip="Nur manuell angelegte Verbesserungen können hier gelöscht werden - alle anderen sind eine Nebenwirkung einer anderen Position (Gabe/Cyberware/Metamagie/...) und müssen über diese entfernt werden." />
                     <Button Content="Gruppe hinzufügen" />
                 </StackPanel>
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement}">
+            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:ImprovementRowViewModel">
                         <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />

@@ -1130,6 +1130,30 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RemoveCustomImprovement_RemovesOnlyMatchingCustomSourcedEntries()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><improvements>"
+            + "<improvement><unique>gmbonus</unique><improvedname>BOD</improvedname><sourcename>abc-123</sourcename>"
+            + "<min>0</min><max>0</max><aug>1</aug><augmax>0</augmax><val>0</val><rating>1</rating>"
+            + "<improvementttype>Attribute</improvementttype><improvementsource>Custom</improvementsource></improvement>"
+            + "<improvement><unique>wiredreflexes</unique><improvedname>REA</improvedname><sourcename>Wired Reflexes</sourcename>"
+            + "<min>0</min><max>0</max><aug>2</aug><augmax>0</augmax><val>0</val><rating>1</rating>"
+            + "<improvementttype>Attribute</improvementttype><improvementsource>Cyberware</improvementsource></improvement>"
+            + "</improvements></character>");
+        Assert.Equal(2, character.Improvements.Count);
+
+        // A non-Custom sourcename never matches, even if it happens to collide.
+        Assert.False(character.RemoveCustomImprovement("Wired Reflexes"));
+        Assert.Equal(2, character.Improvements.Count);
+
+        Assert.True(character.RemoveCustomImprovement("abc-123"));
+        Improvement remaining = Assert.Single(character.Improvements);
+        Assert.Equal("Wired Reflexes", remaining.SourceName);
+
+        Assert.False(character.RemoveCustomImprovement("abc-123"));
+    }
+
+    [Fact]
     public void Save_PreservesCompactFormattingAcrossARoundTrip()
     {
         CharacterDocument character = LoadFixture();

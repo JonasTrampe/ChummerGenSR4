@@ -82,8 +82,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Karma und Nuyen (expense history + real running-total charts)
 - ✅ Kalender (saved weeks, persistent notes editing, adding weeks, and shifting the calendar start date)
 - ✅ Notizen
-- ✅ Verbessern / Improvements list (read-only list with type, target, value, source, and active
-  status; editing remains blocked on the shared write path)
+- 🟡 Verbessern / Improvements list (type, target, value, source, active status). "Löschen" now
+  works for `Custom`-sourced entries (matches legacy's own cmdDeleteImprovement_Click, which only
+  ever lets the user delete manually-created Improvements - everything else is a side effect of
+  some other owned item, e.g. a Quality or Cyberware, and gets removed by removing that item
+  instead). Also fixed a real bug found while wiring this: the ListBox's SelectedItem binding
+  wasn't Mode=TwoWay, so selecting a different row never actually updated the detail pane after
+  the initial load. Manual Improvement *add* (`frmCreateImprovement.cs` - a ~50-type catalog with
+  per-type dynamic fields and sub-picker dialogs, applied through a bonus-XML interpreter this port
+  doesn't have) remains unported.
 
 ## Character sheet tabs — editing
 
@@ -93,8 +100,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   root-level Gear, Spirits/Sprites, Martial Arts/Maneuvers, Adept Powers, Metamagics, Complex
   Forms, Critter Powers, and Weapon Accessories/Mods can also be deleted, and Karma/Nuyen history
   entries can be edited in place (amount/reason/date). Character-Information's portrait (mugshot)
-  also loads/changes/clears. Manual Improvement add/edit/delete and most other operations remain
-  unwired.
+  also loads/changes/clears. Custom-sourced Improvements can now be deleted too (see the Verbessern
+  row above). Manual Improvement *add* and most other operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 

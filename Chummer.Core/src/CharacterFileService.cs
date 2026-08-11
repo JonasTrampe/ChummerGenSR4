@@ -548,6 +548,39 @@ namespace Chummer.Core
         /// what these actually drive. Most callers want a derived value (like Condition above)
         /// rather than this list directly.</summary>
         public IReadOnlyList<Improvement> Improvements => ReadImprovements();
+
+        /// <summary>Removes every &lt;improvement&gt; sharing <paramref name="strSourceName"/> whose
+        /// improvementsource is "Custom" - ported from frmCareer.cs's cmdDeleteImprovement_Click,
+        /// which only ever calls RemoveImprovements(ImprovementSource.Custom, ...): manually-created
+        /// Improvements (frmCreateImprovement, not ported here - see FEATURE_CHECKLIST.md) are the
+        /// only ones legacy itself lets the user delete from this list, since every other source
+        /// (Quality/Cyberware/Metamagic/...) is a side effect of some other owned item and must be
+        /// removed by removing that item instead.</summary>
+        public bool RemoveCustomImprovement(string strSourceName)
+        {
+            if (string.IsNullOrWhiteSpace(strSourceName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/improvements/improvement");
+            if (objNodes == null)
+                return false;
+
+            bool blnRemovedAny = false;
+            foreach (XmlNode objNode in objNodes.Cast<XmlNode>().ToList())
+            {
+                if (GetValue(objNode, "improvementsource", string.Empty) != "Custom"
+                    || GetValue(objNode, "sourcename", string.Empty) != strSourceName)
+                    continue;
+
+                objNode.ParentNode?.RemoveChild(objNode);
+                blnRemovedAny = true;
+            }
+
+            if (blnRemovedAny)
+                Changed?.Invoke();
+            return blnRemovedAny;
+        }
+
         public IReadOnlyList<CalendarWeek> Calendar => ReadCalendar();
 
         /// <summary>Adds a calendar week in the same save-file representation as the legacy
