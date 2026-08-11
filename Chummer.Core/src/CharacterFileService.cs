@@ -2270,8 +2270,47 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Whether a still-unlocked (grouped=False) skill group is safe to raise/set as a
+        /// whole: true if every member skill already shares the same individual rating (including
+        /// trivially true for a group with no member skills yet, or one already at its own stored
+        /// rating). <paramref name="intCommonRating"/> is that shared rating when true.</summary>
+        private bool CanRaiseSkillGroupAsAWhole(string strGroupName, int intGroupRating, out int intCommonRating)
+        {
+            intCommonRating = intGroupRating;
+            bool blnFirst = true;
+            var objNodes = Document.SelectNodes("/character/skills/skill");
+            if (objNodes == null)
+                return true;
+
+            foreach (XmlNode objSkillNode in objNodes)
+            {
+                if (GetValue(objSkillNode, "knowledge", "False") == "True"
+                    || GetValue(objSkillNode, "skillgroup", string.Empty) != strGroupName)
+                    continue;
+
+                int intRating = int.TryParse(GetValue(objSkillNode, "rating", "0"), out var r) ? r : 0;
+                if (blnFirst)
+                {
+                    intCommonRating = intRating;
+                    blnFirst = false;
+                }
+                else if (intRating != intCommonRating)
+                {
+                    return false;
+                }
+            }
+
+            // A group whose member skills already agree with each other but not with the group's
+            // own stored rating has been raised individually while ungrouped - only resumable as a
+            // group (adopting that shared rating as the new baseline) with AllowSkillRegrouping.
+            return intCommonRating == intGroupRating || GetCharacterOptions().AllowSkillRegrouping;
+        }
+
         /// <summary>Career mode: raises a skill group's rating by one, deducting Karma, and keeps
-        /// every grouped member skill's own rating in sync with the new group rating.</summary>
+        /// every grouped member skill's own rating in sync with the new group rating. False (in
+        /// addition to insufficient Karma) if member skills have already diverged from each other,
+        /// or from the group's own rating without <see cref="Options.AllowSkillRegrouping"/> - see
+        /// <see cref="CanRaiseSkillGroupAsAWhole"/>.</summary>
         public bool RaiseSkillGroup(string strGroupName)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
@@ -2280,6 +2319,9 @@ namespace Chummer.Core
 
             var objOptions = GetCharacterOptions();
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            if (!CanRaiseSkillGroupAsAWhole(strGroupName, intRating, out int intCommonRating))
+                return false;
+            intRating = intCommonRating;
             int intCost = intRating == 0 ? objOptions.KarmaNewSkillGroup : (intRating + 1) * objOptions.KarmaImproveSkillGroup;
 
             int intKarma = int.TryParse(Karma, out var k) ? k : 0;
@@ -2297,11 +2339,16 @@ namespace Chummer.Core
             return true;
         }
 
-        /// <summary>Create mode: sets a skill group's rating directly and syncs member skills.</summary>
+        /// <summary>Create mode: sets a skill group's rating directly and syncs member skills. False
+        /// if member skills have already diverged - see <see cref="CanRaiseSkillGroupAsAWhole"/>.</summary>
         public bool SetSkillGroupRating(string strGroupName, int intRating)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
             if (objNode == null)
+                return false;
+
+            int intCurrentRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            if (!CanRaiseSkillGroupAsAWhole(strGroupName, intCurrentRating, out _))
                 return false;
 
             SetChildValue(objNode, "rating", intRating.ToString());
@@ -2310,7 +2357,8 @@ namespace Chummer.Core
         }
 
         /// <summary>Create mode: raises a skill group's rating by one, deducting from the Karma or
-        /// BP pool depending on <see cref="BuildMethod"/>, and syncs member skills.</summary>
+        /// BP pool depending on <see cref="BuildMethod"/>, and syncs member skills. False if member
+        /// skills have already diverged - see <see cref="CanRaiseSkillGroupAsAWhole"/>.</summary>
         public bool RaiseSkillGroupCreate(string strGroupName)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
@@ -2322,6 +2370,9 @@ namespace Chummer.Core
             // are career-mode-only (frmCreate.cs caps nudActiveSkillGroup at 4).
             if (intRating >= 4)
                 return false;
+            if (!CanRaiseSkillGroupAsAWhole(strGroupName, intRating, out int intCommonRating))
+                return false;
+            intRating = intCommonRating;
 
             var objOptions = GetCharacterOptions();
             bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);

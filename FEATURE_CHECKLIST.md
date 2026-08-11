@@ -146,10 +146,16 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   from the settings profile. `EnforceCapacity` is now honored too - `AddChildGear` rejects nesting
   gear that would exceed the parent's remaining capacity (same simplified, no-brackets capacity
   model `CharacterTreeItemData.CapacityRemaining` already used for display) unless the house rule
-  is off. Most other Improvement-driven house rules remain unported (~15 more flags on
-  `CharacterOptions` - e.g. `AllowSkillRegrouping`, `EnforceMaximumSkillRatingModifier`'s siblings
-  for other pools, `AllowExceedAttributeBp` - aren't referenced anywhere in `CharacterFileService`
-  yet).
+  is off. `AllowSkillRegrouping` is now honored too - while auditing it, found the ported skill
+  group model had no concept of a "broken" group at all: `RaiseSkillGroup`/`RaiseSkillGroupCreate`/
+  `SetSkillGroupRating` would silently overwrite every member skill's rating (and any Karma/BP
+  already spent reaching it, unrefunded) whenever the group was raised, even if member skills had
+  already been raised individually and diverged from each other or from the group's own stale
+  rating. `CanRaiseSkillGroupAsAWhole` now blocks the raise unless every member skill agrees with
+  each other, and (only via `AllowSkillRegrouping`) lets the group's own rating catch up to that
+  shared value before proceeding. Most other Improvement-driven house rules remain unported (~13
+  more flags on `CharacterOptions` - e.g. `AllowExceedAttributeBp`, `AllowCyberwareEssDiscounts` -
+  aren't referenced anywhere in `CharacterFileService` yet).
 
 ## Output / tooling
 

@@ -1250,6 +1250,55 @@ public class CharacterFileServiceTests
         Assert.Equal("85", character.Karma); // 100 - (2+1)*KarmaImproveSkillGroup(5) = 100-15
     }
 
+    private static CharacterDocument LoadUnlockedFirearmsGroup(string strPistolenRating, string strAutomatikRating)
+        => LoadXml("<character><name>Runner</name><karma>100</karma>"
+            + "<skillgroups><skillgroup><name>Firearms</name><rating>0</rating></skillgroup></skillgroups>"
+            + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>False</grouped><rating>" + strPistolenRating
+            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Automatik</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>False</grouped><rating>" + strAutomatikRating
+            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+
+    [Fact]
+    public void RaiseSkillGroup_RejectsWhenMemberSkillsHaveDivergedFromEachOther()
+    {
+        // Pistolen and Automatik were raised individually while the group sat at 0 - they no
+        // longer agree with each other, so the group is "broken" and can't be raised as a whole
+        // regardless of AllowSkillRegrouping.
+        CharacterDocument character = LoadUnlockedFirearmsGroup("2", "1");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowSkillRegrouping = true });
+
+        Assert.False(character.RaiseSkillGroup("Firearms"));
+        Assert.Equal("0", character.SkillGroups.Single(g => g.Name == "Firearms").Rating);
+        Assert.Equal("100", character.Karma);
+    }
+
+    [Fact]
+    public void RaiseSkillGroup_RejectsRegroupingWhenTheHouseRuleIsOff()
+    {
+        // Both member skills already agree (both at 2), but the group's own rating (0) hasn't
+        // caught up - without AllowSkillRegrouping, resuming the group is still blocked.
+        CharacterDocument character = LoadUnlockedFirearmsGroup("2", "2");
+
+        Assert.False(character.RaiseSkillGroup("Firearms"));
+        Assert.Equal("0", character.SkillGroups.Single(g => g.Name == "Firearms").Rating);
+    }
+
+    [Fact]
+    public void RaiseSkillGroup_AllowsRegroupingFromAUniformRatingWhenTheHouseRuleIsOn()
+    {
+        CharacterDocument character = LoadUnlockedFirearmsGroup("2", "2");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowSkillRegrouping = true });
+
+        Assert.True(character.RaiseSkillGroup("Firearms"));
+
+        Assert.Equal("3", character.SkillGroups.Single(g => g.Name == "Firearms").Rating);
+        Assert.All(character.Skills, s => Assert.Equal("3", s.BaseRating));
+        Assert.Equal("85", character.Karma); // caught up from the common rating 2, not the stale group rating 0
+    }
+
     [Fact]
     public void AddActiveSkillSpecialization_CostsKarmaSpecializationInCareerMode()
     {
