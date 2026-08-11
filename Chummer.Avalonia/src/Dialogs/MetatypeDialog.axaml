@@ -82,6 +82,7 @@
 						<ComboBoxItem Content="Keine" Tag="None" />
 						<ComboBoxItem Content="Magier" Tag="Magician" />
 						<ComboBoxItem Content="Adept" Tag="Adept" />
+						<ComboBoxItem Content="Mystischer Adept" Tag="MysticAdept" />
 						<ComboBoxItem Content="Technomancer" Tag="Technomancer" />
 					</ComboBox>
 				</StackPanel>

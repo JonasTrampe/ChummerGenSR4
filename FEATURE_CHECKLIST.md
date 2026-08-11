@@ -46,7 +46,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   spending. Verified end-to-end with a scratch harness: create Adept → raise BOD/Pistolen via
   Create-mode Karma costs → finalize → raise AGI via the career-mode Karma formula, all against
   the same character. Not a true priority-table system (Karma/BP only, no A-E priority letters),
-  no starting-Lifestyle-Nuyen dice roll, and Mystic Adept (both Adept+Magician) isn't offered.
+  no starting-Lifestyle-Nuyen dice roll. Mystic Adept is now offered in the metatype dialog's
+  magic-type picker (sets both `adept` and `magician`); the General tab's MAG-split field is
+  editable and calls the new `SetMysticAdeptMagicianMagSplit`, which writes `magsplitmagician`/
+  `magsplitadept` (clamped to `[0, MAG]`), ported from `frmCreate.cs`'s
+  `nudMysticAdeptMAGMagician_ValueChanged`.
 - 🟡 Cloud save/share (RunnersPoint API) wired into the UI — Avalonia now has a Cloud Documents
   menu entry and dialog with OAuth/API-token login, folder tree, shared-documents toggle,
   push/download/archive/unarchive, metadata editing, revisions, and document-to-folder drag/drop.

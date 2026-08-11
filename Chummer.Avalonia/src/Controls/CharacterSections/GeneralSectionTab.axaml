@@ -81,8 +81,8 @@
                                 <TextBlock Grid.Column="1" Text="Adept" FontWeight="SemiBold" />
                             </Grid>
                             <Grid ColumnDefinitions="90,90">
-                                <TextBox Grid.Column="0" Text="{Binding MysticAdeptMagicianMagSplit}" Width="60"
-                                         HorizontalAlignment="Left" IsReadOnly="True" />
+                                <TextBox Grid.Column="0" Text="{Binding MysticAdeptMagicianMagSplit, Mode=TwoWay}" Width="60"
+                                         HorizontalAlignment="Left" />
                                 <TextBlock Grid.Column="1" Text="{Binding MysticAdeptAdeptMagSplit}" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>

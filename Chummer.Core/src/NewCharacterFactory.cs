@@ -110,8 +110,8 @@ namespace Chummer.Core
             string strBuildMethod, int intBuildPoints, int intMaxAvailability, NewCharacterMetatype objMetatype,
             string strMetavariantName = "", bool blnIgnoreRules = false, string strMagicType = "None")
         {
-            bool blnAdept = strMagicType == "Adept";
-            bool blnMagician = strMagicType == "Magician";
+            bool blnAdept = strMagicType == "Adept" || strMagicType == "MysticAdept";
+            bool blnMagician = strMagicType == "Magician" || strMagicType == "MysticAdept";
             bool blnTechnomancer = strMagicType == "Technomancer";
             bool blnKarmaBuild = string.Equals(strBuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
             XmlDocument objDocument = new XmlDocument();

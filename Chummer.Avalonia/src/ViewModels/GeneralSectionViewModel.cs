@@ -104,7 +104,14 @@ public sealed class GeneralSectionViewModel : ViewModelBase
     public string MysticAdeptMagicianMagSplit
     {
         get => _strMysticAdeptMagicianMagSplit;
-        set => SetField(ref _strMysticAdeptMagicianMagSplit, value);
+        set
+        {
+            if (!SetField(ref _strMysticAdeptMagicianMagSplit, value))
+                return;
+            if (_character != null && int.TryParse(value, out int intMagician)
+                && _character.SetMysticAdeptMagicianMagSplit(intMagician))
+                MysticAdeptAdeptMagSplit = _character.MysticAdeptAdeptMagSplit.ToString();
+        }
     }
 
     private string _strMysticAdeptAdeptMagSplit = string.Empty;

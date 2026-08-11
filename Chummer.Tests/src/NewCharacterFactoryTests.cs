@@ -266,6 +266,7 @@ public class NewCharacterFactoryTests
     [InlineData("None", false, false, false, false)]
     [InlineData("Adept", true, false, false, true)]
     [InlineData("Magician", false, true, false, true)]
+    [InlineData("MysticAdept", true, true, false, true)]
     [InlineData("Technomancer", false, false, true, false)]
     public void CreateNewCharacter_MagicType_SetsAdeptMagicianTechnomancerAndAwakenedFlags(
         string strMagicType, bool blnAdept, bool blnMagician, bool blnTechnomancer, bool blnAwakened)
@@ -277,6 +278,24 @@ public class NewCharacterFactoryTests
         Assert.Equal(blnMagician, character.Magician);
         Assert.Equal(blnTechnomancer, character.Technomancer);
         Assert.Equal(blnAwakened, character.Awakened);
+    }
+
+    [Fact]
+    public void SetMysticAdeptMagicianMagSplit_SplitsMagBetweenMagicianAndAdept()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman(), strMagicType: "MysticAdept");
+        for (int i = 0; i < 6; i++)
+            character.RaiseAttributeCreate("MAG");
+
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(2));
+        Assert.Equal(2, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(6 - 2, character.MysticAdeptAdeptMagSplit);
+
+        // Clamped to [0, MAG].
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(99));
+        Assert.Equal(6, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(0, character.MysticAdeptAdeptMagSplit);
     }
 
     [Fact]

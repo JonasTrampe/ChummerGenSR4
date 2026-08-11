@@ -148,6 +148,22 @@ namespace Chummer.Core
         public int MysticAdeptMagicianMagSplit =>
             int.TryParse(GetValue("/character/magsplitmagician", "0"), out var i) ? i : 0;
 
+        /// <summary>Ported from frmCreate.cs's nudMysticAdeptMAGMagician_ValueChanged: sets how
+        /// many points of a Mystic Adept's MAG rating go to spellcasting, with the remainder
+        /// (down to 0) going to Adept Powers.</summary>
+        public bool SetMysticAdeptMagicianMagSplit(int intMagicianPoints)
+        {
+            if (!MysticAdept)
+                return false;
+
+            int intMag = GetAttributeInt("MAG");
+            int intMagician = Math.Clamp(intMagicianPoints, 0, intMag);
+            SetChildValue(Document.DocumentElement!, "magsplitmagician", intMagician.ToString());
+            SetChildValue(Document.DocumentElement!, "magsplitadept", (intMag - intMagician).ToString());
+            Changed?.Invoke();
+            return true;
+        }
+
         public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
 
         public IReadOnlyList<CharacterCommlinkData> Commlinks => ReadCommlinks();
