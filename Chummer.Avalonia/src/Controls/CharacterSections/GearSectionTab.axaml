@@ -233,6 +233,10 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Button Content="Haustier hinzufügen" Click="OnAddPetClick" />
                     <Button Content="Charakter verknüpfen" Click="OnLinkPetClick" />
+                    <Button Content="Charakter öffnen" Click="OnOpenLinkedPetCharacterClick"
+                            IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
+                    <Button Content="Verknüpfung entfernen" Click="OnUnlinkPetClick"
+                            IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
                     <Button Content="Löschen" Click="OnDeletePetClick" />
                 </StackPanel>
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />

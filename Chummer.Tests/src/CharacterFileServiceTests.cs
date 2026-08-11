@@ -65,6 +65,21 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void PetCharacterLink_ClearedByUpdatingWithEmptyPaths()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddPet("Sparky");
+        int intPetId = Assert.Single(character.Pets).ContactId;
+        character.UpdateContactFile(intPetId, "/characters/sparky.chum", "../characters/sparky.chum");
+
+        Assert.True(character.UpdateContactFile(intPetId, string.Empty, string.Empty));
+
+        CharacterContactData pet = Assert.Single(character.Pets);
+        Assert.Equal(string.Empty, pet.FileName);
+        Assert.Equal(string.Empty, pet.RelativeFileName);
+    }
+
+    [Fact]
     public void AddQuality_MutatesCharacterAndPersistsTheMinimalSaveShape()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

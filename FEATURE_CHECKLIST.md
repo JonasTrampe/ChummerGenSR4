@@ -54,10 +54,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
   können), Waffen (inkl. Zubehör/Mods, die jetzt über eigene Picker hinzugefügt/gelöscht werden
   können, und persistenter Standorte), Ausrüstung
-- 🟡 Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
+- ✅ Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
-  Linking now also peeks the companion file's Metatype/Metavariant and shows it (ported from
-  PetControl.cs's lblMetatype, which does the same file-open-just-to-read-this trick).
+  Linking peeks the companion file's Metatype/Metavariant and shows it (ported from
+  PetControl.cs's lblMetatype, which does the same file-open-just-to-read-this trick). Checked
+  PetControl.Designer.cs field-by-field against this: the remaining two context-menu actions
+  (open the linked character in a new tab, clear the link without deleting the Pet) are now wired
+  too - "Charakter öffnen" and "Verknüpfung entfernen" (the latter just calls the existing
+  `UpdateContactFile` with empty paths, no new Core method needed). Nothing legacy exposes for a
+  Pet is left unported.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
   add/delete root vehicles and deduct their cost. Rules-data vehicle modifications can be selected

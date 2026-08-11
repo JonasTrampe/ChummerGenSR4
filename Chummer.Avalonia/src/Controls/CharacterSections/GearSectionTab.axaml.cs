@@ -316,6 +316,30 @@ public partial class GearSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
+    /// <summary>Clears a Pet's linked companion file without deleting the Pet itself - matches
+    /// PetControl.cs's tsRemoveCharacter context-menu entry.</summary>
+    private void OnUnlinkPetClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedPet is not { HasLinkedCharacter: true } selected)
+            return;
+        if (_character.UpdateContactFile(selected.ContactId, string.Empty, string.Empty))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Opens a Pet's linked companion file in a new tab - matches PetControl.cs's
+    /// tsContactOpen context-menu entry.</summary>
+    private void OnOpenLinkedPetCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedPet is not { HasLinkedCharacter: true } selected
+            || !File.Exists(selected.FileName)
+            || TopLevel.GetTopLevel(this) is not MainWindow window)
+            return;
+
+        using var stream = File.OpenRead(selected.FileName);
+        CharacterDocument linked = new CharacterFileService().Load(stream, Path.GetFileName(selected.FileName));
+        window.LoadCharacterIntoTabs(linked, selected.FileName);
+    }
+
     private void OnToggleArmorEquippedClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedArmor == null || sender is not CheckBox checkBox)
