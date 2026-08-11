@@ -228,6 +228,27 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddChildGear_EnforcesCapacityWhenTheHouseRuleIsOn()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0", "1", "", "", "", "", "2");
+        int intParentId = character.Gear[0].GearId;
+
+        // Fits exactly within the parent's capacity of 2.
+        Assert.True(character.AddChildGear(intParentId, "Sim Module", "Commlink Accessory", "0", "1", "", "", "", "",
+            "2"));
+        // No capacity left for a second item.
+        Assert.False(character.AddChildGear(intParentId, "Simsense Booster", "Commlink Accessory", "0", "1", "", "",
+            "", "", "1"));
+        Assert.Single(character.Gear[0].Children);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { EnforceCapacity = false });
+        Assert.True(character.AddChildGear(intParentId, "Simsense Booster", "Commlink Accessory", "0", "1", "", "",
+            "", "", "1"));
+        Assert.Equal(2, character.Gear[0].Children.Count);
+    }
+
+    [Fact]
     public void SetGearQuantity_UpdatesAnExistingItemsCount()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

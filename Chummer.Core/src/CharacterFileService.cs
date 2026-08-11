@@ -745,6 +745,10 @@ namespace Chummer.Core
             if (objParent == null)
                 return false;
 
+            if (GetCharacterOptions().EnforceCapacity
+                && !GearCapacityAllowsChild(objParent, strCapacity, strQty))
+                return false;
+
             var objChildren = objParent.SelectSingleNode("children") as XmlElement;
             if (objChildren == null)
             {
@@ -757,6 +761,30 @@ namespace Chummer.Core
             DeductGearCost(strCost, strRating, strQty);
             Changed?.Invoke();
             return true;
+        }
+
+        /// <summary>Ported from clsEquipment.cs's Gear.CapacityRemaining, honoring the
+        /// EnforceCapacity house rule setting - same simplified capacity model as
+        /// CharacterTreeItemData.CapacityRemaining (own capacity minus the sum of children's own
+        /// capacity, no bracketed "[x]" capacity handling). Existing children with a non-numeric
+        /// (bracketed) Capacity are treated as consuming 0, matching that same simplification.</summary>
+        private static bool GearCapacityAllowsChild(XmlNode objParent, string strChildCapacity, string strChildQty)
+        {
+            double dblOwn = double.TryParse(GetValue(objParent, "capacity", string.Empty), NumberStyles.Float,
+                CultureInfo.InvariantCulture, out var dOwn) ? dOwn : 0;
+            var objExistingChildren = objParent.SelectNodes("children/gear");
+            double dblUsed = 0;
+            if (objExistingChildren != null)
+                foreach (XmlNode objChild in objExistingChildren)
+                    if (double.TryParse(GetValue(objChild, "capacity", string.Empty), NumberStyles.Float,
+                            CultureInfo.InvariantCulture, out var dUsed))
+                        dblUsed += dUsed;
+
+            double dblNewCapacity = double.TryParse(strChildCapacity, NumberStyles.Float,
+                CultureInfo.InvariantCulture, out var dNew) ? dNew : 0;
+            int intQty = int.TryParse(strChildQty, out var q) ? q : 1;
+
+            return dblUsed + dblNewCapacity * intQty <= dblOwn;
         }
 
         private void DeductGearCost(string strCost, string strRating, string strQty)

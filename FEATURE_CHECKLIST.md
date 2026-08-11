@@ -143,7 +143,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   karma cost (`AlternateMetatypeAttributeKarma`), and skill dice pools
   (`EnforceMaximumSkillRatingModifier`/`CapSkillRating`/`SkillDefaultingIncludesModifiers`) are now
   house-rule aware; most Karma/BP costs (contacts, skills, skill groups) already read their rates
-  from the settings profile. Most other Improvement-driven house rules remain unported.
+  from the settings profile. `EnforceCapacity` is now honored too - `AddChildGear` rejects nesting
+  gear that would exceed the parent's remaining capacity (same simplified, no-brackets capacity
+  model `CharacterTreeItemData.CapacityRemaining` already used for display) unless the house rule
+  is off. Most other Improvement-driven house rules remain unported (~15 more flags on
+  `CharacterOptions` - e.g. `AllowSkillRegrouping`, `EnforceMaximumSkillRatingModifier`'s siblings
+  for other pools, `AllowExceedAttributeBp` - aren't referenced anywhere in `CharacterFileService`
+  yet).
 
 ## Output / tooling
 
