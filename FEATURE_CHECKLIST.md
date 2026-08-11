@@ -11,10 +11,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Character file I/O
 
 - ✅ Open/save `.chum` files
-- 🟡 **Anything added or edited in the UI actually persisting** — adding a Quality or a
-  Karma/Nuyen history entry now mutates the loaded XML and survives save/reload; character
-  profile/general fields such as alias, notes, biography text, street-cred values, and Nuyen
-  also write back to the loaded XML. Many other edits remain read-only or unwired.
+- 🟡 **Anything added or edited in the UI actually persisting** — this has grown far past its
+  original scope; by now most editable-looking controls across every tab genuinely write back to
+  the loaded XML (audited every TextBox/CheckBox/NumericUpDown binding across all Character
+  Sections tabs to check for stale/dead ones - found none beyond what's already called out
+  elsewhere: the Initiation/Allgemein detail panes' remaining static mockup rows, and
+  Improvements' intentionally-disabled "aktiv" checkbox). What's still genuinely unwired is
+  narrower and tracked under its own rows now: manual Improvement *add* (Character sheet tabs →
+  editing), Drones/weapon-mount subsystems (Fahrzeuge und Drohnen), and Language/i18n across the
+  UI (Settings / options).
 - ✅ Multiple characters open in tabs at once
 - 🟡 Character creation flow (Karma/BP point-buy system, `frmCreate` equivalent) — this was more
   complete than previously documented here: Settings Profile → Karma/GP → Metatype (now with a
