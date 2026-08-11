@@ -88,6 +88,11 @@ public sealed class TreeNodeViewModel
     public string WeaponDicePoolTooltip { get; private set; } = string.Empty;
     public string Source { get; private set; } = string.Empty;
     public string Page { get; private set; } = string.Empty;
+
+    /// <summary>"&lt;book code&gt; &lt;page&gt;" - only meaningful where Source/Page are actually
+    /// populated (currently vehicle root nodes), see SourceLink.SourcePage.</summary>
+    public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
+
     public string PhysicalCmFilled { get; private set; } = string.Empty;
     public IReadOnlyList<string> VehicleLocations { get; private set; } = Array.Empty<string>();
     public bool HasVehicleDetails { get; private set; }

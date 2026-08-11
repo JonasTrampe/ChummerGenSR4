@@ -173,9 +173,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   paths/page-offsets weren't editable anywhere, so added those to the Sourcebooks list there. A
   new `SourceLink` control (plain text when unconfigured, a clickable link once a reader + that
   book's path are set) replaces the raw "Quelle:" text in the Spell/Power/MartialArt/Metamagic
-  picker dialogs. Not yet wired into the character-tab detail panes' own "Quelle:" labels (Allgemein,
-  Kampfkünste, Verbessern, Initiation, and every other tab still show plain text there) or the
-  ~10 other picker dialogs built earlier this session.
+  picker dialogs, Kampfkünste's detail pane, and (now) Fahrzeuge's detail pane (via a new
+  `TreeNodeViewModel.SourcePage`). Allgemein/Verbessern/Initiation's own "Quelle:" labels turned
+  out not to be real book+page references (Allgemein/Initiation's detail panes are still static
+  mockup content unrelated to this gap; Verbessern's "Quelle" is the Improvement's *granting
+  source* - Quality/Cyberware/etc. - not a sourcebook page) so there was nothing to wire there.
+  Still not wired into the ~10 other picker dialogs built earlier this session.
 - ✅ Dice roller — ported frmDiceRoller.cs's roll/hit/glitch logic (Standard/Large/Really Large
   methods, Rule of 6, Cinematic Gameplay, Rushed Job, Gremlins rating, Threshold) into a
   standalone, character-independent `Zubehör → Würfeln...` dialog
