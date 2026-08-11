@@ -274,10 +274,16 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   calculations that read MAG/RES directly (Adept Power Points, Awakened, etc.) intentionally keep
   using the raw total, matching legacy (whose own `MAG.TotalMaximum` is never actually reduced by
   Essence loss anywhere in its codebase either - a legacy quirk faithfully preserved here, not a
-  simplification of this port's). The remaining 2 flags still need real missing infrastructure:
-  `ImprovedSenseFullRating` needs a SelectSenseware Improvement-selection flow this port doesn't
-  have; `RestrictStickNShock` needs a weapon-to-ammo linkage (which specific weapon a Gear/ammo
-  item is loaded into) that this port's flat Gear tree has no concept of.
+  simplification of this port's). `RestrictStickNShock` is now honored too, deliberately
+  simplified: legacy blocks loading Stick-n-Shock ammo into one specific excluded-category weapon,
+  but this port's Gear tree has no concept of which weapon an ammo item is loaded into, so `AddGear`
+  instead blocks acquiring "Ammo: Stick-n-Shock" at all when the character owns no weapon outside
+  the excluded categories to use it with. `ImprovedSenseFullRating` remains unported: it needs a
+  generic rules-bonus-application engine (parsing an arbitrary `<bonus>` XML node from
+  cyberware/bioware/gear data into live Improvements) that doesn't exist anywhere in this port yet
+  - `ImprovementManager` here is query-only (sums already-persisted `<improvement>` elements), not
+  a creation engine like legacy's `clsImprovement.CreateImprovements`. Building that is a
+  significant standalone feature in its own right, not a house-rule-flag-sized change.
 
 ## Output / tooling
 

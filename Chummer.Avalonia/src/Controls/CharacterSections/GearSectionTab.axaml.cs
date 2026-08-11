@@ -91,6 +91,10 @@ public partial class GearSectionTab : UserControl
                 _character.AddGear(gear.SourceName, gear.Category, gear.Rating, gear.Quantity.ToString(),
                     gear.Cost, gear.Availability, gear.SourcePage, string.Empty,
                     gear.Capacity, gear.Response, gear.Signal, gear.SystemRating, gear.Firewall);
+                // Ignoring the return value here is intentional: a rejected Stick-n-Shock pickup
+                // is a rare, self-explanatory (no owned eligible weapon) house-rule edge case, not
+                // worth a dedicated error dialog for - matches this port's existing convention of
+                // silently no-op'ing rejected adds elsewhere (e.g. weapon accessory mounts).
             }
             continueAdding = added && dialog.ContinueAdding;
         } while (continueAdding);

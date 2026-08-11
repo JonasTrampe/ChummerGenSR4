@@ -2397,4 +2397,39 @@ public class CharacterFileServiceTests
         var attributes = character.Attributes.ToDictionary(a => a.Code);
         Assert.Equal("4", attributes["MAG"].TotalValue);
     }
+
+    [Fact]
+    public void AddGear_StickNShock_AllowedWhenHouseRuleOff()
+    {
+        var character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        Assert.True(character.AddGear("Ammo: Stick-n-Shock", "Ammunition"));
+    }
+
+    [Fact]
+    public void AddGear_StickNShock_RejectedWithoutEligibleWeapon()
+    {
+        var character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions { RestrictStickNShock = true };
+        objOptions.StickNShockExcludedWeaponCategories.Add("Heavy Pistols");
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        // No weapons owned at all - nothing eligible.
+        Assert.False(character.AddGear("Ammo: Stick-n-Shock", "Ammunition"));
+
+        // Only an excluded-category weapon owned - still nothing eligible.
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Assert.False(character.AddGear("Ammo: Stick-n-Shock", "Ammunition"));
+    }
+
+    [Fact]
+    public void AddGear_StickNShock_AllowedWithEligibleWeaponCategory()
+    {
+        var character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions { RestrictStickNShock = true };
+        objOptions.StickNShockExcludedWeaponCategories.Add("Heavy Pistols");
+        character.SetCharacterOptionsForTesting(objOptions);
+        character.AddWeapon("Assault Rifle", "Assault Rifles", "8P", "-1", "SA", "0", "30", "1500", "6R", "SR4", "313");
+
+        Assert.True(character.AddGear("Ammo: Stick-n-Shock", "Ammunition"));
+    }
 }

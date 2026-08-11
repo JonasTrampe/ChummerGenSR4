@@ -817,14 +817,17 @@ namespace Chummer.Core
 
         /// <summary>Adds a root-level gear item in the minimal saved-character tree shape. Deducts its
         /// cost (evaluated at the given rating, times quantity) from Nuyen, matching the legacy
-        /// "buying gear costs money" rule.</summary>
-        public void AddGear(string strName, string strCategory, string strRating = "0", string strQty = "1",
+        /// "buying gear costs money" rule. Returns false (adding nothing) if this is "Ammo:
+        /// Stick-n-Shock" and <see cref="StickNShockAllowed"/> rejects it.</summary>
+        public bool AddGear(string strName, string strCategory, string strRating = "0", string strQty = "1",
             string strCost = "", string strAvail = "", string strSource = "", string strPage = "",
             string strCapacity = "", string strResponse = "", string strSignal = "", string strSystemRating = "",
             string strFirewall = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A gear name is required.", nameof(strName));
+            if (!StickNShockAllowed(strName))
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -839,6 +842,26 @@ namespace Chummer.Core
                 strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
             DeductGearCost(strCost, strRating, strQty);
             Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Ported from frmCareer.cs/frmCreate.cs's Stick-n-Shock weapon-category
+        /// restriction checks (e.g. frmCareer.cs:24378), simplified for this port's flat Gear tree:
+        /// legacy blocks loading Stick-n-Shock ammo into a specific excluded-category weapon;
+        /// since this port has no concept of which weapon a Gear/ammo item is loaded into, it
+        /// instead blocks acquiring the ammo at all when the RestrictStickNShock house rule is on
+        /// and the character owns no weapon outside the excluded categories to use it with.</summary>
+        private bool StickNShockAllowed(string strName)
+        {
+            if (!string.Equals(strName, "Ammo: Stick-n-Shock", StringComparison.Ordinal))
+                return true;
+
+            var objOptions = GetCharacterOptions();
+            if (!objOptions.RestrictStickNShock)
+                return true;
+
+            var setExcluded = objOptions.StickNShockExcludedWeaponCategories;
+            return Weapons.Any(w => !setExcluded.Contains(w.Category));
         }
 
         /// <summary>Adds gear nested under an existing gear item (e.g. a Certified Credstick under
