@@ -195,8 +195,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Drag-and-drop / interaction niceties
 
-- 🟡 Gear tree reordering/reparenting (done, MVVM-bound) — not extended to the Cyberware/
-  Weapons/Armor trees, which don't support it at all
+- 🟡 Gear tree reordering/reparenting (MVVM-bound) — now backed by a real `CharacterFileService
+  .MoveGear` write path (found while touching this area: the original drag/drop only mutated the
+  in-memory ViewModel tree, so a reorder looked like it worked but was silently lost on the next
+  reload/save - it now moves the actual XML node and reloads from the document like every other
+  edit in this app). Not extended to the Cyberware/Weapons/Armor trees, which don't support
+  drag/drop at all.
 
 ## Platform / packaging
 

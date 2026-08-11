@@ -359,31 +359,30 @@ public partial class GearSectionTab : UserControl
             // e.Source isn't reliable here - unlike pointer events, Avalonia's drag routing
             // doesn't consistently set it to the actual element under the cursor, so it's hit-
             // tested explicitly at the drop coordinates instead.
-            if (_draggedGearNode is not { } source
+            if (_character == null
+                || _draggedGearNode is not { } source
                 || FindTreeNodeAt(tree, e.GetPosition(tree)) is not { } target
-                || source == target)
+                || source == target
+                || source.GearId < 0 || target.GearId < 0)
                 return;
-
-            var sourceSiblings = source.Parent?.Children ?? ViewModel.Gear;
 
             if (_draggedWithRightButton)
             {
                 // Reparent: refuse to drop an item onto itself or into its own subtree, since that
-                // would either no-op or orphan the whole branch.
+                // would either no-op or orphan the whole branch (MoveGear also guards against this).
                 if (IsAncestorOf(source, target))
                     return;
 
-                sourceSiblings.Remove(source);
-                target.AddChild(source);
+                if (_character.MoveGear(source.GearId, target.GearId, blnReparent: true))
+                    ViewModel.LoadCharacter(_character);
             }
             else
             {
                 if (source.Parent != target.Parent)
                     return;
 
-                var targetIndex = sourceSiblings.IndexOf(target);
-                sourceSiblings.Remove(source);
-                sourceSiblings.Insert(targetIndex, source);
+                if (_character.MoveGear(source.GearId, target.GearId, blnReparent: false))
+                    ViewModel.LoadCharacter(_character);
             }
         });
     }

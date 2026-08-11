@@ -837,6 +837,47 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Moves a gear item within the &lt;gears&gt; tree - either reordering it among its
+        /// current siblings (inserted immediately before <paramref name="intTargetGearId"/>) or, with
+        /// <paramref name="blnReparent"/>, making it a child of the target instead. GearIds are
+        /// depth-first positions recomputed on every read (see <see cref="GetGearNodeById"/>), so
+        /// callers must reload the tree after a successful move before issuing another one.</summary>
+        public bool MoveGear(int intSourceGearId, int intTargetGearId, bool blnReparent)
+        {
+            XmlNode? objSource = GetGearNodeById(intSourceGearId);
+            XmlNode? objTarget = GetGearNodeById(intTargetGearId);
+            if (objSource == null || objTarget == null || objSource == objTarget || objSource.ParentNode == null)
+                return false;
+
+            // Refuse to move an item into its own subtree - that would either orphan the branch or
+            // (for reparent) create a cycle.
+            for (XmlNode? objCursor = objTarget; objCursor != null; objCursor = objCursor.ParentNode)
+                if (objCursor == objSource)
+                    return false;
+
+            objSource.ParentNode.RemoveChild(objSource);
+
+            if (blnReparent)
+            {
+                XmlNode? objChildren = objTarget.SelectSingleNode("children");
+                if (objChildren == null)
+                {
+                    objChildren = Document.CreateElement("children");
+                    objTarget.AppendChild(objChildren);
+                }
+                objChildren.AppendChild(objSource);
+            }
+            else
+            {
+                if (objTarget.ParentNode == null)
+                    return false;
+                objTarget.ParentNode.InsertBefore(objSource, objTarget);
+            }
+
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Adds a vehicle in the same persisted shape as the legacy Vehicle.Save method.
         /// The purchase price is deducted from Nuyen just like root-level gear.</summary>
         public void AddVehicle(string strName, string strCategory, string strHandling, string strAcceleration,

@@ -239,6 +239,66 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MoveGear_ReordersRootLevelSiblingsAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><gears>"
+            + "<gear><name>A</name><category>Biotech</category></gear>"
+            + "<gear><name>B</name><category>Biotech</category></gear>"
+            + "<gear><name>C</name><category>Biotech</category></gear>"
+            + "</gears></character>");
+        int intAId = character.Gear[0].GearId;
+        int intCId = character.Gear[2].GearId;
+
+        // Move C in front of A.
+        Assert.True(character.MoveGear(intCId, intAId, blnReparent: false));
+        Assert.Equal(new[] { "C", "A", "B" }, character.Gear.Select(g => g.Name));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(new[] { "C", "A", "B" }, reloaded.Gear.Select(g => g.Name));
+    }
+
+    [Fact]
+    public void MoveGear_ReparentsAsAChildAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><gears>"
+            + "<gear><name>Commlink</name><category>Commlink</category></gear>"
+            + "<gear><name>Credstick</name><category>Commlink Accessory</category></gear>"
+            + "</gears></character>");
+        int intCommlinkId = character.Gear[0].GearId;
+        int intCredstickId = character.Gear[1].GearId;
+
+        Assert.True(character.MoveGear(intCredstickId, intCommlinkId, blnReparent: true));
+        CharacterTreeItemData root = Assert.Single(character.Gear);
+        Assert.Equal("Commlink", root.Name);
+        Assert.Equal("Credstick", Assert.Single(root.Children).Name);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterTreeItemData reloadedRoot = Assert.Single(reloaded.Gear);
+        Assert.Equal("Credstick", Assert.Single(reloadedRoot.Children).Name);
+    }
+
+    [Fact]
+    public void MoveGear_RejectsMovingAnItemIntoItsOwnSubtree()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0");
+        int intParentId = character.Gear[0].GearId;
+        character.AddChildGear(intParentId, "Credstick", "Commlink Accessory", "0");
+        int intChildId = character.Gear[0].Children[0].GearId;
+
+        Assert.False(character.MoveGear(intParentId, intChildId, blnReparent: true));
+        Assert.False(character.MoveGear(intParentId, intChildId, blnReparent: false));
+        Assert.Single(character.Gear);
+        Assert.Single(character.Gear[0].Children);
+    }
+
+    [Fact]
     public void AddWeapon_MutatesCharacterTreeAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
