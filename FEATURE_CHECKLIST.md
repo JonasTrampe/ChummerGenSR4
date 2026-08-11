@@ -1,12 +1,77 @@
 # Feature checklist — Avalonia port vs. the full legacy Chummer feature set
 
+**Goal: full feature parity with legacy WinForms Chummer.** This port is no longer scoped as an
+MVP — every 🟡 row below is a real, currently-accepted gap, not a permanent simplification. When
+a row's note says something was "deliberately scoped," "out of scope for this pass," or "not
+ported yet," treat that as backlog to close, not a decision to leave alone. The **Backlog toward
+full parity** section right below is the actionable summary; the feature-by-feature sections
+after it are the detailed record of what's done, what's partial, and exactly why.
+
 There wasn't a granular checklist before this — `PORTING_PLAN.md` is a phased narrative plan and
 `docs/LINUX_PORT_PLAN.md` is a high-level status doc from before most of the Phase 1/2 work in
 this file existed. This is the actual feature-by-feature inventory, kept up to date as work
 lands. Update the checkbox and status when a row changes; add a one-line note on any real
-simplification so the gap is visible without re-reading commit history.
+simplification so the gap is visible without re-reading commit history. When closing a backlog
+item, remove or check off its line in both the Backlog section and its detail row.
 
 Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not started
+
+## Backlog toward full parity
+
+Concrete, actionable gaps pulled from the detail sections below, so this list can be worked
+through directly without re-reading prose. Grouped by area; see the linked section for full
+context on each.
+
+**Bonus-application engine** (see § Bonus-application engine)
+- [ ] Expand `BonusApplier`/`ApplyBonus` beyond the current tier-1 node-type set (frequency-ranked
+  against this port's own data) toward covering legacy's full ~109-branch `CreateImprovements`
+  if-chain.
+- [ ] Manual Improvement *add* (`frmCreateImprovement.cs` — a ~50-type catalog with per-type
+  dynamic fields and sub-picker dialogs). Delete already works for `Custom`-sourced entries; add
+  does not exist at all.
+- [ ] Give Critter Powers a real Rating input (currently every Critter Power bonus applies at a
+  hardcoded Rating of 1).
+- [ ] `selectskill`/`selectattribute`/`selecttext` edge cases not yet modeled: exotic-skill-with-
+  specialization matching in `selectskill`, and `precedence` stacking rules beyond what
+  `ImprovementManager` already handles.
+
+**Character sheet tabs**
+- [ ] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon
+  occupies (currently a simplified count check — one weapon per mount, but not which mount).
+- [ ] Weapon dice pools: accessory/mod dice pool bonuses and loaded-ammo pool bonuses aren't
+  factored in yet (no field for either in this port's saved data).
+- [ ] A real spellcasting dice pool per spell (Spellcasting skill + MAG) — separate from the
+  Drain/Fading resistance pool, which is already done.
+
+**House rules**
+- [ ] `AllowExceedAttributeBp` — needs a new persisted "starting BP total" field (Bp is currently
+  only ever tracked as a shrinking remaining pool), not just gating existing logic.
+
+**Item picker dialogs**
+- [ ] Enumerate and port the remaining `frmSelectXxx` pickers beyond the 19 of ~41 already ported
+  (Skill-beyond-exotic doesn't need one — see detail row). No concrete list exists yet; the first
+  step is auditing legacy's `frmSelectXxx` files against what's ported here.
+
+**Output / tooling**
+- [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF
+  library or print backend referenced anywhere in this port yet).
+- [ ] Update checker — needs an explicit decision (arguably a non-goal under an AppImage/Linux
+  distribution model) rather than being silently unported.
+
+**Settings / i18n**
+- [ ] Translate the Avalonia UI — most strings are still hard-coded despite the language-selection
+  UI and catalog reload already existing.
+
+**Interaction niceties**
+- [ ] Extend drag/drop reordering/reparenting to the Cyberware/Weapons/Armor trees (currently only
+  the Gear tree supports it).
+
+**Platform / packaging**
+- [ ] AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5).
+- [ ] Automated smoke-test coverage — currently manual `dotnet build` + kill-timeout runs only.
+
+**Cloud save/share**
+- [ ] Conflict/newer-revision handling and broader UX parity with legacy's cloud flows.
 
 ## Character file I/O
 
