@@ -38,7 +38,7 @@
 
 		<CheckBox Grid.Row="2"
 		          Content="Ignoriere Charaktererschaffungsregeln"
-		          IsChecked="{Binding IgnoreCreationRules}" />
+		          IsChecked="{Binding IgnoreCreationRules, Mode=TwoWay}" />
 
 		<StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
 			<Button Content="Abbruch" Width="80" Click="OnCancel" />

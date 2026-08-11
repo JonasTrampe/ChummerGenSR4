@@ -114,7 +114,7 @@
                                                 Tag="{Binding}" />
                                         <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
-                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free}" />
+                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
                                         <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
@@ -147,7 +147,7 @@
                                                 Tag="{Binding}" />
                                         <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
-                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free}" />
+                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
                                         <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>

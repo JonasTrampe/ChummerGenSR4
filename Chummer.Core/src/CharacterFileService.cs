@@ -1899,15 +1899,91 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterTreeItemData> Gear => ReadGearTree();
 
+        /// <summary>Named storage locations for root-level Gear (ported from frmCareer.cs's
+        /// cmdAddLocation_Click) - existing while empty, same as WeaponLocations.</summary>
+        public IReadOnlyList<string> GearLocations => (IReadOnlyList<string>?)Document.SelectNodes("/character/gearlocations/gearlocation")?
+            .Cast<XmlNode>().Select(objNode => objNode.InnerText).Where(strName => !string.IsNullOrWhiteSpace(strName))
+            .Distinct(StringComparer.Ordinal).ToList() ?? Array.Empty<string>();
+
+        public bool AddGearLocation(string strName)
+        {
+            strName = strName.Trim();
+            if (strName.Length == 0 || GearLocations.Contains(strName, StringComparer.Ordinal)) return false;
+            var objRoot = Document.DocumentElement;
+            if (objRoot == null) return false;
+            XmlElement? objLocations = objRoot.SelectSingleNode("gearlocations") as XmlElement;
+            if (objLocations == null)
+            {
+                objLocations = Document.CreateElement("gearlocations");
+                objRoot.AppendChild(objLocations);
+            }
+            AppendElement(objLocations, "gearlocation", strName);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a named Gear location, clearing it from any root-level Gear that was
+        /// assigned to it - mirrors RemoveWeaponLocation's behavior for weapons.</summary>
+        public bool RemoveGearLocation(string strName)
+        {
+            strName = strName.Trim();
+            XmlNode? objLocation = Document.SelectNodes("/character/gearlocations/gearlocation")?.Cast<XmlNode>()
+                .FirstOrDefault(objNode => string.Equals(objNode.InnerText, strName, StringComparison.Ordinal));
+            if (objLocation?.ParentNode == null) return false;
+            objLocation.ParentNode.RemoveChild(objLocation);
+            XmlNodeList? objGearNodes = Document.SelectNodes("/character/gears/gear");
+            if (objGearNodes != null)
+                foreach (XmlNode objGear in objGearNodes)
+                    if (string.Equals(GetValue(objGear, "location", string.Empty), strName, StringComparison.Ordinal))
+                        SetChildValue(objGear, "location", string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Assigns a root-level Gear item (by its depth-first GearId) to one of the
+        /// character's own named locations, or clears it back to unassigned with an empty
+        /// <paramref name="strLocation"/>.</summary>
+        public bool SetGearLocation(int intGearId, string strLocation)
+        {
+            strLocation = strLocation.Trim();
+            if (strLocation.Length > 0 && !GearLocations.Contains(strLocation, StringComparer.Ordinal))
+                return false;
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            // Only root-level Gear (a direct child of <gears>, not nested under another item) can
+            // have a location - matches the legacy tree, which only ever lets you drag a top-level
+            // item into a location.
+            if (objGear == null || objGear.ParentNode?.Name != "gears")
+                return false;
+            SetChildValue(objGear, "location", strLocation);
+            Changed?.Invoke();
+            return true;
+        }
+
         private IReadOnlyList<CharacterTreeItemData> ReadGearTree()
         {
             var objNodes = Document.SelectNodes("/character/gears/gear");
             var lstItems = new List<CharacterTreeItemData>();
             if (objNodes == null) return lstItems;
 
+            var dicLocations = new Dictionary<string, CharacterTreeItemData>(StringComparer.Ordinal);
+            foreach (string strLocation in GearLocations)
+            {
+                var objLocationNode = new CharacterTreeItemData(strLocation, "Gear location");
+                dicLocations.Add(strLocation, objLocationNode);
+                lstItems.Add(objLocationNode);
+            }
+
             int intNextId = 0;
             foreach (XmlNode objNode in objNodes)
-                lstItems.Add(ReadGearTreeItem(objNode, ref intNextId));
+            {
+                var objItem = ReadGearTreeItem(objNode, ref intNextId);
+                string strLocation = GetValue(objNode, "location", string.Empty);
+                objItem.SetLocation(strLocation);
+                if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocationNode2))
+                    objLocationNode2.Children.Add(objItem);
+                else
+                    lstItems.Add(objItem);
+            }
             return lstItems;
         }
 

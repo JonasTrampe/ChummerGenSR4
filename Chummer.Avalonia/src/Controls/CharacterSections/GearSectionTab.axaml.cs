@@ -98,6 +98,22 @@ public partial class GearSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnAddGearLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
+        var dialog = new ArmorSetDialog { Title = "Ausrüstungsort hinzufügen" };
+        if (await dialog.ShowDialog<bool>(window) && _character.AddGearLocation(dialog.SetName))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnRemoveGearLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedGear is not { Category: "Gear location" } location)
+            return;
+        if (_character.RemoveGearLocation(location.Name))
+            ViewModel.LoadCharacter(_character);
+    }
+
     /// <summary>Adds gear nested under the currently selected gear item (e.g. a Certified
     /// Credstick under a Commlink) instead of at the root of the Ausrüstung tree.</summary>
     private async void OnAddChildGearClick(object? sender, RoutedEventArgs e)

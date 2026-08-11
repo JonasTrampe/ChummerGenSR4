@@ -2112,6 +2112,44 @@ public class CharacterFileServiceTests
         Assert.Equal("Ares Predator", Assert.Single(character.WeaponTrees).Name);
     }
 
+    [Fact]
+    public void GearLocations_CanBeCreatedAssignedAndDissolved()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Fake SIN", "Fake Identification", "0");
+        int intGearId = character.Gear[0].GearId;
+
+        Assert.True(character.AddGearLocation("Rucksack"));
+        Assert.Contains("Rucksack", character.GearLocations);
+
+        // Assigning to a location that doesn't exist is rejected.
+        Assert.False(character.SetGearLocation(intGearId, "Nirgendwo"));
+
+        Assert.True(character.SetGearLocation(intGearId, "Rucksack"));
+        CharacterTreeItemData location = Assert.Single(character.Gear);
+        Assert.Equal("Rucksack", location.Name);
+        Assert.Equal("Gear location", location.Category);
+        Assert.Single(location.Children);
+
+        Assert.True(character.RemoveGearLocation("Rucksack"));
+        CharacterTreeItemData remaining = Assert.Single(character.Gear);
+        Assert.Equal("Fake SIN", remaining.Name);
+        Assert.Equal(string.Empty, remaining.Location);
+    }
+
+    [Fact]
+    public void GearLocations_CannotBeAssignedToNestedChildGear()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0");
+        int intParentId = character.Gear[0].GearId;
+        character.AddChildGear(intParentId, "Certified Credstick, Silver", "Commlink Accessory", "0");
+        int intChildId = character.Gear[0].Children[0].GearId;
+        character.AddGearLocation("Rucksack");
+
+        Assert.False(character.SetGearLocation(intChildId, "Rucksack"));
+    }
+
     private static string ImprovementXml(string strType, string strValue) =>
         "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
         + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";

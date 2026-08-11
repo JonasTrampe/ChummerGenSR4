@@ -153,8 +153,9 @@
                         <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
                         <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
                         <Button Content="Löschen" Click="OnDeleteGearClick" />
-                        <Button Content="Ort hinzufügen" />
-                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks}" />
+                        <Button Content="Ort hinzufügen" Click="OnAddGearLocationClick" />
+                        <Button Content="Ort löschen" Click="OnRemoveGearLocationClick" />
+                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
@@ -204,6 +205,11 @@
                                 <TextBlock Text="¥ /" />
                                 <TextBlock Text="{Binding SelectedGear.Avail, TargetNullValue=–}" />
                             </StackPanel>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding !IsGearLocationSelected}">
+                            <TextBlock Text="Ort:" Width="90" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding GearLocations}"
+                                      SelectedItem="{Binding SelectedGearLocation, Mode=TwoWay}" />
                         </Grid>
                         <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding SelectedGear.HasCommlinkStats}">
                             <StackPanel Orientation="Horizontal" Spacing="4">

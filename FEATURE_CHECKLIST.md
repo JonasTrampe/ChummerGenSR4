@@ -23,10 +23,16 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   fifth was worse: `LifestyleDialog`'s picker `Selected` binding lacked it too, and since
   `SelectedLifestyle` (what `OnOk` checks before allowing the dialog to close) reads straight from
   that property, **the entire Lifestyle picker was unusable end to end** - clicking an option
-  never registered, so "Hinzufügen" could never succeed. All five fixed. What's still genuinely
-  unwired is narrower and tracked under its own rows now: manual Improvement *add* (Character
-  sheet tabs → editing), Drones/weapon-mount subsystems (Fahrzeuge und Drohnen), and Language/i18n
-  across the UI (Settings / options).
+  never registered, so "Hinzufügen" could never succeed. All five fixed defensively also added
+  `Mode=TwoWay` to a few more `IsChecked` bindings found in the same sweep (Contacts' "Gratis",
+  "Zeige nur Kommlinks", KarmaGpDialog's "Ignoriere Charaktererschaffungsregeln") even without
+  concrete proof CheckBox.IsChecked has the same default-binding-mode gap ComboBox/ListBox
+  SelectedItem turned out to have - the fix is free either way. Also found and closed a real
+  missing feature while in this area: Ausrüstung had no named locations at all despite an
+  unwired "Ort hinzufügen" button already sitting in the XAML (see the Straßenausrüstung row
+  above). What's still genuinely unwired is narrower and tracked under its own rows now: manual
+  Improvement *add* (Character sheet tabs → editing), Drones/weapon-mount subsystems (Fahrzeuge
+  und Drohnen), and Language/i18n across the UI (Settings / options).
 - ✅ Multiple characters open in tabs at once
 - 🟡 Character creation flow (Karma/BP point-buy system, `frmCreate` equivalent) — this was more
   complete than previously documented here: Settings Profile → Karma/GP → Metatype (now with a
@@ -65,7 +71,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
   können), Waffen (inkl. Zubehör/Mods, die jetzt über eigene Picker hinzugefügt/gelöscht werden
-  können, und persistenter Standorte), Ausrüstung
+  können, und persistenter Standorte), Ausrüstung (now with its own named locations too, ported
+  from frmCareer.cs's cmdAddLocation_Click - found the "Ort hinzufügen" button was already in the
+  XAML but wired to nothing; `CharacterFileService.GearLocations`/`AddGearLocation`/
+  `RemoveGearLocation`/`SetGearLocation` mirror the existing WeaponLocations pattern, root-level
+  only, same as legacy)
 - ✅ Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
   Linking peeks the companion file's Metatype/Metavariant and shows it (ported from

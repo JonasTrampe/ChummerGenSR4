@@ -40,7 +40,11 @@ public sealed class GearSectionViewModel : ViewModelBase
         }
     }
 
+    public ObservableCollection<string> GearLocations { get; } = new();
+
     private TreeNodeViewModel? _selectedGear;
+    private string _strSelectedGearLocation = "Kein Ort";
+    private bool _blnIsLoadingGearLocation;
     public TreeNodeViewModel? SelectedGear
     {
         get => _selectedGear;
@@ -52,6 +56,26 @@ public sealed class GearSectionViewModel : ViewModelBase
             _blnIsLoadingGearQuantity = true;
             SelectedGearQuantity = int.TryParse(value?.Qty, out int intQty) ? intQty : 1;
             _blnIsLoadingGearQuantity = false;
+
+            _blnIsLoadingGearLocation = true;
+            SelectedGearLocation = value is { Category: not "Gear location" } ?
+                (string.IsNullOrEmpty(value.Location) ? "Kein Ort" : value.Location) : "Kein Ort";
+            _blnIsLoadingGearLocation = false;
+            OnPropertyChanged(nameof(IsGearLocationSelected));
+        }
+    }
+
+    public bool IsGearLocationSelected => SelectedGear?.Category == "Gear location";
+
+    public string SelectedGearLocation
+    {
+        get => _strSelectedGearLocation;
+        set
+        {
+            if (!SetField(ref _strSelectedGearLocation, value) || _blnIsLoadingGearLocation || _character == null
+                || SelectedGear is not { Category: not "Gear location", GearId: >= 0 } gear) return;
+            if (_character.SetGearLocation(gear.GearId, value == "Kein Ort" ? string.Empty : value))
+                LoadCharacter(_character);
         }
     }
 
@@ -158,6 +182,10 @@ public sealed class GearSectionViewModel : ViewModelBase
         _lstAllGear = character.Gear.ToList();
         ApplyGearFilter();
 
+        GearLocations.Clear();
+        GearLocations.Add("Kein Ort");
+        foreach (string strLocation in character.GearLocations) GearLocations.Add(strLocation);
+
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
             Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
@@ -221,7 +249,12 @@ public sealed class GearSectionViewModel : ViewModelBase
     {
         Gear.Clear();
         IEnumerable<CharacterTreeItemData> query = _lstAllGear;
-        if (ShowOnlyCommlinks) query = query.Where(item => item.Category == "Commlink");
+        if (ShowOnlyCommlinks)
+            // Flatten Gear-location groups one level so a Commlink assigned to a location is still
+            // found by the filter (locations only ever nest root items one level deep).
+            query = query.SelectMany(item => item.Category == "Gear location"
+                    ? (IEnumerable<CharacterTreeItemData>)item.Children : new[] { item })
+                .Where(item => item.Category == "Commlink");
         foreach (CharacterTreeItemData item in query) Gear.Add(TreeNodeViewModel.FromTreeItem(item));
         SelectedGear = Gear.Count > 0 ? Gear[0] : null;
     }
