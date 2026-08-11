@@ -66,7 +66,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
   Sprüche und Geister tab, below Geister, and both now support add (via a `programs.xml`/
   `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.
-- ✅ Initiation (grades list)
+- ✅ Initiation (grades list, and raising the Initiate/Submersion Grade now works too - ported
+  from frmCareer.cs's cmdImproveInitiation_Click, including the Group/Ordeal -20% cost discounts
+  and the MAG/RES attribute cap; not ported: the MAG-boosting Improvement and the Metamagic
+  Improvement refresh legacy also does on raise, since neither Metamagic nor Improvement creation
+  apply rules-data bonuses anywhere in this port yet)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden

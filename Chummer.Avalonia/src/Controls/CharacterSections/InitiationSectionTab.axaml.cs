@@ -47,4 +47,13 @@ public partial class InitiationSectionTab : UserControl
         if (_character.RemoveMetamagic(selected.Guid))
             ViewModel.LoadCharacter(_character);
     }
+
+    private void OnRaiseInitiateGradeClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null)
+            return;
+
+        if (_character.RaiseInitiateGrade(ViewModel.IsGroup, ViewModel.IsOrdeal))
+            ViewModel.LoadCharacter(_character);
+    }
 }

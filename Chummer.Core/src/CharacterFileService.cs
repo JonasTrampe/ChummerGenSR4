@@ -3178,6 +3178,61 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades => ReadInitiationGrades();
 
+        /// <summary>Current Initiate (Magician) or Submersion (Technomancer) Grade - the count of
+        /// saved InitiationGrades entries.</summary>
+        public int InitiateGrade => InitiationGrades.Count;
+
+        /// <summary>Raises the character's Initiate/Submersion Grade by one, deducting Karma -
+        /// ported from frmCareer.cs's cmdImproveInitiation_Click. Not ported: the MAG-boosting
+        /// Improvement and the Metamagic Improvement refresh pass legacy also does here, since
+        /// neither Metamagic nor Improvement creation apply rules-data bonuses anywhere in this
+        /// port yet (same scoped-down treatment already noted for Metamagic/Adept Power additions).</summary>
+        public bool RaiseInitiateGrade(bool blnGroup, bool blnOrdeal)
+        {
+            if (!Magician && !Technomancer)
+                return false;
+
+            int intCurrentGrade = InitiateGrade;
+            int intMagOrRes = GetAttributeInt(Technomancer ? "RES" : "MAG");
+            if (intCurrentGrade + 1 > intMagOrRes)
+                return false;
+
+            var objOptions = GetCharacterOptions();
+            double dblMultiplier = 1.0;
+            if (blnGroup) dblMultiplier -= 0.2;
+            if (blnOrdeal) dblMultiplier -= 0.2;
+            dblMultiplier = Math.Round(dblMultiplier, 2);
+            int intKarmaCost = (int)Math.Ceiling((10 + (intCurrentGrade + 1) * objOptions.KarmaInitiation) * dblMultiplier);
+
+            int intKarma = int.TryParse(Karma, out var k) ? k : 0;
+            if (intKarmaCost > intKarma)
+                return false;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objGrades = objRoot.SelectSingleNode("initiationgrades");
+            if (objGrades == null)
+            {
+                objGrades = Document.CreateElement("initiationgrades");
+                objRoot.AppendChild(objGrades);
+            }
+
+            var objGrade = Document.CreateElement("initiationgrade");
+            AppendElement(objGrade, "grade", (intCurrentGrade + 1).ToString());
+            AppendElement(objGrade, "group", blnGroup.ToString());
+            AppendElement(objGrade, "ordeal", blnOrdeal.ToString());
+            AppendElement(objGrade, "res", Technomancer.ToString());
+            objGrades.AppendChild(objGrade);
+
+            Karma = (intKarma - intKarmaCost).ToString();
+
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.ImproveInitiateGrade, (intCurrentGrade + 1).ToString());
+            AddExpense("Karma", -intKarmaCost, "Initiate Grade " + intCurrentGrade + " -> " + (intCurrentGrade + 1), null, objUndo);
+            Changed?.Invoke();
+            return true;
+        }
+
         public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
 
         /// <summary>A Technomancer's Complex Forms - ported from clsUnique.cs's TechProgram class,

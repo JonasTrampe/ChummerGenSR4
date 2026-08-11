@@ -1807,6 +1807,68 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RaiseInitiateGrade_DeductsKarmaAndPersistsAcrossSaveReload()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>100</karma>"
+            + "<attributes>" + AttributeXml("MAG", "3") + "</attributes></character>");
+        Assert.Equal(0, character.InitiateGrade);
+
+        // No Group/Ordeal discount: ceil(10 + 1*3) = 13.
+        Assert.True(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        Assert.Equal(1, character.InitiateGrade);
+        Assert.Equal("87", character.Karma);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(1, reloaded.InitiateGrade);
+        CharacterInitiationGradeData grade = Assert.Single(reloaded.InitiationGrades);
+        Assert.Equal("1", grade.Grade);
+    }
+
+    [Fact]
+    public void RaiseInitiateGrade_GroupAndOrdealDiscountStack()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>100</karma>"
+            + "<attributes>" + AttributeXml("MAG", "3") + "</attributes></character>");
+
+        // (10 + 1*3) * 0.6 = 7.8 -> ceil = 8.
+        Assert.True(character.RaiseInitiateGrade(blnGroup: true, blnOrdeal: true));
+        Assert.Equal("92", character.Karma);
+    }
+
+    [Fact]
+    public void RaiseInitiateGrade_CannotExceedTheMagOrResAttribute()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>1000</karma>"
+            + "<attributes>" + AttributeXml("MAG", "1") + "</attributes></character>");
+
+        Assert.True(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        Assert.False(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        Assert.Equal(1, character.InitiateGrade);
+    }
+
+    [Fact]
+    public void RaiseInitiateGrade_RejectedWithoutEnoughKarma()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><karma>5</karma>"
+            + "<attributes>" + AttributeXml("MAG", "3") + "</attributes></character>");
+
+        Assert.False(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+        Assert.Equal(0, character.InitiateGrade);
+    }
+
+    [Fact]
+    public void RaiseInitiateGrade_RejectedForNonMagicalNonTechnomancerCharacters()
+    {
+        CharacterDocument character = LoadXml("<character><karma>1000</karma>"
+            + "<attributes>" + AttributeXml("MAG", "3") + "</attributes></character>");
+
+        Assert.False(character.RaiseInitiateGrade(blnGroup: false, blnOrdeal: false));
+    }
+
+    [Fact]
     public void WoundModifiers_ApplyBothConditionMonitorTracks()
     {
         CharacterDocument character = LoadXml("<character><physicalcmfilled>3</physicalcmfilled><stuncmfilled>4</stuncmfilled></character>");
