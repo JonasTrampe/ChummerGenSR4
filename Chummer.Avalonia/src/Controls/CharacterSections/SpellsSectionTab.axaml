@@ -68,12 +68,10 @@
             </StackPanel>
         </Border>
 
-        <!-- Complex Forms/Critter Powers: read-only, no add/remove path exists yet (see
-             FEATURE_CHECKLIST.md) - only shown at all once a character actually has some, so a
-             mundane/non-Technomancer character's tab doesn't grow an empty section. -->
+        <!-- Complex Forms (still read-only - see FEATURE_CHECKLIST.md, only shown once a
+             character actually has some) / Critter Powers (now add/delete via a picker). -->
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
-                BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0"
-                IsVisible="{Binding HasComplexFormsOrCritterPowers}">
+                BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <Grid ColumnDefinitions="*,*">
                 <StackPanel Grid.Column="0" IsVisible="{Binding HasComplexForms}">
                     <TextBlock Text="Komplexe Formen" FontWeight="Bold" Margin="0,0,0,4" />
@@ -85,15 +83,19 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-                <StackPanel Grid.Column="1" IsVisible="{Binding HasCritterPowers}">
+                <StackPanel Grid.Column="1">
                     <TextBlock Text="Kritter-Kräfte" FontWeight="Bold" Margin="0,0,0,4" />
-                    <ItemsControl ItemsSource="{Binding CritterPowers}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:ReadOnlyPowerRowViewModel">
+                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
+                        <Button Content="Kraft" Click="OnAddCritterPowerClick" />
+                        <Button Content="Löschen" Click="OnDeleteCritterPowerClick" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding CritterPowers}" SelectedItem="{Binding SelectedCritterPower, Mode=TwoWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CritterPowerRowViewModel">
                                 <controls:InfoRow Label="{Binding Label}" Value="{Binding Value}" />
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </StackPanel>
             </Grid>
         </Border>

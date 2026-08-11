@@ -73,4 +73,27 @@ public partial class SpellsSectionTab : UserControl
         if (_character.RemoveSpirit(selected.Name, selected.Type, selected.Force))
             ViewModel.LoadCharacter(_character);
     }
+
+    private async void OnAddCritterPowerClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new CritterPowerDialog(_character);
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedPower is { } selected)
+        {
+            _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteCritterPowerClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedCritterPower is not { } selected)
+            return;
+
+        if (_character.RemoveCritterPower(selected.Guid))
+            ViewModel.LoadCharacter(_character);
+    }
 }

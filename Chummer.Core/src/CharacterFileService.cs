@@ -2836,9 +2836,59 @@ namespace Chummer.Core
             var objNodes = Document.SelectNodes("/character/critterpowers/critterpower");
             if (objNodes == null) return lstPowers;
             foreach (XmlNode objNode in objNodes)
-                lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "name", string.Empty),
+                lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "guid", string.Empty),
+                    GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0")));
             return lstPowers;
+        }
+
+        /// <summary>Ported from clsUnique.cs's CritterPower.Create/Save, simplified to skip the
+        /// &lt;bonus&gt; Improvement-creation path (matches AddMetamagic/AddCyberware etc.).</summary>
+        public void AddCritterPower(string strName, string strPoints, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A critter power name is required.", nameof(strName));
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objPowers = objRoot.SelectSingleNode("critterpowers");
+            if (objPowers == null)
+            {
+                objPowers = Document.CreateElement("critterpowers");
+                objRoot.AppendChild(objPowers);
+            }
+
+            var objPower = Document.CreateElement("critterpower");
+            AppendElement(objPower, "guid", Guid.NewGuid().ToString());
+            AppendElement(objPower, "name", strName.Trim());
+            AppendElement(objPower, "extra", string.Empty);
+            AppendElement(objPower, "points", strPoints);
+            AppendElement(objPower, "source", strSource);
+            AppendElement(objPower, "page", strPage);
+            objPowers.AppendChild(objPower);
+            Changed?.Invoke();
+        }
+
+        public bool RemoveCritterPower(string strGuid)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/critterpowers/critterpower");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objPower in objNodes)
+            {
+                if (!string.Equals(GetValue(objPower, "guid", string.Empty), strGuid, StringComparison.Ordinal))
+                    continue;
+
+                objPower.ParentNode?.RemoveChild(objPower);
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, simplified to skip the
@@ -4974,13 +5024,15 @@ namespace Chummer.Core
 
     public sealed class CharacterCritterPowerData
     {
-        internal CharacterCritterPowerData(string strName, string strExtra, string strPoints)
+        internal CharacterCritterPowerData(string strGuid, string strName, string strExtra, string strPoints)
         {
+            Guid = strGuid;
             Name = strName;
             Extra = strExtra;
             Points = strPoints;
         }
 
+        public string Guid { get; }
         public string Name { get; }
         public string Extra { get; }
         public string Points { get; }

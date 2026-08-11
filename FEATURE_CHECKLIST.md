@@ -45,9 +45,10 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Kampfkünste (martial arts + advantages + maneuvers)
 - ✅ Adeptenkräfte
 - ✅ Sprüche und Geister (spells by category, spirits)
-- 🟡 Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — now displayed (read-only)
-  in the Sprüche und Geister tab, below Geister, only shown at all once a character actually has
-  some. No add/remove/picker for either yet.
+- 🟡 Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
+  Sprüche und Geister tab, below Geister. Kritter-Kräfte now support add (via a `critterpowers.xml`
+  picker dialog) and delete (by saved guid), always shown. Komplexe Formen remains read-only and
+  only shown once a character actually has some — no add/remove/picker for it yet.
 - ✅ Initiation (grades list)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
@@ -84,13 +85,13 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 14 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+- 🟡 15 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
   Weapon, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial Art, Martial Art Maneuver, Adept
-  Power, and Metamagic. The implementations remain deliberately scoped (for example, no advanced
-  vehicle-mod eligibility validation, no advanced lifestyle construction, and Metamagic/Adept Power
-  additions don't apply their rules-data Improvement bonuses).
-- ❌ The remaining pickers (Skill beyond exotic skills, CritterPower, ContactConnection, and
-  others) don't exist yet.
+  Power, Metamagic, and CritterPower. The implementations remain deliberately scoped (for example,
+  no advanced vehicle-mod eligibility validation, no advanced lifestyle construction, and
+  Metamagic/Adept Power/CritterPower additions don't apply their rules-data Improvement bonuses).
+- ❌ The remaining pickers (Skill beyond exotic skills, ContactConnection, and others) don't exist
+  yet.
 
 ## Derived stats / calculations
 

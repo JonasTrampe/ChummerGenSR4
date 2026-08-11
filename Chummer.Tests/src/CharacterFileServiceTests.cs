@@ -553,6 +553,38 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCritterPower_MutatesCharacterAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCritterPower("Fear", "2", "SM", "54");
+
+        CharacterCritterPowerData added = Assert.Single(character.CritterPowers);
+        Assert.Equal("Fear", added.Name);
+        Assert.Equal("2", added.Points);
+        Assert.NotEmpty(added.Guid);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Fear", Assert.Single(reloaded.CritterPowers).Name);
+    }
+
+    [Fact]
+    public void RemoveCritterPower_RemovesOnlyTheMatchingEntry()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCritterPower("Fear", "2", "SM", "54");
+        character.AddCritterPower("Paralyzing Howl", "3", "SM", "55");
+        string strGuid = character.CritterPowers[0].Guid;
+
+        Assert.True(character.RemoveCritterPower(strGuid));
+        Assert.False(character.RemoveCritterPower(strGuid));
+        CharacterCritterPowerData remaining = Assert.Single(character.CritterPowers);
+        Assert.Equal("Paralyzing Howl", remaining.Name);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_IncludesVehiclesWithModsGearAndWeaponsInTheExportXml()
     {
         Guid vehicleId = Guid.NewGuid();
