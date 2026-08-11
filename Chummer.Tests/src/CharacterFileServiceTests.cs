@@ -1824,6 +1824,48 @@ public class CharacterFileServiceTests
         Assert.Equal(4, character.Vehicles.Single().TotalSlots);
     }
 
+    private static CharacterDocument LoadVehicleWithSensorSuite(string strSavedSensor)
+        => LoadXml("<character><vehicles><vehicle><guid>" + Guid.NewGuid() + "</guid><name>Americar</name>"
+            + "<category>Cars</category><body>6</body><sensor>" + strSavedSensor + "</sensor><mods />"
+            + "<gears><gear><name>Sensor Array</name><category>Sensors</category><signal>3</signal>"
+            + "<children>"
+            + "<gear><name>Camera</name><category>Sensor Functions</category><rating>4</rating></gear>"
+            + "<gear><name>Radio Signal Scanner</name><category>Sensor Functions</category><rating>2</rating></gear>"
+            + "</children></gear></gears></vehicle></vehicles></character>");
+
+    [Fact]
+    public void CalculatedSensor_AveragesSensorFunctionRatingsOfTheFirstOnboardGearItem()
+    {
+        CharacterDocument character = LoadVehicleWithSensorSuite("2");
+        CharacterVehicleData vehicle = character.Vehicles.Single();
+
+        // (4 + 2) / 2 = 3, rounded up (already whole).
+        Assert.Equal(3, vehicle.CalculatedSensor);
+    }
+
+    [Fact]
+    public void SensorDisplay_OnlyUsesTheCalculatedValueWhenTheHouseRuleIsOn()
+    {
+        CharacterDocument offCharacter = LoadVehicleWithSensorSuite("2");
+        offCharacter.SetCharacterOptionsForTesting(new CharacterOptions { UseCalculatedVehicleSensorRatings = false });
+        Assert.Equal("2", offCharacter.Vehicles.Single().SensorDisplay);
+
+        CharacterDocument onCharacter = LoadVehicleWithSensorSuite("2");
+        onCharacter.SetCharacterOptionsForTesting(new CharacterOptions { UseCalculatedVehicleSensorRatings = true });
+        Assert.Equal("3", onCharacter.Vehicles.Single().SensorDisplay);
+    }
+
+    [Fact]
+    public void CalculatedSensor_FallsBackToTheSavedValueWithoutAQualifyingSensorArray()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle><guid>" + vehicleId
+            + "</guid><name>Americar</name><category>Cars</category><body>6</body><sensor>2</sensor><mods />"
+            + "</vehicle></vehicles></character>");
+
+        Assert.Equal(2, character.Vehicles.Single().CalculatedSensor);
+    }
+
     [Fact]
     public void AddVehicleMod_RejectsAModThatWouldExceedRemainingSlots()
     {

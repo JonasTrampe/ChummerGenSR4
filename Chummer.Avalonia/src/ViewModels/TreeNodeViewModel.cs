@@ -66,6 +66,8 @@ public sealed class TreeNodeViewModel
     public string Pilot { get; private set; } = string.Empty;
     public string Body { get; private set; } = string.Empty;
     public string VehicleArmor { get; private set; } = string.Empty;
+    /// <summary>The saved Sensor value, unless UseCalculatedVehicleSensorRatings is on - see
+    /// CharacterVehicleData.SensorDisplay.</summary>
     public string Sensor { get; private set; } = string.Empty;
     public string DeviceRating { get; private set; } = string.Empty;
     public string Avail { get; private set; } = string.Empty;
@@ -183,7 +185,7 @@ public sealed class TreeNodeViewModel
             Pilot = item.Pilot,
             Body = item.Body,
             VehicleArmor = item.Armor,
-            Sensor = item.Sensor,
+            Sensor = item.SensorDisplay,
             DeviceRating = item.DeviceRating,
             Avail = item.Avail,
             Cost = item.Cost,

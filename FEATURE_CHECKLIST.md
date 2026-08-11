@@ -159,8 +159,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   multiplier already is. `AllowExceedAttributeBp` was investigated but skipped: this port has no
   persisted "starting BP total" field to check the 50% cap against at all (Bp is only ever tracked
   as a shrinking remaining pool), so implementing it correctly means adding new persisted state,
-  not just gating existing logic - a bigger change than the rest of this sweep. Most other
-  Improvement-driven house rules remain unported (~12 more flags on `CharacterOptions`).
+  not just gating existing logic - a bigger change than the rest of this sweep.
+  `UseCalculatedVehicleSensorRatings` is now honored too - `CharacterVehicleData.CalculatedSensor`
+  faithfully ports clsEquipment.cs's Vehicle.CalculatedSensor (including its "only ever looks at
+  the vehicle's first onboard Gear item" quirk: averages that item's "Sensor Functions" category
+  children's Rating, rounded up, only if the first item is itself Category "Sensors" with a Signal
+  value), and `SensorDisplay` picks between it and the saved value per the house rule for the
+  Fahrzeuge tab. Most other Improvement-driven house rules remain unported (~11 more flags on
+  `CharacterOptions`, each gating a feature - focus stacking/binding, free-spirit chargen,
+  print-alternates formatting, etc. - that isn't built in this port yet).
 
 ## Output / tooling
 

@@ -4442,6 +4442,7 @@ namespace Chummer.Core
             var lstVehicles = new List<CharacterVehicleData>();
             var objNodes = Document.SelectNodes("/character/vehicles/vehicle");
             if (objNodes == null) return lstVehicles;
+            bool blnUseCalculatedSensor = GetCharacterOptions().UseCalculatedVehicleSensorRatings;
             foreach (XmlNode objNode in objNodes)
             {
                 var objVehicle = new CharacterVehicleData(
@@ -4461,6 +4462,9 @@ namespace Chummer.Core
                 if (objLocations != null)
                     foreach (XmlNode objLocation in objLocations)
                         if (!string.IsNullOrWhiteSpace(objLocation.InnerText)) objVehicle.Locations.Add(objLocation.InnerText);
+                objVehicle.SetSensorDisplay(blnUseCalculatedSensor
+                    ? objVehicle.CalculatedSensor.ToString(CultureInfo.InvariantCulture)
+                    : objVehicle.Sensor);
                 lstVehicles.Add(objVehicle);
             }
             return lstVehicles;
@@ -4485,7 +4489,14 @@ namespace Chummer.Core
                 if (strFallbackCategory == "Weapon")
                     objItem.IsVehicleWeapon = true;
                 if (strFallbackCategory == "Gear")
+                {
                     objItem.SetLocation(GetValue(objNode, "location", string.Empty));
+                    // Only Signal is actually used (CalculatedSensor) - Capacity/Response/System/
+                    // Firewall aren't meaningful for vehicle-mounted gear the way they are for the
+                    // root Gear tree's Commlinks, so they're left blank here.
+                    objItem.SetGearDetails(string.Empty, string.Empty,
+                        GetValue(objNode, "signal", string.Empty), string.Empty, string.Empty, blnActive: false);
+                }
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
                 lstChildren.Add(objItem);
@@ -5034,6 +5045,40 @@ namespace Chummer.Core
             .Sum(c => (int)RatingExpression.Evaluate(c.ModSlots, c.Rating));
 
         public int SlotsRemaining => TotalSlots - SlotsUsed;
+
+        /// <summary>Ported from clsEquipment.cs's Vehicle.CalculatedSensor, faithfully including its
+        /// "only ever looks at the first onboard Gear item" quirk (the loop's break is unconditional,
+        /// outside the category check): averages the Rating of that first item's "Sensor Functions"
+        /// category children (only if the first item is itself Category "Sensors" with a Signal
+        /// value), rounded up; falls back to the saved Sensor value if there's no qualifying first
+        /// item or it has no such children. Only used (see UseCalculatedVehicleSensorRatings) as an
+        /// alternative to the saved value, never persisted over it.</summary>
+        public int CalculatedSensor
+        {
+            get
+            {
+                CharacterTreeItemData? objFirst = Children.FirstOrDefault();
+                if (objFirst is { Category: "Sensors" } && ParseInt(objFirst.Signal) > 0)
+                {
+                    var lstRatings = objFirst.Children.Where(c => c.Category == "Sensor Functions")
+                        .Select(c => ParseInt(c.Rating)).Where(r => r > 0).ToList();
+                    if (lstRatings.Count > 0)
+                        return (int)Math.Ceiling(lstRatings.Average());
+                }
+
+                return ParseInt(Sensor);
+            }
+        }
+
+        private static int ParseInt(string strValue) => int.TryParse(strValue, out var i) ? i : 0;
+
+        /// <summary>What the UI/print export should actually show for Sensor - <see cref="Sensor"/>
+        /// (the saved value) unless UseCalculatedVehicleSensorRatings is on, in which case it's
+        /// <see cref="CalculatedSensor"/>. Set once by ReadVehicles, since only it has access to the
+        /// character's settings profile.</summary>
+        public string SensorDisplay { get; private set; } = string.Empty;
+
+        internal void SetSensorDisplay(string strValue) => SensorDisplay = strValue;
     }
 
     public sealed class CharacterSkillGroupData
