@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.SenseImprovementDialog"
+        x:DataType="vm:SenseImprovementDialogViewModel"
+        Width="380" Height="420" WindowStartupLocation="CenterOwner"
+        Title="Sinneswahrnehmung auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <TextBlock Text="Welches Cyberware-/Bioware-/Ausrüstungsstück soll die Sinnesverbesserung liefern?"
+                   TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ListBox Grid.Row="1" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption, Mode=TwoWay}"
+                  DisplayMemberBinding="{Binding DisplayName}" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0" Spacing="8">
+            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="OK" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -309,9 +309,18 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
     selectables/effects out of tier-1 scope; revisit if a real gap surfaces).
   - The Metamagic Improvement refresh on Initiation Grade raise (legacy re-runs
     `CreateImprovements` on every owned Metamagic each time Grade increases) still isn't ported.
-  - `ImprovedSenseFullRating`/`selectsenseware` specifically (the original trigger for building
-    this engine) still needs its own dedicated picker+apply flow built on top of `BonusApplier` -
-    not yet done.
+
+  `ImprovedSenseFullRating`/`selectsenseware` (the original trigger for building this engine) is
+  now done, as a dedicated flow on top of `BonusApplier` rather than a generalized "Selectable
+  Improvement" system: `GetSenseImprovementOptions` (ported from clsImprovement.cs's
+  `AddSensewareSource`/the selectsenseware setup) lists eligible Cyberware/Bioware/Gear items for
+  a power's `<selectsenseware>` bonus, filtered by category and (when requested)
+  `<senseimprovement>yes</senseimprovement>`; the new `SenseImprovementDialog` lets the player pick
+  one; `AddImprovedSensePower` then applies the selected item's own `<bonus>` at Rating 1, or its
+  full `<rating>` under the `ImprovedSenseFullRating` house rule. Wired into the Adept Power picker
+  (`AdeptPowersSectionTab`): adding "Improved Sense" now prompts for the senseware choice
+  automatically instead of silently doing nothing. Verified end-to-end against real data
+  (Olfactory Booster's Perception (Smell) bonus, both with and without the house rule).
 
 ## Output / tooling
 

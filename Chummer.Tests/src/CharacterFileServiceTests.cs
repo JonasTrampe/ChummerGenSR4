@@ -944,6 +944,56 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void GetSenseImprovementOptions_ImprovedSense_ListsEligibleCyberwareBiowareAndGear()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        var options = character.GetSenseImprovementOptions("Improved Sense");
+
+        Assert.NotEmpty(options);
+        Assert.Contains(options, o => o.Name == "Olfactory Booster"); // Headware cyberware, senseimprovement=yes.
+        // Cyberware items without senseimprovement=yes are excluded (power's requiresenseimprovement="yes").
+        Assert.DoesNotContain(options, o => o.Name == "Orientation System");
+    }
+
+    [Fact]
+    public void AddImprovedSensePower_AppliesSelectedSensewaresBonusAtRatingOne()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        Assert.True(character.AddImprovedSensePower("Improved Sense", "1", ".25", "Olfactory Booster"));
+
+        Assert.Single(character.AdeptPowers);
+        // Olfactory Booster's own bonus is +Rating to Perception (Smell) - applied at Rating 1
+        // (the ImprovedSenseFullRating house rule is off by default).
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Perception (Smell)"));
+
+        Assert.True(character.RemoveAdeptPower("Improved Sense"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddImprovedSensePower_ImprovedSenseFullRating_UsesTheSelectedItemsOwnRating()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ImprovedSenseFullRating = true });
+
+        Assert.True(character.AddImprovedSensePower("Improved Sense", "1", ".25", "Olfactory Booster"));
+
+        // Olfactory Booster's own <rating> is 6, so the full-rating house rule applies +6 instead of +1.
+        Assert.Equal(6, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Perception (Smell)"));
+    }
+
+    [Fact]
+    public void AddImprovedSensePower_RejectsUnlistedSenseware()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        Assert.False(character.AddImprovedSensePower("Improved Sense", "1", ".25", "Not A Real Item"));
+        Assert.Empty(character.AdeptPowers);
+    }
+
+    [Fact]
     public void RemoveAdeptPower_RemovesOnlyTheMatchingPower()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

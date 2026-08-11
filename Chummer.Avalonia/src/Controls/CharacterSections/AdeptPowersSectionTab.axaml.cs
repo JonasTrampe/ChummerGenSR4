@@ -33,11 +33,24 @@ public partial class AdeptPowersSectionTab : UserControl
 
         var dialog = new PowerDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedPower is { } selected)
+        if (added != true || dialog.SelectedPower is not { } selected)
+            return;
+
+        string strRating = dialog.SelectedRating.ToString();
+        if (_character.GetSenseImprovementOptions(selected.Name).Count > 0)
         {
-            _character.AddAdeptPower(selected.Name, dialog.SelectedRating.ToString(), selected.PointsPerLevel);
-            ViewModel.LoadCharacter(_character);
+            var senseDialog = new SenseImprovementDialog(_character, selected.Name);
+            bool senseSelected = await senseDialog.ShowDialog<bool>(window);
+            if (!senseSelected || senseDialog.SelectedName == null)
+                return;
+
+            if (_character.AddImprovedSensePower(selected.Name, strRating, selected.PointsPerLevel, senseDialog.SelectedName))
+                ViewModel.LoadCharacter(_character);
+            return;
         }
+
+        _character.AddAdeptPower(selected.Name, strRating, selected.PointsPerLevel);
+        ViewModel.LoadCharacter(_character);
     }
 
     private void OnDeletePowerClick(object? sender, System.EventArgs e)

@@ -3325,6 +3325,125 @@ namespace Chummer.Core
             Changed?.Invoke();
         }
 
+        /// <summary>One senseware item ("Improved Sense" Adept Power etc.) the player can pick
+        /// from - <see cref="SourceFile"/> lets the caller re-resolve the item's own rules-data
+        /// node (cyberware.xml/bioware.xml/gear.xml) when the choice is applied.</summary>
+        public sealed record SenseImprovementOption(string Name, string DisplayName, string SourceFile);
+
+        /// <summary>Ported from clsImprovement.cs's AddSensewareSource/the selectsenseware picker
+        /// setup: given an Adept Power whose rules-data &lt;bonus&gt; is a &lt;selectsenseware&gt;
+        /// node (e.g. "Improved Sense"), lists every Cyberware/Bioware/Gear item in the mount's
+        /// requested categories, filtered to &lt;senseimprovement&gt;yes&lt;/senseimprovement&gt;
+        /// items when the node's requiresenseimprovement="yes". Empty if the power has no such
+        /// bonus.</summary>
+        public IReadOnlyList<SenseImprovementOption> GetSenseImprovementOptions(string strPowerName)
+        {
+            XmlNode? objXmlSelectSenseware = FindSelectSensewareNode(strPowerName);
+            if (objXmlSelectSenseware == null)
+                return Array.Empty<SenseImprovementOption>();
+
+            bool blnRequireSenseImprovement = objXmlSelectSenseware.Attributes?["requiresenseimprovement"]?.InnerText == "yes";
+            var lstOptions = new List<SenseImprovementOption>();
+            var setSeenNames = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var (strAttribute, strFile, strBasePath) in new[]
+                     {
+                         ("cyberwarecategory", "cyberware.xml", "/chummer/cyberwares/cyberware"),
+                         ("biowarecategory", "bioware.xml", "/chummer/biowares/bioware"),
+                         ("gearcategory", "gear.xml", "/chummer/gears/gear"),
+                     })
+            {
+                string? strCategories = objXmlSelectSenseware.Attributes?[strAttribute]?.InnerText;
+                if (string.IsNullOrEmpty(strCategories))
+                    continue;
+
+                var setCategories = new HashSet<string>(strCategories.Split(','), StringComparer.Ordinal);
+                XmlDocument objSourceDoc = XmlManager.Instance.Load(strFile);
+                XmlNodeList? objNodes = objSourceDoc.SelectNodes(strBasePath);
+                if (objNodes == null)
+                    continue;
+
+                foreach (XmlNode objXmlItem in objNodes)
+                {
+                    if (!setCategories.Contains(GetValue(objXmlItem, "category", string.Empty)))
+                        continue;
+                    if (blnRequireSenseImprovement && GetValue(objXmlItem, "senseimprovement", "no") != "yes")
+                        continue;
+
+                    string strName = GetValue(objXmlItem, "name", string.Empty);
+                    if (string.IsNullOrEmpty(strName) || !setSeenNames.Add(strName))
+                        continue;
+
+                    lstOptions.Add(new SenseImprovementOption(strName,
+                        GetValue(objXmlItem, "translate", strName), strFile));
+                }
+            }
+
+            lstOptions.Sort((a, b) => string.CompareOrdinal(a.DisplayName, b.DisplayName));
+            return lstOptions;
+        }
+
+        /// <summary>Adds an Adept Power that grants a selectsenseware bonus (e.g. "Improved
+        /// Sense"), then applies <paramref name="strSelectedSenseware"/>'s own rules-data
+        /// &lt;bonus&gt; block - ported from clsImprovement.cs's selectsenseware handler.
+        /// <paramref name="strSelectedSenseware"/> must be one of <see
+        /// cref="GetSenseImprovementOptions"/>'s <see cref="SenseImprovementOption.Name"/> values.
+        /// The applied Rating is 1, or the selected item's own &lt;rating&gt; under the
+        /// ImprovedSenseFullRating house rule.</summary>
+        public bool AddImprovedSensePower(string strName, string strRating, string strPointsPerLevel,
+            string strSelectedSenseware)
+        {
+            XmlNode? objXmlSelectSenseware = FindSelectSensewareNode(strName);
+            if (objXmlSelectSenseware == null || string.IsNullOrWhiteSpace(strSelectedSenseware))
+                return false;
+
+            XmlNode? objXmlSelected = GetSenseImprovementOptions(strName)
+                .Where(o => o.Name == strSelectedSenseware)
+                .Select(o => XmlManager.Instance.Load(o.SourceFile)
+                    .SelectSingleNode($"/chummer/*/*[name = '{strSelectedSenseware}']"))
+                .FirstOrDefault(n => n != null);
+            if (objXmlSelected == null)
+                return false;
+
+            AddAdeptPower(strName, strRating, strPointsPerLevel);
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objImprovements = objRoot.SelectSingleNode("improvements") as XmlElement
+                ?? (XmlElement)objRoot.AppendChild(Document.CreateElement("improvements"));
+            var objSelection = Document.CreateElement("improvement");
+            AppendElement(objSelection, "improvementttype", ImprovementType.SelectSenseware.ToString());
+            AppendElement(objSelection, "improvedname", strSelectedSenseware);
+            AppendElement(objSelection, "sourcename", strName.Trim());
+            AppendElement(objSelection, "val", "0");
+            AppendElement(objSelection, "rating", "1");
+            AppendElement(objSelection, "min", "0");
+            AppendElement(objSelection, "max", "0");
+            AppendElement(objSelection, "aug", "0");
+            AppendElement(objSelection, "augmax", "0");
+            AppendElement(objSelection, "unique", string.Empty);
+            AppendElement(objSelection, "improvementsource", ImprovementSource.Power.ToString());
+            AppendElement(objSelection, "addtorating", "False");
+            AppendElement(objSelection, "enabled", "True");
+            AppendElement(objSelection, "custom", "False");
+            objImprovements.AppendChild(objSelection);
+
+            string strSensewareRating = GetCharacterOptions().ImprovedSenseFullRating
+                ? GetValue(objXmlSelected, "rating", "1")
+                : "1";
+            ApplyBonus(objXmlSelected.SelectSingleNode("bonus"), ImprovementSource.Power, strName.Trim(), strSensewareRating);
+
+            Changed?.Invoke();
+            return true;
+        }
+
+        private static XmlNode? FindSelectSensewareNode(string strPowerName)
+        {
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("powers.xml");
+            XmlNode? objXmlPower = objPowersDoc.SelectSingleNode($"/chummer/powers/power[name = '{strPowerName.Trim()}']");
+            return objXmlPower?.SelectSingleNode("bonus/selectsenseware");
+        }
+
         public bool RemoveAdeptPower(string strName)
         {
             if (string.IsNullOrWhiteSpace(strName))
