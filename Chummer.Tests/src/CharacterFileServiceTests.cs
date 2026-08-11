@@ -1593,6 +1593,46 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void DrainResistance_HermeticTradition_UsesWilPlusLogFormula()
+    {
+        CharacterDocument character = LoadXml("<character><magician>True</magician><attributes>"
+            + AttributeXml("WIL", "4") + AttributeXml("LOG", "5") + "</attributes></character>");
+        character.Tradition = "Hermetic";
+
+        var drain = character.DrainResistance;
+
+        Assert.NotNull(drain);
+        Assert.Equal(9, drain.Value); // WIL(4) + LOG(5).
+        Assert.Contains("Willenskraft: 4", drain.Tooltip);
+        Assert.Contains("Logik: 5", drain.Tooltip);
+    }
+
+    [Fact]
+    public void DrainResistance_NullWithoutMagicianOrTradition()
+    {
+        CharacterDocument nonMagician = LoadXml("<character><attributes>" + AttributeXml("WIL", "4")
+            + AttributeXml("LOG", "5") + "</attributes></character>");
+        nonMagician.Tradition = "Hermetic";
+        Assert.Null(nonMagician.DrainResistance);
+
+        CharacterDocument noTraditionPicked = LoadXml("<character><magician>True</magician></character>");
+        Assert.Null(noTraditionPicked.DrainResistance);
+    }
+
+    [Fact]
+    public void FadingResistance_DefaultStream_UsesWilPlusResFormula()
+    {
+        CharacterDocument character = LoadXml("<character><technomancer>True</technomancer><attributes>"
+            + AttributeXml("WIL", "3") + AttributeXml("RES", "6") + "</attributes></character>");
+        character.Stream = "Default";
+
+        var fading = character.FadingResistance;
+
+        Assert.NotNull(fading);
+        Assert.Equal(9, fading.Value); // WIL(3) + RES(6).
+    }
+
+    [Fact]
     public void Initiative_IsIntPlusRea_MinusFixturesWoundModifier()
     {
         CharacterDocument character = LoadFixture();

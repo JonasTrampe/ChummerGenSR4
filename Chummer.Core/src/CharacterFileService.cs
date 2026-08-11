@@ -168,6 +168,68 @@ namespace Chummer.Core
 
         public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
 
+        /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
+        /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
+        public string Tradition
+        {
+            get => GetValue("/character/tradition", string.Empty);
+            set => SetRootValue("tradition", value);
+        }
+
+        /// <summary>A Technomancer's chosen Stream (streams.xml's &lt;name&gt;), e.g. "Default" -
+        /// drives <see cref="FadingResistance"/>'s formula.</summary>
+        public string Stream
+        {
+            get => GetValue("/character/stream", string.Empty);
+            set => SetRootValue("stream", value);
+        }
+
+        /// <summary>Magician Drain resistance pool, ported from clsCharacter.cs: the chosen
+        /// Tradition's two-attribute &lt;drain&gt; formula (traditions.xml) plus DrainResistance
+        /// Improvements. Null if the character isn't a Magician or hasn't picked a Tradition yet.</summary>
+        public CharacterDerivedValueData? DrainResistance =>
+            ComputeTraditionResistancePool(Tradition, "traditions.xml", ImprovementType.DrainResistance, Magician);
+
+        /// <summary>Technomancer Fading resistance pool - same shape as <see
+        /// cref="DrainResistance"/> but keyed by <see cref="Stream"/>/streams.xml/
+        /// FadingResistance.</summary>
+        public CharacterDerivedValueData? FadingResistance =>
+            ComputeTraditionResistancePool(Stream, "streams.xml", ImprovementType.FadingResistance, Technomancer);
+
+        private CharacterDerivedValueData? ComputeTraditionResistancePool(string strTraditionName,
+            string strDataFile, ImprovementType eType, bool blnApplicable)
+        {
+            if (!blnApplicable || string.IsNullOrWhiteSpace(strTraditionName))
+                return null;
+
+            XmlDocument objDoc = XmlManager.Instance.Load(strDataFile);
+            XmlNode? objXmlTradition = objDoc.SelectSingleNode(
+                $"/chummer/traditions/tradition[name = '{strTraditionName}']");
+            string strDrain = objXmlTradition?.SelectSingleNode("drain")?.InnerText ?? string.Empty;
+            string[] astrCodes = strDrain.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (astrCodes.Length == 0)
+                return null;
+
+            return SumAttributesWithImprovements(eType,
+                astrCodes.Select(strCode => (strCode, GetAttributeLabel(strCode))).ToArray());
+        }
+
+        private static string GetAttributeLabel(string strCode) => strCode switch
+        {
+            "BOD" => "Konstitution",
+            "AGI" => "Geschicklichkeit",
+            "REA" => "Reaktion",
+            "STR" => "Stärke",
+            "CHA" => "Charisma",
+            "INT" => "Intuition",
+            "LOG" => "Logik",
+            "WIL" => "Willenskraft",
+            "MAG" => "Magie",
+            "RES" => "Resonanz",
+            "EDG" => "Edge",
+            _ => strCode,
+        };
+
         public IReadOnlyList<CharacterCommlinkData> Commlinks => ReadCommlinks();
 
         /// <summary>Matrix "System" stat, only meaningful for A.I./technocritter/protosapient

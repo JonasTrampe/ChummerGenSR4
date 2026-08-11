@@ -9,6 +9,18 @@
             <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
             <Button Content="Löschen" Click="OnDeleteSpellClick" />
         </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
+                    IsVisible="{Binding ShowTradition}">
+            <TextBlock Text="Tradition:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding Traditions}" SelectedItem="{Binding SelectedTradition, Mode=TwoWay}" Width="180" />
+            <TextBlock Text="{Binding DrainResistanceText}" IsVisible="{Binding ShowDrainResistance}" VerticalAlignment="Center" FontWeight="Bold" />
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
+                    IsVisible="{Binding ShowStream}">
+            <TextBlock Text="Stream:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding Streams}" SelectedItem="{Binding SelectedStream, Mode=TwoWay}" Width="180" />
+            <TextBlock Text="{Binding FadingResistanceText}" IsVisible="{Binding ShowFadingResistance}" VerticalAlignment="Center" FontWeight="Bold" />
+        </StackPanel>
         <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto,Auto">
             <DockPanel Grid.Row="0" Grid.Column="0">
                 <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />

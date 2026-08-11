@@ -76,9 +76,16 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Sprüche und Geister (spells by category, spirits). The detail pane was entirely static mockup
   content (fake "Indirekt, Elementar"/"Kampfzauber"/"9" Würfelpool text bound to nothing) despite
   `CharacterSpellData` already carrying every field it needed - now shows the real selected
-  spell's Category/Type/Range/Damage/Duration/Entzugsformel/Quelle. Tradition selection and a real
-  Drain-resistance/spellcasting dice pool aren't tracked/computed anywhere in this port, so those
-  rows were dropped rather than left showing fake numbers.
+  spell's Category/Type/Range/Damage/Duration/Entzugsformel/Quelle. Tradition/Stream selection and
+  a real Drain-resistance/Fading-resistance pool are now tracked too: `CharacterDocument.Tradition`/
+  `Stream` persist the player's choice (a `ComboBox` populated from traditions.xml/streams.xml,
+  shown above the spell tree only for Magicians/Technomancers respectively), and
+  `DrainResistance`/`FadingResistance` (ported from clsCharacter.cs) resolve the chosen
+  Tradition/Stream's two-attribute `<drain>` formula (e.g. Hermetic's `WIL + LOG`) plus any
+  DrainResistance/FadingResistance Improvements, reusing the same `SumAttributesWithImprovements`
+  helper Composure/Judge Intentions/etc. already use. A real spellcasting dice pool (Spellcasting
+  skill + MAG, shown per-spell) is still not computed - that's a different, not-yet-ported number
+  from the Drain/Fading pool covered here.
 - ✅ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
   Sprüche und Geister tab, below Geister, and both now support add (via a `programs.xml`/
   `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.
