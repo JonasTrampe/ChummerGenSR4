@@ -264,16 +264,20 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   Fahrzeuge tab. `FreeSpiritPowerPointsMag` is now honored too - the new `FreeSpiritPowerPoints`
   derived value (ported from clsMainController.cs's CalculateFreeSpiritPowerPoints, shown on the
   Zauber tab next to Critter Powers for PC Free Spirits) uses EDG by default and MAG under the
-  house rule, minus owned Critter Powers' point costs. The remaining ~10 flags on `CharacterOptions`
-  were investigated and found to need real missing infrastructure first, not just a conditional:
+  house rule, minus owned Critter Powers' point costs. Essence-loss-driven MAG/RES reduction is now
+  built too - the new `EssencePenalty` (ported from clsCharacter.cs's `EssencePenalty`: whole
+  points lost from the character's Essence maximum, rounded up) feeds a new
+  `ApplyEssencePenaltyToAttribute`, ported from frmCareer.cs's `MetatypeSelected()` (`lblMAG`/
+  `lblRES.Text`): by default MAG/RES's displayed value drops point-for-point with `EssencePenalty`;
+  under `EssLossReducesMaximumOnly` the raw value is only clamped down if it exceeds the attribute's
+  metatype maximum. This is a display-only adjustment applied in `Attributes`/`ReadAttributes` -
+  calculations that read MAG/RES directly (Adept Power Points, Awakened, etc.) intentionally keep
+  using the raw total, matching legacy (whose own `MAG.TotalMaximum` is never actually reduced by
+  Essence loss anywhere in its codebase either - a legacy quirk faithfully preserved here, not a
+  simplification of this port's). The remaining 2 flags still need real missing infrastructure:
   `ImprovedSenseFullRating` needs a SelectSenseware Improvement-selection flow this port doesn't
-  have; `EssLossReducesMaximumOnly` needs Essence-loss-driven MAG/RES attribute recompute, which
-  this port doesn't do at all yet (attribute totals are read straight from the save file, not
-  dynamically reduced when Cyberware/Bioware is added in-app); `RestrictStickNShock` needs a
-  weapon-to-ammo linkage (which specific weapon a Gear/ammo item is loaded into) that this port's
-  flat Gear tree has no concept of. Building any of these properly means adding the missing feature
-  first, which is a materially bigger change than the rest of this sweep - flagged rather than
-  faked.
+  have; `RestrictStickNShock` needs a weapon-to-ammo linkage (which specific weapon a Gear/ammo
+  item is loaded into) that this port's flat Gear tree has no concept of.
 
 ## Output / tooling
 

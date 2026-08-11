@@ -517,7 +517,9 @@ namespace Chummer.Core
         }
 
         // Ported from clsCharacter.cs's Essence property (CyborgEssence override not ported).
-        private string ComputeEssence()
+        private string ComputeEssence() => ComputeEssenceDecimal().Total.ToString("0.##", CultureInfo.InvariantCulture);
+
+        private (double Base, double Total) ComputeEssenceDecimal()
         {
             double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
                 NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsedMax) ? dblParsedMax : 0;
@@ -529,7 +531,47 @@ namespace Chummer.Core
             double dblLower = Math.Min(dblCyberware, dblBioware);
             double dblTotal = dblBase - dblHigher - (dblLower / 2) - dblHoles;
 
-            return dblTotal.ToString("0.##", CultureInfo.InvariantCulture);
+            return (dblBase, dblTotal);
+        }
+
+        /// <summary>Ported from clsCharacter.cs's EssencePenalty: whole points of Essence lost from
+        /// the character's Essence maximum (metatype ESS max plus any EssenceMax Improvements),
+        /// rounded up. 0 once fully healed/uninstalled back to the character's max Essence.</summary>
+        public int EssencePenalty
+        {
+            get
+            {
+                var (dblBase, dblTotal) = ComputeEssenceDecimal();
+                return (int)Math.Ceiling(dblBase - dblTotal);
+            }
+        }
+
+        /// <summary>Ported from frmCareer.cs's MetatypeSelected() (lblMAG/lblRES.Text): the MAG/RES
+        /// value shown to the player is reduced point-for-point by <see cref="EssencePenalty"/>.
+        /// Under the EssLossReducesMaximumOnly house rule, the raw value is instead only clamped
+        /// down if it exceeds the attribute's metatype maximum - which Essence loss itself never
+        /// reduces here, faithfully matching a legacy quirk where this house rule doesn't actually
+        /// lower the maximum anywhere in the codebase, only changes how the current value clamps
+        /// against the (unchanged) one. Only affects the displayed attribute value - calculations
+        /// that read MAG/RES via <see cref="GetAttributeInt"/> (Adept Power Points, Awakened, etc.)
+        /// intentionally keep using the raw, unadjusted total, matching legacy.</summary>
+        private int ApplyEssencePenaltyToAttribute(string strCode, string strRawTotalValue)
+        {
+            int intRaw = int.TryParse(strRawTotalValue, out var intParsed) ? intParsed : 0;
+            int intPenalty = EssencePenalty;
+            if (intPenalty == 0)
+                return intRaw;
+
+            if (GetCharacterOptions().EssLossReducesMaximumOnly)
+            {
+                int intMax = int.TryParse(
+                    GetValue($"/character/attributes/attribute[name = '{strCode}']/metatypemax", "0"), out var mx)
+                    ? mx
+                    : 0;
+                return intRaw > intMax ? intMax : intRaw;
+            }
+
+            return Math.Max(0, intRaw - intPenalty);
         }
 
         /// <summary>Sums two attributes plus any Improvements of the given type against no specific
@@ -4130,6 +4172,8 @@ namespace Chummer.Core
                 var strCode = GetValue(objNode, "name", string.Empty);
                 var strValue = GetValue(objNode, "value", "0");
                 var strTotalValue = GetValue(objNode, "totalvalue", strValue);
+                if (strCode == "MAG" || strCode == "RES")
+                    strTotalValue = ApplyEssencePenaltyToAttribute(strCode, strTotalValue).ToString(CultureInfo.InvariantCulture);
                 var strMinimum = GetValue(objNode, "metatypemin", "0");
                 lstAttributes.Add(new CharacterAttributeData(
                     strCode, strValue, strTotalValue,

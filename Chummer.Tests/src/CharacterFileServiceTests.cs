@@ -2358,4 +2358,43 @@ public class CharacterFileServiceTests
         var critterFreeSpirit = LoadXml("<character><metatype>Free Spirit</metatype><critter>True</critter></character>");
         Assert.Null(critterFreeSpirit.FreeSpiritPowerPoints);
     }
+
+    [Fact]
+    public void EssencePenalty_WholeEssenceLostFromCyberwareRoundsUp()
+    {
+        // 6 max ESS - 2.5 installed = 3.5 remaining -> Ceiling(6 - 3.5) = 3.
+        var character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6") + "</attributes><cyberwares>"
+            + "<cyberware><name>Wired Reflexes</name><ess>2.5</ess><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+
+        Assert.Equal(3, character.EssencePenalty);
+    }
+
+    [Fact]
+    public void Attributes_MagAndRes_AreReducedByEssencePenaltyByDefault()
+    {
+        var character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6") + AttributeXml("MAG", "6")
+            + AttributeXml("RES", "6") + AttributeXml("BOD", "6") + "</attributes><cyberwares>"
+            + "<cyberware><name>Wired Reflexes</name><ess>2.5</ess><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("3", attributes["MAG"].TotalValue); // 6 - EssencePenalty of 3.
+        Assert.Equal("3", attributes["RES"].TotalValue);
+        Assert.Equal("6", attributes["BOD"].TotalValue); // Unaffected - not MAG/RES.
+    }
+
+    [Fact]
+    public void Attributes_MagAndRes_EssLossReducesMaximumOnly_OnlyClampsAgainstMetatypeMax()
+    {
+        var character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6") + AttributeXml("MAG", "4")
+            + "</attributes><cyberwares>"
+            + "<cyberware><name>Wired Reflexes</name><ess>2.5</ess><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { EssLossReducesMaximumOnly = true });
+
+        // 4 doesn't exceed the (essence-loss-unaffected) metatype max of 6, so it stays untouched.
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("4", attributes["MAG"].TotalValue);
+    }
 }
