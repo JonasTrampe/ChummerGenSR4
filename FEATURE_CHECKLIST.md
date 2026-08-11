@@ -64,7 +64,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   be selected, persisted, charged, and removed. Vehicle locations can be created and deleted, are
   displayed in the detail pane, and existing onboard gear can be assigned to (or cleared from) a
   location via a "Zuweisen" button (mirrors the existing Weapon-location assignment pattern).
-  Drones, weapon-mount and mod eligibility/slot validation, and rules-data-derived totals remain unported.
+  Mod slot capacity is enforced (`AddVehicleMod` rejects a mod whose evaluated Slots would exceed
+  `SlotsRemaining`), and the Sensor rating can show a calculated value from the onboard sensor
+  suite instead of the saved one (`UseCalculatedVehicleSensorRatings`). Drones, weapon-mount
+  eligibility, class-eligibility validation for mods (e.g. Bikes-only mods), and a computed
+  total-cost figure (vehicle + installed mods) remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)
@@ -87,12 +91,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 
 - 🟡 17 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
   Weapon, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial Art, Martial Art Maneuver, Adept
-  Power, Metamagic, CritterPower, ComplexForm, and ContactConnection. The implementations remain
-  deliberately scoped (for example, no advanced vehicle-mod eligibility validation, no advanced
-  lifestyle construction, and Metamagic/Adept Power/CritterPower/ComplexForm additions don't apply
-  their rules-data Improvement bonuses).
-- ✅ ContactConnection (Group Network rating: Membership/Area of Influence/Magical/Matrix Resources
-  + group name/colour/free flag) — `ContactGroupDialog` wired to `UpdateContactGroup`.
+  Power, Metamagic, CritterPower, ComplexForm, and ContactConnection (the last of these isn't a
+  standard "pick an item" flow - it's `ContactGroupDialog`'s Group Network rating calculator:
+  Membership/Area of Influence/Magical/Matrix Resources + group name/colour/free flag, wired to
+  `UpdateContactGroup`). The implementations remain deliberately scoped (for example, no advanced
+  vehicle-mod eligibility validation, no advanced lifestyle construction, and Metamagic/Adept
+  Power/CritterPower/ComplexForm additions don't apply their rules-data Improvement bonuses).
 - ❌ The remaining pickers (Skill beyond exotic skills — active/knowledge skills come from a fixed
   list plus freeform knowledge-skill entries, so no picker is actually needed there — and others)
   don't exist yet.
@@ -126,13 +130,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Attribute karma-cost curve (`ComputeAttributeKarmaCostToIncrease`, house-rule aware via
   `AlternateMetatypeAttributeKarma`)
 - ✅ Cyberware/bioware essence cost — the item-selection dialog applies the chosen Grade's
-  Essence multiplier live (`CyberwareDialogViewModel.FinalEssence`); already-installed items read
-  the `ess` value the write path saved at add-time
+  Essence multiplier live (`CyberwareDialogViewModel.FinalEssence`), plus an optional house-rule-
+  gated Essence discount %; already-installed items read the `ess` value the write path saved at
+  add-time
 - ✅ Gear/weapon/armor/cyberware availability & cost calculations — `CharacterTreeItemData`
   evaluates `Rating`-formula `cost`/`avail` strings (as saved verbatim by the write path) and sums
   cost across children; now surfaced in the Gear/Armor/Waffen/Cyberware detail panes (previously
-  computed in Core but not shown anywhere in the UI). Vehicle mod/vehicle-level cost/avail
-  totals and eligibility/slot validation remain unported.
+  computed in Core but not shown anywhere in the UI). Vehicle mod slot capacity is validated on
+  add (see the Fahrzeuge und Drohnen row above); a computed vehicle+mods total cost/avail figure
+  and mod class-eligibility validation remain unported.
 - ✅ Skill defaulting at Rating 0 — a Skill that allows defaulting (per skills.xml, cross-referenced
   by name; Knowledge/Language Skills always allow it) rolls Attribute - 1 instead of a flat 0 pool,
   respecting the `SkillDefaultingIncludesModifiers` house rule. Verified against a real save: every
