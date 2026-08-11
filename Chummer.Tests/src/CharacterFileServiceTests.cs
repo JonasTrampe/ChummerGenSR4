@@ -1781,6 +1781,32 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void BurnEdge_PermanentlyLowersTheMaximumAndPersistsAcrossSaveReload()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("EDG", "3") + "</attributes></character>");
+        Assert.Equal(3, character.Edge.Maximum);
+
+        Assert.True(character.BurnEdge());
+        Assert.Equal(2, character.Edge.Maximum);
+        Assert.Equal(2, character.Edge.Remaining);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(2, reloaded.Edge.Maximum);
+    }
+
+    [Fact]
+    public void BurnEdge_CannotGoBelowZero()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("EDG", "0") + "</attributes></character>");
+
+        Assert.False(character.BurnEdge());
+        Assert.Equal(0, character.Edge.Maximum);
+    }
+
+    [Fact]
     public void WoundModifiers_ApplyBothConditionMonitorTracks()
     {
         CharacterDocument character = LoadXml("<character><physicalcmfilled>3</physicalcmfilled><stuncmfilled>4</stuncmfilled></character>");

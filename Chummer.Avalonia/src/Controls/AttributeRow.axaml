@@ -17,7 +17,8 @@
             <Button Classes="iconButton" Click="OnRaiseButtonClick">
                 <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" Width="16" Height="16" />
             </Button>
-            <Button Classes="iconButton" IsVisible="{Binding ShowRemove}">
+            <Button Classes="iconButton" IsVisible="{Binding ShowRemove}" Click="OnRemoveButtonClick"
+                    ToolTip.Tip="Edge dauerhaft verbrennen (-1 Maximum) - kann nicht rückgängig gemacht werden.">
                 <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" Width="16" Height="16" />
             </Button>
         </StackPanel>

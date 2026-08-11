@@ -338,6 +338,21 @@ namespace Chummer.Core
 
         public bool RegainEdge() => SetEdgeRemaining(Edge.Remaining + 1);
 
+        /// <summary>Permanently reduces the EDG attribute's own base value by 1 - ported from
+        /// frmCareer.cs's cmdBurnEdge_Click. Distinct from SpendEdge/RegainEdge, which only track
+        /// how much of the current maximum is currently used up; this lowers the maximum itself and
+        /// can't be undone. False if EDG is already at 0.</summary>
+        public bool BurnEdge()
+        {
+            int intCurrent = GetAttributeInt("EDG");
+            if (intCurrent <= 0)
+                return false;
+            bool blnOk = SetAttributeValue("EDG", intCurrent - 1);
+            if (blnOk)
+                Changed?.Invoke();
+            return blnOk;
+        }
+
         private bool SetEdgeRemaining(int intRemaining)
         {
             int intMaximum = Edge.Maximum;

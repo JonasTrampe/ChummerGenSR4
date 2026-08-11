@@ -172,7 +172,10 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   armor value plus BallisticArmor/ImpactArmor Improvements, with a source tooltip
 - ✅ Live wound modifier from physical/stun condition-monitor boxes, with ConditionMonitor Improvement adjustments
 - ✅ Damage resistance dice pool sidebar row, including Improvement contributions and tooltip
-- ✅ Edge tracking ("X von Y verbleibend"), including spend/regain controls persisted as legacy `EdgeUse` Improvements
+- ✅ Edge tracking ("X von Y verbleibend"), including spend/regain controls persisted as legacy
+  `EdgeUse` Improvements, and "Burn Edge" (Allgemein's EDG row delete-icon button, found already
+  sitting in the XAML with no Click handler) - ported from frmCareer.cs's cmdBurnEdge_Click,
+  permanently lowering the EDG attribute's own base value by 1
 - ✅ Adept power point cost — per-power point-per-level (with Way-of-the-Adept/Geas discounts)
   and a total-pool "used vs. available" figure (MAG or the Mystic Adept MAG-Adept split, plus
   AdeptPowerPoints Improvements), with a source-breakdown tooltip

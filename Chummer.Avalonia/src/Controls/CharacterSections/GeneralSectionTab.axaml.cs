@@ -89,6 +89,17 @@ public partial class GeneralSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    /// <summary>Only wired up for EDG (see AttributeRow.ShowRemove) - ported from
+    /// frmCareer.cs's cmdBurnEdge_Click.</summary>
+    private void OnRemoveAttributeClick(object? sender, System.EventArgs e)
+    {
+        if (_character == null || sender is not AttributeRow)
+            return;
+
+        if (_character.BurnEdge())
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnAddContactClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null)

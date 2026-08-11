@@ -65,7 +65,8 @@
                                                         BaseValue="{Binding BaseValue, Mode=TwoWay}"
                                                         MinValue="{Binding MinValue}" MaxValue="{Binding MaxValue}"
                                                         IsVisible="{Binding IsRowVisible}"
-                                                        RaiseClicked="OnRaiseAttributeClick" />
+                                                        RaiseClicked="OnRaiseAttributeClick"
+                                                        RemoveClicked="OnRemoveAttributeClick" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
