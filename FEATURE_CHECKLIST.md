@@ -261,9 +261,19 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   the vehicle's first onboard Gear item" quirk: averages that item's "Sensor Functions" category
   children's Rating, rounded up, only if the first item is itself Category "Sensors" with a Signal
   value), and `SensorDisplay` picks between it and the saved value per the house rule for the
-  Fahrzeuge tab. Most other Improvement-driven house rules remain unported (~11 more flags on
-  `CharacterOptions`, each gating a feature - focus stacking/binding, free-spirit chargen,
-  print-alternates formatting, etc. - that isn't built in this port yet).
+  Fahrzeuge tab. `FreeSpiritPowerPointsMag` is now honored too - the new `FreeSpiritPowerPoints`
+  derived value (ported from clsMainController.cs's CalculateFreeSpiritPowerPoints, shown on the
+  Zauber tab next to Critter Powers for PC Free Spirits) uses EDG by default and MAG under the
+  house rule, minus owned Critter Powers' point costs. The remaining ~10 flags on `CharacterOptions`
+  were investigated and found to need real missing infrastructure first, not just a conditional:
+  `ImprovedSenseFullRating` needs a SelectSenseware Improvement-selection flow this port doesn't
+  have; `EssLossReducesMaximumOnly` needs Essence-loss-driven MAG/RES attribute recompute, which
+  this port doesn't do at all yet (attribute totals are read straight from the save file, not
+  dynamically reduced when Cyberware/Bioware is added in-app); `RestrictStickNShock` needs a
+  weapon-to-ammo linkage (which specific weapon a Gear/ammo item is loaded into) that this port's
+  flat Gear tree has no concept of. Building any of these properly means adding the missing feature
+  first, which is a materially bigger change than the rest of this sweep - flagged rather than
+  faked.
 
 ## Output / tooling
 

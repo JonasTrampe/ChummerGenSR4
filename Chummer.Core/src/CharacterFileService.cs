@@ -134,6 +134,8 @@ namespace Chummer.Core
 
         public string MetatypeCategory => GetValue("/character/metatypecategory", string.Empty);
 
+        public bool IsCritter => GetValue("/character/critter", "False") == "True";
+
         public bool Adept => GetValue("/character/adept", "False") == "True";
 
         public bool Magician => GetValue("/character/magician", "False") == "True";
@@ -3209,6 +3211,41 @@ namespace Chummer.Core
 
                 var sb = new StringBuilder();
                 sb.Append("MAG").Append(MysticAdept ? " (Adept-Anteil)" : string.Empty).Append(": ").Append(intMag);
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
+                sb.Append('\n').Append("Verbraucht: ").Append(decUsed);
+                var decRemaining = intTotal - decUsed;
+                sb.Append('\n').Append("Übrig: ").Append(decRemaining);
+                return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
+            }
+        }
+
+        /// <summary>Ported from clsMainController.cs's CalculateFreeSpiritPowerPoints: a
+        /// player-character Free Spirit's power points come from EDG (or MAG, under the
+        /// FreeSpiritPowerPointsMag house rule) plus any FreeSpiritPowerPoints Improvement bonus;
+        /// used points are the sum of owned Critter Powers' point costs. Null when the character
+        /// isn't a PC Free Spirit (Metatype != "Free Spirit", or a critter rather than a PC -
+        /// matches legacy's Metatype/IsCritter gate).</summary>
+        public CharacterDerivedValueData? FreeSpiritPowerPoints
+        {
+            get
+            {
+                if (!string.Equals(Metatype, "Free Spirit", StringComparison.Ordinal) || IsCritter)
+                    return null;
+
+                var decUsed = CritterPowers.Sum(p =>
+                    decimal.TryParse(p.Points, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 0m);
+
+                bool blnUseMag = GetCharacterOptions().FreeSpiritPowerPointsMag;
+                var intBase = GetAttributeInt(blnUseMag ? "MAG" : "EDG");
+                var lstContributions = ImprovementManager
+                    .DescribeAugmentedValueOf(Improvements, ImprovementType.FreeSpiritPowerPoints)
+                    .ToList();
+                var intTotal = intBase + lstContributions.Sum(c => c.Value);
+
+                var sb = new StringBuilder();
+                sb.Append(blnUseMag ? "MAG" : "EDG").Append(": ").Append(intBase);
                 AppendContributions(sb, lstContributions);
                 sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
                 sb.Append('\n').Append("Verbraucht: ").Append(decUsed);

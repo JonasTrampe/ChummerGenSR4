@@ -96,6 +96,15 @@ public sealed class SpellsSectionViewModel : ViewModelBase
         set => SetField(ref _selectedCritterPower, value);
     }
 
+    private string _freeSpiritPowerPointsText = string.Empty;
+    public string FreeSpiritPowerPointsText
+    {
+        get => _freeSpiritPowerPointsText;
+        private set => SetField(ref _freeSpiritPowerPointsText, value);
+    }
+
+    public bool ShowFreeSpiritPowerPoints => FreeSpiritPowerPointsText.Length > 0;
+
     public SpellsSectionViewModel()
     {
         SpellCategories = new ObservableCollection<TreeNodeViewModel>
@@ -144,5 +153,9 @@ public sealed class SpellsSectionViewModel : ViewModelBase
         CritterPowers.Clear();
         foreach (CharacterCritterPowerData power in character.CritterPowers)
             CritterPowers.Add(new CritterPowerRowViewModel(power));
+
+        CharacterDerivedValueData? points = character.FreeSpiritPowerPoints;
+        FreeSpiritPowerPointsText = points == null ? string.Empty : "Kraftpunkte: " + points.Value + " verbleibend";
+        OnPropertyChanged(nameof(ShowFreeSpiritPowerPoints));
     }
 }

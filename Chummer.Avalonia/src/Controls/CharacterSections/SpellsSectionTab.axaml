@@ -79,6 +79,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Kritter-Kräfte" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding FreeSpiritPowerPointsText}" IsVisible="{Binding ShowFreeSpiritPowerPoints}" Margin="0,0,0,4" />
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                         <Button Content="Kraft" Click="OnAddCritterPowerClick" />
                         <Button Content="Löschen" Click="OnDeleteCritterPowerClick" />

@@ -2331,4 +2331,31 @@ public class CharacterFileServiceTests
         Assert.Equal(4, points.Value);
         Assert.Contains("Verfügbar: 4", points.Tooltip);
     }
+
+    [Fact]
+    public void FreeSpiritPowerPoints_UsesEdgByDefault_MagUnderHouseRule()
+    {
+        var character = LoadXml("<character><metatype>Free Spirit</metatype><attributes>"
+            + AttributeXml("EDG", "5") + AttributeXml("MAG", "8") + "</attributes><critterpowers>"
+            + "<critterpower><name>Concealment</name><points>2</points></critterpower>"
+            + "</critterpowers></character>");
+
+        var edgBased = character.FreeSpiritPowerPoints;
+        Assert.NotNull(edgBased);
+        Assert.Equal(3, edgBased.Value); // 5 EDG - 2 used.
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { FreeSpiritPowerPointsMag = true });
+        var magBased = character.FreeSpiritPowerPoints;
+        Assert.Equal(6, magBased.Value); // 8 MAG - 2 used.
+    }
+
+    [Fact]
+    public void FreeSpiritPowerPoints_NullForNonFreeSpiritsAndCritters()
+    {
+        var nonFreeSpirit = LoadXml("<character><metatype>Human</metatype></character>");
+        Assert.Null(nonFreeSpirit.FreeSpiritPowerPoints);
+
+        var critterFreeSpirit = LoadXml("<character><metatype>Free Spirit</metatype><critter>True</critter></character>");
+        Assert.Null(critterFreeSpirit.FreeSpiritPowerPoints);
+    }
 }
