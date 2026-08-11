@@ -55,6 +55,31 @@ public partial class GeneralSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    /// <summary>Swaps the selected Quality for a different one - ported from frmCareer.cs's
+    /// cmdSwapQuality_Click, simplified to a plain remove+add: this port's Quality model doesn't
+    /// track BP/cost at all yet (AddQuality never deducts Karma either), so legacy's Karma-cost-
+    /// delta charge/refund and its Metatype-origin-cannot-be-swapped guard aren't ported - every
+    /// owned Quality is swappable here, same scoped-down treatment as Metamagic/Adept
+    /// Power/CritterPower/ComplexForm additions not applying their Improvement bonuses.</summary>
+    private async void OnSwapQualityClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
+            || ViewModel.SelectedQualityNode?.Parent == null)
+            return;
+
+        var quality = ViewModel.SelectedQualityNode;
+        var dialog = new QualityDialog(_character);
+        bool? added = await dialog.ShowDialog<bool?>(window);
+        if (added != true || dialog.SelectedQuality is not { } selected)
+            return;
+
+        if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
+        {
+            _character.AddQuality(selected.Name, selected.Category);
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
     private void OnRaiseAttributeClick(object? sender, System.EventArgs e)
     {
         if (_character == null || sender is not AttributeRow { Code: { } strCode })

@@ -128,7 +128,12 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   Forms, Critter Powers, and Weapon Accessories/Mods can also be deleted, and Karma/Nuyen history
   entries can be edited in place (amount/reason/date). Character-Information's portrait (mugshot)
   also loads/changes/clears. Custom-sourced Improvements can now be deleted too (see the Verbessern
-  row above). Manual Improvement *add* and most other operations remain unwired.
+  row above). Allgemein's "Gabe austauschen" button (found already sitting in the XAML with no
+  Click handler) now works too - ported from frmCareer.cs's cmdSwapQuality_Click as a plain
+  remove+add, since this port's Quality model never tracked BP/cost at all (AddQuality doesn't
+  charge Karma for a normal add either), so legacy's Karma-cost-delta charge/refund and its
+  Metatype-origin-cannot-be-swapped guard aren't ported - every owned Quality is swappable here.
+  Manual Improvement *add* and most other operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
