@@ -83,6 +83,10 @@ public sealed class TreeNodeViewModel
     public int TotalSlots { get; private set; }
     public int SlotsRemaining { get; private set; }
 
+    /// <summary>Only meaningful for vehicle root nodes - see CharacterVehicleData.TotalCost
+    /// (vehicle's own Cost plus installed mods/onboard gear/weapons).</summary>
+    public int TotalCost { get; private set; }
+
     /// <summary>Only set (non-empty) for Weapon root nodes - see
     /// CharacterDocument.ComputeWeaponDicePool.</summary>
     public string WeaponDicePool { get; private set; } = string.Empty;
@@ -201,6 +205,7 @@ public sealed class TreeNodeViewModel
             SlotsUsed = item.SlotsUsed,
             TotalSlots = item.TotalSlots,
             SlotsRemaining = item.SlotsRemaining,
+            TotalCost = item.TotalCost,
             Source = item.Source,
             Page = item.Page,
             PhysicalCmFilled = item.PhysicalCmFilled,

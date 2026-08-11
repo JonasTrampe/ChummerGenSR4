@@ -1854,6 +1854,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleTotalCost_SumsBaseCostModsAndOnboardGear()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>6</body>"
+            + "<cost>7000</cost><mods /></vehicle></vehicles></character>");
+
+        Assert.Equal(7000, character.Vehicles.Single().TotalCost);
+
+        // "Body * 200" at Body(6) -> 1200.
+        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "Body * 200", "AR", "132"));
+        Assert.Equal(8200, character.Vehicles.Single().TotalCost);
+
+        Assert.True(character.AddVehicleGear(vehicleId, "Fake SIN", "Fake Identification", strCost: "500"));
+        Assert.Equal(8700, character.Vehicles.Single().TotalCost);
+    }
+
+    [Fact]
     public void VehicleSlots_LowBodyVehicleFloorsAtFourSlots()
     {
         Guid vehicleId = Guid.NewGuid();

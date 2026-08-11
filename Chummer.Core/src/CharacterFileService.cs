@@ -5182,6 +5182,39 @@ namespace Chummer.Core
 
         public int SlotsRemaining => TotalSlots - SlotsUsed;
 
+        /// <summary>Ported from clsEquipment.cs's Vehicle.TotalCost: the vehicle's own cost, plus
+        /// every non-included Mod's own (Body-and-Rating-resolved) cost, plus - for Mods that came
+        /// included with the vehicle - the cost of any Weapon/Gear attached to them (their own slot
+        /// cost doesn't count, but what's mounted on them still does), plus every other direct
+        /// onboard Gear/Weapon's own cost.</summary>
+        public int TotalCost
+        {
+            get
+            {
+                double dblBody = double.TryParse(Body, NumberStyles.Float, CultureInfo.InvariantCulture, out var b) ? b : 0;
+                double dblTotal = double.TryParse(Cost, NumberStyles.Float, CultureInfo.InvariantCulture, out var c) ? c : 0;
+                foreach (CharacterTreeItemData objChild in Children)
+                {
+                    if (!objChild.IsVehicleMod)
+                    {
+                        dblTotal += objChild.CalculatedCost;
+                    }
+                    else if (objChild.IncludedInVehicle)
+                    {
+                        dblTotal += objChild.Children.Sum(objGrandchild => objGrandchild.CalculatedCost);
+                    }
+                    else
+                    {
+                        string strCost = objChild.Cost.Replace("Body",
+                            dblBody.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase);
+                        dblTotal += RatingExpression.Evaluate(strCost, objChild.Rating);
+                    }
+                }
+
+                return (int)Math.Ceiling(dblTotal);
+            }
+        }
+
         /// <summary>Ported from clsEquipment.cs's Vehicle.CalculatedSensor, faithfully including its
         /// "only ever looks at the first onboard Gear item" quirk (the loop's break is unconditional,
         /// outside the category check): averages the Rating of that first item's "Sensor Functions"

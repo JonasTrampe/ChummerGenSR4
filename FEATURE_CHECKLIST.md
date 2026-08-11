@@ -52,7 +52,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
-  können), Waffen (inkl. Zubehör/Mods und persistenter Standorte), Ausrüstung
+  können), Waffen (inkl. Zubehör/Mods, die jetzt über eigene Picker hinzugefügt/gelöscht werden
+  können, und persistenter Standorte), Ausrüstung
 - 🟡 Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
@@ -65,10 +66,15 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   displayed in the detail pane, and existing onboard gear can be assigned to (or cleared from) a
   location via a "Zuweisen" button (mirrors the existing Weapon-location assignment pattern).
   Mod slot capacity is enforced (`AddVehicleMod` rejects a mod whose evaluated Slots would exceed
-  `SlotsRemaining`), and the Sensor rating can show a calculated value from the onboard sensor
-  suite instead of the saved one (`UseCalculatedVehicleSensorRatings`). Drones, weapon-mount
-  eligibility, class-eligibility validation for mods (e.g. Bikes-only mods), and a computed
-  total-cost figure (vehicle + installed mods) remain unported.
+  `SlotsRemaining`), the Sensor rating can show a calculated value from the onboard sensor suite
+  instead of the saved one (`UseCalculatedVehicleSensorRatings`), and a computed total-cost figure
+  (`CharacterVehicleData.TotalCost` - the vehicle's own cost plus installed non-included mods,
+  included mods' own attached weapons/gear, and direct onboard gear/weapons, ported from
+  clsEquipment.cs's Vehicle.TotalCost) is now shown alongside the base cost. Drones and
+  weapon-mount eligibility remain unported. Mod "class eligibility" (a mod's `<limit>` field, e.g.
+  "Groundcraft Only") turns out not to be a real gap: checked frmSelectVehicleMod.cs and legacy
+  itself never validates it either, it's purely informational text next to the mod name - already
+  shown that way here too (`VehicleModOptionViewModel.Limit`).
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
 - ✅ Karma und Nuyen (expense history + real running-total charts)
@@ -80,22 +86,24 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 ## Character sheet tabs — editing
 
 - 🟡 **Add Quality, Spell, Gear, Spirit/Sprite, Martial Art, Martial Art Maneuver, Adept Power,
-  Metamagic, Complex Form, Critter Power, and Karma/Nuyen history entries** work end-to-end
-  (UI → character XML → save/reload); selected Qualities, Spells, root-level Gear, Spirits/Sprites,
-  Martial Arts/Maneuvers, Adept Powers, Metamagics, Complex Forms, and Critter Powers can also be
-  deleted, and Karma/Nuyen history entries can be edited in place (amount/reason/date).
-  Character-Information's portrait (mugshot) also loads/changes/clears. Manual Improvement
-  add/edit/delete and most other operations remain unwired.
+  Metamagic, Complex Form, Critter Power, Weapon Accessory, Weapon Mod, and Karma/Nuyen history
+  entries** work end-to-end (UI → character XML → save/reload); selected Qualities, Spells,
+  root-level Gear, Spirits/Sprites, Martial Arts/Maneuvers, Adept Powers, Metamagics, Complex
+  Forms, Critter Powers, and Weapon Accessories/Mods can also be deleted, and Karma/Nuyen history
+  entries can be edited in place (amount/reason/date). Character-Information's portrait (mugshot)
+  also loads/changes/clears. Manual Improvement add/edit/delete and most other operations remain
+  unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- 🟡 17 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
-  Weapon, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial Art, Martial Art Maneuver, Adept
-  Power, Metamagic, CritterPower, ComplexForm, and ContactConnection (the last of these isn't a
-  standard "pick an item" flow - it's `ContactGroupDialog`'s Group Network rating calculator:
-  Membership/Area of Influence/Magical/Matrix Resources + group name/colour/free flag, wired to
-  `UpdateContactGroup`). The implementations remain deliberately scoped (for example, no advanced
-  vehicle-mod eligibility validation, no advanced lifestyle construction, and Metamagic/Adept
+- 🟡 19 of ~41: selected-item flows exist for Quality, Spell, Gear, Cyberware/Bioware, Armor,
+  Weapon, Weapon Accessory, Weapon Mod, Vehicle, Vehicle Mod, Lifestyle, exotic Skills, Martial
+  Art, Martial Art Maneuver, Adept Power, Metamagic, CritterPower, ComplexForm, and
+  ContactConnection (the last of these isn't a standard "pick an item" flow - it's
+  `ContactGroupDialog`'s Group Network rating calculator: Membership/Area of Influence/Magical/
+  Matrix Resources + group name/colour/free flag, wired to `UpdateContactGroup`). The
+  implementations remain deliberately scoped (for example, no mount-slot eligibility validation
+  for Weapon Accessories/Mods, no advanced lifestyle construction, and Metamagic/Adept
   Power/CritterPower/ComplexForm additions don't apply their rules-data Improvement bonuses).
 - ❌ The remaining pickers (Skill beyond exotic skills — active/knowledge skills come from a fixed
   list plus freeform knowledge-skill entries, so no picker is actually needed there — and others)
@@ -136,9 +144,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Gear/weapon/armor/cyberware availability & cost calculations — `CharacterTreeItemData`
   evaluates `Rating`-formula `cost`/`avail` strings (as saved verbatim by the write path) and sums
   cost across children; now surfaced in the Gear/Armor/Waffen/Cyberware detail panes (previously
-  computed in Core but not shown anywhere in the UI). Vehicle mod slot capacity is validated on
-  add (see the Fahrzeuge und Drohnen row above); a computed vehicle+mods total cost/avail figure
-  and mod class-eligibility validation remain unported.
+  computed in Core but not shown anywhere in the UI). Vehicle mod slot capacity and a computed
+  vehicle+mods total cost are both handled now too - see the Fahrzeuge und Drohnen row above.
 - ✅ Skill defaulting at Rating 0 — a Skill that allows defaulting (per skills.xml, cross-referenced
   by name; Knowledge/Language Skills always allow it) rolls Attribute - 1 instead of a flat 0 pool,
   respecting the `SkillDefaultingIncludesModifiers` house rule. Verified against a real save: every

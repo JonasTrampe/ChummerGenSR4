@@ -72,10 +72,15 @@
                                 ToolTip.Tip="Weist das ausgewählte Bordausrüstungs-Objekt dem oben gewählten Ort zu (leere Auswahl entfernt die Zuweisung)." />
                     </Grid>
                     <Separator Margin="0,2" />
-                    <Grid ColumnDefinitions="*,*,*">
+                    <Grid ColumnDefinitions="*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />
-                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Kosten: {0}¥'}" />
-                        <TextBlock Grid.Column="2">
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Grundkosten: {0}¥'}"
+                                   ToolTip.Tip="Kaufpreis des Fahrzeugs allein, ohne Modifikationen/Bordausrüstung." />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.TotalCost, StringFormat='Gesamtkosten: {0}¥'}"
+                                   ToolTip.Tip="Grundkosten plus alle installierten Modifikationen und die direkte Bordausrüstung/-waffen." />
+                        <TextBlock Grid.Column="1">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="Slots: {0}/{1} ({2} frei)">
                                     <Binding Path="SelectedVehicle.SlotsUsed" />
