@@ -226,11 +226,13 @@ namespace Chummer.Core
         /// <summary>Ported from frmCreate.cs's ConfirmSaveCreatedCharacter: flips the character
         /// into career mode, at which point every UI already bound to IsCreateMode/Created
         /// (attribute/skill spinners, Nuyen entry, etc.) switches from the Create-suffixed
-        /// point-spending methods to the normal Karma-spending ones. Deliberately simplified vs.
-        /// the legacy flow: no starting-Lifestyle-Nuyen dice roll (a player can already add a
-        /// Lifestyle and set starting Nuyen manually before finalizing) and no validation gate -
-        /// unspent Karma/BP simply stays on the character as-is (for Karma builds this is exactly
-        /// what legacy does too, since Karma left over from creation carries over as career Karma).</summary>
+        /// point-spending methods to the normal Karma-spending ones. The starting-Lifestyle-Nuyen
+        /// dice roll is handled separately by <see cref="GetLifestyleNuyenRollInfo"/> and
+        /// <see cref="FinalizeCreationWithLifestyleNuyenRoll"/> (callers should prefer that
+        /// overload when a UI can prompt for the roll). Deliberately simplified vs. the legacy
+        /// flow: no validation gate - unspent Karma/BP simply stays on the character as-is (for
+        /// Karma builds this is exactly what legacy does too, since Karma left over from creation
+        /// carries over as career Karma).</summary>
         public bool FinalizeCreation()
         {
             if (Created)
@@ -3563,6 +3565,56 @@ namespace Chummer.Core
                 return true;
             }
             return false;
+        }
+
+        /// <summary>The dice/multiplier/bonus needed to prompt for a starting-Nuyen roll, ported
+        /// from frmCreate.cs's ConfirmSaveCreatedCharacter.</summary>
+        public sealed record LifestyleNuyenRollInfo(int Dice, int Multiplier, int Extra);
+
+        /// <summary>Ported from frmCreate.cs's ConfirmSaveCreatedCharacter: auto-adds a Street
+        /// Lifestyle if the character has none yet, then computes the dice/multiplier for the
+        /// highest-multiplier Lifestyle owned and the "+1 per 100 leftover Nuyen, capped at 3x
+        /// dice" bonus. Returns null once the character is already Created.</summary>
+        public LifestyleNuyenRollInfo? GetLifestyleNuyenRollInfo()
+        {
+            if (Created)
+                return null;
+            if (Lifestyles.Count == 0)
+                AddLifestyle("Street", "0");
+
+            XmlDocument objLifestylesDoc = XmlManager.Instance.Load("lifestyles.xml");
+            int intDice = 0, intMultiplier = 0;
+            foreach (CharacterLifestyleData objLifestyle in Lifestyles)
+            {
+                XmlNode? objXmlLifestyle = objLifestylesDoc.SelectSingleNode(
+                    $"/chummer/lifestyles/lifestyle[name = '{objLifestyle.Name}']");
+                if (objXmlLifestyle == null)
+                    continue;
+                int intLifestyleMultiplier = int.TryParse(GetValue(objXmlLifestyle, "multiplier", "0"), out var m) ? m : 0;
+                if (intLifestyleMultiplier > intMultiplier)
+                {
+                    intMultiplier = intLifestyleMultiplier;
+                    intDice = int.TryParse(GetValue(objXmlLifestyle, "dice", "0"), out var d) ? d : 0;
+                }
+            }
+
+            int intNuyen = int.TryParse(Nuyen, out var n) ? n : 0;
+            int intExtra = Math.Min((int)Math.Floor(intNuyen / 100.0), intDice * 3);
+            return new LifestyleNuyenRollInfo(intDice, intMultiplier, intExtra);
+        }
+
+        /// <summary>Applies a manually-entered starting-Nuyen dice-roll result (see
+        /// <see cref="GetLifestyleNuyenRollInfo"/>), then finalizes creation - ported from
+        /// frmCreate.cs's ConfirmSaveCreatedCharacter.</summary>
+        public bool FinalizeCreationWithLifestyleNuyenRoll(int intDiceResult)
+        {
+            LifestyleNuyenRollInfo? objInfo = GetLifestyleNuyenRollInfo();
+            if (objInfo == null)
+                return false;
+
+            int intStartingNuyen = Math.Max(0, (intDiceResult + objInfo.Extra) * objInfo.Multiplier);
+            Nuyen = intStartingNuyen.ToString();
+            return FinalizeCreation();
         }
 
         public IReadOnlyList<CharacterVehicleData> Vehicles => ReadVehicles();

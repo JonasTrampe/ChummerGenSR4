@@ -46,7 +46,14 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   spending. Verified end-to-end with a scratch harness: create Adept → raise BOD/Pistolen via
   Create-mode Karma costs → finalize → raise AGI via the career-mode Karma formula, all against
   the same character. Not a true priority-table system (Karma/BP only, no A-E priority letters),
-  no starting-Lifestyle-Nuyen dice roll. Mystic Adept is now offered in the metatype dialog's
+  Finalizing creation now prompts for the starting-Lifestyle-Nuyen dice roll, ported from
+  `frmCreate.cs`'s `ConfirmSaveCreatedCharacter`/`frmLifestyleNuyen.cs`: `GetLifestyleNuyenRollInfo`
+  auto-adds a Street Lifestyle if none exists, picks the highest-multiplier owned Lifestyle for its
+  dice/multiplier, and computes the "+1 per 100 leftover Nuyen, capped at 3x dice" bonus; the new
+  `LifestyleNuyenDialog` lets the player manually enter their roll (the app has never auto-rolled
+  dice, matching legacy's `NumericUpDown`-based entry), and `FinalizeCreationWithLifestyleNuyenRoll`
+  applies `(roll + bonus) * multiplier` as starting Nuyen before finalizing. Mystic Adept is now
+  offered in the metatype dialog's
   magic-type picker (sets both `adept` and `magician`); the General tab's MAG-split field is
   editable and calls the new `SetMysticAdeptMagicianMagSplit`, which writes `magsplitmagician`/
   `magsplitadept` (clamped to `[0, MAG]`), ported from `frmCreate.cs`'s

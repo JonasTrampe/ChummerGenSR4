@@ -299,6 +299,41 @@ public class NewCharacterFactoryTests
     }
 
     [Fact]
+    public void GetLifestyleNuyenRollInfo_AutoAddsStreetLifestyleAndComputesDiceMultiplierExtra()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.Nuyen = "250"; // +2 bonus (floor(250/100)), capped at 3x dice.
+        Assert.Empty(character.Lifestyles);
+
+        var info = character.GetLifestyleNuyenRollInfo();
+
+        Assert.NotNull(info);
+        Assert.Single(character.Lifestyles); // Street auto-added, per frmCreate.cs.
+        Assert.Equal("Street", character.Lifestyles.Single().Name);
+        Assert.Equal(1, info.Dice);
+        Assert.Equal(10, info.Multiplier);
+        Assert.Equal(2, info.Extra);
+    }
+
+    [Fact]
+    public void FinalizeCreationWithLifestyleNuyenRoll_AppliesRollAndFinalizes()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.Nuyen = "0";
+
+        Assert.True(character.FinalizeCreationWithLifestyleNuyenRoll(4));
+
+        Assert.True(character.Created);
+        Assert.Equal("40", character.Nuyen); // (4 + 0 extra) * 10 multiplier.
+
+        // Already Created - the roll info is gone and finalizing again is a no-op.
+        Assert.Null(character.GetLifestyleNuyenRollInfo());
+        Assert.False(character.FinalizeCreationWithLifestyleNuyenRoll(4));
+    }
+
+    [Fact]
     public void FinalizeCreation_SetsCreatedAndFiresChangedOnce()
     {
         CharacterDocument character = NewCharacterFactory.CreateNewCharacter(

@@ -128,7 +128,15 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         IsCreateMode = !character.Created;
     }
 
+    public CharacterDocument? Character => _objCharacter;
+
     public void FinalizeCreation() { if (_objCharacter?.FinalizeCreation() == true) LoadCharacter(_objCharacter); }
+
+    public void FinalizeCreation(int intLifestyleNuyenDiceResult)
+    {
+        if (_objCharacter?.FinalizeCreationWithLifestyleNuyenRoll(intLifestyleNuyenDiceResult) == true)
+            LoadCharacter(_objCharacter);
+    }
 
     public void SpendEdge() { if (_objCharacter?.SpendEdge() == true) LoadCharacter(_objCharacter); }
     public void RegainEdge() { if (_objCharacter?.RegainEdge() == true) LoadCharacter(_objCharacter); }
