@@ -238,6 +238,8 @@
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
                 <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"
                            Foreground="#666666" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding SelectedPet.LinkedMetatype, StringFormat='Metatyp: {0}'}"
+                           IsVisible="{Binding SelectedPet.HasLinkedCharacter}" />
                 <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ContactRowViewModel">

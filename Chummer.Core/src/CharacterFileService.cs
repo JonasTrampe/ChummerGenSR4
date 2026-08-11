@@ -130,6 +130,8 @@ namespace Chummer.Core
 
         public string Metatype => GetValue("/character/metatype", string.Empty);
 
+        public string Metavariant => GetValue("/character/metavariant", string.Empty);
+
         public string MetatypeCategory => GetValue("/character/metatypecategory", string.Empty);
 
         public bool Adept => GetValue("/character/adept", "False") == "True";

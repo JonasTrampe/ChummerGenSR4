@@ -56,6 +56,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   können, und persistenter Standorte), Ausrüstung
 - 🟡 Straßenausrüstung → Haustiere und Begleiter — saved `Pet` contact entries can be edited,
   added/removed, and linked to a companion `.chum` file, with their name, notes, and free status.
+  Linking now also peeks the companion file's Metatype/Metavariant and shows it (ported from
+  PetControl.cs's lblMetatype, which does the same file-open-just-to-read-this trick).
 - 🟡 Fahrzeuge und Drohnen — saved handling/pilot/body/armor/sensor/device, availability/cost/slots,
   and the installed mods/onboard gear/weapons tree are displayed. A filterable vehicle picker can
   add/delete root vehicles and deduct their cost. Rules-data vehicle modifications can be selected

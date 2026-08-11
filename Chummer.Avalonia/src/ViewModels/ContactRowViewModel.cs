@@ -1,8 +1,11 @@
+using System;
+using System.IO;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
 
-/// <summary>One editable row of the Allgemein tab's Connections/Feinde lists.</summary>
+/// <summary>One editable row of the Allgemein tab's Connections/Feinde lists (also reused for the
+/// Straßenausrüstung tab's Haustiere und Begleiter list - Pets are just Contact entries).</summary>
 public sealed class ContactRowViewModel : ViewModelBase
 {
     private readonly CharacterDocument _character;
@@ -24,6 +27,7 @@ public sealed class ContactRowViewModel : ViewModelBase
         MatrixResources = contact.MatrixResources;
         GroupRating = contact.GroupRating;
         FileName = contact.FileName;
+        LinkedMetatype = PeekLinkedMetatype(contact.FileName, contact.RelativeFileName);
     }
 
     public string GroupName { get; private set; }
@@ -33,6 +37,40 @@ public sealed class ContactRowViewModel : ViewModelBase
     public int MatrixResources { get; private set; }
     public string FileName { get; }
     public bool HasLinkedCharacter => !string.IsNullOrWhiteSpace(FileName);
+
+    /// <summary>"&lt;Metatype&gt; (&lt;Metavariant&gt;)" peeked from the linked companion .chum
+    /// file (matches PetControl.cs's lblMetatype, which opens the file just to read this) - empty
+    /// if unlinked, the file can't be found, or it fails to load.</summary>
+    public string LinkedMetatype { get; }
+
+    private static string PeekLinkedMetatype(string strFileName, string strRelativeFileName)
+    {
+        if (string.IsNullOrWhiteSpace(strFileName))
+            return string.Empty;
+
+        string strPath = File.Exists(strFileName) ? strFileName
+            : !string.IsNullOrWhiteSpace(strRelativeFileName)
+                && File.Exists(Path.Combine(AppContext.BaseDirectory, strRelativeFileName))
+                ? Path.Combine(AppContext.BaseDirectory, strRelativeFileName)
+                : string.Empty;
+        if (strPath.Length == 0)
+            return string.Empty;
+
+        try
+        {
+            using var stream = File.OpenRead(strPath);
+            CharacterDocument linked = new CharacterFileService().Load(stream, strPath);
+            return string.IsNullOrWhiteSpace(linked.Metavariant)
+                ? linked.Metatype
+                : linked.Metatype + " (" + linked.Metavariant + ")";
+        }
+        catch
+        {
+            // Matches PetControl.cs's guarded file-exists checks - a missing/corrupt/incompatible
+            // linked file should never take the whole tab down, just show nothing.
+            return string.Empty;
+        }
+    }
 
     private int _intGroupRating;
     /// <summary>Sum of the four Group modifiers - adds to Connection+Loyalty in the Karma/BP
