@@ -85,7 +85,7 @@
                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 <TextBox Grid.Column="3" Text="{Binding Specialization}" VerticalAlignment="Center" />
                                 <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}"
-                                          SelectedItem="{Binding Category}" />
+                                          SelectedItem="{Binding Category, Mode=TwoWay}" />
                                 <Button Grid.Column="5" Content="Löschen" Click="OnDeleteKnowledgeSkillClick"
                                         Tag="{Binding SkillId}" IsEnabled="{Binding AllowDelete}" />
                             </Grid>

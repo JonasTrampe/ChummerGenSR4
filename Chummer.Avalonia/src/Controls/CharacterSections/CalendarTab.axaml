@@ -13,7 +13,7 @@
             <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
             <TextBlock Grid.Column="1" Classes="gridHeader" Text="Notizen" />
         </Grid>
-        <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek}">
+        <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:CalendarWeekRowViewModel">
                 <Grid ColumnDefinitions="120,*">

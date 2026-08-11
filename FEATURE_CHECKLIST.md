@@ -13,13 +13,20 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Open/save `.chum` files
 - 🟡 **Anything added or edited in the UI actually persisting** — this has grown far past its
   original scope; by now most editable-looking controls across every tab genuinely write back to
-  the loaded XML (audited every TextBox/CheckBox/NumericUpDown binding across all Character
-  Sections tabs to check for stale/dead ones - found none beyond what's already called out
-  elsewhere: the Initiation/Allgemein detail panes' remaining static mockup rows, and
-  Improvements' intentionally-disabled "aktiv" checkbox). What's still genuinely unwired is
-  narrower and tracked under its own rows now: manual Improvement *add* (Character sheet tabs →
-  editing), Drones/weapon-mount subsystems (Fahrzeuge und Drohnen), and Language/i18n across the
-  UI (Settings / options).
+  the loaded XML. A follow-up pass over every `SelectedItem`/`SelectedIndex`/`SelectedValue`
+  binding in the whole Avalonia project (not just TextBox/CheckBox/NumericUpDown, which an earlier
+  pass already covered) found 5 more missing `Mode=TwoWay` - the same class of bug the
+  Improvements tab's dead selection binding turned out to be. Three were silent no-ops (selecting
+  a different Aktiver Kommlink never actually called `SetActiveCommlink`; selecting a different
+  Kalenderwoche or Lebensstil left the previous one targeted by "Notizen bearbeiten"/"Löschen");
+  one silently discarded edits (changing a Knowledge Skill's category dropdown never saved). The
+  fifth was worse: `LifestyleDialog`'s picker `Selected` binding lacked it too, and since
+  `SelectedLifestyle` (what `OnOk` checks before allowing the dialog to close) reads straight from
+  that property, **the entire Lifestyle picker was unusable end to end** - clicking an option
+  never registered, so "Hinzufügen" could never succeed. All five fixed. What's still genuinely
+  unwired is narrower and tracked under its own rows now: manual Improvement *add* (Character
+  sheet tabs → editing), Drones/weapon-mount subsystems (Fahrzeuge und Drohnen), and Language/i18n
+  across the UI (Settings / options).
 - ✅ Multiple characters open in tabs at once
 - 🟡 Character creation flow (Karma/BP point-buy system, `frmCreate` equivalent) — this was more
   complete than previously documented here: Settings Profile → Karma/GP → Metatype (now with a

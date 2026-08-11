@@ -23,7 +23,7 @@
                     <TextBlock Text="Aktiver Kommlink:" Margin="0,4,0,0" />
                     <ComboBox HorizontalAlignment="Stretch"
                               ItemsSource="{Binding Commlinks}"
-                              SelectedItem="{Binding SelectedCommlink}"
+                              SelectedItem="{Binding SelectedCommlink, Mode=TwoWay}"
                               DisplayMemberBinding="{Binding DisplayName}" />
                     <controls:InfoRow Label="Matrixinitiative:" Value="{Binding MatrixInitiative.Value}"
                                        Tooltip="{Binding MatrixInitiative.Tooltip}" />
