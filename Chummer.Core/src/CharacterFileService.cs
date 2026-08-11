@@ -1032,6 +1032,12 @@ namespace Chummer.Core
             return null;
         }
 
+        /// <summary>Whether the AllowCyberwareEssDiscounts house rule is on - gates the Essence
+        /// discount input in the Cyberware/Bioware picker (the discount itself is applied entirely
+        /// client-side into the already-resolved Essence value passed to <see cref="AddCyberware"/>,
+        /// same as the grade multiplier, so there's nothing else to enforce here).</summary>
+        public bool AllowCyberwareEssenceDiscounts => GetCharacterOptions().AllowCyberwareEssDiscounts;
+
         /// <summary>Adds a root-level Cyberware or Bioware item in the minimal saved-character tree
         /// shape used by <see cref="Cyberware"/>/<see cref="Bioware"/> and <see cref="ComputeEssence"/>
         /// - <paramref name="strEss"/>/<paramref name="strCost"/>/<paramref name="strAvail"/> are the

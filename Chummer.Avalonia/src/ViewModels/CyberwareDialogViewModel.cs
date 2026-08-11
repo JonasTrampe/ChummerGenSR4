@@ -75,6 +75,23 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Only true (and only then shown/usable in the dialog) when the character's settings
+    /// profile has the AllowCyberwareEssDiscounts house rule on - see
+    /// CharacterDocument.AllowCyberwareEssenceDiscounts.</summary>
+    public bool AllowEssenceDiscount { get; private set; }
+
+    private int _intEssenceDiscountPercent;
+    public int EssenceDiscountPercent
+    {
+        get => _intEssenceDiscountPercent;
+        set
+        {
+            if (!SetField(ref _intEssenceDiscountPercent, value))
+                return;
+            RaiseFinalValuesChanged();
+        }
+    }
+
     private void OnSelectedCyberwarePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(CyberwareOptionViewModel.Essence) or nameof(CyberwareOptionViewModel.Cost)
@@ -91,14 +108,18 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
 
     /// <summary>Grade-adjusted Essence: <see cref="CyberwareOptionViewModel.Essence"/> (already
     /// resolved for the chosen rating) times the grade's Essence multiplier (e.g. Alphaware 0.8,
-    /// Betaware 0.7) - this is what actually gets written into the saved character.</summary>
+    /// Betaware 0.7), further reduced by the Essence discount when AllowCyberwareEssDiscounts
+    /// permits one - this is what actually gets written into the saved character.</summary>
     public string FinalEssence
     {
         get
         {
             if (SelectedCyberware == null || SelectedGrade == null) return "–";
             double dblBase = double.TryParse(SelectedCyberware.Essence, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0;
-            return (dblBase * SelectedGrade.EssMultiplier).ToString("0.##", CultureInfo.InvariantCulture);
+            double dblGraded = dblBase * SelectedGrade.EssMultiplier;
+            if (AllowEssenceDiscount && EssenceDiscountPercent > 0)
+                dblGraded *= 1.0 - EssenceDiscountPercent / 100.0;
+            return dblGraded.ToString("0.##", CultureInfo.InvariantCulture);
         }
     }
 
@@ -124,8 +145,12 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
         }
     }
 
-    public void LoadOptions(bool blnBioware)
+    public void LoadOptions(bool blnBioware, CharacterDocument character)
     {
+        AllowEssenceDiscount = character.AllowCyberwareEssenceDiscounts;
+        OnPropertyChanged(nameof(AllowEssenceDiscount));
+        EssenceDiscountPercent = 0;
+
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
         XmlNodeList? nodes = document.SelectNodes(blnBioware ? "/chummer/biowares/bioware" : "/chummer/cyberwares/cyberware");

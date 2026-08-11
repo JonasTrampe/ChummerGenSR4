@@ -153,9 +153,14 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   already been raised individually and diverged from each other or from the group's own stale
   rating. `CanRaiseSkillGroupAsAWhole` now blocks the raise unless every member skill agrees with
   each other, and (only via `AllowSkillRegrouping`) lets the group's own rating catch up to that
-  shared value before proceeding. Most other Improvement-driven house rules remain unported (~13
-  more flags on `CharacterOptions` - e.g. `AllowExceedAttributeBp`, `AllowCyberwareEssDiscounts` -
-  aren't referenced anywhere in `CharacterFileService` yet).
+  shared value before proceeding. `AllowCyberwareEssDiscounts` is now honored too - the
+  Cyberware/Bioware picker gained an Essence-discount % spinner (only shown when the house rule is
+  on), applied client-side into the already-resolved Essence value the same way the grade
+  multiplier already is. `AllowExceedAttributeBp` was investigated but skipped: this port has no
+  persisted "starting BP total" field to check the 50% cap against at all (Bp is only ever tracked
+  as a shrinking remaining pool), so implementing it correctly means adding new persisted state,
+  not just gating existing logic - a bigger change than the rest of this sweep. Most other
+  Improvement-driven house rules remain unported (~12 more flags on `CharacterOptions`).
 
 ## Output / tooling
 

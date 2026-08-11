@@ -34,7 +34,7 @@ public partial class CyberwareSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new CyberwareDialog(blnBioware);
+        var dialog = new CyberwareDialog(_character, blnBioware);
         bool added = await dialog.ShowDialog<bool>(window);
         if (added && dialog.SelectedCyberware != null)
         {

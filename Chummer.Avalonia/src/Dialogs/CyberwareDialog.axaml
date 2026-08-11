@@ -36,6 +36,10 @@
                                           IsVisible="{Binding SelectedCyberware.HasRating}" Width="90" HorizontalAlignment="Left" />
                 <TextBlock Text="Essenz:" FontWeight="Bold" />
                 <TextBlock Text="{Binding FinalEssence}" />
+                <TextBlock Text="Essenzrabatt (%):" FontWeight="Bold" IsVisible="{Binding AllowEssenceDiscount}" />
+                <controls:IntegerSpinner Value="{Binding EssenceDiscountPercent, Mode=TwoWay}"
+                                          Minimum="0" Maximum="100"
+                                          IsVisible="{Binding AllowEssenceDiscount}" Width="90" HorizontalAlignment="Left" />
                 <TextBlock Text="Kapazität:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedCyberware.Capacity, TargetNullValue=–}" />
                 <TextBlock Text="Verfügbarkeit:" FontWeight="Bold" />
