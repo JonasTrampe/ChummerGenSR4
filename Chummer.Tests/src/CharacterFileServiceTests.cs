@@ -382,7 +382,7 @@ public class CharacterFileServiceTests
         Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
 
         // "Weapon Cost * Rating" with the weapon's own cost (350) at rating 2 -> 700.
-        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "2", "0", "Weapon Cost * Rating", "SR4", "148"));
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "2", "1", "0", "Weapon Cost * Rating", "SR4", "148"));
         CharacterTreeItemData weapon = character.WeaponTrees.Single();
         CharacterTreeItemData mod = Assert.Single(weapon.Children);
         Assert.Equal("Custom Look", mod.Name);

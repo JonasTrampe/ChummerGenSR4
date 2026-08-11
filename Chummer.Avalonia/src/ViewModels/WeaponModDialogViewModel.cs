@@ -50,7 +50,8 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
                     continue;
 
                 _allOptions.Add(new WeaponModOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
-                    node["rating"]?.InnerText ?? "0", node["avail"]?.InnerText ?? string.Empty,
+                    node["rating"]?.InnerText ?? "0", node["slots"]?.InnerText ?? "0",
+                    node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,
                     node["page"]?.InnerText ?? string.Empty));
             }
@@ -79,12 +80,13 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
 
 public sealed class WeaponModOptionViewModel
 {
-    public WeaponModOptionViewModel(string name, string category, string defaultRating, string availability,
-        string cost, string source, string page)
+    public WeaponModOptionViewModel(string name, string category, string defaultRating, string slots,
+        string availability, string cost, string source, string page)
     {
         Name = name;
         Category = category;
         DefaultRating = decimal.TryParse(defaultRating, NumberStyles.Number, CultureInfo.InvariantCulture, out var rating) ? rating : 0;
+        Slots = slots;
         Availability = availability;
         Cost = cost;
         Source = source;
@@ -95,6 +97,7 @@ public sealed class WeaponModOptionViewModel
     public string Name { get; }
     public string Category { get; }
     public decimal DefaultRating { get; }
+    public string Slots { get; }
     public string Availability { get; }
     public string Cost { get; }
     public string Source { get; }

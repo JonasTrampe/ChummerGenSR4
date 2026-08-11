@@ -1613,9 +1613,8 @@ namespace Chummer.Core
             => Document.SelectSingleNode($"/character/weapons/weapon[guid = '{guiWeaponId}']");
 
         /// <summary>Adds a Weapon Accessory (ported from clsEquipment.cs's WeaponAccessory.Save) to
-        /// a root-level weapon, deducting its cost. Mount-slot eligibility (accessory's allowed
-        /// mounts vs. the weapon's free mounts) isn't validated - same scoped-down treatment as the
-        /// other picker dialogs in this port.</summary>
+        /// a root-level weapon, deducting its cost. Rejects if the weapon's mount-slot eligibility
+        /// check (<see cref="WeaponAllowsAccessoryMount"/>) fails.</summary>
         public bool AddWeaponAccessory(Guid guiWeaponId, string strName, string strMount, string strRc,
             string strAvail, string strCost, string strSource, string strPage)
         {
@@ -1624,7 +1623,7 @@ namespace Chummer.Core
 
             XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
             XmlNode? objAccessories = objWeapon?.SelectSingleNode("accessories");
-            if (objAccessories == null)
+            if (objWeapon == null || objAccessories == null || !WeaponAllowsAccessoryMount(objWeapon, strMount))
                 return false;
 
             var objAccessory = Document.CreateElement("accessory");
@@ -1655,27 +1654,64 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Ported from frmCareer.cs's tsWeaponAddAccessory_Click's mount-list check: looks
+        /// up the weapon's own rules-data entry in weapons.xml for &lt;allowaccessory&gt; and its
+        /// &lt;accessorymounts&gt; list, and requires the accessory's own (possibly "/"-separated)
+        /// mount to intersect with it. An accessory with an empty mount is always allowed (matches
+        /// legacy's "mount = ''" fallback in its own picker filter). Doesn't enforce exclusivity
+        /// between multiple accessories sharing the same mount - legacy doesn't either.</summary>
+        private static bool WeaponAllowsAccessoryMount(XmlNode objWeapon, string strAccessoryMount)
+        {
+            string strWeaponName = GetValue(objWeapon, "name", string.Empty);
+            XmlDocument objWeaponsDoc = XmlManager.Instance.Load("weapons.xml");
+            XmlNode? objXmlWeapon = objWeaponsDoc.SelectSingleNode(
+                $"/chummer/weapons/weapon[name = '{strWeaponName}']");
+            if (objXmlWeapon == null)
+                return true; // Unknown to rules data (e.g. a hand-entered weapon) - don't block it.
+
+            if (string.Equals(GetValue(objXmlWeapon, "allowaccessory", "True"), "False",
+                    StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(strAccessoryMount))
+                return true;
+
+            var setAllowedMounts = new HashSet<string>(StringComparer.Ordinal);
+            XmlNodeList? objMountNodes = objXmlWeapon.SelectNodes("accessorymounts/mount");
+            if (objMountNodes != null)
+                foreach (XmlNode objMountNode in objMountNodes)
+                    setAllowedMounts.Add(objMountNode.InnerText);
+
+            return strAccessoryMount.Split('/').Any(setAllowedMounts.Contains);
+        }
+
         /// <summary>Adds a Weapon Modification (ported from clsEquipment.cs's WeaponMod.Save) to a
         /// root-level weapon, deducting its cost - <paramref name="strCost"/> may reference "Weapon
         /// Cost" (substituted with the weapon's own saved cost, matching clsEquipment.cs's mod cost
-        /// formulas) and/or "Rating" (substituted by <see cref="RatingExpression"/>). Slot capacity
-        /// against the weapon's own accessory mounts isn't validated - same scoped-down treatment as
-        /// the other picker dialogs in this port.</summary>
-        public bool AddWeaponMod(Guid guiWeaponId, string strName, string strRating, string strAvail,
-            string strCost, string strSource, string strPage)
+        /// formulas) and/or "Rating" (substituted by <see cref="RatingExpression"/>). Ported from
+        /// frmCareer.cs's tsWeaponAddModification_Click: rejects if the weapon's own rules-data
+        /// entry sets &lt;allowmod&gt; to false, and - when EnforceCapacity is on - rejects if
+        /// installed non-included mods' slots plus this one would exceed the fixed 6-slot cap every
+        /// weapon has (clsEquipment.cs's Weapon.SlotsRemaining hardcodes this as a constant, not a
+        /// per-weapon data field).</summary>
+        public bool AddWeaponMod(Guid guiWeaponId, string strName, string strRating, string strSlots,
+            string strAvail, string strCost, string strSource, string strPage)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A weapon mod name is required.", nameof(strName));
 
             XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
             XmlNode? objMods = objWeapon?.SelectSingleNode("weaponmods");
-            if (objWeapon == null || objMods == null)
+            if (objWeapon == null || objMods == null || !WeaponAllowsMods(objWeapon))
+                return false;
+            if (GetCharacterOptions().EnforceCapacity && !WeaponHasModSlotsAvailable(objWeapon, strSlots))
                 return false;
 
             var objMod = Document.CreateElement("weaponmod");
             AppendElement(objMod, "guid", Guid.NewGuid().ToString());
             AppendElement(objMod, "name", strName.Trim());
             AppendElement(objMod, "rating", strRating);
+            AppendElement(objMod, "slots", strSlots);
             AppendElement(objMod, "avail", strAvail);
             AppendElement(objMod, "cost", strCost);
             AppendElement(objMod, "included", "False");
@@ -1689,6 +1725,33 @@ namespace Chummer.Core
                 strRating, "1");
             Changed?.Invoke();
             return true;
+        }
+
+        private static bool WeaponAllowsMods(XmlNode objWeapon)
+        {
+            string strWeaponName = GetValue(objWeapon, "name", string.Empty);
+            XmlDocument objWeaponsDoc = XmlManager.Instance.Load("weapons.xml");
+            XmlNode? objXmlWeapon = objWeaponsDoc.SelectSingleNode(
+                $"/chummer/weapons/weapon[name = '{strWeaponName}']");
+            return objXmlWeapon == null || !string.Equals(GetValue(objXmlWeapon, "allowmod", "True"), "False",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool WeaponHasModSlotsAvailable(XmlNode objWeapon, string strNewSlots)
+        {
+            const int intMaxSlots = 6;
+            double dblUsed = 0;
+            XmlNodeList? objModNodes = objWeapon.SelectNodes("weaponmods/weaponmod");
+            if (objModNodes != null)
+                foreach (XmlNode objModNode in objModNodes)
+                    if (GetValue(objModNode, "included", "False") != "True"
+                        && double.TryParse(GetValue(objModNode, "slots", "0"), NumberStyles.Float,
+                            CultureInfo.InvariantCulture, out var dblSlots))
+                        dblUsed += dblSlots;
+
+            double dblNew = double.TryParse(strNewSlots, NumberStyles.Float, CultureInfo.InvariantCulture,
+                out var dblParsedNew) ? dblParsedNew : 0;
+            return dblUsed + dblNew <= intMaxSlots;
         }
 
         public bool RemoveWeaponMod(Guid guiWeaponId, Guid guiModId)

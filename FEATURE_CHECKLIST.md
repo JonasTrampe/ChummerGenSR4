@@ -164,9 +164,16 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   ContactConnection (the last of these isn't a standard "pick an item" flow - it's
   `ContactGroupDialog`'s Group Network rating calculator: Membership/Area of Influence/Magical/
   Matrix Resources + group name/colour/free flag, wired to `UpdateContactGroup`). The
-  implementations remain deliberately scoped (for example, no mount-slot eligibility validation
-  for Weapon Accessories/Mods, no advanced lifestyle construction, and Metamagic/Adept
-  Power/CritterPower/ComplexForm additions don't apply their rules-data Improvement bonuses).
+  implementations remain deliberately scoped (for example, no advanced lifestyle construction, and
+  Metamagic/Adept Power/CritterPower/ComplexForm additions don't apply their rules-data Improvement
+  bonuses). Weapon Accessory/Mod additions now validate mount-slot eligibility, ported from
+  `frmCareer.cs`'s `tsWeaponAddAccessory_Click`/`tsWeaponAddModification_Click`: accessories are
+  rejected unless the weapon's `weapons.xml` entry allows accessories and lists a matching
+  `<accessorymounts><mount>`, and mods are rejected if the weapon disallows mods, or - under the
+  EnforceCapacity house rule - if installed mods' slots plus the new one would exceed the fixed
+  6-slot cap every weapon has (`clsEquipment.cs`'s `Weapon.SlotsRemaining` hardcodes this as a
+  constant, not a per-weapon data field). Neither check enforces exclusivity between multiple
+  accessories/mods sharing the same mount, matching legacy.
 - ❌ The remaining pickers (Skill beyond exotic skills — active/knowledge skills come from a fixed
   list plus freeform knowledge-skill entries, so no picker is actually needed there — and others)
   don't exist yet.

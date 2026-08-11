@@ -233,7 +233,7 @@ public partial class GearSectionTab : UserControl
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedMod is not { } mod) return;
         if (_character.AddWeaponMod(guiWeaponId, mod.Name, dialog.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                mod.Availability, mod.Cost, mod.Source, mod.Page))
+                mod.Slots, mod.Availability, mod.Cost, mod.Source, mod.Page))
             ViewModel.LoadCharacter(_character);
     }
 
