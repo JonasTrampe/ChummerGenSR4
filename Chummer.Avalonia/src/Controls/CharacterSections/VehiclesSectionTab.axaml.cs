@@ -131,6 +131,16 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnAssignVehicleGearLocationClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: { } vehicle } selected
+            || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
+            || !Guid.TryParse(selected.ItemGuid, out Guid guiGearId))
+            return;
+        if (_character.AssignVehicleGearLocation(guiVehicleId, guiGearId, ViewModel.SelectedVehicleLocation ?? string.Empty))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnDamageVehicleClick(object? sender, RoutedEventArgs e) => AdjustSelectedVehicleDamage(1);
     private void OnRepairVehicleClick(object? sender, RoutedEventArgs e) => AdjustSelectedVehicleDamage(-1);
 

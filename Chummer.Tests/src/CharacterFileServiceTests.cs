@@ -1781,6 +1781,35 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AssignVehicleGearLocation_MovesGearIntoAndOutOfANamedLocation()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle><guid>" + vehicleId
+            + "</guid><name>Americar</name><category>Cars</category></vehicle></vehicles></character>");
+        Assert.True(character.AddVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.True(character.AddVehicleGear(vehicleId, "Fake SIN", "Fake Identification"));
+
+        CharacterTreeItemData gear = Assert.Single(character.Vehicles.Single().Children);
+        Assert.Equal(string.Empty, gear.Location);
+        Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
+
+        // Assigning to a location that doesn't exist on the vehicle is rejected.
+        Assert.False(character.AssignVehicleGearLocation(vehicleId, gearId, "Kein Ort"));
+
+        Assert.True(character.AssignVehicleGearLocation(vehicleId, gearId, "Kofferraum"));
+        Assert.Equal("Kofferraum", character.Vehicles.Single().Children.Single().Location);
+
+        // Removing the location clears the assignment from the gear that referenced it.
+        Assert.True(character.RemoveVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.Equal(string.Empty, character.Vehicles.Single().Children.Single().Location);
+
+        Assert.True(character.AddVehicleLocation(vehicleId, "Kofferraum"));
+        Assert.True(character.AssignVehicleGearLocation(vehicleId, gearId, "Kofferraum"));
+        Assert.True(character.AssignVehicleGearLocation(vehicleId, gearId, string.Empty));
+        Assert.Equal(string.Empty, character.Vehicles.Single().Children.Single().Location);
+    }
+
+    [Fact]
     public void ArmorSets_CanBeCreatedAssignedAndDissolved()
     {
         CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");

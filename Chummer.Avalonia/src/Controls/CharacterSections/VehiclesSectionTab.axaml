@@ -63,6 +63,12 @@
                         <ComboBox Grid.Column="1" ItemsSource="{Binding SelectedVehicle.VehicleLocations}"
                                   SelectedItem="{Binding SelectedVehicleLocation, Mode=TwoWay}" />
                     </Grid>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Text="Ausrüstung-Ort:" Width="130" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Location, TargetNullValue=(keiner)}" VerticalAlignment="Center" />
+                        <Button Grid.Column="2" Content="Zuweisen" Click="OnAssignVehicleGearLocationClick"
+                                ToolTip.Tip="Weist das ausgewählte Bordausrüstungs-Objekt dem oben gewählten Ort zu (leere Auswahl entfernt die Zuweisung)." />
+                    </Grid>
                     <Separator Margin="0,2" />
                     <Grid ColumnDefinitions="*,*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />

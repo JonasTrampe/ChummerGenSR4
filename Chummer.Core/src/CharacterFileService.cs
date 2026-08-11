@@ -787,6 +787,10 @@ namespace Chummer.Core
             // immediately recognized by the existing Commlink dropdown/MatrixInitiative calc.
             AppendElement(objGear, "guid", Guid.NewGuid().ToString());
             AppendElement(objGear, "active", "False");
+            // <location> is only meaningful for direct onboard vehicle gear (see
+            // AssignVehicleGearLocation) - always written (harmless elsewhere) to match the
+            // guid/active always-write pattern above.
+            AppendElement(objGear, "location", string.Empty);
             if (!string.IsNullOrEmpty(strResponse)) AppendElement(objGear, "response", strResponse);
             if (!string.IsNullOrEmpty(strSignal)) AppendElement(objGear, "signal", strSignal);
             if (!string.IsNullOrEmpty(strSystemRating)) AppendElement(objGear, "system", strSystemRating);
@@ -1174,6 +1178,26 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Assigns a direct onboard-gear item to one of the vehicle's own named storage
+        /// locations (see <see cref="AddVehicleLocation"/>), or clears it back to unassigned with
+        /// an empty <paramref name="strLocation"/>.</summary>
+        public bool AssignVehicleGearLocation(Guid guiVehicleId, Guid guiGearId, string strLocation)
+        {
+            strLocation = strLocation?.Trim() ?? string.Empty;
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+            if (strLocation.Length > 0 && objVehicle.SelectNodes("locations/location")?.Cast<XmlNode>()
+                    .Any(node => string.Equals(node.InnerText, strLocation, StringComparison.Ordinal)) != true)
+                return false;
+            XmlNode? objGear = objVehicle.SelectSingleNode($"gears/gear[guid = '{guiGearId}']");
+            if (objGear == null)
+                return false;
+            SetChildValue(objGear, "location", strLocation);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Adds a direct vehicle weapon in the legacy Weapon.Save shape. Mount and
         /// vehicle-class eligibility are intentionally handled by a later rules-validation pass.</summary>
         public bool AddVehicleWeapon(Guid guiVehicleId, string strName, string strCategory, string strDamage,
@@ -1270,8 +1294,8 @@ namespace Chummer.Core
             return true;
         }
 
-        /// <summary>Removes a named vehicle location. Items which currently reference that name
-        /// retain their saved value until the assignment workflow is ported.</summary>
+        /// <summary>Removes a named vehicle location, clearing it from any onboard gear that was
+        /// assigned to it (mirrors <see cref="RemoveWeaponLocation"/>).</summary>
         public bool RemoveVehicleLocation(Guid guiVehicleId, string strName)
         {
             XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
@@ -1279,6 +1303,11 @@ namespace Chummer.Core
                 .FirstOrDefault(node => string.Equals(node.InnerText, strName, StringComparison.Ordinal));
             if (objLocation?.ParentNode == null) return false;
             objLocation.ParentNode.RemoveChild(objLocation);
+            XmlNodeList? objGears = objVehicle?.SelectNodes("gears/gear");
+            if (objGears != null)
+                foreach (XmlNode objGear in objGears)
+                    if (string.Equals(GetValue(objGear, "location", string.Empty), strName, StringComparison.Ordinal))
+                        SetChildValue(objGear, "location", string.Empty);
             Changed?.Invoke();
             return true;
         }
@@ -4329,6 +4358,8 @@ namespace Chummer.Core
                     objItem.SetModSlots(GetValue(objNode, "slots", "0"), GetValue(objNode, "included", "False") == "True");
                 if (strFallbackCategory == "Weapon")
                     objItem.IsVehicleWeapon = true;
+                if (strFallbackCategory == "Gear")
+                    objItem.SetLocation(GetValue(objNode, "location", string.Empty));
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("children/gear"), "Gear");
                 AddVehicleChildren(objItem.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
                 lstChildren.Add(objItem);

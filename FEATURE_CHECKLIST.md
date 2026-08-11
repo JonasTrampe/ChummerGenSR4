@@ -61,8 +61,9 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   (including rating), persisted, charged with Body-aware formulas, and removed. Root vehicles support
   persistent physical-damage tracking with add/repair controls. Direct onboard gear can be selected
   from the existing gear picker, persisted, charged, and removed. Direct onboard weapons can likewise
-  be selected, persisted, charged, and removed. Vehicle locations can be created and deleted and
-  are displayed in the detail pane; assigning existing onboard gear to locations remains open.
+  be selected, persisted, charged, and removed. Vehicle locations can be created and deleted, are
+  displayed in the detail pane, and existing onboard gear can be assigned to (or cleared from) a
+  location via a "Zuweisen" button (mirrors the existing Weapon-location assignment pattern).
   Drones, weapon-mount and mod eligibility/slot validation, and rules-data-derived totals remain unported.
 - ✅ Charakter-Information — text fields and profile counters load, edit, and save back into the
   character file
