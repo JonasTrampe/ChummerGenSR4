@@ -120,6 +120,28 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_AnalyticalMind_AppliesItsSpecificSkillBonuses()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Analytical Mind", "Positive");
+
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Data Search"));
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Software"));
+        Assert.Equal(2, character.Improvements.Count(i => i.SourceName == "Analytical Mind"));
+    }
+
+    [Fact]
+    public void RemoveQuality_AnalyticalMind_RemovesItsBonusImprovements()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Analytical Mind", "Positive");
+
+        Assert.True(character.RemoveQuality("Analytical Mind", "Positive"));
+
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void AddSpell_MutatesCharacterAndPersistsRuleFields()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -625,6 +647,19 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberware_WiredReflexes_AppliesInitiativePassAndReaBonusesScaledByRating()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCyberware("Wired Reflexes", "Bodyware", "2", "3", "32000", "12R", "SR4", "342");
+
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.InitiativePass));
+        Assert.Equal(2, ImprovementManager.AugmentedValueOf(character.Improvements, ImprovementType.Attribute, "REA"));
+
+        Assert.True(character.RemoveCyberware("Wired Reflexes", "Bodyware", "2"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void AddCyberware_Bioware_GoesIntoTheBiowareTreeNotCyberware()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -896,6 +931,16 @@ public class CharacterFileServiceTests
         stream.Position = 0;
         CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
         Assert.Equal("Improved Reflexes", Assert.Single(reloaded.AdeptPowers).Name);
+    }
+
+    [Fact]
+    public void AddAdeptPower_ImprovedReflexes2_AppliesInitiativePassAndReaAttributeBonuses()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddAdeptPower("Improved Reflexes 2", "1", "2.5");
+
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.InitiativePass));
+        Assert.Equal(2, ImprovementManager.AugmentedValueOf(character.Improvements, ImprovementType.Attribute, "REA"));
     }
 
     [Fact]

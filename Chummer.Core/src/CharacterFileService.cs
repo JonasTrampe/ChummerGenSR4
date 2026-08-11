@@ -738,6 +738,9 @@ namespace Chummer.Core
         /// chosen name, optional selection detail, and positive/negative category. Because this
         /// mutates the backing document, <see cref="CharacterFileService.Save"/> persists it.
         /// </summary>
+        /// <summary>Ported from frmSelectQuality.cs's cmdOK_Click/clsQuality.Create: also applies
+        /// the quality's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>), matching
+        /// legacy's CreateImprovements call on add.</summary>
         public void AddQuality(string strName, string strType, string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -759,9 +762,15 @@ namespace Chummer.Core
             AppendElement(objQuality, "extra", strExtra.Trim());
             AppendElement(objQuality, "qualitytype", strType);
             objQualities.AppendChild(objQuality);
+
+            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
+            XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
+                $"/chummer/qualities/quality[name = '{strName.Trim()}']");
+            ApplyBonus(objXmlQuality?.SelectSingleNode("bonus"), ImprovementSource.Quality, strName.Trim());
         }
 
-        /// <summary>Removes the first saved quality matching its name, type, and optional detail.</summary>
+        /// <summary>Removes the first saved quality matching its name, type, and optional detail,
+        /// along with any Improvements its own &lt;bonus&gt; block granted on add.</summary>
         public bool RemoveQuality(string strName, string strType, string strExtra = "")
         {
             var objNodes = Document.SelectNodes("/character/qualities/quality");
@@ -776,6 +785,7 @@ namespace Chummer.Core
                     continue;
 
                 objQuality.ParentNode?.RemoveChild(objQuality);
+                RemoveBonusImprovements(ImprovementSource.Quality, strName);
                 return true;
             }
 
@@ -1209,11 +1219,19 @@ namespace Chummer.Core
             AppendElement(objCyberware, "equipped", "True");
             objCyberware.AppendChild(Document.CreateElement("children"));
             objCyberwares.AppendChild(objCyberware);
+
+            XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            XmlNode? objXmlWare = objWareDoc.SelectSingleNode(
+                $"/chummer/{(blnBioware ? "biowares/bioware" : "cyberwares/cyberware")}[name = '{strName.Trim()}']");
+            ApplyBonus(objXmlWare?.SelectSingleNode("bonus"),
+                blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware, strName.Trim(), strRating);
+
             Changed?.Invoke();
         }
 
         /// <summary>Removes the first root-level saved Cyberware/Bioware item matching its
-        /// name/category/rating and Cyberware-vs-Bioware source.</summary>
+        /// name/category/rating and Cyberware-vs-Bioware source, along with any Improvements its
+        /// own &lt;bonus&gt; block granted on add.</summary>
         public bool RemoveCyberware(string strName, string strCategory, string strRating, bool blnBioware = false)
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -1233,6 +1251,7 @@ namespace Chummer.Core
                     continue;
 
                 objCyberware.ParentNode?.RemoveChild(objCyberware);
+                RemoveBonusImprovements(blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware, strName.Trim());
                 Changed?.Invoke();
                 return true;
             }
@@ -2030,6 +2049,69 @@ namespace Chummer.Core
             var objElement = Document.CreateElement(strName);
             objElement.InnerText = strValue;
             objParent.AppendChild(objElement);
+        }
+
+        /// <summary>Resolves <paramref name="nodBonus"/> via <see cref="BonusApplier"/> and persists
+        /// each resulting effect as an &lt;improvement&gt; element, in the shape <see
+        /// cref="Improvement.Load"/> expects. Ported from clsImprovement.cs's CreateImprovements
+        /// (only the non-interactive subset BonusApplier covers) plus CreateImprovement's actual
+        /// XML write. Does not fire <see cref="Changed"/> itself - callers already do that for the
+        /// item being added.</summary>
+        private void ApplyBonus(XmlNode? nodBonus, ImprovementSource eSource, string strSourceName,
+            string strRating = "1", string strUnique = "")
+        {
+            IReadOnlyList<ImprovementSpec> lstSpecs = BonusApplier.Parse(nodBonus, strRating, strUnique);
+            if (lstSpecs.Count == 0)
+                return;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objImprovements = objRoot.SelectSingleNode("improvements") as XmlElement;
+            if (objImprovements == null)
+            {
+                objImprovements = Document.CreateElement("improvements");
+                objRoot.AppendChild(objImprovements);
+            }
+
+            foreach (ImprovementSpec objSpec in lstSpecs)
+            {
+                var objImprovement = Document.CreateElement("improvement");
+                AppendElement(objImprovement, "improvementttype", objSpec.Type.ToString());
+                AppendElement(objImprovement, "improvedname", objSpec.ImprovedName);
+                AppendElement(objImprovement, "sourcename", strSourceName);
+                AppendElement(objImprovement, "min", objSpec.Minimum.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "max", objSpec.Maximum.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "aug", objSpec.Augmented.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "augmax", objSpec.AugmentedMaximum.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "val", objSpec.Value.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "rating", objSpec.Rating.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objImprovement, "unique", objSpec.UniqueName);
+                AppendElement(objImprovement, "improvementsource", eSource.ToString());
+                AppendElement(objImprovement, "addtorating", objSpec.AddToRating.ToString());
+                AppendElement(objImprovement, "enabled", "True");
+                AppendElement(objImprovement, "custom", "False");
+                objImprovements.AppendChild(objImprovement);
+            }
+        }
+
+        /// <summary>Removes every &lt;improvement&gt; sharing <paramref name="eSource"/> and
+        /// <paramref name="strSourceName"/> - ported from clsImprovement.cs's
+        /// RemoveImprovements(source, sourceName), used when the item that granted a bonus (a
+        /// Quality, Adept Power, etc.) is itself removed.</summary>
+        private void RemoveBonusImprovements(ImprovementSource eSource, string strSourceName)
+        {
+            var objNodes = Document.SelectNodes("/character/improvements/improvement");
+            if (objNodes == null)
+                return;
+
+            foreach (XmlNode objNode in objNodes.Cast<XmlNode>().ToList())
+            {
+                if (GetValue(objNode, "improvementsource", string.Empty) != eSource.ToString()
+                    || GetValue(objNode, "sourcename", string.Empty) != strSourceName)
+                    continue;
+
+                objNode.ParentNode?.RemoveChild(objNode);
+            }
         }
 
         /// <summary>Fires whenever a root-level value (Karma, Bp, Nuyen, ...) changes, so a host
@@ -3208,7 +3290,11 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
 
-        /// <summary>Ported from frmSelectPower.cs's cmdOK_Click.</summary>
+        /// <summary>Ported from frmSelectPower.cs's cmdOK_Click. Also applies the power's own
+        /// rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>) at the power's Rating,
+        /// matching legacy's CreateImprovements call on add. Note: &lt;selectsenseware&gt; (Improved
+        /// Sense) isn't a <see cref="BonusApplier"/>-covered node - see <see
+        /// cref="AddImprovedSensePower"/> for that dedicated flow.</summary>
         public void AddAdeptPower(string strName, string strRating, string strPointsPerLevel)
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -3231,6 +3317,11 @@ namespace Chummer.Core
             AppendElement(objPower, "discounted", "False");
             AppendElement(objPower, "discountedgeas", "False");
             objPowers.AppendChild(objPower);
+
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("powers.xml");
+            XmlNode? objXmlPower = objPowersDoc.SelectSingleNode($"/chummer/powers/power[name = '{strName.Trim()}']");
+            ApplyBonus(objXmlPower?.SelectSingleNode("bonus"), ImprovementSource.Power, strName.Trim(), strRating);
+
             Changed?.Invoke();
         }
 
@@ -3250,6 +3341,7 @@ namespace Chummer.Core
                     continue;
 
                 objPower.ParentNode?.RemoveChild(objPower);
+                RemoveBonusImprovements(ImprovementSource.Power, strName.Trim());
                 Changed?.Invoke();
                 return true;
             }
@@ -3574,9 +3666,8 @@ namespace Chummer.Core
             return false;
         }
 
-        /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, simplified to skip the
-        /// &lt;bonus&gt; Improvement-creation path (matches how AddCyberware/AddQuality etc. don't
-        /// apply their rules-data bonuses either in this port yet).</summary>
+        /// <summary>Ported from clsUnique.cs's Metamagic.Create/Save, also applying the
+        /// metamagic's own rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>).</summary>
         public void AddMetamagic(string strName, string strSource, string strPage)
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -3599,6 +3690,12 @@ namespace Chummer.Core
             AppendElement(objMetamagic, "page", strPage);
             AppendElement(objMetamagic, "improvementsource", "Metamagic");
             objMetamagics.AppendChild(objMetamagic);
+
+            XmlDocument objMetamagicsDoc = XmlManager.Instance.Load("metamagic.xml");
+            XmlNode? objXmlMetamagic = objMetamagicsDoc.SelectSingleNode(
+                $"/chummer/metamagics/metamagic[name = '{strName.Trim()}']");
+            ApplyBonus(objXmlMetamagic?.SelectSingleNode("bonus"), ImprovementSource.Metamagic, strName.Trim());
+
             Changed?.Invoke();
         }
 
@@ -3616,7 +3713,9 @@ namespace Chummer.Core
                 if (!string.Equals(GetValue(objMetamagic, "guid", string.Empty), strGuid, StringComparison.Ordinal))
                     continue;
 
+                string strName = GetValue(objMetamagic, "name", string.Empty);
                 objMetamagic.ParentNode?.RemoveChild(objMetamagic);
+                RemoveBonusImprovements(ImprovementSource.Metamagic, strName);
                 Changed?.Invoke();
                 return true;
             }

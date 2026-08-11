@@ -85,8 +85,8 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
 - ✅ Initiation (grades list, and raising the Initiate/Submersion Grade now works too - ported
   from frmCareer.cs's cmdImproveInitiation_Click, including the Group/Ordeal -20% cost discounts
   and the MAG/RES attribute cap; not ported: the MAG-boosting Improvement and the Metamagic
-  Improvement refresh legacy also does on raise, since neither Metamagic nor Improvement creation
-  apply rules-data bonuses anywhere in this port yet)
+  Improvement refresh legacy also does on raise - see the bonus-application engine note below for
+  what's now covered vs. not)
 - ✅ Cyberware und Bioware
 - ✅ Straßenausrüstung → Lebensstil (Auswahl, Hinzufügen/Löschen und Monatskosten), Panzerung
   (inkl. gespeicherter Mods und persistenter Sets, die angelegt, zugeordnet und aufgelöst werden
@@ -175,9 +175,11 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   ContactConnection (the last of these isn't a standard "pick an item" flow - it's
   `ContactGroupDialog`'s Group Network rating calculator: Membership/Area of Influence/Magical/
   Matrix Resources + group name/colour/free flag, wired to `UpdateContactGroup`). The
-  implementations remain deliberately scoped (for example, no advanced lifestyle construction, and
-  Metamagic/Adept Power/CritterPower/ComplexForm additions don't apply their rules-data Improvement
-  bonuses). Weapon Accessory/Mod additions now validate mount-slot eligibility, ported from
+  implementations remain deliberately scoped (for example, no advanced lifestyle construction).
+  Quality/Adept Power/Metamagic/Cyberware/Bioware additions now apply their rules-data
+  `<bonus>` Improvements (CritterPower/ComplexForm additions still don't - see the
+  bonus-application engine note below). Weapon Accessory/Mod additions now validate mount-slot
+  eligibility, ported from
   `frmCareer.cs`'s `tsWeaponAddAccessory_Click`/`tsWeaponAddModification_Click`: accessories are
   rejected unless the weapon's `weapons.xml` entry allows accessories and lists a matching
   `<accessorymounts><mount>`, and mods are rejected if the weapon disallows mods, or - under the
@@ -278,12 +280,38 @@ Legend: ✅ done · 🟡 partial (real but scoped down or read-only) · ❌ not 
   simplified: legacy blocks loading Stick-n-Shock ammo into one specific excluded-category weapon,
   but this port's Gear tree has no concept of which weapon an ammo item is loaded into, so `AddGear`
   instead blocks acquiring "Ammo: Stick-n-Shock" at all when the character owns no weapon outside
-  the excluded categories to use it with. `ImprovedSenseFullRating` remains unported: it needs a
-  generic rules-bonus-application engine (parsing an arbitrary `<bonus>` XML node from
-  cyberware/bioware/gear data into live Improvements) that doesn't exist anywhere in this port yet
-  - `ImprovementManager` here is query-only (sums already-persisted `<improvement>` elements), not
-  a creation engine like legacy's `clsImprovement.CreateImprovements`. Building that is a
-  significant standalone feature in its own right, not a house-rule-flag-sized change.
+  the excluded categories to use it with.
+
+## Bonus-application engine (`clsImprovement.CreateImprovements` equivalent)
+
+- 🟡 `BonusApplier` (`Chummer.Core/src/BonusApplier.cs`) is a new, from-scratch port of the
+  non-interactive subset of clsImprovement.cs's `CreateImprovements`: given a rules-data
+  `<bonus>` XML node, it resolves the tier-1 node types actually used across this port's own
+  qualities/powers/cyberware/bioware/metamagic data - `specificattribute` (incl. the ESS special
+  case), `specificskill`, `skillcategory`/`skillgroup`/`skillattribute`, `conditionmonitor`,
+  `armor`, `reach`, `unarmeddv`/`unarmedap`, `initiative`/`initiativepass`, `lifestylecost`, and
+  `notoriety` - into `ImprovementSpec` records. `CharacterFileService.ApplyBonus` then persists
+  those as `<improvement>` elements (reusing the already-ported rating/attribute expression
+  evaluator, `RatingExpression`, for legacy's `ValueToInt`), and `RemoveBonusImprovements` cleans
+  them up again when the granting item is removed. Wired into `AddQuality`/`RemoveQuality`,
+  `AddAdeptPower`/`RemoveAdeptPower`, `AddCyberware`/`RemoveCyberware` (both Cyberware and
+  Bioware), and `AddMetamagic`/`RemoveMetamagic`. Verified end-to-end against real data: Analytical
+  Mind's Skill bonuses, Improved Reflexes 2's InitiativePass/REA bonuses (with its `precedence`
+  attribute), and Wired Reflexes' Rating-scaled InitiativePass/REA bonuses (including cleanup on
+  removal).
+  Deliberately NOT covered, matching how the tier-1 scope was chosen (frequency-ranked against this
+  port's own data, not an exhaustive port of legacy's ~109-branch if-chain):
+  - Any `<select*>` node (`selecttext`, `selectskill`, `selectattribute`, `selectsenseware`, ...) -
+    these need a player-facing picker ("Selectable Improvement" flow), which is a separate,
+    not-yet-built system.
+  - CritterPower/ComplexForm additions still don't call `ApplyBonus` (most CritterPower/ComplexForm
+    entries in this port's data don't carry bonus-relevant `<bonus>` content beyond
+    selectables/effects out of tier-1 scope; revisit if a real gap surfaces).
+  - The Metamagic Improvement refresh on Initiation Grade raise (legacy re-runs
+    `CreateImprovements` on every owned Metamagic each time Grade increases) still isn't ported.
+  - `ImprovedSenseFullRating`/`selectsenseware` specifically (the original trigger for building
+    this engine) still needs its own dedicated picker+apply flow built on top of `BonusApplier` -
+    not yet done.
 
 ## Output / tooling
 
