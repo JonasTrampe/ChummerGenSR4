@@ -80,6 +80,40 @@ context on each.
 
 **House rules**
 - [x] `AllowExceedAttributeBp` — done, see § House-rule awareness in calculations.
+- [ ] `MultiplyRestrictedCost`/`MultiplyForbiddenCost` — the toggle exists in
+  `HouseRulesOptionsTab` and persists, but no purchase flow anywhere (`AddGear`, `AddWeapon`,
+  `AddArmor`, `AddCyberware`, `AddNexus`, ...) actually multiplies cost for Restricted/Forbidden-
+  Availability items by `RestrictedCostMultiplier`/`ForbiddenCostMultiplier` when the house rule
+  is on - legacy applies this in every single Add-item handler (e.g. `tsGearAddNexus_Click`).
+  Real gap, not a simplification note anywhere yet.
+- [ ] Print-output house rules not honored by `CharacterSheetExporter` - `PrintArcanaAlternates`,
+  `PrintExpenses`, `PrintLeadershipAlternates`, `PrintNotes`, `PrintSkillsWithZeroRating` all
+  exist as settable/persisted options but the exporter doesn't branch on any of them, so sheet
+  output is always the same regardless of these toggles.
+- [ ] Broader house-rule audit: every `bool` in `Options.cs`/`CharacterOptions` was checked for a
+  real consumer. Beyond the two rows above, these have a working UI checkbox and persist, but no
+  calculation anywhere reads them yet (not yet even scoped/documented as partial, unlike the
+  house rules in § House-rule awareness in calculations, which HAVE been individually audited and
+  wired): `AllowBiowareSuites`, `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`,
+  `AllowHigherStackedFoci`, `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`,
+  `AlternateComplexFormCost`, `AlternateMatrixAttribute`, `ArmorDegradation`,
+  `ArmorSuitCapacity`, `BreakSkillGroupsInCreateMode`, `CalculateCommlinkResponse`,
+  `ErgonomicProgramLimit`, `ExceedNegativeQualities`/`ExceedNegativeQualitiesLimit`/
+  `ExceedPositiveQualities`, `ExtendAnyDetectionSpell`, `FreeKarmaKnowledge`,
+  `MaximumArmorModifications`, `MetatypeCostsKarma`, `MoreLethalGameplay` (combat-tracker
+  adjacent, low priority - see the Sell Item/Reload note below), `RestrictRecoil`/
+  `StrengthAffectsRecoil` (same, combat-tracker adjacent), `SpecialAttributeKarmaLimit` (the
+  `AllowExceedAttributeBp` sub-rule already flagged as not-ported in that row's own note),
+  `SpiritForceBasedOnTotalMag`, `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`,
+  `UnrestrictedNuyen`, `SpecialKarmaCostBasedOnShownValue`. Each needs its own small
+  investigation (real-data frequency + what calculation it should gate) the same way the already-
+  wired house rules got, rather than a blanket implementation pass. Not included here: app-
+  behavior toggles that aren't character-calculation house rules at all (`ConfirmDelete`,
+  `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,
+  `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
+  `OmaeAutoLogin`, `PrintToFileFirst`, `SingleDiceRoller`, `StartupFullscreen`,
+  `SuppressCloudUnreachableWarning`) - those belong with their respective UI/session features,
+  not this list.
 
 **Item picker dialogs**
 - [x] Audit legacy's `frmSelectXxx` files against what's ported here — done. Of the ~39 distinct
@@ -225,6 +259,34 @@ context on each.
     Qualities per category, not one Quality with a category picker); the only real caller is the
     Manual Improvement Creator (`frmCreateImprovement.cs`), which is its own already-flagged
     large backlog item below. Nothing to build here until that item is tackled.
+
+**Small self-contained tools** (found via a fresh audit of all 70 legacy `frm*.cs` forms against
+what's ported, not previously tracked anywhere in this file)
+- [ ] `frmSellItem` (~45 lines) — career-mode "remove an item and receive back X% of its value in
+  Nuyen." This port currently only has plain removal (no refund) for every item type.
+- [ ] `frmCreateSpell` (867 lines) — player-facing tool to homebrew a new Spell by combining
+  rules-data building blocks (type/range/duration/damage formula) instead of picking one from
+  `spells.xml`. Sizable feature, similar in spirit to `AddNexus`/`AddAdvancedLifestyle` but
+  bigger.
+- [ ] `frmNaturalWeapon` (176 lines) — small tool to manually define a Weapon (name, associated
+  Combat Active skill, DV base/type) for adept/critter natural weapons not in `weapons.xml`.
+  Self-contained, no rules-data lookup needed.
+- [ ] `frmPrintMultiple` — batch-loads several `.chum` files and renders them together into one
+  combined sheet. `SheetPreviewDialog` only handles one character at a time. Niche (GM tooling).
+- [ ] `data/export/Squad Manager.xsl` — a second XSLT export pipeline separate from
+  `data/sheets/` (`frmExport.cs`), currently completely unreachable from any UI in this port.
+  Low value (one template) but literally dead data right now.
+- [ ] `frmCreateCyberwareSuite`/`frmCreatePACKSKit` — save-your-own-loadout-as-a-reusable-template
+  authoring tools (the inverse of `AddCyberwareSuite`/`AddPacksKit`, which only consume existing
+  templates). Power-user data authoring, not core gameplay - low priority.
+- [ ] `frmReload` — tracks which specific ammo Gear item is currently "loaded" into a weapon,
+  consuming its quantity on use. This port has no combat-tracker concept at all (matches the
+  already-documented gap on loaded-ammo weapon dice pool bonuses in § Bonus-application engine),
+  so this is part of that same architectural boundary, not an isolated miss - low priority unless
+  a combat tracker gets built.
+- [~] `frmDiceHits`/Cyberzombie conversion — investigated: single ultra-niche SR4 special-rule
+  form with exactly one caller (`frmCreate.cs`'s Cyberzombie conversion flow). Not worth building
+  in isolation; would only make sense bundled with a hypothetical Cyberzombie-conversion feature.
 
 **Output / tooling**
 - [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF
