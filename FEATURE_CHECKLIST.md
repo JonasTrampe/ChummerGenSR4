@@ -65,9 +65,31 @@ context on each.
 - [x] `AllowExceedAttributeBp` — done, see § House-rule awareness in calculations.
 
 **Item picker dialogs**
-- [ ] Enumerate and port the remaining `frmSelectXxx` pickers beyond the 19 of ~41 already ported
-  (Skill-beyond-exotic doesn't need one — see detail row). No concrete list exists yet; the first
-  step is auditing legacy's `frmSelectXxx` files against what's ported here.
+- [x] Audit legacy's `frmSelectXxx` files against what's ported here — done. Of the ~39 distinct
+  `frmSelectXxx.cs` pickers, `frmSelectNumber`/`frmSelectQuantity` don't need a dedicated dialog
+  (plain `NumericUpDown` inline in this port's own dialogs), and `frmSelectAttribute`/
+  `frmSelectSkill`/`frmSelectText`/`frmSelectItem` are all covered by the generic
+  `ListSelectionDialog`/`TextSelectionDialog`. The remaining genuinely-missing pickers, each its
+  own small backlog item since most are tied to a feature that doesn't exist at all yet, not just
+  a missing dialog shell:
+  - [ ] `frmSelectArmorMod` — no `AddArmorMod` Core method exists; Armor has no mod-picking flow
+    at all (Cyberware/Weapons/Vehicles all have their own mod pickers already).
+  - [ ] `frmSelectAdvancedLifestyle` — advanced lifestyle construction (already noted as
+    deliberately out of scope for the plain Lifestyle picker).
+  - [ ] `frmSelectCyberwareSuite` — bundled pre-configured Cyberware sets.
+  - [ ] `frmSelectMentorSpirit` — tied to the `<selectmentorspirit>` bonus node (Mentor Spirit
+    Quality), a `Selectable Improvement` node type `BonusApplier` doesn't cover yet.
+  - [ ] `frmSelectNexus` — a Matrix node Gear subtype.
+  - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
+  - [ ] `frmSelectProgramOption` — Technomancer Complex Form options/modifiers; `programoptions`
+    are read from saved characters but there's no add flow.
+  - [ ] `frmSelectSide` — a generic Left/Right picker, tied to the `<selectside>` bonus node
+    (another `Selectable Improvement` node type not yet covered).
+  - [ ] `frmSelectSkillCategory`/`frmSelectSkillGroup` — standalone category/group-only pickers
+    (distinct from `selectskill`'s skillgroup/skillcategory *filtering*, which is already done).
+  - [ ] `frmSelectSpellCategory` — a proper category dropdown for Qualities like Aspected Magician
+    (Spell Category); currently falls back to `TextSelectionDialog`'s free-text entry via
+    `selecttext`, which works but isn't validated against the real category list.
 
 **Output / tooling**
 - [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF
@@ -284,10 +306,9 @@ context on each.
   `ContactGroupDialog`'s Group Network rating calculator: Membership/Area of Influence/Magical/
   Matrix Resources + group name/colour/free flag, wired to `UpdateContactGroup`). The
   implementations remain deliberately scoped (for example, no advanced lifestyle construction).
-  Quality/Adept Power/Metamagic/Cyberware/Bioware additions now apply their rules-data
-  `<bonus>` Improvements (CritterPower/ComplexForm additions still don't - see the
-  bonus-application engine note below). Weapon Accessory/Mod additions now validate mount-slot
-  eligibility, ported from
+  Quality/Adept Power/Metamagic/Cyberware/Bioware/CritterPower/ComplexForm additions all apply
+  their rules-data `<bonus>` Improvements now - see the bonus-application engine note below. Weapon
+  Accessory/Mod additions now validate mount-slot eligibility, ported from
   `frmCareer.cs`'s `tsWeaponAddAccessory_Click`/`tsWeaponAddModification_Click`: accessories are
   rejected unless the weapon's `weapons.xml` entry allows accessories and lists a matching
   `<accessorymounts><mount>`, and mods are rejected if the weapon disallows mods, or - under the
@@ -295,9 +316,12 @@ context on each.
   6-slot cap every weapon has (`clsEquipment.cs`'s `Weapon.SlotsRemaining` hardcodes this as a
   constant, not a per-weapon data field). Neither check enforces exclusivity between multiple
   accessories/mods sharing the same mount, matching legacy.
-- ❌ The remaining pickers (Skill beyond exotic skills — active/knowledge skills come from a fixed
-  list plus freeform knowledge-skill entries, so no picker is actually needed there — and others)
-  don't exist yet.
+- ❌ The remaining pickers - see the "Item picker dialogs" row in the Backlog section above for
+  the full audited list (`frmSelectArmorMod`, `frmSelectCyberwareSuite`, `frmSelectMentorSpirit`,
+  `frmSelectNexus`, `frmSelectPACKSKit`, `frmSelectProgramOption`, `frmSelectSide`,
+  `frmSelectSkillCategory`/`frmSelectSkillGroup`, `frmSelectSpellCategory`). Skill beyond exotic
+  skills doesn't need one - active/knowledge skills come from a fixed list plus freeform
+  knowledge-skill entries.
 
 ## Derived stats / calculations
 
