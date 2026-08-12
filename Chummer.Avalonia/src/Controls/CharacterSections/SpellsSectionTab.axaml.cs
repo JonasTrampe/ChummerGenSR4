@@ -157,7 +157,8 @@ public partial class SpellsSectionTab : UserControl
         if (!blnProceed)
             return;
 
-        _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page, strExtra);
+        _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page, strExtra,
+            dialog.SelectedRating);
         ViewModel.LoadCharacter(_character);
     }
 

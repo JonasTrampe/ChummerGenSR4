@@ -14,7 +14,18 @@ public sealed class CritterPowerDialogViewModel : ViewModelBase
     public CritterPowerOptionViewModel? Selected
     {
         get => _selected;
-        set => SetField(ref _selected, value);
+        set
+        {
+            if (SetField(ref _selected, value))
+                SelectedRating = 1;
+        }
+    }
+
+    private decimal _selectedRating = 1;
+    public decimal SelectedRating
+    {
+        get => _selectedRating;
+        set => SetField(ref _selectedRating, Math.Max(1, value));
     }
 
     public void LoadOptions(CharacterDocument character)
@@ -37,14 +48,15 @@ public sealed class CritterPowerDialogViewModel : ViewModelBase
 
             Options.Add(new CritterPowerOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                 node["points"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,
-                node["page"]?.InnerText ?? string.Empty));
+                node["page"]?.InnerText ?? string.Empty, node["rating"]?.InnerText == "yes"));
         }
     }
 }
 
 public sealed class CritterPowerOptionViewModel
 {
-    public CritterPowerOptionViewModel(string name, string category, string points, string source, string page)
+    public CritterPowerOptionViewModel(string name, string category, string points, string source, string page,
+        bool hasRating = false)
     {
         Name = name;
         Category = category;
@@ -52,6 +64,7 @@ public sealed class CritterPowerOptionViewModel
         Source = source;
         Page = page;
         SourcePage = string.IsNullOrWhiteSpace(page) ? source : source + " " + page;
+        HasRating = hasRating;
     }
 
     public string Name { get; }
@@ -60,4 +73,9 @@ public sealed class CritterPowerOptionViewModel
     public string Source { get; }
     public string Page { get; }
     public string SourcePage { get; }
+
+    /// <summary>Ported from frmSelectCritterPower.cs's &lt;rating&gt;yes&lt;/rating&gt; check
+    /// (nudCritterPowerRating.Enabled) - whether this power's bonus scales with a player-chosen
+    /// Rating (e.g. Armor (Ballistic)'s "Rating" points of Ballistic Armor).</summary>
+    public bool HasRating { get; }
 }

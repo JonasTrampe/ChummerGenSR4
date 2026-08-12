@@ -29,8 +29,13 @@ context on each.
 - [ ] Manual Improvement *add* (`frmCreateImprovement.cs` — a ~50-type catalog with per-type
   dynamic fields and sub-picker dialogs). Delete already works for `Custom`-sourced entries; add
   does not exist at all.
-- [ ] Give Critter Powers a real Rating input (currently every Critter Power bonus applies at a
-  hardcoded Rating of 1).
+- [x] Give Critter Powers a real Rating input — done. `CritterPowerDialog` now shows a Rating
+  spinner (`NumericUpDown`, min 1) when the selected power's rules-data sets
+  `<rating>yes</rating>` (ported from frmSelectCritterPower.cs's `nudCritterPowerRating`), and
+  `AddCritterPower` scales the power's `<bonus>` by that Rating instead of always using 1;
+  `CharacterCritterPowerData.Rating` persists the choice. Verified against real data: Armor
+  (Ballistic) at Rating 4 grants +4 Ballistic Armor; Fear (no `<rating>` flag) ignores a passed-in
+  Rating and stays at "0".
 - [ ] `selectskill`/`selectattribute`/`selecttext` edge cases not yet modeled: exotic-skill-with-
   specialization matching in `selectskill`, and `precedence` stacking rules beyond what
   `ImprovementManager` already handles.
@@ -376,10 +381,14 @@ context on each.
   attribute), and Wired Reflexes' Rating-scaled InitiativePass/REA bonuses (including cleanup on
   removal).
   CritterPower/ComplexForm additions now call `ApplyBonus` too (`AddCritterPower`/
-  `AddComplexForm`, cleaned up by the matching `RemoveCritterPower`/`RemoveComplexForm`) - at
-  Rating 1, since neither this port's CritterPower picker nor its saved ComplexForm Rating (always
-  "1") model a real Rating input yet. Verified against real data: Armor (Ballistic)'s
-  `<armor><b>Rating</b></armor>` and Empathy Software's Rating-scaled `skillcategory` bonus.
+  `AddComplexForm`, cleaned up by the matching `RemoveCritterPower`/`RemoveComplexForm`). Critter
+  Powers now have a real Rating input too - `CritterPowerDialog` shows a Rating spinner when the
+  power's rules-data sets `<rating>yes</rating>` (only 4 of 189 do - Armor (Ballistic)/(Impact),
+  Hardened/Mystic Armor), and `AddCritterPower` scales the bonus by that Rating instead of a fixed
+  1; every other Critter Power still applies at 1 since it has no Rating concept at all. Complex
+  Forms still always apply at Rating 1, matching their saved Rating (always "1" - this port has no
+  Complex Form Rating input yet either). Verified against real data: Armor (Ballistic) at Rating 4
+  grants +4 Ballistic Armor, and Empathy Software's Rating-scaled `skillcategory` bonus.
 
   **Selectable Improvement flow:** all three interactive bonus node types are now covered, not
   just `selecttext`:

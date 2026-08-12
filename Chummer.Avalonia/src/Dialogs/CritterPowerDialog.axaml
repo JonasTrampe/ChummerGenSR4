@@ -21,6 +21,9 @@
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
                 <TextBlock Text="Kategorie:" FontWeight="Bold" />
                 <TextBlock Text="{Binding Selected.Category, TargetNullValue=–}" />
+                <TextBlock Text="Rating:" FontWeight="Bold" IsVisible="{Binding Selected.HasRating}" />
+                <NumericUpDown Minimum="1" Maximum="100" Value="{Binding SelectedRating, Mode=TwoWay}"
+                                IsVisible="{Binding Selected.HasRating}" />
                 <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
                 <controls:SourceLink SourcePage="{Binding Selected.SourcePage}" />
             </StackPanel>

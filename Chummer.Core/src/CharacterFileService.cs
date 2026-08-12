@@ -4013,20 +4013,23 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
                 lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0")));
+                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0"),
+                    GetValue(objNode, "rating", "0")));
             return lstPowers;
         }
 
         /// <summary>Ported from clsUnique.cs's CritterPower.Create/Save, simplified to skip the
         /// &lt;bonus&gt; Improvement-creation path (matches AddMetamagic/AddCyberware etc.).</summary>
         /// <summary>Ported from clsUnique.cs's CritterPower.Create/Save. Also applies the power's
-        /// own rules-data &lt;bonus&gt; block at Rating 1 (this port has no critter-power Rating
-        /// input yet, so tier-1 &lt;bonus&gt; nodes always apply at their Rating-1 value), and, when
-        /// the bonus is a &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node,
-        /// <paramref name="strExtra"/> becomes the corresponding Improvement (see <see
+        /// own rules-data &lt;bonus&gt; block, scaled by <paramref name="strRating"/> for powers
+        /// whose rules-data entry sets &lt;rating&gt;yes&lt;/rating&gt; (e.g. Armor (Ballistic));
+        /// every other power ignores it and applies at a fixed Rating of 1 (matching legacy's
+        /// nudCritterPowerRating being disabled/irrelevant for those). When the bonus is a
+        /// &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node, <paramref
+        /// name="strExtra"/> becomes the corresponding Improvement (see <see
         /// cref="ApplySelectedImprovement"/>).</summary>
         public void AddCritterPower(string strName, string strPoints, string strSource, string strPage,
-            string strExtra = "")
+            string strExtra = "", string strRating = "1")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A critter power name is required.", nameof(strName));
@@ -4040,21 +4043,26 @@ namespace Chummer.Core
                 objRoot.AppendChild(objPowers);
             }
 
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("critterpowers.xml");
+            XmlNode? objXmlPower = objPowersDoc.SelectSingleNode(
+                $"/chummer/powers/power[name = '{strName.Trim()}']");
+            bool blnHasRating = objXmlPower?.SelectSingleNode("rating")?.InnerText == "yes";
+
             var objPower = Document.CreateElement("critterpower");
             AppendElement(objPower, "guid", Guid.NewGuid().ToString());
             AppendElement(objPower, "name", strName.Trim());
             AppendElement(objPower, "extra", strExtra.Trim());
             AppendElement(objPower, "points", strPoints);
+            AppendElement(objPower, "rating", blnHasRating ? strRating : "0");
             AppendElement(objPower, "source", strSource);
             AppendElement(objPower, "page", strPage);
             objPowers.AppendChild(objPower);
 
-            XmlDocument objPowersDoc = XmlManager.Instance.Load("critterpowers.xml");
-            XmlNode? objXmlPower = objPowersDoc.SelectSingleNode(
-                $"/chummer/powers/power[name = '{strName.Trim()}']");
             XmlNode? objXmlBonus = objXmlPower?.SelectSingleNode("bonus");
-            ApplyBonus(objXmlBonus, ImprovementSource.CritterPower, strName.Trim());
-            ApplySelectedImprovement(objXmlBonus, ImprovementSource.CritterPower, strName.Trim(), strExtra, "1");
+            ApplyBonus(objXmlBonus, ImprovementSource.CritterPower, strName.Trim(),
+                blnHasRating ? strRating : "1");
+            ApplySelectedImprovement(objXmlBonus, ImprovementSource.CritterPower, strName.Trim(), strExtra,
+                blnHasRating ? strRating : "1");
 
             Changed?.Invoke();
         }
@@ -6405,18 +6413,25 @@ namespace Chummer.Core
 
     public sealed class CharacterCritterPowerData
     {
-        internal CharacterCritterPowerData(string strGuid, string strName, string strExtra, string strPoints)
+        internal CharacterCritterPowerData(string strGuid, string strName, string strExtra, string strPoints,
+            string strRating = "0")
         {
             Guid = strGuid;
             Name = strName;
             Extra = strExtra;
             Points = strPoints;
+            Rating = strRating;
         }
 
         public string Guid { get; }
         public string Name { get; }
         public string Extra { get; }
         public string Points { get; }
+
+        /// <summary>Ported from clsUnique.cs's CritterPower.Rating - only meaningful for powers
+        /// whose rules-data entry sets &lt;rating&gt;yes&lt;/rating&gt; (e.g. Armor (Ballistic));
+        /// "0" for every other power.</summary>
+        public string Rating { get; }
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 

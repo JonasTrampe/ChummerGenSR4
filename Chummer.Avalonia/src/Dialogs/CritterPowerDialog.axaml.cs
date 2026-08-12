@@ -9,6 +9,7 @@ public partial class CritterPowerDialog : Window
 {
     public CritterPowerDialogViewModel ViewModel { get; } = new();
     public CritterPowerOptionViewModel? SelectedPower => ViewModel.Selected;
+    public string SelectedRating => ViewModel.SelectedRating.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     public CritterPowerDialog()
     {

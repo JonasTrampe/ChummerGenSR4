@@ -870,12 +870,34 @@ public class CharacterFileServiceTests
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
         character.AddCritterPower("Armor (Ballistic)", "1", "RW", "204");
 
-        // <armor><b>Rating</b></armor>, applied at Rating 1 (no critter-power Rating input yet).
+        // <armor><b>Rating</b></armor>, defaulting to Rating 1 when not specified.
         Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.BallisticArmor));
+        Assert.Equal("1", character.CritterPowers[0].Rating);
 
         string strGuid = character.CritterPowers[0].Guid;
         Assert.True(character.RemoveCritterPower(strGuid));
         Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddCritterPower_ArmorBallistic_ScalesItsBonusByThePlayerChosenRating()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCritterPower("Armor (Ballistic)", "1", "RW", "204", strRating: "4");
+
+        Assert.Equal(4, ImprovementManager.ValueOf(character.Improvements, ImprovementType.BallisticArmor));
+        Assert.Equal("4", character.CritterPowers[0].Rating);
+    }
+
+    [Fact]
+    public void AddCritterPower_Fear_IgnoresRatingParameterSinceItHasNoRating()
+    {
+        // "Fear" has no <rating>yes</rating> in critterpowers.xml, so a passed-in strRating must
+        // be ignored (persisted Rating stays "0", matching legacy's disabled nudCritterPowerRating).
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCritterPower("Fear", "2", "SM", "54", strRating: "5");
+
+        Assert.Equal("0", character.CritterPowers[0].Rating);
     }
 
     [Fact]
