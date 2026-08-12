@@ -9,6 +9,7 @@ using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
 using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
 using TextSelectionDialog = Chummer.NewUI.Dialogs.TextSelectionDialog;
 using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
+using MentorSpiritDialog = Chummer.NewUI.Dialogs.MentorSpiritDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -85,8 +86,33 @@ public partial class GeneralSectionTab : UserControl
         if (!blnProceed)
             return;
 
-        _character.AddQuality(selected.Name, selected.Category, strExtra);
+        var (blnMentorProceed, strMentor, strChoice) = await CollectMentorSpiritAsync(window, selected.Name);
+        if (!blnMentorProceed)
+            return;
+
+        _character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice);
         ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Ported from clsImprovement.cs's selectmentorspirit/selectparagon bonus handlers
+    /// (frmSelectMentorSpirit.cs): the Mentor Spirit and "The Beast's Way" Qualities prompt for a
+    /// Mentor Spirit/Paragon pick when added. Returns (true, "", "") if this Quality doesn't need
+    /// one.</summary>
+    private async System.Threading.Tasks.Task<(bool Proceed, string Mentor, string Choice)> CollectMentorSpiritAsync(
+        Window window, string strQualityName)
+    {
+        if (_character == null)
+            return (true, string.Empty, string.Empty);
+
+        string? strDataFile = _character.QualityMentorSpiritDataFile(strQualityName);
+        if (strDataFile == null)
+            return (true, string.Empty, string.Empty);
+
+        var dialog = new MentorSpiritDialog(strDataFile);
+        bool? picked = await dialog.ShowDialog<bool?>(window);
+        return picked == true && dialog.SelectedMentor != null
+            ? (true, dialog.SelectedMentor.Name, dialog.Choice ?? string.Empty)
+            : (false, string.Empty, string.Empty);
     }
 
     private void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
@@ -121,9 +147,13 @@ public partial class GeneralSectionTab : UserControl
         if (!blnProceed)
             return;
 
+        var (blnMentorProceed, strMentor, strChoice) = await CollectMentorSpiritAsync(window, selected.Name);
+        if (!blnMentorProceed)
+            return;
+
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
         {
-            _character.AddQuality(selected.Name, selected.Category, strExtra);
+            _character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice);
             ViewModel.LoadCharacter(_character);
         }
     }

@@ -832,6 +832,31 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_MentorSpirit_AppliesTheChosenChoiceBonusAndCanBeRemoved()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Cat's own <bonus> is a <spellcategory> node - not tier-1 covered by BonusApplier, so it
+        // should no-op safely. Its chosen <choice>'s <specificskill> bonus IS tier-1 covered and
+        // should apply.
+        Assert.False(character.QualityRequiresTextSelection("Mentor Spirit"));
+        Assert.Equal("mentors.xml", character.QualityMentorSpiritDataFile("Mentor Spirit"));
+
+        character.AddQuality("Mentor Spirit", "Positive", strMentorSpirit: "Cat",
+            strMentorChoice1: "+2 dice to Gynmastics Tests");
+
+        Improvement improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementSource.Quality, improvement.Source);
+        Assert.Equal("Mentor Spirit", improvement.SourceName);
+        Assert.Equal(ImprovementType.Skill, improvement.Type);
+        Assert.Equal("Gymnastics", improvement.ImprovedName);
+        Assert.Equal(2, improvement.Value);
+
+        Assert.True(character.RemoveQuality("Mentor Spirit", "Positive"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

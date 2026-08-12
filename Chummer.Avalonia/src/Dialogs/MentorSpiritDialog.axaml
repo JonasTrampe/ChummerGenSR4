@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+        x:Class="Chummer.NewUI.Dialogs.MentorSpiritDialog"
+        x:DataType="vm:MentorSpiritDialogViewModel"
+        Width="700" Height="560" WindowStartupLocation="CenterOwner" Title="Mentorgeist auswählen">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <Grid ColumnDefinitions="Auto,150,*" Margin="0,0,0,8">
+            <TextBlock Text="Kategorie:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,280">
+            <ListBox ItemsSource="{Binding MentorOptions}" SelectedItem="{Binding SelectedMentor, Mode=TwoWay}">
+                <ListBox.ItemTemplate><DataTemplate x:DataType="vm:MentorSpiritOptionViewModel"><StackPanel Margin="4,2"><TextBlock Text="{Binding Name}" Foreground="#1E5FA8" /><TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
+                <TextBlock Text="Vorteil:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedMentor.Advantage, TargetNullValue=–}" TextWrapping="Wrap" />
+                <TextBlock Text="Nachteil:" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedMentor.Disadvantage, TargetNullValue=–}" TextWrapping="Wrap" />
+                <TextBlock Text="Wahl:" FontWeight="Bold" IsVisible="{Binding HasChoice}" />
+                <ComboBox ItemsSource="{Binding ChoiceOptions}" SelectedItem="{Binding Choice, Mode=TwoWay}" IsVisible="{Binding HasChoice}" HorizontalAlignment="Stretch" />
+                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding SelectedMentor.SourcePage}" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0"><Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" /><Button Grid.Column="2" Content="Übernehmen" Width="100" Click="OnOk" /></Grid>
+    </Grid>
+</Window>

@@ -813,6 +813,19 @@ namespace Chummer.Core
         public bool QualityRequiresTextSelection(string strName) =>
             FindBonusChild("qualities.xml", "qualities", "quality", strName, "selecttext") != null;
 
+        /// <summary>Whether adding this Quality prompts for a Mentor Spirit (or Paragon, for
+        /// Technomancers) pick - ported from clsImprovement.cs's selectmentorspirit/selectparagon
+        /// bonus nodes (Quality "Mentor Spirit"/"The Beast's Way"). Returns the rules-data file to
+        /// pick from ("mentors.xml"/"paragons.xml"), or null if this Quality doesn't need one.</summary>
+        public string? QualityMentorSpiritDataFile(string strName)
+        {
+            XmlNode? objBonus = FindBonusChild("qualities.xml", "qualities", "quality", strName, "selectmentorspirit");
+            if (objBonus != null)
+                return "mentors.xml";
+            objBonus = FindBonusChild("qualities.xml", "qualities", "quality", strName, "selectparagon");
+            return objBonus != null ? "paragons.xml" : null;
+        }
+
         /// <summary>Same as <see cref="QualityRequiresTextSelection"/> but for a Critter Power's
         /// &lt;selecttext&gt; bonus (e.g. Elemental Attack).</summary>
         public bool CritterPowerRequiresTextSelection(string strName) =>
@@ -932,7 +945,8 @@ namespace Chummer.Core
         /// the corresponding Improvement - ported from clsImprovement.cs's
         /// selecttext/selectskill/selectattribute handlers. No real qualities.xml Quality combines
         /// more than one of these, so a single strExtra value is unambiguous.</summary>
-        public void AddQuality(string strName, string strType, string strExtra = "")
+        public void AddQuality(string strName, string strType, string strExtra = "",
+            string strMentorSpirit = "", string strMentorChoice1 = "", string strMentorChoice2 = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A quality name is required.", nameof(strName));
@@ -952,6 +966,12 @@ namespace Chummer.Core
             AppendElement(objQuality, "name", strName.Trim());
             AppendElement(objQuality, "extra", strExtra.Trim());
             AppendElement(objQuality, "qualitytype", strType);
+            if (!string.IsNullOrWhiteSpace(strMentorSpirit))
+            {
+                AppendElement(objQuality, "mentorspirit", strMentorSpirit.Trim());
+                AppendElement(objQuality, "mentorchoice1", strMentorChoice1.Trim());
+                AppendElement(objQuality, "mentorchoice2", strMentorChoice2.Trim());
+            }
             objQualities.AppendChild(objQuality);
 
             XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
@@ -960,6 +980,24 @@ namespace Chummer.Core
             XmlNode? objXmlBonus = objXmlQuality?.SelectSingleNode("bonus");
             ApplyBonus(objXmlBonus, ImprovementSource.Quality, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.Quality, strName.Trim(), strExtra, "1");
+
+            string? strMentorDataFile = QualityMentorSpiritDataFile(strName);
+            if (strMentorDataFile != null && !string.IsNullOrWhiteSpace(strMentorSpirit))
+            {
+                XmlDocument objMentorsDoc = XmlManager.Instance.Load(strMentorDataFile);
+                XmlNode? objXmlMentor = objMentorsDoc.SelectSingleNode(
+                    $"/chummer/mentors/mentor[name = '{strMentorSpirit.Trim()}']");
+                ApplyBonus(objXmlMentor?.SelectSingleNode("bonus"), ImprovementSource.Quality, strName.Trim());
+
+                if (!string.IsNullOrWhiteSpace(strMentorChoice1))
+                    ApplyBonus(objXmlMentor?.SelectSingleNode(
+                        $"choices/choice[name = '{strMentorChoice1.Trim()}']/bonus"),
+                        ImprovementSource.Quality, strName.Trim());
+                if (!string.IsNullOrWhiteSpace(strMentorChoice2))
+                    ApplyBonus(objXmlMentor?.SelectSingleNode(
+                        $"choices/choice[name = '{strMentorChoice2.Trim()}']/bonus"),
+                        ImprovementSource.Quality, strName.Trim());
+            }
         }
 
         /// <summary>Shared selecttext/selectskill/selectattribute application, ported from

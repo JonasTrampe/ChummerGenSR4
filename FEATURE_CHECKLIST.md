@@ -84,8 +84,21 @@ context on each.
   - [ ] `frmSelectAdvancedLifestyle` — advanced lifestyle construction (already noted as
     deliberately out of scope for the plain Lifestyle picker).
   - [ ] `frmSelectCyberwareSuite` — bundled pre-configured Cyberware sets.
-  - [ ] `frmSelectMentorSpirit` — tied to the `<selectmentorspirit>` bonus node (Mentor Spirit
-    Quality), a `Selectable Improvement` node type `BonusApplier` doesn't cover yet.
+  - [x] `frmSelectMentorSpirit` — done. Mentor Spirit is a Quality (`<bonus><selectmentorspirit /></bonus>`,
+    same for the Technomancer "The Beast's Way" Quality's `<selectparagon />`) whose own `<bonus>`
+    stays a no-op until a picker resolves it, ported here as `QualityMentorSpiritDataFile` (returns
+    "mentors.xml"/"paragons.xml"/null) plus new `AddQuality` parameters `strMentorSpirit`/
+    `strMentorChoice1` that apply the chosen mentor's own `<bonus>` and its selected `<choice>`'s
+    `<bonus>` (both via the existing `ApplyBonus`/`BonusApplier`, recorded under
+    `ImprovementSource.Quality`/the Quality's own name so `RemoveQuality`'s existing cleanup handles
+    them for free). New `MentorSpiritDialog` (category filter, advantage/disadvantage text, a
+    choice-of-N dropdown) wired into `GeneralSectionTab`'s Add/Swap Quality flows, shown whenever
+    `QualityMentorSpiritDataFile` returns non-null. Not ported: legacy's `set="2"` second-independent-
+    choice split (only 2 of ~40 mentors.xml entries use it) — this port offers one choose-one dropdown
+    over the full `<choices>` list instead, so those 2 mentors only get their first pick applied.
+    Verified against real data: Cat's own `<spellcategory>` bonus correctly no-ops (not yet a
+    tier-1 `BonusApplier` node type) while its chosen `<choice>`'s `<specificskill>` bonus
+    (Gymnastics +2) applies and is fully cleaned up on `RemoveQuality`.
   - [ ] `frmSelectNexus` — a Matrix node Gear subtype.
   - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
   - [ ] `frmSelectProgramOption` — Technomancer Complex Form options/modifiers; `programoptions`
