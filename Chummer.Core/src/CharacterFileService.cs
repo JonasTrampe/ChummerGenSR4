@@ -5163,8 +5163,15 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();
 
-        /// <summary>Adds a base lifestyle using the character-file shape written by the legacy application.</summary>
-        public void AddLifestyle(string strName, string strCost, string strMonths = "1")
+        /// <summary>Adds a base lifestyle using the character-file shape written by the legacy application.
+        /// <paramref name="strDice"/>/<paramref name="strMultiplier"/> are optional (empty for
+        /// existing callers) - when supplied they're used directly by <see
+        /// cref="GetLifestyleNuyenRollInfo"/> instead of that method's by-name lifestyles.xml
+        /// re-lookup, which only works for plain Lifestyles whose saved name still matches a
+        /// lifestyles.xml entry (see <see cref="AddAdvancedLifestyle"/>, whose custom player-chosen
+        /// name never would).</summary>
+        public void AddLifestyle(string strName, string strCost, string strMonths = "1", string strDice = "",
+            string strMultiplier = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A lifestyle name is required.", nameof(strName));
@@ -5175,9 +5182,179 @@ namespace Chummer.Core
             AppendElement(objLifestyle, "lifestylename", strName);
             AppendElement(objLifestyle, "cost", strCost);
             AppendElement(objLifestyle, "months", strMonths);
+            if (!string.IsNullOrEmpty(strDice)) AppendElement(objLifestyle, "dice", strDice);
+            if (!string.IsNullOrEmpty(strMultiplier)) AppendElement(objLifestyle, "multiplier", strMultiplier);
             objLifestyles.AppendChild(objLifestyle);
             Changed?.Invoke();
         }
+
+        /// <summary>Names offered for one of an Advanced Lifestyle's five aspects - ported from
+        /// frmSelectAdvancedLifestyle.cs's Load handler's Comforts/Entertainment/Necessities/
+        /// Neighborhood/Security ComboBox population (Advanced type only - this port doesn't
+        /// model Safehouse/BoltHole's separate &lt;slp&gt; LP override).</summary>
+        public IReadOnlyList<string> GetLifestyleAspectOptions(string strAspectTag)
+        {
+            XmlDocument objLifestylesDoc = XmlManager.Instance.Load("lifestyles.xml");
+            var lstNames = new List<string>();
+            foreach (XmlNode objAspect in objLifestylesDoc.SelectNodes(
+                         $"/chummer/{AspectContainerTag(strAspectTag)}/{strAspectTag}")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objAspect["name"]?.InnerText ?? string.Empty;
+                if (!string.IsNullOrEmpty(strName))
+                    lstNames.Add(strName);
+            }
+
+            return lstNames;
+        }
+
+        /// <summary>One Positive/Negative Quality an Advanced Lifestyle can take - ported from
+        /// frmSelectAdvancedLifestyle.cs's quality tree population (lifestyles.xml has its own
+        /// quality catalog, separate from qualities.xml's character Qualities), filtered to
+        /// entries whose &lt;allowed&gt; list includes "Advanced".</summary>
+        public sealed record LifestyleQualityOption(string Name, string Category, int Lp, string Source, string Page);
+
+        public IReadOnlyList<LifestyleQualityOption> GetLifestyleQualityOptions()
+        {
+            XmlDocument objLifestylesDoc = XmlManager.Instance.Load("lifestyles.xml");
+            var lstOptions = new List<LifestyleQualityOption>();
+            foreach (XmlNode objQuality in objLifestylesDoc.SelectNodes("/chummer/qualities/quality")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strAllowed = objQuality["allowed"]?.InnerText ?? string.Empty;
+                if (!strAllowed.Split(',').Contains("Advanced"))
+                    continue;
+
+                string strName = objQuality["name"]?.InnerText ?? string.Empty;
+                if (string.IsNullOrEmpty(strName))
+                    continue;
+
+                int intLp = int.TryParse(objQuality["lp"]?.InnerText, out var lp) ? lp : 0;
+                lstOptions.Add(new LifestyleQualityOption(strName, objQuality["category"]?.InnerText ?? string.Empty,
+                    intLp, objQuality["source"]?.InnerText ?? string.Empty, objQuality["page"]?.InnerText ?? string.Empty));
+            }
+
+            return lstOptions;
+        }
+
+        /// <summary>Adds an Advanced Lifestyle - ported from frmSelectAdvancedLifestyle.cs's
+        /// AcceptForm/CalculateValues. Total LP is the five aspects' own &lt;lp&gt; plus each
+        /// chosen Quality's &lt;lp&gt; (Negative Qualities carry negative values, matching real
+        /// data); Nuyen cost comes from lifestyles.xml's &lt;costs&gt; table (linear extrapolation
+        /// past LP 30, exactly like legacy), then scaled by Roommates% and the overall Percentage
+        /// slider. Dice/Multiplier for the starting-Nuyen roll are looked up from whichever
+        /// standard Lifestyle (Street..Luxury) the total LP maps onto - not ported: legacy's
+        /// separate "effective LP" (aspects-only, no Qualities) used only to pick Dice/Multiplier
+        /// independently of the Nuyen-cost LP; this port uses the same total LP for both, which
+        /// only differs from legacy when Qualities push the character across a LP tier boundary.</summary>
+        public void AddAdvancedLifestyle(string strName, string strComforts, string strEntertainment,
+            string strNecessities, string strNeighborhood, string strSecurity, int intRoommates, int intPercentage,
+            IReadOnlyList<string> lstPositiveQualities, IReadOnlyList<string> lstNegativeQualities)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("A lifestyle name is required.", nameof(strName));
+
+            AdvancedLifestylePreview objPreview = PreviewAdvancedLifestyle(strComforts, strEntertainment,
+                strNecessities, strNeighborhood, strSecurity, intRoommates, intPercentage, lstPositiveQualities,
+                lstNegativeQualities);
+
+            AddLifestyle(strName, objPreview.Cost.ToString(CultureInfo.InvariantCulture), "1",
+                objPreview.Dice.ToString(CultureInfo.InvariantCulture),
+                objPreview.Multiplier.ToString(CultureInfo.InvariantCulture));
+
+            var objNodes = Document.SelectNodes("/character/lifestyles/lifestyle");
+            if (objNodes?[objNodes.Count - 1] is XmlElement objLastLifestyle)
+            {
+                AppendElement(objLastLifestyle, "comforts", strComforts);
+                AppendElement(objLastLifestyle, "entertainment", strEntertainment);
+                AppendElement(objLastLifestyle, "necessities", strNecessities);
+                AppendElement(objLastLifestyle, "neighborhood", strNeighborhood);
+                AppendElement(objLastLifestyle, "security", strSecurity);
+                AppendElement(objLastLifestyle, "roommates", intRoommates.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objLastLifestyle, "percentage", intPercentage.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objLastLifestyle, "type", "Advanced");
+                var objQualities = Document.CreateElement("qualities");
+                foreach (string strQuality in lstPositiveQualities.Concat(lstNegativeQualities))
+                    AppendElement(objQualities, "quality", strQuality);
+                objLastLifestyle.AppendChild(objQualities);
+            }
+        }
+
+        public sealed record AdvancedLifestylePreview(int Lp, int Cost, int Dice, int Multiplier);
+
+        /// <summary>Non-mutating LP/Cost/Dice/Multiplier computation shared by <see
+        /// cref="AddAdvancedLifestyle"/> and the picker dialog's live preview, so the two can
+        /// never drift out of sync.</summary>
+        public AdvancedLifestylePreview PreviewAdvancedLifestyle(string strComforts, string strEntertainment,
+            string strNecessities, string strNeighborhood, string strSecurity, int intRoommates, int intPercentage,
+            IReadOnlyList<string> lstPositiveQualities, IReadOnlyList<string> lstNegativeQualities)
+        {
+            XmlDocument objLifestylesDoc = XmlManager.Instance.Load("lifestyles.xml");
+            int intLp = 0;
+            intLp += AspectLp(objLifestylesDoc, "comfort", strComforts);
+            intLp += AspectLp(objLifestylesDoc, "entertainment", strEntertainment);
+            intLp += AspectLp(objLifestylesDoc, "necessity", strNecessities);
+            intLp += AspectLp(objLifestylesDoc, "neighborhood", strNeighborhood);
+            intLp += AspectLp(objLifestylesDoc, "security", strSecurity);
+
+            foreach (string strQuality in lstPositiveQualities.Concat(lstNegativeQualities))
+            {
+                XmlNode? objXmlQuality = objLifestylesDoc.SelectSingleNode($"/chummer/qualities/quality[name = '{strQuality}']");
+                if (objXmlQuality != null && int.TryParse(objXmlQuality["lp"]?.InnerText, out var intQualityLp))
+                    intLp += intQualityLp;
+            }
+
+            intLp = Math.Max(0, intLp);
+
+            int intNuyen;
+            if (intLp < 29)
+            {
+                intNuyen = int.TryParse(objLifestylesDoc.SelectSingleNode(
+                    $"/chummer/costs/cost[lp = '{intLp}']")?["cost"]?.InnerText, out var c) ? c : 0;
+            }
+            else
+            {
+                int intBase = int.TryParse(objLifestylesDoc.SelectSingleNode(
+                    "/chummer/costs/cost[lp = '30']")?["cost"]?.InnerText, out var b) ? b : 0;
+                int intPerLp = int.TryParse(objLifestylesDoc.SelectSingleNode(
+                    "/chummer/costs/cost[lp = '31+']")?["cost"]?.InnerText, out var p) ? p : 0;
+                intNuyen = intBase + (intLp - 30) * intPerLp;
+            }
+
+            intNuyen = (int)(intNuyen * (1.0 + intRoommates / 10.0));
+            intNuyen = (int)(intNuyen * (intPercentage / 100.0));
+
+            string strTierName = intLp switch
+            {
+                >= 21 => "Luxury",
+                >= 16 => "High",
+                >= 11 => "Middle",
+                >= 6 => "Low",
+                >= 1 => "Squatter",
+                _ => "Street",
+            };
+            XmlNode? objXmlTier = objLifestylesDoc.SelectSingleNode($"/chummer/lifestyles/lifestyle[name = '{strTierName}']");
+            int intDice = int.TryParse(objXmlTier?["dice"]?.InnerText, out var d) ? d : 1;
+            int intMultiplier = int.TryParse(objXmlTier?["multiplier"]?.InnerText, out var m) ? m : 0;
+
+            return new AdvancedLifestylePreview(intLp, intNuyen, intDice, intMultiplier);
+        }
+
+        private static int AspectLp(XmlDocument objLifestylesDoc, string strAspectTag, string strValue)
+        {
+            XmlNode? objXmlAspect = objLifestylesDoc.SelectSingleNode(
+                $"/chummer/{AspectContainerTag(strAspectTag)}/{strAspectTag}[name = '{strValue}']");
+            return int.TryParse(objXmlAspect?["lp"]?.InnerText, out var lp) ? lp : 0;
+        }
+
+        /// <summary>lifestyles.xml's five aspect list container names don't all follow simple
+        /// "+s" pluralization ("necessity"/"security" -&gt; "necessities"/"securities").</summary>
+        private static string AspectContainerTag(string strAspectTag) => strAspectTag switch
+        {
+            "necessity" => "necessities",
+            "security" => "securities",
+            _ => strAspectTag + "s",
+        };
 
         public bool RemoveLifestyle(string strName)
         {
@@ -5213,15 +5390,29 @@ namespace Chummer.Core
             int intDice = 0, intMultiplier = 0;
             foreach (CharacterLifestyleData objLifestyle in Lifestyles)
             {
-                XmlNode? objXmlLifestyle = objLifestylesDoc.SelectSingleNode(
-                    $"/chummer/lifestyles/lifestyle[name = '{objLifestyle.Name}']");
-                if (objXmlLifestyle == null)
-                    continue;
-                int intLifestyleMultiplier = int.TryParse(GetValue(objXmlLifestyle, "multiplier", "0"), out var m) ? m : 0;
+                int intLifestyleMultiplier;
+                int intLifestyleDice;
+                if (!string.IsNullOrEmpty(objLifestyle.Multiplier))
+                {
+                    // Own persisted Dice/Multiplier (Advanced Lifestyles, or any Lifestyle added
+                    // since this field started being written) - see AddLifestyle's doc comment.
+                    intLifestyleMultiplier = int.TryParse(objLifestyle.Multiplier, out var lm) ? lm : 0;
+                    intLifestyleDice = int.TryParse(objLifestyle.Dice, out var ld) ? ld : 0;
+                }
+                else
+                {
+                    XmlNode? objXmlLifestyle = objLifestylesDoc.SelectSingleNode(
+                        $"/chummer/lifestyles/lifestyle[name = '{objLifestyle.Name}']");
+                    if (objXmlLifestyle == null)
+                        continue;
+                    intLifestyleMultiplier = int.TryParse(GetValue(objXmlLifestyle, "multiplier", "0"), out var m) ? m : 0;
+                    intLifestyleDice = int.TryParse(GetValue(objXmlLifestyle, "dice", "0"), out var d) ? d : 0;
+                }
+
                 if (intLifestyleMultiplier > intMultiplier)
                 {
                     intMultiplier = intLifestyleMultiplier;
-                    intDice = int.TryParse(GetValue(objXmlLifestyle, "dice", "0"), out var d) ? d : 0;
+                    intDice = intLifestyleDice;
                 }
             }
 
@@ -6662,7 +6853,8 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
                 lstLifestyles.Add(new CharacterLifestyleData(
                     GetValue(objNode, "lifestylename", GetValue(objNode, "name", string.Empty)),
-                    GetValue(objNode, "cost", "0"), GetValue(objNode, "months", "0")));
+                    GetValue(objNode, "cost", "0"), GetValue(objNode, "months", "0"),
+                    GetValue(objNode, "dice", string.Empty), GetValue(objNode, "multiplier", string.Empty)));
             return lstLifestyles;
         }
 
@@ -7734,16 +7926,25 @@ namespace Chummer.Core
 
     public sealed class CharacterLifestyleData
     {
-        internal CharacterLifestyleData(string strName, string strCost, string strMonths)
+        internal CharacterLifestyleData(string strName, string strCost, string strMonths, string strDice,
+            string strMultiplier)
         {
             Name = strName;
             Cost = strCost;
             Months = strMonths;
+            Dice = strDice;
+            Multiplier = strMultiplier;
         }
 
         public string Name { get; }
         public string Cost { get; }
         public string Months { get; }
+
+        /// <summary>Empty for saves predating this field - see
+        /// CharacterDocument.GetLifestyleNuyenRollInfo's by-name lifestyles.xml fallback.</summary>
+        public string Dice { get; }
+
+        public string Multiplier { get; }
     }
 
     public sealed class CharacterExpenseData

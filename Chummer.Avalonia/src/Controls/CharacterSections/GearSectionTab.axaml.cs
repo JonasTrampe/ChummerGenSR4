@@ -18,6 +18,7 @@ using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 using WeaponAccessoryDialog = Chummer.NewUI.Dialogs.WeaponAccessoryDialog;
 using WeaponModDialog = Chummer.NewUI.Dialogs.WeaponModDialog;
 using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
+using AdvancedLifestyleDialog = Chummer.NewUI.Dialogs.AdvancedLifestyleDialog;
 using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
@@ -67,6 +68,21 @@ public partial class GearSectionTab : UserControl
         {
             var lifestyle = dialog.SelectedLifestyle;
             _character.AddLifestyle(lifestyle.Name, lifestyle.Cost, "1");
+            ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private async void OnAddAdvancedLifestyleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new AdvancedLifestyleDialog(_character);
+        if (await dialog.ShowDialog<bool>(window))
+        {
+            _character.AddAdvancedLifestyle(dialog.LifestyleName, dialog.Comforts, dialog.Entertainment, dialog.Necessities,
+                dialog.Neighborhood, dialog.Security, dialog.Roommates, dialog.Percentage, dialog.PositiveQualities,
+                dialog.NegativeQualities);
             ViewModel.LoadCharacter(_character);
         }
     }

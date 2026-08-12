@@ -2742,6 +2742,47 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddAdvancedLifestyle_ComputesLpCostAndDiceMultiplierFromRealData()
+    {
+        CharacterDocument character = LoadXml("<character />");
+
+        // All five aspects "Middle" (3 LP each) = 15 LP -> 5000 nuyen, Middle tier (dice 4,
+        // multiplier 100). Adding Commercial Zone (+1 LP) and AI in Residence (-3 LP) brings the
+        // total to 13 LP, which real lifestyles.xml prices at 3800 and still maps to the Middle
+        // tier (11-15 LP).
+        var preview = character.PreviewAdvancedLifestyle("Middle", "Middle", "Middle", "Middle", "Middle",
+            intRoommates: 0, intPercentage: 100, new[] { "Commercial Zone" }, new[] { "AI in Residence" });
+        Assert.Equal(13, preview.Lp);
+        Assert.Equal(3800, preview.Cost);
+        Assert.Equal(4, preview.Dice);
+        Assert.Equal(100, preview.Multiplier);
+
+        character.AddAdvancedLifestyle("Safehouse Alpha", "Middle", "Middle", "Middle", "Middle", "Middle",
+            intRoommates: 0, intPercentage: 100, new[] { "Commercial Zone" }, new[] { "AI in Residence" });
+
+        CharacterLifestyleData added = Assert.Single(character.Lifestyles);
+        Assert.Equal("Safehouse Alpha", added.Name);
+        Assert.Equal("3800", added.Cost);
+        Assert.Equal("4", added.Dice);
+        Assert.Equal("100", added.Multiplier);
+    }
+
+    [Fact]
+    public void AddAdvancedLifestyle_FeedsItsOwnDiceMultiplierIntoTheNuyenRoll()
+    {
+        // GetLifestyleNuyenRollInfo's by-name lifestyles.xml re-lookup can't find a custom
+        // Advanced Lifestyle name - it must use the Dice/Multiplier persisted directly on add.
+        CharacterDocument character = LoadXml("<character><nuyen>0</nuyen></character>");
+        character.AddAdvancedLifestyle("My Penthouse", "High", "High", "High", "High", "High",
+            intRoommates: 0, intPercentage: 100, Array.Empty<string>(), Array.Empty<string>());
+
+        var info = character.GetLifestyleNuyenRollInfo();
+        Assert.NotNull(info);
+        Assert.True(info!.Dice > 0);
+        Assert.True(info.Multiplier > 0);
+    }
+
+    [Fact]
     public void WeaponEquippedState_CanBeChanged()
     {
         CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name><category>Pistols</category><equipped>True</equipped></weapon></weapons></character>");

@@ -81,8 +81,31 @@ context on each.
     track Armor capacity remaining at all yet, unlike Gear/Weapon Mod slots). Verified against real
     data: Chemical Protection's Rating-scaled cost (`Rating * 250`) and correctly not crashing on
     YNT SoftWeave's `<softweave />` bonus, which isn't a tier-1 `BonusApplier` node type.
-  - [ ] `frmSelectAdvancedLifestyle` — advanced lifestyle construction (already noted as
-    deliberately out of scope for the plain Lifestyle picker).
+  - [x] `frmSelectAdvancedLifestyle` — done. Ported as `GetLifestyleAspectOptions`/
+    `GetLifestyleQualityOptions`/`PreviewAdvancedLifestyle`/`AddAdvancedLifestyle`: total LP is
+    the five aspects' (Comforts/Entertainment/Necessities/Neighborhood/Security) own `<lp>` plus
+    each checked Quality's `<lp>` (lifestyles.xml has its own quality catalog, separate from
+    qualities.xml, filtered to `<allowed>` containing "Advanced"; Negative Qualities carry
+    negative `<lp>` in real data), Nuyen cost from the `<costs>` table (linear extrapolation past
+    LP 30, matching legacy), scaled by Roommates%/Percentage. `PreviewAdvancedLifestyle` factors
+    out the exact same computation `AddAdvancedLifestyle` uses so the dialog's live LP/Nuyen
+    preview can never drift from what actually gets added.
+    Also fixed a related gap this surfaced: `GetLifestyleNuyenRollInfo` used to re-look-up each
+    owned Lifestyle's Dice/Multiplier by name against lifestyles.xml, which only works for plain
+    Lifestyles whose name still matches a rules-data entry - an Advanced Lifestyle's
+    player-chosen name never would, silently contributing 0 to the starting-Nuyen roll. `AddLifestyle`
+    now optionally persists `<dice>`/`<multiplier>` directly (written by `AddAdvancedLifestyle`),
+    and `GetLifestyleNuyenRollInfo` prefers those when present, falling back to the by-name
+    lookup for older saves/plain Lifestyles without them.
+    Not ported: legacy's separate Safehouse/BoltHole `<slp>` LP overrides (Advanced type only,
+    matching this port's existing Lifestyle scope) and its "effective LP" (aspects-only, ignoring
+    Qualities) used solely to pick Dice/Multiplier independently from the Nuyen-cost LP - this
+    port uses one total LP for both, which only differs from legacy when Qualities push the
+    character across a LP tier boundary. New `AdvancedLifestyleDialog`/
+    `AdvancedLifestyleDialogViewModel` (five aspect ComboBoxes, Roommates/Percentage
+    NumericUpDowns, Positive/Negative Quality checklists reusing `WeaponCategoriesDialog`'s
+    checkbox-`ItemsControl` pattern) wired into `GearSectionTab`'s new "Erweiterten Lebensstil
+    erstellen" button.
   - [x] `frmSelectCyberwareSuite` — done. Ported as `GetCyberwareSuiteNames`/`AddCyberwareSuite`
     (also used for Bioware Suites via `blnBioware`): a Suite fixes a single Grade for every part
     and real cyberware.xml/bioware.xml suites nest cyberware within cyberware (plugins, e.g.
