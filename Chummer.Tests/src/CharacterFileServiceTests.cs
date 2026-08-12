@@ -2718,6 +2718,40 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddVehicleWeapon_TracksWhichSpecificMountEachWeaponOccupies()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>100000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons /><mods />"
+            + "</vehicle></vehicles></character>");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
+
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA",
+            "0", "15", "350", "4R", "SR4", "313"));
+
+        var mounts = character.Vehicles.Single().Children.Where(c => c.Name.StartsWith("Weapon Mount")).ToList();
+        var weapons = character.Vehicles.Single().Children.Where(c => !c.Name.StartsWith("Weapon Mount")).ToList();
+        Assert.Equal(2, mounts.Count);
+        Assert.Equal(2, weapons.Count);
+
+        // Each weapon claimed a distinct mount, not just "there were enough mounts overall".
+        Guid guiAlphaId = Guid.Parse(weapons.Single(w => w.Name == "Ares Alpha").ItemGuid);
+        Assert.True(character.RemoveVehicleWeapon(vehicleId, guiAlphaId));
+
+        // Removing one weapon frees exactly its own mount - a third weapon can now be added even
+        // though the Predator IV still occupies the other mount.
+        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312"));
+        Assert.False(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312")); // Both mounts occupied again.
+    }
+
+    [Fact]
     public void VehicleLocations_CanBeAddedRemovedAndReloaded()
     {
         Guid vehicleId = Guid.NewGuid();

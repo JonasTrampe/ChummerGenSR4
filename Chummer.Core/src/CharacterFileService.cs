@@ -1667,11 +1667,12 @@ namespace Chummer.Core
         /// <summary>Adds a direct vehicle weapon in the legacy Weapon.Save shape. Requires an
         /// available (not yet used by another direct weapon) installed "Weapon Mount"/"Mechanical
         /// Arm" mod - ported from frmCareer.cs's tsVehicleAddWeaponWeapon_Click, which refuses to
-        /// add a weapon at all unless one of those is selected. Simplified: legacy actually attaches
-        /// the new weapon under the specific mount VehicleMod node the user selected (one weapon per
-        /// mount instance); this just checks the vehicle has at least as many mount-type mods as it
-        /// already has direct weapons, without tracking which specific mount each weapon occupies.
-        /// Vehicle-class eligibility for the weapon itself isn't validated.</summary>
+        /// add a weapon at all unless one of those is selected. The new weapon records which
+        /// specific mount mod it occupies (&lt;vehiclemountguid&gt;, the first not already claimed
+        /// by another direct weapon) rather than legacy's approach of nesting the weapon node
+        /// physically under the mount VehicleMod - same one-weapon-per-mount-instance restriction,
+        /// simplified to avoid restructuring this port's existing flat weapons/mods lists. Vehicle-
+        /// class eligibility for the weapon itself isn't validated.</summary>
         public bool AddVehicleWeapon(Guid guiVehicleId, string strName, string strCategory, string strDamage,
             string strAp, string strMode, string strRc, string strAmmo, string strCost, string strAvail,
             string strSource, string strPage)
@@ -1681,14 +1682,21 @@ namespace Chummer.Core
             XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
             if (objVehicle == null) return false;
 
-            int intMounts = objVehicle.SelectNodes("mods/mod")?.Cast<XmlNode>().Count(objMod =>
-            {
-                string strModName = GetValue(objMod, "name", string.Empty);
-                return strModName.StartsWith("Weapon Mount", StringComparison.Ordinal)
-                    || strModName.StartsWith("Mechanical Arm", StringComparison.Ordinal);
-            }) ?? 0;
-            int intExistingWeapons = objVehicle.SelectNodes("weapons/weapon")?.Count ?? 0;
-            if (intExistingWeapons >= intMounts)
+            var setClaimedMountGuids = new HashSet<string>(
+                objVehicle.SelectNodes("weapons/weapon")?.Cast<XmlNode>()
+                    .Select(objWeaponNode => GetValue(objWeaponNode, "vehiclemountguid", string.Empty))
+                    .Where(s => !string.IsNullOrEmpty(s)) ?? Enumerable.Empty<string>(),
+                StringComparer.Ordinal);
+
+            string? strMountGuid = objVehicle.SelectNodes("mods/mod")?.Cast<XmlNode>()
+                .FirstOrDefault(objMod =>
+                {
+                    string strModName = GetValue(objMod, "name", string.Empty);
+                    bool blnIsMount = strModName.StartsWith("Weapon Mount", StringComparison.Ordinal)
+                        || strModName.StartsWith("Mechanical Arm", StringComparison.Ordinal);
+                    return blnIsMount && !setClaimedMountGuids.Contains(GetValue(objMod, "guid", string.Empty));
+                })?.SelectSingleNode("guid")?.InnerText;
+            if (strMountGuid == null)
                 return false;
 
             XmlNode? objWeapons = objVehicle.SelectSingleNode("weapons");
@@ -1706,6 +1714,7 @@ namespace Chummer.Core
             AppendElement(objWeapon, "spec", string.Empty);
             AppendElement(objWeapon, "spec2", string.Empty);
             AppendElement(objWeapon, "reach", "0");
+            AppendElement(objWeapon, "vehiclemountguid", strMountGuid);
             AppendElement(objWeapon, "damage", strDamage);
             AppendElement(objWeapon, "ap", strAp);
             AppendElement(objWeapon, "mode", strMode);

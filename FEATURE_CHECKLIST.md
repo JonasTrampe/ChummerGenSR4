@@ -53,8 +53,8 @@ context on each.
   documented scope note).
 
 **Character sheet tabs**
-- [ ] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon
-  occupies (currently a simplified count check — one weapon per mount, but not which mount).
+- [x] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon
+  occupies — done, see § Character sheet tabs (Fahrzeuge und Drohnen).
 - [x] Weapon dice pools: accessory/mod dice pool bonuses — done, see § Derived stats. Loaded-ammo
   pool bonuses remain unported - blocked on the same missing "which Gear item is loaded into this
   weapon" concept `RestrictStickNShock` also needs.
@@ -231,11 +231,15 @@ context on each.
   Weapon-mount eligibility is now enforced too - researched frmCareer.cs's
   tsVehicleAddWeaponWeapon_Click and found legacy actually requires selecting a specific installed
   "Weapon Mount"/"Mechanical Arm" VehicleMod before it'll let you add a vehicle weapon at all (and
-  nests the new weapon under that specific mod node). `AddVehicleWeapon` now checks the vehicle has
-  more installed mount-type mods than it already has direct weapons - simplified from legacy's
-  per-mount nesting to a simple count check (still one weapon per mount, just not tracking which
-  mount each occupies), since this port's existing "direct onboard weapon" UI already attaches at
-  the vehicle root rather than under a specific mod. Mod
+  nests the new weapon under that specific mod node). `AddVehicleWeapon` now tracks which specific
+  mount each weapon occupies too - it records the first not-already-claimed mount-type mod's guid
+  on the new weapon (`<vehiclemountguid>`), simplified from legacy's approach of physically nesting
+  the weapon node under the mount VehicleMod (this port's existing "direct onboard weapon" UI
+  already attaches every weapon at the vehicle root, so restructuring that would be a bigger,
+  riskier change for the same net eligibility behavior). Removing a weapon frees exactly its own
+  mount rather than just decrementing a count, verified with two mounts/two weapons: removing one
+  weapon lets a new one be added even though the other mount stays occupied, and both occupied
+  again correctly blocks a third. Mod
   "class eligibility" (a mod's `<limit>` field, e.g.
   "Groundcraft Only") turns out not to be a real gap: checked frmSelectVehicleMod.cs and legacy
   itself never validates it either, it's purely informational text next to the mod name - already
