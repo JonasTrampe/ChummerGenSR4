@@ -9,6 +9,8 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="Cyberware hinzufügen" Click="OnAddCyberwareClick" />
                 <Button Content="Bioware hinzufügen" Click="OnAddBiowareClick" />
+                <Button Content="Cyberware-Suite" Click="OnAddCyberwareSuiteClick" />
+                <Button Content="Bioware-Suite" Click="OnAddBiowareSuiteClick" />
                 <Button Content="Löschen" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>

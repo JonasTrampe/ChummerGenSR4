@@ -83,7 +83,18 @@ context on each.
     YNT SoftWeave's `<softweave />` bonus, which isn't a tier-1 `BonusApplier` node type.
   - [ ] `frmSelectAdvancedLifestyle` — advanced lifestyle construction (already noted as
     deliberately out of scope for the plain Lifestyle picker).
-  - [ ] `frmSelectCyberwareSuite` — bundled pre-configured Cyberware sets.
+  - [x] `frmSelectCyberwareSuite` — done. Ported as `GetCyberwareSuiteNames`/`AddCyberwareSuite`
+    (also used for Bioware Suites via `blnBioware`): a Suite fixes a single Grade for every part
+    and real cyberware.xml/bioware.xml suites nest cyberware within cyberware (plugins, e.g.
+    "Urban Kshatriya Alpha"'s Cybereyes Basic System carries six nested vision mods), so this
+    builds the XML tree directly rather than reusing `AddCyberware`'s single-item flow -
+    per-part Essence/Cost are evaluated at their own Rating (`RatingExpression`, matching
+    formula items like Muscle Replacement's "Rating * 5000") then multiplied by the Suite's
+    Grade multipliers, and each part's own `<bonus>` is still applied via the existing
+    `ApplyBonus`. `CyberwareSectionTab` gained "Cyberware-Suite"/"Bioware-Suite" buttons that
+    reuse the existing generic `ListSelectionDialog`. Not ported: legacy's own `TotalCost`
+    Nuyen deduction (frmCareer.cs deducts it separately) - matches `AddCyberware`'s existing
+    no-nuyen-deduction behavior for Cyberware/Bioware in this port.
   - [x] `frmSelectMentorSpirit` — done. Mentor Spirit is a Quality (`<bonus><selectmentorspirit /></bonus>`,
     same for the Technomancer "The Beast's Way" Quality's `<selectparagon />`) whose own `<bonus>`
     stays a no-op until a picker resolves it, ported here as `QualityMentorSpiritDataFile` (returns

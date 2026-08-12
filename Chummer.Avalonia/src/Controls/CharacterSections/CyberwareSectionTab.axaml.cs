@@ -46,6 +46,26 @@ public partial class CyberwareSectionTab : UserControl
 
     private async void OnAddBiowareClick(object? sender, RoutedEventArgs e) => await AddAsync(blnBioware: true);
 
+    private async void OnAddCyberwareSuiteClick(object? sender, RoutedEventArgs e) => await AddSuiteAsync(blnBioware: false);
+
+    private async void OnAddBiowareSuiteClick(object? sender, RoutedEventArgs e) => await AddSuiteAsync(blnBioware: true);
+
+    private async System.Threading.Tasks.Task AddSuiteAsync(bool blnBioware)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var lstSuites = _character.GetCyberwareSuiteNames(blnBioware);
+        if (lstSuites.Count == 0)
+            return;
+
+        var dialog = new ListSelectionDialog(blnBioware ? "Bioware-Suite auswählen:" : "Cyberware-Suite auswählen:",
+            lstSuites);
+        if (await dialog.ShowDialog<bool>(window) && dialog.SelectedValue != null
+            && _character.AddCyberwareSuite(dialog.SelectedValue, blnBioware))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async System.Threading.Tasks.Task AddAsync(bool blnBioware)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)

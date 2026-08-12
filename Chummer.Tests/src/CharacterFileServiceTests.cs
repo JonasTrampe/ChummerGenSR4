@@ -935,6 +935,43 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberwareSuite_AddsAllFlatPartsAtTheSuitesGrade()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Real "Aztechnology Topo" Suite (cyberware.xml): Standard grade, five flat (unnested)
+        // parts, one of which (Muscle Replacement) has a Rating-scaled ess/cost formula.
+        var lstSuites = character.GetCyberwareSuiteNames();
+        Assert.Contains("Aztechnology Topo", lstSuites);
+
+        Assert.True(character.AddCyberwareSuite("Aztechnology Topo"));
+
+        var lstNames = character.Cyberware.Select(c => c.Name).ToList();
+        Assert.Equal(new[] { "Thermographic Vision", "Damper", "Bone Lacing (Plastic)",
+            "Internal Air Tank", "Muscle Replacement" }, lstNames);
+        Assert.All(character.Cyberware, c => Assert.Empty(c.Children));
+
+        CharacterTreeItemData muscleReplacement = character.Cyberware.Single(c => c.Name == "Muscle Replacement");
+        Assert.Equal("2", muscleReplacement.Rating);
+        Assert.Equal("10000", muscleReplacement.Cost); // Rating(2) * 5000, Standard grade x1.
+    }
+
+    [Fact]
+    public void AddCyberwareSuite_NestsPluginsUnderTheirParent()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Real "Urban Kshatriya Alpha" Suite: Alphaware grade, Cybereyes Basic System (Rating 3)
+        // has six nested vision-mod plugins.
+        Assert.True(character.AddCyberwareSuite("Urban Kshatriya Alpha"));
+
+        CharacterTreeItemData eyes = character.Cyberware.Single(c => c.Name == "Cybereyes Basic System");
+        Assert.Equal("3", eyes.Rating);
+        Assert.Equal(6, eyes.Children.Count);
+        Assert.Contains(eyes.Children, c => c.Name == "Smartlink");
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

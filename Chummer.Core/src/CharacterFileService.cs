@@ -1640,6 +1640,116 @@ namespace Chummer.Core
             Changed?.Invoke();
         }
 
+        /// <summary>Cyberware/Bioware Suite names offered by <see cref="AddCyberwareSuite"/> -
+        /// ported from frmSelectCyberwareSuite.cs's Load handler (its flat list, no category
+        /// filter unlike frmSelectPACKSKit).</summary>
+        public IReadOnlyList<string> GetCyberwareSuiteNames(bool blnBioware = false)
+        {
+            XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            var lstNames = new List<string>();
+            foreach (XmlNode objSuite in objWareDoc.SelectNodes("/chummer/suites/suite")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objSuite["name"]?.InnerText ?? string.Empty;
+                if (!string.IsNullOrEmpty(strName))
+                    lstNames.Add(strName);
+            }
+
+            return lstNames;
+        }
+
+        /// <summary>Adds a pre-bundled Cyberware/Bioware Suite (e.g. "Aztechnology Topo") - ported
+        /// from frmSelectCyberwareSuite.cs's ParseNode. A Suite fixes a single Grade for all of its
+        /// parts and can nest cyberware within cyberware (plugins), so this builds the XML tree
+        /// directly (mirroring <see cref="AddCyberware"/>'s own node shape and per-item bonus
+        /// application) instead of reusing that single-item method, appending nested parts under
+        /// their parent's own &lt;children&gt; exactly like <see cref="RemoveCyberware"/>'s tree
+        /// already expects. Unlike <see cref="AddCyberware"/>, legacy's own Suite.TotalCost is
+        /// informational only (frmCareer.cs deducts it separately) - not ported, matching
+        /// AddCyberware's existing no-nuyen-deduction behavior for Cyberware/Bioware.</summary>
+        public bool AddCyberwareSuite(string strSuiteName, bool blnBioware = false)
+        {
+            if (string.IsNullOrWhiteSpace(strSuiteName))
+                return false;
+
+            XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            XmlNode? objXmlSuite = objWareDoc.SelectSingleNode(
+                $"/chummer/suites/suite[name = '{strSuiteName.Trim()}']");
+            string strItemTag = blnBioware ? "bioware" : "cyberware";
+            XmlNode? objXmlItems = objXmlSuite?.SelectSingleNode(strItemTag + "s");
+            if (objXmlItems == null)
+                return false;
+
+            string strGrade = objXmlSuite!["grade"]?.InnerText ?? "Standard";
+            XmlNode? objXmlGrade = objWareDoc.SelectSingleNode($"/chummer/grades/grade[name = '{strGrade}']");
+            double dblGradeEss = double.TryParse(objXmlGrade?["ess"]?.InnerText, NumberStyles.Float,
+                CultureInfo.InvariantCulture, out var dEss) ? dEss : 1.0;
+            double dblGradeCost = double.TryParse(objXmlGrade?["cost"]?.InnerText, NumberStyles.Float,
+                CultureInfo.InvariantCulture, out var dCost) ? dCost : 1.0;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objCyberwares = objRoot.SelectSingleNode("cyberwares");
+            if (objCyberwares == null)
+            {
+                objCyberwares = Document.CreateElement("cyberwares");
+                objRoot.AppendChild(objCyberwares);
+            }
+
+            foreach (XmlNode objXmlItem in objXmlItems.SelectNodes(strItemTag)?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AppendCyberwareSuiteItem(objCyberwares, objXmlItem, objWareDoc, strGrade, dblGradeEss, dblGradeCost,
+                    blnBioware);
+
+            Changed?.Invoke();
+            return true;
+        }
+
+        private void AppendCyberwareSuiteItem(XmlNode objParentList, XmlNode objXmlItem, XmlDocument objWareDoc,
+            string strGrade, double dblGradeEss, double dblGradeCost, bool blnBioware)
+        {
+            string strName = objXmlItem["name"]?.InnerText ?? string.Empty;
+            if (string.IsNullOrEmpty(strName))
+                return;
+
+            string strItemTag = blnBioware ? "bioware" : "cyberware";
+            XmlNode? objXmlWare = objWareDoc.SelectSingleNode(
+                $"/chummer/{strItemTag}s/{strItemTag}[name = '{strName.Trim()}']");
+            if (objXmlWare == null)
+                return;
+
+            string strRating = objXmlItem["rating"]?.InnerText ?? "0";
+            double dblBaseEss = RatingExpression.Evaluate(objXmlWare["ess"]?.InnerText ?? "0", strRating);
+            double dblBaseCost = RatingExpression.Evaluate(objXmlWare["cost"]?.InnerText ?? "0", strRating);
+            string strEss = Math.Round(dblBaseEss * dblGradeEss, 2).ToString(CultureInfo.InvariantCulture);
+            string strCost = ((int)(dblBaseCost * dblGradeCost)).ToString(CultureInfo.InvariantCulture);
+
+            var objElement = Document.CreateElement(strItemTag);
+            AppendElement(objElement, "name", strName.Trim());
+            AppendElement(objElement, "category", objXmlWare["category"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "rating", strRating);
+            AppendElement(objElement, "ess", strEss);
+            AppendElement(objElement, "cost", strCost);
+            AppendElement(objElement, "avail", objXmlWare["avail"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "source", objXmlWare["source"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "page", objXmlWare["page"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "grade", strGrade);
+            AppendElement(objElement, "improvementsource", blnBioware ? "Bioware" : "Cyberware");
+            AppendElement(objElement, "equipped", "True");
+            AppendElement(objElement, "location", string.Empty);
+            var objChildren = Document.CreateElement("children");
+            objElement.AppendChild(objChildren);
+            objParentList.AppendChild(objElement);
+
+            ApplyBonus(objXmlWare.SelectSingleNode("bonus"),
+                blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware, strName.Trim(), strRating);
+
+            foreach (XmlNode objXmlChild in objXmlItem.SelectNodes(strItemTag + "s/" + strItemTag)?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AppendCyberwareSuiteItem(objChildren, objXmlChild, objWareDoc, strGrade, dblGradeEss, dblGradeCost,
+                    blnBioware);
+        }
+
         /// <summary>Removes the first root-level saved Cyberware/Bioware item matching its
         /// name/category/rating and Cyberware-vs-Bioware source, along with any Improvements its
         /// own &lt;bonus&gt; block granted on add.</summary>
