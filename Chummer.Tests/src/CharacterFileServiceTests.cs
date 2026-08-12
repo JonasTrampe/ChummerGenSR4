@@ -856,11 +856,12 @@ public class CharacterFileServiceTests
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
         character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
 
-        // YNT SoftWeave's real bonus is a bare <softweave /> node - not tier-1 covered, so this
-        // should no-op safely (no crash, no Improvement) rather than apply anything.
+        // YNT SoftWeave's real bonus is a bare <softweave /> node.
         Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "YNT SoftWeave", "1",
             "0", "0", "11", "Armor Cost * 0.1", "WAR", "160"));
-        Assert.Empty(character.Improvements);
+
+        Improvement improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.SoftWeave, improvement.Type);
     }
 
     [Fact]
@@ -868,24 +869,73 @@ public class CharacterFileServiceTests
     {
         CharacterDocument character = LoadXml("<character></character>");
 
-        // Cat's own <bonus> is a <spellcategory> node - not tier-1 covered by BonusApplier, so it
-        // should no-op safely. Its chosen <choice>'s <specificskill> bonus IS tier-1 covered and
-        // should apply.
+        // Cat's own <bonus> is a <spellcategory> node (+2 dice, Illusion). Its chosen <choice>'s
+        // <specificskill> bonus is a separate Improvement.
         Assert.False(character.QualityRequiresTextSelection("Mentor Spirit"));
         Assert.Equal("mentors.xml", character.QualityMentorSpiritDataFile("Mentor Spirit"));
 
         character.AddQuality("Mentor Spirit", "Positive", strMentorSpirit: "Cat",
             strMentorChoice1: "+2 dice to Gynmastics Tests");
 
-        Improvement improvement = Assert.Single(character.Improvements);
-        Assert.Equal(ImprovementSource.Quality, improvement.Source);
-        Assert.Equal("Mentor Spirit", improvement.SourceName);
-        Assert.Equal(ImprovementType.Skill, improvement.Type);
-        Assert.Equal("Gymnastics", improvement.ImprovedName);
-        Assert.Equal(2, improvement.Value);
+        Assert.Equal(2, character.Improvements.Count);
+
+        Improvement spellCategoryImprovement = character.Improvements.Single(i => i.Type == ImprovementType.SpellCategory);
+        Assert.Equal(ImprovementSource.Quality, spellCategoryImprovement.Source);
+        Assert.Equal("Mentor Spirit", spellCategoryImprovement.SourceName);
+        Assert.Equal("Illusion", spellCategoryImprovement.ImprovedName);
+        Assert.Equal(2, spellCategoryImprovement.Value);
+
+        Improvement skillImprovement = character.Improvements.Single(i => i.Type == ImprovementType.Skill);
+        Assert.Equal(ImprovementSource.Quality, skillImprovement.Source);
+        Assert.Equal("Mentor Spirit", skillImprovement.SourceName);
+        Assert.Equal("Gymnastics", skillImprovement.ImprovedName);
+        Assert.Equal(2, skillImprovement.Value);
 
         Assert.True(character.RemoveQuality("Mentor Spirit", "Positive"));
         Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void AddCyberware_Smartlink_AppliesTheFlagBonus()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Smartlink cyberware's real bonus is a bare <smartlink /> flag node.
+        character.AddCyberware("Smartlink", "Eyeware", "0", "0.1", "1000", "8R", "SR4", "340");
+
+        Improvement improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.Smartlink, improvement.Type);
+    }
+
+    [Fact]
+    public void AddCyberware_BoneLacingAluminum_AppliesArmorAndDamageResistanceBonuses()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Real bonus: <armor><i>1</i></armor> + <damageresistance>2</damageresistance>.
+        character.AddCyberware("Bone Lacing (Aluminum)", "Bodyware", "0", "1", "15000", "12F", "SR4", "341");
+
+        Assert.Equal(2, character.Improvements.Count);
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.ImpactArmor, ""));
+        Improvement drImprovement = character.Improvements.Single(i => i.Type == ImprovementType.DamageResistance);
+        Assert.Equal(2, drImprovement.Value);
+    }
+
+    [Fact]
+    public void AddArmorMod_ResponsiveInterfaceGearHotSim_AppliesMatrixInitiativeBonuses()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        // Real bonus: <matrixinitiative>1</matrixinitiative> + <matrixinitiativepass>2</matrixinitiativepass>
+        // + a bare <skillsoftaccess /> flag.
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing",
+            "Responsive Interface Gear (Helmet, Hot Sim)", "1", "0", "0", "8", "2400", "WAR", "161"));
+
+        Assert.Equal(3, character.Improvements.Count);
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.MatrixInitiative, ""));
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.MatrixInitiativePass, ""));
+        Assert.Contains(character.Improvements, i => i.Type == ImprovementType.SkillsoftAccess);
     }
 
     [Fact]

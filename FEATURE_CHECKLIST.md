@@ -23,9 +23,26 @@ through directly without re-reading prose. Grouped by area; see the linked secti
 context on each.
 
 **Bonus-application engine** (see § Bonus-application engine)
-- [ ] Expand `BonusApplier`/`ApplyBonus` beyond the current tier-1 node-type set (frequency-ranked
-  against this port's own data) toward covering legacy's full ~109-branch `CreateImprovements`
-  if-chain.
+- [x] Expand `BonusApplier`/`ApplyBonus` beyond the original tier-1 node-type set - done (a second,
+  frequency-ranked pass). Ranked every `<bonus>` child tag across this port's own data files by
+  real occurrence count, then added parsing for every type that either already had a consuming
+  calculation elsewhere in this port or was a trivial one-line port with no ambiguity:
+  `matrixinitiative`/`matrixinitiativepass`, `damageresistance`, `movementpercent`, `smartlink`,
+  `softweave` (closes the "YNT SoftWeave" gap noted in the ArmorMod entry above),
+  `concealability`, `skillsoftaccess`, `blackmarketdiscount`, `livingpersona` (all five sub-stats:
+  response/signal/firewall/system/biofeedback), `spellcategory` (closes the "Cat's own
+  `<spellcategory>` bonus no-ops" gap noted in the Mentor Spirit entry below - both affected
+  tests updated to assert the now-correct behavior), and `weaponcategorydv`.
+  Deliberately NOT ported despite high raw frequency, because they're architecturally orthogonal
+  to this port's model rather than simple oversights: `enabletab`/`addattribute` toggle
+  Magician/Adept/Technomancer tab visibility via Improvements in legacy, but this port derives
+  those flags directly at character creation instead (and their real usage is dominated by
+  critters.xml, which this port doesn't build characters from); vehicle-context stat bonuses
+  (`flyspeed`/`speed`/`accel`/`handling`/vehicle `response`) would need per-vehicle Improvement
+  scoping this port's Vehicle model doesn't have; `essencemax`/`nuyenamt`/
+  `freepositivequalities`/`freenegativequalities`/`cyberwareessmultiplier` have no consuming
+  calculation anywhere in this port yet, so parsing them now would just be unverifiable inert
+  data - revisit once/if their consuming features get built.
 - [ ] Manual Improvement *add* (`frmCreateImprovement.cs` — a ~50-type catalog with per-type
   dynamic fields and sub-picker dialogs). Delete already works for `Custom`-sourced entries; add
   does not exist at all.
@@ -80,7 +97,8 @@ context on each.
     hinzufügen"/"Mod löschen" buttons. Not ported: Armor capacity enforcement (this port doesn't
     track Armor capacity remaining at all yet, unlike Gear/Weapon Mod slots). Verified against real
     data: Chemical Protection's Rating-scaled cost (`Rating * 250`) and correctly not crashing on
-    YNT SoftWeave's `<softweave />` bonus, which isn't a tier-1 `BonusApplier` node type.
+    YNT SoftWeave's `<softweave />` bonus (now applied as an `ImprovementType.SoftWeave`
+    Improvement - see the Bonus-application engine entry above).
   - [x] `frmSelectAdvancedLifestyle` — done. Ported as `GetLifestyleAspectOptions`/
     `GetLifestyleQualityOptions`/`PreviewAdvancedLifestyle`/`AddAdvancedLifestyle`: total LP is
     the five aspects' (Comforts/Entertainment/Necessities/Neighborhood/Security) own `<lp>` plus
@@ -130,9 +148,10 @@ context on each.
     `QualityMentorSpiritDataFile` returns non-null. Not ported: legacy's `set="2"` second-independent-
     choice split (only 2 of ~40 mentors.xml entries use it) — this port offers one choose-one dropdown
     over the full `<choices>` list instead, so those 2 mentors only get their first pick applied.
-    Verified against real data: Cat's own `<spellcategory>` bonus correctly no-ops (not yet a
-    tier-1 `BonusApplier` node type) while its chosen `<choice>`'s `<specificskill>` bonus
-    (Gymnastics +2) applies and is fully cleaned up on `RemoveQuality`.
+    Verified against real data: Cat's own `<spellcategory>` bonus (Illusion +2) and its chosen
+    `<choice>`'s `<specificskill>` bonus (Gymnastics +2) both apply and are fully cleaned up on
+    `RemoveQuality` (spellcategory parsing added later - see the Bonus-application engine entry
+    above).
   - [x] `frmSelectNexus` — done. Ported as `AddNexus(intProcessor, intResponse, intSystem,
     intFirewall, intSignal, intPersona, blnFree)`, reproducing `CalculateNexus`'s per-tier
     Cost formulas verbatim - including its Response 7-10 cost bug (multiplies its own

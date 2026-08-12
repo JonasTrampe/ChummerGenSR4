@@ -28,7 +28,19 @@ namespace Chummer.Core
     /// built "Selectable Improvement" flow - see FEATURE_CHECKLIST.md). Everything handled here
     /// covers the large majority of real usage in this port's own data files (specificattribute,
     /// specificskill, conditionmonitor, skillcategory, skillgroup, skillattribute, initiative/
-    /// initiativepass, notoriety, armor, reach, unarmed dv/ap, lifestylecost).</summary>
+    /// initiativepass, notoriety, armor, reach, unarmed dv/ap, lifestylecost, matrixinitiative/
+    /// matrixinitiativepass, damageresistance, movementpercent, smartlink, softweave,
+    /// concealability, skillsoftaccess, blackmarketdiscount, livingpersona, spellcategory,
+    /// weaponcategorydv). Not ported: several node types that are frequency-heavy in raw data but
+    /// architecturally orthogonal to this port's simplified model - &lt;enabletab&gt;/
+    /// &lt;addattribute&gt; toggle Magician/Adept/Technomancer/RES-RES tab visibility, which this
+    /// port instead derives from flags set directly at character creation, not from Improvements
+    /// (and their real usage is dominated by critters.xml, which this port doesn't build
+    /// characters from anyway); vehicle-context stat bonuses (flyspeed/speed/accel/handling/
+    /// response) would need per-vehicle Improvement scoping this port's Vehicle model doesn't have
+    /// yet; essencemax/nuyenamt/freepositivequalities/freenegativequalities/cyberwareessmultiplier
+    /// have no consuming calculation anywhere in this port yet, so parsing them would just be
+    /// inert data with no way to verify correctness.</summary>
     public static class BonusApplier
     {
         public static IReadOnlyList<ImprovementSpec> Parse(XmlNode? nodBonus, string strRating, string strUnique)
@@ -51,6 +63,21 @@ namespace Chummer.Core
             ParseSimpleValue(nodBonus, "initiativepass", ImprovementType.InitiativePass, strRating, "initiativepass", lstResult);
             ParseSimpleValue(nodBonus, "lifestylecost", ImprovementType.LifestyleCost, strRating, strUnique, lstResult);
             ParseSimpleValue(nodBonus, "notoriety", ImprovementType.Notoriety, strRating, "", lstResult);
+            ParseSimpleValue(nodBonus, "matrixinitiative", ImprovementType.MatrixInitiative, strRating, strUnique, lstResult);
+            ParseSimpleValue(nodBonus, "matrixinitiativepass", ImprovementType.MatrixInitiativePass, strRating,
+                "matrixinitiativepass", lstResult);
+            ParseSimpleValue(nodBonus, "damageresistance", ImprovementType.DamageResistance, strRating,
+                "damageresistance", lstResult);
+            ParseSimpleValue(nodBonus, "movementpercent", ImprovementType.MovementPercent, strRating, "", lstResult);
+            ParseSimpleValue(nodBonus, "smartlink", ImprovementType.Smartlink, strRating, "smartlink", lstResult);
+            ParseSimpleValue(nodBonus, "softweave", ImprovementType.SoftWeave, strRating, "softweave", lstResult);
+            ParseSimpleValue(nodBonus, "concealability", ImprovementType.Concealability, strRating, "", lstResult);
+            ParseSimpleValue(nodBonus, "skillsoftaccess", ImprovementType.SkillsoftAccess, strRating, "", lstResult);
+            ParseSimpleValue(nodBonus, "blackmarketdiscount", ImprovementType.BlackMarketDiscount, strRating,
+                strUnique, lstResult);
+            ParseLivingPersona(nodBonus, strRating, strUnique, lstResult);
+            ParseSpellCategory(nodBonus, strRating, strUnique, lstResult);
+            ParseWeaponCategoryDv(nodBonus, strRating, strUnique, lstResult);
 
             return lstResult;
         }
@@ -164,6 +191,63 @@ namespace Chummer.Core
             if (objNode["overflow"] != null)
                 lstResult.Add(new ImprovementSpec(ImprovementType.CmOverflow,
                     Value: (int)RatingExpression.Evaluate(ChildText(objNode, "overflow"), strRating), UniqueName: strUnique));
+        }
+
+        // Ported from clsImprovement.cs's "livingpersona" handler - a Technomancer's Living
+        // Persona stats (Response/Signal/Firewall/System/Biofeedback), each independently optional.
+        private static void ParseLivingPersona(XmlNode nodBonus, string strRating, string strUnique,
+            List<ImprovementSpec> lstResult)
+        {
+            XmlNode? objNode = nodBonus.SelectSingleNode("livingpersona");
+            if (objNode == null)
+                return;
+
+            void AddIfPresent(string strTag, ImprovementType eType)
+            {
+                if (objNode[strTag] != null)
+                    lstResult.Add(new ImprovementSpec(eType,
+                        Value: (int)RatingExpression.Evaluate(ChildText(objNode, strTag), strRating), UniqueName: strUnique));
+            }
+
+            AddIfPresent("response", ImprovementType.LivingPersonaResponse);
+            AddIfPresent("signal", ImprovementType.LivingPersonaSignal);
+            AddIfPresent("firewall", ImprovementType.LivingPersonaFirewall);
+            AddIfPresent("system", ImprovementType.LivingPersonaSystem);
+            AddIfPresent("biofeedback", ImprovementType.LivingPersonaBiofeedback);
+        }
+
+        // Ported from clsImprovement.cs's "spellcategory" handler - can appear multiple times for
+        // more than one affected Spell Category, and each entry's <name> may carry its own
+        // "precedence" attribute (same precedence-stacking mechanism as specificattribute's).
+        private static void ParseSpellCategory(XmlNode nodBonus, string strRating, string strUnique,
+            List<ImprovementSpec> lstResult)
+        {
+            foreach (XmlNode objNode in nodBonus.SelectNodes("spellcategory") ?? EmptyNodeList())
+            {
+                string strName = ChildText(objNode, "name");
+                if (string.IsNullOrEmpty(strName) || objNode["val"] == null)
+                    continue;
+
+                string strUseUnique = AttributePrecedence(objNode, "name", strUnique);
+                lstResult.Add(new ImprovementSpec(ImprovementType.SpellCategory, strName,
+                    Value: (int)RatingExpression.Evaluate(ChildText(objNode, "val"), strRating), UniqueName: strUseUnique));
+            }
+        }
+
+        // Ported from clsImprovement.cs's "weaponcategorydv" handler - can appear multiple times
+        // for more than one affected Weapon Category.
+        private static void ParseWeaponCategoryDv(XmlNode nodBonus, string strRating, string strUnique,
+            List<ImprovementSpec> lstResult)
+        {
+            foreach (XmlNode objNode in nodBonus.SelectNodes("weaponcategorydv") ?? EmptyNodeList())
+            {
+                string strName = ChildText(objNode, "name");
+                if (string.IsNullOrEmpty(strName) || objNode["bonus"] == null)
+                    continue;
+
+                lstResult.Add(new ImprovementSpec(ImprovementType.WeaponCategoryDv, strName,
+                    Value: (int)RatingExpression.Evaluate(ChildText(objNode, "bonus"), strRating), UniqueName: strUnique));
+            }
         }
 
         // Ported from clsImprovement.cs's "armor" handler (b = ballistic, i = impact).
