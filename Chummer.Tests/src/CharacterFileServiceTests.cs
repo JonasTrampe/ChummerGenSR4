@@ -650,6 +650,42 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Weapons_DicePool_IncludesInstalledAccessoryDicePoolBonus()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        string strWithoutAccessory = character.Weapons.Single().DicePool;
+
+        // Red Dot Sight's real rules-data <dicepool> is 1 (distinct from the same-named Mod).
+        Assert.True(character.AddWeaponAccessory(guiWeaponId, "Red Dot Sight", "Top", string.Empty, "3", "200", "GH", "22"));
+
+        string strWithAccessory = character.Weapons.Single().DicePool;
+        Assert.Equal(int.Parse(strWithoutAccessory) + 1, int.Parse(strWithAccessory));
+    }
+
+    [Fact]
+    public void Weapons_DicePool_IncludesRatingScaledModDicePoolBonus()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        string strBaseline = character.Weapons.Single().DicePool;
+
+        // Weapon Focus's real rules-data <dicepool> is "Rating".
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Weapon Focus", "3", "0", "0", "5000", "SR4", "313"));
+
+        string strWithMod = character.Weapons.Single().DicePool;
+        Assert.Equal(int.Parse(strBaseline) + 3, int.Parse(strWithMod));
+    }
+
+    [Fact]
     public void AddWeaponMod_ResolvesWeaponCostAndRatingTokensInTheCostFormula()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");

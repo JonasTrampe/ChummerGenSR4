@@ -55,8 +55,9 @@ context on each.
 **Character sheet tabs**
 - [ ] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon
   occupies (currently a simplified count check — one weapon per mount, but not which mount).
-- [ ] Weapon dice pools: accessory/mod dice pool bonuses and loaded-ammo pool bonuses aren't
-  factored in yet (no field for either in this port's saved data).
+- [x] Weapon dice pools: accessory/mod dice pool bonuses — done, see § Derived stats. Loaded-ammo
+  pool bonuses remain unported - blocked on the same missing "which Gear item is loaded into this
+  weapon" concept `RestrictStickNShock` also needs.
 - [x] A real spellcasting dice pool per spell — done, see § Character sheet tabs (Sprüche und
   Geister). Separate from the Drain/Fading resistance pool, which was already done.
 
@@ -302,9 +303,16 @@ context on each.
 - ✅ Armor encumbrance penalty
 - ✅ Skill dice pools, including skill-rating augmentation display
 - ✅ Weapon dice pools (category→Active Skill mapping, Smartgun System bonus, specialization
-  match), shown in the Waffen tab's detail pane and included in the print sheet. Not ported:
-  accessory/mod dice pool bonuses (no field for it in this port's saved data yet) and loaded-ammo
-  pool bonuses.
+  match), shown in the Waffen tab's detail pane and included in the print sheet. Installed
+  Accessory/Mod dice pool bonuses are now included too, ported from clsEquipment.cs's
+  Weapon.DicePool: each installed Accessory's/Mod's own rules-data `<dicepool>` value (a plain
+  integer, or `Rating`/`-Rating` for Mods scaling with their own Rating, reusing the existing
+  `RatingExpression` evaluator) is looked up by name from weapons.xml and summed in, with each
+  contributor listed in the tooltip. Verified against real data: Red Dot Sight's flat `+1` and
+  Weapon Focus's Rating-scaled bonus (careful to look up the correct one when an Accessory and a
+  Mod share a name, e.g. "Laser Sight" exists as both with different `<dicepool>` values). Loaded-
+  ammo pool bonuses remain unported - this port has no concept of which Gear item is loaded into a
+  weapon at all yet (same gap `RestrictStickNShock` also hits).
 - ✅ Composure, Judge Intentions, Lift and Carry, Memory
 - ✅ Initiative, Initiative Passes
 - ✅ Astral Initiative

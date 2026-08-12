@@ -5133,7 +5133,7 @@ namespace Chummer.Core
                 objWeapon.SetLocation(strLocation);
                 (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(
                     GetValue(objNode, "category", string.Empty), GetValue(objNode, "name", string.Empty),
-                    WeaponNodeHasSmartgun(objNode));
+                    WeaponNodeHasSmartgun(objNode), objNode);
                 objWeapon.SetWeaponDicePool(strPoolDisplay, strTooltip);
                 if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
                     objLocation.Children.Add(objWeapon);
@@ -5197,7 +5197,7 @@ namespace Chummer.Core
                 string strName = GetValue(objNode, "name", string.Empty);
                 string strCategory = GetValue(objNode, "category", string.Empty);
                 (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(strCategory, strName,
-                    WeaponNodeHasSmartgun(objNode));
+                    WeaponNodeHasSmartgun(objNode), objNode);
 
                 lstWeapons.Add(new CharacterWeaponData(strName, strCategory, GetValue(objNode, "damage", string.Empty),
                     GetValue(objNode, "ammo", string.Empty), GetValue(objNode, "ap", string.Empty),
@@ -5244,7 +5244,7 @@ namespace Chummer.Core
         };
 
         private (string PoolDisplay, string Tooltip) ComputeWeaponDicePool(string strCategory, string strWeaponName,
-            bool blnHasSmartgun)
+            bool blnHasSmartgun, XmlNode? objWeaponNode = null)
         {
             string strSkillName = s_dicWeaponCategorySkills.TryGetValue(strCategory, out var strMapped)
                 ? strMapped
@@ -5271,6 +5271,10 @@ namespace Chummer.Core
             }
 
             intPool += intSmartlinkBonus;
+
+            if (objWeaponNode != null)
+                intPool += SumInstalledAccessoryAndModDicePool(objWeaponNode, sb);
+
             string strDisplay = intPool.ToString();
 
             if (!string.IsNullOrEmpty(objSkill.Specialization)
@@ -5282,6 +5286,54 @@ namespace Chummer.Core
 
             sb.Append('\n').Append("Würfelpool: ").Append(strDisplay);
             return (strDisplay, sb.ToString());
+        }
+
+        /// <summary>Ported from clsEquipment.cs's Weapon.DicePool: sums each installed Weapon
+        /// Accessory's/Mod's own rules-data &lt;dicepool&gt; value (a plain integer, or "Rating"/
+        /// "-Rating" for Mods whose bonus scales with their own Rating). Not ported: the loaded-
+        /// ammo pool bonus (Gear's &lt;weaponbonus&gt;/&lt;pool&gt;), since this port has no
+        /// concept of which Gear item is loaded into a weapon at all yet (same gap noted for
+        /// RestrictStickNShock).</summary>
+        private int SumInstalledAccessoryAndModDicePool(XmlNode objWeaponNode, StringBuilder sb)
+        {
+            int intTotal = 0;
+            XmlDocument objWeaponsDoc = XmlManager.Instance.Load("weapons.xml");
+
+            XmlNodeList? objAccessoryNodes = objWeaponNode.SelectNodes("accessories/accessory");
+            if (objAccessoryNodes != null)
+                foreach (XmlNode objAccessoryNode in objAccessoryNodes)
+                {
+                    if (GetValue(objAccessoryNode, "installed", "True") != "True")
+                        continue;
+                    string strName = GetValue(objAccessoryNode, "name", string.Empty);
+                    XmlNode? objXmlAccessory = objWeaponsDoc.SelectSingleNode(
+                        $"/chummer/accessories/accessory[name = '{strName}']");
+                    int intBonus = (int)RatingExpression.Evaluate(
+                        objXmlAccessory?.SelectSingleNode("dicepool")?.InnerText ?? string.Empty, "0");
+                    if (intBonus == 0)
+                        continue;
+                    intTotal += intBonus;
+                    sb.Append('\n').Append(strName).Append(": ").Append(FormatSigned(intBonus));
+                }
+
+            XmlNodeList? objModNodes = objWeaponNode.SelectNodes("weaponmods/weaponmod");
+            if (objModNodes != null)
+                foreach (XmlNode objModNode in objModNodes)
+                {
+                    if (GetValue(objModNode, "installed", "True") != "True")
+                        continue;
+                    string strName = GetValue(objModNode, "name", string.Empty);
+                    string strRating = GetValue(objModNode, "rating", "0");
+                    XmlNode? objXmlMod = objWeaponsDoc.SelectSingleNode($"/chummer/mods/mod[name = '{strName}']");
+                    int intBonus = (int)RatingExpression.Evaluate(
+                        objXmlMod?.SelectSingleNode("dicepool")?.InnerText ?? string.Empty, strRating);
+                    if (intBonus == 0)
+                        continue;
+                    intTotal += intBonus;
+                    sb.Append('\n').Append(strName).Append(": ").Append(FormatSigned(intBonus));
+                }
+
+            return intTotal;
         }
 
         private IReadOnlyList<CharacterSkillGroupData> ReadSkillGroups()
