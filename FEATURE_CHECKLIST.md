@@ -91,10 +91,20 @@ context on each.
   exist as settable/persisted options but the exporter doesn't branch on any of them, so sheet
   output is always the same regardless of these toggles.
 - [ ] Broader house-rule audit: every `bool` in `Options.cs`/`CharacterOptions` was checked for a
-  real consumer. Beyond the two rows above, these have a working UI checkbox and persist, but no
-  calculation anywhere reads them yet (not yet even scoped/documented as partial, unlike the
-  house rules in § House-rule awareness in calculations, which HAVE been individually audited and
-  wired): `AllowBiowareSuites`, `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`,
+  real consumer, covering both of legacy's `frmOptions.cs` tabs - "House Rules" AND "Optional
+  Rules" (`tabOptionalRules`, ported here as the separate `OptionalRulesOptionsTab` - confirmed
+  present with all 16 of legacy's real optional-rule checkboxes:
+  `AllowCustomTransgenics`/`AllowSkillRegrouping`/`AlternateComplexFormCost`/
+  `AlternateMatrixAttribute`/`ArmorDegradation`/`ArmorSuitCapacity`/
+  `BreakSkillGroupsInCreateMode`/`CapSkillRating`/`ExtendAnyDetectionSpell`/
+  `MaximumArmorModifications`/`MetatypeCostsKarma`/`MoreLethalGameplay`/
+  `NoSingleArmorEncumbrance`/`StrengthAffectsRecoil`/`UseCalculatedVehicleSensorRatings` - so the
+  UI-level split itself is not a gap). Beyond the two rows above, these have a working UI
+  checkbox and persist, but no calculation anywhere reads them yet (not yet even
+  scoped/documented as partial, unlike the house rules in § House-rule awareness in calculations,
+  which HAVE been individually audited and wired) - the list below mixes both legacy tabs since
+  functionally they're the same kind of gap: `AllowBiowareSuites`, `AllowCustomTransgenics`,
+  `AllowEditPartOfBaseWeapon`,
   `AllowHigherStackedFoci`, `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`,
   `AlternateComplexFormCost`, `AlternateMatrixAttribute`, `ArmorDegradation`,
   `ArmorSuitCapacity`, `BreakSkillGroupsInCreateMode`, `CalculateCommlinkResponse`,
