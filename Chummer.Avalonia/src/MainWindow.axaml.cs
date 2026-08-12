@@ -28,6 +28,7 @@ public partial class MainWindow : Window
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
         DataContext = new MainWindowViewModel();
+        CheckForUpdateOnStartupAsync();
     }
 
     // Demo wiring only, for the look-and-feel spike: chains the three real character-creation
@@ -185,6 +186,48 @@ public partial class MainWindow : Window
         // instead of only after closing and reopening the character.
         foreach (var tab in ViewModel.OpenCharacters)
             tab.Content.LoadCharacter(tab.Character);
+    }
+
+    /// <summary>Ported from frmMain.cs's mnuToolsUpdate_Click - always shows a result, even
+    /// "already up to date" (a plain message box, unlike the startup silent check).</summary>
+    private async void OnCheckForUpdatesClick(object? sender, RoutedEventArgs e)
+    {
+        string strCurrentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            ?? "0.0.0";
+        using var objClient = new System.Net.Http.HttpClient();
+        UpdateChecker.UpdateCheckResult? objResult =
+            await UpdateChecker.CheckForUpdateAsync(objClient, strCurrentVersion);
+
+        if (objResult == null)
+        {
+            var dialog = new MessageBoxDialog("Update", "Keine neuen Updates gefunden oder keine Verbindung möglich.");
+            await dialog.ShowDialog(this);
+            return;
+        }
+
+        var updateDialog = new UpdateDialog(strCurrentVersion, objResult);
+        await updateDialog.ShowDialog(this);
+    }
+
+    /// <summary>Ported from frmMain.cs's constructor: if Automatic Updates is on, checks for an
+    /// update on startup - but only shows a dialog if one is actually found (silent mode), matching
+    /// legacy's frmUpdate.SilentMode. Fire-and-forget: doesn't block the window from opening, unlike
+    /// legacy's blocking ShowDialog before frmMain finishes loading.</summary>
+    private async void CheckForUpdateOnStartupAsync()
+    {
+        if (!GlobalOptions.Instance.AutomaticUpdate)
+            return;
+
+        string strCurrentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            ?? "0.0.0";
+        using var objClient = new System.Net.Http.HttpClient();
+        UpdateChecker.UpdateCheckResult? objResult =
+            await UpdateChecker.CheckForUpdateAsync(objClient, strCurrentVersion);
+        if (objResult == null)
+            return;
+
+        var updateDialog = new UpdateDialog(strCurrentVersion, objResult);
+        await updateDialog.ShowDialog(this);
     }
 
     public void LoadCharacterIntoTabs(CharacterDocument character, string? sourcePath = null)

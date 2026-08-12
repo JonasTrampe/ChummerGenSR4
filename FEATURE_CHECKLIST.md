@@ -60,8 +60,13 @@ context on each.
 **Output / tooling**
 - [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF
   library or print backend referenced anywhere in this port yet).
-- [ ] Update checker — needs an explicit decision (arguably a non-goal under an AppImage/Linux
-  distribution model) rather than being silently unported.
+- [x] Update checker — done. Ported from legacy's own already-Linux-adapted `frmUpdate.cs` (see
+  commit "Remove dead WCF Omae feature and legacy update checker (Phase 0)"): `UpdateChecker`
+  (`Chummer.Core`) checks GitHub's Releases API and compares the tag against the running version;
+  `UpdateDialog` shows the result and opens the release page in the browser (no self-replacing
+  exe, same as legacy's own adaptation). Wired into a new Hilfe → "Nach Updates suchen..." menu
+  item (always shows a result) and a startup check gated by the existing `AutomaticUpdate` option
+  (silent - only shows a dialog when an update is actually found).
 
 **Settings / i18n**
 - [ ] Translate the Avalonia UI — most strings are still hard-coded despite the language-selection
@@ -471,8 +476,20 @@ context on each.
 - ✅ Dice roller — ported frmDiceRoller.cs's roll/hit/glitch logic (Standard/Large/Really Large
   methods, Rule of 6, Cinematic Gameplay, Rushed Job, Gremlins rating, Threshold) into a
   standalone, character-independent `Zubehör → Würfeln...` dialog
-- ❌ Update checker (arguably a non-goal for a Linux/AppImage distribution model rather than a
-  gap — worth an explicit decision rather than silent omission)
+- ✅ Update checker — ported from legacy's own already-Linux-adapted `frmUpdate.cs`.
+  `UpdateChecker.CheckForUpdateAsync` (`Chummer.Core`) hits GitHub's Releases API
+  (`api.github.com/repos/JonasTrampe/ChummerGenSR4/releases/latest`) and compares the tag against
+  `Assembly.GetExecutingAssembly().GetName().Version` (parsing/comparison logic - stripping a
+  leading `v` and any pre-release/build-metadata suffix - is pure and unit-tested separately from
+  the network call). `UpdateDialog` shows the current/latest version and release notes, and opens
+  the release page in the browser rather than self-replacing the running executable, matching
+  legacy's own reasoning ("doesn't translate to how Linux/AppImage packaging will actually deliver
+  updates"). Wired into Hilfe → "Nach Updates suchen..." (always shows a result, including "no
+  update found") and a fire-and-forget startup check in `MainWindow`'s constructor gated by the
+  existing `AutomaticUpdate` option (silent - only opens `UpdateDialog` if a newer release exists,
+  same as legacy's `frmUpdate.SilentMode`). `Chummer.Avalonia.csproj` now sets `<Version>0.1.496
+  </Version>`, continuing legacy's own `AssemblyInfo.cs` numbering, so there's a real version to
+  compare against.
 
 ## Settings / options
 

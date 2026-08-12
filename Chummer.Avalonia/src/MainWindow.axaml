@@ -52,7 +52,9 @@
                 <MenuItem Header="_Optionen..." Click="OnOptionsClick" />
             </MenuItem>
             <MenuItem Header="_Fenster" />
-            <MenuItem Header="_Hilfe" />
+            <MenuItem Header="_Hilfe">
+                <MenuItem Header="Nach _Updates suchen..." Click="OnCheckForUpdatesClick" />
+            </MenuItem>
         </Menu>
 
         <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,0,0,1">

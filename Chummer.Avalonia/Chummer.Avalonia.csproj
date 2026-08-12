@@ -2,6 +2,9 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
+        <!-- Continues legacy's own AssemblyVersion numbering (Chummer/Properties/AssemblyInfo.cs
+             was "0.1.496.*") - compared against GitHub release tags by UpdateChecker. -->
+        <Version>0.1.496</Version>
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <EnableAvaloniaXamlCompilation>true</EnableAvaloniaXamlCompilation>
