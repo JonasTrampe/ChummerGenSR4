@@ -1750,6 +1750,434 @@ namespace Chummer.Core
                     blnBioware);
         }
 
+        /// <summary>Categories offered by <see cref="GetPacksKitNames"/> - ported from
+        /// frmSelectPACKSKit.cs's category dropdown (real packs.xml data uses "Attribute Kits",
+        /// "Skill Kits", "Adept Kits", "Complex Form Kits", "Spell Kits", "Gear Kits"; "Custom" is
+        /// listed but has no real kits and is included here anyway for completeness).</summary>
+        public IReadOnlyList<string> GetPacksKitCategories()
+        {
+            XmlDocument objPacksDoc = XmlManager.Instance.Load("packs.xml");
+            var lstCategories = new List<string>();
+            foreach (XmlNode objCategory in objPacksDoc.SelectNodes("/chummer/categories/category")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strCategory = objCategory.InnerText;
+                if (!string.IsNullOrEmpty(strCategory))
+                    lstCategories.Add(strCategory);
+            }
+
+            return lstCategories;
+        }
+
+        public IReadOnlyList<string> GetPacksKitNames(string strCategory)
+        {
+            XmlDocument objPacksDoc = XmlManager.Instance.Load("packs.xml");
+            var lstNames = new List<string>();
+            foreach (XmlNode objPack in objPacksDoc.SelectNodes(
+                         $"/chummer/packs/pack[category = '{strCategory}']")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objPack["name"]?.InnerText ?? string.Empty;
+                if (!string.IsNullOrEmpty(strName))
+                    lstNames.Add(strName);
+            }
+
+            return lstNames;
+        }
+
+        /// <summary>Applies a PACKS Kit (a bundled starting-gear preset) - ported from
+        /// frmCreate.cs's AddPACKSKit. Reuses the same higher-level Add* methods this port already
+        /// has for each item type wherever possible (Qualities, Spells, Adept Powers, Complex
+        /// Forms, Armor, Weapons), matching their existing bonus-application behavior for free.
+        /// Not ported (all rare in real packs.xml, documented rather than silently wrong):
+        /// Vehicles (7 real kits), Martial Arts via &lt;selectmartialart&gt; (2), Spirits (1),
+        /// Lifestyles (0 real kits use it) - and, within the sections that ARE ported, Armor
+        /// Mods/nested Gear, Weapon Accessories/Mods, and Exotic Skills are all skipped the same
+        /// way <see cref="AddArmor"/>/<see cref="AddWeapon"/> callers elsewhere in this port treat
+        /// those as separate follow-up adds rather than kit-bundled content.</summary>
+        public bool AddPacksKit(string strKitName, string strCategory)
+        {
+            if (string.IsNullOrWhiteSpace(strKitName))
+                return false;
+
+            XmlDocument objPacksDoc = XmlManager.Instance.Load("packs.xml");
+            XmlNode? objXmlKit = objPacksDoc.SelectSingleNode(
+                $"/chummer/packs/pack[name = '{strKitName.Trim()}' and category = '{strCategory}']");
+            if (objXmlKit == null)
+                return false;
+
+            ApplyPacksAttributes(objXmlKit);
+            ApplyPacksQualities(objXmlKit);
+            ApplyPacksSkills(objXmlKit);
+            ApplyPacksKnowledgeSkills(objXmlKit);
+            ApplyPacksSpells(objXmlKit);
+            ApplyPacksPowers(objXmlKit);
+            ApplyPacksComplexForms(objXmlKit);
+            ApplyPacksCyberwareOrBioware(objXmlKit, blnBioware: false);
+            ApplyPacksCyberwareOrBioware(objXmlKit, blnBioware: true);
+            ApplyPacksArmor(objXmlKit);
+            ApplyPacksWeapons(objXmlKit);
+            ApplyPacksGear(objXmlKit);
+            ApplyPacksNuyen(objXmlKit);
+
+            Changed?.Invoke();
+            return true;
+        }
+
+        private void ApplyPacksAttributes(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlAttributes = objXmlKit.SelectSingleNode("attributes");
+            if (objXmlAttributes == null)
+                return;
+
+            // Legacy resets every Attribute to its Metatype minimum first, then applies each
+            // given value adjusted by "- (6 - MetatypeMaximum)" to translate a human-scale (max 6)
+            // value onto the current Metatype's own scale. SetAttributeValue takes the absolute
+            // target value directly, so that translation isn't needed here - the given values are
+            // applied as-is.
+            foreach (XmlNode objXmlAttribute in objXmlAttributes.ChildNodes)
+            {
+                if (!int.TryParse(objXmlAttribute.InnerText, out int intValue))
+                    continue;
+
+                SetAttributeValue(objXmlAttribute.Name.ToUpperInvariant(), intValue);
+            }
+        }
+
+        private void ApplyPacksQualities(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlQualities = objXmlKit.SelectSingleNode("qualities");
+            if (objXmlQualities == null)
+                return;
+
+            foreach (XmlNode objXmlQuality in objXmlQualities.SelectNodes("positive/quality")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AddQuality(objXmlQuality.InnerText, "Positive", objXmlQuality.Attributes?["select"]?.InnerText ?? string.Empty);
+
+            foreach (XmlNode objXmlQuality in objXmlQualities.SelectNodes("negative/quality")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AddQuality(objXmlQuality.InnerText, "Negative", objXmlQuality.Attributes?["select"]?.InnerText ?? string.Empty);
+        }
+
+        private void ApplyPacksSkills(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlSkills = objXmlKit.SelectSingleNode("skills");
+            if (objXmlSkills == null)
+                return;
+
+            foreach (XmlNode objXmlSkill in objXmlSkills.SelectNodes("skill")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlSkill["name"]?.InnerText ?? string.Empty;
+                XmlNode? objNode = Document.SelectSingleNode(
+                    $"/character/skills/skill[name = '{strName}' and knowledge = 'False']");
+                if (objNode == null || !int.TryParse(objXmlSkill["rating"]?.InnerText, out int intRating))
+                    continue;
+
+                int intMax = int.TryParse(GetValue(objNode, "ratingmax", "6"), out var m) ? m : 6;
+                SetChildValue(objNode, "rating", Math.Min(intRating, intMax).ToString(CultureInfo.InvariantCulture));
+                if (objXmlSkill["spec"] != null)
+                    SetChildValue(objNode, "spec", objXmlSkill["spec"]!.InnerText);
+            }
+
+            foreach (XmlNode objXmlGroup in objXmlSkills.SelectNodes("skillgroup")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlGroup["name"]?.InnerText ?? string.Empty;
+                if (int.TryParse(objXmlGroup["rating"]?.InnerText, out int intRating))
+                    SetSkillGroupRating(strName, intRating);
+            }
+        }
+
+        private void ApplyPacksKnowledgeSkills(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlSkills = objXmlKit.SelectSingleNode("knowledgeskills");
+            if (objXmlSkills == null)
+                return;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objSkillsRoot = objRoot.SelectSingleNode("skills");
+            if (objSkillsRoot == null)
+            {
+                objSkillsRoot = Document.CreateElement("skills");
+                objRoot.AppendChild(objSkillsRoot);
+            }
+
+            foreach (XmlNode objXmlSkill in objXmlSkills.SelectNodes("skill")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlSkill["name"]?.InnerText ?? string.Empty;
+                if (string.IsNullOrEmpty(strName))
+                    continue;
+
+                string strCategory = objXmlSkill["category"]?.InnerText ?? string.Empty;
+                var objSkill = Document.CreateElement("skill");
+                AppendElement(objSkill, "name", strName.Trim());
+                AppendElement(objSkill, "skillgroup", string.Empty);
+                AppendElement(objSkill, "skillcategory", strCategory);
+                AppendElement(objSkill, "grouped", "False");
+                AppendElement(objSkill, "default", "False");
+                AppendElement(objSkill, "rating", objXmlSkill["rating"]?.InnerText ?? "1");
+                AppendElement(objSkill, "ratingmax", "6");
+                AppendElement(objSkill, "knowledge", "True");
+                AppendElement(objSkill, "exotic", "False");
+                AppendElement(objSkill, "spec", objXmlSkill["spec"]?.InnerText ?? string.Empty);
+                AppendElement(objSkill, "allowdelete", "True");
+                AppendElement(objSkill, "attribute", AttributeForKnowledgeCategory(strCategory));
+                AppendElement(objSkill, "totalvalue", "0");
+                objSkillsRoot.AppendChild(objSkill);
+            }
+        }
+
+        private void ApplyPacksSpells(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlSpells = objXmlKit.SelectSingleNode("spells");
+            if (objXmlSpells == null)
+                return;
+
+            XmlDocument objSpellDoc = XmlManager.Instance.Load("spells.xml");
+            var setExisting = new HashSet<string>(Spells.Select(s => s.Name), StringComparer.Ordinal);
+            foreach (XmlNode objXmlSpell in objXmlSpells.SelectNodes("spell")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlSpell.InnerText;
+                if (string.IsNullOrEmpty(strName) || setExisting.Contains(strName))
+                    continue;
+
+                XmlNode? objXmlSpellNode = objSpellDoc.SelectSingleNode($"/chummer/spells/spell[name = '{strName}']");
+                if (objXmlSpellNode == null)
+                    continue;
+
+                AddSpell(strName, objXmlSpellNode["category"]?.InnerText ?? string.Empty,
+                    objXmlSpellNode["type"]?.InnerText ?? string.Empty, objXmlSpellNode["range"]?.InnerText ?? string.Empty,
+                    objXmlSpellNode["damage"]?.InnerText ?? string.Empty, objXmlSpellNode["duration"]?.InnerText ?? string.Empty,
+                    objXmlSpellNode["dv"]?.InnerText ?? string.Empty, objXmlSpellNode["source"]?.InnerText ?? string.Empty,
+                    objXmlSpellNode["page"]?.InnerText ?? string.Empty);
+                setExisting.Add(strName);
+            }
+        }
+
+        private void ApplyPacksPowers(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlPowers = objXmlKit.SelectSingleNode("powers");
+            if (objXmlPowers == null)
+                return;
+
+            XmlDocument objPowerDoc = XmlManager.Instance.Load("powers.xml");
+            foreach (XmlNode objXmlPower in objXmlPowers.SelectNodes("power")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlPower["name"]?.InnerText ?? string.Empty;
+                XmlNode? objXmlPowerNode = objPowerDoc.SelectSingleNode($"/chummer/powers/power[name = '{strName}']");
+                if (objXmlPowerNode == null)
+                    continue;
+
+                string strRating = objXmlPower["rating"]?.InnerText ?? "1";
+                string strSelected = objXmlPower["name"]?.Attributes?["select"]?.InnerText ?? string.Empty;
+                AddAdeptPower(strName, strRating, objXmlPowerNode["points"]?.InnerText ?? "0", strSelected);
+            }
+        }
+
+        private void ApplyPacksComplexForms(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlPrograms = objXmlKit.SelectSingleNode("programs");
+            if (objXmlPrograms == null)
+                return;
+
+            XmlDocument objProgramDoc = XmlManager.Instance.Load("programs.xml");
+            foreach (XmlNode objXmlProgram in objXmlPrograms.SelectNodes("program")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlProgram["name"]?.InnerText ?? string.Empty;
+                XmlNode? objXmlProgramNode = objProgramDoc.SelectSingleNode($"/chummer/programs/program[name = '{strName}']");
+                if (objXmlProgramNode == null)
+                    continue;
+
+                string strSelected = objXmlProgram.Attributes?["select"]?.InnerText ?? string.Empty;
+                AddComplexForm(strName, objXmlProgramNode["category"]?.InnerText ?? string.Empty,
+                    objXmlProgramNode["source"]?.InnerText ?? string.Empty, objXmlProgramNode["page"]?.InnerText ?? string.Empty,
+                    strSelected);
+
+                string strGuid = ComplexForms.LastOrDefault(f => f.Name == strName)?.Guid ?? string.Empty;
+                if (strGuid.Length == 0)
+                    continue;
+
+                foreach (XmlNode objXmlOption in objXmlProgram.SelectNodes("options/option")?.Cast<XmlNode>()
+                             ?? Enumerable.Empty<XmlNode>())
+                {
+                    string strOptionName = objXmlOption["name"]?.InnerText ?? string.Empty;
+                    if (strOptionName.Length > 0)
+                        AddComplexFormOption(strGuid, strOptionName);
+                }
+            }
+        }
+
+        private void ApplyPacksCyberwareOrBioware(XmlNode objXmlKit, bool blnBioware)
+        {
+            XmlNode? objXmlItems = objXmlKit.SelectSingleNode(blnBioware ? "biowares" : "cyberwares");
+            if (objXmlItems == null)
+                return;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objCyberwares = objRoot.SelectSingleNode("cyberwares");
+            if (objCyberwares == null)
+            {
+                objCyberwares = Document.CreateElement("cyberwares");
+                objRoot.AppendChild(objCyberwares);
+            }
+
+            XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            string strItemTag = blnBioware ? "bioware" : "cyberware";
+            foreach (XmlNode objXmlItem in objXmlItems.SelectNodes(strItemTag)?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strGrade = objXmlItem["grade"]?.InnerText ?? "Standard";
+                XmlNode? objXmlGrade = objWareDoc.SelectSingleNode($"/chummer/grades/grade[name = '{strGrade}']");
+                double dblGradeEss = double.TryParse(objXmlGrade?["ess"]?.InnerText, NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out var dEss) ? dEss : 1.0;
+                double dblGradeCost = double.TryParse(objXmlGrade?["cost"]?.InnerText, NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out var dCost) ? dCost : 1.0;
+
+                AppendCyberwareSuiteItem(objCyberwares, objXmlItem, objWareDoc, strGrade, dblGradeEss, dblGradeCost,
+                    blnBioware);
+            }
+        }
+
+        private void ApplyPacksArmor(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlArmors = objXmlKit.SelectSingleNode("armors");
+            if (objXmlArmors == null)
+                return;
+
+            XmlDocument objArmorDoc = XmlManager.Instance.Load("armor.xml");
+            foreach (XmlNode objXmlArmor in objXmlArmors.SelectNodes("armor")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlArmor["name"]?.InnerText ?? string.Empty;
+                XmlNode? objXmlArmorNode = objArmorDoc.SelectSingleNode($"/chummer/armors/armor[name = '{strName}']");
+                if (objXmlArmorNode == null)
+                    continue;
+
+                AddArmor(strName, objXmlArmorNode["category"]?.InnerText ?? string.Empty,
+                    objXmlArmorNode["b"]?.InnerText ?? string.Empty, objXmlArmorNode["i"]?.InnerText ?? string.Empty,
+                    objXmlArmorNode["armorcapacity"]?.InnerText ?? string.Empty, objXmlArmorNode["cost"]?.InnerText ?? string.Empty,
+                    objXmlArmorNode["avail"]?.InnerText ?? string.Empty, objXmlArmorNode["source"]?.InnerText ?? string.Empty,
+                    objXmlArmorNode["page"]?.InnerText ?? string.Empty);
+            }
+        }
+
+        private void ApplyPacksWeapons(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlWeapons = objXmlKit.SelectSingleNode("weapons");
+            if (objXmlWeapons == null)
+                return;
+
+            XmlDocument objWeaponDoc = XmlManager.Instance.Load("weapons.xml");
+            foreach (XmlNode objXmlWeapon in objXmlWeapons.SelectNodes("weapon")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objXmlWeapon["name"]?.InnerText ?? string.Empty;
+                XmlNode? objXmlWeaponNode = objWeaponDoc.SelectSingleNode($"/chummer/weapons/weapon[name = '{strName}']");
+                if (objXmlWeaponNode == null)
+                    continue;
+
+                AddWeapon(strName, objXmlWeaponNode["category"]?.InnerText ?? string.Empty,
+                    objXmlWeaponNode["damage"]?.InnerText ?? string.Empty, objXmlWeaponNode["ap"]?.InnerText ?? string.Empty,
+                    objXmlWeaponNode["mode"]?.InnerText ?? string.Empty, objXmlWeaponNode["rc"]?.InnerText ?? string.Empty,
+                    objXmlWeaponNode["ammo"]?.InnerText ?? string.Empty, objXmlWeaponNode["cost"]?.InnerText ?? string.Empty,
+                    objXmlWeaponNode["avail"]?.InnerText ?? string.Empty, objXmlWeaponNode["source"]?.InnerText ?? string.Empty,
+                    objXmlWeaponNode["page"]?.InnerText ?? string.Empty);
+            }
+        }
+
+        private void ApplyPacksGear(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlGears = objXmlKit.SelectSingleNode("gears");
+            if (objXmlGears == null)
+                return;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objGears = objRoot.SelectSingleNode("gears");
+            if (objGears == null)
+            {
+                objGears = Document.CreateElement("gears");
+                objRoot.AppendChild(objGears);
+            }
+
+            XmlDocument objGearDoc = XmlManager.Instance.Load("gear.xml");
+            foreach (XmlNode objXmlItem in objXmlGears.SelectNodes("gear")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AppendPacksGearItem(objGears, objXmlItem, objGearDoc);
+        }
+
+        /// <summary>Recursively builds a Gear node (and any nested &lt;gears&gt;/&lt;gear&gt;
+        /// plugins) directly, mirroring <see cref="AppendGearNode"/>'s own shape - ported from
+        /// frmCreate.cs's AddPACKSGear, simplified to plain Gear (its Commlink/OperatingSystem
+        /// special-casing has no effect on this port's flat Response/Signal/System/Firewall
+        /// fields, which are read straight from the base gear.xml node either way).</summary>
+        private void AppendPacksGearItem(XmlNode objParentList, XmlNode objXmlItem, XmlDocument objGearDoc)
+        {
+            string strName = objXmlItem["name"]?.InnerText ?? string.Empty;
+            if (string.IsNullOrEmpty(strName))
+                return;
+
+            string? strCategory = objXmlItem["category"]?.InnerText;
+            XmlNode? objXmlGear = string.IsNullOrEmpty(strCategory)
+                ? objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strName.Trim()}']")
+                : objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strName.Trim()}' and category = '{strCategory}']");
+            if (objXmlGear == null)
+                return;
+
+            string strRating = objXmlItem["rating"]?.InnerText ?? "0";
+            string strQty = objXmlItem["qty"]?.InnerText ?? "1";
+
+            var objElement = Document.CreateElement("gear");
+            AppendElement(objElement, "name", strName.Trim());
+            AppendElement(objElement, "category", objXmlGear["category"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "rating", strRating);
+            AppendElement(objElement, "qty", strQty);
+            AppendElement(objElement, "cost", objXmlGear["cost"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "avail", objXmlGear["avail"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "capacity", objXmlGear["capacity"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "source", objXmlGear["source"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "page", objXmlGear["page"]?.InnerText ?? string.Empty);
+            AppendElement(objElement, "equipped", "False");
+            AppendElement(objElement, "guid", Guid.NewGuid().ToString());
+            AppendElement(objElement, "active", "False");
+            AppendElement(objElement, "location", string.Empty);
+            string? strResponse = objXmlGear["response"]?.InnerText;
+            if (!string.IsNullOrEmpty(strResponse)) AppendElement(objElement, "response", strResponse);
+            string? strSignal = objXmlGear["signal"]?.InnerText;
+            if (!string.IsNullOrEmpty(strSignal)) AppendElement(objElement, "signal", strSignal);
+            string? strSystem = objXmlGear["system"]?.InnerText;
+            if (!string.IsNullOrEmpty(strSystem)) AppendElement(objElement, "system", strSystem);
+            string? strFirewall = objXmlGear["firewall"]?.InnerText;
+            if (!string.IsNullOrEmpty(strFirewall)) AppendElement(objElement, "firewall", strFirewall);
+            var objChildren = Document.CreateElement("children");
+            objElement.AppendChild(objChildren);
+            objParentList.AppendChild(objElement);
+
+            foreach (XmlNode objXmlChild in objXmlItem.SelectNodes("gears/gear")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                AppendPacksGearItem(objChildren, objXmlChild, objGearDoc);
+        }
+
+        private void ApplyPacksNuyen(XmlNode objXmlKit)
+        {
+            XmlNode? objXmlNuyenBp = objXmlKit.SelectSingleNode("nuyenbp");
+            if (objXmlNuyenBp == null || !int.TryParse(objXmlNuyenBp.InnerText, out int intAmount))
+                return;
+
+            if (string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase))
+                intAmount *= 2;
+
+            int intCurrent = int.TryParse(Nuyen, out var n) ? n : 0;
+            Nuyen = (intCurrent + intAmount).ToString(CultureInfo.InvariantCulture);
+        }
+
         /// <summary>Removes the first root-level saved Cyberware/Bioware item matching its
         /// name/category/rating and Cyberware-vs-Bioware source, along with any Improvements its
         /// own &lt;bonus&gt; block granted on add.</summary>

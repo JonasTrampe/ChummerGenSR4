@@ -10,6 +10,7 @@
                 <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
                 <Button Content="Gabe austauschen" Click="OnSwapQualityClick" />
                 <Button Content="Löschen" Click="OnDeleteQualityClick" />
+                <Button Content="PACKS-Kit hinzufügen" Click="OnAddPacksKitClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>

@@ -122,7 +122,28 @@ context on each.
     `NexusDialog`/`NexusDialogViewModel` (six NumericUpDowns matching the real min/max bounds,
     live cost preview using the identical formula) wired into `GearSectionTab`'s new "Nexus
     zusammenstellen" button.
-  - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
+  - [x] `frmSelectPACKSKit` — done (majority-coverage pass). Ported as
+    `GetPacksKitCategories`/`GetPacksKitNames`/`AddPacksKit`, reusing this port's existing
+    higher-level `Add*` methods (Qualities, Spells, Adept Powers, Complex Forms, Armor, Weapons)
+    so each item's bonus application comes for free, plus direct XML-tree building (reusing
+    Cyberware Suite's `AppendCyberwareSuiteItem` verbatim for the Cyberware/Bioware sections,
+    since a PACKS kit's per-item Grade/nesting shape is identical to a Suite's) for Gear, which
+    needs its own recursive nested-plugin builder (`AppendPacksGearItem`) since real packs.xml
+    gear items nest up to 2 levels deep (e.g. "Sony Emperor" commlink with a "Vector Xim"
+    plugin). Attributes are applied via the existing `SetAttributeValue` (which takes an
+    absolute target value directly, so legacy's "value - (6 - MetatypeMaximum)" human-scale
+    translation isn't needed). `nuyenbp` is applied as a flat Nuyen add (doubled under Karma
+    build, matching legacy). A smoke test (`AddPacksKit_EveryRealKit_AppliesWithoutThrowing`)
+    verifies all ~172 real packs.xml entries apply without exceptions.
+    Not ported (all rare in real data, so scoped out rather than half-implemented): Vehicles (7
+    real kits), Martial Arts via `<selectmartialart>` (2), Spirits (1), Lifestyles (0 real kits
+    use it) - and, within the ported sections, Armor Mods/nested Armor Gear, Weapon
+    Accessories/Mods, and Exotic Skills are all skipped (base item only), consistent with how
+    those are already separate follow-up adds elsewhere in this port. New "PACKS-Kit
+    hinzufügen" button on `GeneralSectionTab` shows a two-step category-then-kit
+    `ListSelectionDialog` pair, then refreshes the whole `CharacterTab` (not just its own
+    section) since a kit can touch nearly every tab - reusing the same full-refresh path
+    `MainWindow`'s Options-changed handler already uses.
   - [x] `frmSelectProgramOption` — done. Ported as `GetComplexFormOptionChoices` (filters
     programs.xml's `/chummer/options/option` list by `<programtypes>` matching the Complex Form's
     own `<category>`, exactly like `frmSelectProgramOption.cs`'s Load handler) plus

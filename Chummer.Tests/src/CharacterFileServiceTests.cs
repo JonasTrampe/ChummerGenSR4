@@ -972,6 +972,82 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddPacksKit_Brawler_SetsAllEightAttributes()
+    {
+        string strAttributes = string.Join(string.Empty, new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL" }
+            .Select(c => $"<attribute><name>{c}</name><value>1</value><totalvalue>1</totalvalue>"
+                + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute>"));
+        CharacterDocument character = LoadXml("<character><attributes>" + strAttributes + "</attributes></character>");
+
+        Assert.Contains("Brawler", character.GetPacksKitNames("Attribute Kits"));
+        Assert.True(character.AddPacksKit("Brawler", "Attribute Kits"));
+
+        // Real "Brawler" pack: BOD 5, AGI 4, REA 3, STR 5, CHA 3, INT 3, LOG 2, WIL 3.
+        Assert.Equal("5", character.Attributes.Single(a => a.Code == "BOD").Value);
+        Assert.Equal("4", character.Attributes.Single(a => a.Code == "AGI").Value);
+        Assert.Equal("5", character.Attributes.Single(a => a.Code == "STR").Value);
+        Assert.Equal("2", character.Attributes.Single(a => a.Code == "LOG").Value);
+    }
+
+    [Fact]
+    public void AddPacksKit_HandgunTrainee_SetsSkillRatings()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Clubs</name><knowledge>False</knowledge><rating>0</rating><ratingmax>6</ratingmax>"
+            + "<grouped>False</grouped></skill>"
+            + "<skill><name>Pistols</name><knowledge>False</knowledge><rating>0</rating><ratingmax>6</ratingmax>"
+            + "<grouped>False</grouped></skill>"
+            + "</skills></character>");
+
+        Assert.True(character.AddPacksKit("Handgun Trainee", "Skill Kits"));
+
+        Assert.Equal("1", character.Skills.Single(s => s.Name == "Clubs").BaseRating);
+        Assert.Equal("2", character.Skills.Single(s => s.Name == "Pistols").BaseRating);
+    }
+
+    [Fact]
+    public void AddPacksKit_EmergencyIdentity_AddsNestedGearAndNuyen()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>100</nuyen></character>");
+
+        Assert.True(character.AddPacksKit("Emergency Identity", "Gear Kits"));
+
+        // Real "Emergency Identity" pack: nuyenbp 1 -> +1 nuyen (Karma build doubles it; default
+        // BuildMethod here is "Karma", matching CharacterDocument.BuildMethod's own fallback).
+        Assert.Equal("102", character.Nuyen);
+
+        var lstNames = character.Gear.Select(g => g.Name).ToList();
+        Assert.Contains("Sony Emperor", lstNames);
+        Assert.Contains("Fake SIN", lstNames);
+
+        CharacterTreeItemData commlink = character.Gear.Single(g => g.Name == "Sony Emperor");
+        Assert.Equal("Vector Xim", Assert.Single(commlink.Children).Name);
+
+        CharacterTreeItemData fakeSin = character.Gear.Single(g => g.Name == "Fake SIN");
+        Assert.Equal("3", fakeSin.Rating);
+    }
+
+    [Fact]
+    public void AddPacksKit_EveryRealKit_AppliesWithoutThrowing()
+    {
+        // Broad smoke coverage over all ~172 real packs.xml entries (rather than one test per
+        // kit) - catches data-shape surprises the three targeted tests above wouldn't.
+        var objPacksDoc = XmlManager.Instance.Load("packs.xml");
+        foreach (System.Xml.XmlNode objCategory in objPacksDoc.SelectNodes("/chummer/categories/category")!)
+        {
+            string strCategory = objCategory.InnerText;
+            foreach (System.Xml.XmlNode objPack in objPacksDoc.SelectNodes(
+                         $"/chummer/packs/pack[category = '{strCategory}']")!)
+            {
+                string strName = objPack["name"]!.InnerText;
+                CharacterDocument character = LoadXml("<character><nuyen>0</nuyen></character>");
+                var exception = Record.Exception(() => character.AddPacksKit(strName, strCategory));
+                Assert.True(exception == null, $"{strCategory} / {strName}: {exception}");
+            }
+        }
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

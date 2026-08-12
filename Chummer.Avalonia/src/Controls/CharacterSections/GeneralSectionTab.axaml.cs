@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
 using Chummer.NewUI.ViewModels;
@@ -92,6 +93,36 @@ public partial class GeneralSectionTab : UserControl
 
         _character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice);
         ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddPacksKitClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var categoryDialog = new ListSelectionDialog("PACKS-Kit-Kategorie auswählen:",
+            _character.GetPacksKitCategories());
+        if (!await categoryDialog.ShowDialog<bool>(window) || categoryDialog.SelectedValue == null)
+            return;
+        string strCategory = categoryDialog.SelectedValue;
+
+        var lstKits = _character.GetPacksKitNames(strCategory);
+        if (lstKits.Count == 0)
+            return;
+
+        var kitDialog = new ListSelectionDialog($"PACKS-Kit auswählen ({strCategory}):", lstKits);
+        if (await kitDialog.ShowDialog<bool>(window) && kitDialog.SelectedValue != null
+            && _character.AddPacksKit(kitDialog.SelectedValue, strCategory))
+        {
+            // A PACKS Kit can touch nearly every section (Attributes, Skills, Gear, Cyberware,
+            // Armor, Weapons, Spells, Powers, Complex Forms) - refresh the whole CharacterTab
+            // rather than just this tab's own ViewModel, matching CharacterTab.LoadCharacter's
+            // existing full-refresh use after Options changes.
+            if (this.FindAncestorOfType<CharacterTab>() is { } characterTab)
+                characterTab.LoadCharacter(_character);
+            else
+                ViewModel.LoadCharacter(_character);
+        }
     }
 
     /// <summary>Ported from clsImprovement.cs's selectmentorspirit/selectparagon bonus handlers
