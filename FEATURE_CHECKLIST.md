@@ -101,8 +101,18 @@ context on each.
     (Gymnastics +2) applies and is fully cleaned up on `RemoveQuality`.
   - [ ] `frmSelectNexus` — a Matrix node Gear subtype.
   - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
-  - [ ] `frmSelectProgramOption` — Technomancer Complex Form options/modifiers; `programoptions`
-    are read from saved characters but there's no add flow.
+  - [x] `frmSelectProgramOption` — done. Ported as `GetComplexFormOptionChoices` (filters
+    programs.xml's `/chummer/options/option` list by `<programtypes>` matching the Complex Form's
+    own `<category>`, exactly like `frmSelectProgramOption.cs`'s Load handler) plus
+    `AddComplexFormOption(strGuid, strOptionName)` which appends a `<programoption>` to the
+    matching `<techprogram>` with Rating 1 unless the option's `<maxrating>` is explicitly "0"
+    (legacy defaults `maxrating` to 6 otherwise, so most real options start at Rating 1).
+    `CharacterComplexFormData` gained a `Category` field to drive the filter.
+    `SpellsSectionTab`'s new "Option" button reuses the existing generic `ListSelectionDialog`.
+    Not ported: legacy's rare per-option `<bonus>` application (only 1 of 25 real programs.xml
+    options has one) and the Complex Form capacity gating in `frmCreate.cs` (moot here since saved
+    Complex Forms are always Rating 1, i.e. always `CalculatedCapacity` 0 under the "Rating/2"
+    formula that gating uses — so this port never blocks adding an option on capacity grounds).
   - [x] `frmSelectSide` — done. Ported as `CyberwareRequiresSideSelection` (detects a bare
     `<selectside />` bonus, real usage: 17 paired Cyberware/Bioware items like Single Cybereye)
     plus a new `AddCyberware(..., strSide)` parameter that writes the pick straight to the item's

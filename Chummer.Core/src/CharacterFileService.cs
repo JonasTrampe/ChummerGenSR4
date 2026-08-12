@@ -4242,7 +4242,7 @@ namespace Chummer.Core
                             GetValue(objOptionNode, "rating", "0")));
 
                 lstForms.Add(new CharacterComplexFormData(GetValue(objNode, "guid", string.Empty),
-                    GetValue(objNode, "name", string.Empty),
+                    GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"), lstOptions));
             }
 
@@ -4287,6 +4287,80 @@ namespace Chummer.Core
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
 
             Changed?.Invoke();
+        }
+
+        /// <summary>Program Options offered for a Complex Form of the given category - ported
+        /// from frmSelectProgramOption.cs's Load handler: an option from programs.xml's
+        /// /chummer/options/option is offered if it has no &lt;programtypes&gt; restriction, or one
+        /// of its &lt;programtype&gt; entries matches <paramref name="strCategory"/> (the Complex
+        /// Form's own &lt;category&gt;, e.g. "Common Use"/"Hacking").</summary>
+        public IReadOnlyList<string> GetComplexFormOptionChoices(string strCategory)
+        {
+            XmlDocument objProgramsDoc = XmlManager.Instance.Load("programs.xml");
+            var lstOptions = new List<string>();
+            foreach (XmlNode objOption in objProgramsDoc.SelectNodes("/chummer/options/option")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = objOption["name"]?.InnerText ?? string.Empty;
+                if (string.IsNullOrEmpty(strName))
+                    continue;
+
+                XmlNodeList? objTypeNodes = objOption.SelectNodes("programtypes/programtype");
+                bool blnAdd = objTypeNodes == null || objTypeNodes.Count == 0
+                    || objTypeNodes.Cast<XmlNode>().Any(objType => objType.InnerText == strCategory);
+                if (blnAdd)
+                    lstOptions.Add(strName);
+            }
+
+            return lstOptions;
+        }
+
+        /// <summary>Adds a Program Option to an existing Complex Form - ported from
+        /// clsUnique.cs's TechProgramOption.Create. Rating starts at 1 unless the option's
+        /// &lt;maxrating&gt; is explicitly "0" (legacy defaults maxrating to 6 otherwise). Not
+        /// ported: legacy's rare per-option
+        /// &lt;bonus&gt; application (only 1 of 25 real programs.xml options has one) and the
+        /// Complex Form capacity gating in frmCreate.cs (moot here since saved Complex Forms are
+        /// always Rating 1, i.e. always CalculatedCapacity 0 under the "Rating/2" formula).</summary>
+        public bool AddComplexFormOption(string strGuid, string strOptionName)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid) || string.IsNullOrWhiteSpace(strOptionName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/techprograms/techprogram");
+            if (objNodes == null)
+                return false;
+
+            XmlNode? objForm = objNodes.Cast<XmlNode>().FirstOrDefault(
+                n => string.Equals(GetValue(n, "guid", string.Empty), strGuid, StringComparison.Ordinal));
+            if (objForm is not XmlElement objFormElement)
+                return false;
+
+            XmlDocument objProgramsDoc = XmlManager.Instance.Load("programs.xml");
+            XmlNode? objXmlOption = objProgramsDoc.SelectSingleNode(
+                $"/chummer/options/option[name = '{strOptionName.Trim()}']");
+            if (objXmlOption == null)
+                return false;
+
+            var objOptions = objFormElement.SelectSingleNode("programoptions");
+            if (objOptions is not XmlElement objOptionsElement)
+            {
+                objOptionsElement = Document.CreateElement("programoptions");
+                objFormElement.AppendChild(objOptionsElement);
+            }
+
+            // Legacy defaults maxrating to 6 (>0) unless the node's InnerText is non-empty and says
+            // otherwise, so an explicit "0" is the only value that keeps the starting Rating at 0.
+            string strMaxRating = objXmlOption["maxrating"]?.InnerText ?? string.Empty;
+            var objOptionElement = Document.CreateElement("programoption");
+            AppendElement(objOptionElement, "name", strOptionName.Trim());
+            AppendElement(objOptionElement, "rating", strMaxRating == "0" ? "0" : "1");
+            AppendElement(objOptionElement, "source", objXmlOption["source"]?.InnerText ?? string.Empty);
+            AppendElement(objOptionElement, "page", objXmlOption["page"]?.InnerText ?? string.Empty);
+            objOptionsElement.AppendChild(objOptionElement);
+
+            Changed?.Invoke();
+            return true;
         }
 
         public bool RemoveComplexForm(string strGuid)
@@ -6857,11 +6931,12 @@ namespace Chummer.Core
 
     public sealed class CharacterComplexFormData
     {
-        internal CharacterComplexFormData(string strGuid, string strName, string strExtra, string strRating,
-            IReadOnlyList<(string Name, string Rating)> lstOptions)
+        internal CharacterComplexFormData(string strGuid, string strName, string strCategory, string strExtra,
+            string strRating, IReadOnlyList<(string Name, string Rating)> lstOptions)
         {
             Guid = strGuid;
             Name = strName;
+            Category = strCategory;
             Extra = strExtra;
             Rating = strRating;
             Options = lstOptions;
@@ -6869,6 +6944,7 @@ namespace Chummer.Core
 
         public string Guid { get; }
         public string Name { get; }
+        public string Category { get; }
         public string Extra { get; }
         public string Rating { get; }
         public IReadOnlyList<(string Name, string Rating)> Options { get; }

@@ -32,12 +32,14 @@ public sealed class ComplexFormRowViewModel
     public string Guid { get; }
     public string Label { get; }
     public string Value { get; }
+    public string Category { get; }
 
     public ComplexFormRowViewModel(CharacterComplexFormData form)
     {
         Guid = form.Guid;
         Label = form.DisplayName;
         Value = form.Rating;
+        Category = form.Category;
     }
 }
 

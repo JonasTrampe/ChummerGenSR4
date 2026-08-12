@@ -1230,6 +1230,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddComplexFormOption_IsFilteredByCategoryAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddComplexForm("Editor", "Common Use", "SR4", "232");
+        string strGuid = character.ComplexForms[0].Guid;
+
+        // Copy Protection's real <programtypes> include "Common Use" (Editor's own category);
+        // Biofeedback's don't (Hacking/Simsense/Skillsofts only).
+        var lstChoices = character.GetComplexFormOptionChoices("Common Use");
+        Assert.Contains("Copy Protection", lstChoices);
+        Assert.DoesNotContain("Biofeedback", lstChoices);
+
+        Assert.True(character.AddComplexFormOption(strGuid, "Copy Protection"));
+
+        (string Name, string Rating) option = Assert.Single(character.ComplexForms[0].Options);
+        Assert.Equal("Copy Protection", option.Name);
+        Assert.Equal("1", option.Rating);
+    }
+
+    [Fact]
     public void AddComplexForm_EmpathySoftware_AppliesItsSkillCategoryBonus()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

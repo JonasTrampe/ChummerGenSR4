@@ -131,6 +131,24 @@ public partial class SpellsSectionTab : UserControl
         return (true, string.Empty);
     }
 
+    private async void OnAddComplexFormOptionClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var lstChoices = _character.GetComplexFormOptionChoices(selected.Category);
+        if (lstChoices.Count == 0)
+            return;
+
+        var dialog = new ListSelectionDialog($"„{selected.Label}“ - Programmoption auswählen:", lstChoices);
+        if (!await dialog.ShowDialog<bool>(window) || dialog.SelectedValue == null)
+            return;
+
+        if (_character.AddComplexFormOption(selected.Guid, dialog.SelectedValue))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedComplexForm is not { } selected)

@@ -81,6 +81,7 @@
                     <TextBlock Text="Komplexe Formen" FontWeight="Bold" Margin="0,0,0,4" />
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                         <Button Content="Programm" Click="OnAddComplexFormClick" />
+                        <Button Content="Option" Click="OnAddComplexFormOptionClick" />
                         <Button Content="Löschen" Click="OnDeleteComplexFormClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding ComplexForms}" SelectedItem="{Binding SelectedComplexForm, Mode=TwoWay}">
