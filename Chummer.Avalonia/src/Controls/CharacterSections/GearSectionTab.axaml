@@ -34,6 +34,8 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
                         <Button Content="Löschen" Click="OnDeleteArmorClick" />
+                        <Button Content="Mod hinzufügen" Click="OnAddArmorModClick" />
+                        <Button Content="Mod löschen" Click="OnDeleteArmorModClick" />
                         <Button Content="Panzerungsset hinzufügen" Click="OnAddArmorSetClick" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"

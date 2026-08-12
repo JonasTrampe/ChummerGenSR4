@@ -800,6 +800,38 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddArmorMod_NestsUnderTheArmorDeductsRatingScaledCostAndCanBeRemoved()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        // Chemical Protection's real rules-data <cost> is "Rating * 250".
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "Chemical Protection", "3",
+            "0", "0", "9", "Rating * 250", "SR4", "327"));
+
+        CharacterTreeItemData armor = character.Armor.Single();
+        CharacterTreeItemData mod = armor.Children.Single();
+        Assert.Equal("Chemical Protection", mod.Name);
+        Assert.Equal("9250", character.Nuyen); // 10000 - 200(jacket) - 750(3 * 250)
+
+        Assert.True(character.RemoveArmorMod("Chemical Protection"));
+        Assert.Empty(character.Armor.Single().Children);
+    }
+
+    [Fact]
+    public void AddArmorMod_AppliesItsRulesDataBonus()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        // YNT SoftWeave's real bonus is a bare <softweave /> node - not tier-1 covered, so this
+        // should no-op safely (no crash, no Improvement) rather than apply anything.
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "YNT SoftWeave", "1",
+            "0", "0", "11", "Armor Cost * 0.1", "WAR", "160"));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

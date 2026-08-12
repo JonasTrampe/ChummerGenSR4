@@ -2267,6 +2267,88 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Adds an Armor Modification to a root-level Armor item, matched by name+category
+        /// (this port's Armor items have no guid, same lookup approach as <see
+        /// cref="RemoveArmor"/>/<see cref="SetArmorEquipped"/>) - deducts cost and applies the
+        /// mod's own rules-data &lt;bonus&gt; block at the given Rating. Ported from
+        /// clsEquipment.cs's ArmorMod.Create/Save. Not ported: Armor capacity enforcement (this
+        /// port doesn't track Armor capacity remaining at all yet, unlike Gear/Weapon Mod slots).</summary>
+        public bool AddArmorMod(string strArmorName, string strArmorCategory, string strName, string strRating,
+            string strB, string strI, string strAvail, string strCost, string strSource, string strPage)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                throw new ArgumentException("An armor mod name is required.", nameof(strName));
+
+            XmlNode? objArmor = FindArmorNode(strArmorName, strArmorCategory);
+            XmlNode? objMods = objArmor?.SelectSingleNode("armormods");
+            if (objArmor == null || objMods == null)
+                return false;
+
+            var objMod = Document.CreateElement("armormod");
+            AppendElement(objMod, "guid", Guid.NewGuid().ToString());
+            AppendElement(objMod, "name", strName.Trim());
+            AppendElement(objMod, "rating", strRating);
+            AppendElement(objMod, "b", strB);
+            AppendElement(objMod, "i", strI);
+            AppendElement(objMod, "avail", strAvail);
+            AppendElement(objMod, "cost", strCost);
+            AppendElement(objMod, "included", "False");
+            AppendElement(objMod, "equipped", "True");
+            AppendElement(objMod, "source", strSource);
+            AppendElement(objMod, "page", strPage);
+            objMods.AppendChild(objMod);
+
+            DeductGearCost(strCost, strRating, "1");
+
+            XmlDocument objArmorDoc = XmlManager.Instance.Load("armor.xml");
+            XmlNode? objXmlMod = objArmorDoc.SelectSingleNode($"/chummer/mods/mod[name = '{strName.Trim()}']");
+            ApplyBonus(objXmlMod?.SelectSingleNode("bonus"), ImprovementSource.ArmorMod, strName.Trim(), strRating);
+
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes the first saved Armor Modification matching its name, wherever it's
+        /// nested (searches every root-level Armor's &lt;armormods&gt;), along with any
+        /// Improvements its own &lt;bonus&gt; block granted on add.</summary>
+        public bool RemoveArmorMod(string strName)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            var objNodes = Document.SelectNodes("/character/armors/armor/armormods/armormod");
+            if (objNodes == null)
+                return false;
+
+            foreach (XmlNode objMod in objNodes)
+            {
+                if (!string.Equals(GetValue(objMod, "name", string.Empty), strName.Trim(), StringComparison.Ordinal))
+                    continue;
+
+                objMod.ParentNode?.RemoveChild(objMod);
+                RemoveBonusImprovements(ImprovementSource.ArmorMod, strName.Trim());
+                Changed?.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        private XmlNode? FindArmorNode(string strName, string strCategory)
+        {
+            var objNodes = Document.SelectNodes("/character/armors/armor");
+            if (objNodes == null)
+                return null;
+
+            foreach (XmlNode objArmor in objNodes)
+            {
+                if (string.Equals(GetValue(objArmor, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    && string.Equals(GetValue(objArmor, "category", string.Empty), strCategory, StringComparison.Ordinal))
+                    return objArmor;
+            }
+            return null;
+        }
+
         /// <summary>Removes the first saved spell with the supplied name.</summary>
         public bool RemoveSpell(string strName)
         {

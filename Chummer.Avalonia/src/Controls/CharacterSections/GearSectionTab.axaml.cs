@@ -11,6 +11,7 @@ using System.IO;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
+using ArmorModDialog = Chummer.NewUI.Dialogs.ArmorModDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 using WeaponAccessoryDialog = Chummer.NewUI.Dialogs.WeaponAccessoryDialog;
@@ -284,6 +285,42 @@ public partial class GearSectionTab : UserControl
             return;
         }
         if (_character.RemoveArmor(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Adds an Armor Modification under whichever Armor is selected - if the selection is
+    /// itself one of that Armor's own children (a previously-added mod/gear), walks up to the
+    /// parent Armor first, same as how legacy always operates on the owning Armor regardless of
+    /// which of its rows is focused.</summary>
+    private async void OnAddArmorModClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        TreeNodeViewModel? armorNode = ViewModel.SelectedArmor;
+        while (armorNode?.Parent is { Category: not "Armor set" })
+            armorNode = armorNode.Parent;
+        if (armorNode == null || armorNode.Category == "Armor set")
+            return;
+
+        var dialog = new ArmorModDialog();
+        bool added = await dialog.ShowDialog<bool>(window);
+        if (added && dialog.SelectedMod != null)
+        {
+            var mod = dialog.SelectedMod;
+            if (_character.AddArmorMod(armorNode.SourceName, armorNode.Category, mod.Name,
+                    dialog.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    mod.Ballistic, mod.Impact, mod.Availability, mod.Cost, mod.Source, mod.Page))
+                ViewModel.LoadCharacter(_character);
+        }
+    }
+
+    private void OnDeleteArmorModClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { Parent.Category: not "Armor set" } mod)
+            return;
+
+        if (_character.RemoveArmorMod(mod.SourceName))
             ViewModel.LoadCharacter(_character);
     }
 

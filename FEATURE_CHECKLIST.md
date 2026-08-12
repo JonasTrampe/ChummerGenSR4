@@ -72,8 +72,15 @@ context on each.
   `ListSelectionDialog`/`TextSelectionDialog`. The remaining genuinely-missing pickers, each its
   own small backlog item since most are tied to a feature that doesn't exist at all yet, not just
   a missing dialog shell:
-  - [ ] `frmSelectArmorMod` — no `AddArmorMod` Core method exists; Armor has no mod-picking flow
-    at all (Cyberware/Weapons/Vehicles all have their own mod pickers already).
+  - [x] `frmSelectArmorMod` — done. `AddArmorMod`/`RemoveArmorMod` (matched by name+category, same
+    lookup approach as `RemoveArmor`/`SetArmorEquipped`, since this port's Armor items have no
+    guid) apply the mod's own rules-data `<bonus>` block at the player-chosen Rating; the new
+    `ArmorModDialog` (a `NumericUpDown` Rating spinner shown when `<maxrating>` &gt; 1, mirroring
+    the Critter Power picker's pattern) is wired into the Panzerung sub-tab's new "Mod
+    hinzufügen"/"Mod löschen" buttons. Not ported: Armor capacity enforcement (this port doesn't
+    track Armor capacity remaining at all yet, unlike Gear/Weapon Mod slots). Verified against real
+    data: Chemical Protection's Rating-scaled cost (`Rating * 250`) and correctly not crashing on
+    YNT SoftWeave's `<softweave />` bonus, which isn't a tier-1 `BonusApplier` node type.
   - [ ] `frmSelectAdvancedLifestyle` — advanced lifestyle construction (already noted as
     deliberately out of scope for the plain Lifestyle picker).
   - [ ] `frmSelectCyberwareSuite` — bundled pre-configured Cyberware sets.
