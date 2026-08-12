@@ -57,8 +57,8 @@ context on each.
   occupies (currently a simplified count check — one weapon per mount, but not which mount).
 - [ ] Weapon dice pools: accessory/mod dice pool bonuses and loaded-ammo pool bonuses aren't
   factored in yet (no field for either in this port's saved data).
-- [ ] A real spellcasting dice pool per spell (Spellcasting skill + MAG) — separate from the
-  Drain/Fading resistance pool, which is already done.
+- [x] A real spellcasting dice pool per spell — done, see § Character sheet tabs (Sprüche und
+  Geister). Separate from the Drain/Fading resistance pool, which was already done.
 
 **House rules**
 - [ ] `AllowExceedAttributeBp` — needs a new persisted "starting BP total" field (Bp is currently
@@ -170,9 +170,15 @@ context on each.
   `DrainResistance`/`FadingResistance` (ported from clsCharacter.cs) resolve the chosen
   Tradition/Stream's two-attribute `<drain>` formula (e.g. Hermetic's `WIL + LOG`) plus any
   DrainResistance/FadingResistance Improvements, reusing the same `SumAttributesWithImprovements`
-  helper Composure/Judge Intentions/etc. already use. A real spellcasting dice pool (Spellcasting
-  skill + MAG, shown per-spell) is still not computed - that's a different, not-yet-ported number
-  from the Drain/Fading pool covered here.
+  helper Composure/Judge Intentions/etc. already use. A real per-spell spellcasting dice pool is
+  now computed too, ported from clsUnique.cs's Spell.DicePool: the character's Spellcasting skill
+  TotalRating, +2 if that skill's own Specialization matches the spell's Category, plus any
+  SpellCategory Improvements targeting that Category (`CharacterDocument.ComputeSpellDicePool`,
+  shown with its tooltip breakdown in the spell detail pane). This is a different number from the
+  Drain/Fading resistance pool covered above - Drain resists a spell's backlash, this pool is what
+  you roll to cast it in the first place. Verified: Spellcasting(4) + specialization match(+2) +
+  a SpellCategory Improvement(+1) = 7 for a matching-category spell, vs. 4 for a non-matching one
+  on the same character.
 - ✅ Komplexe Formen (Complex Forms) / Kritter-Kräfte (Critter Powers) — both are displayed in the
   Sprüche und Geister tab, below Geister, and both now support add (via a `programs.xml`/
   `critterpowers.xml` picker dialog) and delete (by saved guid), always shown.

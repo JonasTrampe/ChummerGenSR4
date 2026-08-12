@@ -114,6 +114,8 @@ public sealed class TreeNodeViewModel
     public string SpellDamage { get; private set; } = string.Empty;
     public string SpellDuration { get; private set; } = string.Empty;
     public string SpellDv { get; private set; } = string.Empty;
+    public string SpellDicePool { get; private set; } = string.Empty;
+    public string SpellDicePoolTooltip { get; private set; } = string.Empty;
 
     public void SetSpellDetails(CharacterSpellData spell)
     {
@@ -122,6 +124,8 @@ public sealed class TreeNodeViewModel
         SpellDamage = spell.Damage;
         SpellDuration = spell.Duration;
         SpellDv = spell.Dv;
+        SpellDicePool = spell.DicePool;
+        SpellDicePoolTooltip = spell.DicePoolTooltip;
         Source = spell.Source;
         Page = spell.Page;
     }

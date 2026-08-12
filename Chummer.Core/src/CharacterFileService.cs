@@ -5602,12 +5602,42 @@ namespace Chummer.Core
             var objNodes = Document.SelectNodes("/character/spells/spell");
             if (objNodes == null) return lstSpells;
             foreach (XmlNode objNode in objNodes)
+            {
+                string strCategory = GetValue(objNode, "category", string.Empty);
+                (int intPool, string strTooltip) = ComputeSpellDicePool(strCategory);
                 lstSpells.Add(new CharacterSpellData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "category", string.Empty), GetValue(objNode, "type", string.Empty),
+                    strCategory, GetValue(objNode, "type", string.Empty),
                     GetValue(objNode, "range", string.Empty), GetValue(objNode, "damage", string.Empty),
                     GetValue(objNode, "duration", string.Empty), GetValue(objNode, "dv", string.Empty),
-                    GetValue(objNode, "source", string.Empty), GetValue(objNode, "page", string.Empty)));
+                    GetValue(objNode, "source", string.Empty), GetValue(objNode, "page", string.Empty),
+                    intPool.ToString(), strTooltip));
+            }
             return lstSpells;
+        }
+
+        /// <summary>Ported from clsUnique.cs's Spell.DicePool/DicePoolTooltip: the Spellcasting
+        /// skill's TotalRating, +2 if the skill's own Specialization matches the spell's Category,
+        /// plus any SpellCategory Improvements targeting that Category.</summary>
+        private (int Pool, string Tooltip) ComputeSpellDicePool(string strCategory)
+        {
+            CharacterSkillData? objSpellcasting = Skills.FirstOrDefault(s => s.Name == "Spellcasting");
+            int intSkillRating = objSpellcasting != null && int.TryParse(objSpellcasting.TotalValue, out var r) ? r : 0;
+            bool blnSpecializationMatches = objSpellcasting != null && objSpellcasting.Specialization == strCategory;
+
+            var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SpellCategory, strCategory);
+            int intCategoryBonus = lstContributions.Sum(c => c.Value);
+            int intTotal = intSkillRating + (blnSpecializationMatches ? 2 : 0) + intCategoryBonus;
+
+            var sb = new StringBuilder();
+            if (objSpellcasting != null)
+            {
+                sb.Append("Zaubern: ").Append(intSkillRating);
+                if (blnSpecializationMatches)
+                    sb.Append('\n').Append("Spezialisierung (").Append(strCategory).Append("): +2");
+            }
+            AppendContributions(sb, lstContributions);
+            sb.Append('\n').Append("Würfelpool: ").Append(intTotal);
+            return (intTotal, sb.ToString());
         }
 
         private IReadOnlyList<CharacterSpiritData> ReadSpirits()
@@ -6628,7 +6658,8 @@ namespace Chummer.Core
     public sealed class CharacterSpellData
     {
         internal CharacterSpellData(string strName, string strCategory, string strType, string strRange,
-            string strDamage, string strDuration, string strDv, string strSource, string strPage)
+            string strDamage, string strDuration, string strDv, string strSource, string strPage,
+            string strDicePool = "0", string strDicePoolTooltip = "")
         {
             Name = strName;
             Category = strCategory;
@@ -6639,6 +6670,8 @@ namespace Chummer.Core
             Dv = strDv;
             Source = strSource;
             Page = strPage;
+            DicePool = strDicePool;
+            DicePoolTooltip = strDicePoolTooltip;
         }
 
         public string Name { get; }
@@ -6650,6 +6683,12 @@ namespace Chummer.Core
         public string Dv { get; }
         public string Source { get; }
         public string Page { get; }
+
+        /// <summary>Ported from clsUnique.cs's Spell.DicePool: the Spellcasting skill's
+        /// TotalRating, +2 if the skill's own Specialization matches this spell's Category, plus
+        /// any SpellCategory Improvements. "0" if the character has no Spellcasting skill at all.</summary>
+        public string DicePool { get; }
+        public string DicePoolTooltip { get; }
     }
 
     public sealed class CharacterSpiritData

@@ -46,6 +46,8 @@
                 <TextBlock Grid.Column="0" Text="{Binding SelectedSpellNode.SpellDuration, StringFormat='Dauer: {0}'}" />
                 <TextBlock Grid.Column="1" Text="{Binding SelectedSpellNode.SpellDv, StringFormat='Entzugsformel: {0}'}" />
             </Grid>
+            <TextBlock Text="{Binding SelectedSpellNode.SpellDicePool, StringFormat='Würfelpool: {0}'}"
+                       ToolTip.Tip="{Binding SelectedSpellNode.SpellDicePoolTooltip}" FontWeight="Bold" />
             <StackPanel Orientation="Horizontal" Spacing="4">
                 <TextBlock Text="Quelle:" FontWeight="Bold" />
                 <controls:SourceLink SourcePage="{Binding SelectedSpellNode.SourcePage}" />

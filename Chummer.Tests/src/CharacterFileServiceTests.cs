@@ -311,6 +311,36 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Spells_DicePool_IsSpellcastingRatingPlusSpecializationPlusSpellCategoryImprovements()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><skills>"
+            + "<skill><name>Spellcasting</name><attribute>MAG</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><spec>Combat</spec><allowdelete>True</allowdelete></skill>"
+            + "</skills><improvements><improvement><improvementttype>SpellCategory</improvementttype>"
+            + "<improvementsource>Quality</improvementsource><improvedname>Combat</improvedname>"
+            + "<val>1</val><enabled>True</enabled></improvement></improvements></character>");
+        character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204");
+        character.AddSpell("Detect Life", "Detection", "M", "LOS", "", "S", "L", "SR4", "207");
+
+        CharacterSpellData acidStream = character.Spells.Single(s => s.Name == "Acid Stream");
+        CharacterSpellData detectLife = character.Spells.Single(s => s.Name == "Detect Life");
+
+        // Acid Stream (Combat): Spellcasting(4) + Specialization match(+2) + SpellCategory Improvement(+1) = 7.
+        Assert.Equal("7", acidStream.DicePool);
+        // Detect Life (Detection): Spellcasting(4) only, no specialization/category match = 4.
+        Assert.Equal("4", detectLife.DicePool);
+    }
+
+    [Fact]
+    public void Spells_DicePool_IsZeroWithoutASpellcastingSkill()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204");
+
+        Assert.Equal("0", Assert.Single(character.Spells).DicePool);
+    }
+
+    [Fact]
     public void AddGear_MutatesCharacterTreeAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
