@@ -1464,9 +1464,18 @@ namespace Chummer.Core
         /// already grade-and-rating-resolved values (the picker applies the Standard/Alphaware/
         /// Betaware/Deltaware multipliers from cyberware.xml/bioware.xml's &lt;grades&gt; before
         /// calling this - Cyberware.CalculatedESS's own further discount formulas aren't ported).</summary>
+        /// <summary>Whether adding this Cyberware/Bioware prompts for a Left/Right side - ported
+        /// from clsImprovement.cs's selectside bonus handler (frmSelectSide.cs; used by paired
+        /// items like Single Cybereye). Legacy stores the pick directly on the item's own
+        /// Location field rather than as an Improvement - see <see cref="AddCyberware"/>'s
+        /// <paramref name="strSide"/>.</summary>
+        public bool CyberwareRequiresSideSelection(string strName, bool blnBioware = false) =>
+            FindBonusChild(blnBioware ? "bioware.xml" : "cyberware.xml", blnBioware ? "biowares" : "cyberwares",
+                blnBioware ? "bioware" : "cyberware", strName, "selectside") != null;
+
         public void AddCyberware(string strName, string strCategory, string strRating, string strEss,
             string strCost, string strAvail, string strSource, string strPage, string strGrade = "Standard",
-            bool blnBioware = false)
+            bool blnBioware = false, string strSide = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A cyberware name is required.", nameof(strName));
@@ -1492,6 +1501,7 @@ namespace Chummer.Core
             AppendElement(objCyberware, "grade", strGrade);
             AppendElement(objCyberware, "improvementsource", blnBioware ? "Bioware" : "Cyberware");
             AppendElement(objCyberware, "equipped", "True");
+            AppendElement(objCyberware, "location", strSide.Trim());
             objCyberware.AppendChild(Document.CreateElement("children"));
             objCyberwares.AppendChild(objCyberware);
 

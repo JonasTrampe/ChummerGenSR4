@@ -857,6 +857,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberware_SideSelection_IsDetectedPersistedAndRemovable()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Single Cybereye's real bonus is a bare <selectside /> node.
+        Assert.True(character.CyberwareRequiresSideSelection("Single Cybereye"));
+        Assert.False(character.CyberwareRequiresSideSelection("Datajack"));
+
+        character.AddCyberware("Single Cybereye", "Eyeware", "4", "0.25", "600", "8", "SR4", "", strSide: "Left");
+
+        Assert.Equal("Single Cybereye", Assert.Single(character.Cyberware).Name);
+
+        Assert.True(character.RemoveCyberware("Single Cybereye", "Eyeware", "4"));
+        Assert.Empty(character.Cyberware);
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

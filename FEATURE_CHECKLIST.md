@@ -103,13 +103,19 @@ context on each.
   - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
   - [ ] `frmSelectProgramOption` — Technomancer Complex Form options/modifiers; `programoptions`
     are read from saved characters but there's no add flow.
-  - [ ] `frmSelectSide` — a generic Left/Right picker, tied to the `<selectside>` bonus node
-    (another `Selectable Improvement` node type not yet covered).
+  - [x] `frmSelectSide` — done. Ported as `CyberwareRequiresSideSelection` (detects a bare
+    `<selectside />` bonus, real usage: 17 paired Cyberware/Bioware items like Single Cybereye)
+    plus a new `AddCyberware(..., strSide)` parameter that writes the pick straight to the item's
+    own `<location>` field — matching legacy, which stores this on the item directly rather than as
+    an Improvement. `CyberwareSectionTab`'s Add flow reuses the existing generic
+    `ListSelectionDialog` (no new dialog needed) with the real "Left"/"Right" values.
   - [ ] `frmSelectSkillCategory`/`frmSelectSkillGroup` — standalone category/group-only pickers
     (distinct from `selectskill`'s skillgroup/skillcategory *filtering*, which is already done).
-  - [ ] `frmSelectSpellCategory` — a proper category dropdown for Qualities like Aspected Magician
-    (Spell Category); currently falls back to `TextSelectionDialog`'s free-text entry via
-    `selecttext`, which works but isn't validated against the real category list.
+  - [~] `frmSelectSpellCategory` — investigated: real `qualities.xml` has no
+    `<selectspellcategory>`/similar bonus node anywhere (Aspected Magician is 5 separately-named
+    Qualities per category, not one Quality with a category picker); the only real caller is the
+    Manual Improvement Creator (`frmCreateImprovement.cs`), which is its own already-flagged
+    large backlog item below. Nothing to build here until that item is tackled.
 
 **Output / tooling**
 - [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF

@@ -9,6 +9,7 @@ using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using CyberwareDialog = Chummer.NewUI.Dialogs.CyberwareDialog;
+using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -56,9 +57,20 @@ public partial class CyberwareSectionTab : UserControl
         {
             var item = dialog.SelectedCyberware;
             var viewModel = dialog.ViewModel;
+
+            string strSide = string.Empty;
+            if (_character.CyberwareRequiresSideSelection(item.Name, blnBioware))
+            {
+                var sideDialog = new ListSelectionDialog($"„{item.Name}“ - Seite auswählen:",
+                    new[] { "Left", "Right" });
+                if (!await sideDialog.ShowDialog<bool>(window) || sideDialog.SelectedValue == null)
+                    return;
+                strSide = sideDialog.SelectedValue;
+            }
+
             _character.AddCyberware(item.Name, item.Category, item.Rating, viewModel.FinalEssence,
                 viewModel.FinalCost, viewModel.FinalAvailability, item.SourcePage, string.Empty,
-                viewModel.SelectedGrade?.Name ?? "Standard", blnBioware: blnBioware);
+                viewModel.SelectedGrade?.Name ?? "Standard", blnBioware: blnBioware, strSide: strSide);
             ViewModel.LoadCharacter(_character);
         }
     }
