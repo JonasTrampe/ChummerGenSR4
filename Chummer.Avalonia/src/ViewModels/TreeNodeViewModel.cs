@@ -35,6 +35,10 @@ public sealed class TreeNodeViewModel
     /// nodes. Stable identity for adding/removing nested gear and editing quantity.</summary>
     public int GearId { get; private set; } = -1;
 
+    /// <summary>Depth-first position within the &lt;cyberwares&gt; tree - only set (>=0) for
+    /// Cyberware/Bioware tree nodes. Stable identity for drag/drop reorder/reparent.</summary>
+    public int CyberwareId { get; private set; } = -1;
+
     public string Qty { get; private set; } = "1";
 
     /// <summary>Raw saved capacity - only set for Gear tree nodes.</summary>
@@ -178,6 +182,7 @@ public sealed class TreeNodeViewModel
             Location = item.Location,
             ItemGuid = item.ItemGuid,
             GearId = item.GearId,
+            CyberwareId = item.CyberwareId,
             Qty = item.Qty,
             Capacity = item.Capacity,
             CapacityRemaining = item.CapacityRemaining,

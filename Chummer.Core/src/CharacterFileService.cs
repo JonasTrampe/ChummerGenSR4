@@ -2571,11 +2571,112 @@ namespace Chummer.Core
 
         // Cyberware and bioware are saved to the same <cyberwares> list and only distinguished by
         // <improvementsource> ("Cyberware" vs "Bioware") - split here so each gets its own tree.
-        public IReadOnlyList<CharacterTreeItemData> Cyberware =>
-            ReadTreeItems("/character/cyberwares/cyberware[improvementsource != 'Bioware']", "children/cyberware");
+        // Both read through the same ID-assigning walk (see ReadCyberwareOrBiowareTree) so a
+        // CyberwareId handed back from either tree's UI always resolves to the same node via
+        // GetCyberwareNodeById, matching the Gear tree's GearId/MoveGear pattern.
+        public IReadOnlyList<CharacterTreeItemData> Cyberware => ReadCyberwareOrBiowareTree(blnBioware: false);
 
-        public IReadOnlyList<CharacterTreeItemData> Bioware =>
-            ReadTreeItems("/character/cyberwares/cyberware[improvementsource = 'Bioware']", "children/cyberware");
+        public IReadOnlyList<CharacterTreeItemData> Bioware => ReadCyberwareOrBiowareTree(blnBioware: true);
+
+        private IReadOnlyList<CharacterTreeItemData> ReadCyberwareOrBiowareTree(bool blnBioware)
+        {
+            var lstItems = new List<CharacterTreeItemData>();
+            var objAllNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objAllNodes == null) return lstItems;
+
+            int intNextId = 0;
+            foreach (XmlNode objNode in objAllNodes)
+            {
+                bool blnIsBioware = GetValue(objNode, "improvementsource", string.Empty) == "Bioware";
+                CharacterTreeItemData objItem = ReadCyberwareTreeItem(objNode, ref intNextId);
+                if (blnIsBioware == blnBioware)
+                    lstItems.Add(objItem);
+            }
+            return lstItems;
+        }
+
+        private CharacterTreeItemData ReadCyberwareTreeItem(XmlNode objNode, ref int intNextId)
+        {
+            var objItem = ReadTreeItem(objNode);
+            objItem.SetCyberwareId(intNextId);
+            intNextId++;
+
+            var objChildren = objNode.SelectNodes("children/cyberware");
+            if (objChildren == null) return objItem;
+            foreach (XmlNode objChild in objChildren)
+                objItem.Children.Add(ReadCyberwareTreeItem(objChild, ref intNextId));
+            return objItem;
+        }
+
+        private XmlNode? GetCyberwareNodeById(int intCyberwareId)
+        {
+            var objTopNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objTopNodes == null) return null;
+
+            int intCurrentId = 0;
+            foreach (XmlNode objNode in objTopNodes)
+            {
+                XmlNode? objFound = FindCyberwareNodeById(objNode, intCyberwareId, ref intCurrentId);
+                if (objFound != null) return objFound;
+            }
+            return null;
+        }
+
+        private XmlNode? FindCyberwareNodeById(XmlNode objNode, int intTargetId, ref int intCurrentId)
+        {
+            if (intCurrentId == intTargetId) return objNode;
+            intCurrentId++;
+
+            var objChildren = objNode.SelectNodes("children/cyberware");
+            if (objChildren == null) return null;
+            foreach (XmlNode objChild in objChildren)
+            {
+                XmlNode? objFound = FindCyberwareNodeById(objChild, intTargetId, ref intCurrentId);
+                if (objFound != null) return objFound;
+            }
+            return null;
+        }
+
+        /// <summary>Moves a Cyberware/Bioware item within the &lt;cyberwares&gt; tree - either
+        /// reordering it among its current siblings (inserted immediately before <paramref
+        /// name="intTargetCyberwareId"/>) or, with <paramref name="blnReparent"/>, making it a
+        /// child of the target instead. Same shape as <see cref="MoveGear"/> for the Gear tree -
+        /// CyberwareIds are depth-first positions recomputed on every read, so callers must reload
+        /// the tree after a successful move before issuing another one.</summary>
+        public bool MoveCyberware(int intSourceCyberwareId, int intTargetCyberwareId, bool blnReparent)
+        {
+            XmlNode? objSource = GetCyberwareNodeById(intSourceCyberwareId);
+            XmlNode? objTarget = GetCyberwareNodeById(intTargetCyberwareId);
+            if (objSource == null || objTarget == null || objSource == objTarget || objSource.ParentNode == null)
+                return false;
+
+            // Refuse to move an item into its own subtree - see MoveGear's identical guard.
+            for (XmlNode? objCursor = objTarget; objCursor != null; objCursor = objCursor.ParentNode)
+                if (objCursor == objSource)
+                    return false;
+
+            objSource.ParentNode.RemoveChild(objSource);
+
+            if (blnReparent)
+            {
+                XmlNode? objChildren = objTarget.SelectSingleNode("children");
+                if (objChildren == null)
+                {
+                    objChildren = Document.CreateElement("children");
+                    objTarget.AppendChild(objChildren);
+                }
+                objChildren.AppendChild(objSource);
+            }
+            else
+            {
+                if (objTarget.ParentNode == null)
+                    return false;
+                objTarget.ParentNode.InsertBefore(objSource, objTarget);
+            }
+
+            Changed?.Invoke();
+            return true;
+        }
 
         /// <summary>Armor is represented as a tree so installed armor modifications and optional
         /// saved armor sets remain visible instead of being flattened into a list.</summary>
@@ -5946,6 +6047,13 @@ namespace Chummer.Core
         public int GearId { get; private set; } = -1;
 
         internal void SetGearId(int intGearId) => GearId = intGearId;
+
+        /// <summary>Depth-first position within the whole &lt;cyberwares&gt; tree - only set for
+        /// Cyberware/Bioware tree nodes (-1 otherwise). Same purpose as <see cref="GearId"/>, for
+        /// drag/drop reorder/reparent.</summary>
+        public int CyberwareId { get; private set; } = -1;
+
+        internal void SetCyberwareId(int intCyberwareId) => CyberwareId = intCyberwareId;
 
         /// <summary>Raw saved capacity (e.g. "8" or "[2]") - only set for Gear tree nodes.</summary>
         public string Capacity { get; private set; } = string.Empty;

@@ -505,6 +505,81 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MoveCyberware_ReordersRootLevelSiblingsAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><cyberwares>"
+            + "<cyberware><name>A</name><category>Headware</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "<cyberware><name>B</name><category>Headware</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "<cyberware><name>C</name><category>Headware</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+        int intAId = character.Cyberware[0].CyberwareId;
+        int intCId = character.Cyberware[2].CyberwareId;
+
+        Assert.True(character.MoveCyberware(intCId, intAId, blnReparent: false));
+        Assert.Equal(new[] { "C", "A", "B" }, character.Cyberware.Select(c => c.Name));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(new[] { "C", "A", "B" }, reloaded.Cyberware.Select(c => c.Name));
+    }
+
+    [Fact]
+    public void MoveCyberware_ReparentsAsAChildAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><cyberwares>"
+            + "<cyberware><name>Cybereyes</name><category>Cyberlimb</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "<cyberware><name>Vision Enhancement</name><category>Eyeware</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+        int intEyesId = character.Cyberware[0].CyberwareId;
+        int intEnhancementId = character.Cyberware[1].CyberwareId;
+
+        Assert.True(character.MoveCyberware(intEnhancementId, intEyesId, blnReparent: true));
+        CharacterTreeItemData root = Assert.Single(character.Cyberware);
+        Assert.Equal("Cybereyes", root.Name);
+        Assert.Equal("Vision Enhancement", Assert.Single(root.Children).Name);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterTreeItemData reloadedRoot = Assert.Single(reloaded.Cyberware);
+        Assert.Equal("Vision Enhancement", Assert.Single(reloadedRoot.Children).Name);
+    }
+
+    [Fact]
+    public void MoveCyberware_RejectsMovingAnItemIntoItsOwnSubtree()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        int intParentId = character.Cyberware[0].CyberwareId;
+
+        character.AddCyberware("Vision Enhancement", "Eyeware", "0", "0.1", "500", "4R", "SR4", "339");
+        int intOtherId = character.Cyberware[1].CyberwareId;
+        Assert.True(character.MoveCyberware(intOtherId, intParentId, blnReparent: true));
+        int intChildId = character.Cyberware[0].Children[0].CyberwareId;
+
+        Assert.False(character.MoveCyberware(intParentId, intChildId, blnReparent: true));
+        Assert.False(character.MoveCyberware(intParentId, intChildId, blnReparent: false));
+    }
+
+    [Fact]
+    public void MoveCyberware_UsesConsistentIdsAcrossCyberwareAndBioware()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        character.AddCyberware("Muscle Toner", "Basic", "2", "0.4", "8000", "8R", "SR4", "339", blnBioware: true);
+
+        // Both trees share one global CyberwareId numbering, so reordering across the shared
+        // underlying <cyberwares> list works regardless of which tree (Cyberware or Bioware) a
+        // caller reads the ID from.
+        int intCyberwareId = Assert.Single(character.Cyberware).CyberwareId;
+        int intBiowareId = Assert.Single(character.Bioware).CyberwareId;
+        Assert.NotEqual(intCyberwareId, intBiowareId);
+    }
+
+    [Fact]
     public void AddWeapon_MutatesCharacterTreeAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

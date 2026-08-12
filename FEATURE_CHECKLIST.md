@@ -85,8 +85,8 @@ context on each.
   UI and catalog reload already existing.
 
 **Interaction niceties**
-- [ ] Extend drag/drop reordering/reparenting to the Cyberware/Weapons/Armor trees (currently only
-  the Gear tree supports it).
+- [x] Extend drag/drop reordering/reparenting to the Cyberware tree — done, see § Character sheet
+  tabs. Weapons/Armor still don't support it.
 
 **Platform / packaging**
 - [ ] AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5).
@@ -516,8 +516,12 @@ context on each.
   .MoveGear` write path (found while touching this area: the original drag/drop only mutated the
   in-memory ViewModel tree, so a reorder looked like it worked but was silently lost on the next
   reload/save - it now moves the actual XML node and reloads from the document like every other
-  edit in this app). Not extended to the Cyberware/Weapons/Armor trees, which don't support
-  drag/drop at all.
+  edit in this app). Extended to the Cyberware/Bioware tree too - `MoveCyberware`/
+  `GetCyberwareNodeById` (both trees share one global `CyberwareId` numbering over the underlying
+  `<cyberwares>` list, same scheme as `GearId`/`MoveGear`) plus a `CyberwareId` field added to
+  `TreeNodeViewModel`/`CharacterTreeItemData`, and `CyberwareSectionTab`'s drag/drop wiring is a
+  direct copy of `GearSectionTab`'s. Not extended to the Weapons/Armor trees, which still don't
+  support drag/drop at all.
 
 ## Platform / packaging
 
