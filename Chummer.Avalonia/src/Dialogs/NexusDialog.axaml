@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.NexusDialog"
+        x:DataType="vm:NexusDialogViewModel"
+        Title="Nexus zusammenstellen" Width="360" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="16" Spacing="8">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Prozessor:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="0" Grid.Column="1" Minimum="10" Maximum="50" Increment="1"
+                            Value="{Binding Processor, Mode=TwoWay}" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="System:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
+                            Value="{Binding System, Mode=TwoWay}" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Response:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="2" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
+                            Value="{Binding Response, Mode=TwoWay}" />
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Firewall:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="3" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
+                            Value="{Binding Firewall, Mode=TwoWay}" />
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Signal:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="4" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
+                            Value="{Binding Signal, Mode=TwoWay}" />
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Persona-Limit:" VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="5" Grid.Column="1" Minimum="3" Maximum="50" Increment="1"
+                            Value="{Binding Persona, Mode=TwoWay}" />
+        </Grid>
+        <CheckBox Content="Kostenlos" IsChecked="{Binding Free, Mode=TwoWay}" />
+        <TextBlock Text="{Binding CostPreview, StringFormat='Kosten: {0}'}" FontWeight="Bold" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
+            <Button Content="Abbruch" Click="OnCancel" />
+            <Button Content="Hinzufügen" Click="OnAdd" />
+        </StackPanel>
+    </StackPanel>
+</Window>

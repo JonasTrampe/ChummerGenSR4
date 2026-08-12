@@ -13,6 +13,7 @@ using Chummer.NewUI.ViewModels;
 using ArmorDialog = Chummer.NewUI.Dialogs.ArmorDialog;
 using ArmorModDialog = Chummer.NewUI.Dialogs.ArmorModDialog;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
+using NexusDialog = Chummer.NewUI.Dialogs.NexusDialog;
 using WeaponDialog = Chummer.NewUI.Dialogs.WeaponDialog;
 using WeaponAccessoryDialog = Chummer.NewUI.Dialogs.WeaponAccessoryDialog;
 using WeaponModDialog = Chummer.NewUI.Dialogs.WeaponModDialog;
@@ -101,6 +102,20 @@ public partial class GearSectionTab : UserControl
         } while (continueAdding);
 
         ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAddNexusClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new NexusDialog();
+        if (await dialog.ShowDialog<bool>(window))
+        {
+            _character.AddNexus(dialog.Processor, dialog.Response, dialog.System, dialog.Firewall,
+                dialog.Signal, dialog.Persona, dialog.Free);
+            ViewModel.LoadCharacter(_character);
+        }
     }
 
     private async void OnAddGearLocationClick(object? sender, RoutedEventArgs e)

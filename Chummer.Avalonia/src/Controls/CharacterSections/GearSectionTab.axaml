@@ -153,6 +153,7 @@
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
+                        <Button Content="Nexus zusammenstellen" Click="OnAddNexusClick" />
                         <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
                         <Button Content="Löschen" Click="OnDeleteGearClick" />
                         <Button Content="Ort hinzufügen" Click="OnAddGearLocationClick" />

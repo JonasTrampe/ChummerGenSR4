@@ -1140,6 +1140,73 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Builds a custom Nexus (a build-your-own Matrix node, UN p.50) and adds it as a
+        /// single root-level Gear item - ported from frmSelectNexus.cs's CalculateNexus. This
+        /// port's Gear already carries direct Response/Signal/System/Firewall fields (unlike
+        /// legacy, which assembles five separate child Gear items per attribute), so those four
+        /// values are written straight onto the one Nexus Gear node; the Persona Limit has no
+        /// equivalent field and is folded into the item's own name instead, matching how legacy's
+        /// own top-level Nexus Gear name embeds the Processor rating. Cost/Avail formulas are
+        /// copied verbatim per-tier, including legacy's Response-cost bug: Response 7-10 always
+        /// costs 0 nuyen because CalculateNexus multiplies its own not-yet-assigned (still 0)
+        /// running total instead of the rating - faithfully reproduced rather than fixed, since a
+        /// real character built to match a legacy save must land on the exact same numbers.
+        /// <paramref name="blnFree"/> matches the "Free!" checkbox (career mode only in legacy;
+        /// here it's just an optional override).</summary>
+        public bool AddNexus(int intProcessor, int intResponse, int intSystem, int intFirewall, int intSignal,
+            int intPersona, bool blnFree = false)
+        {
+            // Legacy also computes a per-attribute Availability string for display (e.g.
+            // Response's is (Response*4), +"F" past tier 2) - purely informational there (the
+            // assembled Nexus Gear's own Avail is always "0"), so not reproduced here.
+            int intResponseCost;
+            if (intResponse <= 3)
+                intResponseCost = intResponse * intProcessor * 50;
+            else if (intResponse <= 6)
+                intResponseCost = intResponse * intProcessor * 100;
+            else
+                intResponseCost = 0; // legacy bug: multiplies its own still-zero running total.
+
+            int intSystemCost;
+            if (intSystem <= 3)
+                intSystemCost = intSystem * intPersona * 25;
+            else if (intSystem <= 6)
+                intSystemCost = intSystem * intPersona * 50;
+            else
+                intSystemCost = intSystem * intPersona * 300;
+
+            int intFirewallCost;
+            if (intFirewall <= 3)
+                intFirewallCost = intFirewall * intProcessor * 25;
+            else if (intFirewall <= 6)
+                intFirewallCost = intFirewall * intProcessor * 50;
+            else
+                intFirewallCost = intFirewall * intProcessor * 250;
+
+            int intSignalCost = intSignal switch
+            {
+                2 => 50,
+                3 => 150,
+                4 => 500,
+                5 => 1000,
+                6 => 3000,
+                7 => 6500,
+                8 => 8750,
+                9 => 12250,
+                10 => 17250,
+                _ => 10,
+            };
+
+            int intCost = blnFree ? 0 : intResponseCost + intSystemCost + intFirewallCost + intSignalCost;
+
+            string strName = $"Nexus (Processor {intProcessor})";
+            return AddGear(strName, "Nexus", strCost: intCost.ToString(CultureInfo.InvariantCulture), strAvail: "0",
+                strSource: "UN", strPage: "50", strResponse: intResponse.ToString(CultureInfo.InvariantCulture),
+                strSignal: intSignal.ToString(CultureInfo.InvariantCulture),
+                strSystemRating: intSystem.ToString(CultureInfo.InvariantCulture),
+                strFirewall: intFirewall.ToString(CultureInfo.InvariantCulture));
+        }
+
         /// <summary>Ported from frmCareer.cs/frmCreate.cs's Stick-n-Shock weapon-category
         /// restriction checks (e.g. frmCareer.cs:24378), simplified for this port's flat Gear tree:
         /// legacy blocks loading Stick-n-Shock ammo into a specific excluded-category weapon;

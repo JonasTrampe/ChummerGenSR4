@@ -99,7 +99,18 @@ context on each.
     Verified against real data: Cat's own `<spellcategory>` bonus correctly no-ops (not yet a
     tier-1 `BonusApplier` node type) while its chosen `<choice>`'s `<specificskill>` bonus
     (Gymnastics +2) applies and is fully cleaned up on `RemoveQuality`.
-  - [ ] `frmSelectNexus` — a Matrix node Gear subtype.
+  - [x] `frmSelectNexus` — done. Ported as `AddNexus(intProcessor, intResponse, intSystem,
+    intFirewall, intSignal, intPersona, blnFree)`, reproducing `CalculateNexus`'s per-tier
+    Cost formulas verbatim - including its Response 7-10 cost bug (multiplies its own
+    still-zero running total instead of the rating, always landing on 0¥ for that tier) rather
+    than fixing it, since a character built to match a legacy save must land on the exact same
+    numbers. Legacy assembles five separate child Gear items per attribute; this port's Gear
+    already carries direct Response/Signal/System/Firewall fields on a single node, so the
+    whole Nexus is added as one root-level Gear item (category "Nexus", Avail "0", the Persona
+    Limit folded into the name like legacy's own Processor-in-name convention). New
+    `NexusDialog`/`NexusDialogViewModel` (six NumericUpDowns matching the real min/max bounds,
+    live cost preview using the identical formula) wired into `GearSectionTab`'s new "Nexus
+    zusammenstellen" button.
   - [ ] `frmSelectPACKSKit` — bundled starting-gear packages.
   - [x] `frmSelectProgramOption` — done. Ported as `GetComplexFormOptionChoices` (filters
     programs.xml's `/chummer/options/option` list by `<programtypes>` matching the Complex Form's

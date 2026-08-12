@@ -359,6 +359,38 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddNexus_BuildsAndAddsTheAssembledGear()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        // Processor 10, Response 3, System 2, Firewall 2, Signal 3, Persona 3 - matches
+        // frmSelectNexus.cs's CalculateNexus: Response<=3 -> 3*10*50=1500; System<=3 ->
+        // 2*3*25=150; Firewall<=3 -> 2*10*25=500; Signal 3 -> 150. Total 2300.
+        Assert.True(character.AddNexus(intProcessor: 10, intResponse: 3, intSystem: 2, intFirewall: 2,
+            intSignal: 3, intPersona: 3));
+
+        CharacterTreeItemData added = Assert.Single(character.Gear);
+        Assert.Equal("Nexus (Processor 10)", added.Name);
+        Assert.Equal("Nexus", added.Category);
+        Assert.Equal("2300", added.Cost);
+        Assert.Equal("0", added.Avail);
+        Assert.Equal("3", added.Response);
+        Assert.Equal("3", added.Signal);
+        Assert.Equal("2", added.System);
+        Assert.Equal("2", added.Firewall);
+    }
+
+    [Fact]
+    public void AddNexus_Free_SkipsTheCost()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.AddNexus(intProcessor: 10, intResponse: 3, intSystem: 2, intFirewall: 2,
+            intSignal: 3, intPersona: 3, blnFree: true));
+
+        Assert.Equal("0", Assert.Single(character.Gear).Cost);
+    }
+
+    [Fact]
     public void Vehicles_ReadSavedStatsAndInstalledItemTree()
     {
         CharacterDocument character = LoadXml(
