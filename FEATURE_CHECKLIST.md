@@ -312,6 +312,24 @@ what's ported, not previously tracked anywhere in this file)
 **Settings / i18n**
 - [ ] Translate the Avalonia UI — most strings are still hard-coded despite the language-selection
   UI and catalog reload already existing.
+- [ ] Enabled-sourcebook filtering (`Options.BookXPath()`) is never actually applied anywhere.
+  The Sourcebooks tab's enable/disable checkboxes exist and persist correctly
+  (`OptionsBookItemViewModel.IsSelected`), and `BookXPath()`/`BookEnabled()` themselves are
+  faithfully ported - but every item-picker query in this port loads its full rules-data list
+  unconditionally, so disabling a book has zero effect on what shows up anywhere. In legacy this
+  is one of the most pervasive filters in the app: `BookXPath()` gates the item list in ~22
+  different `frmSelectXxx.cs` pickers (Gear nine separate call sites alone, plus
+  Cyberware/Spell/Metamagic/Quality/Weapon/Vehicle/Armor/...), always as
+  `"/chummer/xxx/xxx[" + strBookXPath + "]"` appended to the base XPath query. Porting this
+  properly means adding `character.BookXPath()`-equivalent filtering to every rules-data lookup
+  this port's dialogs/ViewModels do (Gear/Weapon/Armor/Cyberware/Bioware/Quality/Spell/Metamagic/
+  Vehicle/VehicleMod/... dialogs, plus PACKS Kits/Suites which reuse the same base lookups) -
+  large in surface area even though each individual site's change is small (append an XPath
+  predicate). A user who's disabled a sourcebook currently still sees every item from it.
+- [ ] `LimbCount` (Options General tab, e.g. "3" for a character missing a limb) has a working UI
+  selector and persists, but nothing in this port's Cyberlimb-attribute-averaging or encumbrance
+  calculations reads it - always assumes the default limb count. Smaller/more niche than the
+  BookXPath gap above; only matters for characters with missing limbs.
 
 **Interaction niceties**
 - [x] Extend drag/drop reordering/reparenting to the Cyberware tree — done, see § Character sheet
