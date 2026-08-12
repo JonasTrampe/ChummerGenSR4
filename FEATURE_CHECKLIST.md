@@ -109,8 +109,22 @@ context on each.
     own `<location>` field — matching legacy, which stores this on the item directly rather than as
     an Improvement. `CyberwareSectionTab`'s Add flow reuses the existing generic
     `ListSelectionDialog` (no new dialog needed) with the real "Left"/"Right" values.
-  - [ ] `frmSelectSkillCategory`/`frmSelectSkillGroup` — standalone category/group-only pickers
-    (distinct from `selectskill`'s skillgroup/skillcategory *filtering*, which is already done).
+  - [x] `frmSelectSkillGroup` — done (standalone group-only picker, distinct from `selectskill`'s
+    skillgroup/skillcategory *filtering*, which was already done). Ported as
+    `CyberwareRequiresSkillGroupSelection` (detects a bare `<selectskillgroup>` bonus; real usage:
+    Reflex Recorder (Skill Group)/(Skill) in bioware.xml) plus `GetCyberwareSkillGroupOptions`
+    (reads `/chummer/skillgroups/name` from skills.xml, filtered by the bonus's
+    `excludecategory` attribute exactly like `frmSelectSkillGroup.cs`'s Load handler: a group is
+    offered if at least one of its skills has a category not in the exclude list). The chosen
+    group is applied as an `ImprovementType.SkillGroup` Improvement via a new
+    `selectskillgroup` branch in `ApplySelectedImprovement` (reusing the same
+    selecttext/selectskill/selectattribute dispatch `AddQuality`/`AddAdeptPower` already use), and
+    a new `AddCyberware(..., strSelectedSkillGroup)` parameter feeds it. `CyberwareSectionTab`'s
+    Add flow reuses the existing generic `ListSelectionDialog` (no new dialog needed).
+  - [~] `frmSelectSkillCategory` — investigated: real `qualities.xml`/`cyberware.xml`/`bioware.xml`
+    have no `<selectskillcategory>` bonus node anywhere; the only real caller is the Manual
+    Improvement Creator (`frmCreateImprovement.cs`), already tracked as its own backlog item below,
+    same situation as `frmSelectSpellCategory`. Nothing to build here until that item is tackled.
   - [~] `frmSelectSpellCategory` — investigated: real `qualities.xml` has no
     `<selectspellcategory>`/similar bonus node anywhere (Aspected Magician is 5 separately-named
     Qualities per category, not one Quality with a category picker); the only real caller is the
@@ -345,7 +359,7 @@ context on each.
 - ❌ The remaining pickers - see the "Item picker dialogs" row in the Backlog section above for
   the full audited list (`frmSelectArmorMod`, `frmSelectCyberwareSuite`, `frmSelectMentorSpirit`,
   `frmSelectNexus`, `frmSelectPACKSKit`, `frmSelectProgramOption`, `frmSelectSide`,
-  `frmSelectSkillCategory`/`frmSelectSkillGroup`, `frmSelectSpellCategory`). Skill beyond exotic
+  `frmSelectSkillCategory`, `frmSelectSkillGroup`, `frmSelectSpellCategory`). Skill beyond exotic
   skills doesn't need one - active/knowledge skills come from a fixed list plus freeform
   knowledge-skill entries.
 

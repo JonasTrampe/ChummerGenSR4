@@ -874,6 +874,35 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberware_SkillGroupSelection_IsDetectedAppliedAndRemovable()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        // Reflex Recorder (Skill Group)'s real bonus is a bare <selectskillgroup
+        // excludecategory="Magical Active,Resonance Active,Social Active,Technical
+        // Active,Vechicle Active"> node - Firearms (Combat Active) isn't excluded.
+        Assert.True(character.CyberwareRequiresSkillGroupSelection("Reflex Recorder (Skill Group)", blnBioware: true));
+        Assert.False(character.CyberwareRequiresSkillGroupSelection("Datajack"));
+
+        var lstOptions = character.GetCyberwareSkillGroupOptions(
+            "Reflex Recorder (Skill Group)", blnBioware: true);
+        Assert.Contains("Firearms", lstOptions);
+        Assert.DoesNotContain("Sorcery", lstOptions);
+
+        character.AddCyberware("Reflex Recorder (Skill Group)", "Cultured", "0", "0.2", "25000", "12", "SR4", "",
+            blnBioware: true, strSelectedSkillGroup: "Firearms");
+
+        Improvement improvement = Assert.Single(character.Improvements);
+        Assert.Equal(ImprovementType.SkillGroup, improvement.Type);
+        Assert.Equal("Firearms", improvement.ImprovedName);
+        Assert.Equal(1, improvement.Value);
+        Assert.True(improvement.AddToRating);
+
+        Assert.True(character.RemoveCyberware("Reflex Recorder (Skill Group)", "Cultured", "0", blnBioware: true));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
     public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
     {
         // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count

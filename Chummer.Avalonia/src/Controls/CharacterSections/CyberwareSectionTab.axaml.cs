@@ -68,9 +68,20 @@ public partial class CyberwareSectionTab : UserControl
                 strSide = sideDialog.SelectedValue;
             }
 
+            string strSkillGroup = string.Empty;
+            if (_character.CyberwareRequiresSkillGroupSelection(item.Name, blnBioware))
+            {
+                var groupDialog = new ListSelectionDialog($"„{item.Name}“ - Fertigkeitsgruppe auswählen:",
+                    _character.GetCyberwareSkillGroupOptions(item.Name, blnBioware));
+                if (!await groupDialog.ShowDialog<bool>(window) || groupDialog.SelectedValue == null)
+                    return;
+                strSkillGroup = groupDialog.SelectedValue;
+            }
+
             _character.AddCyberware(item.Name, item.Category, item.Rating, viewModel.FinalEssence,
                 viewModel.FinalCost, viewModel.FinalAvailability, item.SourcePage, string.Empty,
-                viewModel.SelectedGrade?.Name ?? "Standard", blnBioware: blnBioware, strSide: strSide);
+                viewModel.SelectedGrade?.Name ?? "Standard", blnBioware: blnBioware, strSide: strSide,
+                strSelectedSkillGroup: strSkillGroup);
             ViewModel.LoadCharacter(_character);
         }
     }

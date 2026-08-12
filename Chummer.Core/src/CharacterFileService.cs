@@ -1041,6 +1041,16 @@ namespace Chummer.Core
                     Augmented: (int)RatingExpression.Evaluate(objSelectAttribute["val"]?.InnerText ?? string.Empty, strRating),
                     AugmentedMaximum: (int)RatingExpression.Evaluate(objSelectAttribute["aug"]?.InnerText ?? string.Empty, strRating)),
                     eSource, strSourceName);
+                return;
+            }
+
+            XmlNode? objSelectSkillGroup = objXmlBonus.SelectSingleNode("selectskillgroup");
+            if (objSelectSkillGroup != null && objSelectSkillGroup["bonus"] != null)
+            {
+                bool blnAddToRating = objSelectSkillGroup["applytorating"]?.InnerText == "yes";
+                AppendImprovement(new ImprovementSpec(ImprovementType.SkillGroup, strSelected.Trim(),
+                    Value: (int)RatingExpression.Evaluate(objSelectSkillGroup["bonus"]!.InnerText, strRating),
+                    AddToRating: blnAddToRating), eSource, strSourceName);
             }
         }
 
@@ -1473,9 +1483,55 @@ namespace Chummer.Core
             FindBonusChild(blnBioware ? "bioware.xml" : "cyberware.xml", blnBioware ? "biowares" : "cyberwares",
                 blnBioware ? "bioware" : "cyberware", strName, "selectside") != null;
 
+        /// <summary>Whether adding this Cyberware/Bioware prompts for a Skill Group pick (e.g.
+        /// Reflex Recorder (Skill Group)) - ported from clsImprovement.cs's selectskillgroup
+        /// bonus handler (frmSelectSkillGroup.cs). The actual Improvement is created via <see
+        /// cref="ApplySelectedImprovement"/> once <see cref="AddCyberware"/> is given the chosen
+        /// group name.</summary>
+        public bool CyberwareRequiresSkillGroupSelection(string strName, bool blnBioware = false) =>
+            FindBonusChild(blnBioware ? "bioware.xml" : "cyberware.xml", blnBioware ? "biowares" : "cyberwares",
+                blnBioware ? "bioware" : "cyberware", strName, "selectskillgroup") != null;
+
+        /// <summary>Skill Group names to offer for this Cyberware/Bioware's selectskillgroup
+        /// bonus, filtered by its excludecategory attribute exactly like frmSelectSkillGroup.cs's
+        /// Load handler: a group is offered if skills.xml has at least one skill in that group
+        /// whose category is not in the exclude list (or if there's no excludecategory at all).</summary>
+        public IReadOnlyList<string> GetCyberwareSkillGroupOptions(string strName, bool blnBioware = false)
+        {
+            XmlNode? objSelectSkillGroup = FindBonusChild(blnBioware ? "bioware.xml" : "cyberware.xml",
+                blnBioware ? "biowares" : "cyberwares", blnBioware ? "bioware" : "cyberware", strName, "selectskillgroup");
+
+            string strExcludeCategory = objSelectSkillGroup?.Attributes?["excludecategory"]?.InnerText ?? string.Empty;
+            HashSet<string>? setExclude = string.IsNullOrEmpty(strExcludeCategory)
+                ? null
+                : new HashSet<string>(strExcludeCategory.Split(',').Select(s => s.Trim()), StringComparer.Ordinal);
+
+            XmlDocument objSkillsDoc = XmlManager.Instance.Load("skills.xml");
+            var lstGroups = new List<string>();
+            foreach (XmlNode objGroup in objSkillsDoc.SelectNodes("/chummer/skillgroups/name")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+            {
+                string strGroup = objGroup.InnerText;
+                if (setExclude == null)
+                {
+                    lstGroups.Add(strGroup);
+                    continue;
+                }
+
+                bool blnHasIncludedSkill = (objSkillsDoc.SelectNodes(
+                        $"/chummer/skills/skill[skillgroup = '{strGroup}']")?.Cast<XmlNode>()
+                        ?? Enumerable.Empty<XmlNode>())
+                    .Any(objSkill => !setExclude.Contains(objSkill["category"]?.InnerText ?? string.Empty));
+                if (blnHasIncludedSkill)
+                    lstGroups.Add(strGroup);
+            }
+
+            return lstGroups;
+        }
+
         public void AddCyberware(string strName, string strCategory, string strRating, string strEss,
             string strCost, string strAvail, string strSource, string strPage, string strGrade = "Standard",
-            bool blnBioware = false, string strSide = "")
+            bool blnBioware = false, string strSide = "", string strSelectedSkillGroup = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A cyberware name is required.", nameof(strName));
@@ -1510,6 +1566,9 @@ namespace Chummer.Core
                 $"/chummer/{(blnBioware ? "biowares/bioware" : "cyberwares/cyberware")}[name = '{strName.Trim()}']");
             ApplyBonus(objXmlWare?.SelectSingleNode("bonus"),
                 blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware, strName.Trim(), strRating);
+            ApplySelectedImprovement(objXmlWare?.SelectSingleNode("bonus"),
+                blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware, strName.Trim(),
+                strSelectedSkillGroup, strRating);
 
             Changed?.Invoke();
         }
