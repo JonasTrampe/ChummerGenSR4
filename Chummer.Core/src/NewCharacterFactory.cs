@@ -155,6 +155,10 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "nuyen", "0");
             AppendElement(objDocument, objRoot, "bp", blnKarmaBuild ? "0" : intBuildPoints.ToString());
             AppendElement(objDocument, objRoot, "buildkarma", blnKarmaBuild ? intBuildPoints.ToString() : "0");
+            // The starting total, unlike bp/buildkarma above which shrink as points are spent -
+            // needed by AllowExceedAttributeBp's "max 50% of the starting total on primary
+            // attributes" cap (see CharacterDocument.StartingBuildPoints).
+            AppendElement(objDocument, objRoot, "startingbuildpoints", intBuildPoints.ToString());
             AppendElement(objDocument, objRoot, "buildmethod", strBuildMethod);
             AppendElement(objDocument, objRoot, "knowpts", "0");
             AppendElement(objDocument, objRoot, "nuyenbp", "0");

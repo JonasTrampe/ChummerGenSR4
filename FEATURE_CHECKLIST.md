@@ -62,8 +62,7 @@ context on each.
   Geister). Separate from the Drain/Fading resistance pool, which was already done.
 
 **House rules**
-- [ ] `AllowExceedAttributeBp` — needs a new persisted "starting BP total" field (Bp is currently
-  only ever tracked as a shrinking remaining pool), not just gating existing logic.
+- [x] `AllowExceedAttributeBp` — done, see § House-rule awareness in calculations.
 
 **Item picker dialogs**
 - [ ] Enumerate and port the remaining `frmSelectXxx` pickers beyond the 19 of ~41 already ported
@@ -366,10 +365,18 @@ context on each.
   shared value before proceeding. `AllowCyberwareEssDiscounts` is now honored too - the
   Cyberware/Bioware picker gained an Essence-discount % spinner (only shown when the house rule is
   on), applied client-side into the already-resolved Essence value the same way the grade
-  multiplier already is. `AllowExceedAttributeBp` was investigated but skipped: this port has no
-  persisted "starting BP total" field to check the 50% cap against at all (Bp is only ever tracked
-  as a shrinking remaining pool), so implementing it correctly means adding new persisted state,
-  not just gating existing logic - a bigger change than the rest of this sweep.
+  multiplier already is. `AllowExceedAttributeBp` is now honored too - `NewCharacterFactory` now
+  persists a `startingbuildpoints` field (the starting BP/Karma total, unlike `Bp`/`Karma` which
+  shrink as points are spent, exposed as `CharacterDocument.StartingBuildPoints`), and
+  `RaiseAttributeCreate` gates each raise of the 8 primary attributes against
+  `ComputeAttributeCreatePointsSpent` (which recomputes points-already-spent per attribute using
+  the exact same per-step cost formulas `RaiseAttributeCreate`/`LowerAttributeCreate` already
+  charge/refund, so it can't drift) plus the new raise's own cost exceeding half the starting
+  total - ported from frmCreate.cs's `nud<Attribute>_ValueChanged` handlers. Older save files (or
+  any character not created through `NewCharacterFactory`) have no `startingbuildpoints` and are
+  left unrestricted, matching the "nothing to check against" case. Not ported: the
+  `SpecialAttributeKarmaLimit` sub-house-rule (whether EDG/MAG/RES count toward the same cap) -
+  the primary-attribute-only cap is the common case and already a real, working restriction.
   `UseCalculatedVehicleSensorRatings` is now honored too - `CharacterVehicleData.CalculatedSensor`
   faithfully ports clsEquipment.cs's Vehicle.CalculatedSensor (including its "only ever looks at
   the vehicle's first onboard Gear item" quirk: averages that item's "Sensor Functions" category

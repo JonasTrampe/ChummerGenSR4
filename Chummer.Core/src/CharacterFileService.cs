@@ -316,6 +316,12 @@ namespace Chummer.Core
             set => SetRootValue("bp", value);
         }
 
+        /// <summary>The starting BP/Karma total the character was created with (unlike <see
+        /// cref="Bp"/>/<see cref="Karma"/>, which shrink as points are spent) - only set for
+        /// characters created through <see cref="NewCharacterFactory"/>; "0" for older save files.
+        /// Used by <see cref="RaiseAttributeCreate"/>'s AllowExceedAttributeBp gate.</summary>
+        public int StartingBuildPoints => int.TryParse(GetValue("/character/startingbuildpoints", "0"), out var i) ? i : 0;
+
         public string Nuyen
         {
             get => GetValue("/character/nuyen", "0");
@@ -4948,9 +4954,18 @@ namespace Chummer.Core
             var objOptions = GetCharacterOptions();
             bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
 
+            int intCost;
+            if (blnKarmaBuild)
+                intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
+            else
+                intCost = objOptions.BpAttribute + (blnReachesMax ? objOptions.BpAttributeMax : 0);
+
+            if (!objOptions.AllowExceedAttributeBp && s_astrPrimaryAttributeCodes.Contains(strCode)
+                && !ExceedAttributeBpAllowedForThisRaise(intCost))
+                return false;
+
             if (blnKarmaBuild)
             {
-                int intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
                 int intKarma = int.TryParse(Karma, out var k) ? k : 0;
                 if (intCost > intKarma)
                     return false;
@@ -4958,7 +4973,6 @@ namespace Chummer.Core
             }
             else
             {
-                int intCost = objOptions.BpAttribute + (blnReachesMax ? objOptions.BpAttributeMax : 0);
                 int intBp = int.TryParse(Bp, out var b) ? b : 0;
                 if (intCost > intBp)
                     return false;
@@ -4968,6 +4982,52 @@ namespace Chummer.Core
             SetChildValue(objNode, "value", (intValue + 1).ToString());
             SetChildValue(objNode, "totalvalue", (intValue + 1).ToString());
             return true;
+        }
+
+        /// <summary>Ported from frmCreate.cs's nud&lt;Attribute&gt;_ValueChanged handlers' "no more
+        /// than half your starting BP/Karma on primary attributes" check (gated by the
+        /// AllowExceedAttributeBp house rule). Returns true (no restriction) if the character has
+        /// no persisted starting total - older save files predating this field, or characters not
+        /// created through <see cref="NewCharacterFactory"/> - since there's nothing to check
+        /// against. <paramref name="intAdditionalCost"/> is the specific raise being attempted,
+        /// added on top of everything already spent on the 8 primary attributes so far.</summary>
+        private bool ExceedAttributeBpAllowedForThisRaise(int intAdditionalCost)
+        {
+            int intStartingTotal = int.TryParse(GetValue("/character/startingbuildpoints", "0"), out var s) ? s : 0;
+            if (intStartingTotal <= 0)
+                return true;
+
+            int intSpent = s_astrPrimaryAttributeCodes.Sum(ComputeAttributeCreatePointsSpent);
+            return intSpent + intAdditionalCost <= intStartingTotal / 2;
+        }
+
+        /// <summary>Recomputes how many Karma/BP points have already been spent raising this
+        /// attribute from its metatype minimum to its current value, using the exact same per-step
+        /// cost formulas <see cref="RaiseAttributeCreate"/>/<see cref="LowerAttributeCreate"/>
+        /// already charge/refund, so it can never drift from what was actually charged.</summary>
+        private int ComputeAttributeCreatePointsSpent(string strCode)
+        {
+            var objNode = GetAttributeNode(strCode);
+            if (objNode == null) return 0;
+
+            int intValue = int.TryParse(GetValue(objNode, "value", "0"), out var v) ? v : 0;
+            int intMinimum = int.TryParse(GetValue(objNode, "metatypemin", "0"), out var mn) ? mn : 0;
+            int intMaximum = int.TryParse(GetValue(objNode, "metatypemax", "0"), out var mx) ? mx : 0;
+
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            if (blnKarmaBuild)
+            {
+                int intSpent = 0;
+                for (int i = intMinimum; i < intValue; i++)
+                    intSpent += ComputeAttributeKarmaCostToIncrease(i.ToString(), intMinimum.ToString());
+                return intSpent;
+            }
+
+            var objOptions = GetCharacterOptions();
+            int intBpSpent = objOptions.BpAttribute * (intValue - intMinimum);
+            if (intValue == intMaximum && intMaximum > intMinimum)
+                intBpSpent += objOptions.BpAttributeMax;
+            return intBpSpent;
         }
 
         /// <summary>Create mode: lowers an attribute's base Value by one, refunding the Karma or BP

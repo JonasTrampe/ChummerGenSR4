@@ -72,6 +72,46 @@ public class NewCharacterFactoryTests
     }
 
     [Fact]
+    public void RaiseAttributeCreate_BlocksExceedingHalfStartingKarmaOnPrimaryAttributes()
+    {
+        // KarmaAttribute is 5 in default.xml, BOD starts at metatypemin 1 for Human: raises cost
+        // 10, 15, 20, 25 (cumulative 10, 25, 45, 70). With 100 starting Karma, half is 50 - the
+        // 4th raise (cumulative 70) should be blocked even though 55 Karma is still available
+        // (100 - 45), isolating the cap from a plain insufficient-Karma failure.
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 100, 12, LoadHuman());
+        Assert.Equal(100, character.StartingBuildPoints);
+
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.False(character.RaiseAttributeCreate("BOD")); // Cumulative 70 > half of 100.
+        Assert.True(int.Parse(character.Karma) >= 25); // Plenty of Karma left - it's the cap, not funds.
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowExceedAttributeBp = true });
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+    }
+
+    [Fact]
+    public void RaiseAttributeCreate_BpBuild_BlocksExceedingHalfStartingBpOnPrimaryAttributes()
+    {
+        // BpAttribute is a flat 10 per point in default.xml (BOD: metatypemin 1, metatypemax 6
+        // for Human): the first 4 raises (1->2->3->4->5) cost 10 each (cumulative 40); the 5th
+        // (5->6) reaches the racial max, adding the BpAttributeMax(15) surcharge on top, so its
+        // cumulative cost of 65 exceeds half of a 100 BP starting total (50) and must be blocked.
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 100, 12, LoadHuman());
+        Assert.Equal(100, character.StartingBuildPoints);
+
+        for (int i = 0; i < 4; i++)
+            Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.False(character.RaiseAttributeCreate("BOD"));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowExceedAttributeBp = true });
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+    }
+
+    [Fact]
     public void RaiseAttributeCreate_EssenceStartingAtItsOwnMaxDoesNotBlockOtherAttributes()
     {
         // Essence is seeded at value == metatypemax (6) for every fresh character. It must not
