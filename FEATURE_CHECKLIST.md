@@ -36,9 +36,21 @@ context on each.
   `CharacterCritterPowerData.Rating` persists the choice. Verified against real data: Armor
   (Ballistic) at Rating 4 grants +4 Ballistic Armor; Fear (no `<rating>` flag) ignores a passed-in
   Rating and stays at "0".
-- [ ] `selectskill`/`selectattribute`/`selecttext` edge cases not yet modeled: exotic-skill-with-
-  specialization matching in `selectskill`, and `precedence` stacking rules beyond what
-  `ImprovementManager` already handles.
+- [x] Exotic-skill-with-specialization matching in `selectskill` — done. `ExtractSkillSelectionOptions`
+  now offers Exotic Skills (which all share the same bare Name, only distinguished by
+  Specialization, e.g. two different "Exotic Ranged Weapon" instances for Bow vs. Grenade
+  Launcher) as their full "Name (Specialization)" form instead of the ambiguous bare Name, ported
+  from clsImprovement.cs's selectskill handler's explicit Exotic Melee/Ranged Weapon/Pilot Exotic
+  Vehicle check (generalized here to any Exotic Skill, not just those three, since the underlying
+  reason - shared bare Name - is the same for all of them). Also had to extend
+  `SkillImprovementContributions`/`ComputeSkillDicePool` to check the specialized `"Name
+  (Specialization)"` Improvement key alongside the bare Name (ported from clsUnique.cs's Skill
+  pool calc, which always checks both forms) - without this, a bonus stored under the specialized
+  key would never actually reach the dice pool. Verified against real data: Aptitude applied to
+  one Exotic Ranged Weapon specialization only affects that specialization's own Improvement, not
+  the other one sharing the same bare Name.
+- [ ] `precedence` stacking rules beyond what `ImprovementManager` already handles (see its own
+  documented scope note).
 
 **Character sheet tabs**
 - [ ] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon

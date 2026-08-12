@@ -886,7 +886,14 @@ namespace Chummer.Core
                 query = query.Where(s => !setExcluded.Contains(s.Category));
             }
 
-            return query.Select(s => s.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList();
+            // Ported from clsImprovement.cs's selectskill handler: Exotic Skills (Exotic Melee/
+            // Ranged Weapon, Pilot Exotic Vehicle) all share the same bare Name but are only
+            // actually distinguished by their Specialization (e.g. "Exotic Ranged Weapon (Bow)"
+            // vs. "...(Grenade Launcher)"), so a character can own several. Using the bare Name
+            // as the selectable/stored value would silently collapse them into one ambiguous
+            // option - offer/store the full "Name (Specialization)" form for those instead.
+            return query.Select(s => s.Exotic ? s.Name + " (" + s.Specialization + ")" : s.Name)
+                .Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList();
         }
 
         private IReadOnlyList<string> ExtractAttributeSelectionOptions(XmlNode? objNode)
@@ -5265,8 +5272,8 @@ namespace Chummer.Core
             bool blnCanDefault)
         {
             var objOptions = GetCharacterOptions();
-            var lstRatingContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: true);
-            var lstPoolContributions = SkillImprovementContributions(strName, strSkillGroup, strCategory, blnAddToRating: false);
+            var lstRatingContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: true);
+            var lstPoolContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: false);
             int intRatingMod = lstRatingContributions.Sum(c => c.Value);
             int intPoolMod = lstPoolContributions.Sum(c => c.Value);
             int intAttributeValue = GetAttributeInt(strAttribute);
@@ -5346,10 +5353,19 @@ namespace Chummer.Core
         }
 
         private IReadOnlyList<(string SourceName, int Value)> SkillImprovementContributions(string strName,
-            string strSkillGroup, string strCategory, bool blnAddToRating)
+            string strSpecialization, string strSkillGroup, string strCategory, bool blnAddToRating)
         {
             var lstContributions = new List<(string SourceName, int Value)>(
                 ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Skill, strName, blnAddToRating));
+            // Ported from clsUnique.cs's Skill pool calc, which always checks both the bare Name
+            // and "Name (Specialization)" forms - the latter is how selectskill Improvements on
+            // Exotic Skills (which all share the same bare Name, only distinguished by
+            // Specialization - e.g. "Exotic Ranged Weapon (Bow)" vs. "...(Grenade Launcher)") get
+            // stored, so a bonus picked for one specific Exotic Skill instance doesn't bleed onto
+            // every other skill sharing its bare Name.
+            if (!string.IsNullOrEmpty(strSpecialization))
+                lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Skill,
+                    strName + " (" + strSpecialization + ")", blnAddToRating));
             if (!string.IsNullOrEmpty(strSkillGroup))
                 lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SkillGroup, strSkillGroup, blnAddToRating));
             if (!string.IsNullOrEmpty(strCategory))

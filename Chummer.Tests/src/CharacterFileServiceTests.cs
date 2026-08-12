@@ -200,6 +200,46 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void GetQualitySkillSelectionOptions_ExoticSkillsSharingAName_AreOfferedAsDistinctSpecializations()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><skills>"
+            + "<skill><name>Exotic Ranged Weapon</name><attribute>AGI</attribute>"
+            + "<skillcategory>Combat Active</skillcategory><rating>3</rating><knowledge>False</knowledge>"
+            + "<exotic>True</exotic><spec>Bow</spec><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Exotic Ranged Weapon</name><attribute>AGI</attribute>"
+            + "<skillcategory>Combat Active</skillcategory><rating>2</rating><knowledge>False</knowledge>"
+            + "<exotic>True</exotic><spec>Grenade Launcher</spec><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+
+        var options = character.GetQualitySkillSelectionOptions("Aptitude");
+
+        Assert.Contains("Exotic Ranged Weapon (Bow)", options);
+        Assert.Contains("Exotic Ranged Weapon (Grenade Launcher)", options);
+        Assert.DoesNotContain("Exotic Ranged Weapon", options); // Bare name is ambiguous, not offered.
+    }
+
+    [Fact]
+    public void AddQuality_Aptitude_OnAnExoticSkill_OnlyBoostsTheSelectedSpecializationsPool()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><skills>"
+            + "<skill><name>Exotic Ranged Weapon</name><attribute>AGI</attribute>"
+            + "<skillcategory>Combat Active</skillcategory><rating>3</rating><knowledge>False</knowledge>"
+            + "<exotic>True</exotic><spec>Bow</spec><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Exotic Ranged Weapon</name><attribute>AGI</attribute>"
+            + "<skillcategory>Combat Active</skillcategory><rating>2</rating><knowledge>False</knowledge>"
+            + "<exotic>True</exotic><spec>Grenade Launcher</spec><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+
+        character.AddQuality("Aptitude", "Positive", "Exotic Ranged Weapon (Bow)");
+
+        var improvement = Assert.Single(character.Improvements);
+        // Stored under the specialized key (Aptitude's <max>1</max>), so it only targets the Bow
+        // instance - not every Exotic Ranged Weapon skill sharing the same bare name.
+        Assert.Equal("Exotic Ranged Weapon (Bow)", improvement.ImprovedName);
+        Assert.Equal(1, improvement.Maximum);
+    }
+
+    [Fact]
     public void GetQualityAttributeSelectionOptions_ExceptionalAttribute_ExcludesEdgMagRes()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
