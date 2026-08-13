@@ -244,6 +244,10 @@ namespace Chummer.Core
         /// per-character settings profile's ConfirmDelete option.</summary>
         public bool ConfirmDeleteEnabled => GetCharacterOptions().ConfirmDelete;
 
+        /// <summary>Whether Career Karma-spending UI actions should ask for confirmation,
+        /// matching the per-character settings profile's ConfirmKarmaExpense option.</summary>
+        public bool ConfirmKarmaExpenseEnabled => GetCharacterOptions().ConfirmKarmaExpense;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition

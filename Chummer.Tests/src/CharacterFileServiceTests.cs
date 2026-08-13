@@ -4624,6 +4624,17 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ConfirmKarmaExpenseEnabled_UsesCharacterSettingsProfile()
+    {
+        CharacterDocument character = LoadXml("<character />");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmKarmaExpense = false });
+        Assert.False(character.ConfirmKarmaExpenseEnabled);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmKarmaExpense = true });
+        Assert.True(character.ConfirmKarmaExpenseEnabled);
+    }
+
+    [Fact]
     public void AddGear_AutomaticallyAddsUnwiredProgramOptions_WhenEnabled()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");

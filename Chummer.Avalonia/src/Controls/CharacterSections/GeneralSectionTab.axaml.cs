@@ -194,9 +194,19 @@ public partial class GeneralSectionTab : UserControl
         }
     }
 
-    private void OnRaiseAttributeClick(object? sender, System.EventArgs e)
+    private async void OnRaiseAttributeClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not AttributeRow { Code: { } strCode })
+        if (_character == null || sender is not AttributeRow { Code: { } strCode }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        CharacterAttributeData? attribute = _character.Attributes.FirstOrDefault(a => a.Code == strCode);
+        if (attribute == null || !int.TryParse(attribute.Value, out int intCurrentValue))
+            return;
+
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpense"), strCode,
+            intCurrentValue + 1, attribute.KarmaCostToIncrease);
+        if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
             return;
 
         if (_character.RaiseAttribute(strCode))
