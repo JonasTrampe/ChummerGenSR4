@@ -238,6 +238,22 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ReplaceMetatype_PreservesPurchasedAttributeIncrementsAndUpdatesIdentity()
+    {
+        CharacterDocument character = LoadXml("<character><metatype>Human</metatype><metatypebp>0</metatypebp>"
+            + "<metatypecategory>Metahuman</metatypecategory><attributes><attribute><name>BOD</name>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax><metatypeaugmax>9</metatypeaugmax>"
+            + "<value>3</value><totalvalue>3</totalvalue></attribute></attributes></character>");
+        var target = new NewCharacterMetatype { Name = "Elf", Category = "Metahuman", Bp = 30, Movement = "10/25/50" };
+        target.AttributeRanges["BOD"] = ("1", "6", "9");
+
+        Assert.True(character.TryReplaceMetatype(target));
+        Assert.Equal("Elf", character.Metatype);
+        Assert.Equal("30", character.Document.SelectSingleNode("/character/metatypebp")!.InnerText);
+        Assert.Equal("3", character.Document.SelectSingleNode("/character/attributes/attribute/value")!.InnerText);
+    }
+
+    [Fact]
     public void RemoveQuality_MatchesNameTypeAndDetail()
     {
         CharacterDocument character = LoadXml("<character><qualities><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Gold</extra></quality></qualities></character>");

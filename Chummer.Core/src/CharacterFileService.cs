@@ -334,6 +334,80 @@ namespace Chummer.Core
         /// metatype category.</summary>
         public bool IsFreeSprite => string.Equals(MetatypeCategory, "Free Sprite", StringComparison.Ordinal);
 
+        /// <summary>Replaces a character's base metatype while retaining the number of natural
+        /// attribute points purchased above each old minimum. This is the non-interactive Core
+        /// half of legacy frmCreate.ChangeMetatype: callers supply the picker result, while Core
+        /// rejects the operation before mutating if a player-selected quality requires the old
+        /// metatype or metavariant.</summary>
+        public bool TryReplaceMetatype(NewCharacterMetatype objTarget, string strMetavariantName = "")
+        {
+            if (objTarget == null || string.IsNullOrWhiteSpace(objTarget.Name)
+                || !IsBookEnabled(objTarget.Source))
+                return false;
+
+            NewCharacterMetavariant? objVariant = string.IsNullOrWhiteSpace(strMetavariantName)
+                ? null
+                : objTarget.Metavariants.FirstOrDefault(v => string.Equals(v.Name, strMetavariantName,
+                    StringComparison.Ordinal));
+            if (!string.IsNullOrWhiteSpace(strMetavariantName) && (objVariant == null || !IsBookEnabled(objVariant.Source)))
+                return false;
+            if (HasSelectedQualityDependingOn(Metatype, Metavariant))
+                return false;
+
+            var dicPurchased = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (string strCode in s_astrMetatypeAttributeCodes)
+                dicPurchased[strCode] = Math.Max(0, GetAttributeBaseInt(strCode) - GetAttributeMinimum(strCode));
+
+            int intBp = objVariant?.Bp ?? objTarget.Bp;
+            SetRootValue("metatype", objTarget.Name);
+            SetRootValue("metatypebp", intBp.ToString(CultureInfo.InvariantCulture));
+            SetRootValue("metavariant", objVariant?.Name ?? string.Empty);
+            SetRootValue("metatypecategory", objTarget.Category);
+            SetRootValue("movement", objTarget.Movement);
+            string[] astrMovement = objTarget.Movement.Split('/', StringSplitOptions.TrimEntries);
+            SetRootValue("movementwalk", astrMovement.Length > 0 ? astrMovement[0] : string.Empty);
+            SetRootValue("movementswim", astrMovement.Length > 1 ? astrMovement[1] : string.Empty);
+
+            foreach (string strCode in s_astrMetatypeAttributeCodes)
+            {
+                if (!objTarget.AttributeRanges.TryGetValue(strCode, out var objRange))
+                    continue;
+                XmlNode? objAttribute = GetAttributeNode(strCode);
+                if (objAttribute == null)
+                    continue;
+                int intMin = ParseInteger(objRange.Min);
+                int intMax = ParseInteger(objRange.Max);
+                int intValue = Math.Clamp(intMin + dicPurchased[strCode], intMin, intMax);
+                SetChildValue(objAttribute, "metatypemin", objRange.Min);
+                SetChildValue(objAttribute, "metatypemax", objRange.Max);
+                SetChildValue(objAttribute, "metatypeaugmax", objRange.Aug);
+                SetChildValue(objAttribute, "value", intValue.ToString(CultureInfo.InvariantCulture));
+                SetChildValue(objAttribute, "totalvalue", intValue.ToString(CultureInfo.InvariantCulture));
+            }
+            Changed?.Invoke();
+            return true;
+        }
+
+        private bool HasSelectedQualityDependingOn(string strMetatype, string strMetavariant)
+        {
+            XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+            foreach (XmlNode objQuality in Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                if (Enum.TryParse(GetValue(objQuality, "qualitysource", "Selected"), true,
+                        out QualitySource eSource) && eSource != QualitySource.Selected)
+                    continue;
+                string strName = GetValue(objQuality, "name", string.Empty);
+                XmlNode? objRule = objQualities.SelectSingleNode("/chummer/qualities/quality[name = '" + strName + "']");
+                if (objRule?.SelectSingleNode("required/oneof/metatype[. = '" + strMetatype + "']") != null
+                    || objRule?.SelectSingleNode("required/allof/metatype[. = '" + strMetatype + "']") != null
+                    || (!string.IsNullOrEmpty(strMetavariant) && (objRule?.SelectSingleNode("required/oneof/metavariant[. = '" + strMetavariant + "']") != null
+                        || objRule?.SelectSingleNode("required/allof/metavariant[. = '" + strMetavariant + "']") != null)))
+                    return true;
+            }
+            return false;
+        }
+
         /// <summary>Response rating of the character's equipped, active Commlink (0 if none),
         /// ported from clsCommonFunctions.FindCommlinks + Commlink.TotalResponse as used by
         /// MatrixInitiative. Searches every &lt;gear&gt; node anywhere in the document (so this
@@ -9028,6 +9102,11 @@ namespace Chummer.Core
         // the 8 primary physical/mental attributes - Edge, Magic, and Resonance each have their
         // own separate cost/cap rules and neither trigger nor are blocked by this rule. Essence
         // isn't a chargen attribute at all (it only decreases from cyber/bioware).
+        private static readonly string[] s_astrMetatypeAttributeCodes =
+        {
+            "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "INI", "EDG", "MAG", "RES", "ESS"
+        };
+
         private static readonly string[] s_astrPrimaryAttributeCodes =
         {
             "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL"
