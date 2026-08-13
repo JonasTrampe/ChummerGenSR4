@@ -8,15 +8,11 @@ namespace Chummer.Core;
 /// Aggregation queries over a character's <see cref="Improvement"/> list, ported from
 /// clsImprovement.cs's <c>ImprovementManager.ValueOf</c>.
 ///
-/// Three edge cases from the legacy version were deliberately NOT ported (each narrow and
+/// Two edge cases from the legacy version were deliberately NOT ported (each narrow and
 /// each needs its own follow-up):
 ///  - The Technomancer/Gear MatrixInitiativePass exclusion (Technomancers can't benefit from
 ///    Gear-sourced Matrix Initiative Pass bonuses) - needs CharacterDocument.RESEnabled, which
 ///    doesn't exist in Core yet.
-///  - The "precedence0"/"precedence1" UniqueName overrides (used by a handful of metatype/
-///    quality bonuses to say "ignore every other bonus of this type, use only mine") - the
-///    general UniqueName-dedup-to-max behavior below covers the common case; precedence
-///    overrides are rare enough to add once a save file actually needs them for a test to fail against.
 ///  - Legacy tallies Custom (manually-created, see frmCreateImprovement.cs) Improvements in a
 ///    second pass with their own separate UniqueName dedup, then adds that subtotal to the
 ///    non-Custom one. This port folds Custom Improvements into the same single pass/dedup
@@ -32,6 +28,14 @@ public static class ImprovementManager
     /// attribute code). Bonuses that share a UniqueName are deduplicated to the single highest
     /// value among them, mirroring the legacy "only the best bonus of a named group counts" rule
     /// (e.g. multiple sources of the same Cyberware Essence discount don't stack).
+    ///
+    /// Ported from clsImprovement.cs's own two special UniqueName values, checked after the
+    /// normal dedup above: "precedence1" entries are summed together and completely replace the
+    /// total (every non-precedence1 bonus, dedup'd or not, is discarded); "precedence0" instead
+    /// keeps only the single highest "precedence0" entry, discarding everything else. precedence1
+    /// wins if both are present (matching legacy's evaluation order). Used by a handful of
+    /// metatype/quality bonuses to say "ignore every other bonus of this type, use only mine"
+    /// (e.g. a Free Spirit's Attribute maximums).
     /// </summary>
     public static int ValueOf(IReadOnlyList<Improvement> lstImprovements, ImprovementType eType,
         string? strImprovedName = null, bool blnAddToRating = false)
@@ -59,6 +63,16 @@ public static class ImprovementManager
                 intValue += objImprovement.Value;
             }
         }
+
+        if (dicHighestByUniqueName.ContainsKey("precedence1"))
+        {
+            return lstImprovements.Where(i => i.Enabled && i.Type == eType && i.AddToRating == blnAddToRating
+                    && (strImprovedName == null || i.ImprovedName == strImprovedName) && i.UniqueName == "precedence1")
+                .Sum(i => i.Value);
+        }
+
+        if (dicHighestByUniqueName.TryGetValue("precedence0", out var intPrecedence0))
+            return intPrecedence0;
 
         return intValue + dicHighestByUniqueName.Values.Sum();
     }

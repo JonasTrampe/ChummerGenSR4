@@ -96,8 +96,15 @@ context on each.
   key would never actually reach the dice pool. Verified against real data: Aptitude applied to
   one Exotic Ranged Weapon specialization only affects that specialization's own Improvement, not
   the other one sharing the same bare Name.
-- [ ] `precedence` stacking rules beyond what `ImprovementManager` already handles (see its own
-  documented scope note).
+- [x] `precedence` stacking rules — done. `ImprovementManager.ValueOf` now ports clsImprovement.cs's
+  "precedence0"/"precedence1" special UniqueName values (used by a handful of metatype/quality
+  bonuses to mean "ignore every other bonus of this type, use only mine"): after the normal
+  UniqueName-max-dedup sum, "precedence1" entries (if any) are summed together and completely
+  replace the total; otherwise "precedence0" (if any) keeps only the single highest entry,
+  discarding everything else - precedence1 wins if both are present, matching legacy's evaluation
+  order. 4 new direct `ImprovementManager.ValueOf` tests (via `Improvement.Load`'s public factory)
+  cover precedence1-only, precedence0-only, both-present, and the pre-existing no-precedence
+  dedup-sum behavior staying unchanged.
 
 **Character sheet tabs**
 - [x] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon

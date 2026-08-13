@@ -4062,4 +4062,85 @@ public class CharacterFileServiceTests
         Assert.False(character.IsBookEnabled("Arsenal"));
         Assert.True(character.IsBookEnabled(""));
     }
+
+    private static Improvement BuildImprovement(string strUnique, int intValue, string strImprovedName = "")
+    {
+        var doc = new XmlDocument();
+        XmlElement objNode = doc.CreateElement("improvement");
+        void Add(string strTag, string strText)
+        {
+            XmlElement objChild = doc.CreateElement(strTag);
+            objChild.InnerText = strText;
+            objNode.AppendChild(objChild);
+        }
+        Add("improvementttype", "Smartlink");
+        Add("improvedname", strImprovedName);
+        Add("sourcename", "Test");
+        Add("min", "0");
+        Add("max", "0");
+        Add("aug", "0");
+        Add("augmax", "0");
+        Add("val", intValue.ToString());
+        Add("rating", "1");
+        Add("unique", strUnique);
+        Add("improvementsource", "Quality");
+        Add("addtorating", "False");
+        Add("enabled", "True");
+        Add("custom", "False");
+        return Improvement.Load(objNode);
+    }
+
+    [Fact]
+    public void ImprovementManagerValueOf_Precedence1_SumsOnlyPrecedence1EntriesIgnoringEverythingElse()
+    {
+        var lstImprovements = new[]
+        {
+            BuildImprovement("", 5),
+            BuildImprovement("somegroup", 3),
+            BuildImprovement("precedence1", 2),
+            BuildImprovement("precedence1", 4),
+        };
+
+        Assert.Equal(6, ImprovementManager.ValueOf(lstImprovements, ImprovementType.Smartlink));
+    }
+
+    [Fact]
+    public void ImprovementManagerValueOf_Precedence0_KeepsOnlyTheHighestPrecedence0Entry()
+    {
+        var lstImprovements = new[]
+        {
+            BuildImprovement("", 5),
+            BuildImprovement("precedence0", 2),
+            BuildImprovement("precedence0", 7),
+        };
+
+        Assert.Equal(7, ImprovementManager.ValueOf(lstImprovements, ImprovementType.Smartlink));
+    }
+
+    [Fact]
+    public void ImprovementManagerValueOf_Precedence1BeatsPrecedence0_WhenBothArePresent()
+    {
+        var lstImprovements = new[]
+        {
+            BuildImprovement("precedence0", 100),
+            BuildImprovement("precedence1", 1),
+            BuildImprovement("precedence1", 2),
+        };
+
+        Assert.Equal(3, ImprovementManager.ValueOf(lstImprovements, ImprovementType.Smartlink));
+    }
+
+    [Fact]
+    public void ImprovementManagerValueOf_NoPrecedenceEntries_UsesTheNormalUniqueNameMaxDedupSum()
+    {
+        var lstImprovements = new[]
+        {
+            BuildImprovement("", 5),
+            BuildImprovement("somegroup", 3),
+            BuildImprovement("somegroup", 7),
+        };
+
+        // 5 (no UniqueName, always summed) + 7 (max of the "somegroup" pair).
+        Assert.Equal(12, ImprovementManager.ValueOf(lstImprovements, ImprovementType.Smartlink));
+    }
 }
