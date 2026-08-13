@@ -16,6 +16,7 @@
                 <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />
                 <Button Content="Verkaufen" Click="OnSellVehicleClick" />
+                <Button Content="Nachladen" Click="OnReloadVehicleWeaponClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>

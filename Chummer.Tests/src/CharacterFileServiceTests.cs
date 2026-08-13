@@ -3807,6 +3807,48 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ReloadWeapon_LoadedAmmoDicePoolBonus_IsIncludedInTheWeaponPool()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        string strBaseline = character.Weapons.Single().DicePool;
+
+        character.AddGear("Ammo: Deathdealer", "Ammunition", strQty: "10", strCost: "0");
+        int intAmmoGearId = character.GetWeaponAmmoOptions(guiWeaponId).Single(o => o.Name == "Ammo: Deathdealer").GearId;
+        character.ReloadWeapon(guiWeaponId, intAmmoGearId, 10);
+
+        string strWithAmmoBonus = character.Weapons.Single().DicePool;
+        Assert.Equal(int.Parse(strBaseline) + 1, int.Parse(strWithAmmoBonus));
+    }
+
+    [Fact]
+    public void ReloadWeapon_WorksForAVehicleMountedWeaponToo()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons />"
+            + "</vehicle></vehicles></character>");
+        character.AddVehicleMod(vehicleId, "Weapon Mount (Normal, External, Fixed, Manual)", "Standard", "0", "2",
+            "8F", "1500", "SR4", "348");
+        character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
+            "1", "42(c)", "2500", "12F", "SR4", "312");
+        character.AddGear("Ammo: Regular Ammo", "Ammunition", strQty: "50", strCost: "0");
+
+        CharacterTreeItemData weapon = character.Vehicles.Single().Children.Single(c => c.Name == "Ares Alpha");
+        Guid guiWeaponId = Guid.Parse(weapon.ItemGuid);
+        int intAmmoGearId = character.GetWeaponAmmoOptions(guiWeaponId).Single().GearId;
+
+        Assert.True(character.ReloadWeapon(guiWeaponId, intAmmoGearId, 42));
+
+        CharacterTreeItemData reloaded = character.Vehicles.Single().Children.Single(c => c.Name == "Ares Alpha");
+        Assert.Equal("42 (Ammo: Regular Ammo)", reloaded.AmmoStatus);
+        Assert.Equal("8", character.Gear.Single().Qty);
+    }
+
+    [Fact]
     public void AddWeapon_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

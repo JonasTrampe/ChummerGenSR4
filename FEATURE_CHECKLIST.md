@@ -352,9 +352,15 @@ what's ported, not previously tracked anywhere in this file)
   Stick-n-Shock is excluded from the options list when `RestrictStickNShock` excludes the
   weapon's category, same house rule `AddGear` already enforces at purchase time. New
   `ReloadDialog` (ammo + round-count pickers) wired into a "Nachladen" button on the Waffen tab,
-  with the loaded ammo/remaining-rounds shown in the weapon detail panel. Not ported: the
-  loaded-ammo `<weaponbonus><pool>` dice-pool bonus itself (only 2 gear.xml entries use it - very
-  low value) and vehicle-mounted weapons (root Weapons only).
+  with the loaded ammo/remaining-rounds shown in the weapon detail panel. Extended to
+  vehicle-mounted Weapons too (`FindWeaponNodeByGuid` checks both root and vehicle-mounted
+  Weapons; the vehicle-weapon XML's previously-unused `ammoloaded`/`ammoremaining` placeholder
+  fields are now the real thing, same shape as root Weapons - the legacy 4-round-slot
+  `ammoloaded2-4` concept for belt-fed multi-barrel weapons wasn't ported, single load only),
+  with a matching "Nachladen" button on the Fahrzeuge tab. The loaded-ammo
+  `<weaponbonus><pool>` dice-pool bonus is now wired too (`SumLoadedAmmoDicePoolBonus`, verified
+  against real data: Ammo: Deathdealer's +1 and Ammo: High-Power Rounds' -2 - only 2 gear.xml
+  entries use it, but the mechanism was already built so wiring it in was nearly free).
 - [~] `frmDiceHits`/Cyberzombie conversion — investigated: single ultra-niche SR4 special-rule
   form with exactly one caller (`frmCreate.cs`'s Cyberzombie conversion flow). Not worth building
   in isolation; would only make sense bundled with a hypothetical Cyberzombie-conversion feature.

@@ -2774,7 +2774,7 @@ namespace Chummer.Core
         /// purchase time.</summary>
         public IReadOnlyList<WeaponAmmoOption> GetWeaponAmmoOptions(Guid guiWeaponId)
         {
-            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objWeapon = FindWeaponNodeByGuid(guiWeaponId);
             if (objWeapon == null)
                 return Array.Empty<WeaponAmmoOption>();
 
@@ -2813,7 +2813,7 @@ namespace Chummer.Core
         /// this port has no External Source concept.</summary>
         public IReadOnlyList<int> GetWeaponAmmoCapacityChoices(Guid guiWeaponId)
         {
-            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objWeapon = FindWeaponNodeByGuid(guiWeaponId);
             var lstChoices = new List<int>();
             if (objWeapon == null)
                 return lstChoices;
@@ -2843,7 +2843,7 @@ namespace Chummer.Core
         /// that's less than requested, same as legacy ("use whatever is left") rather than failing.</summary>
         public bool ReloadWeapon(Guid guiWeaponId, int intAmmoGearId, int intCount)
         {
-            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objWeapon = FindWeaponNodeByGuid(guiWeaponId);
             XmlNode? objAmmoGear = GetGearNodeById(intAmmoGearId);
             if (objWeapon == null || objAmmoGear == null || intCount <= 0)
                 return false;
@@ -3061,6 +3061,13 @@ namespace Chummer.Core
 
         private XmlNode? GetWeaponNodeByGuid(Guid guiWeaponId)
             => Document.SelectSingleNode($"/character/weapons/weapon[guid = '{guiWeaponId}']");
+
+        /// <summary>Same as <see cref="GetWeaponNodeByGuid"/> but also matches vehicle-mounted
+        /// Weapons - used by the ammo-tracking methods (ReloadWeapon/GetWeaponAmmoOptions/
+        /// GetWeaponAmmoCapacityChoices), which work the same way for either.</summary>
+        private XmlNode? FindWeaponNodeByGuid(Guid guiWeaponId)
+            => GetWeaponNodeByGuid(guiWeaponId)
+                ?? Document.SelectSingleNode($"/character/vehicles/vehicle/weapons/weapon[guid = '{guiWeaponId}']");
 
         /// <summary>Adds a Weapon Accessory (ported from clsEquipment.cs's WeaponAccessory.Save) to
         /// a root-level weapon, deducting its cost. Rejects if the weapon's mount-slot eligibility
@@ -6919,7 +6926,10 @@ namespace Chummer.Core
             intPool += intSmartlinkBonus;
 
             if (objWeaponNode != null)
+            {
                 intPool += SumInstalledAccessoryAndModDicePool(objWeaponNode, sb);
+                intPool += SumLoadedAmmoDicePoolBonus(objWeaponNode, sb);
+            }
 
             string strDisplay = intPool.ToString();
 
@@ -6934,12 +6944,33 @@ namespace Chummer.Core
             return (strDisplay, sb.ToString());
         }
 
+        /// <summary>Ported from clsEquipment.cs's Weapon.DicePool's Ammo-derived pool bonus: the
+        /// currently loaded ammo Gear item's rules-data &lt;weaponbonus&gt;/&lt;pool&gt; value
+        /// (e.g. Ammo: High-Power Rounds' -2, Ammo: Deathdealer's +1), if any.</summary>
+        private int SumLoadedAmmoDicePoolBonus(XmlNode objWeaponNode, StringBuilder sb)
+        {
+            int intGearId = int.TryParse(GetValue(objWeaponNode, "ammoloaded", "-1"), out var g) ? g : -1;
+            if (intGearId < 0)
+                return 0;
+
+            XmlNode? objAmmoGear = GetGearNodeById(intGearId);
+            string strAmmoName = objAmmoGear != null ? GetValue(objAmmoGear, "name", string.Empty) : string.Empty;
+            if (string.IsNullOrEmpty(strAmmoName))
+                return 0;
+
+            XmlDocument objGearDoc = XmlManager.Instance.Load("gear.xml");
+            XmlNode? objXmlAmmo = objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strAmmoName}']");
+            string strPool = objXmlAmmo?.SelectSingleNode("weaponbonus/pool")?.InnerText ?? string.Empty;
+            if (!int.TryParse(strPool, out int intBonus) || intBonus == 0)
+                return 0;
+
+            sb.Append('\n').Append(strAmmoName).Append(": ").Append(FormatSigned(intBonus));
+            return intBonus;
+        }
+
         /// <summary>Ported from clsEquipment.cs's Weapon.DicePool: sums each installed Weapon
         /// Accessory's/Mod's own rules-data &lt;dicepool&gt; value (a plain integer, or "Rating"/
-        /// "-Rating" for Mods whose bonus scales with their own Rating). Not ported: the loaded-
-        /// ammo pool bonus (Gear's &lt;weaponbonus&gt;/&lt;pool&gt;), since this port has no
-        /// concept of which Gear item is loaded into a weapon at all yet (same gap noted for
-        /// RestrictStickNShock).</summary>
+        /// "-Rating" for Mods whose bonus scales with their own Rating).</summary>
         private int SumInstalledAccessoryAndModDicePool(XmlNode objWeaponNode, StringBuilder sb)
         {
             int intTotal = 0;
@@ -7426,7 +7457,7 @@ namespace Chummer.Core
             return lstVehicles;
         }
 
-        private static void AddVehicleChildren(List<CharacterTreeItemData> lstChildren, XmlNodeList? objNodes,
+        private void AddVehicleChildren(List<CharacterTreeItemData> lstChildren, XmlNodeList? objNodes,
             string strFallbackCategory)
         {
             if (objNodes == null)
@@ -7443,7 +7474,10 @@ namespace Chummer.Core
                 if (strFallbackCategory == "Vehicle Mod")
                     objItem.SetModSlots(GetValue(objNode, "slots", "0"), GetValue(objNode, "included", "False") == "True");
                 if (strFallbackCategory == "Weapon")
+                {
                     objItem.IsVehicleWeapon = true;
+                    objItem.SetAmmoStatus(ComputeAmmoStatus(objNode));
+                }
                 if (strFallbackCategory == "Gear")
                 {
                     objItem.SetLocation(GetValue(objNode, "location", string.Empty));

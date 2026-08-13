@@ -53,6 +53,19 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnReloadVehicleWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: not null } weapon
+            || !Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ReloadDialog(_character, guiWeaponId);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.ReloadWeapon(guiWeaponId, dialog.SelectedAmmoGearId, dialog.SelectedCount))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedVehicle is not { } vehicle)
