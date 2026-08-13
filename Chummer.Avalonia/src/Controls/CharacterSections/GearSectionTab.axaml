@@ -152,6 +152,10 @@
                             </StackPanel>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="{loc:Loc Label_Damage}" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponDamage, TargetNullValue=–}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc Label_DicePool}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponDicePool, TargetNullValue=–}"
                                        ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />

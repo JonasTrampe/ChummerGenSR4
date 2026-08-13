@@ -49,7 +49,8 @@ Everything not `[x]`, in one place, grouped by area.
   its Nuyen expense; Obsolescent remains gated by the house rule.
 - [x] `AllowSkillDiceRolling`: enabled characters expose a dice action beside each nonzero active
   and knowledge-skill pool; it opens the standard Dice Roller prefilled with that exact pool.
-- [ ] Standalone, no missing subsystem, just not done: `MoreLethalGameplay`.
+- [x] `MoreLethalGameplay`: weapon lists and equipment trees apply the legacy +2 DV to numeric
+  damage codes for personal and vehicle weapons, while special nonnumeric damage remains unchanged.
 - [x] `StartupFullscreen`: the desktop lifetime creates the main Avalonia window in native
   fullscreen when the persisted option is enabled.
 - [x] `AutomaticUpdate` / `SuppressCloudUnreachableWarning`: startup update check and local-open

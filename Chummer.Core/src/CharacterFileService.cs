@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Chummer.Tests")]
@@ -7625,6 +7626,7 @@ namespace Chummer.Core
                     WeaponNodeHasSmartgun(objNode), objNode);
                 objWeapon.SetWeaponDicePool(strPoolDisplay, strTooltip);
                 objWeapon.SetWeaponRc(ComputeWeaponTotalRc(objNode));
+                objWeapon.SetWeaponDamage(ComputeWeaponDamage(objNode));
                 objWeapon.SetAmmoStatus(ComputeAmmoStatus(objNode));
                 if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
                     objLocation.Children.Add(objWeapon);
@@ -7697,11 +7699,25 @@ namespace Chummer.Core
                 (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(strCategory, strName,
                     WeaponNodeHasSmartgun(objNode), objNode);
 
-                lstWeapons.Add(new CharacterWeaponData(strName, strCategory, GetValue(objNode, "damage", string.Empty),
+                lstWeapons.Add(new CharacterWeaponData(strName, strCategory, ComputeWeaponDamage(objNode),
                     GetValue(objNode, "ammo", string.Empty), GetValue(objNode, "ap", string.Empty),
                     ComputeWeaponTotalRc(objNode), strPoolDisplay, strTooltip));
             }
             return lstWeapons;
+        }
+
+        /// <summary>Applies More Lethal Gameplay's +2 DV to ordinary numeric damage codes.
+        /// Special nonnumeric codes retain their saved text, matching the legacy fallback.</summary>
+        private string ComputeWeaponDamage(XmlNode objWeaponNode)
+        {
+            string strDamage = GetValue(objWeaponNode, "damage", string.Empty);
+            if (!GetCharacterOptions().MoreLethalGameplay)
+                return strDamage;
+
+            Match objMatch = Regex.Match(strDamage, @"^\s*(?<value>\d+)(?<suffix>.*)$");
+            return objMatch.Success && int.TryParse(objMatch.Groups["value"].Value, out int intDamage)
+                ? (intDamage + 2).ToString(CultureInfo.InvariantCulture) + objMatch.Groups["suffix"].Value
+                : strDamage;
         }
 
         /// <summary>Ported from clsEquipment.cs's Weapon.TotalRC: the weapon's own base
@@ -8447,6 +8463,7 @@ namespace Chummer.Core
                 if (strFallbackCategory == "Weapon")
                 {
                     objItem.IsVehicleWeapon = true;
+                    objItem.SetWeaponDamage(ComputeWeaponDamage(objNode));
                     objItem.SetAmmoStatus(ComputeAmmoStatus(objNode));
                 }
                 if (strFallbackCategory == "Gear")
@@ -8852,7 +8869,10 @@ namespace Chummer.Core
         /// CharacterDocument.ComputeWeaponTotalRc.</summary>
         public string WeaponRc { get; private set; } = string.Empty;
 
+        public string WeaponDamage { get; private set; } = string.Empty;
+
         internal void SetWeaponRc(string strRc) => WeaponRc = strRc;
+        internal void SetWeaponDamage(string strDamage) => WeaponDamage = strDamage;
 
         internal void SetWeaponPartIncluded(bool blnIncluded) => IncludedInWeapon = blnIncluded;
         internal void SetTransgenic(bool blnTransgenic) => IsTransgenic = blnTransgenic;

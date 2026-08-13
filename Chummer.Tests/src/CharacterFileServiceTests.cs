@@ -3642,6 +3642,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MoreLethalGameplay_AddsTwoToNumericWeaponDamageOnly()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name>"
+            + "<category>Pistols</category><damage>8P</damage></weapon><weapon><name>Grenade</name>"
+            + "<category>Thrown</category><damage>Grenade</damage></weapon></weapons></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MoreLethalGameplay = true });
+
+        Assert.Equal("10P", character.Weapons[0].Damage);
+        Assert.Equal("Grenade", character.Weapons[1].Damage);
+        Assert.Equal("10P", character.WeaponTrees[0].WeaponDamage);
+
+        CharacterDocument vehicleCharacter = LoadXml("<character><vehicles><vehicle><name>Van</name>"
+            + "<category>Cars</category><weapons><weapon><name>LMG</name><category>Machine Guns</category>"
+            + "<damage>6P</damage></weapon></weapons></vehicle></vehicles></character>");
+        vehicleCharacter.SetCharacterOptionsForTesting(new CharacterOptions { MoreLethalGameplay = true });
+        Assert.Equal("8P", vehicleCharacter.Vehicles.Single().Children.Single().WeaponDamage);
+    }
+
+    [Fact]
     public void VehicleSlots_ComputedFromBodyAndSummedAcrossInstalledMods()
     {
         Guid vehicleId = Guid.NewGuid();
