@@ -1423,6 +1423,27 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ArmorChildNotes_PersistForTheSelectedArmorModification()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "Chemical Protection", "3",
+            "0", "0", "9", "Rating * 250", "SR4", "327"));
+
+        CharacterTreeItemData armor = Assert.Single(character.Armor);
+        CharacterTreeItemData mod = Assert.Single(armor.Children);
+        Assert.True(Guid.TryParse(mod.ItemGuid, out Guid modGuid));
+        Assert.True(character.SetArmorChildNotes(armor.ArmorId, modGuid, "Replace filters after next run."));
+        Assert.Equal("Replace filters after next run.", Assert.Single(character.Armor).Children.Single().Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Replace filters after next run.", Assert.Single(reloaded.Armor).Children.Single().Notes);
+    }
+
+    [Fact]
     public void ArmorSuitCapacity_TracksRulesDataModCapacityAndRejectsOverflow()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

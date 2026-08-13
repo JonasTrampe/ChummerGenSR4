@@ -469,12 +469,23 @@ public partial class GearSectionTab : UserControl
 
     private async void OnEditArmorNotesClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedArmor is not { ArmorId: >= 0 } armor
+        if (_character == null || ViewModel.SelectedArmor is not { } selected
             || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new ContactNotesDialog { Notes = armor.Notes };
-        if (await dialog.ShowDialog<bool>(window) && _character.SetArmorNotes(armor.ArmorId, dialog.Notes))
+        TreeNodeViewModel? armor = selected.ArmorId >= 0 ? selected : selected.Parent;
+        if (armor is not { ArmorId: >= 0 })
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (!await dialog.ShowDialog<bool>(window))
+            return;
+
+        bool saved = selected.ArmorId >= 0
+            ? _character.SetArmorNotes(selected.ArmorId, dialog.Notes)
+            : Guid.TryParse(selected.ItemGuid, out Guid itemGuid)
+                && _character.SetArmorChildNotes(armor.ArmorId, itemGuid, dialog.Notes);
+        if (saved)
             ViewModel.LoadCharacter(_character);
     }
 

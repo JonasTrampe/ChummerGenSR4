@@ -4537,6 +4537,23 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Updates notes for an item installed in a root Armor item. The item GUID is
+        /// scoped to its owning Armor so duplicate armor modifications and embedded Gear remain
+        /// independently addressable.</summary>
+        public bool SetArmorChildNotes(int intArmorId, Guid guiItemId, string strNotes)
+        {
+            XmlNode? objArmor = GetArmorNodeById(intArmorId);
+            XmlNode? objItem = objArmor?.SelectSingleNode(
+                $"armormods/armormod[guid = '{guiItemId}']")
+                ?? objArmor?.SelectSingleNode($"gears/gear[guid = '{guiItemId}']");
+            if (objItem == null)
+                return false;
+
+            SetChildValue(objItem, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         public bool SetArmorCustomName(int intArmorId, string strCustomName)
         {
             XmlNode? objArmor = GetArmorNodeById(intArmorId);

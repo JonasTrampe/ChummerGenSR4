@@ -109,9 +109,9 @@ Everything not `[x]`, in one place, grouped by area.
   Spell, Adept Power, Martial Art, Maneuver, Metamagic, Complex Form, Critter Power, and Lifestyle
   notes have safe persisted paths; Armor sets are separate from legacy armor labels. Qualities,
   Spells, Adept Powers, Martial Arts, Maneuvers, Metamagics, Complex Forms, Critter Powers, and
-  Lifestyles have no legacy custom-name field. Weapon accessories/modifications, nested
-  Cyberware/Bioware, and Vehicles with their installed items now have notes; the remaining item
-  families still need theirs.
+  Lifestyles have no legacy custom-name field. Weapon accessories/modifications, armor
+  modifications and embedded armor gear, nested Cyberware/Bioware, and Vehicles with their
+  installed items now have notes; the remaining item families still need theirs.
 - [ ] Nested legacy containment flows: weapon underbarrels; gear-as-plugin under armor/cyberware/
   weapon accessories; vehicle sensor/cyberware/Nexus/plugin flows.
 
