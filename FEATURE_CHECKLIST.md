@@ -46,11 +46,14 @@ Everything not `[x]`, in one place, grouped by area.
 - [ ] Depends on the unported Foci/Stacked Foci subsystem: `AllowHigherStackedFoci`.
 - [ ] Standalone, no missing subsystem, just not done:
   `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
-- Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
-  `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,
-  `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
-  `OmaeAutoLogin`, `PrintToFileFirst`, `SingleDiceRoller`, `StartupFullscreen`,
-  `SuppressCloudUnreachableWarning`).
+- [x] `StartupFullscreen`: the desktop lifetime creates the main Avalonia window in native
+  fullscreen when the persisted option is enabled.
+- [x] `AutomaticUpdate` / `SuppressCloudUnreachableWarning`: startup update check and local-open
+  cloud failure flow already read the corresponding persisted global options.
+- [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`,
+  `LocalisedUpdatesOnly`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
+  `OmaeAutoLogin`, `PrintToFileFirst`, and `SingleDiceRoller`: now in scope; each needs a
+  verified runtime integration beyond its existing Options persistence/binding.
 
 ### Everything else open
 - [x] Cloud save/share: local-open freshness checks (including download-with-backup), stale-push

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
@@ -29,7 +30,17 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.MainWindow = new MainWindow();
+        {
+            // Keep this at desktop-lifetime construction time so every supported desktop backend
+            // gets a real fullscreen native window before it is first shown, matching the legacy
+            // StartupFullscreen preference rather than merely saving an unused checkbox value.
+            desktop.MainWindow = new MainWindow
+            {
+                WindowState = GlobalOptions.Instance.StartupFullscreen
+                    ? WindowState.FullScreen
+                    : WindowState.Normal
+            };
+        }
 
         base.OnFrameworkInitializationCompleted();
     }
