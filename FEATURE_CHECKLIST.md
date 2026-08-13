@@ -38,8 +38,11 @@ Everything not `[x]`, in one place, grouped by area.
   and duplicate rules-data variant suppression match the legacy flow.
 - [x] `AllowEditPartOfBaseWeapon`: the weapon detail pane can toggle an Accessory/Mod's persisted
   `included` flag only when the rule is on; moving a mod out preserves the six-slot capacity gate.
+- [x] `AllowCustomTransgenics`: enabled Bioware picker exposes “Add as Transgenic”, forces
+  Standard grade and persists the `Genetech: Transgenics` category; the Cyberware tree retains a
+  visible Transgenic indicator after reload.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
-  `AllowCustomTransgenics`, `AllowHigherStackedFoci`,
+  `AllowHigherStackedFoci`,
   `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
 - Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
   `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,

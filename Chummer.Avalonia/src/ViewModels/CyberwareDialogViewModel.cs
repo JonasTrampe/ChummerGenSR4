@@ -80,6 +80,28 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
     /// CharacterDocument.AllowCyberwareEssenceDiscounts.</summary>
     public bool AllowEssenceDiscount { get; private set; }
 
+    /// <summary>Only exposed by the Bioware picker when the character enables the Augmentation
+    /// house rule. Selecting it forces Standard grade and the Transgenics category on add.</summary>
+    public bool AllowCustomTransgenics { get; private set; }
+
+    private bool _blnIsTransgenic;
+    public bool IsTransgenic
+    {
+        get => _blnIsTransgenic;
+        set
+        {
+            if (!SetField(ref _blnIsTransgenic, value))
+                return;
+
+            if (value)
+                SelectedGrade = Grades.FirstOrDefault(g => g.Name == "Standard") ?? SelectedGrade;
+            OnPropertyChanged(nameof(CanSelectGrade));
+            RaiseFinalValuesChanged();
+        }
+    }
+
+    public bool CanSelectGrade => !IsTransgenic;
+
     private int _intEssenceDiscountPercent;
     public int EssenceDiscountPercent
     {
@@ -149,6 +171,9 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
     {
         AllowEssenceDiscount = character.AllowCyberwareEssenceDiscounts;
         OnPropertyChanged(nameof(AllowEssenceDiscount));
+        AllowCustomTransgenics = blnBioware && character.AllowCustomTransgenicsEnabled;
+        OnPropertyChanged(nameof(AllowCustomTransgenics));
+        IsTransgenic = false;
         EssenceDiscountPercent = 0;
 
         _lstAllOptions.Clear();

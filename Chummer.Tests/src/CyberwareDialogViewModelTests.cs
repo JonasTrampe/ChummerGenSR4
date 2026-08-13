@@ -90,4 +90,23 @@ public class CyberwareDialogViewModelTests
         onViewModel.EssenceDiscountPercent = 50;
         Assert.Equal("0.2", onViewModel.FinalEssence); // 0.4 base at rating 2, halved
     }
+
+    [Fact]
+    public void CustomTransgenic_OnlyAppearsForEnabledBiowareAndForcesStandardGrade()
+    {
+        CharacterDocument character = LoadCharacter();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowCustomTransgenics = true });
+        var bioware = new CyberwareDialogViewModel();
+        bioware.LoadOptions(blnBioware: true, character);
+        bioware.SelectedGrade = bioware.Grades.Single(g => g.Name == "Betaware");
+        bioware.IsTransgenic = true;
+
+        Assert.True(bioware.AllowCustomTransgenics);
+        Assert.False(bioware.CanSelectGrade);
+        Assert.Equal("Standard", bioware.SelectedGrade?.Name);
+
+        var cyberware = new CyberwareDialogViewModel();
+        cyberware.LoadOptions(blnBioware: false, character);
+        Assert.False(cyberware.AllowCustomTransgenics);
+    }
 }

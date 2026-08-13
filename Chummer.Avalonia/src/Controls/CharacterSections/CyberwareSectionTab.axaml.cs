@@ -102,7 +102,7 @@ public partial class CyberwareSectionTab : UserControl
             _character.AddCyberware(item.Name, item.Category, item.Rating, viewModel.FinalEssence,
                 viewModel.FinalCost, viewModel.FinalAvailability, item.SourcePage, string.Empty,
                 viewModel.SelectedGrade?.Name ?? "Standard", blnBioware: blnBioware, strSide: strSide,
-                strSelectedSkillGroup: strSkillGroup);
+                strSelectedSkillGroup: strSkillGroup, blnTransgenic: viewModel.IsTransgenic);
             ViewModel.LoadCharacter(_character);
         }
     }

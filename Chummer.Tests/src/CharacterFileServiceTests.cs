@@ -820,6 +820,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberware_CustomTransgenic_RequiresRuleAndPersistsForcedCategoryAndStandardGrade()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        Assert.Throws<InvalidOperationException>(() => character.AddCyberware("Muscle Toner", "Basic", "2",
+            "0.4", "16000", "8R", "SR4", "339", "Betaware", blnBioware: true, blnTransgenic: true));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowCustomTransgenics = true });
+        character.AddCyberware("Muscle Toner", "Basic", "2", "0.4", "16000", "8R", "SR4", "339",
+            "Betaware", blnBioware: true, blnTransgenic: true);
+
+        CharacterTreeItemData item = Assert.Single(character.Bioware);
+        Assert.Equal("Genetech: Transgenics", item.Category);
+        Assert.True(item.IsTransgenic);
+        Assert.Equal("Standard", character.Document.SelectSingleNode("/character/cyberwares/cyberware/grade")?.InnerText);
+    }
+
+    [Fact]
     public void AddWeapon_MutatesCharacterTreeAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

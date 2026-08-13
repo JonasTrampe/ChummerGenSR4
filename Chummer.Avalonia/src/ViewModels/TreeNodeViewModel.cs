@@ -39,6 +39,9 @@ public sealed class TreeNodeViewModel
     /// Cyberware/Bioware tree nodes. Stable identity for drag/drop reorder/reparent.</summary>
     public int CyberwareId { get; private set; } = -1;
 
+    /// <summary>Whether this Bioware item was acquired as a custom Transgenic conversion.</summary>
+    public bool IsTransgenic { get; private set; }
+
     /// <summary>Position in the root armor collection, used only to persist armor drag-reordering.</summary>
     public int ArmorId { get; private set; } = -1;
 
@@ -227,7 +230,8 @@ public sealed class TreeNodeViewModel
             AmmoStatus = item.AmmoStatus,
             IsWeaponAccessory = item.IsWeaponAccessory,
             IsWeaponMod = item.IsWeaponMod,
-            IncludedInWeapon = item.IncludedInWeapon
+            IncludedInWeapon = item.IncludedInWeapon,
+            IsTransgenic = item.IsTransgenic
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));

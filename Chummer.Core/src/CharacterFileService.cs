@@ -180,6 +180,10 @@ namespace Chummer.Core
         /// <c>included</c> flag after it has been added to a base weapon.</summary>
         public bool AllowEditPartOfBaseWeaponEnabled => GetCharacterOptions().AllowEditPartOfBaseWeapon;
 
+        /// <summary>Whether this character may convert an acquired piece of Bioware into
+        /// Genetech: Transgenics under the Augmentation house rule.</summary>
+        public bool AllowCustomTransgenicsEnabled => GetCharacterOptions().AllowCustomTransgenics;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -2146,10 +2150,22 @@ namespace Chummer.Core
 
         public void AddCyberware(string strName, string strCategory, string strRating, string strEss,
             string strCost, string strAvail, string strSource, string strPage, string strGrade = "Standard",
-            bool blnBioware = false, string strSide = "", string strSelectedSkillGroup = "")
+            bool blnBioware = false, string strSide = "", string strSelectedSkillGroup = "",
+            bool blnTransgenic = false)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A cyberware name is required.", nameof(strName));
+
+            // frmCreate/frmCareer force this category and Standard grade when the Augmentation
+            // house rule's "Add as Transgenic" box is used. Keep the invariant in Core rather
+            // than trusting each picker, as both values affect later rule calculations.
+            if (blnTransgenic)
+            {
+                if (!blnBioware || !AllowCustomTransgenicsEnabled)
+                    throw new InvalidOperationException("Only enabled custom Bioware may be added as Transgenic.");
+                strCategory = "Genetech: Transgenics";
+                strGrade = "Standard";
+            }
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -4507,6 +4523,8 @@ namespace Chummer.Core
         private CharacterTreeItemData ReadCyberwareTreeItem(XmlNode objNode, ref int intNextId)
         {
             var objItem = ReadTreeItem(objNode);
+            objItem.SetTransgenic(GetValue(objNode, "category", string.Empty) == "Genetech: Transgenics"
+                && GetValue(objNode, "improvementsource", string.Empty) == "Bioware");
             objItem.SetCyberwareId(intNextId);
             intNextId++;
 
@@ -8719,6 +8737,10 @@ namespace Chummer.Core
         public bool IsWeaponPart => IsWeaponAccessory || IsWeaponMod;
         public bool IncludedInWeapon { get; private set; }
 
+        /// <summary>True when a Bioware item has been converted to the Genetech: Transgenics
+        /// category by the AllowCustomTransgenics rule.</summary>
+        public bool IsTransgenic { get; private set; }
+
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
             Ballistic = strBallistic;
@@ -8755,6 +8777,7 @@ namespace Chummer.Core
         internal void SetWeaponRc(string strRc) => WeaponRc = strRc;
 
         internal void SetWeaponPartIncluded(bool blnIncluded) => IncludedInWeapon = blnIncluded;
+        internal void SetTransgenic(bool blnTransgenic) => IsTransgenic = blnTransgenic;
 
         /// <summary>"12/30 (Ammo: Regular Ammo)" - style summary of what's currently loaded, empty
         /// when nothing is loaded. Only set for root Weapon nodes. See

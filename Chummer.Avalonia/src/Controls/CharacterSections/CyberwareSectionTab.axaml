@@ -27,13 +27,17 @@
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>
             <StackPanel Margin="8,0,0,0" Spacing="6">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_Name}" Width="80" />
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedNode.Name, TargetNullValue=–}" />
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Category}" Width="80" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNode.Category, TargetNullValue=–}" />
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc UI_RatingColon}" Width="80" />
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNode.Rating, TargetNullValue=–}" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc Checkbox_Transgenic}" Width="80"
+                           IsVisible="{Binding SelectedNode.IsTransgenic}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="✓" Foreground="#287A3D"
+                           IsVisible="{Binding SelectedNode.IsTransgenic}" />
             </Grid>
             <Grid ColumnDefinitions="Auto,*">
                 <TextBlock Text="{loc:Loc UI_CostAvailShortColon}" Width="80" />

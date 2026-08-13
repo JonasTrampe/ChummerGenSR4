@@ -13,7 +13,8 @@
                       SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
             <TextBlock Grid.Column="2" Text="{loc:Loc UI_GradeColon}" VerticalAlignment="Center" Margin="16,0,6,0" />
             <ComboBox Grid.Column="3" ItemsSource="{Binding Grades}"
-                      SelectedItem="{Binding SelectedGrade, Mode=TwoWay}" />
+                      SelectedItem="{Binding SelectedGrade, Mode=TwoWay}"
+                      IsEnabled="{Binding CanSelectGrade}" />
             <TextBlock Grid.Column="4" Text="{loc:Loc Label_Search}" VerticalAlignment="Center" Margin="16,0,6,0" />
             <TextBox Grid.Column="5" Text="{Binding SearchText, Mode=TwoWay}" />
         </Grid>
@@ -41,6 +42,8 @@
                 <controls:IntegerSpinner Value="{Binding EssenceDiscountPercent, Mode=TwoWay}"
                                           Minimum="0" Maximum="100"
                                           IsVisible="{Binding AllowEssenceDiscount}" Width="90" HorizontalAlignment="Left" />
+                <CheckBox Content="{loc:Loc Checkbox_Transgenic}" IsChecked="{Binding IsTransgenic, Mode=TwoWay}"
+                          IsVisible="{Binding AllowCustomTransgenics}" />
                 <TextBlock Text="{loc:Loc Label_Capacity}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedCyberware.Capacity, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_Avail}" FontWeight="Bold" />
