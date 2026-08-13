@@ -2472,6 +2472,42 @@ namespace Chummer.Core
             Changed?.Invoke();
         }
 
+        /// <summary>Adds a cyberware/bioware plugin below an existing item identified by its
+        /// depth-first Core tree ID. The saved shape matches legacy <c>children/cyberware</c>.</summary>
+        public bool AddCyberwareChild(int intParentCyberwareId, string strName, string strCategory, string strRating,
+            string strEss, string strCost, string strAvail, string strSource, string strPage,
+            string strGrade = "Standard", bool blnBioware = false)
+        {
+            XmlNode? objParent = GetCyberwareNodeById(intParentCyberwareId);
+            if (objParent == null || string.IsNullOrWhiteSpace(strName))
+                return false;
+            XmlElement objChildren = objParent.SelectSingleNode("children") as XmlElement
+                ?? (XmlElement)objParent.AppendChild(Document.CreateElement("children"));
+            var objChild = Document.CreateElement("cyberware");
+            AppendElement(objChild, "name", strName.Trim());
+            AppendElement(objChild, "category", strCategory);
+            AppendElement(objChild, "rating", strRating);
+            AppendElement(objChild, "ess", strEss);
+            AppendElement(objChild, "cost", strCost);
+            AppendElement(objChild, "avail", strAvail);
+            AppendElement(objChild, "source", strSource);
+            AppendElement(objChild, "page", strPage);
+            AppendElement(objChild, "grade", strGrade);
+            AppendElement(objChild, "improvementsource", blnBioware ? "Bioware" : "Cyberware");
+            AppendElement(objChild, "equipped", "True");
+            AppendElement(objChild, "location", string.Empty);
+            objChild.AppendChild(Document.CreateElement("children"));
+            objChildren.AppendChild(objChild);
+            XmlDocument objRules = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            string strType = blnBioware ? "bioware" : "cyberware";
+            XmlNode? objRule = FindRuleItemByName(objRules, "/chummer/" + strType + "s/" + strType, strName);
+            ApplyBonus(objRule?.SelectSingleNode("bonus"), blnBioware ? ImprovementSource.Bioware : ImprovementSource.Cyberware,
+                strName.Trim(), strRating);
+            DeductGearCost(strCost, strRating, "1", strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Cyberware/Bioware Suite names offered by <see cref="AddCyberwareSuite"/> -
         /// ported from frmSelectCyberwareSuite.cs's Load handler (its flat list, no category
         /// filter unlike frmSelectPACKSKit).</summary>

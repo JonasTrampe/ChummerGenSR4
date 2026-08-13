@@ -1754,6 +1754,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberwareChild_NestsAppliesBonusAndRoundTrips()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        int parentId = Assert.Single(character.Cyberware).CyberwareId;
+
+        Assert.True(character.AddCyberwareChild(parentId, "Smartlink", "Eyeware", "0", "0.1", "1000", "8R", "SR4", "340"));
+        CharacterTreeItemData child = Assert.Single(Assert.Single(character.Cyberware).Children);
+        Assert.Equal("Smartlink", child.Name);
+        Assert.Equal(ImprovementType.Smartlink, Assert.Single(character.Improvements).Type);
+        Assert.Equal("3000", character.Nuyen);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "cyberware-child.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "cyberware-child.chum");
+        Assert.Equal("Smartlink", Assert.Single(Assert.Single(reloaded.Cyberware).Children).Name);
+    }
+
+    [Fact]
     public void BiowareSuites_RequireTheHouseRuleButCyberwareSuitesDoNot()
     {
         CharacterDocument character = LoadXml("<character></character>");
