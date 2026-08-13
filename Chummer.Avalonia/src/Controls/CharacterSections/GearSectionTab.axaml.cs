@@ -63,7 +63,7 @@ public partial class GearSectionTab : UserControl
     private async void OnAddLifestyleClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
-        var dialog = new LifestyleDialog();
+        var dialog = new LifestyleDialog(_character);
         if (await dialog.ShowDialog<bool>(window) && dialog.SelectedLifestyle != null)
         {
             var lifestyle = dialog.SelectedLifestyle;
@@ -101,7 +101,7 @@ public partial class GearSectionTab : UserControl
         bool continueAdding;
         do
         {
-            var dialog = new GearDialog();
+            var dialog = new GearDialog(_character);
             bool added = await dialog.ShowDialog<bool>(window);
             if (added && dialog.SelectedGear != null)
             {
@@ -161,7 +161,7 @@ public partial class GearSectionTab : UserControl
         bool continueAdding;
         do
         {
-            var dialog = new GearDialog();
+            var dialog = new GearDialog(_character);
             bool added = await dialog.ShowDialog<bool>(window);
             if (added && dialog.SelectedGear != null)
             {
@@ -199,7 +199,7 @@ public partial class GearSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new WeaponDialog();
+        var dialog = new WeaponDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (added && dialog.SelectedWeapon != null)
         {
@@ -250,7 +250,7 @@ public partial class GearSectionTab : UserControl
             || !Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId))
             return;
 
-        var dialog = new WeaponAccessoryDialog();
+        var dialog = new WeaponAccessoryDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedAccessory is not { } accessory) return;
         if (_character.AddWeaponAccessory(guiWeaponId, accessory.Name, accessory.Mount, accessory.Rc,
@@ -265,7 +265,7 @@ public partial class GearSectionTab : UserControl
             || !Guid.TryParse(weapon.ItemGuid, out Guid guiWeaponId))
             return;
 
-        var dialog = new WeaponModDialog();
+        var dialog = new WeaponModDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedMod is not { } mod) return;
         if (_character.AddWeaponMod(guiWeaponId, mod.Name, dialog.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -294,7 +294,7 @@ public partial class GearSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new ArmorDialog();
+        var dialog = new ArmorDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (added && dialog.SelectedArmor != null)
         {
@@ -334,7 +334,7 @@ public partial class GearSectionTab : UserControl
         if (armorNode == null || armorNode.Category == "Armor set")
             return;
 
-        var dialog = new ArmorModDialog();
+        var dialog = new ArmorModDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (added && dialog.SelectedMod != null)
         {

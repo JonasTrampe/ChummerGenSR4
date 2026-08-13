@@ -37,7 +37,7 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
     public decimal Rating { get => _rating; set => SetField(ref _rating, Math.Max(0, value)); }
     public bool HasRating => SelectedMod?.DefaultRating > 0;
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _allOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("weapons.xml");
@@ -47,6 +47,8 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 _allOptions.Add(new WeaponModOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,

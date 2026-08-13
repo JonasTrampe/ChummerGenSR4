@@ -312,20 +312,19 @@ what's ported, not previously tracked anywhere in this file)
 **Settings / i18n**
 - [ ] Translate the Avalonia UI — most strings are still hard-coded despite the language-selection
   UI and catalog reload already existing.
-- [ ] Enabled-sourcebook filtering (`Options.BookXPath()`) is never actually applied anywhere.
-  The Sourcebooks tab's enable/disable checkboxes exist and persist correctly
-  (`OptionsBookItemViewModel.IsSelected`), and `BookXPath()`/`BookEnabled()` themselves are
-  faithfully ported - but every item-picker query in this port loads its full rules-data list
-  unconditionally, so disabling a book has zero effect on what shows up anywhere. In legacy this
-  is one of the most pervasive filters in the app: `BookXPath()` gates the item list in ~22
-  different `frmSelectXxx.cs` pickers (Gear nine separate call sites alone, plus
-  Cyberware/Spell/Metamagic/Quality/Weapon/Vehicle/Armor/...), always as
-  `"/chummer/xxx/xxx[" + strBookXPath + "]"` appended to the base XPath query. Porting this
-  properly means adding `character.BookXPath()`-equivalent filtering to every rules-data lookup
-  this port's dialogs/ViewModels do (Gear/Weapon/Armor/Cyberware/Bioware/Quality/Spell/Metamagic/
-  Vehicle/VehicleMod/... dialogs, plus PACKS Kits/Suites which reuse the same base lookups) -
-  large in surface area even though each individual site's change is small (append an XPath
-  predicate). A user who's disabled a sourcebook currently still sees every item from it.
+- [x] Enabled-sourcebook filtering (`Options.BookXPath()`) — done. Added
+  `CharacterDocument.IsBookEnabled(string strSourceCode)` in `Chummer.Core` (blank source is
+  always allowed, matching legacy's "only filter items that declare a source" behavior; wraps
+  `CharacterOptions.BookEnabled()`) and wired it into every rules-data item picker's `LoadOptions`:
+  Gear, Weapon, WeaponAccessory, WeaponMod, Armor, ArmorMod, Vehicle, VehicleMod, Cyberware/
+  Bioware, Lifestyle, Quality, Spell, Metamagic, ComplexForm, CritterPower, AdeptPower,
+  MartialArt, MartialArtManeuver. The dialogs that previously took no character context
+  (ArmorDialog, ArmorModDialog, GearDialog, LifestyleDialog, VehicleDialog, VehicleModDialog,
+  WeaponDialog, WeaponAccessoryDialog, WeaponModDialog) now take an optional `CharacterDocument?`
+  constructor param that both section tabs (`GearSectionTab`, `VehiclesSectionTab`) pass through
+  from their existing `_character` field. Not yet covered: MentorSpirit picker (mentors.xml has
+  no per-item source filtering need in legacy either) and PACKS Kits/Suites (their own
+  suites.xml/kits.xml lookups are a separate, smaller surface not addressed here).
 - [ ] `LimbCount` (Options General tab, e.g. "3" for a character missing a limb) has a working UI
   selector and persists, but nothing in this port's Cyberlimb-attribute-averaging or encumbrance
   calculations reads it - always assumes the default limb count. Smaller/more niche than the

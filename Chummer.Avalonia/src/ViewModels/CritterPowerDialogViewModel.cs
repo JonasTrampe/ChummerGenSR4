@@ -45,6 +45,8 @@ public sealed class CritterPowerDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             Options.Add(new CritterPowerOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                 node["points"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,

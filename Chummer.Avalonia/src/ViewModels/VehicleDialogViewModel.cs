@@ -19,7 +19,7 @@ public sealed class VehicleDialogViewModel : ViewModelBase
     private VehicleOptionViewModel? _selectedVehicle;
     public VehicleOptionViewModel? SelectedVehicle { get => _selectedVehicle; set => SetField(ref _selectedVehicle, value); }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _allOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("vehicles.xml");
@@ -29,6 +29,7 @@ public sealed class VehicleDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name)) continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty)) continue;
                 _allOptions.Add(new VehicleOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                     node["handling"]?.InnerText ?? "0", node["accel"]?.InnerText ?? "0", node["speed"]?.InnerText ?? "0",
                     node["pilot"]?.InnerText ?? "0", node["body"]?.InnerText ?? "0", node["armor"]?.InnerText ?? "0",

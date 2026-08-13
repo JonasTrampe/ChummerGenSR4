@@ -34,6 +34,8 @@ public sealed class SpellDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             SpellOptions.Add(new SpellOptionViewModel(
                 name, node["category"]?.InnerText ?? string.Empty, node["descriptor"]?.InnerText ?? string.Empty,

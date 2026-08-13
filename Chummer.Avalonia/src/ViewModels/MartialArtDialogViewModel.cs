@@ -34,6 +34,8 @@ public sealed class MartialArtDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             var lstAdvantages = new List<string>();
             XmlNodeList? advantageNodes = node.SelectNodes("advantages/advantage");
@@ -94,6 +96,8 @@ public sealed class MartialArtManeuverDialogViewModel : ViewModelBase
         {
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
+                continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                 continue;
 
             Options.Add(new MartialArtManeuverOptionViewModel(name,

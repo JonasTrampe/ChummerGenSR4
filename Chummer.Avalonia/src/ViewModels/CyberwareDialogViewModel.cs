@@ -161,6 +161,8 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
                     continue;
+                if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                    continue;
 
                 _lstAllOptions.Add(new CyberwareOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                     node["rating"]?.InnerText ?? "0", node["ess"]?.InnerText ?? "0",

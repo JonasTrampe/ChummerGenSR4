@@ -34,6 +34,8 @@ public sealed class MetamagicDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             Options.Add(new MetamagicOptionViewModel(name,
                 node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));

@@ -49,6 +49,8 @@ public sealed class PowerDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             string strPoints = node["points"]?.InnerText ?? "0";
             bool blnLevels = node["levels"]?.InnerText == "yes";

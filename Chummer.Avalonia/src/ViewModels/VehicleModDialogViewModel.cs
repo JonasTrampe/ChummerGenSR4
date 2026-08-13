@@ -35,7 +35,7 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
     public decimal Rating { get => _rating; set => SetField(ref _rating, Math.Max(0, value)); }
     public bool HasRating => SelectedMod?.DefaultRating > 0;
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _allOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("vehicles.xml");
@@ -45,6 +45,7 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name)) continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty)) continue;
                 _allOptions.Add(new VehicleModOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                     node["rating"]?.InnerText ?? "0", node["slots"]?.InnerText ?? "0", node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,

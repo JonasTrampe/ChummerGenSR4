@@ -14,7 +14,7 @@ public sealed class LifestyleDialogViewModel : ViewModelBase
     public LifestyleOptionViewModel? Selected { get => _selected; set => SetField(ref _selected, value); }
     private string _search = string.Empty;
     public string Search { get => _search; set { if (SetField(ref _search, value)) ApplyFilter(); } }
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _all.Clear();
         XmlDocument document = XmlManager.Instance.Load("lifestyles.xml");
@@ -22,7 +22,9 @@ public sealed class LifestyleDialogViewModel : ViewModelBase
         if (nodes != null) foreach (XmlNode node in nodes)
         {
             string name = node["name"]?.InnerText ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(name)) _all.Add(new LifestyleOptionViewModel(name, node["translate"]?.InnerText ?? name, node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));
+            if (string.IsNullOrWhiteSpace(name)) continue;
+            if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty)) continue;
+            _all.Add(new LifestyleOptionViewModel(name, node["translate"]?.InnerText ?? name, node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));
         }
         ApplyFilter();
     }

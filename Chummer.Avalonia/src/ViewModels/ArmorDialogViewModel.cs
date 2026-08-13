@@ -47,7 +47,7 @@ public sealed class ArmorDialogViewModel : ViewModelBase
         set => SetField(ref _selectedArmor, value);
     }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("armor.xml");
@@ -58,6 +58,8 @@ public sealed class ArmorDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 _lstAllOptions.Add(new ArmorOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,

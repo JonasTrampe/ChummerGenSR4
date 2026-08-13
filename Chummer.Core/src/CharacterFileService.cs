@@ -6179,6 +6179,15 @@ namespace Chummer.Core
             return objOptions;
         }
 
+        /// <summary>
+        /// True if the given rules-data &lt;source&gt; book code is enabled in this character's
+        /// game settings (ported from legacy pickers' use of Options.BookEnabled()/BookXPath()).
+        /// A blank/missing source is always allowed, matching legacy's behavior of only filtering
+        /// items that actually declare a source book.
+        /// </summary>
+        public bool IsBookEnabled(string strSourceCode) =>
+            string.IsNullOrEmpty(strSourceCode) || GetCharacterOptions().BookEnabled(strSourceCode);
+
         /// <summary>Test-only hook to exercise settings-driven behavior (house rules, karma/BP
         /// costs, ...) without needing a real settings/*.xml file on disk.</summary>
         internal void SetCharacterOptionsForTesting(CharacterOptions objOptions) => _objCharacterOptionsOverride = objOptions;

@@ -35,6 +35,8 @@ public sealed class QualityDialogViewModel : ViewModelBase
             string category = node["category"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || (category != "Positive" && category != "Negative") || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
             QualityOptions.Add(new QualityOptionViewModel(name, category, node["bp"]?.InnerText ?? "0",
                 node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));
         }

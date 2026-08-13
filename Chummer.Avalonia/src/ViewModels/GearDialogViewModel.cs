@@ -45,7 +45,7 @@ public sealed class GearDialogViewModel : ViewModelBase
         set => SetField(ref _selectedGear, value);
     }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("gear.xml");
@@ -72,6 +72,8 @@ public sealed class GearDialogViewModel : ViewModelBase
             {
                 string strName = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(strName))
+                    continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 string strCategory = node["category"]?.InnerText ?? string.Empty;

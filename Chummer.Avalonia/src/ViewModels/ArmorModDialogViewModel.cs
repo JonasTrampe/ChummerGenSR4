@@ -41,7 +41,7 @@ public sealed class ArmorModDialogViewModel : ViewModelBase
 
     public bool HasRating => SelectedMod?.MaxRating > 1;
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _allOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("armor.xml");
@@ -51,6 +51,8 @@ public sealed class ArmorModDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 _allOptions.Add(new ArmorModOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,

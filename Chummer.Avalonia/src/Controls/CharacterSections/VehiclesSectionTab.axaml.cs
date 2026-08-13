@@ -30,7 +30,7 @@ public partial class VehiclesSectionTab : UserControl
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
-        var dialog = new VehicleDialog();
+        var dialog = new VehicleDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedVehicle == null)
             return;
@@ -67,7 +67,7 @@ public partial class VehiclesSectionTab : UserControl
         if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId))
             return;
 
-        var dialog = new VehicleModDialog();
+        var dialog = new VehicleModDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedMod == null)
             return;
@@ -87,7 +87,7 @@ public partial class VehiclesSectionTab : UserControl
         TreeNodeViewModel vehicle = selected.Parent == null ? selected : selected.Parent;
         if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
 
-        var dialog = new WeaponDialog();
+        var dialog = new WeaponDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedWeapon is not { } weapon) return;
         if (_character.AddVehicleWeapon(guiVehicleId, weapon.Name, weapon.Category, weapon.Damage, weapon.Ap,
@@ -122,7 +122,7 @@ public partial class VehiclesSectionTab : UserControl
         TreeNodeViewModel vehicle = selected.Parent == null ? selected : selected.Parent;
         if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
 
-        var dialog = new GearDialog();
+        var dialog = new GearDialog(_character);
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedGear is not { } gear) return;
         if (_character.AddVehicleGear(guiVehicleId, gear.SourceName, gear.Category, gear.Rating,

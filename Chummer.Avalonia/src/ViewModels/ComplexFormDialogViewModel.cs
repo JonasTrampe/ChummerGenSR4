@@ -34,6 +34,8 @@ public sealed class ComplexFormDialogViewModel : ViewModelBase
             string name = node["name"]?.InnerText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
+            if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
 
             Options.Add(new ComplexFormOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                 node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));

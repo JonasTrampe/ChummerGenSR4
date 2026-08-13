@@ -3373,4 +3373,18 @@ public class CharacterFileServiceTests
 
         Assert.True(character.AddGear("Ammo: Stick-n-Shock", "Ammunition"));
     }
+
+    [Fact]
+    public void IsBookEnabled_TrueForEnabledBook_FalseForDisabledBook_TrueForBlank()
+    {
+        var character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions();
+        objOptions.Books.Clear();
+        objOptions.Books.Add("SR4");
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        Assert.True(character.IsBookEnabled("SR4"));
+        Assert.False(character.IsBookEnabled("Arsenal"));
+        Assert.True(character.IsBookEnabled(""));
+    }
 }

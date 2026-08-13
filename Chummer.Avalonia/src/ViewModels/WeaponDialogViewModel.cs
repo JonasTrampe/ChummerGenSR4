@@ -45,7 +45,7 @@ public sealed class WeaponDialogViewModel : ViewModelBase
         set => SetField(ref _selectedWeapon, value);
     }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("weapons.xml");
@@ -56,6 +56,8 @@ public sealed class WeaponDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 _lstAllOptions.Add(new WeaponOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
