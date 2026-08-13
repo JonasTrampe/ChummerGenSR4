@@ -1674,6 +1674,76 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void EffectiveResponse_CalculateCommlinkResponseOn_SubtractsFloorOfProgramsOverSystem()
+    {
+        // TotalSystem 2, 5 running programs -> floor(5/2) = 2 penalty off Response 6.
+        CharacterDocument character = LoadXml("<character><gears><gear><guid>g1</guid>"
+            + "<name>Commlink</name><category>Commlink</category><response>6</response><system>2</system>"
+            + "<children>"
+            + "<gear><name>P1</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P2</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P3</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P4</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P5</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "</children></gear></gears></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CalculateCommlinkResponse = true });
+
+        Assert.Equal("4", character.Gear.Single().EffectiveResponse);
+    }
+
+    [Fact]
+    public void EffectiveResponse_CalculateCommlinkResponseOff_NoPenaltyApplied()
+    {
+        CharacterDocument character = LoadXml("<character><gears><gear><guid>g1</guid>"
+            + "<name>Commlink</name><category>Commlink</category><response>6</response><system>2</system>"
+            + "<children>"
+            + "<gear><name>P1</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P2</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "<gear><name>P3</name><category>Matrix Programs</category><equipped>True</equipped></gear>"
+            + "</children></gear></gears></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CalculateCommlinkResponse = false });
+
+        Assert.Equal("6", character.Gear.Single().EffectiveResponse);
+    }
+
+    [Fact]
+    public void EffectiveResponse_UnequippedProgramsAndNonProgramGearDoNotCountTowardsPenalty()
+    {
+        CharacterDocument character = LoadXml("<character><gears><gear><guid>g1</guid>"
+            + "<name>Commlink</name><category>Commlink</category><response>6</response><system>1</system>"
+            + "<children>"
+            + "<gear><name>Unequipped Program</name><category>Matrix Programs</category><equipped>False</equipped></gear>"
+            + "<gear><name>Not A Program</name><category>Certain Kind of Foci</category><equipped>True</equipped></gear>"
+            + "</children></gear></gears></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CalculateCommlinkResponse = true });
+
+        Assert.Equal("6", character.Gear.Single().EffectiveResponse);
+    }
+
+    [Fact]
+    public void EffectiveResponse_ErgonomicProgramExemptOnlyWhenHouseRuleOn()
+    {
+        string strXml = "<character><gears><gear><guid>g1</guid>"
+            + "<name>Commlink</name><category>Commlink</category><response>6</response><system>1</system>"
+            + "<children>"
+            + "<gear><name>P1</name><category>Matrix Programs</category><equipped>True</equipped>"
+            + "<children><gear><name>Ergonomic</name><category>Program Options</category></gear></children></gear>"
+            + "</children></gear></gears></character>";
+
+        CharacterDocument withoutRule = LoadXml(strXml);
+        withoutRule.SetCharacterOptionsForTesting(
+            new CharacterOptions { CalculateCommlinkResponse = true, ErgonomicProgramLimit = false });
+        // By default (house rule off) an Ergonomic program counts like any other: floor(1/1) = 1 penalty.
+        Assert.Equal("5", withoutRule.Gear.Single().EffectiveResponse);
+
+        CharacterDocument withRule = LoadXml(strXml);
+        withRule.SetCharacterOptionsForTesting(
+            new CharacterOptions { CalculateCommlinkResponse = true, ErgonomicProgramLimit = true });
+        // With the house rule on, Ergonomic programs are exempted from the count - no penalty.
+        Assert.Equal("6", withRule.Gear.Single().EffectiveResponse);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_RendersRealFixtureDataThroughTextOnlySheet()
     {
         CharacterDocument character = LoadFixture();

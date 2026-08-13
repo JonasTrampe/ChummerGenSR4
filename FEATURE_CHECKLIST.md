@@ -28,14 +28,12 @@ Everything not `[x]`, in one place, grouped by area.
 - [ ] **No Complex Form cost calculation**: blocks `AlternateComplexFormCost`.
 - [ ] **No Armor capacity-remaining tracking**: blocks `ArmorSuitCapacity`,
   `MaximumArmorModifications`, `ArmorDegradation`.
-- [ ] **No Commlink Response/System/Firewall/Signal derived calculation** (raw persisted fields
-  only): blocks `CalculateCommlinkResponse`.
 - [ ] **No Technomancer gear/Complex-Form eligibility gating**: blocks
   `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
   `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`, `AllowHigherStackedFoci`,
-  `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `ErgonomicProgramLimit`,
-  `ExtendAnyDetectionSpell`, `MoreLethalGameplay`.
+  `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `ExtendAnyDetectionSpell`,
+  `MoreLethalGameplay`.
 - Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
   `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,
   `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
@@ -133,7 +131,16 @@ Everything not `[x]`, in one place, grouped by area.
   highest item counts instead of every item stacking, with the Foregrip+Sling combo guaranteeing
   at least 2 in Group 1 - and `StrengthAffectsRecoil`'s tiered STR bonus; shown in the Waffen tab's
   detail pane and the print sheet). Not ported: loaded-ammo `<weaponbonus><rc>` (no real gear.xml
-  entry uses it, unlike the dice-pool equivalent).
+  entry uses it, unlike the dice-pool equivalent). Commlink Response now factors in the
+  `CalculateCommlinkResponse` house rule too (`ApplyCommlinkResponsePenalties`, ported from
+  `clsEquipment.cs`'s `Commlink.TotalResponse`): Response drops by floor(running programs /
+  System) for currently-Equipped child Gear items in a real "program" category, applied
+  recursively so a Commlink nested under Armor/Cyberware is covered too. Also wires the
+  `ErgonomicProgramLimit` house rule as a side effect (an "Ergonomic" child plugin exempts a
+  program from the count only when this house rule is explicitly on - legacy's own
+  inverted-sounding but exact logic, preserved as-is). System/Firewall/Signal themselves were
+  already computed (the highest value found across an item's own tree, covering Commlink/OS
+  Upgrade children) - only the Response-reduction house rule itself was the actual gap.
 - [~] House-rule awareness — most Karma/BP costs and the house rules listed below are wired; the
   remainder is tracked in the backlog above. Wired: `IgnoreArmorEncumbrance`/
   `AlternateArmorEncumbrance`/`NoSingleArmorEncumbrance`, `AlternateMetatypeAttributeKarma`,

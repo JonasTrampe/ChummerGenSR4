@@ -3982,8 +3982,50 @@ namespace Chummer.Core
                 else
                     lstItems.Add(objItem);
             }
+
+            if (GetCharacterOptions().CalculateCommlinkResponse)
+                ApplyCommlinkResponsePenalties(lstItems);
+
             return lstItems;
         }
+
+        /// <summary>Ported from clsEquipment.cs's Commlink.TotalResponse: under the
+        /// CalculateCommlinkResponse house rule, a Commlink's Response drops by
+        /// floor(running programs / TotalSystem) - "programs" are direct child Gear items whose
+        /// category is one of IsProgram's real gear.xml categories, currently Equipped, and not
+        /// exempted by the ErgonomicProgramLimit house rule. By default (the house rule off) an
+        /// "Ergonomic" child plugin grants no exemption - the program counts like any other; only
+        /// when the house rule is explicitly turned on are Ergonomic programs excluded from the
+        /// count (legacy's own inverted-sounding but exact naming/logic, preserved as-is). Walks
+        /// the whole tree recursively (not just root items) since a Commlink can be nested under
+        /// Armor/Cyberware, matching how EffectiveResponse itself already works regardless of
+        /// depth.</summary>
+        private void ApplyCommlinkResponsePenalties(IEnumerable<CharacterTreeItemData> lstItems)
+        {
+            bool blnErgonomicProgramLimit = GetCharacterOptions().ErgonomicProgramLimit;
+            foreach (CharacterTreeItemData objItem in lstItems)
+            {
+                if (objItem.Category == "Commlink"
+                    && double.TryParse(objItem.EffectiveSystem, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblSystem)
+                    && dblSystem > 0)
+                {
+                    int intRunningPrograms = objItem.Children.Count(objChild =>
+                        IsProgramCategory(objChild.Category) && objChild.Equipped
+                        && (!IsErgonomic(objChild) || !blnErgonomicProgramLimit));
+                    objItem.SetResponsePenalty((int)Math.Floor(intRunningPrograms / dblSystem));
+                }
+
+                ApplyCommlinkResponsePenalties(objItem.Children);
+            }
+        }
+
+        private static bool IsProgramCategory(string strCategory) => strCategory is "ARE Programs"
+            or "Data Software" or "Malware" or "Matrix Programs" or "Tactical AR Software"
+            or "Telematics Infrastructure Software" or "Sensor Software"
+            || strCategory.StartsWith("Autosofts", StringComparison.Ordinal);
+
+        private static bool IsErgonomic(CharacterTreeItemData objGear) =>
+            objGear.Children.Any(objChild => objChild.Name == "Ergonomic");
 
         // Assigns GearId in the same depth-first order EnumerateGearNodesDfs walks the raw XML in,
         // so an ID handed back from the UI always resolves to the same node via GetGearNodeById.
@@ -8320,7 +8362,27 @@ namespace Chummer.Core
         /// its descendants - e.g. a Commlink's base hardware supplies Response/Signal, an installed
         /// Operating System gear supplies System/Firewall, and Commlink/OS Upgrade gear (which save
         /// a flat replacement rating, not a bonus) can raise any of the four further.</summary>
-        public string EffectiveResponse => EffectiveStat(g => g.Response);
+        // Only ever set (via SetResponsePenalty) on Commlink-category root items when the
+        // CalculateCommlinkResponse house rule is on - see CharacterFileService.ApplyCommlinkResponsePenalties.
+        private int _intResponsePenalty;
+
+        internal void SetResponsePenalty(int intPenalty) => _intResponsePenalty = Math.Max(0, intPenalty);
+
+        /// <summary>Ported from clsEquipment.cs's Commlink.TotalResponse: reduced by
+        /// floor(running-programs / TotalSystem) under the CalculateCommlinkResponse house rule,
+        /// clamped to never go below 0 - see <see cref="SetResponsePenalty"/>.</summary>
+        public string EffectiveResponse
+        {
+            get
+            {
+                string strBase = EffectiveStat(g => g.Response);
+                if (_intResponsePenalty == 0
+                    || !double.TryParse(strBase, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblBase))
+                    return strBase;
+                return Math.Max(0, dblBase - _intResponsePenalty).ToString("0.##", CultureInfo.InvariantCulture);
+            }
+        }
+
         public string EffectiveSignal => EffectiveStat(g => g.Signal);
         public string EffectiveSystem => EffectiveStat(g => g.System);
         public string EffectiveFirewall => EffectiveStat(g => g.Firewall);
