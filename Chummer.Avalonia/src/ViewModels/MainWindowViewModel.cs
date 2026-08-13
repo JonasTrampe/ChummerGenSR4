@@ -159,7 +159,13 @@ public sealed class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+        KarmaStatus = !character.Created
+            ? (string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+                ? App.LanguageCatalog.GetString("String_BP") + ": " + character.CreationBudget.Remaining
+                    + " / " + character.CreationBudget.Starting + " (" + character.CreationBudget.Spent + " used)"
+                : App.LanguageCatalog.GetString("String_Karma") + ": " + character.CreationBudget.Remaining
+                    + " / " + character.CreationBudget.Starting + " (" + character.CreationBudget.Spent + " used)")
+            : string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
             ? App.LanguageCatalog.GetString("String_BP") + ": " + character.Bp + " / "
                 + App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma
             : App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma;
