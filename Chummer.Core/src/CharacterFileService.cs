@@ -326,6 +326,20 @@ namespace Chummer.Core
         /// Used by <see cref="RaiseAttributeCreate"/>'s AllowExceedAttributeBp gate.</summary>
         public int StartingBuildPoints => int.TryParse(GetValue("/character/startingbuildpoints", "0"), out var i) ? i : 0;
 
+        /// <summary>Creation budget state suitable for UI summaries. It intentionally exposes
+        /// the persisted remaining pool instead of reconstructing it from incomplete feature
+        /// slices, while later budget categories can be added without changing consumers.</summary>
+        public CharacterCreationBudgetData CreationBudget
+        {
+            get
+            {
+                bool karma = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                int remaining = int.TryParse(karma ? Karma : Bp, out int value) ? value : 0;
+                int starting = StartingBuildPoints;
+                return new CharacterCreationBudgetData(BuildMethod, starting, remaining, Math.Max(0, starting - remaining));
+            }
+        }
+
         public string Nuyen
         {
             get => GetValue("/character/nuyen", "0");
@@ -8092,6 +8106,22 @@ namespace Chummer.Core
                 ? strFallback
                 : objChild.InnerText;
         }
+    }
+
+    public sealed class CharacterCreationBudgetData
+    {
+        internal CharacterCreationBudgetData(string strBuildMethod, int intStarting, int intRemaining, int intSpent)
+        {
+            BuildMethod = strBuildMethod;
+            Starting = intStarting;
+            Remaining = intRemaining;
+            Spent = intSpent;
+        }
+
+        public string BuildMethod { get; }
+        public int Starting { get; }
+        public int Remaining { get; }
+        public int Spent { get; }
     }
 
     public sealed class CharacterAttributeData
