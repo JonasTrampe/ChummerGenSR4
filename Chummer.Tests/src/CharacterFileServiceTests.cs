@@ -1120,6 +1120,32 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddWeapon_RulesDataUnderbarrelIsNestedIncludedAndRoundTrips()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>2000</nuyen></character>");
+        character.AddWeapon("AK-98", "Assault Rifles", "6P", "-1", "SA/BF/FA", "0", "38(c)",
+            "1000", "8F", "AR", "26");
+
+        CharacterTreeItemData parent = Assert.Single(character.WeaponTrees);
+        CharacterTreeItemData underbarrel = Assert.Single(parent.Children);
+        Assert.Equal("AK-98 Grenade Launcher", underbarrel.Name);
+        Assert.True(underbarrel.IsUnderbarrelWeapon);
+        Assert.Equal("True", character.Document.SelectSingleNode("/character/weapons/weapon/underbarrel/weapon/included")!.InnerText);
+        Assert.Equal("1000", character.Nuyen); // The included launcher is not purchased separately.
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "underbarrel.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "underbarrel.chum");
+        Assert.True(Assert.Single(Assert.Single(reloaded.WeaponTrees).Children).IsUnderbarrelWeapon);
+
+        Assert.True(Guid.TryParse(parent.ItemGuid, out Guid parentId));
+        Assert.True(Guid.TryParse(underbarrel.ItemGuid, out Guid underbarrelId));
+        Assert.True(character.RemoveUnderbarrelWeapon(parentId, underbarrelId));
+        Assert.Empty(character.WeaponTrees.Single().Children);
+    }
+
+    [Fact]
     public void AddWeaponAccessory_NestsUnderTheWeaponDeductsCostAndCanBeRemoved()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");

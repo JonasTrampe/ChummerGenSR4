@@ -3535,9 +3535,65 @@ namespace Chummer.Core
             objWeapon.AppendChild(Document.CreateElement("weaponmods"));
             objWeapon.AppendChild(Document.CreateElement("gears"));
             objWeapon.AppendChild(Document.CreateElement("ammos"));
+            AddIncludedUnderbarrelWeapon(objWeapon);
             objWeapons.AppendChild(objWeapon);
             DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
+        }
+
+        /// <summary>Removes one nested underbarrel weapon from its parent without affecting other
+        /// root-level or vehicle weapons.</summary>
+        public bool RemoveUnderbarrelWeapon(Guid guiWeaponId, Guid guiUnderbarrelId)
+        {
+            XmlNode? objParent = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objUnderbarrel = objParent?.SelectSingleNode(
+                $"underbarrel/weapon[guid = '{guiUnderbarrelId}']");
+            if (objUnderbarrel?.ParentNode == null)
+                return false;
+            objUnderbarrel.ParentNode.RemoveChild(objUnderbarrel);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private void AddIncludedUnderbarrelWeapon(XmlElement objParentWeapon)
+        {
+            XmlNode? objRule = FindRuleItemByName(XmlManager.Instance.Load("weapons.xml"),
+                "/chummer/weapons/weapon", GetValue(objParentWeapon, "name", string.Empty));
+            if (objRule == null)
+                return;
+            string strUnderbarrelName = GetValue(objRule, "underbarrel", string.Empty);
+            if (string.IsNullOrWhiteSpace(strUnderbarrelName))
+                return;
+
+            XmlNode? objUnderbarrelRule = FindRuleItemByName(XmlManager.Instance.Load("weapons.xml"),
+                "/chummer/weapons/weapon", strUnderbarrelName);
+            if (objUnderbarrelRule == null)
+                return;
+
+            var objContainer = Document.CreateElement("underbarrel");
+            var objWeapon = Document.CreateElement("weapon");
+            AppendElement(objWeapon, "guid", Guid.NewGuid().ToString());
+            AppendElement(objWeapon, "name", strUnderbarrelName);
+            AppendElement(objWeapon, "category", GetValue(objUnderbarrelRule, "category", string.Empty));
+            AppendElement(objWeapon, "reach", GetValue(objUnderbarrelRule, "reach", "0"));
+            AppendElement(objWeapon, "damage", GetValue(objUnderbarrelRule, "damage", string.Empty));
+            AppendElement(objWeapon, "ap", GetValue(objUnderbarrelRule, "ap", string.Empty));
+            AppendElement(objWeapon, "mode", GetValue(objUnderbarrelRule, "mode", string.Empty));
+            AppendElement(objWeapon, "rc", GetValue(objUnderbarrelRule, "rc", "0"));
+            AppendElement(objWeapon, "ammo", GetValue(objUnderbarrelRule, "ammo", string.Empty));
+            AppendElement(objWeapon, "cost", GetValue(objUnderbarrelRule, "cost", "0"));
+            AppendElement(objWeapon, "avail", GetValue(objUnderbarrelRule, "avail", string.Empty));
+            AppendElement(objWeapon, "source", GetValue(objUnderbarrelRule, "source", string.Empty));
+            AppendElement(objWeapon, "page", GetValue(objUnderbarrelRule, "page", string.Empty));
+            AppendElement(objWeapon, "included", "True");
+            AppendElement(objWeapon, "installed", "True");
+            AppendElement(objWeapon, "equipped", "True");
+            objWeapon.AppendChild(Document.CreateElement("accessories"));
+            objWeapon.AppendChild(Document.CreateElement("weaponmods"));
+            objWeapon.AppendChild(Document.CreateElement("gears"));
+            objWeapon.AppendChild(Document.CreateElement("ammos"));
+            objContainer.AppendChild(objWeapon);
+            objParentWeapon.AppendChild(objContainer);
         }
 
         /// <summary>Ported from frmReload.cs/frmCareer.cs's "Buy Ammo"/reload flow: which Gear item
@@ -8920,10 +8976,11 @@ namespace Chummer.Core
             int intWeaponId = 0;
             foreach (XmlNode objNode in objNodes)
             {
-                var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo");
+                var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo", "underbarrel/weapon");
                 objWeapon.SetWeaponId(intWeaponId++);
                 objWeapon.SetCustomName(GetValue(objNode, "weaponname", string.Empty));
                 MarkWeaponAccessoriesAndMods(objWeapon, objNode);
+                MarkUnderbarrelWeapons(objWeapon, objNode);
                 string strLocation = GetValue(objNode, "location", string.Empty);
                 objWeapon.SetLocation(strLocation);
                 (string strPoolDisplay, string strTooltip) = ComputeWeaponDicePool(
@@ -8973,6 +9030,17 @@ namespace Chummer.Core
                     objChild.SetWeaponPartIncluded(objPart != null && GetValue(objPart, "included", "False") == "True");
                 }
             }
+        }
+
+        private static void MarkUnderbarrelWeapons(CharacterTreeItemData objWeapon, XmlNode objWeaponNode)
+        {
+            var setUnderbarrelGuids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (XmlNode objNode in objWeaponNode.SelectNodes("underbarrel/weapon")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+                setUnderbarrelGuids.Add(GetValue(objNode, "guid", string.Empty));
+            foreach (CharacterTreeItemData objChild in objWeapon.Children)
+                if (!string.IsNullOrEmpty(objChild.ItemGuid) && setUnderbarrelGuids.Contains(objChild.ItemGuid))
+                    objChild.IsUnderbarrelWeapon = true;
         }
 
         private bool WeaponNodeHasSmartgun(XmlNode objWeaponNode)
@@ -10214,6 +10282,8 @@ namespace Chummer.Core
         /// <summary>True for a root weapon's &lt;weaponmods&gt;&lt;weaponmod&gt; children - same
         /// rationale as IsWeaponAccessory.</summary>
         public bool IsWeaponMod { get; internal set; }
+        /// <summary>True for a nested weapon supplied or mounted below a root weapon.</summary>
+        public bool IsUnderbarrelWeapon { get; internal set; }
 
         /// <summary>True for a weapon accessory/mod child; its <see cref="IncludedInWeapon"/>
         /// flag means it is part of the base weapon rather than an added purchase.</summary>
