@@ -1,34 +1,26 @@
-# Core parity audit
+# Chummer Core parity audit
 
-Status: 2026-08-13. Source comparison: legacy `clsCharacter`, `clsEquipment`, `clsUnique`,
-`clsImprovement`, and host-form commands against `Chummer.Core`.
-
-## Rules
-
-- `[x]` verified Core behavior with regression coverage.
-- `[~]` implemented subset or verified gap; never treat as complete.
-- `[ ]` no Core equivalent.
+Status: active, last reviewed 2026-08-13. `[x]` verified; `[~]` partial; `[ ]` missing. Compare legacy `clsCharacter`, `clsEquipment`, `clsUnique`, `clsImprovement`, and host commands with `Chummer.Core`.
 
 ## Persisted collections
 
-| Legacy collection | Core status | Gap |
+| Area | Status | Evidence or gap |
 | --- | --- | --- |
-| Contacts, spells, powers, spirits, techprograms, martial arts, armor, weapons, cyberware, qualities, lifestyles, gear, vehicles, grades, improvements, expenses, calendar | `[x]` | Core projection and mutation path exist. |
-| `foci` | `[x]` | Projection, bond/unbond, MAG limits, Karma, equipped-Gear bonus lifecycle and save/reload coverage exist. |
-| `stackedfoci` | `[x]` | Projection, save/reload, stack/unstack, Force rule, binding Karma and equipped bonus lifecycle exist. |
+| Contacts, spells, powers, spirits, techprograms, martial arts, armor, weapons, cyberware, qualities, lifestyles, gear, vehicles, grades, improvements, expenses, calendar | `[x]` | Core projection and mutation paths exist. |
+| Foci | `[x]` | Projection, bond/unbond, MAG limits, Karma, equipped bonuses, and save/reload coverage. |
+| Stacked Foci | `[x]` | Projection, save/reload, stack/unstack, Force rule, binding Karma, and equipped bonuses. |
 
-## Verified Core gaps
+## Remaining Core work
 
 | Priority | Area | Status | Required outcome |
 | --- | --- | --- | --- |
-| P0 | Foci / Stacked Foci | `[x]` | Normal and Stacked Focus Core lifecycle is regression-covered. |
-| P0 | Creation budget | `[~]` | Every create mutation debits/refunds one enforced pool. |
+| P0 | Creation budget | `[~]` | Every creation mutation debits/refunds one enforced pool. |
 | P1 | Bonus consumers | `[~]` | Vehicle context, essence/nuyen/free-quality/essence-multiplier, ArmorMod B/I. |
-| P1 | Calculations | `[~]` | Ammo RC, special weapons, soft overrides, Mystic-Adept and cyborg edge cases. |
-| P1 | Special commands | `[ ]` | Metatype/critter/Free Sprite/Reapply/BP-availability Core operations. |
-| P1 | Containment | `[ ]` | Underbarrels and plugin paths for armor, cyberware, accessories, vehicles. |
+| P1 | Calculations | `[~]` | Ammo RC, special weapons, soft overrides, Mystic-Adept, cyborg edges. |
+| P1 | Special commands | `[ ]` | Metatype, critter, Free Sprite, reapply, BP availability operations. |
+| P1 | Containment | `[ ]` | Underbarrels and armor, cyberware, accessory, and vehicle plugins. |
 | P2 | Clipboard/history | `[ ]` | Character-safe copy/paste and historical snapshots. |
 
 ## Validation
 
-Every Core change needs an inline legacy-shape XML test, save/reload test, and complete `dotnet test` run.
+Each Core change needs a legacy-shape XML test, save/reload test, and full `dotnet test` run.

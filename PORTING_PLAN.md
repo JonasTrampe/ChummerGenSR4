@@ -1,30 +1,19 @@
-# Core parity plan
+# Chummer Core parity plan
 
-Status: active. This plan is ordered by Core dependency and user-visible correctness.
+Status: active. Implement Core before Avalonia presentation; preserve legacy XML; add behavior and save/reload tests; update the checklist and audit in the same commit.
 
-## Working rules
+## Completed
 
-- Implement Core before Avalonia-only presentation.
-- Preserve legacy XML shapes; avoid name-based identity where legacy saves provide IDs.
-- Land a Core test and save/reload test with every behavior.
-- Update `FEATURE_CHECKLIST.md` and `PARITY_AUDIT.md` in the same commit.
+- [x] Foci and Stacked Foci: projection, legacy compatibility, limits, stack/unstack, Karma, and equipped bonuses.
 
-## Phase 0 — Foci / Stacked Foci `[x]`
+## Next
 
-Normal and stacked focus lifecycle is complete: projections, legacy XML compatibility, limits, stack/unstack, Karma, and equipped bonuses.
-
-## Phase 1 — Creation and bonus correctness
-
-1. Enforce remaining creation spends/refunds through the common budget.
-2. Add missing bonus consumers: vehicle context, essence/nuyen/free-quality/essence multiplier, ArmorMod B/I.
-3. Port remaining calculation edges: ammo RC, special weapons, soft overrides, Mystic-Adept and cyborg cases.
-
-## Phase 2 — Legacy Core operations
-
-1. Extract Special commands: metatype/critter/Free Sprite/Reapply/BP availability.
-2. Add nested containment and item transfer operations.
-3. Add clipboard/history Core data operations.
+1. Complete creation spend/refund enforcement and house-rule limits.
+2. Add missing bonus consumers and calculation edge cases.
+3. Extract legacy special commands: metatype, critter, Free Sprite, reapply, BP availability.
+4. Add nested containment and item-transfer operations.
+5. Add clipboard and history data operations.
 
 ## Completion gate
 
-No phase is complete until all its checklist rows are `[x]`, full tests pass, and relevant legacy XML round-trips.
+The plan completes when every checklist row is `[x]`, full tests pass, and relevant legacy XML round-trips.
