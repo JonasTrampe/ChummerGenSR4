@@ -76,7 +76,7 @@ These were absent or too narrowly described in the prior checklist and are now t
 | `BookEnabled` | picker filtering works for ordinary rules-data pickers; Suites and PACKS do not filter |
 | `ConfirmDelete` | main Avalonia item/list deletion actions honor it through one shared dialog; non-item destructive actions still need audit |
 | `ConfirmKarmaExpense` | persisted only; legacy has confirmations at many costly commands |
-| `CreateBackupOnCareer` | persisted only; no save/backup action during finalization |
+| `CreateBackupOnCareer` | implemented: the creation shell writes an atomic pre-career snapshot beside the saved character and stops transition on write failure |
 | `AutomaticCopyProtection`, `AutomaticRegistration` | implemented in root and nested gear acquisition; eligible Unwired Matrix/soft items gain the zero-cost legacy children |
 | `LocalisedUpdatesOnly` | persisted only; GitHub-release updater does not fetch localized payloads |
 | `OmaeAutoLogin` | obsolete legacy service setting is persisted only; requires an explicit replacement/retirement decision, not silent exclusion |

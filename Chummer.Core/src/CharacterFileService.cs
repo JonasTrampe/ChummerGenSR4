@@ -72,6 +72,46 @@ namespace Chummer.Core
                 throw;
             }
         }
+
+        /// <summary>Creates the legacy Create-Mode snapshot before a character enters career
+        /// mode. The cross-platform destination is a <c>backup</c> subdirectory beside the saved
+        /// character, rather than the legacy application's installation directory. A temporary
+        /// file plus replace/move avoids leaving a partial backup after an interrupted write.</summary>
+        public string? CreateCareerBackup(CharacterDocument objCharacter, string? strSourcePath)
+        {
+            if (objCharacter == null) throw new ArgumentNullException(nameof(objCharacter));
+            if (!objCharacter.CreateBackupOnCareerEnabled || objCharacter.Created
+                || string.IsNullOrWhiteSpace(strSourcePath))
+                return null;
+
+            string? strDirectory = Path.GetDirectoryName(strSourcePath);
+            if (string.IsNullOrWhiteSpace(strDirectory))
+                return null;
+
+            string strBaseName = Path.GetFileNameWithoutExtension(strSourcePath);
+            if (string.IsNullOrWhiteSpace(strBaseName))
+                strBaseName = string.IsNullOrWhiteSpace(objCharacter.Alias) ? objCharacter.Name : objCharacter.Alias;
+            if (string.IsNullOrWhiteSpace(strBaseName))
+                strBaseName = Guid.NewGuid().ToString("N")[..13];
+
+            string strBackupDirectory = Path.Combine(strDirectory, "backup");
+            Directory.CreateDirectory(strBackupDirectory);
+            string strBackupPath = Path.Combine(strBackupDirectory, strBaseName + " (Create Mode).chum");
+            string strTemporaryPath = strBackupPath + ".tmp-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                using (FileStream objStream = File.Create(strTemporaryPath))
+                    Save(objCharacter, objStream, Path.GetFileName(strBackupPath));
+                File.Move(strTemporaryPath, strBackupPath, true);
+                Trace.TraceInformation("Created pre-career Chummer backup at {0}", strBackupPath);
+                return strBackupPath;
+            }
+            finally
+            {
+                if (File.Exists(strTemporaryPath))
+                    File.Delete(strTemporaryPath);
+            }
+        }
     }
 
     public sealed class CharacterDocument
@@ -196,6 +236,9 @@ namespace Chummer.Core
 
         /// <summary>Whether skill dice pools can be sent directly to the dice roller.</summary>
         public bool AllowSkillDiceRollingEnabled => GetCharacterOptions().AllowSkillDiceRolling;
+
+        /// <summary>Whether the character's profile requests a pre-career backup.</summary>
+        public bool CreateBackupOnCareerEnabled => GetCharacterOptions().CreateBackupOnCareer;
 
         /// <summary>Whether destructive UI actions should ask for confirmation, matching the
         /// per-character settings profile's ConfirmDelete option.</summary>

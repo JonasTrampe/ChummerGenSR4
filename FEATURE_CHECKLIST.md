@@ -68,7 +68,11 @@ Everything not `[x]`, in one place, grouped by area.
 - [~] `ConfirmDelete`: shared Yes/No dialog honors the character profile for all main item/list
   delete actions (qualities, contacts, skills, spells/forms/powers, gear, armor, vehicles,
   cyberware, martial arts and custom Improvements). Remaining non-item removal actions need audit.
-- [ ] `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
+- [x] `CreateBackupOnCareer`: before a saved character switches to career mode, the current
+  Create-mode XML is atomically saved as `<source-directory>/backup/<name> (Create Mode).chum`;
+  failed writes stop finalization and report the error. Unnamed/unsaved characters have no source
+  path to back up. Core snapshot/no-op tests cover this behavior.
+- [ ] `ConfirmKarmaExpense`, `LocalisedUpdatesOnly`,
   `BookEnabled`, `OmaeAutoLogin`, and `PrintToFileFirst`: now in scope; each needs a verified
   runtime integration beyond persistence.
 

@@ -104,6 +104,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     public void AddOpenCharacter(CharacterDocument character, string? sourcePath = null)
     {
         var tab = new OpenCharacterTab(character, sourcePath);
+        tab.BackupFailed += message => ReportError("Could not create the pre-career backup: " + message);
         OpenCharacters.Add(tab);
         SelectedOpenCharacter = tab;
         ClearError();

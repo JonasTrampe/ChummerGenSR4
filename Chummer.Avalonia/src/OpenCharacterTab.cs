@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
 
@@ -12,6 +14,7 @@ public sealed class OpenCharacterTab
 
     /// <summary>The populated per-character view shown as this tab's content.</summary>
     public CharacterTab Content { get; }
+    public event Action<string>? BackupFailed;
 
     public OpenCharacterTab(CharacterDocument character, string? sourcePath = null)
     {
@@ -19,6 +22,21 @@ public sealed class OpenCharacterTab
         SourcePath = sourcePath;
         Title = string.IsNullOrEmpty(character.Name) ? character.DisplayName : character.Name;
         Content = new CharacterTab();
+        Content.FinalizingCreation += CreateCareerBackupAsync;
         Content.LoadCharacter(character);
+    }
+
+    private Task<bool> CreateCareerBackupAsync(CharacterDocument character)
+    {
+        try
+        {
+            new CharacterFileService().CreateCareerBackup(character, SourcePath);
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            BackupFailed?.Invoke(ex.Message);
+            return Task.FromResult(false);
+        }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using Chummer.Core;
 using Xunit;
@@ -389,5 +391,46 @@ public class NewCharacterFactoryTests
         // Already created - finalizing again is a no-op.
         Assert.False(character.FinalizeCreation());
         Assert.Equal(1, intChangedCount);
+    }
+
+    [Fact]
+    public void CreateCareerBackup_WritesPreCareerSnapshotBesideSourceFile()
+    {
+        string strDirectory = Path.Combine(Path.GetTempPath(), "chummer-backup-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(strDirectory);
+        try
+        {
+            CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+                "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+            character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = true });
+            string strSourcePath = Path.Combine(strDirectory, "Runner.chum");
+
+            string strBackupPath = new CharacterFileService().CreateCareerBackup(character, strSourcePath)
+                ?? throw new InvalidOperationException("Expected a pre-career backup path.");
+
+            Assert.Equal(Path.Combine(strDirectory, "backup", "Runner (Create Mode).chum"), strBackupPath);
+            Assert.True(File.Exists(strBackupPath));
+            using FileStream objStream = File.OpenRead(strBackupPath);
+            CharacterDocument snapshot = new CharacterFileService().Load(objStream, "backup.chum");
+            Assert.False(snapshot.Created);
+            Assert.Equal("Test", snapshot.Name);
+        }
+        finally
+        {
+            if (Directory.Exists(strDirectory))
+                Directory.Delete(strDirectory, true);
+        }
+    }
+
+    [Fact]
+    public void CreateCareerBackup_IsNoOpWithoutSettingOrSourcePath()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = false });
+        Assert.Null(new CharacterFileService().CreateCareerBackup(character, "/tmp/Runner.chum"));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = true });
+        Assert.Null(new CharacterFileService().CreateCareerBackup(character, null));
     }
 }
