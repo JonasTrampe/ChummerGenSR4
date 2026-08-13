@@ -36,7 +36,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | P1 | Bonus consumers | `[~]` | Vehicle context, essence/nuyen/free-quality/essence-multiplier, ArmorMod B/I. |
 | P1 | Calculations | `[~]` | Ammo RC, special weapons, soft overrides, Mystic-Adept, cyborg edges. |
 | P1 | Special commands | `[~]` | Reapply known improvements refreshes supported current rules data without deleting unmatched legacy effects; metatype, critter, Free Sprite, BP availability remain. |
-| P1 | Containment | `[~]` | Rules-data underbarrels now persist, project, and remove; armor, cyberware, accessory, and vehicle plugins remain. |
+| P1 | Containment | `[~]` | Underbarrels plus armor/cyberware gear and plugin trees now persist and mutate; weapon-accessory and vehicle-plugin parity remain. |
 | P2 | Clipboard/history | `[ ]` | Character-safe copy/paste and historical snapshots. |
 | Product | Cloud conflict/newer revision | `[~]` | Flows exist; server round-trip remains. |
 | Product | Native print | `[~]` | Implementation exists; Linux, Windows, and macOS smoke tests remain. |
