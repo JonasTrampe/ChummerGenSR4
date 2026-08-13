@@ -37,6 +37,22 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterHistory_CapturesImmutableSnapshotsAndRestoresFreshDocuments()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><alias>Before</alias></character>");
+        var history = new CharacterHistory(2);
+        CharacterSnapshot snapshot = history.Capture(character, "Before change");
+        character.Alias = "After";
+
+        CharacterDocument restored = history.Restore(snapshot);
+        Assert.Equal("Before", restored.Alias);
+        restored.Alias = "Restored change";
+        Assert.Equal("After", character.Alias);
+        Assert.Single(history.Snapshots);
+        Assert.Equal("Before change", snapshot.Label);
+    }
+
+    [Fact]
     public void Contacts_And_Enemies_AreSplitByType()
     {
         CharacterDocument character = LoadFixture();
