@@ -189,6 +189,10 @@ namespace Chummer.Core
         /// house rule.</summary>
         public bool AllowBiowareSuitesEnabled => GetCharacterOptions().AllowBiowareSuites;
 
+        /// <summary>Whether an Obsolescent vehicle modification may be upgraded in the same
+        /// manner as an Obsolete modification.</summary>
+        public bool AllowObsolescentUpgradeEnabled => GetCharacterOptions().AllowObsolescentUpgrade;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -2950,6 +2954,67 @@ namespace Chummer.Core
                 return false;
 
             objMod.ParentNode.RemoveChild(objMod);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Replaces an Obsolete modification (or an Obsolescent one when the matching
+        /// house rule is enabled) with the zero-slot Retrofit modification. The retrofit costs a
+        /// caller-selected percentage of the vehicle's base cost and is recorded as a Nuyen
+        /// expense, matching frmCareer's removal flow.</summary>
+        public bool RetrofitVehicleObsolescence(Guid guiVehicleId, Guid guiModId, int intPercentage)
+        {
+            if (intPercentage < 0 || intPercentage > 1000)
+                return false;
+
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objMod = objVehicle?.SelectSingleNode($"mods/mod[guid = '{guiModId}']");
+            if (objVehicle == null || objMod?.ParentNode == null)
+                return false;
+
+            string strName = GetValue(objMod, "name", string.Empty);
+            bool blnEligible = string.Equals(strName, "Obsolete", StringComparison.Ordinal)
+                || (string.Equals(strName, "Obsolescent", StringComparison.Ordinal)
+                    && GetCharacterOptions().AllowObsolescentUpgrade);
+            if (!blnEligible)
+                return false;
+
+            double dblBaseCost = RatingExpression.Evaluate(GetValue(objVehicle, "cost", "0"), "0");
+            int intCost = (int)Math.Round(dblBaseCost * intPercentage / 100d, MidpointRounding.ToEven);
+            double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture,
+                out double dblParsed) ? dblParsed : 0;
+            if (intCost > dblNuyen)
+                return false;
+
+            XmlNode objMods = objMod.ParentNode;
+            var objRetrofit = Document.CreateElement("mod");
+            AppendElement(objRetrofit, "guid", Guid.NewGuid().ToString());
+            AppendElement(objRetrofit, "name", "Retrofit");
+            AppendElement(objRetrofit, "category", "Special");
+            AppendElement(objRetrofit, "limit", string.Empty);
+            AppendElement(objRetrofit, "slots", "0");
+            AppendElement(objRetrofit, "rating", "0");
+            AppendElement(objRetrofit, "maxrating", "0");
+            AppendElement(objRetrofit, "response", "0");
+            AppendElement(objRetrofit, "system", "0");
+            AppendElement(objRetrofit, "firewall", "0");
+            AppendElement(objRetrofit, "signal", "0");
+            AppendElement(objRetrofit, "pilot", "0");
+            AppendElement(objRetrofit, "avail", "0");
+            AppendElement(objRetrofit, "cost", intCost.ToString(CultureInfo.InvariantCulture));
+            AppendElement(objRetrofit, "extra", string.Empty);
+            AppendElement(objRetrofit, "source", "UCL");
+            AppendElement(objRetrofit, "page", "15");
+            AppendElement(objRetrofit, "included", "False");
+            AppendElement(objRetrofit, "installed", "True");
+            AppendElement(objRetrofit, "subsystems", string.Empty);
+            objRetrofit.AppendChild(Document.CreateElement("weapons"));
+            AppendElement(objRetrofit, "notes", string.Empty);
+            AppendElement(objRetrofit, "discountedcost", "False");
+
+            objMods.ReplaceChild(objRetrofit, objMod);
+            Nuyen = (dblNuyen - intCost).ToString(CultureInfo.InvariantCulture);
+            AddExpense("Nuyen", -intCost, "Vehicle Retrofit: " + GetValue(objVehicle, "name", string.Empty));
             Changed?.Invoke();
             return true;
         }

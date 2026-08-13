@@ -3598,6 +3598,40 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ObsoleteVehicleMod_CanBeRetrofittedAtSelectedPercentage()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        Guid modId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><cost>7000</cost><mods><mod>"
+            + "<guid>" + modId + "</guid><name>Obsolete</name><category>Special</category><slots>0</slots>"
+            + "</mod></mods></vehicle></vehicles></character>");
+
+        Assert.True(character.RetrofitVehicleObsolescence(vehicleId, modId, 50));
+        CharacterTreeItemData retrofit = Assert.Single(character.Vehicles.Single().Children);
+        Assert.Equal("Retrofit", retrofit.Name);
+        Assert.Equal("1500", character.Nuyen);
+        CharacterExpenseData expense = Assert.Single(character.NuyenExpenses);
+        Assert.Equal("-3500", expense.Amount);
+    }
+
+    [Fact]
+    public void ObsolescentVehicleMod_RequiresItsHouseRule()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        Guid modId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><cost>1000</cost><mods><mod>"
+            + "<guid>" + modId + "</guid><name>Obsolescent</name><category>Special</category><slots>0</slots>"
+            + "</mod></mods></vehicle></vehicles></character>");
+
+        Assert.False(character.RetrofitVehicleObsolescence(vehicleId, modId, 10));
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowObsolescentUpgrade = true });
+        Assert.True(character.RetrofitVehicleObsolescence(vehicleId, modId, 10));
+        Assert.Equal("Retrofit", Assert.Single(character.Vehicles.Single().Children).Name);
+    }
+
+    [Fact]
     public void VehicleSlots_ComputedFromBodyAndSummedAcrossInstalledMods()
     {
         Guid vehicleId = Guid.NewGuid();
