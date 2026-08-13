@@ -1641,6 +1641,31 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_RenderSheetToPdf_ThrowsAClearErrorWhenNoHeadlessBrowserIsInstalled()
+    {
+        // This test environment (and many CI/dev machines) has no Chromium/Chrome-family browser
+        // on PATH - RenderSheetToPdf should fail with a clear, actionable message rather than an
+        // obscure ProcessStartInfo/FileNotFoundException, regardless of whether a browser happens
+        // to be present. Skip the "no browser" assertion when one actually is found, since then
+        // the method should succeed instead.
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        string strOutputPath = Path.Combine(Path.GetTempPath(), $"chummer-pdf-test-{Guid.NewGuid():N}.pdf");
+
+        if (CharacterSheetExporter.FindHeadlessBrowserExecutable() == null)
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                CharacterSheetExporter.RenderSheetToPdf(character, "Text-Only.xsl", strOutputPath));
+            Assert.Contains("headless", ex.Message, StringComparison.OrdinalIgnoreCase);
+        }
+        else
+        {
+            CharacterSheetExporter.RenderSheetToPdf(character, "Text-Only.xsl", strOutputPath);
+            Assert.True(File.Exists(strOutputPath));
+            File.Delete(strOutputPath);
+        }
+    }
+
+    [Fact]
     public void CharacterSheetExporter_GetExportTemplateNames_IncludesSquadManager()
     {
         Assert.Contains("Squad Manager", CharacterSheetExporter.GetExportTemplateNames());

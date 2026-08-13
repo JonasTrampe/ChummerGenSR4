@@ -438,8 +438,16 @@ what's ported, not previously tracked anywhere in this file)
   in isolation; would only make sense bundled with a hypothetical Cyberzombie-conversion feature.
 
 **Output / tooling**
-- [ ] Real PDF export / native cross-platform "Drucken" (currently HTML export only — no PDF
-  library or print backend referenced anywhere in this port yet).
+- [x] Real PDF export — no PDF library is bundled (avoids the licensing question entirely).
+  Instead `CharacterSheetExporter.RenderSheetToPdf` writes the existing XSL-rendered HTML sheet
+  (same `RenderSheet` used for on-screen preview/HTML export) to a temp file and invokes a
+  system-installed headless Chromium/Chrome-family browser's own `--headless --print-to-pdf` mode
+  on it (`FindHeadlessBrowserExecutable` checks `chromium`, `chromium-browser`, `google-chrome`,
+  `google-chrome-stable`, `microsoft-edge`, `microsoft-edge-stable`, `chrome` on PATH). Throws a
+  clear `InvalidOperationException` if none is installed, rather than a raw process-start failure.
+  Wired into `SheetPreviewDialog` as an "Als PDF exportieren" button (replacing the previously
+  permanently-disabled "Drucken" button). Native cross-platform "Drucken" (an actual OS print
+  dialog, as opposed to file export) is still not implemented — out of scope for this slice.
 - [x] Update checker — done. Ported from legacy's own already-Linux-adapted `frmUpdate.cs` (see
   commit "Remove dead WCF Omae feature and legacy update checker (Phase 0)"): `UpdateChecker`
   (`Chummer.Core`) checks GitHub's Releases API and compares the tag against the running version;
@@ -899,11 +907,10 @@ what's ported, not previously tracked anywhere in this file)
   `data/sheets`, defaulting to the Options-configured `DefaultCharacterSheet`) instead of static
   mockup content. Every section the shipped sheets read is now covered; vehicle-mounted Weapons
   don't carry damage/AP/RC in this port's saved tree data, so those three fields render blank for
-  them specifically. "Als HTML exportieren" (found sitting unwired in the XAML as "Als PDF
-  exportieren") now saves the actual rendered XHTML to disk - no PDF library or cross-platform
-  print backend is referenced anywhere in this port, so real PDF export/native "Drucken" remain
-  out of reach without adding a new dependency; "Drucken" stays disabled with a tooltip explaining
-  why instead of silently doing nothing. Fixed two real bugs found while building/verifying this:
+  them specifically. "Als HTML exportieren" saves the actual rendered XHTML to disk. "Als PDF
+  exportieren" (added later, see the "Real PDF export" entry above) shells out to a system
+  headless Chromium/Chrome browser's own print-to-pdf instead of bundling a PDF library. Native
+  cross-platform "Drucken" (an OS print dialog) is still not implemented. Fixed two real bugs found while building/verifying this:
   - `CharacterTreeItemData.HasCommlinkStats` treated every saved Gear item as a Commlink, since
     legacy always writes `<response>0</response>` etc. on non-Commlink items and the check only
     tested for non-empty rather than positive.

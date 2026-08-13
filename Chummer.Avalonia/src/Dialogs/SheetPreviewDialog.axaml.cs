@@ -125,5 +125,43 @@ public partial class SheetPreviewDialog : Window
         await writer.WriteAsync(SheetHtml);
     }
 
+    /// <summary>Renders the currently-selected sheet to PDF via
+    /// <see cref="CharacterSheetExporter.RenderSheetToPdf(CharacterDocument,string,string)"/>
+    /// (a system headless Chromium/Chrome browser's own print-to-pdf, since no PDF library is
+    /// bundled) and saves it to a user-chosen path.</summary>
+    private async void OnExportPdfClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this)?.StorageProvider is not { } storage)
+            return;
+
+        var selector = this.FindControl<ComboBox>("SheetSelector")!;
+        if (selector.SelectedItem is not string strSheetName)
+            return;
+
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Charakterbogen als PDF exportieren",
+            DefaultExtension = "pdf",
+            SuggestedFileName = _character.Name ?? "Charakterbogen",
+            FileTypeChoices = [new FilePickerFileType("PDF-Datei") { Patterns = ["*.pdf"] }],
+        });
+        if (file is null)
+            return;
+
+        string? strLocalPath = file.TryGetLocalPath();
+        if (strLocalPath == null)
+            return;
+
+        try
+        {
+            CharacterSheetExporter.RenderSheetToPdf(_character, strSheetName, strLocalPath);
+        }
+        catch (Exception ex)
+        {
+            SheetText = "Fehler beim PDF-Export: " + ex.Message;
+            this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
+        }
+    }
+
     private void OnClose(object? sender, RoutedEventArgs e) => Close();
 }

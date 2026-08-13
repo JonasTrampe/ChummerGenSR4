@@ -157,6 +157,123 @@ namespace Chummer.Core
             return sb.ToString();
         }
 
+        /// <summary>Common names a headless Chromium/Chrome binary is installed under across
+        /// Linux distros (in rough preference order) plus the Windows executable name, checked
+        /// via PATH resolution below. No PDF library is bundled - the existing XSL-rendered HTML
+        /// sheet (<see cref="RenderSheet(CharacterDocument,string)"/>) is fed straight into the
+        /// system browser's own "--headless --print-to-pdf" mode, avoiding both a large bundled
+        /// rendering engine and any PDF-library licensing question.</summary>
+        private static readonly string[] s_astrHeadlessBrowserNames =
+        {
+            "chromium", "chromium-browser", "google-chrome", "google-chrome-stable",
+            "microsoft-edge", "microsoft-edge-stable", "chrome",
+        };
+
+        /// <summary>Locates a system-installed Chromium/Chrome-family browser on PATH, or null if
+        /// none of <see cref="s_astrHeadlessBrowserNames"/> resolves. Uses `command -v` on
+        /// POSIX platforms (Linux/macOS) and `where` on Windows - both no-op quickly if the name
+        /// isn't found, unlike actually spawning each candidate to see if it errors.</summary>
+        public static string? FindHeadlessBrowserExecutable()
+        {
+            string strLookupCommand = OperatingSystem.IsWindows() ? "where" : "command";
+            foreach (string strName in s_astrHeadlessBrowserNames)
+            {
+                try
+                {
+                    var psi = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = OperatingSystem.IsWindows() ? "where" : "/bin/sh",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                    };
+                    if (OperatingSystem.IsWindows())
+                        psi.ArgumentList.Add(strName);
+                    else
+                    {
+                        psi.ArgumentList.Add("-c");
+                        psi.ArgumentList.Add($"command -v {strName}");
+                    }
+
+                    using var proc = System.Diagnostics.Process.Start(psi);
+                    if (proc == null)
+                        continue;
+                    string strOutput = proc.StandardOutput.ReadToEnd();
+                    proc.WaitForExit();
+                    if (proc.ExitCode == 0)
+                    {
+                        string strPath = strOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(strPath))
+                            return strPath;
+                    }
+                }
+                catch
+                {
+                    // Candidate not resolvable this way on this platform - try the next name.
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Renders a character sheet to PDF by writing the existing XSL-generated HTML
+        /// (<see cref="RenderSheet(CharacterDocument,string)"/>) to a temp file and invoking a
+        /// system headless Chromium/Chrome browser's own "print to PDF" mode on it - the browser
+        /// does the actual HTML/CSS layout and pagination, so this doesn't need to reimplement
+        /// any of that. Throws <see cref="InvalidOperationException"/> if no such browser is
+        /// installed (see <see cref="FindHeadlessBrowserExecutable"/>).</summary>
+        public static void RenderSheetToPdf(CharacterDocument character, string strSheetFileName, string strOutputPdfPath) =>
+            RenderSheetToPdf(new[] { character }, strSheetFileName, strOutputPdfPath);
+
+        /// <summary>Same as <see cref="RenderSheetToPdf(CharacterDocument,string,string)"/> but
+        /// for several characters through one combined sheet, mirroring
+        /// <see cref="RenderSheet(IEnumerable{CharacterDocument},string)"/>.</summary>
+        public static void RenderSheetToPdf(IEnumerable<CharacterDocument> characters, string strSheetFileName, string strOutputPdfPath)
+        {
+            string? strBrowserPath = FindHeadlessBrowserExecutable();
+            if (strBrowserPath == null)
+            {
+                throw new InvalidOperationException(
+                    "No headless Chromium/Chrome-family browser (chromium, google-chrome, microsoft-edge, ...) " +
+                    "was found on PATH. Install one to enable PDF export.");
+            }
+
+            string strHtml = RenderSheet(characters, strSheetFileName);
+            string strTempHtmlPath = Path.Combine(Path.GetTempPath(), $"chummer-sheet-{Guid.NewGuid():N}.html");
+            try
+            {
+                File.WriteAllText(strTempHtmlPath, strHtml, Encoding.UTF8);
+
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = strBrowserPath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                };
+                psi.ArgumentList.Add("--headless");
+                psi.ArgumentList.Add("--disable-gpu");
+                psi.ArgumentList.Add($"--print-to-pdf={strOutputPdfPath}");
+                psi.ArgumentList.Add("--no-pdf-header-footer");
+                psi.ArgumentList.Add(new Uri(strTempHtmlPath).AbsoluteUri);
+
+                using System.Diagnostics.Process? proc = System.Diagnostics.Process.Start(psi);
+                if (proc == null)
+                    throw new InvalidOperationException($"Failed to start '{strBrowserPath}' for PDF export.");
+                string strStdErr = proc.StandardError.ReadToEnd();
+                proc.WaitForExit();
+                if (proc.ExitCode != 0 || !File.Exists(strOutputPdfPath))
+                {
+                    throw new InvalidOperationException(
+                        $"PDF export via '{strBrowserPath}' failed (exit code {proc.ExitCode}). {strStdErr}");
+                }
+            }
+            finally
+            {
+                try { File.Delete(strTempHtmlPath); } catch { /* best-effort cleanup */ }
+            }
+        }
+
         private static XmlElement AddEl(XmlDocument doc, XmlElement parent, string name, string value = "")
         {
             XmlElement el = doc.CreateElement(name);

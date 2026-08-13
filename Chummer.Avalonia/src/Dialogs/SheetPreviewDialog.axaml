@@ -11,9 +11,8 @@
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
             <TextBlock Text="Vorlage:" VerticalAlignment="Center" />
             <ComboBox Name="SheetSelector" Width="220" SelectionChanged="OnSheetSelectionChanged" />
-            <Button Content="Drucken" IsEnabled="False"
-                    ToolTip.Tip="Kein Druck-Backend verfügbar - siehe FEATURE_CHECKLIST.md." />
             <Button Content="Als HTML exportieren" Click="OnExportHtmlClick" />
+            <Button Content="Als PDF exportieren" Click="OnExportPdfClick" />
             <Button Content="Schließen" Click="OnClose" />
         </StackPanel>
         <Border BorderBrush="#D0D0D0" BorderThickness="1">
