@@ -1090,6 +1090,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ArmorDegradation_AdjustsRatingsOnlyWhenHouseRuleIsEnabled()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "3", "0", "100", "0", "SR4", "326");
+
+        Assert.False(character.AdjustArmorDegradation("Leather Jacket", "Clothing", 1, 0));
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ArmorDegradation = true });
+        Assert.True(character.AdjustArmorDegradation("Leather Jacket", "Clothing", 1, 2));
+        CharacterTreeItemData damaged = Assert.Single(character.Armor);
+        Assert.Equal("1", damaged.Ballistic);
+        Assert.Equal("1", damaged.Impact);
+
+        Assert.True(character.AdjustArmorDegradation("Leather Jacket", "Clothing", -10, -10));
+        CharacterTreeItemData repaired = Assert.Single(character.Armor);
+        Assert.Equal("2", repaired.Ballistic);
+        Assert.Equal("3", repaired.Impact);
+    }
+
+    [Fact]
     public void AddArmorMod_AppliesItsRulesDataBonus()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

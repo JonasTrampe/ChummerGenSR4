@@ -39,6 +39,10 @@
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
                         <Button Content="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
                         <Button Content="{loc:Loc UI_DeleteMod}" Click="OnDeleteArmorModClick" />
+                        <Button Content="B−" Click="OnArmorBallisticDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                        <Button Content="B+" Click="OnArmorBallisticRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                        <Button Content="I−" Click="OnArmorImpactDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                        <Button Content="I+" Click="OnArmorImpactRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
                         <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"

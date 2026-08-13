@@ -105,6 +105,8 @@ public sealed class GearSectionViewModel : ViewModelBase
     private TreeNodeViewModel? _selectedArmor;
     private string _strSelectedArmorSet = NoSetLabel;
     private bool _blnIsLoadingArmorSet;
+    private bool _blnArmorDegradationEnabled;
+    public bool ArmorDegradationEnabled { get => _blnArmorDegradationEnabled; private set => SetField(ref _blnArmorDegradationEnabled, value); }
     public TreeNodeViewModel? SelectedArmor
     {
         get => _selectedArmor;
@@ -186,6 +188,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     public void LoadCharacter(CharacterDocument character)
     {
         _character = character;
+        ArmorDegradationEnabled = character.ArmorDegradationEnabled;
         _lstAllGear = character.Gear.ToList();
         ApplyGearFilter();
 

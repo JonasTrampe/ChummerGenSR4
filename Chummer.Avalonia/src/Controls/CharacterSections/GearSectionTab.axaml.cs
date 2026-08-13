@@ -418,6 +418,19 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnArmorBallisticDamageClick(object? sender, RoutedEventArgs e) => AdjustSelectedArmorDegradation(1, 0);
+    private void OnArmorBallisticRepairClick(object? sender, RoutedEventArgs e) => AdjustSelectedArmorDegradation(-1, 0);
+    private void OnArmorImpactDamageClick(object? sender, RoutedEventArgs e) => AdjustSelectedArmorDegradation(0, 1);
+    private void OnArmorImpactRepairClick(object? sender, RoutedEventArgs e) => AdjustSelectedArmorDegradation(0, -1);
+
+    private void AdjustSelectedArmorDegradation(int intBallisticDelta, int intImpactDelta)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { Category: not "Armor set" } armor)
+            return;
+        if (_character.AdjustArmorDegradation(armor.SourceName, armor.Category, intBallisticDelta, intImpactDelta))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddArmorSetClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)

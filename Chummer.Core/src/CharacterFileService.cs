@@ -313,6 +313,9 @@ namespace Chummer.Core
         /// <summary>"Karma" or "BP" - which build method this character was created with.</summary>
         public string BuildMethod => GetValue("/character/buildmethod", "Karma");
 
+        /// <summary>Whether the AR 44 armor-degradation controls are enabled for this character.</summary>
+        public bool ArmorDegradationEnabled => GetCharacterOptions().ArmorDegradation;
+
         /// <summary>Remaining Build Points, only meaningful when <see cref="BuildMethod"/> is "BP".</summary>
         public string Bp
         {
@@ -3694,6 +3697,8 @@ namespace Chummer.Core
             AppendElement(objArmor, "page", strPage);
             AppendElement(objArmor, "armorname", string.Empty);
             AppendElement(objArmor, "equipped", "True");
+            AppendElement(objArmor, "ballisticdamage", "0");
+            AppendElement(objArmor, "impactdamage", "0");
             objArmor.AppendChild(Document.CreateElement("armormods"));
             objArmor.AppendChild(Document.CreateElement("gears"));
             objArmors.AppendChild(objArmor);
@@ -3849,6 +3854,32 @@ namespace Chummer.Core
             }
 
             return false;
+        }
+
+        /// <summary>Applies or repairs AR 44 armor degradation. Positive deltas add damage and
+        /// lower the displayed ballistic/impact rating; negative deltas repair it. The damage is
+        /// clamped to the armor's current base rating and is unavailable unless the house rule is on.</summary>
+        public bool AdjustArmorDegradation(string strName, string strCategory, int intBallisticDelta, int intImpactDelta)
+        {
+            if (!ArmorDegradationEnabled)
+                return false;
+            XmlNode? objArmor = FindArmorNode(strName, strCategory);
+            if (objArmor == null)
+                return false;
+            int intBallisticMax = Math.Max(0, ParseInteger(GetValue(objArmor, "b", "0"))
+                + (objArmor.SelectNodes("armormods/armormod")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
+                .Where(m => GetValue(m, "equipped", "True") == "True").Sum(m => ParseInteger(GetValue(m, "b", "0"))));
+            int intImpactMax = Math.Max(0, ParseInteger(GetValue(objArmor, "i", "0"))
+                + (objArmor.SelectNodes("armormods/armormod")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
+                .Where(m => GetValue(m, "equipped", "True") == "True").Sum(m => ParseInteger(GetValue(m, "i", "0"))));
+            int intBallistic = Math.Clamp(ParseInteger(GetValue(objArmor, "ballisticdamage", "0")) + intBallisticDelta,
+                0, intBallisticMax);
+            int intImpact = Math.Clamp(ParseInteger(GetValue(objArmor, "impactdamage", "0")) + intImpactDelta,
+                0, intImpactMax);
+            SetChildValue(objArmor, "ballisticdamage", intBallistic.ToString(CultureInfo.InvariantCulture));
+            SetChildValue(objArmor, "impactdamage", intImpact.ToString(CultureInfo.InvariantCulture));
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Adds an Armor Modification to a root-level Armor item, matched by name+category
@@ -7380,7 +7411,12 @@ namespace Chummer.Core
             {
                 var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
                 objArmor.SetArmorId(intArmorId++);
-                objArmor.SetArmorRatings(GetValue(objNode, "b", "0"), GetValue(objNode, "i", "0"));
+                int intBallistic = ParseInteger(GetValue(objNode, "b", "0"))
+                    - ParseInteger(GetValue(objNode, "ballisticdamage", "0"));
+                int intImpact = ParseInteger(GetValue(objNode, "i", "0"))
+                    - ParseInteger(GetValue(objNode, "impactdamage", "0"));
+                objArmor.SetArmorRatings(intBallistic.ToString(CultureInfo.InvariantCulture),
+                    intImpact.ToString(CultureInfo.InvariantCulture));
                 CharacterArmorCapacityData objCapacity = ComputeArmorCapacity(objNode);
                 if (objCapacity.Total > 0)
                     objArmor.SetCapacityDetails(objCapacity.Total.ToString(CultureInfo.InvariantCulture),
