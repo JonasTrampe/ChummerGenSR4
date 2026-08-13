@@ -35,6 +35,8 @@
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" />
+                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameArmorClick" />
+                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditArmorNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
                         <Button Content="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
@@ -62,7 +64,7 @@
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                         <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" Width="90" />
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedArmor.Name, TargetNullValue=–}" FontWeight="SemiBold" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedArmor.DisplayName, TargetNullValue=–}" FontWeight="SemiBold" />
                         <TextBlock Grid.Row="1" Text="{loc:Loc Label_Category}" Width="90" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedArmor.Category, TargetNullValue=–}" />
                         <TextBlock Grid.Row="2" Text="{loc:Loc UI_BallisticImpactColon}" Width="90" />
@@ -78,6 +80,11 @@
                                    IsVisible="{Binding SelectedArmor.HasCapacity}" />
                         <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedArmor.CapacityDisplay, TargetNullValue=–}"
                                    IsVisible="{Binding SelectedArmor.HasCapacity}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Text="{loc:Loc Tab_Notes}" Width="90" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedArmor.Notes, TargetNullValue=–}"
+                                   TextWrapping="Wrap" MaxHeight="72" />
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
                         <TextBlock Text="{loc:Loc UI_CostAvailColon}" Width="90" />

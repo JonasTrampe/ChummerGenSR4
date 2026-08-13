@@ -430,6 +430,30 @@ public partial class GearSectionTab : UserControl
         }
     }
 
+    private async void OnRenameArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { ArmorId: >= 0 } armor
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new TextSelectionDialog("Name für „" + armor.Name + "“:", armor.CustomName,
+            blnAllowEmpty: true);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.SetArmorCustomName(armor.ArmorId, dialog.EnteredText))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditArmorNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { ArmorId: >= 0 } armor
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = armor.Notes };
+        if (await dialog.ShowDialog<bool>(window) && _character.SetArmorNotes(armor.ArmorId, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnDeleteArmorClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedArmor == null || TopLevel.GetTopLevel(this) is not Window window)

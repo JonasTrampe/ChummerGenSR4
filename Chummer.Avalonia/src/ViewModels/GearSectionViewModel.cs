@@ -130,7 +130,7 @@ public sealed class GearSectionViewModel : ViewModelBase
         {
             if (!SetField(ref _strSelectedArmorSet, value) || _blnIsLoadingArmorSet || _character == null
                 || SelectedArmor is not { Category: not "Armor set" } armor) return;
-            _character.SetArmorSet(armor.SourceName, armor.Category, value == NoSetLabel ? string.Empty : value);
+            _character.SetArmorSet(armor.ArmorId, value == NoSetLabel ? string.Empty : value);
             LoadCharacter(_character);
         }
     }

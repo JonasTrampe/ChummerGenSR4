@@ -4003,6 +4003,7 @@ namespace Chummer.Core
             AppendElement(objArmor, "source", strSource);
             AppendElement(objArmor, "page", strPage);
             AppendElement(objArmor, "armorname", string.Empty);
+            AppendElement(objArmor, "armorset", string.Empty);
             AppendElement(objArmor, "equipped", "True");
             AppendElement(objArmor, "ballisticdamage", "0");
             AppendElement(objArmor, "impactdamage", "0");
@@ -4037,26 +4038,25 @@ namespace Chummer.Core
 
         /// <summary>Assigns a root-level armor item to a bundle, or to the ungrouped root when
         /// <paramref name="strSetName"/> is empty.</summary>
-        public bool SetArmorSet(string strName, string strCategory, string strSetName)
+        public bool SetArmorSet(int intArmorId, string strSetName)
         {
             strSetName = strSetName.Trim();
             if (!string.IsNullOrEmpty(strSetName) && !ArmorSets.Contains(strSetName, StringComparer.Ordinal))
                 return false;
-            XmlNodeList? objNodes = Document.SelectNodes("/character/armors/armor");
-            if (objNodes == null)
+            XmlNode? objArmor = GetArmorNodeById(intArmorId);
+            if (objArmor == null || string.Equals(GetArmorSetName(objArmor), strSetName, StringComparison.Ordinal))
                 return false;
-            foreach (XmlNode objArmor in objNodes)
-            {
-                if (!string.Equals(GetValue(objArmor, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
-                    || !string.Equals(GetValue(objArmor, "category", string.Empty), strCategory, StringComparison.Ordinal))
-                    continue;
-                if (string.Equals(GetValue(objArmor, "armorname", string.Empty), strSetName, StringComparison.Ordinal))
-                    return false;
-                SetChildValue(objArmor, "armorname", strSetName);
-                Changed?.Invoke();
-                return true;
-            }
-            return false;
+
+            // Earlier Avalonia builds used armorname for grouping. Preserve such old saves on
+            // read, but migrate the assignment out before writing any new set choice so the true
+            // legacy armorname field can safely hold a player label again.
+            string strLegacySet = GetValue(objArmor, "armorname", string.Empty);
+            if (string.IsNullOrEmpty(GetValue(objArmor, "armorset", string.Empty))
+                && ArmorSets.Contains(strLegacySet, StringComparer.Ordinal))
+                SetChildValue(objArmor, "armorname", string.Empty);
+            SetChildValue(objArmor, "armorset", strSetName);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Moves a root armor item immediately before another one. The operation uses
@@ -4088,7 +4088,11 @@ namespace Chummer.Core
             XmlNodeList? objArmor = Document.SelectNodes("/character/armors/armor");
             if (objArmor != null)
                 foreach (XmlNode objNode in objArmor)
-                    if (string.Equals(GetValue(objNode, "armorname", string.Empty), strName, StringComparison.Ordinal))
+                    if (string.Equals(GetValue(objNode, "armorset", string.Empty), strName, StringComparison.Ordinal))
+                        SetChildValue(objNode, "armorset", string.Empty);
+                    else if (string.IsNullOrEmpty(GetValue(objNode, "armorset", string.Empty))
+                        && string.Equals(GetValue(objNode, "armorname", string.Empty), strName, StringComparison.Ordinal))
+                        // Compatibility cleanup for port saves written before <armorset> existed.
                         SetChildValue(objNode, "armorname", string.Empty);
             Changed?.Invoke();
             return true;
@@ -4359,6 +4363,37 @@ namespace Chummer.Core
                 return null;
             XmlNodeList? objNodes = Document.SelectNodes("/character/armors/armor");
             return objNodes != null && intArmorId < objNodes.Count ? objNodes[intArmorId] : null;
+        }
+
+        private string GetArmorSetName(XmlNode objArmor)
+        {
+            string strSet = GetValue(objArmor, "armorset", string.Empty);
+            if (!string.IsNullOrEmpty(strSet))
+                return strSet;
+
+            // Compatibility with the initial Avalonia grouping implementation, which wrote the
+            // set into armorname. A real legacy custom name not present in armorbundles remains a
+            // custom name and is not accidentally treated as a group.
+            string strLegacyValue = GetValue(objArmor, "armorname", string.Empty);
+            return ArmorSets.Contains(strLegacyValue, StringComparer.Ordinal) ? strLegacyValue : string.Empty;
+        }
+
+        public bool SetArmorNotes(int intArmorId, string strNotes)
+        {
+            XmlNode? objArmor = GetArmorNodeById(intArmorId);
+            if (objArmor == null) return false;
+            SetChildValue(objArmor, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool SetArmorCustomName(int intArmorId, string strCustomName)
+        {
+            XmlNode? objArmor = GetArmorNodeById(intArmorId);
+            if (objArmor == null) return false;
+            SetChildValue(objArmor, "armorname", strCustomName?.Trim() ?? string.Empty);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Removes the first saved spell with the supplied name.</summary>
@@ -7789,7 +7824,12 @@ namespace Chummer.Core
                 if (objCapacity.Total > 0)
                     objArmor.SetCapacityDetails(objCapacity.Total.ToString(CultureInfo.InvariantCulture),
                         objCapacity.Remaining.ToString(CultureInfo.InvariantCulture));
-                string strSetName = GetValue(objNode, "armorname", string.Empty);
+                string strSetName = GetArmorSetName(objNode);
+                string strCustomName = GetValue(objNode, "armorname", string.Empty);
+                if (string.IsNullOrEmpty(GetValue(objNode, "armorset", string.Empty))
+                    && ArmorSets.Contains(strCustomName, StringComparer.Ordinal))
+                    strCustomName = string.Empty;
+                objArmor.SetCustomName(strCustomName);
                 objArmor.SetArmorSetName(strSetName);
                 if (string.IsNullOrWhiteSpace(strSetName))
                 {

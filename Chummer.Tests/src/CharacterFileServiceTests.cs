@@ -2608,10 +2608,11 @@ public class CharacterFileServiceTests
             + "<accessories><accessory><name>Smartlink</name></accessory></accessories>"
             + "<weaponmods><weaponmod><name>Gas Vent</name></weaponmod></weaponmods></weapon></weapons></character>");
 
-        Assert.Single(character.Armor);
-        Assert.Equal("Night Out", character.Armor[0].Name);
-        Assert.Single(character.Armor[0].Children);
-        Assert.Equal("Fire Resistance", character.Armor[0].Children[0].Children[0].Name);
+        CharacterTreeItemData armor = Assert.Single(character.Armor);
+        Assert.Equal("Jacket", armor.Name);
+        Assert.Equal("Night Out", armor.CustomName);
+        Assert.Single(armor.Children);
+        Assert.Equal("Fire Resistance", armor.Children[0].Name);
 
         Assert.Single(character.WeaponTrees);
         Assert.Equal("Pistol", character.WeaponTrees[0].Name);
@@ -4020,7 +4021,7 @@ public class CharacterFileServiceTests
 
         Assert.True(character.AddArmorSet("Einsatzanzug"));
         Assert.Contains("Einsatzanzug", character.ArmorSets);
-        Assert.True(character.SetArmorSet("Armor Jacket", "Armor", "Einsatzanzug"));
+        Assert.True(character.SetArmorSet(character.Armor.Single(a => a.Name == "Armor Jacket").ArmorId, "Einsatzanzug"));
         CharacterTreeItemData set = Assert.Single(character.Armor);
         Assert.Equal("Einsatzanzug", set.Name);
         Assert.Equal("Armor set", set.Category);
@@ -4030,6 +4031,29 @@ public class CharacterFileServiceTests
         CharacterTreeItemData armor = Assert.Single(character.Armor);
         Assert.Equal("Armor Jacket", armor.Name);
         Assert.Empty(character.ArmorSets);
+    }
+
+    [Fact]
+    public void ArmorMetadata_SeparatesLegacyCustomNameFromArmorSetAndMigratesOldPortAssignment()
+    {
+        CharacterDocument character = LoadXml("<character><armorbundles><armorbundle>Old Set</armorbundle><armorbundle>New Set</armorbundle></armorbundles><armors>"
+            + "<armor><name>Armor Jacket</name><category>Armor</category><armorname>Old Set</armorname></armor>"
+            + "<armor><name>Helmet</name><category>Armor</category><armorname>Personal label</armorname></armor>"
+            + "</armors></character>");
+
+        CharacterTreeItemData migrated = Assert.Single(character.Armor.Single(a => a.Name == "Old Set").Children);
+        Assert.Equal(string.Empty, migrated.CustomName);
+        CharacterTreeItemData labelled = character.Armor.Single(a => a.Name == "Helmet");
+        Assert.Equal("Personal label", labelled.CustomName);
+
+        Assert.True(character.SetArmorSet(migrated.ArmorId, "New Set"));
+        Assert.True(character.SetArmorNotes(migrated.ArmorId, "Repair before next run."));
+        Assert.True(character.SetArmorCustomName(migrated.ArmorId, "Covert jacket"));
+
+        CharacterTreeItemData moved = Assert.Single(character.Armor.Single(a => a.Name == "New Set").Children);
+        Assert.Equal("Covert jacket", moved.CustomName);
+        Assert.Equal("Repair before next run.", moved.Notes);
+        Assert.Equal("Armor Jacket", moved.Name);
     }
 
     [Fact]
