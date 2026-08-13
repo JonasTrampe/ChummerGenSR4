@@ -1007,6 +1007,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CyberwareNotes_PersistForTheSelectedNestedTreeItem()
+    {
+        CharacterDocument character = LoadXml("<character><cyberwares>"
+            + "<cyberware><name>Cybereyes</name><category>Cyberlimb</category><improvementsource>Cyberware</improvementsource><children>"
+            + "<cyberware><name>Vision Enhancement</name><category>Eyeware</category><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</children></cyberware></cyberwares></character>");
+        int intChildId = Assert.Single(Assert.Single(character.Cyberware).Children).CyberwareId;
+
+        Assert.True(character.SetCyberwareNotes(intChildId, "Low-light replacement planned"));
+        Assert.Equal("Low-light replacement planned", Assert.Single(character.Cyberware).Children.Single().Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Low-light replacement planned", Assert.Single(reloaded.Cyberware).Children.Single().Notes);
+    }
+
+    [Fact]
     public void MoveCyberware_RejectsMovingAnItemIntoItsOwnSubtree()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

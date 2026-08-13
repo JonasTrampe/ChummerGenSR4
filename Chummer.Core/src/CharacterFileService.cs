@@ -4970,6 +4970,19 @@ namespace Chummer.Core
             return null;
         }
 
+        /// <summary>Updates notes for a Cyberware/Bioware tree item. The depth-first ID is shared
+        /// by the two filtered trees, so nested components remain addressable after save/reload.</summary>
+        public bool SetCyberwareNotes(int intCyberwareId, string strNotes)
+        {
+            XmlNode? objNode = GetCyberwareNodeById(intCyberwareId);
+            if (objNode == null)
+                return false;
+
+            SetChildValue(objNode, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         private XmlNode? FindCyberwareNodeById(XmlNode objNode, int intTargetId, ref int intCurrentId)
         {
             if (intCurrentId == intTargetId) return objNode;

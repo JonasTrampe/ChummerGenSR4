@@ -10,6 +10,7 @@ using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using Chummer.NewUI.Dialogs;
 using CyberwareDialog = Chummer.NewUI.Dialogs.CyberwareDialog;
+using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
 using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
 using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
 
@@ -122,6 +123,18 @@ public partial class CyberwareSectionTab : UserControl
                 blnBioware ? "Message_DeleteBioware" : "Message_DeleteCyberware"))
             return;
         if (_character.RemoveCyberware(node.SourceName, node.Category, node.Rating, blnBioware))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedNode is not { CyberwareId: >= 0 } node
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = node.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetCyberwareNotes(node.CyberwareId, dialog.Notes))
             ViewModel.LoadCharacter(_character);
     }
 
