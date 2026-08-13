@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Xml;
 using Avalonia;
@@ -23,12 +24,14 @@ public partial class MainWindow : Window
 {
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
     private DiceRollerDialog? _singleDiceRoller;
+    private bool _allowWindowClose;
     private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
 
     public MainWindow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
         DataContext = new MainWindowViewModel();
+        Closing += OnWindowClosing;
         CheckForUpdateOnStartupAsync();
     }
 
@@ -108,12 +111,13 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
+    private async void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { DataContext: OpenCharacterTab tab })
             return;
 
-        ViewModel.CloseCharacter(tab);
+        if (await ConfirmCloseTabAsync(tab))
+            ViewModel.CloseCharacter(tab);
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
@@ -121,25 +125,62 @@ public partial class MainWindow : Window
         if (ViewModel.SelectedOpenCharacter is not { } tab)
             return;
 
+        await SaveTabAsync(tab, forceSaveAs: false);
+    }
+
+    private async void OnSaveCharacterAsClick(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedOpenCharacter is not { } tab)
+            return;
+
+        await SaveTabAsync(tab, forceSaveAs: true);
+    }
+
+    private async System.Threading.Tasks.Task<bool> SaveTabAsync(OpenCharacterTab tab, bool forceSaveAs)
+    {
+        if (!forceSaveAs && !string.IsNullOrWhiteSpace(tab.SourcePath))
+        {
+            try
+            {
+                await using FileStream stream = File.Create(tab.SourcePath);
+                _characterFiles.Save(tab.Character, stream, Path.GetFileName(tab.SourcePath));
+                ViewModel.MarkSaved(tab, tab.SourcePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ViewModel.ReportError("Fehler beim Speichern von " + tab.SourcePath + ": " + ex.Message);
+                return false;
+            }
+        }
+
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
         if (storage is null)
-            return;
+            return false;
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = T("UI_SaveCharacterFileDialogTitle"),
             DefaultExtension = "chum",
-            SuggestedFileName = tab.Character.Name,
+            SuggestedFileName = string.IsNullOrWhiteSpace(tab.Character.Name) ? "character" : tab.Character.Name,
             FileTypeChoices = [new FilePickerFileType("Chummer characters") { Patterns = ["*.chum"] }],
         });
 
-        if (file is not null)
+        if (file is null)
+            return false;
+
+        try
         {
             await using var stream = await file.OpenWriteAsync();
             _characterFiles.Save(tab.Character, stream, file.Name);
             string? strLocalPath = file.TryGetLocalPath();
-            if (!string.IsNullOrWhiteSpace(strLocalPath))
-                ViewModel.RememberSavedPath(strLocalPath);
+            ViewModel.MarkSaved(tab, strLocalPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError("Fehler beim Speichern von " + file.Name + ": " + ex.Message);
+            return false;
         }
     }
 
@@ -513,6 +554,34 @@ public partial class MainWindow : Window
     private System.Threading.Tasks.Task ShowMessageDialogAsync(string strTitle, string strMessage)
     {
         return ShowChoiceDialogAsync(strTitle, strMessage, T("String_OK"));
+    }
+
+    private async System.Threading.Tasks.Task<bool> ConfirmCloseTabAsync(OpenCharacterTab tab)
+    {
+        if (!tab.IsDirty)
+            return true;
+
+        int intChoice = await ShowChoiceDialogAsync(
+            T("MessageTitle_UnsavedChanges"),
+            string.Format(T("Message_UnsavedChanges"), tab.Title),
+            T("Menu_FileSave"), T("String_No"), T("String_Cancel"));
+        if (intChoice == 0)
+            return await SaveTabAsync(tab, forceSaveAs: false);
+        return intChoice == 1;
+    }
+
+    private async void OnWindowClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (_allowWindowClose)
+            return;
+
+        e.Cancel = true;
+        foreach (OpenCharacterTab tab in ViewModel.OpenCharacters.ToArray())
+            if (!await ConfirmCloseTabAsync(tab))
+                return;
+
+        _allowWindowClose = true;
+        Close();
     }
 
     private static string T(string strKey)

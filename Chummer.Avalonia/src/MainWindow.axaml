@@ -40,6 +40,7 @@
                               IsVisible="{Binding HasNoRecentCharacters}" />
                 </MenuItem>
                 <MenuItem Header="{loc:Loc Menu_FileSave}" Click="OnSaveCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_FileSaveAs}" Click="OnSaveCharacterAsClick" />
                 <Separator />
                 <MenuItem Header="{loc:Loc Menu_FilePrint}" Click="OnPrintClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_PrintMultiple}" Click="OnPrintMultipleClick" />

@@ -142,6 +142,12 @@ public sealed class MainWindowViewModel : ViewModelBase
             GlobalOptions.Instance.AddToMruList(filePath);
     }
 
+    public void MarkSaved(OpenCharacterTab tab, string? filePath)
+    {
+        tab.SetSavedPath(filePath);
+        RememberSavedPath(filePath ?? string.Empty);
+    }
+
     public void RemoveRecentCharacter(string filePath, bool isSticky)
     {
         if (string.IsNullOrWhiteSpace(filePath))
