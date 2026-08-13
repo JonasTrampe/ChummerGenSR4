@@ -374,8 +374,13 @@ what's ported, not previously tracked anywhere in this file)
   future weapon type needing a per-item Skill override (not just Natural Weapons) is now
   supported. New `NaturalWeaponDialog` (Name/Skill/DV base+mod+type/AP/Reach) wired into a
   "Natürliche Waffe erstellen" button on the Waffen tab next to "Waffe hinzufügen".
-- [ ] `frmPrintMultiple` — batch-loads several `.chum` files and renders them together into one
-  combined sheet. `SheetPreviewDialog` only handles one character at a time. Niche (GM tooling).
+- [x] `frmPrintMultiple` — done. `CharacterSheetExporter.BuildExportXml`/`RenderSheet` gained
+  `IEnumerable<CharacterDocument>` overloads (the single-character ones now just wrap `new[]
+  { character }`) that build one combined export document with a `<character>` element per
+  character - the same shape either way, so "Game Master Summary.xsl" (legacy's own default sheet
+  for this tool) iterates `/characters/character` regardless of count. New `PrintMultipleDialog`
+  (multi-file picker, add/remove list, progress bar while loading, HTML export) wired into a new
+  "Mehrere Charaktere drucken..." menu item next to "Drucken" in the Datei menu.
 - [ ] `data/export/Squad Manager.xsl` — a second XSLT export pipeline separate from
   `data/sheets/` (`frmExport.cs`), currently completely unreachable from any UI in this port.
   Low value (one template) but literally dead data right now.

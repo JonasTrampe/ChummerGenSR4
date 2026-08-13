@@ -41,6 +41,7 @@
                 <MenuItem Header="_Speichern" Click="OnSaveCharacterClick" />
                 <Separator />
                 <MenuItem Header="_Drucken" Click="OnPrintClick" />
+                <MenuItem Header="_Mehrere Charaktere drucken..." Click="OnPrintMultipleClick" />
                 <Separator />
                 <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
             </MenuItem>

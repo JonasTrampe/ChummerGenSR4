@@ -20,32 +20,43 @@ namespace Chummer.Core
     /// </summary>
     public static class CharacterSheetExporter
     {
-        public static XmlDocument BuildExportXml(CharacterDocument character)
+        public static XmlDocument BuildExportXml(CharacterDocument character) =>
+            BuildExportXml(new[] { character });
+
+        /// <summary>Ported from frmPrintMultiple.cs's cmdPrint_Click: builds one combined export
+        /// document with a &lt;character&gt; element per character, in the same shape a
+        /// single-character export uses - "Game Master Summary.xsl" (and any other sheet) can
+        /// iterate /characters/character regardless of whether there's one or several.</summary>
+        public static XmlDocument BuildExportXml(IEnumerable<CharacterDocument> characters)
         {
             var doc = new XmlDocument();
             XmlElement root = doc.CreateElement("characters");
             doc.AppendChild(root);
-            XmlElement charEl = doc.CreateElement("character");
-            root.AppendChild(charEl);
 
-            AppendInfo(doc, charEl, character);
-            AppendAttributes(doc, charEl, character);
-            AppendDerived(doc, charEl, character);
-            AppendSkills(doc, charEl, character);
-            AppendContacts(doc, charEl, character);
-            AppendQualities(doc, charEl, character);
-            AppendSpells(doc, charEl, character);
-            AppendPowers(doc, charEl, character);
-            AppendComplexForms(doc, charEl, character);
-            AppendCritterPowers(doc, charEl, character);
-            AppendMartialArts(doc, charEl, character);
-            AppendLifestyles(doc, charEl, character);
-            AppendCyberware(doc, charEl, character);
-            AppendGear(doc, charEl, character);
-            AppendArmor(doc, charEl, character);
-            AppendWeapons(doc, charEl, character);
-            AppendVehicles(doc, charEl, character);
-            AppendExpenses(doc, charEl, character);
+            foreach (CharacterDocument character in characters)
+            {
+                XmlElement charEl = doc.CreateElement("character");
+                root.AppendChild(charEl);
+
+                AppendInfo(doc, charEl, character);
+                AppendAttributes(doc, charEl, character);
+                AppendDerived(doc, charEl, character);
+                AppendSkills(doc, charEl, character);
+                AppendContacts(doc, charEl, character);
+                AppendQualities(doc, charEl, character);
+                AppendSpells(doc, charEl, character);
+                AppendPowers(doc, charEl, character);
+                AppendComplexForms(doc, charEl, character);
+                AppendCritterPowers(doc, charEl, character);
+                AppendMartialArts(doc, charEl, character);
+                AppendLifestyles(doc, charEl, character);
+                AppendCyberware(doc, charEl, character);
+                AppendGear(doc, charEl, character);
+                AppendArmor(doc, charEl, character);
+                AppendWeapons(doc, charEl, character);
+                AppendVehicles(doc, charEl, character);
+                AppendExpenses(doc, charEl, character);
+            }
 
             return doc;
         }
@@ -55,7 +66,13 @@ namespace Chummer.Core
         /// System.Xml.Xsl.XslCompiledTransform is a first-party .NET API and works cross-platform,
         /// unlike the legacy app's reliance on a Windows-only WebBrowser control to render the
         /// result - this returns the raw HTML string for a host UI to display however it likes.</summary>
-        public static string RenderSheet(CharacterDocument character, string strSheetFileName)
+        public static string RenderSheet(CharacterDocument character, string strSheetFileName) =>
+            RenderSheet(new[] { character }, strSheetFileName);
+
+        /// <summary>Same as <see cref="RenderSheet(CharacterDocument,string)"/> but for several
+        /// characters at once through one combined export document - ported from
+        /// frmPrintMultiple.cs, whose own default sheet is "Game Master Summary.xsl".</summary>
+        public static string RenderSheet(IEnumerable<CharacterDocument> characters, string strSheetFileName)
         {
             string strSheetPath = Path.Combine(AppContext.BaseDirectory, "data", "sheets", strSheetFileName);
             if (!File.Exists(strSheetPath))
@@ -68,7 +85,7 @@ namespace Chummer.Core
             var transform = new XslCompiledTransform();
             transform.Load(strSheetPath, XsltSettings.TrustedXslt, new XmlUrlResolver());
 
-            XmlDocument exportXml = BuildExportXml(character);
+            XmlDocument exportXml = BuildExportXml(characters);
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             using (var xmlWriter = XmlWriter.Create(writer, transform.OutputSettings))

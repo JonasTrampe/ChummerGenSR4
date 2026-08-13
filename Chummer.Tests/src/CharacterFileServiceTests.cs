@@ -1627,6 +1627,20 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_RendersMultipleCharactersThroughOneCombinedGameMasterSheet()
+    {
+        CharacterDocument alice = LoadXml("<character><name>Alice</name></character>");
+        CharacterDocument bob = LoadXml("<character><name>Bob</name></character>");
+
+        XmlDocument exportXml = CharacterSheetExporter.BuildExportXml(new[] { alice, bob });
+        Assert.Equal(2, exportXml.SelectNodes("/characters/character")!.Count);
+
+        string html = CharacterSheetExporter.RenderSheet(new[] { alice, bob }, "Game Master Summary.xsl");
+        Assert.Contains("Alice", html);
+        Assert.Contains("Bob", html);
+    }
+
+    [Fact]
     public void CharacterSheetExporter_ThrowsForAMissingSheetFile()
     {
         CharacterDocument character = LoadFixture();
