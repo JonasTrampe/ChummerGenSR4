@@ -5371,6 +5371,29 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterSpellData> Spells => ReadSpells();
 
+        /// <summary>Maximum Force a summoned Spirit/Sprite may have - ported from frmCareer.cs's/
+        /// frmCreate.cs's cmdAddSpirit_Click and DVTooltip's shared branch: a Mystic Adept normally
+        /// caps this at <see cref="MysticAdeptMagicianMagSplit"/> (the Magician-side share of MAG),
+        /// not the character's full MAG, unless the "Spirit Force based on total MAG" house rule
+        /// (<see cref="CharacterOptions.SpiritForceBasedOnTotalMag"/>) is enabled, in which case
+        /// full MAG applies regardless of the split - matching legacy's own escape hatch for tables
+        /// that don't want the RAW Mystic Adept split enforced here. Non-Mystic-Adept Magicians
+        /// (and Technomancers summoning Sprites via RES) always use their full linked attribute.
+        /// 0 if the character can't summon at all.</summary>
+        public int MaxSpiritForce
+        {
+            get
+            {
+                if (Technomancer)
+                    return GetAttributeInt("RES");
+                if (!Magician)
+                    return 0;
+                if (MysticAdept && !GetCharacterOptions().SpiritForceBasedOnTotalMag)
+                    return MysticAdeptMagicianMagSplit;
+                return GetAttributeInt("MAG");
+            }
+        }
+
         public IReadOnlyList<CharacterSpiritData> Spirits => ReadSpirits();
 
         /// <summary>Ported from frmCareer.cs's cmdAddSpirit_Click, simplified to the fields the

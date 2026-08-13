@@ -173,9 +173,15 @@ context on each.
   - No Commlink Response/System/Firewall/Signal *derived* calculation (these are raw persisted
     fields, not computed from a formula): blocks `CalculateCommlinkResponse`.
   - No weapon recoil-compensation calculation exists: blocks `RestrictRecoil`/`StrengthAffectsRecoil`.
-  - No Mystic Adept MAG-split (`MAGMagician`) ported: makes `SpiritForceBasedOnTotalMag` almost a
-    no-op even if wired (legacy's own two branches only differ for Mystic Adepts) - low value
-    until that split exists.
+  - ~~No Mystic Adept MAG-split ported~~ **corrected - this was stale, the split was already fully
+    ported** (`CharacterFileService.MysticAdeptAdeptMagSplit`/`MysticAdeptMagicianMagSplit`/
+    `SetMysticAdeptMagicianMagSplit`, persisted as `<magsplitadept>`/`<magsplitmagician>`, already
+    wired into `AdeptPowerPoints` and the `GeneralSectionTab` UI). What was still genuinely missing
+    was `SpiritForceBasedOnTotalMag` itself having zero consumers anywhere (legacy or ported) -
+    fixed now: added `CharacterFileService.MaxSpiritForce` (Mystic Adepts cap Spirit Force at
+    `MysticAdeptMagicianMagSplit` unless this house rule is on, then full MAG; pure Magicians
+    always use full MAG; Technomancers use RES; non-Awakened/non-Technomancer is 0), wired into
+    `SpiritDialog` (shows "(max. N)" next to the Force field, rejects a Force above the max).
   - No Technomancer-specific gear/Complex-Form eligibility gating (Autosofts/Commlink-use
     restrictions aren't enforced against Technomancer status anywhere): blocks
     `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`.

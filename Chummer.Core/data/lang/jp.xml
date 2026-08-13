@@ -7959,5 +7959,13 @@
 			<key>UI_ContactPointsUsedPrefix</key>
 			<text>使用済みコンタクトポイント: </text>
 		</string>
+		<string>
+			<key>UI_SpiritForceExceedsMaximum</key>
+			<text>フォースは{0}を超えることはできません。</text>
+		</string>
+		<string>
+			<key>UI_ServicesMustNotBeNegative</key>
+			<text>サービスの数は負の値にはできません。</text>
+		</string>
 	</strings>
 </chummer>

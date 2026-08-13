@@ -8013,5 +8013,13 @@ Stattdessen lokal gespeichert.</text>
 			<key>UI_ContactPointsUsedPrefix</key>
 			<text>Punkte für Kontakte: </text>
 		</string>
+		<string>
+			<key>UI_SpiritForceExceedsMaximum</key>
+			<text>Die Kraftstufe darf {0} nicht überschreiten.</text>
+		</string>
+		<string>
+			<key>UI_ServicesMustNotBeNegative</key>
+			<text>Die Anzahl Dienste darf nicht negativ sein.</text>
+		</string>
 	</strings>
 </chummer>

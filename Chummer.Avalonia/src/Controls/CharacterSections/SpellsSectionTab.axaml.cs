@@ -70,7 +70,7 @@ public partial class SpellsSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        var dialog = new SpiritDialog();
+        var dialog = new SpiritDialog(_character.MaxSpiritForce);
         bool? added = await dialog.ShowDialog<bool?>(window);
         if (added == true)
         {

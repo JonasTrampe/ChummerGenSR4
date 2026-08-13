@@ -3576,6 +3576,53 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MaxSpiritForce_PureMagician_UsesFullMag()
+    {
+        var character = LoadXml("<character><adept>False</adept><magician>True</magician><attributes>"
+            + AttributeXml("MAG", "5") + "</attributes></character>");
+
+        Assert.Equal(5, character.MaxSpiritForce);
+    }
+
+    [Fact]
+    public void MaxSpiritForce_MysticAdept_UsesMagicianMagSplitByDefault()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>True</magician>"
+            + "<magsplitadept>2</magsplitadept><magsplitmagician>4</magsplitmagician><attributes>"
+            + AttributeXml("MAG", "6") + "</attributes></character>");
+
+        Assert.Equal(4, character.MaxSpiritForce);
+    }
+
+    [Fact]
+    public void MaxSpiritForce_MysticAdept_UsesFullMagWhenHouseRuleEnabled()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>True</magician>"
+            + "<magsplitadept>2</magsplitadept><magsplitmagician>4</magsplitmagician><attributes>"
+            + AttributeXml("MAG", "6") + "</attributes></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { SpiritForceBasedOnTotalMag = true });
+
+        Assert.Equal(6, character.MaxSpiritForce);
+    }
+
+    [Fact]
+    public void MaxSpiritForce_Technomancer_UsesRes()
+    {
+        var character = LoadXml("<character><adept>False</adept><magician>False</magician><technomancer>True</technomancer><attributes>"
+            + AttributeXml("RES", "3") + "</attributes></character>");
+
+        Assert.Equal(3, character.MaxSpiritForce);
+    }
+
+    [Fact]
+    public void MaxSpiritForce_MundaneCharacter_IsZero()
+    {
+        var character = LoadXml("<character><adept>False</adept><magician>False</magician></character>");
+
+        Assert.Equal(0, character.MaxSpiritForce);
+    }
+
+    [Fact]
     public void AdeptPowerPoints_AddsAdeptPowerPointsImprovementBonus()
     {
         var character = LoadXml("<character><adept>True</adept><magician>False</magician><attributes>"

@@ -16,7 +16,7 @@
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="NameBox" Margin="0,8,0,0" />
         <TextBlock Grid.Row="2" Text="{loc:Loc UI_CritterTypeColon}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <TextBox Grid.Row="2" Grid.Column="1" x:Name="CritterNameBox" Margin="0,8,0,0" />
-        <TextBlock Grid.Row="3" Text="{loc:Loc Label_Power_PowerRating}" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="3" x:Name="ForceLabel" Text="{loc:Loc Label_Power_PowerRating}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <TextBox Grid.Row="3" Grid.Column="1" x:Name="ForceBox" Text="1" Margin="0,8,0,0" />
         <TextBlock Grid.Row="4" Text="{loc:Loc Label_Spirit_ServicesOwed}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <TextBox Grid.Row="4" Grid.Column="1" x:Name="ServicesBox" Text="0" Margin="0,8,0,0" />

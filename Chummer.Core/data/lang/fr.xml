@@ -7910,5 +7910,13 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<key>UI_ContactPointsUsedPrefix</key>
 			<text>Points de contacts utilisés : </text>
 		</string>
+		<string>
+			<key>UI_SpiritForceExceedsMaximum</key>
+			<text>La Force ne peut pas dépasser {0}.</text>
+		</string>
+		<string>
+			<key>UI_ServicesMustNotBeNegative</key>
+			<text>Le nombre de services ne doit pas être négatif.</text>
+		</string>
 	</strings>
 </chummer>

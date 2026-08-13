@@ -8058,5 +8058,13 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<key>UI_ContactPointsUsedPrefix</key>
 			<text>Contact points used: </text>
 		</string>
+		<string>
+			<key>UI_SpiritForceExceedsMaximum</key>
+			<text>The Force cannot exceed {0}.</text>
+		</string>
+		<string>
+			<key>UI_ServicesMustNotBeNegative</key>
+			<text>The number of services must not be negative.</text>
+		</string>
 	</strings>
 </chummer>
