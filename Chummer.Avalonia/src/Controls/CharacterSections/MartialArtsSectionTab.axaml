@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -15,7 +16,7 @@
             <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                 <Button Content="Kampfkunst hinzufügen" Click="OnAddMartialArtClick" />
                 <Button Content="Manöver hinzufügen" Click="OnAddManeuverClick" />
-                <Button Content="Löschen" Click="OnDeleteClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
@@ -37,7 +38,7 @@
                     </Button>
                 </Grid>
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <TextBlock Text="Quelle:" />
+                    <TextBlock Text="{loc:Loc Label_Source}" />
                     <controls:SourceLink SourcePage="{Binding SelectedItem.SourcePage}" />
                 </StackPanel>
             </StackPanel>

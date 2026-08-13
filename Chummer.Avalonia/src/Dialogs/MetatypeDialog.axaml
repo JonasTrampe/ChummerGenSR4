@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.MetatypeDialog"
@@ -30,33 +31,33 @@
 				<TextBlock Grid.Row="0" Text="{Binding SelectedMetatype.Name}" FontWeight="Bold" FontSize="14" />
 
 				<Grid Grid.Row="1" ColumnDefinitions="60,*,70,*" ColumnSpacing="8">
-					<TextBlock Grid.Column="0" Text="GP" FontWeight="Bold" />
+					<TextBlock Grid.Column="0" Text="{loc:Loc String_BP}" FontWeight="Bold" />
 					<TextBlock Grid.Column="1" Text="{Binding SelectedMetatype.Bp}" />
 				</Grid>
 
 				<Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4" ColumnSpacing="12">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="KON" FontWeight="Bold" />
-					<TextBlock Grid.Row="0" Grid.Column="1" Text="GES" FontWeight="Bold" />
-					<TextBlock Grid.Row="0" Grid.Column="2" Text="REA" FontWeight="Bold" />
-					<TextBlock Grid.Row="0" Grid.Column="3" Text="STR" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc String_AttributeBODShort}" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc String_AttributeAGIShort}" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Loc String_AttributeREAShort}" FontWeight="Bold" />
+					<TextBlock Grid.Row="0" Grid.Column="3" Text="{loc:Loc String_AttributeSTRShort}" FontWeight="Bold" />
 					<TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SelectedMetatype.BodRange}" />
 					<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMetatype.AgiRange}" />
 					<TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SelectedMetatype.ReaRange}" />
 					<TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SelectedMetatype.StrRange}" />
 
-					<TextBlock Grid.Row="2" Grid.Column="0" Text="CHA" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="2" Grid.Column="1" Text="INT" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="2" Grid.Column="2" Text="LOG" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="2" Grid.Column="3" Text="WIL" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc String_AttributeCHAShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Loc String_AttributeINTShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="2" Text="{loc:Loc String_AttributeLOGShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="2" Grid.Column="3" Text="{loc:Loc String_AttributeWILShort}" FontWeight="Bold" Margin="0,6,0,0" />
 					<TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding SelectedMetatype.ChaRange}" />
 					<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMetatype.IntRange}" />
 					<TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding SelectedMetatype.LogRange}" />
 					<TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding SelectedMetatype.WilRange}" />
 
-					<TextBlock Grid.Row="4" Grid.Column="0" Text="INI" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="4" Grid.Column="1" Text="EDG" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="4" Grid.Column="2" Text="MAG" FontWeight="Bold" Margin="0,6,0,0" />
-					<TextBlock Grid.Row="4" Grid.Column="3" Text="RES" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Loc String_AttributeINIShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="4" Grid.Column="1" Text="{loc:Loc String_AttributeEDGShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="4" Grid.Column="2" Text="{loc:Loc String_AttributeMAGShort}" FontWeight="Bold" Margin="0,6,0,0" />
+					<TextBlock Grid.Row="4" Grid.Column="3" Text="{loc:Loc String_AttributeRESShort}" FontWeight="Bold" Margin="0,6,0,0" />
 					<TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding SelectedMetatype.IniRange}" />
 					<TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedMetatype.EdgRange}" />
 					<TextBlock Grid.Row="5" Grid.Column="2" Text="{Binding SelectedMetatype.MagRange}" />
@@ -64,7 +65,7 @@
 				</Grid>
 
 				<StackPanel Grid.Row="3" Spacing="4">
-					<TextBlock Text="Metavariante:" />
+					<TextBlock Text="{loc:Loc Label_Metavariant}" />
 					<ComboBox Width="220"
 					          HorizontalAlignment="Left"
 					          ItemsSource="{Binding Metavariants}"
@@ -80,8 +81,8 @@
 					<TextBlock Text="Magie/Resonanz:" />
 					<ComboBox Width="220" HorizontalAlignment="Left" Name="MagicTypeBox" SelectedIndex="0">
 						<ComboBoxItem Content="Keine" Tag="None" />
-						<ComboBoxItem Content="Magier" Tag="Magician" />
-						<ComboBoxItem Content="Adept" Tag="Adept" />
+						<ComboBoxItem Content="{loc:Loc Label_Magician}" Tag="Magician" />
+						<ComboBoxItem Content="{loc:Loc Label_Adept}" Tag="Adept" />
 						<ComboBoxItem Content="Mystischer Adept" Tag="MysticAdept" />
 						<ComboBoxItem Content="Technomancer" Tag="Technomancer" />
 					</ComboBox>
@@ -90,8 +91,8 @@
 		</Grid>
 
 		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,12,0,0">
-			<Button Content="Abbruch" Width="80" Click="OnCancel" />
-			<Button Content="OK" Width="80" Click="OnOk" />
+			<Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+			<Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
 		</StackPanel>
 	</Grid>
 </Window>

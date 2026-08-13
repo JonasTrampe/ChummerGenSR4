@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.CharacterInfoSectionTab"
@@ -7,39 +8,39 @@
         <StackPanel Spacing="10">
             <Grid ColumnDefinitions="Auto,120,Auto,120,Auto,120,Auto,*" RowDefinitions="Auto,Auto"
                   RowSpacing="6" ColumnSpacing="6">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Geschlecht:"
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_Sex}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Gender}" />
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="Augenfarbe:"
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Loc Label_Eyes}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding EyeColor}" />
-                <TextBlock Grid.Row="0" Grid.Column="4" Text="Haarfarbe:"
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="{loc:Loc Label_Hair}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding HairColor}" />
-                <TextBlock Grid.Row="0" Grid.Column="6" Text="Spielername:"
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="{loc:Loc Label_Player}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding PlayerName}" />
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Grösse:" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Height}" VerticalAlignment="Center" />
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Height}" />
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="Gewicht:" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{loc:Loc Label_Weight}" VerticalAlignment="Center" />
                 <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Weight}" />
-                <TextBlock Grid.Row="1" Grid.Column="4" Text="Hautfarbe:"
+                <TextBlock Grid.Row="1" Grid.Column="4" Text="{loc:Loc Label_Skin}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="1" Grid.Column="5" Text="{Binding SkinColor}" />
             </Grid>
 
             <Grid ColumnDefinitions="Auto,50,Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto"
                   RowSpacing="4" ColumnSpacing="6">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Straßenruf:"
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_StreetCred}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding StreetCred}" />
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Schlechter Ruf:"
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Notoriety}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Notoriety}" />
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Prominenz:"
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc Label_PublicAwareness}"
                            VerticalAlignment="Center" />
                 <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PublicAwareness}" />
             </Grid>
@@ -48,10 +49,10 @@
                 <Image Source="{Binding Mugshot}" IsVisible="{Binding HasMugshot}"
                        Width="105" Height="155" Stretch="Uniform" />
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Portrait: (210px x 310px)" VerticalAlignment="Center" />
+                    <TextBlock Text="{loc:Loc Label_Mugshot}" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <Button Content="Ändern" Click="OnChangeMugshotClick" />
-                        <Button Content="Löschen" Click="OnDeleteMugshotClick" />
+                        <Button Content="{loc:Loc Button_AddMugshot}" Click="OnChangeMugshotClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteMugshotClick" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -64,21 +65,21 @@
                 </Border>
             </StackPanel>
             <StackPanel>
-                <TextBlock Text="Hintergrund:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Background}" FontWeight="Bold" />
                 <Border Classes="groupBox" Height="70">
                     <TextBox Text="{Binding Background}" AcceptsReturn="True" TextWrapping="Wrap"
                              BorderThickness="0" />
                 </Border>
             </StackPanel>
             <StackPanel>
-                <TextBlock Text="Konzept:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Concept}" FontWeight="Bold" />
                 <Border Classes="groupBox" Height="70">
                     <TextBox Text="{Binding Concept}" AcceptsReturn="True" TextWrapping="Wrap"
                              BorderThickness="0" />
                 </Border>
             </StackPanel>
             <StackPanel>
-                <TextBlock Text="Notizen:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Notes}" FontWeight="Bold" />
                 <Border Classes="groupBox" Height="70">
                     <TextBox Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap"
                              BorderThickness="0" />

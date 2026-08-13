@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:dialogs="using:Chummer.NewUI.Dialogs"
         xmlns:viewModels="using:Chummer.NewUI.ViewModels"
@@ -33,8 +34,8 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Spacing="6">
-            <Button Width="80" Click="OnOk" Tag="String_OK" Content="OK" />
-            <Button Width="80" Click="OnCancel" Tag="String_Cancel" Content="Abbruch" />
+            <Button Width="80" Click="OnOk" Tag="String_OK" Content="{loc:Loc String_OK}" />
+            <Button Width="80" Click="OnCancel" Tag="String_Cancel" Content="{loc:Loc String_Cancel}" />
         </StackPanel>
     </Grid>
 </Window>

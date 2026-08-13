@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -8,8 +9,8 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
                 <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
-                <Button Content="Gabe austauschen" Click="OnSwapQualityClick" />
-                <Button Content="Löschen" Click="OnDeleteQualityClick" />
+                <Button Content="{loc:Loc Button_SwapQuality}" Click="OnSwapQualityClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteQualityClick" />
                 <Button Content="PACKS-Kit hinzufügen" Click="OnAddPacksKitClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
@@ -26,14 +27,14 @@
             <ScrollViewer Margin="2 8 2 4">
             <StackPanel Margin="4,0,4,0" Spacing="10">
                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,90,Auto,220">
-                    <TextBlock Grid.Column="0" Text="Spitzname:" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="0" Text="{loc:Loc Label_Alias}" VerticalAlignment="Center"
                                Margin="0,0,6,0" />
                     <TextBox Grid.Column="1" Text="{Binding Alias}" Width="260" HorizontalAlignment="Left" />
-                    <TextBlock Grid.Column="2" Text="Metatyp:" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="2" Text="{loc:Loc Label_Metatype}" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
                     <TextBlock Grid.Column="3" Text="{Binding Metatype}" FontWeight="Bold"
                                VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Text="Nuyen:" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="4" Text="{loc:Loc Label_Nuyen}" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
                     <TextBox Grid.Column="5" Text="{Binding Nuyen}" IsVisible="{Binding !IsCreateMode}" />
                     <controls:IntegerSpinner Grid.Column="5" Width="80" HorizontalAlignment="Left"
@@ -49,8 +50,8 @@
                 <StackPanel>
                     <Grid ColumnDefinitions="150,40,110,60,130,60" Margin="0,0,0,2">
                         <TextBlock Grid.Column="0" Classes="gridHeader" Text="Attribute" />
-                        <TextBlock Grid.Column="1" Classes="gridHeader" Text="Basis" />
-                        <TextBlock Grid.Column="3" Classes="gridHeader" Text="(Verst.)" />
+                        <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc Label_Base}" />
+                        <TextBlock Grid.Column="3" Classes="gridHeader" Text="{loc:Loc Label_Augmented}" />
                         <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp-Grenze" />
                         <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
                     </Grid>
@@ -78,8 +79,8 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Magieadept MAG-Aufteilung" FontWeight="Bold" />
                             <Grid ColumnDefinitions="90,90">
-                                <TextBlock Grid.Column="0" Text="Magier" FontWeight="SemiBold" />
-                                <TextBlock Grid.Column="1" Text="Adept" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="0" Text="{loc:Loc Label_Magician}" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1" Text="{loc:Loc Label_Adept}" FontWeight="SemiBold" />
                             </Grid>
                             <Grid ColumnDefinitions="90,90">
                                 <TextBox Grid.Column="0" Text="{Binding MysticAdeptMagicianMagSplit, Mode=TwoWay}" Width="60"
@@ -95,7 +96,7 @@
                         <TextBlock Grid.Column="0" Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBlock Grid.Column="2" Text="{Binding ContactPointsUsed}" Foreground="#666666" />
                     </Grid>
-                    <Button Content="Connection hinzufügen" HorizontalAlignment="Left"
+                    <Button Content="{loc:Loc Button_AddContact}" HorizontalAlignment="Left"
                             Margin="0,0,0,6" Click="OnAddContactClick" />
                     <ItemsControl ItemsSource="{Binding Contacts}">
                         <ItemsControl.ItemTemplate>
@@ -104,10 +105,10 @@
                                         Margin="0,0,0,4">
                                     <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{loc:Loc Label_Contact_Connection}" VerticalAlignment="Center" />
                                         <controls:IntegerSpinner Grid.Column="2" Width="70" Minimum="0" Maximum="6"
                                                                   Value="{Binding Connection, Mode=TwoWay}" />
-                                        <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{loc:Loc Label_Contact_Loyalty}" VerticalAlignment="Center" />
                                         <controls:IntegerSpinner Grid.Column="4" Width="70" Minimum="1" Maximum="6"
                                                                   Value="{Binding Loyalty, Mode=TwoWay}" />
                                         <TextBlock Grid.Column="5" Text="{Binding GroupRating, StringFormat='Gruppe {0}'}"
@@ -117,7 +118,7 @@
                                         <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
                                         <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
-                                        <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
+                                        <Button Grid.Column="9" Content="{loc:Loc String_Delete}" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>
@@ -128,7 +129,7 @@
 
                 <StackPanel>
                     <TextBlock Text="Feinde" FontWeight="Bold" Margin="0,0,0,4" />
-                    <Button Content="Feind hinzufügen" HorizontalAlignment="Left"
+                    <Button Content="{loc:Loc Button_AddEnemy}" HorizontalAlignment="Left"
                             Margin="0,0,0,6" Click="OnAddEnemyClick" />
                     <ItemsControl ItemsSource="{Binding Enemies}">
                         <ItemsControl.ItemTemplate>
@@ -137,10 +138,10 @@
                                         Margin="0,0,0,4">
                                     <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="1" Text="Connection:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{loc:Loc Label_Contact_Connection}" VerticalAlignment="Center" />
                                         <controls:IntegerSpinner Grid.Column="2" Width="70" Minimum="0" Maximum="6"
                                                                   Value="{Binding Connection, Mode=TwoWay}" />
-                                        <TextBlock Grid.Column="3" Text="Loyalität:" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{loc:Loc Label_Contact_Loyalty}" VerticalAlignment="Center" />
                                         <controls:IntegerSpinner Grid.Column="4" Width="70" Minimum="1" Maximum="6"
                                                                   Value="{Binding Loyalty, Mode=TwoWay}" />
                                         <TextBlock Grid.Column="5" Text="{Binding GroupRating, StringFormat='Gruppe {0}'}"
@@ -150,7 +151,7 @@
                                         <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
                                         <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
-                                        <Button Grid.Column="9" Content="Löschen" Click="OnDeleteContactClick"
+                                        <Button Grid.Column="9" Content="{loc:Loc String_Delete}" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
                                 </Border>

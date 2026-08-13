@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.NexusDialog"
@@ -10,16 +11,16 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Prozessor:" VerticalAlignment="Center" />
             <NumericUpDown Grid.Row="0" Grid.Column="1" Minimum="10" Maximum="50" Increment="1"
                             Value="{Binding Processor, Mode=TwoWay}" />
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="System:" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_System}" VerticalAlignment="Center" />
             <NumericUpDown Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
                             Value="{Binding System, Mode=TwoWay}" />
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Response:" VerticalAlignment="Center" />
             <NumericUpDown Grid.Row="2" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
                             Value="{Binding Response, Mode=TwoWay}" />
-            <TextBlock Grid.Row="3" Grid.Column="0" Text="Firewall:" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc Label_Firewall}" VerticalAlignment="Center" />
             <NumericUpDown Grid.Row="3" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
                             Value="{Binding Firewall, Mode=TwoWay}" />
-            <TextBlock Grid.Row="4" Grid.Column="0" Text="Signal:" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Loc Label_Signal}" VerticalAlignment="Center" />
             <NumericUpDown Grid.Row="4" Grid.Column="1" Minimum="1" Maximum="10" Increment="1"
                             Value="{Binding Signal, Mode=TwoWay}" />
             <TextBlock Grid.Row="5" Grid.Column="0" Text="Persona-Limit:" VerticalAlignment="Center" />
@@ -29,7 +30,7 @@
         <CheckBox Content="Kostenlos" IsChecked="{Binding Free, Mode=TwoWay}" />
         <TextBlock Text="{Binding CostPreview, StringFormat='Kosten: {0}'}" FontWeight="Bold" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
-            <Button Content="Abbruch" Click="OnCancel" />
+            <Button Content="{loc:Loc String_Cancel}" Click="OnCancel" />
             <Button Content="Hinzufügen" Click="OnAdd" />
         </StackPanel>
     </StackPanel>

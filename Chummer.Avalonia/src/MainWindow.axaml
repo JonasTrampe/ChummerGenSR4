@@ -75,7 +75,7 @@
                         AutomationProperties.Name="Speichern unter" Click="OnSaveCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/disk.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Drucken"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc Menu_FilePrint}"
                         AutomationProperties.Name="Drucken" Click="OnPrintClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/printer.png" />
                 </Button>

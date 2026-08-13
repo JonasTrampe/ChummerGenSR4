@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.PrintMultipleDialog"
         Width="700" Height="560"
@@ -22,7 +23,7 @@
 
         <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
             <Button Content="Als HTML exportieren" Click="OnExportHtmlClick" />
-            <Button Content="Drucken" Click="OnPrintClick" />
+            <Button Content="{loc:Loc Menu_FilePrint}" Click="OnPrintClick" />
             <Button Content="Schließen" Click="OnClose" />
         </StackPanel>
     </Grid>

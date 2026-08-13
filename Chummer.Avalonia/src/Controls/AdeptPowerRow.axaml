@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -16,7 +17,7 @@
                    VerticalAlignment="Center"
                    TextTrimming="CharacterEllipsis" />
         <TextBlock Grid.Column="1"
-                   Text="Kraftstufe:"
+                   Text="{loc:Loc Label_Power_PowerRating}"
                    VerticalAlignment="Center"
                    FontSize="10"
                    Foreground="#666666" />
@@ -33,16 +34,16 @@
                    VerticalAlignment="Center"
                    FontWeight="SemiBold" />
         <TextBlock Grid.Column="5"
-                   Text="Vergünstigung durch"
+                   Text="{loc:Loc Label_Power_DiscountedBy}"
                    VerticalAlignment="Center"
                    FontSize="10"
                    Foreground="#666666" />
         <CheckBox Grid.Column="6"
-                  Content="Weg des Adepten"
+                  Content="{loc:Loc Checkbox_Power_AdeptWay}"
                   IsChecked="{Binding IsWayOfTheAdept}" />
         <CheckBox Grid.Column="7"
-                  Content="Zauberfokus"
+                  Content="{loc:Loc Checkbox_Power_Geas}"
                   IsChecked="{Binding IsMagicFocus}" />
-        <Button Grid.Column="10" Content="Löschen" Click="OnDeleteButtonClick" />
+        <Button Grid.Column="10" Content="{loc:Loc String_Delete}" Click="OnDeleteButtonClick" />
     </Grid>
 </UserControl>

@@ -1,15 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.VehicleModDialog"
         x:DataType="vm:VehicleModDialogViewModel"
-        Width="680" Height="540" WindowStartupLocation="CenterOwner" Title="Fahrzeugmodifikation auswählen">
+        Width="680" Height="540" WindowStartupLocation="CenterOwner" Title="{loc:Loc Title_SelectVehicleMod}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <Grid ColumnDefinitions="Auto,150,Auto,*" Margin="0,0,0,8">
             <TextBlock Text="Kategorie:" VerticalAlignment="Center" Margin="0,0,6,0" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
-            <TextBlock Grid.Column="2" Text="Suche:" VerticalAlignment="Center" Margin="16,0,6,0" />
+            <TextBlock Grid.Column="2" Text="{loc:Loc Label_Search}" VerticalAlignment="Center" Margin="16,0,6,0" />
             <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}" />
         </Grid>
         <Grid Grid.Row="1" ColumnDefinitions="*,230">
@@ -18,15 +19,15 @@
             </ListBox>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
                 <TextBlock Text="Kategorie:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Category, TargetNullValue=–}" />
-                <TextBlock Text="Slots:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Slots, TargetNullValue=–}" />
-                <TextBlock Text="Verfügbarkeit:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Availability, TargetNullValue=–}" />
-                <TextBlock Text="Kosten:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Cost, TargetNullValue=–}" />
+                <TextBlock Text="{loc:Loc Label_Slots}" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Slots, TargetNullValue=–}" />
+                <TextBlock Text="{loc:Loc Label_Avail}" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Availability, TargetNullValue=–}" />
+                <TextBlock Text="{loc:Loc Label_Cost}" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Cost, TargetNullValue=–}" />
                 <TextBlock Text="Einschränkung:" FontWeight="Bold" /><TextBlock Text="{Binding SelectedMod.Limit, TargetNullValue=–}" TextWrapping="Wrap" />
                 <TextBlock Text="Rating:" FontWeight="Bold" IsVisible="{Binding HasRating}" />
                 <NumericUpDown Minimum="0" Maximum="100" Value="{Binding Rating, Mode=TwoWay}" IsVisible="{Binding HasRating}" />
-                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding SelectedMod.SourcePage}" />
+                <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding SelectedMod.SourcePage}" />
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0"><Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" /><Button Grid.Column="2" Content="Hinzufügen" Width="90" Click="OnOk" /></Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0"><Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" /><Button Grid.Column="2" Content="Hinzufügen" Width="90" Click="OnOk" /></Grid>
     </Grid>
 </Window>

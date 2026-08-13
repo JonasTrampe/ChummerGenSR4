@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -8,10 +9,10 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="Cyberware hinzufügen" Click="OnAddCyberwareClick" />
-                <Button Content="Bioware hinzufügen" Click="OnAddBiowareClick" />
+                <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" />
                 <Button Content="Cyberware-Suite" Click="OnAddCyberwareSuiteClick" />
                 <Button Content="Bioware-Suite" Click="OnAddBiowareSuiteClick" />
-                <Button Content="Löschen" Click="OnDeleteClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
                 <Button Content="Verkaufen" Click="OnSellClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
@@ -43,11 +44,11 @@
                 </StackPanel>
             </Grid>
             <Separator Margin="0,4" />
-            <TextBlock Text="Verbrauchte Essenz" FontWeight="Bold" />
+            <TextBlock Text="{loc:Loc Label_EssenceConsumption}" FontWeight="Bold" />
             <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto" RowSpacing="2">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Cyberware:" />
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_Cyberware}" />
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CyberwareEssence}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Bioware:" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Bioware}" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BiowareEssence}" />
             </Grid>
             </StackPanel>

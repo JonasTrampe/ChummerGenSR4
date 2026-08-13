@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
@@ -7,7 +8,7 @@
         Width="620" Height="500" WindowStartupLocation="CenterOwner" Title="Waffenzubehör auswählen">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,8">
-            <TextBlock Text="Suche:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBlock Text="{loc:Loc Label_Search}" VerticalAlignment="Center" Margin="0,0,6,0" />
             <TextBox Grid.Column="1" Text="{Binding SearchText, Mode=TwoWay}" />
         </Grid>
         <Grid Grid.Row="1" ColumnDefinitions="*,200">
@@ -21,13 +22,13 @@
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
                 <TextBlock Text="Mount:" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Mount, TargetNullValue=–}" />
                 <TextBlock Text="RC:" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Rc, TargetNullValue=–}" />
-                <TextBlock Text="Verfügbarkeit:" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Availability, TargetNullValue=–}" />
-                <TextBlock Text="Kosten:" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Cost, TargetNullValue=–}" />
-                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding Selected.SourcePage}" />
+                <TextBlock Text="{loc:Loc Label_Avail}" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Availability, TargetNullValue=–}" />
+                <TextBlock Text="{loc:Loc Label_Cost}" FontWeight="Bold" /><TextBlock Text="{Binding Selected.Cost, TargetNullValue=–}" />
+                <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" Margin="0,8,0,0" /><controls:SourceLink SourcePage="{Binding Selected.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
-            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
             <Button Grid.Column="2" Content="Hinzufügen" Width="90" Click="OnOk" />
         </Grid>
     </Grid>

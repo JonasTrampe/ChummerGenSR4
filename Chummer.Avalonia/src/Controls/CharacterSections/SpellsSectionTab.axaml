@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -6,13 +7,13 @@
              x:DataType="vm:SpellsSectionViewModel">
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-            <Button Content="Zauber hinzufügen" Click="OnAddSpellClick" />
+            <Button Content="{loc:Loc Button_AddSpell}" Click="OnAddSpellClick" />
             <Button Content="Zauber erstellen" Click="OnCreateSpellClick" />
-            <Button Content="Löschen" Click="OnDeleteSpellClick" />
+            <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpellClick" />
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
                     IsVisible="{Binding ShowTradition}">
-            <TextBlock Text="Tradition:" VerticalAlignment="Center" />
+            <TextBlock Text="{loc:Loc Label_Tradition}" VerticalAlignment="Center" />
             <ComboBox ItemsSource="{Binding Traditions}" SelectedItem="{Binding SelectedTradition, Mode=TwoWay}" Width="180" />
             <TextBlock Text="{Binding DrainResistanceText}" IsVisible="{Binding ShowDrainResistance}" VerticalAlignment="Center" FontWeight="Bold" />
         </StackPanel>
@@ -24,7 +25,7 @@
         </StackPanel>
         <Grid ColumnDefinitions="220,4,*" RowDefinitions="*,Auto,Auto">
             <DockPanel Grid.Row="0" Grid.Column="0">
-                <TextBlock DockPanel.Dock="Top" Text="Ausgewählte Zauber" FontWeight="Bold" Margin="0,0,0,4" />
+                <TextBlock DockPanel.Dock="Top" Text="{loc:Loc Label_SelectedSpells}" FontWeight="Bold" Margin="0,0,0,4" />
                 <TreeView ItemsSource="{Binding SpellCategories}" SelectedItem="{Binding SelectedSpellNode, Mode=TwoWay}">
                     <TreeView.ItemTemplate>
                         <TreeDataTemplate ItemsSource="{Binding Children}">
@@ -50,7 +51,7 @@
             <TextBlock Text="{Binding SelectedSpellNode.SpellDicePool, StringFormat='Würfelpool: {0}'}"
                        ToolTip.Tip="{Binding SelectedSpellNode.SpellDicePoolTooltip}" FontWeight="Bold" />
             <StackPanel Orientation="Horizontal" Spacing="4">
-                <TextBlock Text="Quelle:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" />
                 <controls:SourceLink SourcePage="{Binding SelectedSpellNode.SourcePage}" />
             </StackPanel>
         </StackPanel>
@@ -61,8 +62,8 @@
             <StackPanel>
                 <TextBlock Text="Geister" FontWeight="Bold" Margin="0,0,0,4" />
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
-                    <Button Content="Geist" Click="OnAddSpiritClick" />
-                    <Button Content="Löschen" Click="OnDeleteSpiritClick" />
+                    <Button Content="{loc:Loc Label_Options_Spirit}" Click="OnAddSpiritClick" />
+                    <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpiritClick" />
                 </StackPanel>
                 <ListBox ItemsSource="{Binding Spirits}" SelectedItem="{Binding SelectedSpirit, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
@@ -83,7 +84,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                         <Button Content="Programm" Click="OnAddComplexFormClick" />
                         <Button Content="Option" Click="OnAddComplexFormOptionClick" />
-                        <Button Content="Löschen" Click="OnDeleteComplexFormClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteComplexFormClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding ComplexForms}" SelectedItem="{Binding SelectedComplexForm, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
@@ -97,8 +98,8 @@
                     <TextBlock Text="Kritter-Kräfte" FontWeight="Bold" Margin="0,0,0,4" />
                     <TextBlock Text="{Binding FreeSpiritPowerPointsText}" IsVisible="{Binding ShowFreeSpiritPowerPoints}" Margin="0,0,0,4" />
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
-                        <Button Content="Kraft" Click="OnAddCritterPowerClick" />
-                        <Button Content="Löschen" Click="OnDeleteCritterPowerClick" />
+                        <Button Content="{loc:Loc String_Force}" Click="OnAddCritterPowerClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteCritterPowerClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding CritterPowers}" SelectedItem="{Binding SelectedCritterPower, Mode=TwoWay}">
                         <ListBox.ItemTemplate>

@@ -20,30 +20,30 @@
                         <sections:MartialArtsSectionTab Name="MartialArtsTab" />
                     </TabItem>
                     <!-- Adeptenkräfte: conditional tab - Adept characters only -->
-                    <TabItem x:Name="AdeptPowersTabItem" Header="Adeptenkräfte">
+                    <TabItem x:Name="AdeptPowersTabItem" Header="{loc:Loc Tab_Adept}">
                         <sections:AdeptPowersSectionTab Name="AdeptPowersTab" />
                     </TabItem>
                     <!-- Sprüche und Geister: conditional tab - Magician/Adept characters -->
-                    <TabItem x:Name="SpellsTabItem" Header="Sprüche und Geister">
+                    <TabItem x:Name="SpellsTabItem" Header="{loc:Loc Tab_Magician}">
                         <sections:SpellsSectionTab Name="SpellsTab" />
                     </TabItem>
                     <!-- Initiation: conditional tab - Awakened characters only -->
-                    <TabItem x:Name="InitiationTabItem" Header="Initiation">
+                    <TabItem x:Name="InitiationTabItem" Header="{loc:Loc Tab_Initiation}">
                         <sections:InitiationSectionTab Name="InitiationTab" />
                     </TabItem>
-                    <TabItem Header="Cyberware und Bioware">
+                    <TabItem Header="{loc:Loc Tab_Cyberware}">
                         <sections:CyberwareSectionTab Name="CyberwareTab" />
                     </TabItem>
-                    <TabItem Header="Straßenausrüstung">
+                    <TabItem Header="{loc:Loc Tab_StreeGear}">
                         <sections:GearSectionTab Name="GearTab" />
                     </TabItem>
-                    <TabItem Header="Fahrzeuge und Drohnen">
+                    <TabItem Header="{loc:Loc Tab_Vehicles}">
                         <sections:VehiclesSectionTab Name="VehiclesTab" />
                     </TabItem>
-                    <TabItem Header="Charakter-Information">
+                    <TabItem Header="{loc:Loc Tab_CharacterInfo}">
                         <sections:CharacterInfoSectionTab Name="CharacterInfoTab" />
                     </TabItem>
-                    <TabItem Header="Karma und Nuyen">
+                    <TabItem Header="{loc:Loc Tab_Karma}">
                         <sections:KarmaNuyenSectionTab Name="KarmaNuyenTab" />
                     </TabItem>
                     <TabItem Header="Kalender">

@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.NaturalWeaponDialog"
         Width="420" SizeToContent="Height" CanResize="False"
@@ -28,7 +29,7 @@
         <TextBlock Grid.Row="5" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,0,0,6" />
 
         <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
-            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
             <Button Content="Hinzufügen" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>

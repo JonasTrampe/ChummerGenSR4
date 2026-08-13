@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
@@ -9,7 +10,7 @@
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
         Background="White"
-        Title="GP-Anzahl auswählen">
+        Title="{loc:Loc Title_SelectBP}">
 	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
 	<Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
 		<TextBlock Grid.Row="0"
@@ -28,7 +29,7 @@
 			                         Minimum="0"
 			                         Maximum="5000"
 			                         Value="{Binding BuildPoints, Mode=TwoWay}" />
-			<TextBlock Grid.Column="2" Text="Max Verf.:" VerticalAlignment="Center" Margin="12,0,0,0" />
+			<TextBlock Grid.Column="2" Text="{loc:Loc Label_SelectBP_MaxAvail}" VerticalAlignment="Center" Margin="12,0,0,0" />
 			<controls:IntegerSpinner Grid.Column="3"
 			                         Width="104"
 			                         Minimum="0"
@@ -37,12 +38,12 @@
 		</Grid>
 
 		<CheckBox Grid.Row="2"
-		          Content="Ignoriere Charaktererschaffungsregeln"
+		          Content="{loc:Loc Checkbox_SelectBP_IgnoreRules}"
 		          IsChecked="{Binding IgnoreCreationRules, Mode=TwoWay}" />
 
 		<StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
-			<Button Content="Abbruch" Width="80" Click="OnCancel" />
-			<Button Content="OK" Width="80" Click="OnOk" />
+			<Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+			<Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
 		</StackPanel>
 	</Grid>
 	</ScrollViewer>

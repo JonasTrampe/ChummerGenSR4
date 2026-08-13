@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:core="using:Chummer.Core"
@@ -6,13 +7,13 @@
              x:Class="Chummer.NewUI.Controls.CharacterSections.GearSectionTab"
              x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
-        <TabItem Header="Lebensstil">
+        <TabItem Header="{loc:Loc Tab_Lifestyle}">
             <Grid ColumnDefinitions="200,4,*" Margin="4">
                 <DockPanel Grid.Column="0">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                        <Button Content="Lebensstil hinzufügen" Click="OnAddLifestyleClick" />
+                        <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
                         <Button Content="Erweiterten Lebensstil erstellen" Click="OnAddAdvancedLifestyleClick" />
-                        <Button Content="Löschen" Click="OnDeleteLifestyleClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
@@ -34,11 +35,11 @@
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
-                        <Button Content="Löschen" Click="OnDeleteArmorClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
                         <Button Content="Verkaufen" Click="OnSellArmorClick" />
                         <Button Content="Mod hinzufügen" Click="OnAddArmorModClick" />
                         <Button Content="Mod löschen" Click="OnDeleteArmorModClick" />
-                        <Button Content="Panzerungsset hinzufügen" Click="OnAddArmorSetClick" />
+                        <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"
                                   Margin="6,0,0,0" />
@@ -97,14 +98,14 @@
             <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Waffe hinzufügen" Click="OnAddWeaponClick" />
+                        <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" />
                         <Button Content="Natürliche Waffe erstellen" Click="OnAddNaturalWeaponClick" />
                         <Button Content="Zubehör hinzufügen" Click="OnAddWeaponAccessoryClick" />
                         <Button Content="Mod hinzufügen" Click="OnAddWeaponModClick" />
-                        <Button Content="Löschen" Click="OnDeleteWeaponClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
                         <Button Content="Verkaufen" Click="OnSellWeaponClick" />
-                        <Button Content="Nachladen" Click="OnReloadWeaponClick" />
-                        <Button Content="Ort hinzufügen" Click="OnAddWeaponLocationClick" />
+                        <Button Content="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
+                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
@@ -138,7 +139,7 @@
                             </StackPanel>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Würfelpool:" Width="90" />
+                            <TextBlock Text="{loc:Loc Label_DicePool}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponDicePool, TargetNullValue=–}"
                                        ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />
                         </Grid>
@@ -164,11 +165,11 @@
                         <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
                         <Button Content="Nexus zusammenstellen" Click="OnAddNexusClick" />
                         <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
-                        <Button Content="Löschen" Click="OnDeleteGearClick" />
+                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
                         <Button Content="Verkaufen" Click="OnSellGearClick" />
-                        <Button Content="Ort hinzufügen" Click="OnAddGearLocationClick" />
+                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
                         <Button Content="Ort löschen" Click="OnRemoveGearLocationClick" />
-                        <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
+                        <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
@@ -198,7 +199,7 @@
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Grid.Column="0" Text="Menge:" Width="90" />
+                            <TextBlock Grid.Column="0" Text="{loc:Loc Label_Qty}" Width="90" />
                             <controls:IntegerSpinner Grid.Column="1" Width="90" HorizontalAlignment="Left" Minimum="1" Maximum="9999"
                                                       Value="{Binding SelectedGearQuantity, Mode=TwoWay}" />
                         </Grid>
@@ -208,7 +209,7 @@
                                       Click="OnToggleGearEquippedClick" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kapazität:" Width="90" />
+                            <TextBlock Text="{loc:Loc Label_Capacity}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.CapacityDisplay, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
@@ -230,15 +231,15 @@
                                 <TextBlock Text="{Binding SelectedGear.EffectiveResponse, TargetNullValue=–}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="Signal:" FontWeight="Bold" />
+                                <TextBlock Text="{loc:Loc Label_Signal}" FontWeight="Bold" />
                                 <TextBlock Text="{Binding SelectedGear.EffectiveSignal, TargetNullValue=–}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="System:" FontWeight="Bold" />
+                                <TextBlock Text="{loc:Loc Label_System}" FontWeight="Bold" />
                                 <TextBlock Text="{Binding SelectedGear.EffectiveSystem, TargetNullValue=–}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="Firewall:" FontWeight="Bold" />
+                                <TextBlock Text="{loc:Loc Label_Firewall}" FontWeight="Bold" />
                                 <TextBlock Text="{Binding SelectedGear.EffectiveFirewall, TargetNullValue=–}" />
                             </StackPanel>
                         </StackPanel>
@@ -247,16 +248,16 @@
             </controls:TreeDetailPane>
         </TabItem>
 
-        <TabItem Header="Haustiere und Begleiter">
+        <TabItem Header="{loc:Loc Tab_Pets}">
             <StackPanel Margin="8" Spacing="6">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Button Content="Haustier hinzufügen" Click="OnAddPetClick" />
+                    <Button Content="{loc:Loc Button_AddPet}" Click="OnAddPetClick" />
                     <Button Content="Charakter verknüpfen" Click="OnLinkPetClick" />
-                    <Button Content="Charakter öffnen" Click="OnOpenLinkedPetCharacterClick"
+                    <Button Content="{loc:Loc MenuItem_OpenCharacter}" Click="OnOpenLinkedPetCharacterClick"
                             IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
                     <Button Content="Verknüpfung entfernen" Click="OnUnlinkPetClick"
                             IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
-                    <Button Content="Löschen" Click="OnDeletePetClick" />
+                    <Button Content="{loc:Loc String_Delete}" Click="OnDeletePetClick" />
                 </StackPanel>
                 <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
                 <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"

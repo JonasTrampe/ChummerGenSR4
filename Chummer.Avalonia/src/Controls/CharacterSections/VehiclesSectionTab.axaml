@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -8,15 +9,15 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
-                <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
+                <Button Content="{loc:Loc Menu_AddModification}" Click="OnAddVehicleModClick" />
                 <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
                 <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick"
                         ToolTip.Tip="Benötigt einen noch freien 'Weapon Mount'/'Mechanical Arm'-Modifikation - je eine Waffe pro installierter Halterung." />
-                <Button Content="Ort hinzufügen" Click="OnAddVehicleLocationClick" />
+                <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddVehicleLocationClick" />
                 <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
-                <Button Content="Löschen" Click="OnDeleteVehicleClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
                 <Button Content="Verkaufen" Click="OnSellVehicleClick" />
-                <Button Content="Nachladen" Click="OnReloadVehicleWeaponClick" />
+                <Button Content="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
@@ -54,7 +55,7 @@
                     </Grid>
                     <Grid ColumnDefinitions="Auto,Auto,*">
                         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="Quelle:" />
+                            <TextBlock Text="{loc:Loc Label_Source}" />
                             <controls:SourceLink SourcePage="{Binding SelectedVehicle.SourcePage}" />
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.PhysicalCmFilled, StringFormat='Schaden: {0}'}" Margin="16,0,0,0" />

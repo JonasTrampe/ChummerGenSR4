@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.CreateSpellDialog"
         Width="460" SizeToContent="Height" CanResize="False"
@@ -17,10 +18,10 @@
         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
             <ComboBox x:Name="TypeBox" Width="110" SelectionChanged="OnFieldChanged" />
             <ComboBox x:Name="RangeBox" Width="110" SelectionChanged="OnFieldChanged" />
-            <CheckBox x:Name="AreaBox" Content="Fläche" Click="OnFieldChanged" />
+            <CheckBox x:Name="AreaBox" Content="{loc:Loc String_DescArea}" Click="OnFieldChanged" />
         </StackPanel>
 
-        <TextBlock Grid.Row="3" Text="Dauer:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="3" Text="{loc:Loc Label_Duration}" VerticalAlignment="Center" />
         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
             <ComboBox x:Name="DurationBox" Width="110" SelectionChanged="OnFieldChanged" />
             <CheckBox x:Name="RestrictedBox" Content="Restricted (-1)" Click="OnFieldChanged" />
@@ -41,7 +42,7 @@
         <TextBlock Grid.Row="8" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,6,0,0" />
 
         <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,32,0,0">
-            <Button Content="Abbruch" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
             <Button Content="Hinzufügen" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>

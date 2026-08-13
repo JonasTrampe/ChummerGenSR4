@@ -1,9 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.MessageBoxDialog"
         Width="380" Height="160" WindowStartupLocation="CenterOwner" CanResize="False">
     <Grid RowDefinitions="*,Auto" Margin="16" RowSpacing="12">
         <TextBlock x:Name="MessageText" TextWrapping="Wrap" VerticalAlignment="Center" />
-        <Button Grid.Row="1" Content="OK" Width="80" HorizontalAlignment="Right" Click="OnOk" />
+        <Button Grid.Row="1" Content="{loc:Loc String_OK}" Width="80" HorizontalAlignment="Right" Click="OnOk" />
     </Grid>
 </Window>

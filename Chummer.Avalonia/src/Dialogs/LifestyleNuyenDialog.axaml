@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.LifestyleNuyenDialog"
@@ -14,8 +15,8 @@
         </StackPanel>
         <TextBlock Grid.Row="2" Text="{Binding FormulaPreview}" FontWeight="Bold" VerticalAlignment="Bottom" />
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="Abbruch" Width="80" Click="OnCancel" />
-            <Button Content="OK" Width="80" Click="OnOk" />
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>
 </Window>

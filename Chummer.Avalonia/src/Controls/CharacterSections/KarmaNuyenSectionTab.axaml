@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.KarmaNuyenSectionTab"
@@ -7,14 +8,14 @@
         <Grid Grid.Row="0" ColumnDefinitions="*,*">
             <Grid Grid.Column="0" Margin="0,0,4,0" RowDefinitions="Auto,Auto,*">
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Karma verdient" Click="OnKarmaEarnedClick" />
-                    <Button Content="Karma ausgegeben" Click="OnKarmaSpentClick" />
-                    <Button Content="Aufwendungen bearbeiten" Click="OnEditKarmaExpenseClick" />
+                    <Button Content="{loc:Loc Button_KarmaGained}" Click="OnKarmaEarnedClick" />
+                    <Button Content="{loc:Loc Button_KarmaSpent}" Click="OnKarmaSpentClick" />
+                    <Button Content="{loc:Loc Button_EditExpense}" Click="OnEditKarmaExpenseClick" />
                 </StackPanel>
                 <Grid Grid.Row="1" ColumnDefinitions="80,50,*" Margin="0,0,0,2">
-                    <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
-                    <TextBlock Grid.Column="1" Classes="gridHeader" Text="Menge" />
-                    <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
+                    <TextBlock Grid.Column="0" Classes="gridHeader" Text="{loc:Loc String_Date}" />
+                    <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc String_Amount}" />
+                    <TextBlock Grid.Column="2" Classes="gridHeader" Text="{loc:Loc String_Reason}" />
                 </Grid>
                 <ListBox Grid.Row="2" ItemsSource="{Binding KarmaExpenses}"
                          SelectedItem="{Binding SelectedKarmaExpense, Mode=TwoWay}"
@@ -32,14 +33,14 @@
             </Grid>
             <Grid Grid.Column="1" Margin="4,0,0,0" RowDefinitions="Auto,Auto,*">
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Nuyen verdient" Click="OnNuyenEarnedClick" />
-                    <Button Content="Nuyen ausgegeben" Click="OnNuyenSpentClick" />
-                    <Button Content="Aufwendungen bearbeiten" Click="OnEditNuyenExpenseClick" />
+                    <Button Content="{loc:Loc Button_NuyenGained}" Click="OnNuyenEarnedClick" />
+                    <Button Content="{loc:Loc Button_NuyenSpent}" Click="OnNuyenSpentClick" />
+                    <Button Content="{loc:Loc Button_EditExpense}" Click="OnEditNuyenExpenseClick" />
                 </StackPanel>
                 <Grid Grid.Row="1" ColumnDefinitions="80,60,*" Margin="0,0,0,2">
-                    <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
-                    <TextBlock Grid.Column="1" Classes="gridHeader" Text="Menge" />
-                    <TextBlock Grid.Column="2" Classes="gridHeader" Text="Grund" />
+                    <TextBlock Grid.Column="0" Classes="gridHeader" Text="{loc:Loc String_Date}" />
+                    <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc String_Amount}" />
+                    <TextBlock Grid.Column="2" Classes="gridHeader" Text="{loc:Loc String_Reason}" />
                 </Grid>
                 <ListBox Grid.Row="2" ItemsSource="{Binding NuyenExpenses}"
                          SelectedItem="{Binding SelectedNuyenExpense, Mode=TwoWay}"

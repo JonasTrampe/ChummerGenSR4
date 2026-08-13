@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         xmlns:controls="using:Chummer.NewUI.Controls"
@@ -7,7 +8,7 @@
         Width="620" Height="520" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="Zauberspruch auswählen">
+        FontSize="11" Background="White" Title="{loc:Loc Title_SelectSpell}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <TextBlock Grid.Row="0" Text="Wähle einen noch nicht vorhandenen Zauberspruch aus den installierten Regeln aus." Margin="0,0,0,8" />
         <Grid Grid.Row="1" ColumnDefinitions="*,220">
@@ -24,24 +25,24 @@
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
                 <TextBlock Text="Kategorie:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Category, TargetNullValue=–}" />
-                <TextBlock Text="Eigenschaften:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Descriptors}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Descriptor, TargetNullValue=–}" TextWrapping="Wrap" />
-                <TextBlock Text="Typ:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Type}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Type, TargetNullValue=–}" />
                 <TextBlock Text="Reichweite:" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Range, TargetNullValue=–}" />
-                <TextBlock Text="Schaden:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Damage}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Damage, TargetNullValue=–}" />
-                <TextBlock Text="Dauer:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Duration}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Duration, TargetNullValue=–}" />
-                <TextBlock Text="Entzugsformel:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_DV}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.DrainValue, TargetNullValue=–}" />
-                <TextBlock Text="Quelle:" FontWeight="Bold" Margin="0,12,0,0" />
+                <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" Margin="0,12,0,0" />
                 <controls:SourceLink SourcePage="{Binding SelectedSpell.SourcePage}" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
-            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
             <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
         </Grid>
     </Grid>

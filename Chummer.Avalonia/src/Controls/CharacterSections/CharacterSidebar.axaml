@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -7,7 +8,7 @@
     <!-- Right sidebar is itself a 2-tab control (Weitere Informationen / Zustandsmonitor),
 	     stays visible outside the main TabControl (splitMain in the real designer file). -->
     <TabControl Classes="sidebar">
-        <TabItem Header="Weitere Informationen">
+        <TabItem Header="{loc:Loc Tab_OtherInfo}">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
                     <Button Content="Charakter fertigstellen" IsVisible="{Binding IsCreateMode}"
@@ -20,7 +21,7 @@
                                        Tooltip="{Binding Initiative.Tooltip}" />
                     <controls:InfoRow Label="Initiativedurchgänge:" Value="{Binding InitiativePasses.Value}"
                                        Tooltip="{Binding InitiativePasses.Tooltip}" />
-                    <TextBlock Text="Aktiver Kommlink:" Margin="0,4,0,0" />
+                    <TextBlock Text="{loc:Loc Label_ActiveCommlink}" Margin="0,4,0,0" />
                     <ComboBox HorizontalAlignment="Stretch"
                               ItemsSource="{Binding Commlinks}"
                               SelectedItem="{Binding SelectedCommlink, Mode=TwoWay}"
@@ -89,7 +90,7 @@
                         <Button Content="Schaden +1" Click="OnAddPhysicalDamageClick" />
                     </StackPanel>
 
-                    <TextBlock Text="Geistig" Margin="0,6,0,0" />
+                    <TextBlock Text="{loc:Loc Label_CMStun}" Margin="0,6,0,0" />
                     <ItemsControl ItemsSource="{Binding StunMonitorBoxes}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -107,7 +108,7 @@
                         <Button Content="Schaden +1" Click="OnAddStunDamageClick" />
                     </StackPanel>
 
-                    <TextBlock Text="Zurück erhalten/Ausgeben von Edge" Margin="0,10,0,0"
+                    <TextBlock Text="{loc:Loc Label_CMEdge}" Margin="0,10,0,0"
                                TextWrapping="Wrap" />
                     <TextBlock Text="{Binding Edge}" />
                     <StackPanel Orientation="Horizontal" Spacing="4">
