@@ -1135,7 +1135,7 @@ namespace Chummer.Core
 
             AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
                 strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
-            DeductGearCost(strCost, strRating, strQty);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -1255,7 +1255,7 @@ namespace Chummer.Core
 
             AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
                 strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
-            DeductGearCost(strCost, strRating, strQty);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -1284,12 +1284,31 @@ namespace Chummer.Core
             return dblUsed + dblNewCapacity * intQty <= dblOwn;
         }
 
-        private void DeductGearCost(string strCost, string strRating, string strQty)
+        private void DeductGearCost(string strCost, string strRating, string strQty, string strAvail = "")
         {
             int intQty = int.TryParse(strQty, out var q) ? q : 1;
             double dblCost = RatingExpression.Evaluate(strCost, strRating) * intQty;
+            dblCost = ApplyRestrictedForbiddenCostMultiplier(dblCost, strAvail);
             double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) ? n : 0;
             Nuyen = (dblNuyen - dblCost).ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>Ported from frmCareer.cs's per-item purchase handlers (e.g. tsGearAdd_Click):
+        /// when the MultiplyRestrictedCost/MultiplyForbiddenCost house rules are on, an item whose
+        /// raw Availability string ends in "R"/"F" has its cost multiplied by the matching
+        /// RestrictedCostMultiplier/ForbiddenCostMultiplier.</summary>
+        private double ApplyRestrictedForbiddenCostMultiplier(double dblCost, string strAvail)
+        {
+            if (string.IsNullOrEmpty(strAvail))
+                return dblCost;
+
+            CharacterOptions objOptions = GetCharacterOptions();
+            char chLast = strAvail[strAvail.Length - 1];
+            if (chLast == 'R' && objOptions.MultiplyRestrictedCost)
+                return dblCost * objOptions.RestrictedCostMultiplier;
+            if (chLast == 'F' && objOptions.MultiplyForbiddenCost)
+                return dblCost * objOptions.ForbiddenCostMultiplier;
+            return dblCost;
         }
 
         private void AppendGearNode(XmlNode objParentList, string strName, string strCategory, string strRating,
@@ -1447,7 +1466,7 @@ namespace Chummer.Core
             AppendElement(objVehicle, "notes", string.Empty);
             AppendElement(objVehicle, "discountedcost", "False");
             objVehicles.AppendChild(objVehicle);
-            DeductGearCost(strCost, "0", "1");
+            DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
         }
 
@@ -1627,6 +1646,7 @@ namespace Chummer.Core
             AppendElement(objCyberware, "location", strSide.Trim());
             objCyberware.AppendChild(Document.CreateElement("children"));
             objCyberwares.AppendChild(objCyberware);
+            DeductGearCost(strCost, strRating, "1", strAvail);
 
             XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
             XmlNode? objXmlWare = objWareDoc.SelectSingleNode(
@@ -2299,7 +2319,7 @@ namespace Chummer.Core
             objMods.AppendChild(objMod);
 
             var strBody = GetValue(objVehicle, "body", "0");
-            DeductVehicleModCost(strCost, strRating, strBody);
+            DeductVehicleModCost(strCost, strRating, strBody, strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -2326,7 +2346,7 @@ namespace Chummer.Core
             }
             AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
                 strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
-            DeductGearCost(strCost, strRating, strQty);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -2461,7 +2481,7 @@ namespace Chummer.Core
             AppendElement(objWeapon, "notes", string.Empty);
             AppendElement(objWeapon, "discountedcost", "False");
             objWeapons.AppendChild(objWeapon);
-            DeductGearCost(strCost, "0", "1");
+            DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -2519,10 +2539,11 @@ namespace Chummer.Core
         private XmlNode? GetVehicleNode(Guid guiVehicleId)
             => Document.SelectSingleNode($"/character/vehicles/vehicle[guid = '{guiVehicleId}']");
 
-        private void DeductVehicleModCost(string strCost, string strRating, string strBody)
+        private void DeductVehicleModCost(string strCost, string strRating, string strBody, string strAvail = "")
         {
             string strExpression = strCost.Replace("Body", strBody, StringComparison.OrdinalIgnoreCase);
             double dblCost = RatingExpression.Evaluate(strExpression, strRating);
+            dblCost = ApplyRestrictedForbiddenCostMultiplier(dblCost, strAvail);
             double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsed)
                 ? dblParsed : 0;
             Nuyen = (dblNuyen - dblCost).ToString(CultureInfo.InvariantCulture);
@@ -2572,6 +2593,7 @@ namespace Chummer.Core
             objWeapon.AppendChild(Document.CreateElement("gears"));
             objWeapon.AppendChild(Document.CreateElement("ammos"));
             objWeapons.AppendChild(objWeapon);
+            DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
         }
 
@@ -2700,7 +2722,7 @@ namespace Chummer.Core
             AppendElement(objAccessory, "source", strSource);
             AppendElement(objAccessory, "page", strPage);
             objAccessories.AppendChild(objAccessory);
-            DeductGearCost(strCost, "0", "1");
+            DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -2784,7 +2806,7 @@ namespace Chummer.Core
 
             string strWeaponCost = GetValue(objWeapon, "cost", "0");
             DeductGearCost(strCost.Replace("Weapon Cost", strWeaponCost, StringComparison.OrdinalIgnoreCase),
-                strRating, "1");
+                strRating, "1", strAvail);
             Changed?.Invoke();
             return true;
         }
@@ -2862,6 +2884,7 @@ namespace Chummer.Core
             objArmor.AppendChild(Document.CreateElement("armormods"));
             objArmor.AppendChild(Document.CreateElement("gears"));
             objArmors.AppendChild(objArmor);
+            DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
         }
 
@@ -3010,7 +3033,7 @@ namespace Chummer.Core
             AppendElement(objMod, "page", strPage);
             objMods.AppendChild(objMod);
 
-            DeductGearCost(strCost, strRating, "1");
+            DeductGearCost(strCost, strRating, "1", strAvail);
 
             XmlDocument objArmorDoc = XmlManager.Instance.Load("armor.xml");
             XmlNode? objXmlMod = objArmorDoc.SelectSingleNode($"/chummer/mods/mod[name = '{strName.Trim()}']");

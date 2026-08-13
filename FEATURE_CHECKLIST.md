@@ -80,12 +80,20 @@ context on each.
 
 **House rules**
 - [x] `AllowExceedAttributeBp` — done, see § House-rule awareness in calculations.
-- [ ] `MultiplyRestrictedCost`/`MultiplyForbiddenCost` — the toggle exists in
-  `HouseRulesOptionsTab` and persists, but no purchase flow anywhere (`AddGear`, `AddWeapon`,
-  `AddArmor`, `AddCyberware`, `AddNexus`, ...) actually multiplies cost for Restricted/Forbidden-
-  Availability items by `RestrictedCostMultiplier`/`ForbiddenCostMultiplier` when the house rule
-  is on - legacy applies this in every single Add-item handler (e.g. `tsGearAddNexus_Click`).
-  Real gap, not a simplification note anywhere yet.
+- [x] `MultiplyRestrictedCost`/`MultiplyForbiddenCost` — done. Added
+  `ApplyRestrictedForbiddenCostMultiplier` in `Chummer.Core/src/CharacterFileService.cs`, wired
+  into `DeductGearCost`/`DeductVehicleModCost` (both now take the item's raw Availability
+  string): applied by `AddGear`/`AddNexus`, `AddVehicle`, `AddVehicleGear`, `AddVehicleWeapon`,
+  `AddVehicleMod`, `AddWeaponAccessory`, `AddWeaponMod`, `AddArmorMod`, and (see below)
+  `AddWeapon`/`AddArmor`/`AddCyberware`.
+- [x] `AddWeapon`/`AddArmor`/`AddCyberware` (root-level item purchases, as opposed to their
+  mods/accessories which already went through `DeductGearCost`) never deducted Nuyen in this
+  port - adding a weapon, a suit of armor, or a piece of cyberware/bioware was completely free.
+  Found while wiring up the multiplier above; fixed by adding the same `DeductGearCost` call
+  these three root Add methods were missing (all other Add methods already had it). 3 new tests
+  confirm each deducts its own cost; 3 pre-existing mod/accessory tests whose expected Nuyen
+  totals had baked in the "root item is free" bug were corrected to include the parent item's
+  own cost.
 - [ ] Print-output house rules not honored by `CharacterSheetExporter` - `PrintArcanaAlternates`,
   `PrintExpenses`, `PrintLeadershipAlternates`, `PrintNotes`, `PrintSkillsWithZeroRating` all
   exist as settable/persisted options but the exporter doesn't branch on any of them, so sheet

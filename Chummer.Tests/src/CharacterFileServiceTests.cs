@@ -674,7 +674,7 @@ public class CharacterFileServiceTests
         Assert.Equal("Laser Sight", accessory.Name);
         Assert.True(accessory.IsWeaponAccessory);
         Assert.False(accessory.IsWeaponMod);
-        Assert.Equal("800", character.Nuyen); // 1000 - 200
+        Assert.Equal("450", character.Nuyen); // 1000 - 350 (weapon) - 200
 
         Assert.True(Guid.TryParse(accessory.ItemGuid, out Guid guiAccessoryId));
         Assert.True(character.RemoveWeaponAccessory(guiWeaponId, guiAccessoryId));
@@ -731,7 +731,7 @@ public class CharacterFileServiceTests
         Assert.Equal("Custom Look", mod.Name);
         Assert.True(mod.IsWeaponMod);
         Assert.False(mod.IsWeaponAccessory);
-        Assert.Equal("300", character.Nuyen); // 1000 - 700
+        Assert.Equal("-50", character.Nuyen); // 1000 - 350 (weapon) - 700
 
         Assert.True(Guid.TryParse(mod.ItemGuid, out Guid guiModId));
         Assert.True(character.RemoveWeaponMod(guiWeaponId, guiModId));
@@ -844,7 +844,7 @@ public class CharacterFileServiceTests
         CharacterTreeItemData armor = character.Armor.Single();
         CharacterTreeItemData mod = armor.Children.Single();
         Assert.Equal("Chemical Protection", mod.Name);
-        Assert.Equal("9250", character.Nuyen); // 10000 - 200(jacket) - 750(3 * 250)
+        Assert.Equal("9050", character.Nuyen); // 10000 - 200(jacket) - 750(3 * 250)
 
         Assert.True(character.RemoveArmorMod("Chemical Protection"));
         Assert.Empty(character.Armor.Single().Children);
@@ -3421,6 +3421,87 @@ public class CharacterFileServiceTests
             + "<children /></cyberware></cyberwares></character>");
 
         Assert.Equal("4", character.Attributes.Single(a => a.Code == "LOG").TotalValue);
+    }
+
+    [Fact]
+    public void AddGear_RestrictedAvail_MultipliesCostWhenHouseRuleOn()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MultiplyRestrictedCost = true, RestrictedCostMultiplier = 3 });
+
+        character.AddGear("Contraband", "Misc", strQty: "1", strCost: "100", strAvail: "8R");
+
+        Assert.Equal("9700", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddGear_RestrictedAvail_NotMultipliedWhenHouseRuleOff()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MultiplyRestrictedCost = false, RestrictedCostMultiplier = 3 });
+
+        character.AddGear("Contraband", "Misc", strQty: "1", strCost: "100", strAvail: "8R");
+
+        Assert.Equal("9900", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddGear_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MultiplyForbiddenCost = true, ForbiddenCostMultiplier = 5 });
+
+        character.AddGear("Illegal Item", "Misc", strQty: "1", strCost: "100", strAvail: "12F");
+
+        Assert.Equal("9500", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddGear_UnrestrictedAvail_IsNeverMultiplied()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions
+        {
+            MultiplyRestrictedCost = true, RestrictedCostMultiplier = 3,
+            MultiplyForbiddenCost = true, ForbiddenCostMultiplier = 5
+        });
+
+        character.AddGear("Ordinary Item", "Misc", strQty: "1", strCost: "100", strAvail: "8");
+
+        Assert.Equal("9900", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddWeapon_DeductsItsOwnCostFromNuyen()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Assert.Equal("650", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddArmor_DeductsItsOwnCostFromNuyen()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        Assert.Equal("800", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddCyberware_DeductsItsOwnCostFromNuyen()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>2000</nuyen></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+        Assert.Equal("1000", character.Nuyen);
+    }
+
+    [Fact]
+    public void AddWeapon_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MultiplyForbiddenCost = true, ForbiddenCostMultiplier = 4 });
+        character.AddWeapon("Illegal Gun", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "500", "12F", "SR4", "313");
+        Assert.Equal("8000", character.Nuyen); // 10000 - 500*4
     }
 
     [Fact]
