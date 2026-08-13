@@ -161,6 +161,18 @@ public partial class GeneralSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnEditQualityNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedQualityNode is not { Parent: not null, QualityId: >= 0 } quality
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = quality.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetQualityNotes(quality.QualityId, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     /// <summary>Swaps the selected Quality for a different one - ported from frmCareer.cs's
     /// cmdSwapQuality_Click, simplified to a plain remove+add: this port's Quality model doesn't
     /// track BP/cost at all yet (AddQuality never deducts Karma either), so legacy's Karma-cost-

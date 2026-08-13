@@ -250,7 +250,8 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         {
             var parent = quality.Type == "Negative" ? negativeQualities : positiveQualities;
             parent.AddChild(new TreeNodeViewModel(quality.DisplayName, strCategory: quality.Type,
-                strRating: quality.Extra, strSourceName: quality.Name));
+                strRating: quality.Extra, strSourceName: quality.Name, intQualityId: quality.QualityId,
+                strNotes: quality.Notes));
         }
         if (positiveQualities.Children.Count > 0) Qualities.Add(positiveQualities);
         if (negativeQualities.Children.Count > 0) Qualities.Add(negativeQualities);

@@ -47,6 +47,7 @@ public sealed class TreeNodeViewModel
     /// <summary>Position in the root armor collection, used only to persist armor drag-reordering.</summary>
     public int ArmorId { get; private set; } = -1;
     public int WeaponId { get; private set; } = -1;
+    public int QualityId { get; private set; } = -1;
 
     public string Qty { get; private set; } = "1";
 
@@ -181,7 +182,8 @@ public sealed class TreeNodeViewModel
     public TreeNodeViewModel? Parent { get; set; }
 
     public TreeNodeViewModel(string strName, bool blnExpanded = false, string strCategory = "",
-        string strRating = "0", bool blnEquipped = false, string strSourceName = "")
+        string strRating = "0", bool blnEquipped = false, string strSourceName = "",
+        int intQualityId = -1, string strNotes = "")
     {
         Name = strName;
         TranslatedName = strName;
@@ -190,6 +192,8 @@ public sealed class TreeNodeViewModel
         Rating = strRating;
         Equipped = blnEquipped;
         SourceName = strSourceName;
+        QualityId = intQualityId;
+        Notes = strNotes;
     }
 
     public void AddChild(TreeNodeViewModel child)

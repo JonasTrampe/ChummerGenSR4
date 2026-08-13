@@ -1447,6 +1447,28 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Updates a Quality's free-form notes. The root-list index is recomputed when
+        /// the character is read, which keeps older files without a quality GUID editable and
+        /// distinguishes repeated name/type/detail combinations.</summary>
+        public bool SetQualityNotes(int intQualityId, string strNotes)
+        {
+            XmlNode? objQuality = GetQualityNodeById(intQualityId);
+            if (objQuality == null)
+                return false;
+
+            SetChildValue(objQuality, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetQualityNodeById(int intQualityId)
+        {
+            if (intQualityId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/qualities/quality");
+            return objNodes != null && intQualityId < objNodes.Count ? objNodes[intQualityId] : null;
+        }
+
         /// <summary>
         /// Adds a spell using the saved-character fields consumed by <see cref="Spells"/>.
         /// Rules metadata is selected from spells.xml by the UI and copied here so the character
@@ -7780,9 +7802,13 @@ namespace Chummer.Core
             var lstQualities = new List<CharacterQualityData>();
             var objNodes = Document.SelectNodes("/character/qualities/quality");
             if (objNodes == null) return lstQualities;
-            foreach (XmlNode objNode in objNodes)
+            for (int intQualityId = 0; intQualityId < objNodes.Count; intQualityId++)
+            {
+                XmlNode objNode = objNodes[intQualityId]!;
                 lstQualities.Add(new CharacterQualityData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "qualitytype", string.Empty)));
+                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "qualitytype", string.Empty),
+                    intQualityId, GetValue(objNode, "notes", string.Empty)));
+            }
             return lstQualities;
         }
 
@@ -8955,16 +8981,21 @@ namespace Chummer.Core
 
     public sealed class CharacterQualityData
     {
-        internal CharacterQualityData(string strName, string strExtra, string strType)
+        internal CharacterQualityData(string strName, string strExtra, string strType, int intQualityId,
+            string strNotes)
         {
             Name = strName;
             Extra = strExtra;
             Type = strType;
+            QualityId = intQualityId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
         public string Extra { get; }
         public string Type { get; private set; }
+        public int QualityId { get; }
+        public string Notes { get; }
 
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }

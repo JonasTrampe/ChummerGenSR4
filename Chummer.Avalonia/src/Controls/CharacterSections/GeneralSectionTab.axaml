@@ -10,6 +10,7 @@
             <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
                 <Button Content="{loc:Loc Button_AddQuality}" Click="OnAddQualityClick" />
                 <Button Content="{loc:Loc Button_SwapQuality}" Click="OnSwapQualityClick" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditQualityNotesClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteQualityClick" />
                 <Button Content="{loc:Loc UI_AddPacksKit}" Click="OnAddPacksKitClick" />
             </StackPanel>

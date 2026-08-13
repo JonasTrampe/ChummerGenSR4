@@ -123,6 +123,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void QualityNotes_PersistForTheSelectedDuplicateAndSurviveReload()
+    {
+        CharacterDocument character = LoadXml("<character><qualities>"
+            + "<quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality>"
+            + "<quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality>"
+            + "</qualities></character>");
+
+        Assert.True(character.SetQualityNotes(character.Qualities[1].QualityId, "Second entry only"));
+        Assert.Equal(string.Empty, character.Qualities[0].Notes);
+        Assert.Equal("Second entry only", character.Qualities[1].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(string.Empty, reloaded.Qualities[0].Notes);
+        Assert.Equal("Second entry only", reloaded.Qualities[1].Notes);
+    }
+
+    [Fact]
     public void AddQuality_AnalyticalMind_AppliesItsSpecificSkillBonuses()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
