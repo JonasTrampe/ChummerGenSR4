@@ -26,7 +26,7 @@ feature checklist requires its visible legacy behavior and a Core test or smoke-
 | Improvements and rules calculations | partial | Common bonus types and displayed calculations work. The omitted bonus nodes and documented skill/weapon/vehicle edge cases still change legitimate legacy characters. |
 | Vehicles / drones | partial | Root vehicle, mod, gear, weapon, location, damage and mount workflows work. Sensor/cyberware/nexus/plugin nesting, underbarrels, item notes/names, and vehicle-scoped Improvements do not. |
 | Output / print / export | partial | XSLT preview, HTML/PDF export, multiple-character and Squad Manager export work. Native-print behavior, PrintToFileFirst, full print XML, and mounted-weapon fields remain incomplete. |
-| Cloud | partial | Normal documents/folders/revisions/share workflows are present. Cloud-load prompt and a verified conflict/newer-revision decision loop are still absent. |
+| Cloud | partial | Documents/folders/revisions/share plus login, newer-revision and conflict choice flows are present. What remains is an end-to-end server round-trip verification pass. |
 | Settings / localization | partial | Profiles and almost all controls persist. Several behavior options are only persisted; sourcebook filtering does not cover Suites/PACKS. |
 
 ## Newly surfaced functional gaps
@@ -52,8 +52,9 @@ These were absent or too narrowly described in the prior checklist and are now t
 
 - **Character creation budget enforcement** — display-only tracker; creation mutations do not all
   consume/reject against one shared budget.
-- **Cloud conflict/newer revision handling** — the old plan's “feature-complete” claim conflicts
-  with the actual open conflict path. Treat it as incomplete until a round-trip test exists.
+- **Cloud conflict/newer revision handling** — Avalonia contains the login, newer-revision and
+  conflict decision flows. The former “missing flow” finding was corrected during this audit;
+  treat cloud as incomplete only until a server round-trip test proves those decisions persist.
 - **Bonus application / Manual Improvements** — `BonusApplier` omits `enabletab`, `addattribute`,
   vehicle stat effects, `essencemax`, `nuyenamt`, free-quality grants and the cyberware-essence
   multiplier. Manual Improvements expose only 13 legacy types.
