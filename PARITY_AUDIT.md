@@ -15,7 +15,7 @@ Status: 2026-08-13. Source comparison: legacy `clsCharacter`, `clsEquipment`, `c
 | --- | --- | --- |
 | Contacts, spells, powers, spirits, techprograms, martial arts, armor, weapons, cyberware, qualities, lifestyles, gear, vehicles, grades, improvements, expenses, calendar | `[x]` | Core projection and mutation path exist. |
 | `foci` | `[~]` | Projection, normal bond/unbond, MAG limits, Karma, equipped-Gear bonus lifecycle and save/reload coverage exist. |
-| `stackedfoci` | `[ ]` | No projection, stack/unstack, bonus lifecycle, or save path. |
+| `stackedfoci` | `[~]` | Projection and save/reload preserve component snapshots and broken links; stack/unstack and lifecycle remain. |
 
 ## Verified Core gaps
 

@@ -6630,6 +6630,10 @@ namespace Chummer.Core
         /// instead of silently dropping the player's bonded record.</summary>
         public IReadOnlyList<CharacterFocusData> Foci => ReadFoci();
 
+        /// <summary>Saved Stacked Foci, retaining their composite Gear identity, bonded state,
+        /// and the component-Gear snapshots stored by legacy character files.</summary>
+        public IReadOnlyList<CharacterStackedFocusData> StackedFoci => ReadStackedFoci();
+
         /// <summary>Reports whether a Focus Gear can be bonded under the legacy MAG count and
         /// total-Force limits. Cost and bonus application are deliberately handled by the binding
         /// transaction, not by this pure validation method.</summary>
@@ -9432,6 +9436,32 @@ namespace Chummer.Core
             return lstFoci;
         }
 
+        private IReadOnlyList<CharacterStackedFocusData> ReadStackedFoci()
+        {
+            var lstFoci = new List<CharacterStackedFocusData>();
+            XmlNodeList? objNodes = Document.SelectNodes("/character/stackedfoci/stackedfocus");
+            if (objNodes == null) return lstFoci;
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strGearId = GetValue(objNode, "gearid", string.Empty);
+                XmlNode? objCompositeGear = Guid.TryParse(strGearId, out Guid guiGearId)
+                    ? FindGearNodeByGuid(guiGearId) : null;
+                var lstComponents = new List<CharacterStackedFocusGearData>();
+                XmlNodeList? objGears = objNode.SelectNodes("gears/gear");
+                if (objGears != null)
+                    foreach (XmlNode objGear in objGears)
+                        lstComponents.Add(new CharacterStackedFocusGearData(GetValue(objGear, "guid", string.Empty),
+                            GetValue(objGear, "name", string.Empty), GetValue(objGear, "category", string.Empty),
+                            GetValue(objGear, "rating", "0")));
+
+                lstFoci.Add(new CharacterStackedFocusData(GetValue(objNode, "guid", string.Empty), strGearId,
+                    GetValue(objNode, "bonded", "False") == "True", objCompositeGear != null,
+                    objCompositeGear == null ? string.Empty : GetValue(objCompositeGear, "name", string.Empty),
+                    lstComponents));
+            }
+            return lstFoci;
+        }
+
         private IReadOnlyList<CharacterInitiationGradeData> ReadInitiationGrades()
         {
             var lstGrades = new List<CharacterInitiationGradeData>();
@@ -10685,6 +10715,47 @@ namespace Chummer.Core
         public string Rating { get; }
         public bool LinkedGearExists { get; }
         public string GearCategory { get; }
+    }
+
+    public sealed class CharacterStackedFocusData
+    {
+        internal CharacterStackedFocusData(string strGuid, string strGearId, bool blnBonded,
+            bool blnCompositeGearExists, string strCompositeGearName,
+            IReadOnlyList<CharacterStackedFocusGearData> lstComponents)
+        {
+            Guid = strGuid;
+            GearId = strGearId;
+            Bonded = blnBonded;
+            CompositeGearExists = blnCompositeGearExists;
+            CompositeGearName = strCompositeGearName;
+            Components = lstComponents;
+        }
+
+        public string Guid { get; }
+        public string GearId { get; }
+        public bool Bonded { get; }
+        public bool CompositeGearExists { get; }
+        public string CompositeGearName { get; }
+        public IReadOnlyList<CharacterStackedFocusGearData> Components { get; }
+        public int TotalForce => Components.Sum(component => int.TryParse(component.Rating,
+            NumberStyles.Integer, CultureInfo.InvariantCulture, out int intRating) ? intRating : 0);
+        public string DisplayName => string.Join(", ", Components.Select(component => component.Name));
+    }
+
+    public sealed class CharacterStackedFocusGearData
+    {
+        internal CharacterStackedFocusGearData(string strGuid, string strName, string strCategory, string strRating)
+        {
+            Guid = strGuid;
+            Name = strName;
+            Category = strCategory;
+            Rating = strRating;
+        }
+
+        public string Guid { get; }
+        public string Name { get; }
+        public string Category { get; }
+        public string Rating { get; }
     }
 
     public sealed class CharacterInitiationGradeData

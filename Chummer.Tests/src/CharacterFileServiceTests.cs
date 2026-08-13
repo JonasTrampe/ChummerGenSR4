@@ -2966,6 +2966,34 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void StackedFoci_ProjectLegacyComponentSnapshotsAndBrokenCompositeGearLinks()
+    {
+        CharacterDocument character = LoadXml("<character><gears><gear><guid>00000000-0000-0000-0000-000000000001</guid>"
+            + "<name>Stacked Focus: Power Focus, Weapon Focus</name><category>Stacked Focus</category></gear></gears>"
+            + "<stackedfoci><stackedfocus><guid>00000000-0000-0000-0000-000000000010</guid>"
+            + "<gearid>00000000-0000-0000-0000-000000000001</gearid><bonded>True</bonded><gears>"
+            + "<gear><guid>00000000-0000-0000-0000-000000000020</guid><name>Power Focus</name><category>Foci</category><rating>2</rating></gear>"
+            + "<gear><guid>00000000-0000-0000-0000-000000000021</guid><name>Weapon Focus</name><category>Foci</category><rating>3</rating></gear>"
+            + "</gears></stackedfocus><stackedfocus><guid>00000000-0000-0000-0000-000000000011</guid>"
+            + "<gearid>00000000-0000-0000-0000-000000000099</gearid><bonded>False</bonded><gears /></stackedfocus></stackedfoci></character>");
+
+        Assert.Equal(2, character.StackedFoci.Count);
+        CharacterStackedFocusData stacked = character.StackedFoci[0];
+        Assert.True(stacked.CompositeGearExists);
+        Assert.True(stacked.Bonded);
+        Assert.Equal(5, stacked.TotalForce);
+        Assert.Equal("Power Focus, Weapon Focus", stacked.DisplayName);
+        Assert.Equal("Weapon Focus", stacked.Components[1].Name);
+        Assert.False(character.StackedFoci[1].CompositeGearExists);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "stacked-focus.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "stacked-focus.chum");
+        Assert.Equal(5, reloaded.StackedFoci[0].TotalForce);
+    }
+
+    [Fact]
     public void CanBondFocus_EnforcesMagCountAndTotalForce()
     {
         CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("MAG", "2") + "</attributes><gears>"
