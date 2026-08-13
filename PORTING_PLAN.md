@@ -14,13 +14,12 @@ lives in the legacy WinForms files (`clsCharacter.cs` 6.2k lines, `clsUnique.cs`
 `clsEquipment.cs` 15.7k) and in ~41 `frmSelectXxx` picker dialogs plus the two giant host forms
 `frmCareer.cs`/`frmCreate.cs` (27.6k/23.6k lines).
 
-That gap — "reads and displays" vs. "computes and edits" — is the real porting boundary.
-One notable exception now exists: the Avalonia shell already has a real Cloud Documents dialog
-backed by the shared RunnersPoint API/auth code, including folders, revisions, metadata, and
-upload/download flows. Cloud parity is therefore no longer a "not started" area; it is a
-  feature-complete port stream: document and folder management, sharing, revision history, stale
-  revision handling, and local-file freshness checks are all wired. Future changes here are
-  optional polish rather than a feature-parity blocker.
+That gap — "reads and displays" vs. "computes and edits" — is the real porting boundary. The
+full 2026-08-13 comparison in `PARITY_AUDIT.md` also found a second boundary that this older plan
+did not track: legacy host-form commands and contextual editing operations. Cloud has a real
+RunnersPoint implementation (folders, revisions, metadata and upload/download), but conflict/
+newer-revision decisions still require an end-to-end verification pass; it remains a parity item,
+not optional polish.
 Everything below is sequenced around closing it a slice at a time, always keeping the app
 buildable and runnable at each step.
 
@@ -223,13 +222,16 @@ rather than as a separate cleanup pass later:
 
 ## Suggested order of attack
 
-1. ~~Nullable + test-fixture prep~~ ✅ (fixture exists, used throughout Phase 1/2)
-2. ~~Phase 1 (Improvement engine)~~ ✅
-3. ~~Phase 2 (Essence → CM → encumbrance → dice pools → costs)~~ ✅; vehicle component editing
-   is underway, with onboard gear/weapons and rule validation still open
-4. Phase 3.3 next: generalize the proven write path (Quality/Spell/Karma-Nuyen/Gear-root) to
-   cyberware and contacts, and finish Gear's quantity/containment semantics
-5. Phase 4.1–4.3 (dialog service + the two already-half-wired dialogs)
-6. Everything else (remaining pickers, creation flow, print pipeline, Vehicles tree)
-   opportunistically, prioritized by what a usable end-to-end "open → edit → save → reopen"
-   character loop needs
+1. **Parity closure gate:** treat `FEATURE_CHECKLIST.md` and `PARITY_AUDIT.md` as the work queue;
+   no broad area may be called complete while either lists a real legacy branch.
+2. **Safe behavior settings:** implement Delete/Karma confirmations, creation backup, automatic
+   copy protection/registration and `PrintToFileFirst`; explicitly replace or retire Omae and
+   localized-update behavior only with a documented product decision.
+3. **Core integrity:** finish creation budget enforcement and the omitted Improvement/calculation
+   branches before adding more presentation-only UI.
+4. **Contextual editing:** add reusable name/notes and nested containment APIs/UI, then the
+   creation/career Special commands and clipboard/history workflows.
+5. **Long-tail rules/UI:** complete PACKS, Foci, category pickers, suite/kit authoring and the
+   remaining vehicle/special-character workflows.
+6. **End-to-end validation:** reconcile cloud conflicts, complete print XML/native printing, and
+   run platform smoke tests before declaring parity.

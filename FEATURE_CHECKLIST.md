@@ -4,8 +4,8 @@
 backlog, not an accepted permanent gap. There wasn't a granular checklist before this file;
 `PORTING_PLAN.md`/`docs/LINUX_PORT_PLAN.md` are older phase-level narratives.
 
-**Audit:** [PARITY_AUDIT.md](PARITY_AUDIT.md) records the 2026-08-13 code-level scan. A known
-skipped legacy branch is `[~]`, never `[x]`, even when the main flow works.
+**Audit:** [PARITY_AUDIT.md](PARITY_AUDIT.md) records the full 2026-08-13 legacy-surface scan.
+A known skipped legacy branch is `[~]`, never `[x]`, even when the main flow works.
 
 **Legend (one system, used everywhere in this file):**
 - `[x]` done — real, working, not a mockup
@@ -84,28 +84,38 @@ Everything not `[x]`, in one place, grouped by area.
   attempting.
 - [~] `frmDiceHits`/Cyberzombie conversion — single ultra-niche caller; only worth building
   bundled with a hypothetical Cyberzombie-conversion feature.
+- [ ] Legacy Special commands: Change Metatype, Mutant Critter, Toxic Critter, Convert to Free
+  Sprite, Reapply Improvements, and BP-availability override; all are currently absent, not retired.
+- [ ] Legacy item clipboard (copy/paste) and `frmHistory` character-history workflow.
+- [ ] Per-item rename and notes for equipment, qualities, powers, spells, martial arts,
+  lifestyles, vehicle components and Improvements; only character/contact/calendar notes are wired.
+- [ ] Nested legacy containment flows: weapon underbarrels; gear-as-plugin under armor/cyberware/
+  weapon accessories; vehicle sensor/cyberware/Nexus/plugin flows.
 
 ---
 
 ## Character file I/O
 
-- [x] Open/save `.chum`, multiple characters open in tabs, MRU/recent-files list
+- [~] Open/save `.chum`, multiple characters open in tabs, MRU/recent-files list. Separate Save As,
+  unsaved-close confirmation, and legacy Window-menu document navigation are still absent.
 - [x] Editing across tabs persists to the XML and survives save/reload (audited via a full
   `SelectedItem`/`SelectedIndex`/`Selected`/`IsChecked` binding sweep; fixed 5 missing
   `Mode=TwoWay` bindings, one of which made `LifestyleDialog` completely unusable)
-- [x] Character creation flow (Karma/BP point-buy, not a priority-table system): Settings Profile
+- [~] Character creation flow (Karma/BP point-buy, not a priority-table system): Settings Profile
   → Karma/GP → Metatype (incl. Magician/Adept/Mystic Adept/Technomancer/none) → per-attribute/
   skill/skill-group Create-mode point spending → "Charakter fertigstellen" finalizes (prompts for
   the starting-Lifestyle-Nuyen roll first, `LifestyleNuyenDialog`) and switches to career-mode
-  Karma costs
+  Karma costs. The special creation commands, creation clipboard, complete budget enforcement and
+  backup-on-career remain open.
 - [~] Cloud save/share (RunnersPoint API): login, folder tree, push/download/archive/unarchive,
   metadata, revisions, drag/drop into folders. Conflict/newer-revision handling still open (see
   backlog).
 
 ## Character sheet tabs
 
-- [x] Allgemein, Fertigkeiten, Kampfkünste, Adeptenkräfte, Cyberware/Bioware, Charakter-Info,
-  Karma/Nuyen, Kalender, Notizen — display + add/edit/delete where applicable
+- [~] Allgemein, Fertigkeiten, Kampfkünste, Adeptenkräfte, Cyberware/Bioware, Charakter-Info,
+  Karma/Nuyen, Kalender, Notizen — display + common add/edit/delete work; see open per-item
+  rename/notes and nested-containment flows above.
 - [x] Sprüche und Geister — real detail pane (was static mockup), Tradition/Stream selection,
   Drain/Fading resistance pool, per-spell casting dice pool (separate from Drain pool)
 - [x] Komplexe Formen / Kritter-Kräfte — add/delete via picker
@@ -247,8 +257,8 @@ Everything not `[x]`, in one place, grouped by area.
 
 - [x] Options/settings UI — profiles, sourcebooks, build/karma/BP values, house/optional rules,
   global update/PDF/cloud options, persisted via `SettingsStore`
-- [x] Sourcebook filtering (`Options.BookXPath()`) wired into every rules-data picker. Not
-  covered: MentorSpirit picker (no filtering need in legacy either), PACKS Kits/Suites.
+- [~] Sourcebook filtering (`Options.BookXPath()`) is wired into ordinary rules-data pickers.
+  PACKS Kits/Suites remain unfiltered; MentorSpirit has no legacy filtering requirement.
 - [x] Cyberlimb attribute averaging (AGI/BOD/STR), ported from `clsUnique.cs`'s
   `Attribute.TotalValue`
 - [x] UI translation — done. Every AXAML string and every real UI-facing `.cs` string literal now

@@ -1,42 +1,87 @@
-# Avalonia parity audit — 2026-08-13
+# Avalonia parity audit — 2026-08-13 (full legacy surface scan)
 
-This is an evidence-based scan of the current Avalonia/Core port against explicit legacy behavior
-and the port's own source comments. It does **not** mark a feature complete merely because a dialog
-or a Core method exists. Each item below has a concrete missing behavior or a conflicting checklist
-claim and must remain visible in the main checklist until resolved.
+This is the authoritative static comparison of the legacy WinForms application
+(`Chummer/code/frm*.cs`, `clsCharacter.cs`, `clsEquipment.cs`, `clsImprovement.cs`) with
+`Chummer.Core` and `Chummer.Avalonia`. It replaces the earlier marker-only scan. A dialog,
+persisted option, or read-only tree counts only as evidence of partial coverage; `[x]` in the
+feature checklist requires its visible legacy behavior and a Core test or smoke-test evidence.
 
-## High-impact functional gaps
+## Method and scope
 
-- **Character creation budget enforcement** — `CharacterSidebarViewModel` displays the creation
-  budget, but creation mutations do not all consume/reject against that shared tracker. See
-  `FEATURE_CHECKLIST.md` “Creation-mode BP/Karma budget tracker”.
-- **Cloud conflict/newer-revision handling** — the checklist simultaneously calls the full cloud
-  workflow done and says conflict/newer-revision handling is open. Treat the latter as authoritative
-  until a round-trip conflict test proves it.
-- **Bonus application / Manual Improvements** — `BonusApplier.cs:34-46` excludes vehicle-scoped
-  bonuses, `enabletab`, `addattribute`, `essencemax`, `nuyenamt`, free-quality grants, and the
-  cyberware-essence multiplier. Manual Improvements expose only a curated subset, not the legacy
-  type set.
-- **PACKS kits** — `CharacterFileService.cs:2375-2384` intentionally skips Vehicles, Martial
-  Arts, Spirits, kit Armor Mods/nested Gear, Weapon Accessories/Mods, and Exotic Skills.
-- **Combat calculations** — `CharacterFileService.cs:7731` explicitly excludes loaded-ammo recoil
-  bonuses; `CharacterFileService.cs:8098-8102` excludes Skillsoft/Activesoft overrides, Mystic
-  Adept MAG split, SwapSkillAttribute, Enhanced Articulation, and MetaRatingModifier.
-- **Character output** — vehicle-mounted weapon Damage/AP/RC is missing from generated sheet XML;
-  native OS printing still needs desktop smoke validation.
+- Enumerated every legacy `frm*` workflow and both host forms' File/Edit/Special/context-menu
+  handlers, then searched the Core mutation APIs and Avalonia commands for its equivalent.
+- Compared every persisted behavior option with its legacy read site, not merely its Options UI
+  binding.
+- Reviewed all explicit Core port-boundary comments and export paths. This is a source-level
+  audit: it cannot prove platform dialogs or cloud servers without runtime smoke tests.
 
-## Feature coverage that is deliberately partial
+## Surface map
 
-- **Quality swap** is remove/add only: no Karma delta, refund, or metatype-origin guard
-  (`GeneralSectionTab.axaml.cs:159-163`).
-- **Selectable category pickers** (`frmSelectSkillCategory`, `frmSelectSpellCategory`) are absent.
-- **Custom Cyberware Suite/PACKS authoring** is absent because user-data storage has not been
-  designed.
-- **Foci / Stacked Foci** and the `AllowHigherStackedFoci` rule remain absent.
-- **Cyberzombie conversion / frmDiceHits** remains absent.
+| Legacy area | Port status | Evidence / remaining work |
+| --- | --- | --- |
+| File, tabbed documents, save, recent files | partial | Open/save/recent/multi-tab work. There is no separate Save As command, dirty-close prompt, or legacy Window-menu navigation. |
+| Character creation / career transition | partial | Normal Karma/BP creation and finalization work. Budget enforcement, backup-on-career, creation clipboard, metatype change, critter conversions, Free Sprite conversion, and BP availability override do not. |
+| Core character tabs | partial | All primary tabs render and most common add/remove operations work. Per-item rename/notes, several nested add-as-plugin flows, Foci, and special conversion flows are absent. |
+| Item pickers | partial | Common rules-data pickers are present. Category pickers, several generic legacy selection modes, and complete PACKS expansion are not. |
+| Improvements and rules calculations | partial | Common bonus types and displayed calculations work. The omitted bonus nodes and documented skill/weapon/vehicle edge cases still change legitimate legacy characters. |
+| Vehicles / drones | partial | Root vehicle, mod, gear, weapon, location, damage and mount workflows work. Sensor/cyberware/nexus/plugin nesting, underbarrels, item notes/names, and vehicle-scoped Improvements do not. |
+| Output / print / export | partial | XSLT preview, HTML/PDF export, multiple-character and Squad Manager export work. Native-print behavior, PrintToFileFirst, full print XML, and mounted-weapon fields remain incomplete. |
+| Cloud | partial | Normal documents/folders/revisions/share workflows are present. Cloud-load prompt and a verified conflict/newer-revision decision loop are still absent. |
+| Settings / localization | partial | Profiles and almost all controls persist. Several behavior options are only persisted; sourcebook filtering does not cover Suites/PACKS. |
+
+## Newly surfaced functional gaps
+
+These were absent or too narrowly described in the prior checklist and are now tracked there.
+
+1. **File/document behavior:** separate Save As, unsaved-change confirmation, Window-menu document
+   navigation, and character history (`frmHistory`) have no Avalonia equivalent.
+2. **Creation special commands:** Change Metatype, Mutant Critter, Toxic Critter, Cyberzombie,
+   Convert to Free Sprite, Reapply Improvements, BP availability override, and legacy copy/paste
+   are all callable workflows in `frmCreate`/`frmCareer` with no port equivalent.
+3. **Item editing and containment:** legacy context menus support renaming and per-item notes across
+   weapons, armor, gear, cyberware, vehicle components, qualities, spells, powers, lifestyles,
+   martial arts and improvements. The port only exposes character/contact/calendar notes. It also
+   lacks several valid nested operations: add gear as a plugin to armor/cyberware/accessories,
+   vehicle sensor/cyberware/Nexus/plugin flows, and weapon underbarrels.
+4. **Creation/career accounting:** `FinalizeCreation` intentionally has no validation gate; it
+   neither applies the CreateBackupOnCareer setting nor covers all legacy creation/career costs.
+5. **Output data:** the exporter omits or simplifies fields some shipped sheets consume, including
+   vehicle-mounted weapon Damage/AP/RC and item-level notes; this makes “full print XML” inaccurate.
+
+## Existing partial areas confirmed by the scan
+
+- **Character creation budget enforcement** — display-only tracker; creation mutations do not all
+  consume/reject against one shared budget.
+- **Cloud conflict/newer revision handling** — the old plan's “feature-complete” claim conflicts
+  with the actual open conflict path. Treat it as incomplete until a round-trip test exists.
+- **Bonus application / Manual Improvements** — `BonusApplier` omits `enabletab`, `addattribute`,
+  vehicle stat effects, `essencemax`, `nuyenamt`, free-quality grants and the cyberware-essence
+  multiplier. Manual Improvements expose only 13 legacy types.
+- **PACKS kits** — Vehicle, Martial Art, Spirit, Lifestyle, nested Armor Gear/Mods, Weapon
+  Accessory/Mods and Exotic Skill expansion is intentionally skipped.
+- **Calculations** — loaded-ammo recoil, special-weapon range disambiguation, Skillsoft/Activesoft
+  overrides, Mystic-Adept split, SwapSkillAttribute, Enhanced Articulation, MetaRatingModifier,
+  special metatype initiative cap, cyborg Essence and some armor-mod effects are still absent.
+- **Quality swap** — remove/add only; no Karma delta/refund or metatype-origin guard.
+- **Foci / Stacked Foci**, Cyberzombie's `frmDiceHits`, custom Cyberware Suite/PACKS authoring,
+  and the Skill/Spell Category pickers are absent.
+
+## Behavior-option audit
+
+| Option | Actual current status |
+| --- | --- |
+| `SingleDiceRoller`, `DatesIncludeTime`, `StartupFullscreen` | implemented runtime behavior |
+| `AutomaticUpdate`, `SuppressCloudUnreachableWarning` | implemented, subject to cloud/update smoke testing |
+| `BookEnabled` | picker filtering works for ordinary rules-data pickers; Suites and PACKS do not filter |
+| `ConfirmDelete`, `ConfirmKarmaExpense` | persisted only; legacy has confirmations at many destructive/costly commands |
+| `CreateBackupOnCareer` | persisted only; no save/backup action during finalization |
+| `AutomaticCopyProtection`, `AutomaticRegistration` | persisted only; missing automatic child-gear additions for eligible Matrix/soft items |
+| `LocalisedUpdatesOnly` | persisted only; GitHub-release updater does not fetch localized payloads |
+| `OmaeAutoLogin` | obsolete legacy service setting is persisted only; requires an explicit replacement/retirement decision, not silent exclusion |
+| `PrintToFileFirst` | persisted only; native web printing never reads it |
 
 ## Audit policy
 
-An item is `[x]` only if its legacy-visible behavior is present end to end and has a proportional
-Core/UI test or smoke-test evidence. A feature with known skipped branches is `[~]`; its skipped
-branches must remain listed in `FEATURE_CHECKLIST.md`, not only in source comments.
+A known skipped legacy branch remains `[~]` or `[ ]` in `FEATURE_CHECKLIST.md`, never `[x]`.
+Every future parity change must update that checklist and this audit when it changes a listed
+boundary. Runtime-only features require platform smoke evidence before moving to `[x]`.
