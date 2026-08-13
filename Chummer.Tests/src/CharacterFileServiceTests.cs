@@ -3569,6 +3569,28 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RaiseNuyenCreate_StopsAtTheSavedMaxByDefault()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><buildmethod>Bp</buildmethod><bp>10</bp><nuyenbp>2</nuyenbp><nuyenmaxbp>2</nuyenmaxbp></character>");
+        Assert.False(character.RaiseNuyenCreate());
+        Assert.Equal(2, character.NuyenPoints);
+    }
+
+    [Fact]
+    public void RaiseNuyenCreate_UnrestrictedNuyen_UsesStartingBuildPointsInstead()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><buildmethod>Bp</buildmethod><bp>10</bp><nuyenbp>2</nuyenbp><nuyenmaxbp>2</nuyenmaxbp><startingbuildpoints>5</startingbuildpoints></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { UnrestrictedNuyen = true });
+
+        // The saved cap (2) would already block this, but UnrestrictedNuyen substitutes the
+        // character's whole starting point budget (5) instead - so a 3rd point still succeeds.
+        Assert.True(character.RaiseNuyenCreate());
+        Assert.Equal(3, character.NuyenPoints);
+    }
+
+    [Fact]
     public void AddWeapon_DeductsItsOwnCostFromNuyen()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");

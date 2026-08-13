@@ -332,8 +332,20 @@ namespace Chummer.Core
         /// or 1 BP, depending on <see cref="BuildMethod"/>, and grants a build-specific Nuyen payout).</summary>
         public int NuyenPoints => int.TryParse(GetValue("/character/nuyenbp", "0"), out var v) ? v : 0;
 
-        /// <summary>Maximum number of points that may be sunk into starting Nuyen during creation.</summary>
-        public int NuyenPointsMax => int.TryParse(GetValue("/character/nuyenmaxbp", "0"), out var v) ? v : 0;
+        /// <summary>Maximum number of points that may be sunk into starting Nuyen during creation -
+        /// ordinarily the persisted priority-table value, but with the UnrestrictedNuyen house
+        /// rule on, ported from clsCharacter.cs's NuyenMaximumBP: the character's whole starting
+        /// point/Karma budget instead (falling back to 1000 for saves with no recorded starting
+        /// total, same as legacy).</summary>
+        public int NuyenPointsMax
+        {
+            get
+            {
+                if (GetCharacterOptions().UnrestrictedNuyen)
+                    return StartingBuildPoints > 0 ? StartingBuildPoints : 1000;
+                return int.TryParse(GetValue("/character/nuyenmaxbp", "0"), out var v) ? v : 0;
+            }
+        }
 
         /// <summary>Nuyen granted per point spent, for the current <see cref="BuildMethod"/>.</summary>
         public int NuyenPerPoint

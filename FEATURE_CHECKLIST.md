@@ -106,40 +106,52 @@ context on each.
   also gates Contact/MartialArtManeuver notes, but the only shipped sheet so far, Text-Only.xsl,
   never reads those, so that part wasn't ported - noted in a comment rather than silently
   dropped).
-- [ ] Broader house-rule audit: every `bool` in `Options.cs`/`CharacterOptions` was checked for a
-  real consumer, covering both of legacy's `frmOptions.cs` tabs - "House Rules" AND "Optional
-  Rules" (`tabOptionalRules`, ported here as the separate `OptionalRulesOptionsTab` - confirmed
-  present with all 16 of legacy's real optional-rule checkboxes:
-  `AllowCustomTransgenics`/`AllowSkillRegrouping`/`AlternateComplexFormCost`/
-  `AlternateMatrixAttribute`/`ArmorDegradation`/`ArmorSuitCapacity`/
-  `BreakSkillGroupsInCreateMode`/`CapSkillRating`/`ExtendAnyDetectionSpell`/
-  `MaximumArmorModifications`/`MetatypeCostsKarma`/`MoreLethalGameplay`/
-  `NoSingleArmorEncumbrance`/`StrengthAffectsRecoil`/`UseCalculatedVehicleSensorRatings` - so the
-  UI-level split itself is not a gap). Beyond the two rows above, these have a working UI
-  checkbox and persist, but no calculation anywhere reads them yet (not yet even
-  scoped/documented as partial, unlike the house rules in § House-rule awareness in calculations,
-  which HAVE been individually audited and wired) - the list below mixes both legacy tabs since
-  functionally they're the same kind of gap: `AllowBiowareSuites`, `AllowCustomTransgenics`,
-  `AllowEditPartOfBaseWeapon`,
-  `AllowHigherStackedFoci`, `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`,
-  `AlternateComplexFormCost`, `AlternateMatrixAttribute`, `ArmorDegradation`,
-  `ArmorSuitCapacity`, `BreakSkillGroupsInCreateMode`, `CalculateCommlinkResponse`,
-  `ErgonomicProgramLimit`, `ExceedNegativeQualities`/`ExceedNegativeQualitiesLimit`/
-  `ExceedPositiveQualities`, `ExtendAnyDetectionSpell`, `FreeKarmaKnowledge`,
-  `MaximumArmorModifications`, `MetatypeCostsKarma`, `MoreLethalGameplay` (combat-tracker
-  adjacent, low priority - see the Sell Item/Reload note below), `RestrictRecoil`/
-  `StrengthAffectsRecoil` (same, combat-tracker adjacent), `SpecialAttributeKarmaLimit` (the
-  `AllowExceedAttributeBp` sub-rule already flagged as not-ported in that row's own note),
-  `SpiritForceBasedOnTotalMag`, `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`,
-  `UnrestrictedNuyen`, `SpecialKarmaCostBasedOnShownValue`. Each needs its own small
-  investigation (real-data frequency + what calculation it should gate) the same way the already-
-  wired house rules got, rather than a blanket implementation pass. Not included here: app-
-  behavior toggles that aren't character-calculation house rules at all (`ConfirmDelete`,
-  `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,
-  `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
-  `OmaeAutoLogin`, `PrintToFileFirst`, `SingleDiceRoller`, `StartupFullscreen`,
-  `SuppressCloudUnreachableWarning`) - those belong with their respective UI/session features,
-  not this list.
+- [x] `UnrestrictedNuyen` — done. `CharacterDocument.NuyenPointsMax` (consumed by
+  `RaiseNuyenCreate`'s spend cap) now returns `StartingBuildPoints` (falling back to 1000 for
+  saves with no recorded starting total) instead of the persisted `<nuyenmaxbp>` priority-table
+  value when the house rule is on, matching `clsCharacter.cs`'s `NuyenMaximumBP`.
+- [ ] Broader house-rule audit: re-checked every remaining `bool` in `Options.cs`/`CharacterOptions`
+  for a real consumer (both of legacy's `frmOptions.cs` tabs - "House Rules" and "Optional Rules",
+  the latter ported here as `OptionalRulesOptionsTab` with all 16 real checkboxes present, so the
+  UI-level split itself was never the gap). This pass found 3 more already-wired than the previous
+  version of this note claimed - **corrected, not still open**: `AllowSkillRegrouping` (gates
+  `RaiseSkillGroupCreate`'s common-rating check), `CapSkillRating` (gates the Active Skill rating
+  cap), `UseCalculatedVehicleSensorRatings`, and `NoSingleArmorEncumbrance` (already covered by
+  `AllowExceedAttributeBp`'s neighboring row via `ComputeArmorEncumbrance`) are all real consumers
+  in `CharacterFileService.cs` today.
+  Of what's left, most are blocked on a whole missing subsystem rather than a one-line wire-up -
+  listed here grouped by what's missing, so a future pass builds the subsystem once instead of
+  re-discovering the same blocker 3 times:
+  - No creation-mode BP/Karma budget tracker at all (this port's creation flow has no
+    "points remaining" summary the way `frmCreate.cs` does): blocks `MetatypeCostsKarma`,
+    `ExceedPositiveQualities`/`ExceedNegativeQualities`/`ExceedNegativeQualitiesLimit`,
+    `FreeKarmaKnowledge`, `SpecialAttributeKarmaLimit`, `SpecialKarmaCostBasedOnShownValue`,
+    `BreakSkillGroupsInCreateMode`.
+  - No Complex Form Karma/BP cost calculation exists at all (Complex Forms have no cost tracking
+    in this port, period): blocks `AlternateComplexFormCost`.
+  - No Armor capacity-remaining tracking (flagged previously in the `frmSelectArmorMod` entry
+    above too): blocks `ArmorSuitCapacity`, `MaximumArmorModifications`. `ArmorDegradation` is
+    the same class of gap (no damage/condition-monitor-driven Armor rating reduction exists).
+  - No Commlink Response/System/Firewall/Signal *derived* calculation (these are raw persisted
+    fields, not computed from a formula): blocks `CalculateCommlinkResponse`.
+  - No weapon recoil-compensation calculation exists: blocks `RestrictRecoil`/`StrengthAffectsRecoil`.
+  - No Mystic Adept MAG-split (`MAGMagician`) ported: makes `SpiritForceBasedOnTotalMag` almost a
+    no-op even if wired (legacy's own two branches only differ for Mystic Adepts) - low value
+    until that split exists.
+  - No Technomancer-specific gear/Complex-Form eligibility gating (Autosofts/Commlink-use
+    restrictions aren't enforced against Technomancer status anywhere): blocks
+    `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`.
+  - Standalone/small, no missing subsystem, just not yet done: `AllowBiowareSuites` (Cyberware
+    Suite builder doesn't yet distinguish Bio- from Cyberware-suites for this gate),
+    `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`, `AllowHigherStackedFoci`,
+    `AllowObsolescentUpgrade`, `AllowSkillDiceRolling` (dice-roller feature, not a calculation),
+    `ErgonomicProgramLimit`, `ExtendAnyDetectionSpell`, `MoreLethalGameplay` (combat-tracker
+    adjacent - see the Sell Item/Reload note below).
+  Not included: app-behavior toggles that aren't character-calculation house rules at all
+  (`ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`,
+  `LocalisedUpdatesOnly`, `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`,
+  `BookEnabled`, `OmaeAutoLogin`, `PrintToFileFirst`, `SingleDiceRoller`, `StartupFullscreen`,
+  `SuppressCloudUnreachableWarning`) - those belong with their respective UI/session features.
 
 **Item picker dialogs**
 - [x] Audit legacy's `frmSelectXxx` files against what's ported here — done. Of the ~39 distinct
