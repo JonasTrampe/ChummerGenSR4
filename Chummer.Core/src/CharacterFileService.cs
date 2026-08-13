@@ -3892,20 +3892,29 @@ namespace Chummer.Core
             return true;
         }
 
-        /// <summary>Updates a saved weapon accessory or modification's notes by its own GUID,
-        /// scoped to its parent root weapon.</summary>
-        public bool SetWeaponPartNotes(Guid guiWeaponId, Guid guiPartId, string strNotes)
+        /// <summary>Updates notes for a saved item installed in a root weapon by its own GUID,
+        /// scoped to that weapon. Accessories, modifications, attached gear, and stored ammo are
+        /// all distinct purchases even when their names match.</summary>
+        public bool SetWeaponChildNotes(Guid guiWeaponId, Guid guiItemId, string strNotes)
         {
             XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
             XmlNode? objPart = objWeapon?.SelectSingleNode(
-                $"accessories/accessory[guid = '{guiPartId}']")
-                ?? objWeapon?.SelectSingleNode($"weaponmods/weaponmod[guid = '{guiPartId}']");
+                $"accessories/accessory[guid = '{guiItemId}']")
+                ?? objWeapon?.SelectSingleNode($"weaponmods/weaponmod[guid = '{guiItemId}']")
+                ?? objWeapon?.SelectSingleNode($"gears/gear[guid = '{guiItemId}']")
+                ?? objWeapon?.SelectSingleNode($"ammos/ammo[guid = '{guiItemId}']");
             if (objPart == null)
                 return false;
 
             SetChildValue(objPart, "notes", strNotes ?? string.Empty);
             Changed?.Invoke();
             return true;
+        }
+
+        /// <summary>Backward-compatible accessory/modification-specific entry point.</summary>
+        public bool SetWeaponPartNotes(Guid guiWeaponId, Guid guiPartId, string strNotes)
+        {
+            return SetWeaponChildNotes(guiWeaponId, guiPartId, strNotes);
         }
 
         /// <summary>Updates the legacy player-facing <c>weaponname</c> field, keeping the raw

@@ -299,12 +299,12 @@ public partial class GearSectionTab : UserControl
     {
         if (_character == null)
             return false;
-        if (weapon.Parent == null && weapon.WeaponId >= 0)
+        if (weapon.WeaponId >= 0)
             return _character.SetWeaponNotes(weapon.WeaponId, strNotes);
-        return weapon is { IsWeaponPart: true, Parent: { } parent }
+        return weapon is { Parent: { } parent }
             && Guid.TryParse(parent.ItemGuid, out Guid guiWeaponId)
             && Guid.TryParse(weapon.ItemGuid, out Guid guiPartId)
-            && _character.SetWeaponPartNotes(guiWeaponId, guiPartId, strNotes);
+            && _character.SetWeaponChildNotes(guiWeaponId, guiPartId, strNotes);
     }
 
     private async void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
