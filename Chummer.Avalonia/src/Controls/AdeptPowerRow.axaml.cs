@@ -27,6 +27,7 @@ public partial class AdeptPowerRow : UserControl
         AvaloniaProperty.Register<AdeptPowerRow, bool>(nameof(IsNudEnabled));
 
     public event System.EventHandler? DeleteClicked;
+    public event System.EventHandler? NotesClicked;
 
     public AdeptPowerRow()
     {
@@ -35,6 +36,9 @@ public partial class AdeptPowerRow : UserControl
 
     private void OnDeleteButtonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         => DeleteClicked?.Invoke(this, System.EventArgs.Empty);
+
+    private void OnNotesButtonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => NotesClicked?.Invoke(this, System.EventArgs.Empty);
 
 
     public string? PowerName

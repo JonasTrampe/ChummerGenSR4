@@ -2465,6 +2465,27 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AdeptPowerNotes_AndIdBasedRemovalPreserveDuplicateEntries()
+    {
+        CharacterDocument character = LoadXml("<character><powers>"
+            + "<power><name>Improved Ability</name><extra>Pistols</extra></power>"
+            + "<power><name>Improved Ability</name><extra>Blades</extra></power>"
+            + "</powers></character>");
+
+        Assert.True(character.SetAdeptPowerNotes(character.AdeptPowers[1].PowerId, "Blades only"));
+        Assert.True(character.RemoveAdeptPower(character.AdeptPowers[0].PowerId));
+        CharacterPowerData remaining = Assert.Single(character.AdeptPowers);
+        Assert.Equal("Blades", remaining.Extra);
+        Assert.Equal("Blades only", remaining.Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Blades only", Assert.Single(reloaded.AdeptPowers).Notes);
+    }
+
+    [Fact]
     public void AddMartialArt_SnapshotsAdvantagesAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

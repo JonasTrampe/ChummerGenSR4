@@ -8,7 +8,7 @@
              x:Class="Chummer.NewUI.Controls.AdeptPowerRow"
              x:Name="root">
 
-    <Grid ColumnDefinitions="280,Auto,96,120,72,Auto,130,110,Auto,26,Auto"
+    <Grid ColumnDefinitions="280,Auto,96,120,72,Auto,130,110,Auto,26,Auto,Auto"
           ColumnSpacing="8"
           VerticalAlignment="Top"
           DataContext="{Binding ElementName=root}">
@@ -45,5 +45,6 @@
                   Content="{loc:Loc Checkbox_Power_Geas}"
                   IsChecked="{Binding IsMagicFocus}" />
         <Button Grid.Column="10" Content="{loc:Loc String_Delete}" Click="OnDeleteButtonClick" />
+        <Button Grid.Column="11" Content="{loc:Loc Tab_Notes}" Click="OnNotesButtonClick" />
     </Grid>
 </UserControl>

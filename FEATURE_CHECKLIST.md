@@ -101,10 +101,10 @@ Everything not `[x]`, in one place, grouped by area.
 - [ ] Legacy Special commands: Change Metatype, Mutant Critter, Toxic Critter, Convert to Free
   Sprite, Reapply Improvements, and BP-availability override; all are currently absent, not retired.
 - [ ] Legacy item clipboard (copy/paste) and `frmHistory` character-history workflow.
-- [~] Per-item rename and notes: Gear (including nested Gear), root Weapons, Armor, Quality
-  notes, and Spell notes have safe persisted paths; Armor sets are separate from legacy armor
-  labels. Qualities and Spells have no legacy custom-name field. Child weapon parts and the
-  remaining item families still need theirs.
+- [~] Per-item rename and notes: Gear (including nested Gear), root Weapons, Armor, Quality,
+  Spell, and Adept Power notes have safe persisted paths; Armor sets are separate from legacy
+  armor labels. Qualities, Spells, and Adept Powers have no legacy custom-name field. Child
+  weapon parts and the remaining item families still need theirs.
 - [ ] Nested legacy containment flows: weapon underbarrels; gear-as-plugin under armor/cyberware/
   weapon accessories; vehicle sensor/cyberware/Nexus/plugin flows.
 

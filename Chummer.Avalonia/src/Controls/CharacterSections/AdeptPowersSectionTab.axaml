@@ -23,6 +23,7 @@
                                                 IsWayOfTheAdept="{Binding IsWayOfTheAdept}"
                                                 IsMagicFocus="{Binding IsMagicFocus}"
                                                 IsNudEnabled="{Binding IsNudEnabled}"
+                                                NotesClicked="OnEditPowerNotesClick"
                                                 DeleteClicked="OnDeletePowerClick" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

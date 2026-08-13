@@ -6082,6 +6082,41 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Removes the power at the displayed root-list position, preserving duplicate
+        /// powers that have the same name but different selected details.</summary>
+        public bool RemoveAdeptPower(int intPowerId)
+        {
+            XmlNode? objPower = GetAdeptPowerNodeById(intPowerId);
+            if (objPower == null)
+                return false;
+
+            string strName = GetValue(objPower, "name", string.Empty);
+            objPower.ParentNode?.RemoveChild(objPower);
+            RemoveBonusImprovements(ImprovementSource.Power, strName);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Updates an Adept Power's free-form notes using its root-list position.</summary>
+        public bool SetAdeptPowerNotes(int intPowerId, string strNotes)
+        {
+            XmlNode? objPower = GetAdeptPowerNodeById(intPowerId);
+            if (objPower == null)
+                return false;
+
+            SetChildValue(objPower, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetAdeptPowerNodeById(int intPowerId)
+        {
+            if (intPowerId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/powers/power");
+            return objNodes != null && intPowerId < objNodes.Count ? objNodes[intPowerId] : null;
+        }
+
         // Ported from frmCareer.cs/frmCreate.cs's CalculatePowerPoints().
         public CharacterDerivedValueData AdeptPowerPoints
         {
@@ -8614,12 +8649,16 @@ namespace Chummer.Core
             var lstPowers = new List<CharacterPowerData>();
             var objNodes = Document.SelectNodes("/character/powers/power");
             if (objNodes == null) return lstPowers;
-            foreach (XmlNode objNode in objNodes)
+            for (int intPowerId = 0; intPowerId < objNodes.Count; intPowerId++)
+            {
+                XmlNode objNode = objNodes[intPowerId]!;
                 lstPowers.Add(new CharacterPowerData(GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"),
                     GetValue(objNode, "pointsperlevel", "0"),
                     GetValue(objNode, "discounted", "False"),
-                    GetValue(objNode, "discountedgeas", "False")));
+                    GetValue(objNode, "discountedgeas", "False"), intPowerId,
+                    GetValue(objNode, "notes", string.Empty)));
+            }
             return lstPowers;
         }
 
@@ -9756,7 +9795,7 @@ namespace Chummer.Core
     public sealed class CharacterPowerData
     {
         internal CharacterPowerData(string strName, string strExtra, string strRating, string strPointsPerLevel,
-            string strDiscountedAdeptWay, string strDiscountedGeas)
+            string strDiscountedAdeptWay, string strDiscountedGeas, int intPowerId, string strNotes)
         {
             Name = strName;
             Extra = strExtra;
@@ -9766,6 +9805,8 @@ namespace Chummer.Core
                 && blnDiscountedAdeptWay;
             DiscountedGeas = bool.TryParse(strDiscountedGeas, out var blnDiscountedGeas)
                 && blnDiscountedGeas;
+            PowerId = intPowerId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
@@ -9774,6 +9815,8 @@ namespace Chummer.Core
         public string PointsPerLevel { get; }
         public bool DiscountedAdeptWay { get; }
         public bool DiscountedGeas { get; }
+        public int PowerId { get; }
+        public string Notes { get; }
 
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
 

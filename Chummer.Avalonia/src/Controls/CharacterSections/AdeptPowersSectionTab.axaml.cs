@@ -74,7 +74,19 @@ public partial class AdeptPowersSectionTab : UserControl
 
         if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeletePower"))
             return;
-        if (_character.RemoveAdeptPower(row.Name))
+        if (_character.RemoveAdeptPower(row.PowerId))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditPowerNotesClick(object? sender, System.EventArgs e)
+    {
+        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = row.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetAdeptPowerNotes(row.PowerId, dialog.Notes))
             ViewModel.LoadCharacter(_character);
     }
 }
