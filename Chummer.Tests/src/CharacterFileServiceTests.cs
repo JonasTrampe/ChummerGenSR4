@@ -1917,17 +1917,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
-    public void AddComplexForm_CareerChargesKarmaButCreationDoesNot()
+    public void AddComplexForm_ChargesTheActiveCareerOrCreationPool()
     {
         CharacterDocument career = LoadXml("<character><created>True</created><karma>5</karma></character>");
         career.SetCharacterOptionsForTesting(new CharacterOptions { KarmaNewComplexForm = 2 });
         Assert.True(career.AddComplexForm("Editor", "Common Use", "SR4", "232"));
         Assert.Equal("3", career.Karma);
 
-        CharacterDocument creation = LoadXml("<character><created>False</created><karma>0</karma></character>");
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>Karma</buildmethod><startingbuildpoints>5</startingbuildpoints><karma>5</karma></character>");
         creation.SetCharacterOptionsForTesting(new CharacterOptions { KarmaNewComplexForm = 2 });
         Assert.True(creation.AddComplexForm("Editor", "Common Use", "SR4", "232"));
-        Assert.Equal("0", creation.Karma);
+        Assert.Equal("3", creation.Karma);
+        Assert.True(creation.RemoveComplexForm(Assert.Single(creation.ComplexForms).Guid));
+        Assert.Equal("5", creation.Karma);
+
+        CharacterDocument bpCreation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>1</startingbuildpoints><bp>1</bp></character>");
+        Assert.True(bpCreation.AddComplexForm("Editor", "Common Use", "SR4", "232"));
+        Assert.Equal("0", bpCreation.Bp);
+        Assert.False(bpCreation.AddComplexForm("Analyze", "Common Use", "SR4", "232"));
     }
 
     [Fact]

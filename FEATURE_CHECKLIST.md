@@ -29,8 +29,9 @@ Everything not `[x]`, in one place, grouped by area.
   The remaining house-rule limits and all creation mutations still need to consume this tracker
   directly.
 - [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
-  `AlternateComplexFormCost` costs and charges Career purchases; the creation tracker reports
-  their cost. Creation acquisitions still need to consume the shared budget directly.
+  AlternateComplexFormCost costs and charges both Career and creation purchases from their active
+  pool (including a persisted creation refund); other creation acquisitions still need to consume
+  the shared budget directly.
 - [x] **Armor capacity, modification limits, and degradation**: `ArmorSuitCapacity` and
   `MaximumArmorModifications` calculate, display, persist, and reject overflow when adding armor
   mods; `ArmorDegradation` supplies AR-44 B/I damage and repair controls gated by its house rule.

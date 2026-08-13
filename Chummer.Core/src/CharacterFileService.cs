@@ -6493,10 +6493,13 @@ namespace Chummer.Core
                 throw new ArgumentException("A complex form name is required.", nameof(strName));
 
             int intCost = ComputeComplexFormKarmaCost(strCategory, 1);
-            // Character creation derives its remaining BP/Karma from the complete document,
-            // rather than deducting individual purchases. Career purchases spend Karma directly.
             bool blnCareer = Created;
-            if (blnCareer && int.TryParse(Karma, out int intKarma) && intKarma < intCost)
+            bool blnEnforceCreationBudget = !blnCareer && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intCreationCost = blnKarmaBuild ? intCost
+                : (GetCharacterOptions().AlternateComplexFormCost ? 3 : 1);
+            int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
+            if ((blnCareer && intPool < intCost) || (blnEnforceCreationBudget && intPool < intCreationCost))
                 return false;
 
             var objRoot = Document.DocumentElement
@@ -6516,6 +6519,8 @@ namespace Chummer.Core
             AppendElement(objForm, "extra", strExtra.Trim());
             AppendElement(objForm, "source", strSource);
             AppendElement(objForm, "page", strPage);
+            if (blnEnforceCreationBudget)
+                AppendElement(objForm, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             objForms.AppendChild(objForm);
 
             XmlDocument objProgramsDoc = XmlManager.Instance.Load("programs.xml");
@@ -6525,8 +6530,15 @@ namespace Chummer.Core
             ApplyBonus(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
 
-            if (blnCareer && int.TryParse(Karma, out intKarma))
+            if (blnCareer && int.TryParse(Karma, out int intKarma))
                 Karma = (intKarma - intCost).ToString(CultureInfo.InvariantCulture);
+            else if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
 
             Changed?.Invoke();
             return true;
@@ -6621,8 +6633,18 @@ namespace Chummer.Core
                     continue;
 
                 string strName = GetValue(objForm, "name", string.Empty);
+                int intCreationRefund = ParseInteger(GetValue(objForm, "creationcost", "0"));
                 objForm.ParentNode?.RemoveChild(objForm);
                 RemoveBonusImprovements(ImprovementSource.ComplexForm, strName);
+                if (!Created && StartingBuildPoints > 0 && intCreationRefund > 0)
+                {
+                    bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                    int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+                    if (blnKarmaBuild)
+                        Karma = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                    else
+                        Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                }
                 Changed?.Invoke();
                 return true;
             }
