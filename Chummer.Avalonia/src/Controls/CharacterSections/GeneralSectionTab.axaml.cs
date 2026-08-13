@@ -93,8 +93,8 @@ public partial class GeneralSectionTab : UserControl
         if (!blnMentorProceed)
             return;
 
-        _character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice);
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice))
+            ViewModel.LoadCharacter(_character);
     }
 
     private async void OnAddPacksKitClick(object? sender, RoutedEventArgs e)
@@ -174,11 +174,9 @@ public partial class GeneralSectionTab : UserControl
     }
 
     /// <summary>Swaps the selected Quality for a different one - ported from frmCareer.cs's
-    /// cmdSwapQuality_Click, simplified to a plain remove+add: this port's Quality model doesn't
-    /// track BP/cost at all yet (AddQuality never deducts Karma either), so legacy's Karma-cost-
-    /// delta charge/refund and its Metatype-origin-cannot-be-swapped guard aren't ported - every
-    /// owned Quality is swappable here, same scoped-down treatment as Metamagic/Adept
-    /// Power/CritterPower/ComplexForm additions not applying their Improvement bonuses.</summary>
+    /// cmdSwapQuality_Click. Core performs the removal/addition atomically with respect to the
+    /// creation pool, so an equal-cost replacement works even when no points remain. Legacy's
+    /// metatype-origin-cannot-be-swapped guard remains outside this port's quality model.</summary>
     private async void OnSwapQualityClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window
@@ -199,11 +197,9 @@ public partial class GeneralSectionTab : UserControl
         if (!blnMentorProceed)
             return;
 
-        if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
-        {
-            _character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice);
+        if (_character.ReplaceQuality(quality.SourceName, quality.Category, quality.Rating,
+            selected.Name, selected.Category, strExtra, strMentor, strChoice))
             ViewModel.LoadCharacter(_character);
-        }
     }
 
     private async void OnRaiseAttributeClick(object? sender, System.EventArgs e)

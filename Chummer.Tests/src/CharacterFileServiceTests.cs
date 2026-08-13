@@ -123,6 +123,44 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_CreationChargesAndRefundsPositiveAndNegativeCosts()
+    {
+        CharacterDocument bpCreation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>5</bp></character>");
+
+        Assert.True(bpCreation.AddQuality("Ambidextrous", "Positive"));
+        Assert.Equal("0", bpCreation.Bp);
+        Assert.False(bpCreation.AddQuality("Ambidextrous", "Positive"));
+        Assert.True(bpCreation.RemoveQuality("Ambidextrous", "Positive"));
+        Assert.Equal("5", bpCreation.Bp);
+
+        Assert.True(bpCreation.AddQuality("Allergy (Uncommon, Mild)", "Negative"));
+        Assert.Equal("10", bpCreation.Bp);
+        Assert.True(bpCreation.RemoveQuality("Allergy (Uncommon, Mild)", "Negative"));
+        Assert.Equal("5", bpCreation.Bp);
+    }
+
+    [Fact]
+    public void RemoveQuality_CreationRejectsRemovingNegativeQualityWithoutItsCost()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>0</bp><qualities><quality><name>Allergy (Uncommon, Mild)</name><qualitytype>Negative</qualitytype><creationcost>-5</creationcost></quality></qualities></character>");
+
+        Assert.False(creation.RemoveQuality("Allergy (Uncommon, Mild)", "Negative"));
+        Assert.Single(creation.Qualities);
+        Assert.Equal("0", creation.Bp);
+    }
+
+    [Fact]
+    public void ReplaceQuality_CreationAllowsAnEqualCostSwapWithoutFreePoints()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>0</bp><qualities><quality><name>Ambidextrous</name><qualitytype>Positive</qualitytype><creationcost>5</creationcost></quality></qualities></character>");
+
+        Assert.True(creation.ReplaceQuality("Ambidextrous", "Positive", string.Empty,
+            "Adept", "Positive"));
+        Assert.Equal("0", creation.Bp);
+        Assert.Equal("Adept", Assert.Single(creation.Qualities).Name);
+    }
+
+    [Fact]
     public void SpellNotes_PersistForTheSelectedDuplicateAndSurviveReload()
     {
         CharacterDocument character = LoadXml("<character><spells>"

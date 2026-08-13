@@ -1316,13 +1316,23 @@ namespace Chummer.Core
         /// the corresponding Improvement - ported from clsImprovement.cs's
         /// selecttext/selectskill/selectattribute handlers. No real qualities.xml Quality combines
         /// more than one of these, so a single strExtra value is unambiguous.</summary>
-        public void AddQuality(string strName, string strType, string strExtra = "",
+        public bool AddQuality(string strName, string strType, string strExtra = "",
             string strMentorSpirit = "", string strMentorChoice1 = "", string strMentorChoice2 = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A quality name is required.", nameof(strName));
             if (strType != "Positive" && strType != "Negative")
                 throw new ArgumentException("A quality must be Positive or Negative.", nameof(strType));
+
+            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
+            XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
+                $"/chummer/qualities/quality[name = '{strName.Trim()}']");
+            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intCreationCost = GetQualityCreationCost(objXmlQuality, blnKarmaBuild);
+            int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
+            if (blnEnforceCreationBudget && intCreationCost > intPool)
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -1343,11 +1353,10 @@ namespace Chummer.Core
                 AppendElement(objQuality, "mentorchoice1", strMentorChoice1.Trim());
                 AppendElement(objQuality, "mentorchoice2", strMentorChoice2.Trim());
             }
+            if (blnEnforceCreationBudget)
+                AppendElement(objQuality, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             objQualities.AppendChild(objQuality);
 
-            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
-            XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
-                $"/chummer/qualities/quality[name = '{strName.Trim()}']");
             XmlNode? objXmlBonus = objXmlQuality?.SelectSingleNode("bonus");
             ApplyBonus(objXmlBonus, ImprovementSource.Quality, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.Quality, strName.Trim(), strExtra, "1");
@@ -1369,6 +1378,16 @@ namespace Chummer.Core
                         $"choices/choice[name = '{strMentorChoice2.Trim()}']/bonus"),
                         ImprovementSource.Quality, strName.Trim());
             }
+
+            if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Shared selecttext/selectskill/selectattribute application, ported from
@@ -1440,12 +1459,62 @@ namespace Chummer.Core
                     || GetValue(objQuality, "extra", string.Empty) != strExtra)
                     continue;
 
+                int intCreationRefund = ParseInteger(GetValue(objQuality, "creationcost", "0"));
+                if (!Created && StartingBuildPoints > 0 && intCreationRefund != 0)
+                {
+                    bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                    int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+                    if (intPool + intCreationRefund < 0)
+                        return false;
+                    if (blnKarmaBuild)
+                        Karma = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                    else
+                        Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                }
                 objQuality.ParentNode?.RemoveChild(objQuality);
                 RemoveBonusImprovements(ImprovementSource.Quality, strName);
+                Changed?.Invoke();
                 return true;
             }
 
             return false;
+        }
+
+        /// <summary>Replaces one saved quality without temporarily requiring both qualities'
+        /// creation costs. This keeps an equal-cost creation swap possible when no free pool
+        /// remains, while still refusing a more expensive replacement that would overdraw it.</summary>
+        public bool ReplaceQuality(string strOldName, string strOldType, string strOldExtra,
+            string strNewName, string strNewType, string strNewExtra = "", string strMentorSpirit = "",
+            string strMentorChoice1 = "", string strMentorChoice2 = "")
+        {
+            XmlNode? objOldQuality = Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                .FirstOrDefault(q => GetValue(q, "name", string.Empty) == strOldName
+                    && GetValue(q, "qualitytype", string.Empty) == strOldType
+                    && GetValue(q, "extra", string.Empty) == strOldExtra);
+            if (objOldQuality == null)
+                return false;
+
+            if (!Created && StartingBuildPoints > 0)
+            {
+                bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+                int intOldCreationCost = ParseInteger(GetValue(objOldQuality, "creationcost", "0"));
+                XmlNode? objNewQuality = XmlManager.Instance.Load("qualities.xml").SelectSingleNode(
+                    $"/chummer/qualities/quality[name = '{strNewName.Trim()}']");
+                int intNewCreationCost = GetQualityCreationCost(objNewQuality, blnKarmaBuild);
+                if (intPool + intOldCreationCost - intNewCreationCost < 0)
+                    return false;
+            }
+
+            return RemoveQuality(strOldName, strOldType, strOldExtra)
+                && AddQuality(strNewName, strNewType, strNewExtra, strMentorSpirit, strMentorChoice1,
+                    strMentorChoice2);
+        }
+
+        private int GetQualityCreationCost(XmlNode? objXmlQuality, bool blnKarmaBuild)
+        {
+            int intBp = ParseInteger(objXmlQuality?.SelectSingleNode("bp")?.InnerText ?? "0");
+            return intBp * (blnKarmaBuild ? GetCharacterOptions().KarmaQuality : 1);
         }
 
         /// <summary>Updates a Quality's free-form notes. The root-list index is recomputed when
