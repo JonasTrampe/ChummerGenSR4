@@ -186,6 +186,7 @@
                         <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
                         <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" />
                         <Button Content="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />
+                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditGearNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
@@ -228,6 +229,11 @@
                             <TextBlock Text="{loc:Loc UI_InstalledColon}" Width="90" />
                             <CheckBox Grid.Column="1" IsChecked="{Binding SelectedGear.Equipped}"
                                       Click="OnToggleGearEquippedClick" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="{loc:Loc Tab_Notes}" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Notes, TargetNullValue=–}"
+                                       TextWrapping="Wrap" MaxHeight="72" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc Label_Capacity}" Width="90" />

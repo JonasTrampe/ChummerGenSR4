@@ -1988,6 +1988,20 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Updates the free-form note attached to a Gear item. The depth-first ID is
+        /// deliberately shared with quantity/delete/reorder so this also addresses Gear nested
+        /// under another Gear item, without relying on a name that may be duplicated.</summary>
+        public bool SetGearNotes(int intGearId, string strNotes)
+        {
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear == null)
+                return false;
+
+            SetChildValue(objGear, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Moves a gear item within the &lt;gears&gt; tree - either reordering it among its
         /// current siblings (inserted immediately before <paramref name="intTargetGearId"/>) or, with
         /// <paramref name="blnReparent"/>, making it a child of the target instead. GearIds are
@@ -8673,6 +8687,7 @@ namespace Chummer.Core
                 GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
                 GetValue(objNode, "qty", "1"));
             objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
+            objItem.SetNotes(GetValue(objNode, "notes", string.Empty));
             foreach (string strChildXPath in lstChildXPaths)
             {
                 if (string.IsNullOrEmpty(strChildXPath)) continue;
@@ -8943,6 +8958,10 @@ namespace Chummer.Core
         /// <summary>Persisted GUID for items that have one (including vehicle modifications).</summary>
         public string ItemGuid { get; private set; } = string.Empty;
 
+        /// <summary>Free-form user note saved beside this item. It is intentionally separate from
+        /// the data-file name: notes must never affect rule lookup or calculated values.</summary>
+        public string Notes { get; private set; } = string.Empty;
+
         /// <summary>Raw saved slots ("Rating"-formula string) - only set for Vehicle Mod nodes.
         /// See CharacterVehicleData.SlotsUsed for the evaluated total.</summary>
         public string ModSlots { get; private set; } = string.Empty;
@@ -8989,6 +9008,7 @@ namespace Chummer.Core
         internal void SetArmorId(int intArmorId) => ArmorId = intArmorId;
         internal void SetLocation(string strLocation) => Location = strLocation;
         internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
+        internal void SetNotes(string strNotes) => Notes = strNotes;
         internal void SetModSlots(string strSlots, bool blnIncluded)
         {
             ModSlots = strSlots;

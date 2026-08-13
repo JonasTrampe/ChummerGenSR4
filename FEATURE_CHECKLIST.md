@@ -101,8 +101,8 @@ Everything not `[x]`, in one place, grouped by area.
 - [ ] Legacy Special commands: Change Metatype, Mutant Critter, Toxic Critter, Convert to Free
   Sprite, Reapply Improvements, and BP-availability override; all are currently absent, not retired.
 - [ ] Legacy item clipboard (copy/paste) and `frmHistory` character-history workflow.
-- [ ] Per-item rename and notes for equipment, qualities, powers, spells, martial arts,
-  lifestyles, vehicle components and Improvements; only character/contact/calendar notes are wired.
+- [~] Per-item rename and notes: Gear (including nested Gear) notes are persisted and editable.
+  Equipment naming, and notes for the remaining item families, still need their own save-safe paths.
 - [ ] Nested legacy containment flows: weapon underbarrels; gear-as-plugin under armor/cyberware/
   weapon accessories; vehicle sensor/cyberware/Nexus/plugin flows.
 

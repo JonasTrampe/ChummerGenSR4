@@ -29,6 +29,7 @@ public sealed class TreeNodeViewModel
     public string ArmorSetName { get; private set; } = string.Empty;
     public string Location { get; private set; } = string.Empty;
     public string ItemGuid { get; private set; } = string.Empty;
+    public string Notes { get; private set; } = string.Empty;
     public string VehicleGuid { get; private set; } = string.Empty;
 
     /// <summary>Depth-first position within the &lt;gears&gt; tree - only set (>=0) for Gear tree
@@ -205,6 +206,7 @@ public sealed class TreeNodeViewModel
             ArmorSetName = item.ArmorSetName,
             Location = item.Location,
             ItemGuid = item.ItemGuid,
+            Notes = item.Notes,
             GearId = item.GearId,
             CyberwareId = item.CyberwareId,
             ArmorId = item.ArmorId,

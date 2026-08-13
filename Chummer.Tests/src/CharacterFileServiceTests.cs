@@ -643,6 +643,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SetGearNotes_UpdatesNestedGearAndSurvivesSaveReload()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0");
+        character.AddChildGear(character.Gear[0].GearId, "Credstick", "ID/Credsticks", "0");
+        int intNestedGearId = character.Gear[0].Children[0].GearId;
+
+        Assert.True(character.SetGearNotes(intNestedGearId, "Paid for by the Johnson."));
+        Assert.Equal("Paid for by the Johnson.", character.Gear[0].Children[0].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Paid for by the Johnson.", reloaded.Gear[0].Children[0].Notes);
+    }
+
+    [Fact]
     public void MoveGear_ReordersRootLevelSiblingsAndPersists()
     {
         CharacterDocument character = LoadXml("<character><gears>"
