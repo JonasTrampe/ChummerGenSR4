@@ -65,6 +65,32 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
     private bool _blnIsCreateMode;
     public bool IsCreateMode { get => _blnIsCreateMode; set => SetField(ref _blnIsCreateMode, value); }
 
+    private string _strCreationBudgetPoolName = string.Empty;
+    public string CreationBudgetPoolName { get => _strCreationBudgetPoolName; set => SetField(ref _strCreationBudgetPoolName, value); }
+
+    private string _strCreationBudgetStarting = "0";
+    public string CreationBudgetStarting { get => _strCreationBudgetStarting; set => SetField(ref _strCreationBudgetStarting, value); }
+
+    private string _strCreationBudgetSpent = "0";
+    public string CreationBudgetSpent { get => _strCreationBudgetSpent; set => SetField(ref _strCreationBudgetSpent, value); }
+
+    private string _strCreationBudgetRemaining = "0";
+    public string CreationBudgetRemaining { get => _strCreationBudgetRemaining; set => SetField(ref _strCreationBudgetRemaining, value); }
+
+    private bool _blnCreationBudgetOverdrawn;
+    public bool CreationBudgetOverdrawn
+    {
+        get => _blnCreationBudgetOverdrawn;
+        set
+        {
+            if (SetField(ref _blnCreationBudgetOverdrawn, value))
+                OnPropertyChanged(nameof(CreationBudgetRemainingBrush));
+        }
+    }
+    public string CreationBudgetRemainingBrush => CreationBudgetOverdrawn ? "#B00020" : "Black";
+
+    public ObservableCollection<CreationBudgetCategoryViewModel> CreationBudgetCategories { get; } = new();
+
     public ObservableCollection<CommlinkItemViewModel> Commlinks { get; } = new();
 
     private CommlinkItemViewModel? _objSelectedCommlink;
@@ -126,6 +152,7 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         Edge = character.Edge.Remaining + " von " + character.Edge.Maximum + " verbleibend";
         ReloadCommlinks(character);
         IsCreateMode = !character.Created;
+        ReloadCreationBudget(character);
     }
 
     public CharacterDocument? Character => _objCharacter;
@@ -162,6 +189,31 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         _blnUpdatingCommlinks = false;
     }
 
+    private void ReloadCreationBudget(CharacterDocument character)
+    {
+        CreationBudgetCategories.Clear();
+        if (character.Created)
+        {
+            CreationBudgetPoolName = string.Empty;
+            CreationBudgetStarting = "0";
+            CreationBudgetSpent = "0";
+            CreationBudgetRemaining = "0";
+            CreationBudgetOverdrawn = false;
+            return;
+        }
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+        CreationBudgetPoolName = string.Equals(budget.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+            ? App.LanguageCatalog.GetString("String_BP")
+            : App.LanguageCatalog.GetString("String_Karma");
+        CreationBudgetStarting = budget.Starting.ToString();
+        CreationBudgetSpent = budget.Spent.ToString();
+        CreationBudgetRemaining = budget.Remaining.ToString();
+        CreationBudgetOverdrawn = budget.Remaining < 0;
+        foreach (CharacterCreationBudgetCategoryData category in budget.Categories)
+            CreationBudgetCategories.Add(new CreationBudgetCategoryViewModel(category));
+    }
+
     private static void ReloadConditionMonitor(ObservableCollection<ConditionMonitorBoxViewModel> boxes,
         int intMaximum, string strDamage)
     {
@@ -182,6 +234,19 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         target.Value = data.Display;
         target.Tooltip = data.Tooltip;
     }
+}
+
+public sealed class CreationBudgetCategoryViewModel
+{
+    internal CreationBudgetCategoryViewModel(CharacterCreationBudgetCategoryData objData)
+    {
+        Name = objData.Name;
+        Cost = objData.Cost;
+    }
+
+    public string Name { get; }
+    public int Cost { get; }
+    public string DisplayCost => (Cost >= 0 ? "+" : string.Empty) + Cost;
 }
 
 public sealed class CommlinkItemViewModel

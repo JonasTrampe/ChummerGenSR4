@@ -13,6 +13,40 @@
                 <StackPanel Margin="6" Spacing="4">
                     <Button Content="{loc:Loc UI_FinalizeCharacter}" IsVisible="{Binding IsCreateMode}"
                             Click="OnFinalizeCreationClick" Margin="0,0,0,6" />
+                    <Border IsVisible="{Binding IsCreateMode}" BorderBrush="#D6D6D6" BorderThickness="1"
+                            Padding="6" Margin="0,0,0,6">
+                        <StackPanel Spacing="3">
+                            <TextBlock Text="Erstellungsbudget" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Pool:" />
+                                <TextBlock Grid.Column="1" Text="{Binding CreationBudgetPoolName}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Start:" />
+                                <TextBlock Grid.Column="1" Text="{Binding CreationBudgetStarting}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Ausgegeben:" />
+                                <TextBlock Grid.Column="1" Text="{Binding CreationBudgetSpent}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="Verbleibend:" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1" Text="{Binding CreationBudgetRemaining}" FontWeight="SemiBold"
+                                           Foreground="{Binding CreationBudgetRemainingBrush}" />
+                            </Grid>
+                            <Separator Margin="0,2" />
+                            <ItemsControl ItemsSource="{Binding CreationBudgetCategories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CreationBudgetCategoryViewModel">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
+                                            <TextBlock Grid.Column="1" Text="{Binding DisplayCost}" Margin="8,0,0,0" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
                     <controls:InfoRow Label="Körperlicher Zustandsmonitor:" Value="{Binding PhysicalMonitor.Value}"
                                        Tooltip="{Binding PhysicalMonitor.Tooltip}" />
                     <controls:InfoRow Label="Geistiger Zustandsmonitor:" Value="{Binding StunMonitor.Value}"

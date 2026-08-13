@@ -21,14 +21,13 @@ the change it describes.
 Everything not `[x]`, in one place, grouped by area.
 
 ### House rules — blocked on missing subsystems
-- [~] **Creation-mode BP/Karma budget tracker**: the status bar now shows the authoritative
-  remaining pool and a hoverable, document-derived breakdown (metatype, attributes, contacts,
-  qualities, skills, spells, complex forms, and starting Nuyen), including an explicit
-  "not yet categorized" reconciliation row. The remaining house-rule limits and all creation
-  mutations still need to consume this tracker directly.
+- [~] **Creation-mode BP/Karma budget tracker**: status bar plus a live sidebar budget card show
+  the remaining pool, categorized spend, and overdrawn state (with explicit reconciliation row).
+  The remaining house-rule limits and all creation mutations still need to consume this tracker
+  directly.
 - [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
-  `AlternateComplexFormCost` costs and charges Career purchases. Creation still needs the
-  document-wide budget tracker before its points-remaining total can include Complex Forms.
+  `AlternateComplexFormCost` costs and charges Career purchases; the creation tracker reports
+  their cost. Creation acquisitions still need to consume the shared budget directly.
 - [x] **Armor capacity, modification limits, and degradation**: `ArmorSuitCapacity` and
   `MaximumArmorModifications` calculate, display, persist, and reject overflow when adding armor
   mods; `ArmorDegradation` supplies AR-44 B/I damage and repair controls gated by its house rule.
