@@ -1554,6 +1554,15 @@ namespace Chummer.Core
         /// same as the grade multiplier, so there's nothing else to enforce here).</summary>
         public bool AllowCyberwareEssenceDiscounts => GetCharacterOptions().AllowCyberwareEssDiscounts;
 
+        /// <summary>Print-output house rules (frmOptions.cs's "House Rules" tab) - read by
+        /// <see cref="CharacterSheetExporter"/> so sheet output honors them the same way legacy's
+        /// clsCharacter.cs's PrintToStream does.</summary>
+        public bool PrintSkillsWithZeroRating => GetCharacterOptions().PrintSkillsWithZeroRating;
+        public bool PrintExpenses => GetCharacterOptions().PrintExpenses;
+        public bool PrintLeadershipAlternates => GetCharacterOptions().PrintLeadershipAlternates;
+        public bool PrintArcanaAlternates => GetCharacterOptions().PrintArcanaAlternates;
+        public bool PrintNotesEnabled => GetCharacterOptions().PrintNotes;
+
         /// <summary>Adds a root-level Cyberware or Bioware item in the minimal saved-character tree
         /// shape used by <see cref="Cyberware"/>/<see cref="Bioware"/> and <see cref="ComputeEssence"/>
         /// - <paramref name="strEss"/>/<paramref name="strCost"/>/<paramref name="strAvail"/> are the
@@ -6640,6 +6649,23 @@ namespace Chummer.Core
             }
 
             return lstSkills;
+        }
+
+        /// <summary>Ported from clsCharacter.cs's PrintToStream PrintLeadershipAlternates/
+        /// PrintArcanaAlternates blocks: a synthetic print-only copy of <paramref name="skill"/>
+        /// under a different name/linked Attribute (e.g. "Leadership, Command" uses LOG instead of
+        /// Leadership's own CHA), sharing its Rating/Specialization/SkillGroup but with its own
+        /// recomputed dice pool for the substitute Attribute.</summary>
+        public CharacterSkillData BuildAlternateSkillForPrint(CharacterSkillData skill, string strSuffix, string strAttribute)
+        {
+            int intRating = int.TryParse(skill.BaseRating, out var r) ? r : 0;
+            bool blnCanDefault = skill.KnowledgeSkill || (!skill.Exotic && SkillAllowsDefaulting(skill.Name));
+            (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
+                skill.Name, skill.SkillGroup, skill.Category, strAttribute, intRating, skill.Specialization, blnCanDefault);
+            return new CharacterSkillData(skill.SkillId, skill.Name + ", " + strSuffix, strAttribute,
+                skill.BaseRating, strRatingDisplay, intPool.ToString(CultureInfo.InvariantCulture), strTooltip,
+                skill.Specialization, skill.Category, skill.IsGroupLocked, blnAllowDelete: false,
+                blnKnowledgeSkill: false, skill.SkillGroup, skill.Exotic);
         }
 
         private CharacterSkillData BuildSkillData(int intSkillId, XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -110,6 +111,11 @@ namespace Chummer.Core
             AddEl(doc, charEl, "resenabled", c.Technomancer.ToString());
             AddEl(doc, charEl, "tradition", string.Empty);
             AddEl(doc, charEl, "drain", string.Empty);
+            // Ported from clsCharacter.cs's PrintToStream: the PrintNotes house rule also gates
+            // Contact/MartialArtManeuver notes there, but this port's shipped sheets (Text-Only.xsl)
+            // only ever read the character's own general notes field, so that's the only notes
+            // output this house rule needs to control here.
+            AddEl(doc, charEl, "notes", c.PrintNotesEnabled ? c.Notes : string.Empty);
         }
 
         private static void AppendAttributes(XmlDocument doc, XmlElement charEl, CharacterDocument c)
@@ -150,7 +156,38 @@ namespace Chummer.Core
         {
             XmlElement skillsEl = doc.CreateElement("skills");
             charEl.AppendChild(skillsEl);
-            foreach (CharacterSkillData skill in c.Skills.Concat(c.KnowledgeSkills))
+
+            // Ported from clsCharacter.cs's PrintToStream: PrintLeadershipAlternates/
+            // PrintArcanaAlternates staple a couple of synthetic same-rating copies of Leadership/
+            // Arcana onto the printed skill list, each linked to a different Attribute.
+            var lstActiveSkills = new List<CharacterSkillData>(c.Skills);
+            if (c.PrintLeadershipAlternates)
+            {
+                CharacterSkillData? leadership = lstActiveSkills.FirstOrDefault(s => s.Name == "Leadership");
+                if (leadership != null)
+                {
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(leadership, "Command", "LOG"));
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(leadership, "Direct Fire", "INT"));
+                }
+            }
+            if (c.PrintArcanaAlternates)
+            {
+                CharacterSkillData? arcana = lstActiveSkills.FirstOrDefault(s => s.Name == "Arcana");
+                if (arcana != null)
+                {
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(arcana, "Metamagic", "INT"));
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(arcana, "Artificing", "MAG"));
+                }
+            }
+
+            IEnumerable<CharacterSkillData> lstPrintedSkills = lstActiveSkills.Concat(c.KnowledgeSkills);
+            if (!c.PrintSkillsWithZeroRating)
+            {
+                lstPrintedSkills = lstPrintedSkills.Where(skill =>
+                    skill.KnowledgeSkill || (int.TryParse(skill.BaseRating, out var intRating) && intRating > 0));
+            }
+
+            foreach (CharacterSkillData skill in lstPrintedSkills)
             {
                 XmlElement skillEl = doc.CreateElement("skill");
                 skillsEl.AppendChild(skillEl);
@@ -427,6 +464,9 @@ namespace Chummer.Core
         {
             XmlElement expensesEl = doc.CreateElement("expenses");
             charEl.AppendChild(expensesEl);
+            if (!c.PrintExpenses)
+                return;
+
             foreach (CharacterExpenseData expense in c.KarmaExpenses)
                 AppendExpense(doc, expensesEl, expense, "Karma");
             foreach (CharacterExpenseData expense in c.NuyenExpenses)

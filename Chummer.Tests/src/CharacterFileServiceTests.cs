@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Chummer.Core;
 using Xunit;
 
@@ -1546,6 +1547,102 @@ public class CharacterFileServiceTests
 
         Assert.Throws<FileNotFoundException>(() =>
             CharacterSheetExporter.RenderSheet(character, "Does Not Exist.xsl"));
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintSkillsWithZeroRatingOff_OmitsZeroRatingActiveSkillsButKeepsKnowledge()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>0</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Automatics</name><attribute>AGI</attribute><rating>3</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Chemistry</name><attribute>LOG</attribute><rating>0</rating><knowledge>True</knowledge><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintSkillsWithZeroRating = false });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        var lstNames = xml.SelectNodes("//skill/name")!.Cast<XmlNode>().Select(n => n.InnerText).ToList();
+
+        Assert.DoesNotContain("Pistols", lstNames);
+        Assert.Contains("Automatics", lstNames);
+        Assert.Contains("Chemistry", lstNames);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintSkillsWithZeroRatingOn_IncludesEveryActiveSkill()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>0</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintSkillsWithZeroRating = true });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        Assert.Contains("Pistols", xml.SelectNodes("//skill/name")!.Cast<XmlNode>().Select(n => n.InnerText));
+    }
+
+    private const string ExpenseFixtureXml = "<character><expenses><expense><guid>11111111-1111-1111-1111-111111111111</guid>"
+        + "<date>2020-01-01</date><amount>5</amount><reason>Test expense</reason><type>Karma</type><refund>False</refund>"
+        + "</expense></expenses></character>";
+
+    [Fact]
+    public void CharacterSheetExporter_PrintExpensesOff_OmitsExpenseEntries()
+    {
+        CharacterDocument character = LoadXml(ExpenseFixtureXml);
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintExpenses = false });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        Assert.Empty(xml.SelectNodes("//expenses/expense")!);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintExpensesOn_IncludesExpenseEntries()
+    {
+        CharacterDocument character = LoadXml(ExpenseFixtureXml);
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintExpenses = true });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        Assert.NotEmpty(xml.SelectNodes("//expenses/expense")!);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintLeadershipAlternates_StaplesOnCommandAndDirectFireCopies()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Leadership</name><attribute>CHA</attribute><rating>3</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintLeadershipAlternates = true });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        var lstNames = xml.SelectNodes("//skill/name")!.Cast<XmlNode>().Select(n => n.InnerText).ToList();
+
+        Assert.Contains("Leadership, Command", lstNames);
+        Assert.Contains("Leadership, Direct Fire", lstNames);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintArcanaAlternates_StaplesOnMetamagicAndArtificingCopies()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Arcana</name><attribute>LOG</attribute><rating>3</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintArcanaAlternates = true });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        var lstNames = xml.SelectNodes("//skill/name")!.Cast<XmlNode>().Select(n => n.InnerText).ToList();
+
+        Assert.Contains("Arcana, Metamagic", lstNames);
+        Assert.Contains("Arcana, Artificing", lstNames);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintNotes_GatesTheGeneralNotesField()
+    {
+        CharacterDocument character = LoadXml("<character><notes>Secret backstory</notes></character>");
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintNotes = false });
+        Assert.Equal(string.Empty, CharacterSheetExporter.BuildExportXml(character).SelectSingleNode("//notes")!.InnerText);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintNotes = true });
+        Assert.Equal("Secret backstory", CharacterSheetExporter.BuildExportXml(character).SelectSingleNode("//notes")!.InnerText);
     }
 
     [Fact]

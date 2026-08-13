@@ -94,10 +94,18 @@ context on each.
   confirm each deducts its own cost; 3 pre-existing mod/accessory tests whose expected Nuyen
   totals had baked in the "root item is free" bug were corrected to include the parent item's
   own cost.
-- [ ] Print-output house rules not honored by `CharacterSheetExporter` - `PrintArcanaAlternates`,
-  `PrintExpenses`, `PrintLeadershipAlternates`, `PrintNotes`, `PrintSkillsWithZeroRating` all
-  exist as settable/persisted options but the exporter doesn't branch on any of them, so sheet
-  output is always the same regardless of these toggles.
+- [x] Print-output house rules — done for `Chummer.Core/src/CharacterSheetExporter.cs`. Added
+  public passthrough properties on `CharacterDocument` (`PrintSkillsWithZeroRating`,
+  `PrintExpenses`, `PrintLeadershipAlternates`, `PrintArcanaAlternates`, `PrintNotesEnabled`) and
+  wired each into the exporter: `AppendSkills` filters out zero-rating Active Skills (Knowledge
+  Skills always print) and staples on synthetic "Leadership, Command"/"Leadership, Direct Fire"
+  (LOG/INT) and "Arcana, Metamagic"/"Arcana, Artificing" (INT/MAG) copies via the new
+  `CharacterDocument.BuildAlternateSkillForPrint` (recomputes a real dice pool for the substitute
+  Attribute, not just a copied number); `AppendExpenses` skips entirely when off; `AppendInfo`
+  now emits the character's own `notes` field, gated by `PrintNotesEnabled` (legacy's PrintNotes
+  also gates Contact/MartialArtManeuver notes, but the only shipped sheet so far, Text-Only.xsl,
+  never reads those, so that part wasn't ported - noted in a comment rather than silently
+  dropped).
 - [ ] Broader house-rule audit: every `bool` in `Options.cs`/`CharacterOptions` was checked for a
   real consumer, covering both of legacy's `frmOptions.cs` tabs - "House Rules" AND "Optional
   Rules" (`tabOptionalRules`, ported here as the separate `OptionalRulesOptionsTab` - confirmed
