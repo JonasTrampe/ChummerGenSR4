@@ -4549,6 +4549,21 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleGearPlugin_NestsUnderOnboardGear()
+    {
+        Guid vehicleId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen><vehicles><vehicle>"
+            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><gears />"
+            + "</vehicle></vehicles></character>");
+        Assert.True(character.AddVehicleGear(vehicleId, "Vehicle Toolkit", "Tools", strCost: "250"));
+        Guid parentId = Guid.Parse(character.Vehicles.Single().Children.Single().ItemGuid);
+
+        Assert.True(character.AddVehicleGearPlugin(vehicleId, parentId, "Battery", "Electronics", strCost: "50"));
+        Assert.Equal("Battery", Assert.Single(character.Vehicles.Single().Children.Single().Children).Name);
+        Assert.Equal("700", character.Nuyen);
+    }
+
+    [Fact]
     public void VehicleWeapons_CanBeAddedRemovedAndCharged()
     {
         Guid vehicleId = Guid.NewGuid();

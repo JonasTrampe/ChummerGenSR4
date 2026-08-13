@@ -3239,6 +3239,24 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Adds a plugin below direct onboard vehicle gear.</summary>
+        public bool AddVehicleGearPlugin(Guid guiVehicleId, Guid guiParentGearId, string strName, string strCategory,
+            string strRating = "0", string strQty = "1", string strCost = "", string strAvail = "",
+            string strSource = "", string strPage = "", string strCapacity = "")
+        {
+            XmlNode? objParent = GetVehicleNode(guiVehicleId)?.SelectSingleNode($"gears/gear[guid = '{guiParentGearId}']");
+            if (objParent == null || string.IsNullOrWhiteSpace(strName)
+                || (GetCharacterOptions().EnforceCapacity && !GearCapacityAllowsChild(objParent, strCapacity, strQty)))
+                return false;
+            XmlElement objChildren = objParent.SelectSingleNode("children") as XmlElement
+                ?? (XmlElement)objParent.AppendChild(Document.CreateElement("children"));
+            AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost, strAvail, strSource,
+                strPage, strCapacity, string.Empty, string.Empty, string.Empty, string.Empty);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Removes a direct vehicle modification identified by its persisted GUID.</summary>
         public bool RemoveVehicleMod(Guid guiVehicleId, Guid guiModId)
         {
