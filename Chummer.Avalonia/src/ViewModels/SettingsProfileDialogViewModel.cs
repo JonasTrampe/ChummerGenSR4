@@ -9,7 +9,7 @@ public sealed class SettingsProfileDialogViewModel : ViewModelBase
 {
     public ObservableCollection<ListItem> SettingsProfiles { get; } = new()
     {
-        new ListItem { Name = "Default Settings", Value = "default.xml" },
+        new ListItem { Name = App.LanguageCatalog.GetString("UI_DefaultSettingsName"), Value = "default.xml" },
     };
 
     private ListItem? _selectedProfile;
@@ -48,7 +48,7 @@ public sealed class SettingsProfileDialogViewModel : ViewModelBase
         }
 
         if (SettingsProfiles.Count == 0)
-            SettingsProfiles.Add(new ListItem { Name = "Default Settings", Value = "default.xml" });
+            SettingsProfiles.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_DefaultSettingsName"), Value = "default.xml" });
 
         // "default.xml" is always the default selection, regardless of how other profiles sort
         // alphabetically ahead of it.

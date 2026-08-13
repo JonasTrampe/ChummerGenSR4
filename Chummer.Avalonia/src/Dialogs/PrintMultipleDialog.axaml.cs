@@ -107,7 +107,7 @@ public partial class PrintMultipleDialog : Window
         {
             Title = App.LanguageCatalog.GetString("UI_ExportSheetsAsHtmlTitle"),
             DefaultExtension = "html",
-            SuggestedFileName = "Charaktere",
+            SuggestedFileName = App.LanguageCatalog.GetString("UI_CharactersSuggestedFileName"),
             FileTypeChoices = new[] { new FilePickerFileType("HTML-Datei") { Patterns = new[] { "*.html", "*.htm" } } },
         });
         if (file is null)

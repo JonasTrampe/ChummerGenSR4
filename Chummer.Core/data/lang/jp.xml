@@ -7967,5 +7967,145 @@
 			<key>UI_ServicesMustNotBeNegative</key>
 			<text>サービスの数は負の値にはできません。</text>
 		</string>
+		<string>
+			<key>UI_SkillNameRequired</key>
+			<text>技能名を入力してください。</text>
+		</string>
+		<string>
+			<key>UI_SubTypeRequired</key>
+			<text>サブタイプを入力してください。</text>
+		</string>
+		<string>
+			<key>UI_QuantityRequired</key>
+			<text>数量を入力してください。</text>
+		</string>
+		<string>
+			<key>UI_EditAmountAndReasonPrompt</key>
+			<text>金額と理由を編集してください。</text>
+		</string>
+		<string>
+			<key>UI_Save</key>
+			<text>保存</text>
+		</string>
+		<string>
+			<key>UI_ReasonRequired</key>
+			<text>理由を入力してください。</text>
+		</string>
+		<string>
+			<key>UI_SkillRequired</key>
+			<text>技能を選択してください。</text>
+		</string>
+		<string>
+			<key>UI_SelectionRequired</key>
+			<text>選択が必要です。</text>
+		</string>
+		<string>
+			<key>UI_InstalledVersionPrefix</key>
+			<text>インストール済みバージョン: </text>
+		</string>
+		<string>
+			<key>UI_LatestVersionPrefix</key>
+			<text>最新バージョン: </text>
+		</string>
+		<string>
+			<key>UI_PowerPointsRemainingSuffix</key>
+			<text> 残り</text>
+		</string>
+		<string>
+			<key>UI_GlitchNoHits</key>
+			<text>グリッチ！（成功0）</text>
+		</string>
+		<string>
+			<key>UI_FailureWithGlitchPrefix</key>
+			<text>グリッチを伴う失敗（</text>
+		</string>
+		<string>
+			<key>UI_HitsSuffix</key>
+			<text>成功）</text>
+		</string>
+		<string>
+			<key>UI_ResultPrefix</key>
+			<text>結果: </text>
+		</string>
+		<string>
+			<key>UI_HitsSuffixNoParen</key>
+			<text>成功</text>
+		</string>
+		<string>
+			<key>UI_NoLocationSelected</key>
+			<text>場所なし</text>
+		</string>
+		<string>
+			<key>UI_NoSetSelected</key>
+			<text>セットなし</text>
+		</string>
+		<string>
+			<key>UI_CostPerMonthColon</key>
+			<text>コスト/月:</text>
+		</string>
+		<string>
+			<key>UI_ArmorRatingPrefix</key>
+			<text>防御値: 貫通 </text>
+		</string>
+		<string>
+			<key>UI_ImpactSlash</key>
+			<text> / 衝撃 </text>
+		</string>
+		<string>
+			<key>UI_EncumbrancePrefix</key>
+			<text>負荷: 貫通 </text>
+		</string>
+		<string>
+			<key>UI_KarmaStatusDefault</key>
+			<text>カルマ: —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusDefault</key>
+			<text>エッセンス: —</text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusDefault</key>
+			<text>ニューエン: —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusPrefix</key>
+			<text>エッセンス: </text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusPrefix</key>
+			<text>ニューエン: </text>
+		</string>
+		<string>
+			<key>UI_CharactersSuggestedFileName</key>
+			<text>キャラクター</text>
+		</string>
+		<string>
+			<key>UI_DefaultSettingsName</key>
+			<text>デフォルト設定</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodStandard</key>
+			<text>標準</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodLarge</key>
+			<text>大量</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodReallyLarge</key>
+			<text>超大量</text>
+		</string>
+		<string>
+			<key>UI_SuccessSuffix</key>
+			<text> - 成功</text>
+		</string>
+		<string>
+			<key>UI_FailureSuffix</key>
+			<text> - 失敗</text>
+		</string>
+		<string>
+			<key>UI_All</key>
+			<text>すべて</text>
+		</string>
 	</strings>
 </chummer>

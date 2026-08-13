@@ -9,7 +9,11 @@ public sealed class DiceRollerDialogViewModel : ViewModelBase
 {
     private static readonly Random s_random = new();
 
-    public ObservableCollection<string> Methods { get; } = new() { "Standard", "Groß", "Sehr groß" };
+    private static string StandardLabel => App.LanguageCatalog.GetString("UI_DiceRollMethodStandard");
+    private static string LargeLabel => App.LanguageCatalog.GetString("UI_DiceRollMethodLarge");
+    private static string ReallyLargeLabel => App.LanguageCatalog.GetString("UI_DiceRollMethodReallyLarge");
+
+    public ObservableCollection<string> Methods { get; } = new() { StandardLabel, LargeLabel, ReallyLargeLabel };
 
     private int _intDiceCount = 1;
     public int DiceCount
@@ -18,7 +22,7 @@ public sealed class DiceRollerDialogViewModel : ViewModelBase
         set => SetField(ref _intDiceCount, value < 1 ? 1 : value);
     }
 
-    private string _strSelectedMethod = "Standard";
+    private string _strSelectedMethod = StandardLabel;
     public string SelectedMethod
     {
         get => _strSelectedMethod;
@@ -53,8 +57,8 @@ public sealed class DiceRollerDialogViewModel : ViewModelBase
     {
         DiceRollMethod eMethod = SelectedMethod switch
         {
-            "Groß" => DiceRollMethod.Large,
-            "Sehr groß" => DiceRollMethod.ReallyLarge,
+            _ when SelectedMethod == LargeLabel => DiceRollMethod.Large,
+            _ when SelectedMethod == ReallyLargeLabel => DiceRollMethod.ReallyLarge,
             _ => DiceRollMethod.Standard
         };
 
@@ -65,18 +69,20 @@ public sealed class DiceRollerDialogViewModel : ViewModelBase
 
         if (result.IsCriticalGlitch)
         {
-            ResultText = "Patzer! (0 Erfolge)";
+            ResultText = App.LanguageCatalog.GetString("UI_GlitchNoHits");
             ResultColor = Brushes.DarkRed;
         }
         else if (result.IsGlitch)
         {
-            ResultText = "Fehlschlag mit Patzer (" + result.Hits + " Erfolge)";
+            ResultText = App.LanguageCatalog.GetString("UI_FailureWithGlitchPrefix") + result.Hits
+                + App.LanguageCatalog.GetString("UI_HitsSuffix");
             ResultColor = Brushes.DarkOrange;
             AppendThresholdResult(result);
         }
         else
         {
-            ResultText = "Ergebnis: " + result.Hits + " Erfolge";
+            ResultText = App.LanguageCatalog.GetString("UI_ResultPrefix") + result.Hits
+                + App.LanguageCatalog.GetString("UI_HitsSuffixNoParen");
             ResultColor = Brushes.Black;
             AppendThresholdResult(result);
         }
@@ -86,7 +92,9 @@ public sealed class DiceRollerDialogViewModel : ViewModelBase
     {
         if (result.Success == null)
             return;
-        ResultText += result.Success == true ? " - Erfolgreich" : " - Fehlgeschlagen";
+        ResultText += result.Success == true
+            ? App.LanguageCatalog.GetString("UI_SuccessSuffix")
+            : App.LanguageCatalog.GetString("UI_FailureSuffix");
         ResultColor = result.Success == true ? Brushes.DarkGreen : Brushes.DarkRed;
     }
 }

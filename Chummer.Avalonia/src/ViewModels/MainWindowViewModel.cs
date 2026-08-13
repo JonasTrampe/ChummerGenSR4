@@ -8,9 +8,9 @@ namespace Chummer.NewUI.ViewModels;
 public sealed class MainWindowViewModel : ViewModelBase
 {
     private OpenCharacterTab? _selectedOpenCharacter;
-    private string _strKarmaStatus = "Karma: —";
-    private string _strEssenceStatus = "Essenz: —";
-    private string _strNuyenStatus = "Nuyen: —";
+    private string _strKarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+    private string _strEssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
+    private string _strNuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
     private string _strErrorMessage = string.Empty;
     private string _strWindowTitle = "Chummer";
 
@@ -80,7 +80,8 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            WindowTitle = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " (Default Settings)]";
+            WindowTitle = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " ("
+                + App.LanguageCatalog.GetString("UI_DefaultSettingsName") + ")]";
         }
         catch
         {
@@ -152,17 +153,18 @@ public sealed class MainWindowViewModel : ViewModelBase
         if (character is null)
         {
             WindowTitle = "Chummer";
-            KarmaStatus = "Karma: —";
-            EssenceStatus = "Essenz: —";
-            NuyenStatus = "Nuyen: —";
+            KarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+            EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
+            NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
             return;
         }
 
         KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
-            ? "BP: " + character.Bp + " / Karma: " + character.Karma
-            : "Karma: " + character.Karma;
-        EssenceStatus = "Essenz: " + character.Condition.Essence;
-        NuyenStatus = "Nuyen: " + character.Nuyen + "¥";
+            ? App.LanguageCatalog.GetString("String_BP") + ": " + character.Bp + " / "
+                + App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma
+            : App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma;
+        EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusPrefix") + character.Condition.Essence;
+        NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusPrefix") + character.Nuyen + "¥";
         WindowTitle = "Chummer - " + character.Name;
     }
 

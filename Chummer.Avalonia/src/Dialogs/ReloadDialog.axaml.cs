@@ -43,7 +43,7 @@ public partial class ReloadDialog : Window
         }
         if (CountBox.SelectedItem is not int intCount)
         {
-            ErrorText.Text = "Eine Menge ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_QuantityRequired");
             return;
         }
 

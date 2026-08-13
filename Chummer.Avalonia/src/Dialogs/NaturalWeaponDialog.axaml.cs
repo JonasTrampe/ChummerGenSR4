@@ -44,12 +44,12 @@ public partial class NaturalWeaponDialog : Window
     {
         if (string.IsNullOrWhiteSpace(NameBox.Text))
         {
-            ErrorText.Text = "Ein Name ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_PleaseEnterNameMessage");
             return;
         }
         if (SkillBox.SelectedItem is not string strSkill)
         {
-            ErrorText.Text = "Eine Fertigkeit ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_SkillRequired");
             return;
         }
 

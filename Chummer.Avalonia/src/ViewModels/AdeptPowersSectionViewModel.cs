@@ -62,7 +62,8 @@ public sealed class AdeptPowersSectionViewModel : ViewModelBase
             Powers.Add(new AdeptPowerRowViewModel(power));
 
         CharacterDerivedValueData points = character.AdeptPowerPoints;
-        PowerPointsText = "Kraftpunkte: " + points.Value + " verbleibend";
+        PowerPointsText = App.LanguageCatalog.GetString("Label_PowerPoints") + " " + points.Value
+            + App.LanguageCatalog.GetString("UI_PowerPointsRemainingSuffix");
         PowerPointsTooltip = points.Tooltip;
     }
 }

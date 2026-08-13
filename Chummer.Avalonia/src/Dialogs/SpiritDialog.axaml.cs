@@ -54,7 +54,9 @@ public partial class SpiritDialog : Window
 
         SpiritName = NameBox.Text.Trim();
         CritterName = CritterNameBox.Text?.Trim() ?? string.Empty;
-        Type = (TypeBox.SelectedItem as ComboBoxItem)?.Content as string ?? "Spirit";
+        // Persisted directly as the saved <type> field (RemoveSpirit matches it verbatim against
+        // "Spirit") - must stay the stable internal value, not TypeBox's translated Content text.
+        Type = TypeBox.SelectedIndex == 1 ? "Sprite" : "Spirit";
         Force = intForce.ToString();
         Services = intServices.ToString();
         Close(true);

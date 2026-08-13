@@ -13,26 +13,26 @@
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="SubTypeBox" Margin="0,8,0,0" />
         <TextBlock Grid.Row="2" Text="{loc:Loc Label_Category}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CategoryBox" Margin="0,8,0,0" SelectedIndex="0">
-            <ComboBoxItem Content="{loc:Loc UI_CategoryCombatActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategoryMagicalActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategoryPhysicalActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategoryResonanceActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategorySocialActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategoryTechnicalActive}" />
-            <ComboBoxItem Content="{loc:Loc UI_CategoryVehicleActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryCombatActive}" Tag="Combat Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryMagicalActive}" Tag="Magical Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryPhysicalActive}" Tag="Physical Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryResonanceActive}" Tag="Resonance Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategorySocialActive}" Tag="Social Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryTechnicalActive}" Tag="Technical Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryVehicleActive}" Tag="Vehicle Active" />
         </ComboBox>
         <TextBlock Grid.Row="3" Text="{loc:Loc UI_AttributeColon}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <ComboBox Grid.Row="3" Grid.Column="1" x:Name="AttributeBox" Margin="0,8,0,0" SelectedIndex="0">
-            <ComboBoxItem Content="{loc:Loc UI_AttributeBodShortLabel}" />
-            <ComboBoxItem Content="{loc:Loc UI_AttributeAgiShortLabel}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeREAShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeSTRShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeCHAShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeINTShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeLOGShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeWILShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeMAGShort}" />
-            <ComboBoxItem Content="{loc:Loc String_AttributeRESShort}" />
+            <ComboBoxItem Content="{loc:Loc UI_AttributeBodShortLabel}" Tag="BOD" />
+            <ComboBoxItem Content="{loc:Loc UI_AttributeAgiShortLabel}" Tag="AGI" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeREAShort}" Tag="REA" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeSTRShort}" Tag="STR" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeCHAShort}" Tag="CHA" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeINTShort}" Tag="INT" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeLOGShort}" Tag="LOG" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeWILShort}" Tag="WIL" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeMAGShort}" Tag="MAG" />
+            <ComboBoxItem Content="{loc:Loc String_AttributeRESShort}" Tag="RES" />
         </ComboBox>
         <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
         <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">

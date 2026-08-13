@@ -87,7 +87,7 @@ public partial class CreateImprovementDialog : Window
     {
         if (string.IsNullOrWhiteSpace(NameBox.Text))
         {
-            ErrorText.Text = "Ein Name ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_PleaseEnterNameMessage");
             return;
         }
 
@@ -96,7 +96,7 @@ public partial class CreateImprovementDialog : Window
             or CharacterDocument.CustomImprovementType.Skill;
         if (blnNeedsSelect && SelectBox.SelectedItem is not string)
         {
-            ErrorText.Text = "Eine Auswahl ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_SelectionRequired");
             return;
         }
 

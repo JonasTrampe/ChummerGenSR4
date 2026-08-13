@@ -30,10 +30,10 @@ public partial class ExpenseDialog : Window
     public ExpenseDialog(string title, decimal decExistingSignedAmount, string strExistingReason)
         : this(title, decExistingSignedAmount < 0 ? -1 : 1)
     {
-        PromptText.Text = "Bearbeite den Betrag und den Grund.";
+        PromptText.Text = App.LanguageCatalog.GetString("UI_EditAmountAndReasonPrompt");
         AmountBox.Text = Math.Abs(decExistingSignedAmount).ToString(CultureInfo.CurrentCulture);
         ReasonBox.Text = strExistingReason;
-        OkButton.Content = "Speichern";
+        OkButton.Content = App.LanguageCatalog.GetString("UI_Save");
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)
@@ -45,7 +45,7 @@ public partial class ExpenseDialog : Window
         }
         if (string.IsNullOrWhiteSpace(ReasonBox.Text))
         {
-            ErrorText.Text = "Ein Grund ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_ReasonRequired");
             return;
         }
 

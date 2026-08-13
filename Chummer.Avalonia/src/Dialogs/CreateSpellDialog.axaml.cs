@@ -87,7 +87,7 @@ public partial class CreateSpellDialog : Window
     {
         if (string.IsNullOrWhiteSpace(NameBox.Text))
         {
-            ErrorText.Text = "Ein Name ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_PleaseEnterNameMessage");
             return;
         }
         if (CategoryBox.SelectedItem is not string strCategory)

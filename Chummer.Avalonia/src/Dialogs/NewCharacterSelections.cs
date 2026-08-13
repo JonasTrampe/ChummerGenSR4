@@ -5,7 +5,7 @@ namespace Chummer.NewUI.Dialogs;
 public sealed class SettingsProfileSelection
 {
     public string FileName { get; init; } = "default.xml";
-    public string DisplayName { get; init; } = "Default Settings";
+    public string DisplayName { get; init; } = App.LanguageCatalog.GetString("UI_DefaultSettingsName");
     public string BuildMethod { get; init; } = "BP";
     public int BuildPoints { get; init; } = 400;
     public int MaxAvailability { get; init; } = 12;

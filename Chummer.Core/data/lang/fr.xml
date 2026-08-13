@@ -7918,5 +7918,145 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<key>UI_ServicesMustNotBeNegative</key>
 			<text>Le nombre de services ne doit pas être négatif.</text>
 		</string>
+		<string>
+			<key>UI_SkillNameRequired</key>
+			<text>Un nom de compétence est requis.</text>
+		</string>
+		<string>
+			<key>UI_SubTypeRequired</key>
+			<text>Un sous-type est requis.</text>
+		</string>
+		<string>
+			<key>UI_QuantityRequired</key>
+			<text>Une quantité est requise.</text>
+		</string>
+		<string>
+			<key>UI_EditAmountAndReasonPrompt</key>
+			<text>Modifiez le montant et la raison.</text>
+		</string>
+		<string>
+			<key>UI_Save</key>
+			<text>Enregistrer</text>
+		</string>
+		<string>
+			<key>UI_ReasonRequired</key>
+			<text>Une raison est requise.</text>
+		</string>
+		<string>
+			<key>UI_SkillRequired</key>
+			<text>Une compétence est requise.</text>
+		</string>
+		<string>
+			<key>UI_SelectionRequired</key>
+			<text>Une sélection est requise.</text>
+		</string>
+		<string>
+			<key>UI_InstalledVersionPrefix</key>
+			<text>Version installée : </text>
+		</string>
+		<string>
+			<key>UI_LatestVersionPrefix</key>
+			<text>Dernière version : </text>
+		</string>
+		<string>
+			<key>UI_PowerPointsRemainingSuffix</key>
+			<text> restants</text>
+		</string>
+		<string>
+			<key>UI_GlitchNoHits</key>
+			<text>Pépin ! (0 succès)</text>
+		</string>
+		<string>
+			<key>UI_FailureWithGlitchPrefix</key>
+			<text>Échec avec pépin (</text>
+		</string>
+		<string>
+			<key>UI_HitsSuffix</key>
+			<text> succès)</text>
+		</string>
+		<string>
+			<key>UI_ResultPrefix</key>
+			<text>Résultat : </text>
+		</string>
+		<string>
+			<key>UI_HitsSuffixNoParen</key>
+			<text> succès</text>
+		</string>
+		<string>
+			<key>UI_NoLocationSelected</key>
+			<text>Aucun emplacement</text>
+		</string>
+		<string>
+			<key>UI_NoSetSelected</key>
+			<text>Aucun ensemble</text>
+		</string>
+		<string>
+			<key>UI_CostPerMonthColon</key>
+			<text>Coût/Mois :</text>
+		</string>
+		<string>
+			<key>UI_ArmorRatingPrefix</key>
+			<text>Valeur d'armure : Balistique </text>
+		</string>
+		<string>
+			<key>UI_ImpactSlash</key>
+			<text> / Choc </text>
+		</string>
+		<string>
+			<key>UI_EncumbrancePrefix</key>
+			<text>Encombrement : Balistique </text>
+		</string>
+		<string>
+			<key>UI_KarmaStatusDefault</key>
+			<text>Karma : —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusDefault</key>
+			<text>Essence : —</text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusDefault</key>
+			<text>Nuyen : —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusPrefix</key>
+			<text>Essence : </text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusPrefix</key>
+			<text>Nuyen : </text>
+		</string>
+		<string>
+			<key>UI_CharactersSuggestedFileName</key>
+			<text>Personnages</text>
+		</string>
+		<string>
+			<key>UI_DefaultSettingsName</key>
+			<text>Paramètres par défaut</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodStandard</key>
+			<text>Standard</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodLarge</key>
+			<text>Grand</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodReallyLarge</key>
+			<text>Très grand</text>
+		</string>
+		<string>
+			<key>UI_SuccessSuffix</key>
+			<text> - Réussi</text>
+		</string>
+		<string>
+			<key>UI_FailureSuffix</key>
+			<text> - Échoué</text>
+		</string>
+		<string>
+			<key>UI_All</key>
+			<text>Tous</text>
+		</string>
 	</strings>
 </chummer>

@@ -47,9 +47,6 @@ Everything not `[x]`, in one place, grouped by area.
 ### Everything else open
 - [ ] Cloud save/share: conflict/newer-revision handling, broader UX parity with legacy's cloud
   flows.
-- [ ] UI translation: ~20 hardcoded `.cs` string literals still remain (plain-ASCII text with no
-  umlaut, missed by the automated sweep — e.g. status-bar strings in `MainWindowViewModel.cs`,
-  a few dialog error messages). AXAML is fully converted; see § Settings / i18n.
 - [ ] Weapons/Armor trees don't support drag-and-drop reordering (Gear/Cyberware do).
 - [ ] Native cross-platform "Drucken" (an actual OS print dialog) — HTML/PDF export exist instead;
   see § Output / tooling.
@@ -214,14 +211,25 @@ Everything not `[x]`, in one place, grouped by area.
   covered: MentorSpirit picker (no filtering need in legacy either), PACKS Kits/Suites.
 - [x] Cyberlimb attribute averaging (AGI/BOD/STR), ported from `clsUnique.cs`'s
   `Attribute.TotalValue`
-- [~] UI translation — every AXAML string and most `.cs` string literals now resolve through the
-  `Chummer.Core/data/lang/*.xml` catalog via a new `{loc:Loc Key}` markup extension
-  (`LocExtension.cs`) or `App.LanguageCatalog.GetString(...)`, instead of a hardcoded literal.
-  236 new keys minted (no legacy equivalent existed) and translated into all 4 shipped languages
-  (en-us/de/fr/jp). `App.axaml.cs` now defaults to `"de"` (matching this fork's audience) unless a
-  language was explicitly persisted, so converted and unconverted files don't show a mixed
-  language. Remaining gap: ~20 plain-ASCII `.cs` literals the sweep missed (see backlog). Rules-
-  data item name translation (`de_data.xml`/etc.) is separate and out of scope here.
+- [x] UI translation — done. Every AXAML string and every real UI-facing `.cs` string literal now
+  resolves through the `Chummer.Core/data/lang/*.xml` catalog via `{loc:Loc Key}`
+  (`LocExtension.cs`) or `App.LanguageCatalog.GetString(...)`. 265 new keys minted (no legacy
+  equivalent existed) and translated into all 4 shipped languages (en-us/de/fr/jp). `App.axaml.cs`
+  defaults to `"de"` (matching this fork's audience) unless a language was explicitly persisted.
+  Remaining literals were audited individually and left as-is deliberately: `"Chummer"` (app
+  name), `"Adobe/Foxit"`/`"SumatraPDF"` (technical option values, not UI text), `"Street"`
+  (a `skills.xml` category code, not display text).
+  Also fixed 2 real data-integrity bugs the earlier bulk pass introduced: `SpiritDialog`'s Type
+  picker and `AddExoticSkillDialog`'s Category/Attribute pickers were reading back their
+  now-translated `ComboBoxItem.Content` and persisting *that* as the saved value (e.g. a
+  Japanese-language install would have saved a Japanese string into `<type>`/`<category>`,
+  breaking `RemoveSpirit`'s literal `"Spirit"` match and any code expecting the canonical
+  English/skills.xml-matching value) - fixed by adding a stable `Tag`/index-based internal value
+  separate from the translated display text. Several ViewModel-only sentinel strings ("Kein Ort"/
+  "Kein Set"/"Alle", the Dice Roller's method names) had the same class of risk (population vs.
+  comparison drifting apart across languages) and were fixed the same way - a single
+  catalog-backed constant used for both. Rules-data item name translation (`de_data.xml`/etc.) is
+  separate and out of scope here.
 
 ## Interaction niceties
 

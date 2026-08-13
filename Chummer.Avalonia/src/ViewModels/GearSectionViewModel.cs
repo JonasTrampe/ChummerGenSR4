@@ -8,6 +8,13 @@ namespace Chummer.NewUI.ViewModels;
 
 public sealed class GearSectionViewModel : ViewModelBase
 {
+    // Sentinel display value for "not assigned to a location/set" - resolved from the catalog so
+    // it stays consistent between population (LoadCharacter) and comparison (the setters below)
+    // regardless of the active language.
+    private static string NoLocationLabel => App.LanguageCatalog.GetString("UI_NoLocationSelected");
+    private static string NoSetLabel => App.LanguageCatalog.GetString("UI_NoSetSelected");
+    private static string AllLabel => App.LanguageCatalog.GetString("UI_All");
+
     private CharacterDocument? _character;
     private List<CharacterTreeItemData> _lstAllArmor = new();
     private List<CharacterTreeItemData> _lstAllGear = new();
@@ -43,7 +50,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     public ObservableCollection<string> GearLocations { get; } = new();
 
     private TreeNodeViewModel? _selectedGear;
-    private string _strSelectedGearLocation = "Kein Ort";
+    private string _strSelectedGearLocation = NoLocationLabel;
     private bool _blnIsLoadingGearLocation;
     public TreeNodeViewModel? SelectedGear
     {
@@ -59,7 +66,7 @@ public sealed class GearSectionViewModel : ViewModelBase
 
             _blnIsLoadingGearLocation = true;
             SelectedGearLocation = value is { Category: not "Gear location" } ?
-                (string.IsNullOrEmpty(value.Location) ? "Kein Ort" : value.Location) : "Kein Ort";
+                (string.IsNullOrEmpty(value.Location) ? NoLocationLabel : value.Location) : NoLocationLabel;
             _blnIsLoadingGearLocation = false;
             OnPropertyChanged(nameof(IsGearLocationSelected));
         }
@@ -74,7 +81,7 @@ public sealed class GearSectionViewModel : ViewModelBase
         {
             if (!SetField(ref _strSelectedGearLocation, value) || _blnIsLoadingGearLocation || _character == null
                 || SelectedGear is not { Category: not "Gear location", GearId: >= 0 } gear) return;
-            if (_character.SetGearLocation(gear.GearId, value == "Kein Ort" ? string.Empty : value))
+            if (_character.SetGearLocation(gear.GearId, value == NoLocationLabel ? string.Empty : value))
                 LoadCharacter(_character);
         }
     }
@@ -96,7 +103,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     }
 
     private TreeNodeViewModel? _selectedArmor;
-    private string _strSelectedArmorSet = "Kein Set";
+    private string _strSelectedArmorSet = NoSetLabel;
     private bool _blnIsLoadingArmorSet;
     public TreeNodeViewModel? SelectedArmor
     {
@@ -106,7 +113,7 @@ public sealed class GearSectionViewModel : ViewModelBase
             if (!SetField(ref _selectedArmor, value)) return;
             _blnIsLoadingArmorSet = true;
             SelectedArmorSet = value is { Category: not "Armor set" } ?
-                (string.IsNullOrEmpty(value.ArmorSetName) ? "Kein Set" : value.ArmorSetName) : "Kein Set";
+                (string.IsNullOrEmpty(value.ArmorSetName) ? NoSetLabel : value.ArmorSetName) : NoSetLabel;
             _blnIsLoadingArmorSet = false;
             OnPropertyChanged(nameof(IsArmorSetSelected));
         }
@@ -121,13 +128,13 @@ public sealed class GearSectionViewModel : ViewModelBase
         {
             if (!SetField(ref _strSelectedArmorSet, value) || _blnIsLoadingArmorSet || _character == null
                 || SelectedArmor is not { Category: not "Armor set" } armor) return;
-            _character.SetArmorSet(armor.SourceName, armor.Category, value == "Kein Set" ? string.Empty : value);
+            _character.SetArmorSet(armor.SourceName, armor.Category, value == NoSetLabel ? string.Empty : value);
             LoadCharacter(_character);
         }
     }
 
     private TreeNodeViewModel? _selectedWeapon;
-    private string _strSelectedWeaponLocation = "Kein Ort";
+    private string _strSelectedWeaponLocation = NoLocationLabel;
     private bool _blnIsLoadingWeaponLocation;
     public TreeNodeViewModel? SelectedWeapon
     {
@@ -137,7 +144,7 @@ public sealed class GearSectionViewModel : ViewModelBase
             if (!SetField(ref _selectedWeapon, value)) return;
             _blnIsLoadingWeaponLocation = true;
             SelectedWeaponLocation = value is { Category: not "Weapon location" } ?
-                (string.IsNullOrEmpty(value.Location) ? "Kein Ort" : value.Location) : "Kein Ort";
+                (string.IsNullOrEmpty(value.Location) ? NoLocationLabel : value.Location) : NoLocationLabel;
             _blnIsLoadingWeaponLocation = false;
             OnPropertyChanged(nameof(IsWeaponLocationSelected));
         }
@@ -150,12 +157,12 @@ public sealed class GearSectionViewModel : ViewModelBase
         {
             if (!SetField(ref _strSelectedWeaponLocation, value) || _blnIsLoadingWeaponLocation || _character == null
                 || SelectedWeapon is not { Category: not "Weapon location" } weapon) return;
-            _character.SetWeaponLocation(weapon.SourceName, weapon.Category, value == "Kein Ort" ? string.Empty : value);
+            _character.SetWeaponLocation(weapon.SourceName, weapon.Category, value == NoLocationLabel ? string.Empty : value);
             LoadCharacter(_character);
         }
     }
 
-    private string _strLifestyleCost = "Kosten/Monat:";
+    private string _strLifestyleCost = App.LanguageCatalog.GetString("UI_CostPerMonthColon");
     public string LifestyleCost
     {
         get => _strLifestyleCost;
@@ -183,37 +190,37 @@ public sealed class GearSectionViewModel : ViewModelBase
         ApplyGearFilter();
 
         GearLocations.Clear();
-        GearLocations.Add("Kein Ort");
+        GearLocations.Add(NoLocationLabel);
         foreach (string strLocation in character.GearLocations) GearLocations.Add(strLocation);
 
         Weapons.Clear();
         foreach (CharacterTreeItemData weapon in character.WeaponTrees)
             Weapons.Add(TreeNodeViewModel.FromTreeItem(weapon));
         WeaponLocations.Clear();
-        WeaponLocations.Add("Kein Ort");
+        WeaponLocations.Add(NoLocationLabel);
         foreach (string strLocation in character.WeaponLocations) WeaponLocations.Add(strLocation);
         SelectedWeapon = Weapons.Count > 0 ? Weapons[0] : null;
 
         _lstAllArmor = character.Armor.ToList();
         ArmorCategories.Clear();
-        ArmorCategories.Add("Alle");
+        ArmorCategories.Add(AllLabel);
         foreach (string strCategory in _lstAllArmor.Select(a => a.Category).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             ArmorCategories.Add(strCategory);
-        _strSelectedArmorCategory = "Alle";
+        _strSelectedArmorCategory = AllLabel;
         OnPropertyChanged(nameof(SelectedArmorCategory));
         ApplyArmorFilter();
 
         ArmorSets.Clear();
-        ArmorSets.Add("Kein Set");
+        ArmorSets.Add(NoSetLabel);
         foreach (string strSetName in character.ArmorSets)
             ArmorSets.Add(strSetName);
 
         CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
-        ArmorRating = "Panzerungswert: Ballistisch " + encumbrance.BallisticRating.Value
-            + " / Stoß " + encumbrance.ImpactRating.Value;
-        ArmorEncumbrance = "Behinderung: Ballistisch " + encumbrance.BallisticPenalty.Value
-            + " / Stoß " + encumbrance.ImpactPenalty.Value;
+        ArmorRating = App.LanguageCatalog.GetString("UI_ArmorRatingPrefix") + encumbrance.BallisticRating.Value
+            + App.LanguageCatalog.GetString("UI_ImpactSlash") + encumbrance.ImpactRating.Value;
+        ArmorEncumbrance = App.LanguageCatalog.GetString("UI_EncumbrancePrefix") + encumbrance.BallisticPenalty.Value
+            + App.LanguageCatalog.GetString("UI_ImpactSlash") + encumbrance.ImpactPenalty.Value;
 
         Lifestyles.Clear();
         decimal decTotalCost = 0;
@@ -224,7 +231,8 @@ public sealed class GearSectionViewModel : ViewModelBase
                 decTotalCost += decCost;
         }
 
-        LifestyleCost = "Kosten/Monat: " + decTotalCost.ToString("N0", CultureInfo.InvariantCulture) + "¥";
+        LifestyleCost = App.LanguageCatalog.GetString("UI_CostPerMonthColon") + " "
+            + decTotalCost.ToString("N0", CultureInfo.InvariantCulture) + "¥";
         SelectedLifestyle = Lifestyles.Count > 0 ? Lifestyles[0] : null;
 
         Pets.Clear();
@@ -237,7 +245,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     {
         Armor.Clear();
         IEnumerable<CharacterTreeItemData> query = _lstAllArmor;
-        if (!string.IsNullOrEmpty(SelectedArmorCategory) && SelectedArmorCategory != "Alle")
+        if (!string.IsNullOrEmpty(SelectedArmorCategory) && SelectedArmorCategory != AllLabel)
             query = query.Where(a => a.Category == SelectedArmorCategory);
 
         foreach (CharacterTreeItemData item in query)

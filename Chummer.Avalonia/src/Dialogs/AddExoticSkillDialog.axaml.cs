@@ -19,19 +19,19 @@ public partial class AddExoticSkillDialog : Window
     {
         if (string.IsNullOrWhiteSpace(NameBox.Text))
         {
-            ErrorText.Text = "Ein Fertigkeitsname ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_SkillNameRequired");
             return;
         }
         if (string.IsNullOrWhiteSpace(SubTypeBox.Text))
         {
-            ErrorText.Text = "Ein Sub-Typ ist erforderlich.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_SubTypeRequired");
             return;
         }
 
         SkillName = NameBox.Text.Trim();
         SubType = SubTypeBox.Text.Trim();
-        Category = (CategoryBox.SelectedItem as ComboBoxItem)?.Content as string ?? "Combat Active";
-        Attribute = (AttributeBox.SelectedItem as ComboBoxItem)?.Content as string ?? "AGI";
+        Category = (CategoryBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "Combat Active";
+        Attribute = (AttributeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "AGI";
         Close(true);
     }
 

@@ -8021,5 +8021,145 @@ Stattdessen lokal gespeichert.</text>
 			<key>UI_ServicesMustNotBeNegative</key>
 			<text>Die Anzahl Dienste darf nicht negativ sein.</text>
 		</string>
+		<string>
+			<key>UI_SkillNameRequired</key>
+			<text>Ein Fertigkeitsname ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_SubTypeRequired</key>
+			<text>Ein Sub-Typ ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_QuantityRequired</key>
+			<text>Eine Menge ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_EditAmountAndReasonPrompt</key>
+			<text>Bearbeite den Betrag und den Grund.</text>
+		</string>
+		<string>
+			<key>UI_Save</key>
+			<text>Speichern</text>
+		</string>
+		<string>
+			<key>UI_ReasonRequired</key>
+			<text>Ein Grund ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_SkillRequired</key>
+			<text>Eine Fertigkeit ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_SelectionRequired</key>
+			<text>Eine Auswahl ist erforderlich.</text>
+		</string>
+		<string>
+			<key>UI_InstalledVersionPrefix</key>
+			<text>Installierte Version: </text>
+		</string>
+		<string>
+			<key>UI_LatestVersionPrefix</key>
+			<text>Neueste Version: </text>
+		</string>
+		<string>
+			<key>UI_PowerPointsRemainingSuffix</key>
+			<text> verbleibend</text>
+		</string>
+		<string>
+			<key>UI_GlitchNoHits</key>
+			<text>Patzer! (0 Erfolge)</text>
+		</string>
+		<string>
+			<key>UI_FailureWithGlitchPrefix</key>
+			<text>Fehlschlag mit Patzer (</text>
+		</string>
+		<string>
+			<key>UI_HitsSuffix</key>
+			<text> Erfolge)</text>
+		</string>
+		<string>
+			<key>UI_ResultPrefix</key>
+			<text>Ergebnis: </text>
+		</string>
+		<string>
+			<key>UI_HitsSuffixNoParen</key>
+			<text> Erfolge</text>
+		</string>
+		<string>
+			<key>UI_NoLocationSelected</key>
+			<text>Kein Ort</text>
+		</string>
+		<string>
+			<key>UI_NoSetSelected</key>
+			<text>Kein Set</text>
+		</string>
+		<string>
+			<key>UI_CostPerMonthColon</key>
+			<text>Kosten/Monat:</text>
+		</string>
+		<string>
+			<key>UI_ArmorRatingPrefix</key>
+			<text>Panzerungswert: Ballistisch </text>
+		</string>
+		<string>
+			<key>UI_ImpactSlash</key>
+			<text> / Stoß </text>
+		</string>
+		<string>
+			<key>UI_EncumbrancePrefix</key>
+			<text>Behinderung: Ballistisch </text>
+		</string>
+		<string>
+			<key>UI_KarmaStatusDefault</key>
+			<text>Karma: —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusDefault</key>
+			<text>Essenz: —</text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusDefault</key>
+			<text>Nuyen: —</text>
+		</string>
+		<string>
+			<key>UI_EssenceStatusPrefix</key>
+			<text>Essenz: </text>
+		</string>
+		<string>
+			<key>UI_NuyenStatusPrefix</key>
+			<text>Nuyen: </text>
+		</string>
+		<string>
+			<key>UI_CharactersSuggestedFileName</key>
+			<text>Charaktere</text>
+		</string>
+		<string>
+			<key>UI_DefaultSettingsName</key>
+			<text>Standardeinstellungen</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodStandard</key>
+			<text>Standard</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodLarge</key>
+			<text>Groß</text>
+		</string>
+		<string>
+			<key>UI_DiceRollMethodReallyLarge</key>
+			<text>Sehr groß</text>
+		</string>
+		<string>
+			<key>UI_SuccessSuffix</key>
+			<text> - Erfolgreich</text>
+		</string>
+		<string>
+			<key>UI_FailureSuffix</key>
+			<text> - Fehlgeschlagen</text>
+		</string>
+		<string>
+			<key>UI_All</key>
+			<text>Alle</text>
+		</string>
 	</strings>
 </chummer>

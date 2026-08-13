@@ -18,8 +18,8 @@ public partial class UpdateDialog : Window
     {
         InitializeComponent();
         _strReleaseUrl = objResult.ReleaseUrl;
-        CurrentVersionText.Text = "Installierte Version: " + strCurrentVersion;
-        LatestVersionText.Text = "Neueste Version: " + objResult.LatestVersion;
+        CurrentVersionText.Text = App.LanguageCatalog.GetString("UI_InstalledVersionPrefix") + strCurrentVersion;
+        LatestVersionText.Text = App.LanguageCatalog.GetString("UI_LatestVersionPrefix") + objResult.LatestVersion;
         ReleaseNotesText.Text = objResult.ReleaseNotes;
     }
 
