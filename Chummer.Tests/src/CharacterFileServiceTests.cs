@@ -3719,6 +3719,94 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ReloadWeapon_ConsumesAmmoAndUpdatesAmmoStatus()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15(c)", "350", "4R", "SR4", "313");
+        character.AddGear("Ammo: Regular Ammo", "Ammunition", strQty: "30", strCost: "0");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        int intAmmoGearId = character.GetWeaponAmmoOptions(guiWeaponId).Single().GearId;
+
+        Assert.True(character.ReloadWeapon(guiWeaponId, intAmmoGearId, 15));
+
+        Assert.Equal(15, character.Gear.Single().Qty is var q && int.TryParse(q, out var i) ? i : -1);
+        Assert.Equal("15 (Ammo: Regular Ammo)", character.WeaponTrees.Single().AmmoStatus);
+    }
+
+    [Fact]
+    public void ReloadWeapon_ReturnsUnspentRoundsFromThePreviousLoad()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15(c)", "350", "4R", "SR4", "313");
+        character.AddGear("Ammo: Regular Ammo", "Ammunition", strQty: "30", strCost: "0");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        int intAmmoGearId = character.GetWeaponAmmoOptions(guiWeaponId).Single().GearId;
+
+        Assert.True(character.ReloadWeapon(guiWeaponId, intAmmoGearId, 15));
+        // 15 rounds now sit in the weapon, 15 remain in the Gear stack. Reloading again with 10
+        // more should first return the unspent 15 to the Gear stack (-> 30), then take 10 (-> 20).
+        Assert.True(character.ReloadWeapon(guiWeaponId, intAmmoGearId, 10));
+
+        Assert.Equal(20, character.Gear.Single().Qty is var q && int.TryParse(q, out var i) ? i : -1);
+        Assert.Equal("10 (Ammo: Regular Ammo)", character.WeaponTrees.Single().AmmoStatus);
+    }
+
+    [Fact]
+    public void ReloadWeapon_NotEnoughAmmo_ClampsToWhateverIsLeft()
+    {
+        // Matches legacy's own forgiving behavior ("use whatever is left") rather than failing.
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15(c)", "350", "4R", "SR4", "313");
+        character.AddGear("Ammo: Regular Ammo", "Ammunition", strQty: "5", strCost: "0");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        int intAmmoGearId = character.GetWeaponAmmoOptions(guiWeaponId).Single().GearId;
+
+        Assert.True(character.ReloadWeapon(guiWeaponId, intAmmoGearId, 15));
+        Assert.Equal("0", character.Gear.Single().Qty);
+        Assert.Equal("5 (Ammo: Regular Ammo)", character.WeaponTrees.Single().AmmoStatus);
+    }
+
+    [Fact]
+    public void GetWeaponAmmoOptions_ExcludesIncompatibleAmmoTypes()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15(c)", "350", "4R", "SR4", "313");
+        character.AddGear("Ammo: Regular Ammo", "Ammunition", strQty: "30", strCost: "0");
+        character.AddGear("Arrow", "Ammunition", strQty: "10", strCost: "0");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        var lstOptions = character.GetWeaponAmmoOptions(guiWeaponId);
+
+        Assert.Contains(lstOptions, o => o.Name == "Ammo: Regular Ammo");
+        Assert.DoesNotContain(lstOptions, o => o.Name == "Arrow");
+    }
+
+    [Fact]
+    public void GetWeaponAmmoOptions_RestrictStickNShock_ExcludesStickNShockForExcludedCategory()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15(c)", "350", "4R", "SR4", "313");
+        character.AddGear("Ammo: Stick-n-Shock", "Ammunition", strQty: "10", strCost: "0");
+        var objOptions = new CharacterOptions { RestrictStickNShock = true };
+        objOptions.StickNShockExcludedWeaponCategories.Add("Heavy Pistols");
+        character.SetCharacterOptionsForTesting(objOptions);
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        Assert.DoesNotContain(character.GetWeaponAmmoOptions(guiWeaponId), o => o.Name == "Ammo: Stick-n-Shock");
+    }
+
+    [Fact]
+    public void GetWeaponAmmoCapacityChoices_ParsesRoundCountsFromTheAmmoString()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0",
+            "15(c) or external source", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+
+        Assert.Equal(new[] { 15 }, character.GetWeaponAmmoCapacityChoices(guiWeaponId));
+    }
+
+    [Fact]
     public void AddWeapon_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

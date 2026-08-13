@@ -96,6 +96,11 @@ public sealed class TreeNodeViewModel
     public string WeaponDicePool { get; private set; } = string.Empty;
 
     public string WeaponDicePoolTooltip { get; private set; } = string.Empty;
+
+    /// <summary>Only set (non-empty) for Weapon root nodes with ammo currently loaded - see
+    /// CharacterDocument.ReloadWeapon/ComputeAmmoStatus.</summary>
+    public string AmmoStatus { get; private set; } = string.Empty;
+
     public string Source { get; private set; } = string.Empty;
     public string Page { get; private set; } = string.Empty;
 
@@ -206,6 +211,7 @@ public sealed class TreeNodeViewModel
             Avail = item.CalculatedAvail,
             WeaponDicePool = item.WeaponDicePool,
             WeaponDicePoolTooltip = item.WeaponDicePoolTooltip,
+            AmmoStatus = item.AmmoStatus,
             IsWeaponAccessory = item.IsWeaponAccessory,
             IsWeaponMod = item.IsWeaponMod
         };

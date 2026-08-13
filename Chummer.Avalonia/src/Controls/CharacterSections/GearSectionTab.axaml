@@ -103,6 +103,7 @@
                         <Button Content="Mod hinzufügen" Click="OnAddWeaponModClick" />
                         <Button Content="Löschen" Click="OnDeleteWeaponClick" />
                         <Button Content="Verkaufen" Click="OnSellWeaponClick" />
+                        <Button Content="Nachladen" Click="OnReloadWeaponClick" />
                         <Button Content="Ort hinzufügen" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
@@ -140,6 +141,10 @@
                             <TextBlock Text="Würfelpool:" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponDicePool, TargetNullValue=–}"
                                        ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="Munition:" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.AmmoStatus, TargetNullValue=Nicht geladen, FallbackValue=Nicht geladen}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="Ort:" Width="90" />

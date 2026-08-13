@@ -22,6 +22,7 @@ using AdvancedLifestyleDialog = Chummer.NewUI.Dialogs.AdvancedLifestyleDialog;
 using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
 using NaturalWeaponDialog = Chummer.NewUI.Dialogs.NaturalWeaponDialog;
+using ReloadDialog = Chummer.NewUI.Dialogs.ReloadDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -255,6 +256,19 @@ public partial class GearSectionTab : UserControl
         if (await dialog.ShowDialog<bool>(window)
             && _character.AddNaturalWeapon(dialog.ResultName, dialog.ResultSkill, dialog.ResultDvBase,
                 dialog.ResultDvMod, dialog.ResultDvType, dialog.ResultAp, dialog.ResultReach))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnReloadWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null } selected
+            || !Guid.TryParse(selected.ItemGuid, out Guid guiWeaponId)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ReloadDialog(_character, guiWeaponId);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.ReloadWeapon(guiWeaponId, dialog.SelectedAmmoGearId, dialog.SelectedCount))
             ViewModel.LoadCharacter(_character);
     }
 

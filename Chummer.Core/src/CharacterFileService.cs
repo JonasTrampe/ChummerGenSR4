@@ -1220,11 +1220,13 @@ namespace Chummer.Core
         }
 
         /// <summary>Ported from frmCareer.cs/frmCreate.cs's Stick-n-Shock weapon-category
-        /// restriction checks (e.g. frmCareer.cs:24378), simplified for this port's flat Gear tree:
-        /// legacy blocks loading Stick-n-Shock ammo into a specific excluded-category weapon;
-        /// since this port has no concept of which weapon a Gear/ammo item is loaded into, it
-        /// instead blocks acquiring the ammo at all when the RestrictStickNShock house rule is on
-        /// and the character owns no weapon outside the excluded categories to use it with.</summary>
+        /// restriction checks (e.g. frmCareer.cs:24378), simplified at purchase time: legacy blocks
+        /// loading Stick-n-Shock ammo into a specific excluded-category weapon; this instead blocks
+        /// acquiring the ammo at all when the RestrictStickNShock house rule is on and the
+        /// character owns no weapon outside the excluded categories to use it with. The actual
+        /// loaded-into-a-specific-weapon concept exists now too (see ReloadWeapon/
+        /// GetWeaponAmmoOptions, which does exclude Stick-n-Shock per-weapon there), but this
+        /// broader "can they own it at all" gate is still checked at AddGear time.</summary>
         private bool StickNShockAllowed(string strName)
         {
             if (!string.Equals(strName, "Ammo: Stick-n-Shock", StringComparison.Ordinal))
@@ -2695,6 +2697,8 @@ namespace Chummer.Core
             AppendElement(objWeapon, "page", strPage);
             AppendElement(objWeapon, "location", string.Empty);
             AppendElement(objWeapon, "equipped", "True");
+            AppendElement(objWeapon, "ammoloaded", "-1");
+            AppendElement(objWeapon, "ammoremaining", "0");
             objWeapon.AppendChild(Document.CreateElement("accessories"));
             objWeapon.AppendChild(Document.CreateElement("weaponmods"));
             objWeapon.AppendChild(Document.CreateElement("gears"));
@@ -2702,6 +2706,189 @@ namespace Chummer.Core
             objWeapons.AppendChild(objWeapon);
             DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
+        }
+
+        /// <summary>Ported from frmReload.cs/frmCareer.cs's "Buy Ammo"/reload flow: which Gear item
+        /// (by <see cref="GearId"/>) is currently loaded into a Weapon, and how many rounds remain
+        /// in it - the missing concept `RestrictStickNShock`'s own note previously called out as
+        /// blocking loaded-ammo dice-pool bonuses. Unlike legacy's Extra-field weapon-category
+        /// matching (which needs a whole separate "restrict this purchase to one category" gear-
+        /// picker mode this port doesn't have), compatibility is checked purely by ammo name
+        /// against the weapon's AmmoCategory - ported directly from frmCareer.cs's
+        /// IsAmmunitionCompatible, which already works exactly this way for every non-generic ammo
+        /// type (Arrows/Bolts/Grenades/Missiles/Mortars/etc.) and falls back to "any non-exotic
+        /// category" for plain Ammo: Regular/Stick-n-Shock/etc.</summary>
+        public sealed class WeaponAmmoOption
+        {
+            internal WeaponAmmoOption(int intGearId, string strName, int intQuantity)
+            {
+                GearId = intGearId;
+                Name = strName;
+                Quantity = intQuantity;
+            }
+
+            public int GearId { get; }
+            public string Name { get; }
+            public int Quantity { get; }
+        }
+
+        private static bool IsAmmunitionCompatible(string strAmmoName, string strAmmoCategory)
+        {
+            if (string.IsNullOrEmpty(strAmmoCategory))
+                return false;
+            if (strAmmoName.Contains("Arrow", StringComparison.Ordinal))
+                return strAmmoCategory == "Bows";
+            if (strAmmoName.Contains("Bolt", StringComparison.Ordinal))
+                return strAmmoCategory == "Crossbows";
+            if (strAmmoName.Contains("Assault Cannon", StringComparison.Ordinal))
+                return strAmmoCategory == "Assault Cannons";
+            if (strAmmoName.Contains("Taser Dart", StringComparison.Ordinal))
+                return strAmmoCategory == "Tasers";
+            if (strAmmoName.Contains("Gauss Rifle", StringComparison.Ordinal))
+                return strAmmoCategory == "Gauss Rifles";
+            if (strAmmoName.Contains("Grenade", StringComparison.Ordinal) || strAmmoName.Contains("Minigrenade", StringComparison.Ordinal))
+                return strAmmoCategory == "Grenade Launchers";
+            if (strAmmoName.Contains("Missile", StringComparison.Ordinal) || strAmmoName.Contains("Rocket", StringComparison.Ordinal))
+                return strAmmoCategory == "Missile Launchers";
+            if (strAmmoName.Contains("Mortar", StringComparison.Ordinal))
+                return strAmmoCategory == "Mortar Launchers";
+            return strAmmoCategory != "Bows" && strAmmoCategory != "Crossbows" && strAmmoCategory != "Grenade Launchers"
+                && strAmmoCategory != "Missile Launchers" && strAmmoCategory != "Mortar Launchers";
+        }
+
+        /// <summary>The rules-data AmmoCategory (weapons.xml's &lt;ammocategory&gt; override,
+        /// falling back to the weapon's own Category) a Weapon's ammo must be compatible with -
+        /// ported from clsEquipment.cs's Weapon.AmmoCategory.</summary>
+        private string GetWeaponAmmoCategory(string strWeaponName, string strFallbackCategory)
+        {
+            XmlDocument objWeaponsDoc = XmlManager.Instance.Load("weapons.xml");
+            XmlNode? objXmlWeapon = objWeaponsDoc.SelectSingleNode($"/chummer/weapons/weapon[name = '{strWeaponName}']");
+            string strOverride = objXmlWeapon?["ammocategory"]?.InnerText ?? string.Empty;
+            return string.IsNullOrEmpty(strOverride) ? strFallbackCategory : strOverride;
+        }
+
+        /// <summary>Every owned Ammunition Gear item (root-level or nested one level, e.g. inside a
+        /// Spare Clip - same depth legacy's own search covers) compatible with this Weapon, for a
+        /// reload picker. Excludes Stick-n-Shock when RestrictStickNShock excludes this weapon's
+        /// AmmoCategory, matching the same house rule <see cref="AddGear"/> already enforces at
+        /// purchase time.</summary>
+        public IReadOnlyList<WeaponAmmoOption> GetWeaponAmmoOptions(Guid guiWeaponId)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            if (objWeapon == null)
+                return Array.Empty<WeaponAmmoOption>();
+
+            string strAmmoCategory = GetWeaponAmmoCategory(
+                GetValue(objWeapon, "name", string.Empty), GetValue(objWeapon, "category", string.Empty));
+
+            CharacterOptions objOptions = GetCharacterOptions();
+            bool blnExcludeStickNShock = objOptions.RestrictStickNShock
+                && objOptions.StickNShockExcludedWeaponCategories.Contains(strAmmoCategory);
+
+            var lstOptions = new List<WeaponAmmoOption>();
+            int intGearId = 0;
+            foreach (XmlNode objGearNode in EnumerateGearNodesDfs())
+            {
+                int intThisId = intGearId++;
+                string strCategory = GetValue(objGearNode, "category", string.Empty);
+                int intQty = int.TryParse(GetValue(objGearNode, "qty", "0"), out var q) ? q : 0;
+                if (strCategory != "Ammunition" || intQty <= 0)
+                    continue;
+
+                string strName = GetValue(objGearNode, "name", string.Empty);
+                if (blnExcludeStickNShock && string.Equals(strName, "Ammo: Stick-n-Shock", StringComparison.Ordinal))
+                    continue;
+                if (!IsAmmunitionCompatible(strName, strAmmoCategory))
+                    continue;
+
+                lstOptions.Add(new WeaponAmmoOption(intThisId, strName, intQty));
+            }
+
+            return lstOptions;
+        }
+
+        /// <summary>Parses a weapon's raw rules-data-derived Ammo string (e.g. "30(c)", "10(c) or
+        /// external source", "6(cy)/2(belt)") into the whole-round-count choices it offers, same as
+        /// frmCareer.cs's own cboType population - "external source" alternatives are dropped since
+        /// this port has no External Source concept.</summary>
+        public IReadOnlyList<int> GetWeaponAmmoCapacityChoices(Guid guiWeaponId)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            var lstChoices = new List<int>();
+            if (objWeapon == null)
+                return lstChoices;
+
+            string strAmmo = GetValue(objWeapon, "ammo", string.Empty);
+            if (string.IsNullOrEmpty(strAmmo))
+                return lstChoices;
+
+            foreach (string strPart in strAmmo.Split(new[] { " or ", "/" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string strTrimmed = strPart.Trim();
+                int intParenIndex = strTrimmed.IndexOf('(');
+                if (intParenIndex >= 0)
+                    strTrimmed = strTrimmed.Substring(0, intParenIndex);
+                if (int.TryParse(strTrimmed, out int intCount) && intCount > 0)
+                    lstChoices.Add(intCount);
+            }
+
+            return lstChoices;
+        }
+
+        /// <summary>Loads a Weapon with a chosen amount of a chosen Ammo Gear item - ported from
+        /// frmCareer.cs's "Buy Ammo"/reload click handlers: any rounds still in the Weapon's
+        /// previous load are returned to that Gear item's Quantity first (matching legacy's "return
+        /// unspent rounds to the Ammo" step), then <paramref name="intCount"/> rounds are consumed
+        /// from <paramref name="intAmmoGearId"/>'s Quantity - clamped to whatever's actually left if
+        /// that's less than requested, same as legacy ("use whatever is left") rather than failing.</summary>
+        public bool ReloadWeapon(Guid guiWeaponId, int intAmmoGearId, int intCount)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objAmmoGear = GetGearNodeById(intAmmoGearId);
+            if (objWeapon == null || objAmmoGear == null || intCount <= 0)
+                return false;
+
+            // Return any rounds unspent from the weapon's current load first - if that's the same
+            // Gear item being reloaded from, its just-restored Quantity is what the clamp below sees.
+            ReturnUnspentAmmoToItsSource(objWeapon);
+
+            int intAmmoQty = int.TryParse(GetValue(objAmmoGear, "qty", "0"), out var qAvail) ? qAvail : 0;
+            int intLoaded = Math.Min(intCount, intAmmoQty);
+            if (intLoaded <= 0)
+                return false;
+
+            SetChildValue(objAmmoGear, "qty", (intAmmoQty - intLoaded).ToString(CultureInfo.InvariantCulture));
+            SetChildValue(objWeapon, "ammoloaded", intAmmoGearId.ToString(CultureInfo.InvariantCulture));
+            SetChildValue(objWeapon, "ammoremaining", intLoaded.ToString(CultureInfo.InvariantCulture));
+            Changed?.Invoke();
+            return true;
+        }
+
+        private void ReturnUnspentAmmoToItsSource(XmlNode objWeapon)
+        {
+            int intPreviousGearId = int.TryParse(GetValue(objWeapon, "ammoloaded", "-1"), out var g) ? g : -1;
+            int intUnspent = int.TryParse(GetValue(objWeapon, "ammoremaining", "0"), out var r) ? r : 0;
+            if (intPreviousGearId < 0 || intUnspent <= 0)
+                return;
+
+            XmlNode? objPreviousGear = GetGearNodeById(intPreviousGearId);
+            if (objPreviousGear == null)
+                return;
+
+            int intPreviousQty = int.TryParse(GetValue(objPreviousGear, "qty", "0"), out var q) ? q : 0;
+            SetChildValue(objPreviousGear, "qty", (intPreviousQty + intUnspent).ToString(CultureInfo.InvariantCulture));
+        }
+
+        private string ComputeAmmoStatus(XmlNode objWeapon)
+        {
+            int intGearId = int.TryParse(GetValue(objWeapon, "ammoloaded", "-1"), out var g) ? g : -1;
+            int intRemaining = int.TryParse(GetValue(objWeapon, "ammoremaining", "0"), out var r) ? r : 0;
+            if (intGearId < 0)
+                return string.Empty;
+
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            string strName = objGear != null ? GetValue(objGear, "name", string.Empty) : string.Empty;
+            return string.IsNullOrEmpty(strName) ? string.Empty : intRemaining + " (" + strName + ")";
         }
 
         /// <summary>Ported from frmNaturalWeapon.cs: manually defines a melee Weapon for an adept/
@@ -6589,6 +6776,7 @@ namespace Chummer.Core
                     GetValue(objNode, "category", string.Empty), GetValue(objNode, "name", string.Empty),
                     WeaponNodeHasSmartgun(objNode), objNode);
                 objWeapon.SetWeaponDicePool(strPoolDisplay, strTooltip);
+                objWeapon.SetAmmoStatus(ComputeAmmoStatus(objNode));
                 if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
                     objLocation.Children.Add(objWeapon);
                 else
@@ -7598,6 +7786,13 @@ namespace Chummer.Core
             WeaponDicePool = strDicePool;
             WeaponDicePoolTooltip = strTooltip;
         }
+
+        /// <summary>"12/30 (Ammo: Regular Ammo)" - style summary of what's currently loaded, empty
+        /// when nothing is loaded. Only set for root Weapon nodes. See
+        /// CharacterDocument.ReloadWeapon/GetWeaponAmmoOptions.</summary>
+        public string AmmoStatus { get; private set; } = string.Empty;
+
+        internal void SetAmmoStatus(string strAmmoStatus) => AmmoStatus = strAmmoStatus;
 
         /// <summary>Depth-first position within the whole &lt;gears&gt; tree - only set for Gear
         /// tree nodes (-1 otherwise). Stable identity for AddChildGear/RemoveGear/SetGearQuantity,

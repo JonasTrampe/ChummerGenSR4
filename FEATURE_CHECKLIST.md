@@ -72,9 +72,10 @@ context on each.
 **Character sheet tabs**
 - [x] Fahrzeuge: track which specific "Weapon Mount"/"Mechanical Arm" mod each vehicle weapon
   occupies — done, see § Character sheet tabs (Fahrzeuge und Drohnen).
-- [x] Weapon dice pools: accessory/mod dice pool bonuses — done, see § Derived stats. Loaded-ammo
-  pool bonuses remain unported - blocked on the same missing "which Gear item is loaded into this
-  weapon" concept `RestrictStickNShock` also needs.
+- [x] Weapon dice pools: accessory/mod dice pool bonuses — done, see § Derived stats. The
+  "which Gear item is loaded into this weapon" concept itself is now ported too, see `frmReload`
+  below - loaded-ammo `<weaponbonus><pool>` dice-pool bonuses themselves still aren't consumed
+  (only 2 real gear.xml entries use it at all, lowest priority of what this unblocked).
 - [x] A real spellcasting dice pool per spell — done, see § Character sheet tabs (Sprüche und
   Geister). Separate from the Drain/Fading resistance pool, which was already done.
 
@@ -337,11 +338,23 @@ what's ported, not previously tracked anywhere in this file)
 - [ ] `frmCreateCyberwareSuite`/`frmCreatePACKSKit` — save-your-own-loadout-as-a-reusable-template
   authoring tools (the inverse of `AddCyberwareSuite`/`AddPacksKit`, which only consume existing
   templates). Power-user data authoring, not core gameplay - low priority.
-- [ ] `frmReload` — tracks which specific ammo Gear item is currently "loaded" into a weapon,
-  consuming its quantity on use. This port has no combat-tracker concept at all (matches the
-  already-documented gap on loaded-ammo weapon dice pool bonuses in § Bonus-application engine),
-  so this is part of that same architectural boundary, not an isolated miss - low priority unless
-  a combat tracker gets built.
+- [x] `frmReload` — done. Added `ReloadWeapon`/`GetWeaponAmmoOptions`/`GetWeaponAmmoCapacityChoices`
+  to `Chummer.Core/src/CharacterFileService.cs`, giving this port its first "which specific Gear
+  item is loaded into this weapon" concept (previously blocking loaded-ammo dice-pool bonuses and
+  used only as a simplification note by `RestrictStickNShock`). Ammo compatibility is checked by
+  name against the Weapon's AmmoCategory (`IsAmmunitionCompatible`, ported verbatim from
+  `frmCareer.cs` - Arrows only fit Bows, Grenades only fit Grenade Launchers, etc., with a
+  catch-all for plain Ammo: Regular/Stick-n-Shock/etc.) rather than legacy's Gear.Extra field,
+  which this port has no equivalent purchase-time "restrict to this category" gear-picker mode
+  for. Reloading returns any unspent rounds from the weapon's previous load back to that Gear
+  item's Quantity first, then clamps the new load to whatever's actually available (matching
+  legacy's forgiving "use whatever is left" behavior instead of failing outright).
+  Stick-n-Shock is excluded from the options list when `RestrictStickNShock` excludes the
+  weapon's category, same house rule `AddGear` already enforces at purchase time. New
+  `ReloadDialog` (ammo + round-count pickers) wired into a "Nachladen" button on the Waffen tab,
+  with the loaded ammo/remaining-rounds shown in the weapon detail panel. Not ported: the
+  loaded-ammo `<weaponbonus><pool>` dice-pool bonus itself (only 2 gear.xml entries use it - very
+  low value) and vehicle-mounted weapons (root Weapons only).
 - [~] `frmDiceHits`/Cyberzombie conversion — investigated: single ultra-niche SR4 special-rule
   form with exactly one caller (`frmCreate.cs`'s Cyberzombie conversion flow). Not worth building
   in isolation; would only make sense bundled with a hypothetical Cyberzombie-conversion feature.
@@ -616,8 +629,8 @@ what's ported, not previously tracked anywhere in this file)
   contributor listed in the tooltip. Verified against real data: Red Dot Sight's flat `+1` and
   Weapon Focus's Rating-scaled bonus (careful to look up the correct one when an Accessory and a
   Mod share a name, e.g. "Laser Sight" exists as both with different `<dicepool>` values). Loaded-
-  ammo pool bonuses remain unported - this port has no concept of which Gear item is loaded into a
-  weapon at all yet (same gap `RestrictStickNShock` also hits).
+  ammo pool bonuses remain unported - the "which Gear item is loaded" concept itself now exists
+  (see `frmReload` in the Backlog section), but very few gear.xml entries actually use this bonus.
 - ✅ Composure, Judge Intentions, Lift and Carry, Memory
 - ✅ Initiative, Initiative Passes
 - ✅ Astral Initiative
