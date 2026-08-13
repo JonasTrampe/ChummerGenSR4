@@ -391,9 +391,18 @@ what's ported, not previously tracked anywhere in this file)
   comes from the template's own `&lt;!-- ext:xxx --&gt;` comment, same as legacy. New
   `ExportDialog` (template picker + save-file) wired into a new "Exportieren..." menu item next
   to "Mehrere Charaktere drucken...".
-- [ ] `frmCreateCyberwareSuite`/`frmCreatePACKSKit` — save-your-own-loadout-as-a-reusable-template
-  authoring tools (the inverse of `AddCyberwareSuite`/`AddPacksKit`, which only consume existing
-  templates). Power-user data authoring, not core gameplay - low priority.
+- [~] `frmCreateCyberwareSuite`/`frmCreatePACKSKit` — investigated: save-your-own-loadout-as-a-
+  reusable-template authoring tools (the inverse of `AddCyberwareSuite`/`AddPacksKit`, which only
+  consume existing templates). Deliberately not implemented, and architecturally different from
+  everything else ported this session: legacy writes the new template directly into the
+  *application's own installed rules-data files* (`data/custom_cyberware.xml`/
+  `data/custom_bioware.xml`/a PACKS-kit equivalent), not the character's save file - every other
+  Add/Create feature in this port only ever mutates the open character's own XML. Persisting to
+  shared app data (rather than a save file the user explicitly owns and saves) is a materially
+  different and riskier kind of write, and `XmlManager`'s data-file caching/loading in this port
+  isn't designed around runtime-written data files being added to the catalog either. Power-user
+  data authoring, not core gameplay - stays low priority; if tackled, should probably land as a
+  distinct "user data directory" concept rather than writing into `Chummer.Core/data/` directly.
 - [x] `frmReload` — done. Added `ReloadWeapon`/`GetWeaponAmmoOptions`/`GetWeaponAmmoCapacityChoices`
   to `Chummer.Core/src/CharacterFileService.cs`, giving this port its first "which specific Gear
   item is loaded into this weapon" concept (previously blocking loaded-ammo dice-pool bonuses and
