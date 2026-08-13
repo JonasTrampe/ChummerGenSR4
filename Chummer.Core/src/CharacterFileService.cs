@@ -738,6 +738,137 @@ namespace Chummer.Core
             return blnRemovedAny;
         }
 
+        /// <summary>A curated subset of frmCreateImprovement.cs's ~50-type improvements.xml
+        /// catalog - the types that map onto an <see cref="ImprovementType"/> this port's
+        /// <see cref="BonusApplier"/> already parses and that already have a real consuming
+        /// calculation elsewhere, rather than the full catalog (several of whose types have no
+        /// consumer in this port at all yet - see the BonusApplier class doc comment).</summary>
+        public enum CustomImprovementType
+        {
+            Attribute,
+            Skill,
+            ConditionMonitorPhysical,
+            ConditionMonitorStun,
+            ConditionMonitorThreshold,
+            ConditionMonitorThresholdOffset,
+            Initiative,
+            MovementPercent,
+            Concealability,
+            UnarmedDv,
+            UnarmedAp,
+            Reach,
+            LifestyleCost
+        }
+
+        /// <summary>Ported from frmCreateImprovement.cs's AcceptForm: synthesizes the same
+        /// &lt;bonus&gt; XML shape a rules-data item's own &lt;bonus&gt; node would have (e.g.
+        /// "Attribute" builds a &lt;specificattribute&gt; node) and runs it through the exact same
+        /// <see cref="ApplyBonus"/>/<see cref="BonusApplier"/> pipeline every other bonus-granting
+        /// item already uses, rather than hand-building an ImprovementSpec per type. <paramref
+        /// name="strName"/> becomes both this Improvement's SourceName (its "Custom" identity for
+        /// <see cref="RemoveCustomImprovement"/>) and its display label, since this port's
+        /// Improvement model has no separate CustomName field the way legacy's does.</summary>
+        public bool AddCustomImprovement(CustomImprovementType eType, string strName, int intVal,
+            int intMin = 0, int intMax = 0, int intAug = 0, string strSelect = "", bool blnApplyToRating = false)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+            if ((eType == CustomImprovementType.Attribute || eType == CustomImprovementType.Skill)
+                && string.IsNullOrWhiteSpace(strSelect))
+                return false;
+
+            var objBonusDoc = new XmlDocument();
+            XmlElement objBonus = objBonusDoc.CreateElement("bonus");
+            objBonusDoc.AppendChild(objBonus);
+
+            void AddChild(XmlElement objParent, string strTag, string strValue)
+            {
+                XmlElement objChild = objBonusDoc.CreateElement(strTag);
+                objChild.InnerText = strValue;
+                objParent.AppendChild(objChild);
+            }
+
+            switch (eType)
+            {
+                case CustomImprovementType.Attribute:
+                    XmlElement objAttr = objBonusDoc.CreateElement("specificattribute");
+                    AddChild(objAttr, "name", strSelect);
+                    AddChild(objAttr, "val", intVal.ToString(CultureInfo.InvariantCulture));
+                    AddChild(objAttr, "min", intMin.ToString(CultureInfo.InvariantCulture));
+                    AddChild(objAttr, "max", intMax.ToString(CultureInfo.InvariantCulture));
+                    AddChild(objAttr, "aug", intAug.ToString(CultureInfo.InvariantCulture));
+                    objBonus.AppendChild(objAttr);
+                    break;
+                case CustomImprovementType.Skill:
+                    XmlElement objSkill = objBonusDoc.CreateElement("specificskill");
+                    AddChild(objSkill, "name", strSelect);
+                    AddChild(objSkill, "bonus", intVal.ToString(CultureInfo.InvariantCulture));
+                    if (blnApplyToRating)
+                        AddChild(objSkill, "applytorating", "yes");
+                    objBonus.AppendChild(objSkill);
+                    break;
+                case CustomImprovementType.ConditionMonitorPhysical:
+                case CustomImprovementType.ConditionMonitorStun:
+                case CustomImprovementType.ConditionMonitorThreshold:
+                case CustomImprovementType.ConditionMonitorThresholdOffset:
+                    XmlElement objCm = objBonusDoc.CreateElement("conditionmonitor");
+                    string strCmTag = eType switch
+                    {
+                        CustomImprovementType.ConditionMonitorPhysical => "physical",
+                        CustomImprovementType.ConditionMonitorStun => "stun",
+                        CustomImprovementType.ConditionMonitorThreshold => "threshold",
+                        _ => "thresholdoffset"
+                    };
+                    AddChild(objCm, strCmTag, intVal.ToString(CultureInfo.InvariantCulture));
+                    objBonus.AppendChild(objCm);
+                    break;
+                case CustomImprovementType.Initiative:
+                    AddChild(objBonus, "initiative", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.MovementPercent:
+                    AddChild(objBonus, "movementpercent", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.Concealability:
+                    AddChild(objBonus, "concealability", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.UnarmedDv:
+                    AddChild(objBonus, "unarmeddv", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.UnarmedAp:
+                    AddChild(objBonus, "unarmedap", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.Reach:
+                    AddChild(objBonus, "reach", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+                case CustomImprovementType.LifestyleCost:
+                    AddChild(objBonus, "lifestylecost", intVal.ToString(CultureInfo.InvariantCulture));
+                    break;
+            }
+
+            ApplyBonus(objBonus, ImprovementSource.Custom, strName.Trim());
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Every Active Skill's rules-data name (any category), for the "Skill" Custom
+        /// Improvement type's picker - unlike <see cref="GetCombatActiveSkillNames"/>, not
+        /// restricted to Combat Active, since frmCreateImprovement.cs's own Select Skill dialog
+        /// isn't either.</summary>
+        public IReadOnlyList<string> GetActiveSkillNames()
+        {
+            XmlDocument objSkillsDoc = XmlManager.Instance.Load("skills.xml");
+            var lstNames = new List<string>();
+            XmlNodeList? objNodes = objSkillsDoc.SelectNodes("/chummer/skills/skill");
+            if (objNodes != null)
+                foreach (XmlNode objNode in objNodes)
+                {
+                    string strName = objNode["name"]?.InnerText ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(strName))
+                        lstNames.Add(strName);
+                }
+            return lstNames;
+        }
+
         public IReadOnlyList<CalendarWeek> Calendar => ReadCalendar();
 
         /// <summary>Adds a calendar week in the same save-file representation as the legacy
@@ -3550,7 +3681,7 @@ namespace Chummer.Core
             AppendElement(objImprovement, "improvementsource", eSource.ToString());
             AppendElement(objImprovement, "addtorating", objSpec.AddToRating.ToString());
             AppendElement(objImprovement, "enabled", "True");
-            AppendElement(objImprovement, "custom", "False");
+            AppendElement(objImprovement, "custom", (eSource == ImprovementSource.Custom).ToString());
             objImprovements.AppendChild(objImprovement);
         }
 

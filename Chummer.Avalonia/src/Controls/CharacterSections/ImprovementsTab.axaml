@@ -8,8 +8,8 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Verbesserung hinzufügen" IsEnabled="False"
-                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md (frmCreateImprovement.cs braucht einen generischen Bonus-XML-Interpreter, den dieser Port noch nicht hat)." />
+                    <Button Content="Verbesserung hinzufügen" Click="OnAddImprovementClick"
+                            ToolTip.Tip="Deckt eine ausgewählte Untermenge von frmCreateImprovement.cs's Typen ab (Attribut, Fertigkeit, Zustandsmonitor, Initiative, Bewegung, Verbergbarkeit, Waffenlos, Reichweite, Lebensstilkosten) - siehe FEATURE_CHECKLIST.md." />
                     <Button Content="Verbesserung bearbeiten" IsEnabled="False"
                             ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md." />
                 </StackPanel>

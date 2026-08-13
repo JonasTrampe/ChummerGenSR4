@@ -2066,6 +2066,68 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCustomImprovement_Attribute_AffectsTheAttributeAndCanBeRemoved()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("BOD", "3")
+            + "</attributes></character>");
+
+        Assert.True(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.Attribute,
+            "GM Bonus", intVal: 2, strSelect: "BOD"));
+
+        CharacterAttributeData bod = character.Attributes.Single(a => a.Code == "BOD");
+        Assert.Equal(5, bod.Augmented.Value); // base 3 + the Improvement's own Augmented value of 2
+
+        Assert.True(character.RemoveCustomImprovement("GM Bonus"));
+        bod = character.Attributes.Single(a => a.Code == "BOD");
+        Assert.Equal(3, bod.Augmented.Value);
+    }
+
+    [Fact]
+    public void AddCustomImprovement_Skill_AffectsTheNamedSkillsDicePool()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills></character>");
+        string strBaseline = character.Skills.Single().TotalValue;
+
+        Assert.True(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.Skill,
+            "Trained by a Mentor", intVal: 2, strSelect: "Pistols"));
+
+        string strWithBonus = character.Skills.Single().TotalValue;
+        Assert.Equal(int.Parse(strBaseline) + 2, int.Parse(strWithBonus));
+    }
+
+    [Fact]
+    public void AddCustomImprovement_ConditionMonitorPhysical_AddsBoxes()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("BOD", "3")
+            + "</attributes></character>");
+        int intBaseline = character.Condition.PhysicalCm.Value;
+
+        Assert.True(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.ConditionMonitorPhysical,
+            "Cyberlimb Reinforcement", intVal: 2));
+
+        Assert.Equal(intBaseline + 2, character.Condition.PhysicalCm.Value);
+    }
+
+    [Fact]
+    public void AddCustomImprovement_RequiresANameAndASelectionWhereApplicable()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        Assert.False(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.Initiative, "", intVal: 1));
+        Assert.False(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.Attribute, "No selection", intVal: 1));
+        Assert.Empty(character.Improvements);
+    }
+
+    [Fact]
+    public void GetActiveSkillNames_IncludesSkillsOutsideCombatActive()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+        Assert.Contains("Pistols", character.GetActiveSkillNames());
+    }
+
+    [Fact]
     public void Save_PreservesCompactFormattingAcrossARoundTrip()
     {
         CharacterDocument character = LoadFixture();

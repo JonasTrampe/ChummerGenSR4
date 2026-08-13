@@ -8,7 +8,7 @@ namespace Chummer.Core;
 /// Aggregation queries over a character's <see cref="Improvement"/> list, ported from
 /// clsImprovement.cs's <c>ImprovementManager.ValueOf</c>.
 ///
-/// Two edge cases from the legacy version were deliberately NOT ported (both are narrow and
+/// Three edge cases from the legacy version were deliberately NOT ported (each narrow and
 /// each needs its own follow-up):
 ///  - The Technomancer/Gear MatrixInitiativePass exclusion (Technomancers can't benefit from
 ///    Gear-sourced Matrix Initiative Pass bonuses) - needs CharacterDocument.RESEnabled, which
@@ -17,11 +17,17 @@ namespace Chummer.Core;
 ///    quality bonuses to say "ignore every other bonus of this type, use only mine") - the
 ///    general UniqueName-dedup-to-max behavior below covers the common case; precedence
 ///    overrides are rare enough to add once a save file actually needs them for a test to fail against.
+///  - Legacy tallies Custom (manually-created, see frmCreateImprovement.cs) Improvements in a
+///    second pass with their own separate UniqueName dedup, then adds that subtotal to the
+///    non-Custom one. This port folds Custom Improvements into the same single pass/dedup
+///    instead - functionally identical for the overwhelmingly common case (a Custom
+///    Improvement's UniqueName, if any, doesn't collide with a rules-derived one), simpler to
+///    read, and avoids a second full list traversal.
 /// </summary>
 public static class ImprovementManager
 {
     /// <summary>
-    /// Sum of all enabled, non-custom Improvements' <see cref="Improvement.Value"/> for the
+    /// Sum of all enabled Improvements' <see cref="Improvement.Value"/> for the
     /// given type (and optionally a specific <see cref="Improvement.ImprovedName"/>, e.g. an
     /// attribute code). Bonuses that share a UniqueName are deduplicated to the single highest
     /// value among them, mirroring the legacy "only the best bonus of a named group counts" rule
@@ -35,7 +41,7 @@ public static class ImprovementManager
 
         foreach (var objImprovement in lstImprovements)
         {
-            if (!objImprovement.Enabled || objImprovement.Custom || objImprovement.Type != eType)
+            if (!objImprovement.Enabled || objImprovement.Type != eType)
                 continue;
             if (objImprovement.AddToRating != blnAddToRating)
                 continue;
@@ -66,7 +72,7 @@ public static class ImprovementManager
         var intValue = 0;
         foreach (var objImprovement in lstImprovements)
         {
-            if (!objImprovement.Enabled || objImprovement.Custom || objImprovement.Type != eType)
+            if (!objImprovement.Enabled || objImprovement.Type != eType)
                 continue;
             if (strImprovedName != null && objImprovement.ImprovedName != strImprovedName)
                 continue;
@@ -95,7 +101,7 @@ public static class ImprovementManager
 
         foreach (var objImprovement in lstImprovements)
         {
-            if (!objImprovement.Enabled || objImprovement.Custom || objImprovement.Type != eType)
+            if (!objImprovement.Enabled || objImprovement.Type != eType)
                 continue;
             if (objImprovement.AddToRating != blnAddToRating)
                 continue;
@@ -127,7 +133,7 @@ public static class ImprovementManager
         var lstContributions = new List<(string SourceName, int Value)>();
         foreach (var objImprovement in lstImprovements)
         {
-            if (!objImprovement.Enabled || objImprovement.Custom || objImprovement.Type != eType)
+            if (!objImprovement.Enabled || objImprovement.Type != eType)
                 continue;
             if (strImprovedName != null && objImprovement.ImprovedName != strImprovedName)
                 continue;

@@ -43,9 +43,39 @@ context on each.
   `freepositivequalities`/`freenegativequalities`/`cyberwareessmultiplier` have no consuming
   calculation anywhere in this port yet, so parsing them now would just be unverifiable inert
   data - revisit once/if their consuming features get built.
-- [ ] Manual Improvement *add* (`frmCreateImprovement.cs` — a ~50-type catalog with per-type
-  dynamic fields and sub-picker dialogs). Delete already works for `Custom`-sourced entries; add
-  does not exist at all.
+- [x] Manual Improvement *add* — done for a curated 13-type subset of `frmCreateImprovement.cs`'s
+  ~50-type catalog (Attribute, Skill, Condition Monitor Physical/Stun/Threshold/Threshold Offset,
+  Initiative, Movement %, Concealability, Unarmed DV/AP, Reach, Lifestyle Cost) - the types that
+  map onto an `ImprovementType` this port's `BonusApplier` already parses *and* that already have
+  a real consuming calculation elsewhere (verified per-type, not just "the tag parses without
+  crashing"). The other ~37 catalog types were excluded because they'd be unverifiable inert data
+  right now (no consumer - same reasoning as the excluded bonus-node-types note above) or need a
+  picker this port doesn't have yet (skillcategory/skillgroup/skillattribute need
+  `frmSelectSkillCategory`/`frmSelectSkillGroup` equivalents, still on the picker backlog).
+  Implementation reuses the existing bonus-application pipeline directly instead of hand-building
+  `ImprovementSpec`s per type: `AddCustomImprovement` synthesizes the same `<bonus>` XML shape a
+  rules-data item's own bonus node would have (e.g. Attribute builds `<specificattribute>`) and
+  runs it through `ApplyBonus`/`BonusApplier`, exactly like every other bonus-granting item
+  already does - legacy's own `frmCreateImprovement.AcceptForm` does the same thing (builds a
+  `<bonus>` node and hands it to `ImprovementManager.CreateImprovements`), so this isn't a
+  simplification, it's the actual mechanism, just re-triggered through this port's existing entry
+  point.
+  **Also fixed a real bug found while wiring this up**: `ImprovementManager.ValueOf`/
+  `AugmentedValueOf`/`DescribeValueOf`/`DescribeAugmentedValueOf` all unconditionally skipped
+  `Improvement.Custom` entries, so even if Manual Improvements had existed before now they would
+  have silently done nothing - legacy's real behavior is the opposite: Custom Improvements are
+  summed too (in a second pass with their own separate UniqueName dedup, then added to the
+  non-Custom subtotal). Removed the skip; this port folds Custom Improvements into the same single
+  pass instead of replicating the two-pass split, which is behaviorally equivalent for the
+  overwhelming common case (a Custom Improvement's UniqueName not colliding with a rules-derived
+  one). `AppendImprovement` also now writes the real `custom` flag (`eSource == Custom`) instead
+  of always `"False"`.
+  New `CreateImprovementDialog` (type ComboBox with dynamic field visibility, matching legacy's
+  own show/hide-per-type UI) wired into the previously-disabled "Verbesserung hinzufügen" button
+  on the Improvements tab. Verified against real data: adding an Attribute Improvement changes the
+  Attribute's Augmented total; a Skill Improvement changes that skill's dice pool; a Condition
+  Monitor Physical Improvement adds boxes; all three are removable via the pre-existing "Löschen"/
+  `RemoveCustomImprovement` path.
 - [x] Give Critter Powers a real Rating input — done. `CritterPowerDialog` now shows a Rating
   spinner (`NumericUpDown`, min 1) when the selected power's rules-data sets
   `<rating>yes</rating>` (ported from frmSelectCritterPower.cs's `nudCritterPowerRating`), and
@@ -568,15 +598,14 @@ what's ported, not previously tracked anywhere in this file)
 - ✅ Karma und Nuyen (expense history + real running-total charts)
 - ✅ Kalender (saved weeks, persistent notes editing, adding weeks, and shifting the calendar start date)
 - ✅ Notizen
-- 🟡 Verbessern / Improvements list (type, target, value, source, active status). "Löschen" now
+- ✅ Verbessern / Improvements list (type, target, value, source, active status). "Löschen" now
   works for `Custom`-sourced entries (matches legacy's own cmdDeleteImprovement_Click, which only
   ever lets the user delete manually-created Improvements - everything else is a side effect of
   some other owned item, e.g. a Quality or Cyberware, and gets removed by removing that item
   instead). Also fixed a real bug found while wiring this: the ListBox's SelectedItem binding
   wasn't Mode=TwoWay, so selecting a different row never actually updated the detail pane after
-  the initial load. Manual Improvement *add* (`frmCreateImprovement.cs` - a ~50-type catalog with
-  per-type dynamic fields and sub-picker dialogs, applied through a bonus-XML interpreter this port
-  doesn't have) remains unported.
+  the initial load. Manual Improvement *add* is now ported too, for a curated 13-type subset - see
+  the Backlog section's own entry for the full writeup.
 
 ## Character sheet tabs — editing
 
@@ -592,7 +621,8 @@ what's ported, not previously tracked anywhere in this file)
   remove+add, since this port's Quality model never tracked BP/cost at all (AddQuality doesn't
   charge Karma for a normal add either), so legacy's Karma-cost-delta charge/refund and its
   Metatype-origin-cannot-be-swapped guard aren't ported - every owned Quality is swappable here.
-  Manual Improvement *add* and most other operations remain unwired.
+  Manual Improvement *add* is now ported too (curated subset, see Backlog section); most other
+  operations remain unwired.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
