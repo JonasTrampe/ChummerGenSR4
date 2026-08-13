@@ -675,6 +675,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void WeaponMetadata_UsesLegacyFieldsAndKeepsDuplicatePurchasesDistinct()
+    {
+        CharacterDocument character = LoadXml("<character><weapons>"
+            + "<weapon><name>Ares Predator IV</name><category>Pistols</category></weapon>"
+            + "<weapon><name>Ares Predator IV</name><category>Pistols</category></weapon>"
+            + "</weapons></character>");
+
+        Assert.True(character.SetWeaponCustomName(1, "Backup pistol"));
+        Assert.True(character.SetWeaponNotes(1, "Keep loaded."));
+
+        Assert.Equal(string.Empty, character.WeaponTrees[0].CustomName);
+        Assert.Equal("Backup pistol", character.WeaponTrees[1].CustomName);
+        Assert.Equal("Keep loaded.", character.WeaponTrees[1].Notes);
+        Assert.Equal("Ares Predator IV", character.WeaponTrees[1].Name);
+    }
+
+    [Fact]
     public void MoveGear_ReordersRootLevelSiblingsAndPersists()
     {
         CharacterDocument character = LoadXml("<character><gears>"

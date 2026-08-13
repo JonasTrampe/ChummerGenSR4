@@ -110,6 +110,8 @@
                         <Button Content="{loc:Loc Menu_AddNaturalWeapon}" Click="OnAddNaturalWeaponClick" />
                         <Button Content="{loc:Loc UI_AddAccessory}" Click="OnAddWeaponAccessoryClick" />
                         <Button Content="{loc:Loc UI_AddMod}" Click="OnAddWeaponModClick" />
+                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameWeaponClick" />
+                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditWeaponNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellWeaponClick" />
                         <Button Content="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
@@ -120,7 +122,7 @@
                     <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="{Binding DisplayName}" />
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
@@ -130,13 +132,18 @@
                         <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
                             <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" Width="90" />
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedWeapon.Name, TargetNullValue=–}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedWeapon.DisplayName, TargetNullValue=–}" FontWeight="SemiBold" />
                             <TextBlock Grid.Row="1" Text="{loc:Loc Label_Category}" Width="90" />
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedWeapon.Category, TargetNullValue=–}" />
                             <TextBlock Grid.Row="2" Text="{loc:Loc Label_Rating}" Width="90" />
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
                             <TextBlock Grid.Row="3" Text="{loc:Loc UI_InstalledColon}" Width="90" />
                             <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="{loc:Loc Tab_Notes}" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.Notes, TargetNullValue=–}"
+                                       TextWrapping="Wrap" MaxHeight="72" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding SelectedWeapon.IsWeaponPart}">
                             <TextBlock Text="In Grundwaffe enthalten:" Width="150" />

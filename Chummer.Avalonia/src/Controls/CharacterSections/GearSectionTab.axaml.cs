@@ -259,6 +259,30 @@ public partial class GearSectionTab : UserControl
         }
     }
 
+    private async void OnRenameWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null, WeaponId: >= 0 } weapon
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new TextSelectionDialog("Name für „" + weapon.Name + "“:", weapon.CustomName,
+            blnAllowEmpty: true);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.SetWeaponCustomName(weapon.WeaponId, dialog.EnteredText))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditWeaponNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null, WeaponId: >= 0 } weapon
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = weapon.Notes };
+        if (await dialog.ShowDialog<bool>(window) && _character.SetWeaponNotes(weapon.WeaponId, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedWeapon is not { } selected

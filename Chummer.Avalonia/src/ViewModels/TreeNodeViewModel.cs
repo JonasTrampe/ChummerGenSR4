@@ -46,6 +46,7 @@ public sealed class TreeNodeViewModel
 
     /// <summary>Position in the root armor collection, used only to persist armor drag-reordering.</summary>
     public int ArmorId { get; private set; } = -1;
+    public int WeaponId { get; private set; } = -1;
 
     public string Qty { get; private set; } = "1";
 
@@ -213,6 +214,7 @@ public sealed class TreeNodeViewModel
             GearId = item.GearId,
             CyberwareId = item.CyberwareId,
             ArmorId = item.ArmorId,
+            WeaponId = item.WeaponId,
             Qty = item.Qty,
             Capacity = item.Capacity,
             CapacityRemaining = item.CapacityRemaining,

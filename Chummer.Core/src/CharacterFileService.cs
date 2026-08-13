@@ -3744,6 +3744,41 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Updates a root weapon's free-form notes using the same transient root index
+        /// as the tree reader. This preserves duplicate purchases that share name/category and
+        /// does not require adding a GUID to old character files.</summary>
+        public bool SetWeaponNotes(int intWeaponId, string strNotes)
+        {
+            XmlNode? objWeapon = GetWeaponNodeById(intWeaponId);
+            if (objWeapon == null)
+                return false;
+
+            SetChildValue(objWeapon, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Updates the legacy player-facing <c>weaponname</c> field, keeping the raw
+        /// name used for data lookups and calculations unchanged.</summary>
+        public bool SetWeaponCustomName(int intWeaponId, string strCustomName)
+        {
+            XmlNode? objWeapon = GetWeaponNodeById(intWeaponId);
+            if (objWeapon == null)
+                return false;
+
+            SetChildValue(objWeapon, "weaponname", strCustomName?.Trim() ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetWeaponNodeById(int intWeaponId)
+        {
+            if (intWeaponId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/weapons/weapon");
+            return objNodes != null && intWeaponId < objNodes.Count ? objNodes[intWeaponId] : null;
+        }
+
         private XmlNode? GetWeaponNodeByGuid(Guid guiWeaponId)
             => Document.SelectSingleNode($"/character/weapons/weapon[guid = '{guiWeaponId}']");
 
@@ -7786,9 +7821,12 @@ namespace Chummer.Core
             }
             var objNodes = Document.SelectNodes("/character/weapons/weapon");
             if (objNodes == null) return lstWeapons;
+            int intWeaponId = 0;
             foreach (XmlNode objNode in objNodes)
             {
                 var objWeapon = ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo");
+                objWeapon.SetWeaponId(intWeaponId++);
+                objWeapon.SetCustomName(GetValue(objNode, "weaponname", string.Empty));
                 MarkWeaponAccessoriesAndMods(objWeapon, objNode);
                 string strLocation = GetValue(objNode, "location", string.Empty);
                 objWeapon.SetLocation(strLocation);
@@ -8969,6 +9007,10 @@ namespace Chummer.Core
         /// <summary>Position in the root &lt;armors&gt; XML collection. It is recomputed when the
         /// tree is read and is used for reorder operations, including duplicate purchases.</summary>
         public int ArmorId { get; private set; } = -1;
+        /// <summary>Position in the root &lt;weapons&gt; XML collection; only root Weapon nodes
+        /// receive one. It makes duplicate weapon purchases independently editable without
+        /// changing the legacy file format.</summary>
+        public int WeaponId { get; private set; } = -1;
         public string Location { get; private set; } = string.Empty;
         /// <summary>Persisted GUID for items that have one (including vehicle modifications).</summary>
         public string ItemGuid { get; private set; } = string.Empty;
@@ -9025,6 +9067,7 @@ namespace Chummer.Core
 
         internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
         internal void SetArmorId(int intArmorId) => ArmorId = intArmorId;
+        internal void SetWeaponId(int intWeaponId) => WeaponId = intWeaponId;
         internal void SetLocation(string strLocation) => Location = strLocation;
         internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
         internal void SetNotes(string strNotes) => Notes = strNotes;
