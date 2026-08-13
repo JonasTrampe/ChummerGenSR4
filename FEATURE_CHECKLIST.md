@@ -26,8 +26,8 @@ Everything not `[x]`, in one place, grouped by area.
 ### House rules — blocked on missing subsystems
 - [~] **Creation-mode BP/Karma budget tracker**: status bar plus a live sidebar budget card show
   the remaining pool, categorized spend, and overdrawn state (with explicit reconciliation row).
-  The remaining house-rule limits and all creation mutations still need to consume this tracker
-  directly.
+  Spells and Complex Forms now debit/refund their persisted creation pool; the remaining
+  house-rule limits and creation mutations still need to consume it directly.
 - [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
   AlternateComplexFormCost costs and charges both Career and creation purchases from their active
   pool (including a persisted creation refund); other creation acquisitions still need to consume

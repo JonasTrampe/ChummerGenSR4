@@ -1484,6 +1484,13 @@ namespace Chummer.Core
                 || !string.Equals(strCategory, "Detection", StringComparison.Ordinal)))
                 return false;
 
+            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intCreationCost = blnKarmaBuild ? GetCharacterOptions().KarmaSpell : 3;
+            int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
+            if (blnEnforceCreationBudget && intPool < intCreationCost)
+                return false;
+
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objSpells = objRoot.SelectSingleNode("spells");
@@ -1504,7 +1511,16 @@ namespace Chummer.Core
             AppendElement(objSpell, "extended", blnExtended.ToString());
             AppendElement(objSpell, "source", strSource);
             AppendElement(objSpell, "page", strPage);
+            if (blnEnforceCreationBudget)
+                AppendElement(objSpell, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             objSpells.AppendChild(objSpell);
+            if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
             Changed?.Invoke();
             return true;
         }
@@ -4455,7 +4471,17 @@ namespace Chummer.Core
                     && !string.Equals(strDisplayName, strName.Trim(), StringComparison.Ordinal))
                     continue;
 
+                int intCreationRefund = ParseInteger(GetValue(objSpell, "creationcost", "0"));
                 objSpell.ParentNode?.RemoveChild(objSpell);
+                if (!Created && StartingBuildPoints > 0 && intCreationRefund > 0)
+                {
+                    bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                    int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+                    if (blnKarmaBuild)
+                        Karma = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                    else
+                        Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                }
                 return true;
             }
 

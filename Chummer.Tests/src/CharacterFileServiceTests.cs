@@ -384,6 +384,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddSpell_CreationChargesAndRefundsTheActivePool()
+    {
+        CharacterDocument karmaCreation = LoadXml("<character><created>False</created><buildmethod>Karma</buildmethod><startingbuildpoints>10</startingbuildpoints><karma>10</karma></character>");
+        karmaCreation.SetCharacterOptionsForTesting(new CharacterOptions { KarmaSpell = 4 });
+
+        Assert.True(karmaCreation.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204"));
+        Assert.Equal("6", karmaCreation.Karma);
+        Assert.True(karmaCreation.RemoveSpell("Acid Stream"));
+        Assert.Equal("10", karmaCreation.Karma);
+
+        CharacterDocument bpCreation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>3</startingbuildpoints><bp>3</bp></character>");
+        Assert.True(bpCreation.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204"));
+        Assert.Equal("0", bpCreation.Bp);
+        Assert.False(bpCreation.AddSpell("Clout", "Combat", "P", "LOS", "P", "I", "(F/2)+1", "SR4", "204"));
+    }
+
+    [Fact]
     public void SpellDialog_ExtendedDetectionRuleOffersBaseSpellAndPreviewsExtendedValues()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
