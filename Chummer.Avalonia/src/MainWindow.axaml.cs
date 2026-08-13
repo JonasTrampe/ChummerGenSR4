@@ -120,6 +120,12 @@ public partial class MainWindow : Window
             ViewModel.CloseCharacter(tab);
     }
 
+    private void OnActivateCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { DataContext: OpenCharacterTab tab })
+            ViewModel.SelectedOpenCharacter = tab;
+    }
+
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
     {
         if (ViewModel.SelectedOpenCharacter is not { } tab)

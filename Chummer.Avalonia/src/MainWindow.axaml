@@ -55,7 +55,13 @@
             <MenuItem Header="{loc:Loc Menu_Special}">
                 <MenuItem Header="{loc:Loc Menu_Main_Options}" Click="OnOptionsClick" />
             </MenuItem>
-            <MenuItem Header="{loc:Loc Menu_Main_Window}" />
+            <MenuItem Header="{loc:Loc Menu_Main_Window}" ItemsSource="{Binding OpenCharacters}">
+                <MenuItem.ItemTemplate>
+                    <DataTemplate x:DataType="newUi:OpenCharacterTab">
+                        <MenuItem Header="{Binding Title}" Click="OnActivateCharacterClick" />
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+            </MenuItem>
             <MenuItem Header="{loc:Loc Menu_Main_Help}">
                 <MenuItem Header="{loc:Loc Menu_Main_Update}" Click="OnCheckForUpdatesClick" />
             </MenuItem>

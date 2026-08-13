@@ -110,8 +110,8 @@ Everything not `[x]`, in one place, grouped by area.
 
 ## Character file I/O
 
-- [~] Open/save `.chum`, separate Save As, multiple characters in tabs, MRU/recent-files and
-  unsaved-save/discard/cancel prompts for tab/app close work; legacy Window-menu navigation remains.
+- [x] Open/save `.chum`, separate Save As, multiple characters in tabs, MRU/recent-files,
+  unsaved-save/discard/cancel prompts and Window-menu document navigation all work.
 - [x] Editing across tabs persists to the XML and survives save/reload (audited via a full
   `SelectedItem`/`SelectedIndex`/`Selected`/`IsChecked` binding sweep; fixed 5 missing
   `Mode=TwoWay` bindings, one of which made `LifestyleDialog` completely unusable)
