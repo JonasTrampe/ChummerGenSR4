@@ -103,7 +103,10 @@ public partial class SheetPreviewDialog : Window
 
     /// <summary>Uses Avalonia's native WebView dialog rather than a bundled browser. Its
     /// ShowPrintUI method opens the platform's own print dialog on supported desktop platforms.
-    /// Printing waits for navigation to complete so the dialog never prints a blank about:blank page.</summary>
+    /// When PrintToFileFirst is enabled, follow the legacy Wine workaround by writing the rendered
+    /// sheet to a temporary HTML file and navigating the native browser to its file URI; the file
+    /// stays alive until that browser closes so asynchronous navigation cannot observe a deleted
+    /// source.</summary>
     private void OnPrintNativeClick(object? sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(SheetHtml))
@@ -113,8 +116,23 @@ public partial class SheetPreviewDialog : Window
         {
             var dialog = new NativeWebDialog { Title = Title };
             dialog.NavigationCompleted += (_, _) => dialog.ShowPrintUI();
+            string? strTemporaryHtmlPath = null;
+            if (GlobalOptions.Instance.PrintToFileFirst)
+            {
+                strTemporaryHtmlPath = Path.Combine(Path.GetTempPath(), "chummer-sheet-" + Guid.NewGuid().ToString("N") + ".html");
+                File.WriteAllText(strTemporaryHtmlPath, SheetHtml);
+                string strPathToDelete = strTemporaryHtmlPath;
+                dialog.Closing += (_, _) =>
+                {
+                    try { File.Delete(strPathToDelete); }
+                    catch { /* A failed cleanup must not prevent the native dialog from closing. */ }
+                };
+            }
             dialog.Show(this);
-            dialog.NavigateToString(SheetHtml);
+            if (strTemporaryHtmlPath == null)
+                dialog.NavigateToString(SheetHtml);
+            else
+                dialog.Navigate(new Uri(strTemporaryHtmlPath));
         }
         catch (Exception ex)
         {

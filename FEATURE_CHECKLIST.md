@@ -72,8 +72,11 @@ Everything not `[x]`, in one place, grouped by area.
   Create-mode XML is atomically saved as `<source-directory>/backup/<name> (Create Mode).chum`;
   failed writes stop finalization and report the error. Unnamed/unsaved characters have no source
   path to back up. Core snapshot/no-op tests cover this behavior.
+- [x] `PrintToFileFirst`: native sheet printing writes rendered HTML to a temporary file and
+  navigates the platform browser to it before opening the print UI; the file survives navigation
+  and is deleted when that browser closes, matching the legacy Wine workaround safely.
 - [ ] `ConfirmKarmaExpense`, `LocalisedUpdatesOnly`,
-  `BookEnabled`, `OmaeAutoLogin`, and `PrintToFileFirst`: now in scope; each needs a verified
+  `BookEnabled`, and `OmaeAutoLogin`: now in scope; each needs a verified
   runtime integration beyond persistence.
 
 ### Everything else open

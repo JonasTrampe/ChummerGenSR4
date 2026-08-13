@@ -80,7 +80,7 @@ These were absent or too narrowly described in the prior checklist and are now t
 | `AutomaticCopyProtection`, `AutomaticRegistration` | implemented in root and nested gear acquisition; eligible Unwired Matrix/soft items gain the zero-cost legacy children |
 | `LocalisedUpdatesOnly` | persisted only; GitHub-release updater does not fetch localized payloads |
 | `OmaeAutoLogin` | obsolete legacy service setting is persisted only; requires an explicit replacement/retirement decision, not silent exclusion |
-| `PrintToFileFirst` | persisted only; native web printing never reads it |
+| `PrintToFileFirst` | native printing uses a temporary HTML file and cleans it up after the platform web dialog closes |
 
 ## Audit policy
 
