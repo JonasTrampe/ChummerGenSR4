@@ -366,6 +366,7 @@ namespace Chummer.Core
             // picker result is applied. Do it only after every rejection condition above.
             RemoveBonusImprovements(ImprovementSource.Metatype, Metatype);
             RemoveBonusImprovements(ImprovementSource.Metavariant, Metavariant);
+            RemoveMetatypeQualities();
 
             var dicPurchased = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (string strCode in s_astrMetatypeAttributeCodes)
@@ -401,8 +402,34 @@ namespace Chummer.Core
             if (objVariantRule != null)
                 ApplyBonus(objVariantRule.SelectSingleNode("bonus"), ImprovementSource.Metavariant,
                     strMetavariantName);
+            AddMetatypeQualities(objTargetRule);
+            if (objVariantRule != null)
+                AddMetatypeQualities(objVariantRule);
             Changed?.Invoke();
             return true;
+        }
+
+        private void RemoveMetatypeQualities()
+        {
+            foreach (XmlNode objQuality in Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>().ToList()
+                     ?? new List<XmlNode>())
+            {
+                if (!Enum.TryParse(GetValue(objQuality, "qualitysource", "Selected"), true,
+                        out QualitySource eSource) || (eSource != QualitySource.Metatype && eSource != QualitySource.MetatypeRemovable))
+                    continue;
+                RemoveBonusImprovements(ImprovementSource.Quality, GetValue(objQuality, "name", string.Empty));
+                objQuality.ParentNode?.RemoveChild(objQuality);
+            }
+        }
+
+        private void AddMetatypeQualities(XmlNode objRule)
+        {
+            foreach (string strType in new[] { "Positive", "Negative" })
+            foreach (XmlNode objQuality in objRule.SelectNodes("qualities/" + strType.ToLowerInvariant() + "/quality")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+                AddQuality(objQuality.InnerText, strType, objQuality.Attributes?["select"]?.InnerText ?? string.Empty,
+                    eQualitySource: objQuality.Attributes?["removable"]?.InnerText == "true"
+                        ? QualitySource.MetatypeRemovable : QualitySource.Metatype, blnChargeCreation: false);
         }
 
         private bool HasSelectedQualityDependingOn(string strMetatype, string strMetavariant)
@@ -1415,7 +1442,7 @@ namespace Chummer.Core
         /// more than one of these, so a single strExtra value is unambiguous.</summary>
         public bool AddQuality(string strName, string strType, string strExtra = "",
             string strMentorSpirit = "", string strMentorChoice1 = "", string strMentorChoice2 = "",
-            QualitySource eQualitySource = QualitySource.Selected)
+            QualitySource eQualitySource = QualitySource.Selected, bool blnChargeCreation = true)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A quality name is required.", nameof(strName));
@@ -1425,7 +1452,7 @@ namespace Chummer.Core
             XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
             XmlNode? objXmlQuality = objQualitiesDoc.SelectSingleNode(
                 $"/chummer/qualities/quality[name = '{strName.Trim()}']");
-            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnEnforceCreationBudget = blnChargeCreation && !Created && StartingBuildPoints > 0;
             bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
             int intCreationCost = GetQualityCreationCost(objXmlQuality, blnKarmaBuild);
             int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
