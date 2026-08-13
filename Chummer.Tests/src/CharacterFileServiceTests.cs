@@ -2833,6 +2833,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CareerKarmaCostPreviews_MatchTheMutationsTheyDescribe()
+    {
+        CharacterDocument skill = LoadCharacterWithSkill(intRating: 3);
+        Assert.Equal(8, skill.GetActiveSkillKarmaCostToIncrease(0));
+        Assert.Equal(2, skill.GetActiveSkillSpecializationKarmaCost());
+        Assert.Null(skill.GetActiveSkillKarmaCostToIncrease(99));
+
+        CharacterDocument group = LoadXml("<character><karma>100</karma><skillgroups>"
+            + "<skillgroup><name>Firearms</name><rating>2</rating></skillgroup></skillgroups><skills>"
+            + "<skill><name>Pistolen</name><skillgroup>Firearms</skillgroup><grouped>True</grouped><rating>2</rating>"
+            + "<knowledge>False</knowledge></skill></skills></character>");
+        Assert.Equal(15, group.GetSkillGroupKarmaCostToIncrease("Firearms"));
+
+        CharacterDocument initiation = LoadXml("<character><magician>True</magician><karma>100</karma><attributes>"
+            + AttributeXml("MAG", "3") + "</attributes></character>");
+        Assert.Equal(13, initiation.GetInitiateKarmaCostToIncrease(blnGroup: false, blnOrdeal: false));
+        Assert.Equal(8, initiation.GetInitiateKarmaCostToIncrease(blnGroup: true, blnOrdeal: true));
+    }
+
+    [Fact]
     public void RaiseActiveSkill_FailsWhenSkillIsGrouped()
     {
         CharacterDocument character = LoadCharacterWithSkill(intRating: 2, blnGrouped: true);

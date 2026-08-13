@@ -60,9 +60,19 @@ public partial class InitiationSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRaiseInitiateGradeClick(object? sender, RoutedEventArgs e)
+    private async void OnRaiseInitiateGradeClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null)
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        int? intCost = _character.GetInitiateKarmaCostToIncrease(ViewModel.IsGroup, ViewModel.IsOrdeal);
+        if (intCost == null)
+            return;
+        string strTarget = App.LanguageCatalog.GetString(_character.Technomancer
+            ? "String_SubmersionGrade" : "String_InitiateGrade");
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpense"),
+            strTarget, _character.InitiateGrade + 1, intCost.Value);
+        if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
             return;
 
         if (_character.RaiseInitiateGrade(ViewModel.IsGroup, ViewModel.IsOrdeal))

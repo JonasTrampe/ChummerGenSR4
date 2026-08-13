@@ -5072,11 +5072,11 @@ namespace Chummer.Core
             if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
                 return false;
 
-            var objOptions = GetCharacterOptions();
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
-            int intCost = intRating == 0
-                ? objOptions.KarmaNewActiveSkill
-                : (intRating + 1) * objOptions.KarmaImproveActiveSkill * (intRating >= 6 ? 2 : 1);
+            int? intCostPreview = GetActiveSkillKarmaCostToIncrease(intSkillId);
+            if (intCostPreview == null)
+                return false;
+            int intCost = intCostPreview.Value;
 
             int intKarma = int.TryParse(Karma, out var k) ? k : 0;
             if (intCost > intKarma)
@@ -5090,6 +5090,21 @@ namespace Chummer.Core
             objUndo.CreateKarma(KarmaExpenseType.ImproveSkill, strName);
             AddExpense("Karma", -intCost, strName + " " + intRating + " -> " + (intRating + 1), null, objUndo);
             return true;
+        }
+
+        /// <summary>Returns the Karma needed for the next Career rating of an ungrouped Active
+        /// Skill, or <see langword="null"/> when that skill cannot be raised independently.</summary>
+        public int? GetActiveSkillKarmaCostToIncrease(int intSkillId)
+        {
+            XmlNode? objNode = GetActiveSkillNode(intSkillId);
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+                return null;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            var objOptions = GetCharacterOptions();
+            return intRating == 0
+                ? objOptions.KarmaNewActiveSkill
+                : (intRating + 1) * objOptions.KarmaImproveActiveSkill * (intRating >= 6 ? 2 : 1);
         }
 
         /// <summary>Create mode: sets an active skill's rating directly. False if the skill is
@@ -5225,12 +5240,14 @@ namespace Chummer.Core
             if (objNode == null)
                 return false;
 
-            var objOptions = GetCharacterOptions();
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
             if (!CanRaiseSkillGroupAsAWhole(strGroupName, intRating, out int intCommonRating))
                 return false;
             intRating = intCommonRating;
-            int intCost = intRating == 0 ? objOptions.KarmaNewSkillGroup : (intRating + 1) * objOptions.KarmaImproveSkillGroup;
+            int? intCostPreview = GetSkillGroupKarmaCostToIncrease(strGroupName);
+            if (intCostPreview == null)
+                return false;
+            int intCost = intCostPreview.Value;
 
             int intKarma = int.TryParse(Karma, out var k) ? k : 0;
             if (intCost > intKarma)
@@ -5245,6 +5262,24 @@ namespace Chummer.Core
             objUndo.CreateKarma(KarmaExpenseType.ImproveSkillGroup, strGroupName);
             AddExpense("Karma", -intCost, strGroupName + " " + intRating + " -> " + intNewRating, null, objUndo);
             return true;
+        }
+
+        /// <summary>Returns the Karma needed for the next Career rating of a skill group, or
+        /// <see langword="null"/> if its member skills make it ineligible for a group raise.</summary>
+        public int? GetSkillGroupKarmaCostToIncrease(string strGroupName)
+        {
+            XmlNode? objNode = GetSkillGroupNode(strGroupName);
+            if (objNode == null)
+                return null;
+
+            int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
+            if (!CanRaiseSkillGroupAsAWhole(strGroupName, intRating, out int intCommonRating))
+                return null;
+
+            var objOptions = GetCharacterOptions();
+            return intCommonRating == 0
+                ? objOptions.KarmaNewSkillGroup
+                : (intCommonRating + 1) * objOptions.KarmaImproveSkillGroup;
         }
 
         /// <summary>Create mode: sets a skill group's rating directly and syncs member skills. False
@@ -5379,8 +5414,7 @@ namespace Chummer.Core
             if (objNode == null)
                 return false;
 
-            var objOptions = GetCharacterOptions();
-            int intCost = objOptions.KarmaSpecialization;
+            int intCost = GetActiveSkillSpecializationKarmaCost();
             int intKarma = int.TryParse(Karma, out var k) ? k : 0;
             if (intCost > intKarma)
                 return false;
@@ -5394,6 +5428,9 @@ namespace Chummer.Core
             AddExpense("Karma", -intCost, strName + " -> " + strSpecialization, null, objUndo);
             return true;
         }
+
+        /// <summary>The flat Career Karma cost for an Active Skill specialization.</summary>
+        public int GetActiveSkillSpecializationKarmaCost() => GetCharacterOptions().KarmaSpecialization;
 
         /// <summary>Adds a new Exotic Active Skill (e.g. "Exotic Ranged Weapon (Bow)" - the
         /// specialization holds the "(Bow)" sub-type). Starts at rating 0; the first point costs
@@ -6068,12 +6105,10 @@ namespace Chummer.Core
             if (intCurrentGrade + 1 > intMagOrRes)
                 return false;
 
-            var objOptions = GetCharacterOptions();
-            double dblMultiplier = 1.0;
-            if (blnGroup) dblMultiplier -= 0.2;
-            if (blnOrdeal) dblMultiplier -= 0.2;
-            dblMultiplier = Math.Round(dblMultiplier, 2);
-            int intKarmaCost = (int)Math.Ceiling((10 + (intCurrentGrade + 1) * objOptions.KarmaInitiation) * dblMultiplier);
+            int? intKarmaCostPreview = GetInitiateKarmaCostToIncrease(blnGroup, blnOrdeal);
+            if (intKarmaCostPreview == null)
+                return false;
+            int intKarmaCost = intKarmaCostPreview.Value;
 
             int intKarma = int.TryParse(Karma, out var k) ? k : 0;
             if (intKarmaCost > intKarma)
@@ -6108,6 +6143,26 @@ namespace Chummer.Core
             AddExpense("Karma", -intKarmaCost, "Initiate Grade " + intCurrentGrade + " -> " + (intCurrentGrade + 1), null, objUndo);
             Changed?.Invoke();
             return true;
+        }
+
+        /// <summary>Returns the Karma cost for the next Initiation/Submersion grade, including
+        /// Group and Ordeal discounts, or <see langword="null"/> when the character is ineligible.</summary>
+        public int? GetInitiateKarmaCostToIncrease(bool blnGroup, bool blnOrdeal)
+        {
+            if (!Magician && !Technomancer)
+                return null;
+
+            int intCurrentGrade = InitiateGrade;
+            int intMagOrRes = GetAttributeInt(Technomancer ? "RES" : "MAG");
+            if (intCurrentGrade + 1 > intMagOrRes)
+                return null;
+
+            double dblMultiplier = 1.0;
+            if (blnGroup) dblMultiplier -= 0.2;
+            if (blnOrdeal) dblMultiplier -= 0.2;
+            dblMultiplier = Math.Round(dblMultiplier, 2);
+            return (int)Math.Ceiling((10 + (intCurrentGrade + 1) * GetCharacterOptions().KarmaInitiation)
+                * dblMultiplier);
         }
 
         /// <summary>Ported from frmCareer.cs's cmdImproveInitiation_Click's Metamagic-refresh loop:
