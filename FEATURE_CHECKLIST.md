@@ -4,6 +4,9 @@
 backlog, not an accepted permanent gap. There wasn't a granular checklist before this file;
 `PORTING_PLAN.md`/`docs/LINUX_PORT_PLAN.md` are older phase-level narratives.
 
+**Audit:** [PARITY_AUDIT.md](PARITY_AUDIT.md) records the 2026-08-13 code-level scan. A known
+skipped legacy branch is `[~]`, never `[x]`, even when the main flow works.
+
 **Legend (one system, used everywhere in this file):**
 - `[x]` done — real, working, not a mockup
 - `[~]` partial — either investigated-and-deliberately-deferred (reason given), or working but
@@ -63,9 +66,9 @@ Everything not `[x]`, in one place, grouped by area.
   integration beyond its existing Options persistence/binding.
 
 ### Everything else open
-- [x] Cloud save/share: local-open freshness checks (including download-with-backup), stale-push
-  conflict diff with overwrite/local-snapshot/cancel, revision history, shared-document
-  push/download, folders, archive/purge, and share management all have Avalonia flows.
+- [~] Cloud save/share: login, folder tree, push/download/archive/unarchive, metadata, revisions,
+  drag/drop and sharing work; conflict/newer-revision round-trip handling still needs an
+  end-to-end verification pass (see Character file I/O).
 - [x] Weapons/Armor trees support persisted sibling drag-and-drop reordering. Weapon locations
   and armor sets remain explicit grouping operations rather than drag targets, matching their
   legacy XML representation.
@@ -126,7 +129,7 @@ Everything not `[x]`, in one place, grouped by area.
 
 ## Item picker dialogs (`frmSelectXxx` equivalents)
 
-- [x] Of ~39 distinct pickers: Quality, Spell, Gear, Cyberware/Bioware, Armor, Weapon, Weapon
+- [~] Of ~39 distinct pickers: Quality, Spell, Gear, Cyberware/Bioware, Armor, Weapon, Weapon
   Accessory, Weapon Mod, Vehicle, Vehicle Mod, Lifestyle (+ Advanced), exotic Skill, Martial Art
   (+Maneuver), Adept Power, Metamagic, CritterPower, ComplexForm, ContactConnection, ArmorMod,
   CyberwareSuite, MentorSpirit, Nexus, PACKSKit, ProgramOption, Side, SkillGroup — all ported.
@@ -142,7 +145,7 @@ Everything not `[x]`, in one place, grouped by area.
 
 ## Derived stats / calculations
 
-- [x] Essence, condition monitor (+ live damage boxes), armor encumbrance, skill dice pools
+- [~] Essence, condition monitor (+ live damage boxes), armor encumbrance, skill dice pools
   (incl. defaulting at Rating 0), weapon dice pools (category mapping, Smartgun, specialization,
   installed Accessory/Mod bonuses, loaded-ammo `<weaponbonus><pool>`), Composure/Judge
   Intentions/Lift and Carry/Memory, Initiative (+Passes), Astral Initiative, Matrix Initiative
@@ -181,7 +184,7 @@ Everything not `[x]`, in one place, grouped by area.
 
 ## Bonus-application engine (`clsImprovement.CreateImprovements` equivalent)
 
-- [x] `BonusApplier` resolves the real-data-driven node types: `specificattribute` (+ESS special
+- [~] `BonusApplier` resolves the real-data-driven node types: `specificattribute` (+ESS special
   case), `specificskill`, `skillcategory`/`skillgroup`/`skillattribute`, `conditionmonitor`,
   `armor`, `reach`, `unarmeddv`/`unarmedap`, `initiative`/`initiativepass`, `lifestylecost`,
   `notoriety`, `matrixinitiative`/`matrixinitiativepass`, `damageresistance`, `movementpercent`,
@@ -199,7 +202,7 @@ Everything not `[x]`, in one place, grouped by area.
   (`ApplySelectedImprovement`).
 - [x] `selectsenseware`/`ImprovedSenseFullRating` — dedicated flow (`GetSenseImprovementOptions`,
   `SenseImprovementDialog`, `AddImprovedSensePower`), wired into the Adept Power picker.
-- [x] Manual Improvement *add* — curated 13-type subset (Attribute, Skill, Condition Monitor
+- [~] Manual Improvement *add* — curated 13-type subset (Attribute, Skill, Condition Monitor
   Physical/Stun/Threshold/Threshold Offset, Initiative, Movement %, Concealability, Unarmed
   DV/AP, Reach, Lifestyle Cost) reusing the same `<bonus>`-XML pipeline every other bonus-granting
   item uses. Remaining ~37 legacy types excluded: no consumer, or need a picker this port doesn't
@@ -211,7 +214,7 @@ Everything not `[x]`, in one place, grouped by area.
 
 ## Output / tooling
 
-- [x] Print / character sheet rendering — `CharacterSheetExporter` builds the full print-XML
+- [~] Print / character sheet rendering — `CharacterSheetExporter` builds the full print-XML
   (every section the shipped sheets read) and transforms via real `.xsl` files
   (`XslCompiledTransform`); `SheetPreviewDialog` renders the actual open character with a
   template picker. "Als HTML exportieren" and "Als PDF exportieren" (system headless
