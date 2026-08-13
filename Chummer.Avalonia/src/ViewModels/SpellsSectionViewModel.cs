@@ -222,7 +222,7 @@ public sealed class SpellsSectionViewModel : ViewModelBase
                 }
             }
 
-            var spellNode = new TreeNodeViewModel(spell.Name, strCategory: spell.Category);
+            var spellNode = new TreeNodeViewModel(spell.DisplayName, strCategory: spell.Category);
             spellNode.SetSpellDetails(spell);
             target.Children.Add(spellNode);
         }

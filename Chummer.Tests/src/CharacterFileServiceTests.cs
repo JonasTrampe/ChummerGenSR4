@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 using Xunit;
 
 namespace Chummer.Tests;
@@ -310,6 +311,54 @@ public class CharacterFileServiceTests
         Assert.Equal("Acid Stream", saved.Name);
         Assert.Equal("SR4", saved.Source);
         Assert.Equal("204", saved.Page);
+    }
+
+    [Fact]
+    public void AddSpell_ExtendedDetectionSpell_PersistsFlagAndDisplaysLegacyPlusTwoDrain()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ExtendAnyDetectionSpell = true });
+
+        Assert.True(character.AddSpell("Detect Life", "Detection", "M", "T", "", "S", "(F/2)", "SR4", "206",
+            blnExtended: true));
+
+        CharacterSpellData spell = Assert.Single(character.Spells);
+        Assert.True(spell.Extended);
+        Assert.Equal("Detect Life, Extended", spell.DisplayName);
+        Assert.Equal("(F/2)+2", spell.Dv);
+        Assert.True(character.RemoveSpell(spell.DisplayName));
+        Assert.Empty(character.Spells);
+    }
+
+    [Fact]
+    public void AddSpell_ExtendedSpellRejectsDisabledRuleAndNonDetectionCategories()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.False(character.AddSpell("Detect Life", "Detection", "M", "T", "", "S", "(F/2)", "SR4", "206",
+            blnExtended: true));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ExtendAnyDetectionSpell = true });
+        Assert.False(character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204",
+            blnExtended: true));
+        Assert.Empty(character.Spells);
+    }
+
+    [Fact]
+    public void SpellDialog_ExtendedDetectionRuleOffersBaseSpellAndPreviewsExtendedValues()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ExtendAnyDetectionSpell = true });
+        var viewModel = new SpellDialogViewModel();
+
+        viewModel.LoadOptions(character);
+        SpellOptionViewModel detectLife = Assert.Single(viewModel.SpellOptions, s => s.Name == "Detect Life");
+        Assert.DoesNotContain(viewModel.SpellOptions, s => s.Name == "Detect Life, Extended");
+
+        viewModel.SelectedSpell = detectLife;
+        Assert.True(viewModel.CanSelectExtendedSpell);
+        viewModel.IsExtendedSpell = true;
+        Assert.Equal("(F/2)+2", viewModel.SelectedSpellDrainValue);
+        Assert.Contains("Extended Area", viewModel.SelectedSpellDescriptor);
     }
 
     [Fact]

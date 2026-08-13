@@ -34,10 +34,11 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] Technomancer Complex-Form eligibility: picker is Technomancer-only, Autosofts honor
   `TechnomancerAllowAutosoft`, and `TechnomancerAllowCommlink` selects the active-Commlink
   Matrix Initiative branch.
+- [x] `ExtendAnyDetectionSpell`: picker toggle, save-compatible `extended` flag, +2 Drain display,
+  and duplicate rules-data variant suppression match the legacy flow.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
   `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`, `AllowHigherStackedFoci`,
-  `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `ExtendAnyDetectionSpell`,
-  `MoreLethalGameplay`.
+  `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
 - Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
   `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,
   `AutomaticUpdate`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,

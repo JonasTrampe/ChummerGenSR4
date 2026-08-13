@@ -37,9 +37,9 @@ public partial class SpellsSectionTab : UserControl
         if (added && dialog.SelectedSpell != null)
         {
             var spell = dialog.SelectedSpell;
-            _character.AddSpell(spell.Name, spell.Category, spell.Type, spell.Range, spell.Damage, spell.Duration,
-                spell.DrainValue, spell.Source, spell.Page);
-            ViewModel.LoadCharacter(_character);
+            if (_character.AddSpell(spell.Name, spell.Category, spell.Type, spell.Range, spell.Damage, spell.Duration,
+                spell.DrainValue, spell.Source, spell.Page, dialog.Extended))
+                ViewModel.LoadCharacter(_character);
         }
     }
 

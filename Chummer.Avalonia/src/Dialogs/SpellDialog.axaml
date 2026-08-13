@@ -26,7 +26,7 @@
                 <TextBlock Text="{loc:Loc Label_Category}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Category, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_Descriptors}" FontWeight="Bold" />
-                <TextBlock Text="{Binding SelectedSpell.Descriptor, TargetNullValue=–}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding SelectedSpellDescriptor, TargetNullValue=–}" TextWrapping="Wrap" />
                 <TextBlock Text="{loc:Loc Label_Type}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Type, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_Range}" FontWeight="Bold" />
@@ -36,14 +36,18 @@
                 <TextBlock Text="{loc:Loc Label_Duration}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedSpell.Duration, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_DV}" FontWeight="Bold" />
-                <TextBlock Text="{Binding SelectedSpell.DrainValue, TargetNullValue=–}" />
+                <TextBlock Text="{Binding SelectedSpellDrainValue, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" Margin="0,12,0,0" />
                 <controls:SourceLink SourcePage="{Binding SelectedSpell.SourcePage}" />
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
-            <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
-            <Button Grid.Column="2" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,12,0,0">
+            <CheckBox Grid.Column="1" Content="Erweiterter Zauber (+2 Entzug)" Margin="0,0,12,0"
+                      IsVisible="{Binding AllowExtendedDetectionSpell}"
+                      IsEnabled="{Binding CanSelectExtendedSpell}"
+                      IsChecked="{Binding IsExtendedSpell, Mode=TwoWay}" />
+            <Button Grid.Column="2" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="3" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </Grid>
     </Grid>
 </Window>

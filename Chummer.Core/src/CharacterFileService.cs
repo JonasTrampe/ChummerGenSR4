@@ -172,6 +172,10 @@ namespace Chummer.Core
         /// active settings profile's Technomancer house rule.</summary>
         public bool TechnomancerAllowsAutosoft => Technomancer && GetCharacterOptions().TechnomancerAllowAutosoft;
 
+        /// <summary>Whether the optional Street Magic rule allowing every Detection spell to be
+        /// acquired in an Extended form is active for this character.</summary>
+        public bool ExtendAnyDetectionSpellEnabled => GetCharacterOptions().ExtendAnyDetectionSpell;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -1376,11 +1380,14 @@ namespace Chummer.Core
         /// Rules metadata is selected from spells.xml by the UI and copied here so the character
         /// remains self-contained when saved and reopened.
         /// </summary>
-        public void AddSpell(string strName, string strCategory, string strType, string strRange, string strDamage,
-            string strDuration, string strDv, string strSource, string strPage)
+        public bool AddSpell(string strName, string strCategory, string strType, string strRange, string strDamage,
+            string strDuration, string strDv, string strSource, string strPage, bool blnExtended = false)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A spell name is required.", nameof(strName));
+            if (blnExtended && (!GetCharacterOptions().ExtendAnyDetectionSpell
+                || !string.Equals(strCategory, "Detection", StringComparison.Ordinal)))
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -1399,10 +1406,34 @@ namespace Chummer.Core
             AppendElement(objSpell, "damage", strDamage);
             AppendElement(objSpell, "duration", strDuration);
             AppendElement(objSpell, "dv", strDv);
+            AppendElement(objSpell, "extended", blnExtended.ToString());
             AppendElement(objSpell, "source", strSource);
             AppendElement(objSpell, "page", strPage);
             objSpells.AppendChild(objSpell);
             Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Returns the displayed Drain Value for an Extended Detection spell. This is
+        /// the legacy Spell.DisplayDV rule: keep the stored formula intact and add two to its
+        /// trailing numeric modifier.</summary>
+        public static string GetSpellDrainValue(string strDv, bool blnExtended)
+        {
+            if (!blnExtended)
+                return strDv;
+
+            int intFormulaEnd = strDv.LastIndexOf(')');
+            if (intFormulaEnd < 0)
+                return strDv + "+2";
+
+            string strFormula = strDv.Substring(0, intFormulaEnd + 1);
+            string strSuffix = strDv.Substring(intFormulaEnd + 1);
+            if (!int.TryParse(strSuffix, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intModifier))
+                return strFormula + "+2";
+
+            intModifier += 2;
+            return intModifier == 0 ? strFormula : strFormula + (intModifier > 0 ? "+" : string.Empty)
+                + intModifier.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>One selectable Drain-Value modifier for a homebrew Spell's category, ported
@@ -4066,8 +4097,12 @@ namespace Chummer.Core
 
             foreach (XmlNode objSpell in objNodes)
             {
-                if (!string.Equals(GetValue(objSpell, "name", string.Empty), strName.Trim(),
-                        StringComparison.Ordinal))
+                string strSavedName = GetValue(objSpell, "name", string.Empty);
+                bool blnExtended = string.Equals(GetValue(objSpell, "extended", "False"), "True",
+                    StringComparison.OrdinalIgnoreCase);
+                string strDisplayName = blnExtended ? strSavedName + ", Extended" : strSavedName;
+                if (!string.Equals(strSavedName, strName.Trim(), StringComparison.Ordinal)
+                    && !string.Equals(strDisplayName, strName.Trim(), StringComparison.Ordinal))
                     continue;
 
                 objSpell.ParentNode?.RemoveChild(objSpell);
@@ -8152,12 +8187,14 @@ namespace Chummer.Core
             {
                 string strCategory = GetValue(objNode, "category", string.Empty);
                 (int intPool, string strTooltip) = ComputeSpellDicePool(strCategory);
+                bool blnExtended = string.Equals(GetValue(objNode, "extended", "False"), "True",
+                    StringComparison.OrdinalIgnoreCase);
                 lstSpells.Add(new CharacterSpellData(GetValue(objNode, "name", string.Empty),
                     strCategory, GetValue(objNode, "type", string.Empty),
                     GetValue(objNode, "range", string.Empty), GetValue(objNode, "damage", string.Empty),
                     GetValue(objNode, "duration", string.Empty), GetValue(objNode, "dv", string.Empty),
                     GetValue(objNode, "source", string.Empty), GetValue(objNode, "page", string.Empty),
-                    intPool.ToString(), strTooltip));
+                    intPool.ToString(), strTooltip, blnExtended));
             }
             return lstSpells;
         }
@@ -9301,15 +9338,17 @@ namespace Chummer.Core
     {
         internal CharacterSpellData(string strName, string strCategory, string strType, string strRange,
             string strDamage, string strDuration, string strDv, string strSource, string strPage,
-            string strDicePool = "0", string strDicePoolTooltip = "")
+            string strDicePool = "0", string strDicePoolTooltip = "", bool blnExtended = false)
         {
             Name = strName;
+            Extended = blnExtended;
+            DisplayName = blnExtended ? strName + ", Extended" : strName;
             Category = strCategory;
             Type = strType;
             Range = strRange;
             Damage = strDamage;
             Duration = strDuration;
-            Dv = strDv;
+            Dv = CharacterDocument.GetSpellDrainValue(strDv, blnExtended);
             Source = strSource;
             Page = strPage;
             DicePool = strDicePool;
@@ -9317,6 +9356,8 @@ namespace Chummer.Core
         }
 
         public string Name { get; }
+        public string DisplayName { get; }
+        public bool Extended { get; }
         public string Category { get; }
         public string Type { get; }
         public string Range { get; }

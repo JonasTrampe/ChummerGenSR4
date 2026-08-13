@@ -9,6 +9,7 @@ public partial class SpellDialog : Window
 {
     public SpellDialogViewModel ViewModel { get; } = new();
     public SpellOptionViewModel? SelectedSpell => ViewModel.SelectedSpell;
+    public bool Extended => ViewModel.IsExtendedSpell;
 
     public SpellDialog()
     {

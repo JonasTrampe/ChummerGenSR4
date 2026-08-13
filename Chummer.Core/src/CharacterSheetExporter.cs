@@ -433,7 +433,7 @@ namespace Chummer.Core
             {
                 XmlElement spellEl = doc.CreateElement("spell");
                 spellsEl.AppendChild(spellEl);
-                AddEl(doc, spellEl, "name", spell.Name);
+                AddEl(doc, spellEl, "name", spell.DisplayName);
                 AddEl(doc, spellEl, "extra", string.Empty);
                 AddEl(doc, spellEl, "dv", spell.Dv);
             }
