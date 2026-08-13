@@ -11,6 +11,9 @@ public class NewCharacterFactoryTests
     private static NewCharacterMetatype LoadHuman()
         => NewCharacterFactory.LoadMetatypes().Single(m => m.Name == "Human");
 
+    private static NewCharacterMetatype LoadElf()
+        => NewCharacterFactory.LoadMetatypes().Single(m => m.Name == "Elf");
+
     [Fact]
     public void CreateNewCharacter_KarmaBuild_SeedsStartingKarmaFromBuildPoints()
     {
@@ -27,6 +30,37 @@ public class NewCharacterFactoryTests
             "Test", "default.xml", "BP", 400, 12, LoadHuman());
 
         Assert.Equal("0", character.Karma);
+    }
+
+    [Fact]
+    public void CreateNewCharacter_BpBuild_DeductsTheSelectedMetatypeFromTheActivePool()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 400, 12, LoadElf());
+
+        Assert.Equal("370", character.Bp);
+        Assert.Equal(30, character.CreationBudget.Categories.Single(c => c.Name == "Metatype").Cost);
+        Assert.DoesNotContain(character.CreationBudget.Categories, c => c.Name == "Other / not yet categorized");
+    }
+
+    [Fact]
+    public void CreateNewCharacter_KarmaBuild_UsesTheMetatypeKarmaConversionWhenEnabled()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadElf(),
+            objCharacterOptions: new CharacterOptions { MetatypeCostsKarma = true, MetatypeCostsKarmaMultiplier = 2 });
+
+        Assert.Equal("690", character.Karma);
+    }
+
+    [Fact]
+    public void CreateNewCharacter_MetavariantCostReplacesTheBaseMetatypeCost()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 400, 12, LoadElf(), strMetavariantName: "Dryad");
+
+        Assert.Equal("355", character.Bp);
+        Assert.Equal(45, character.CreationBudget.Categories.Single(c => c.Name == "Metatype").Cost);
     }
 
     [Fact]

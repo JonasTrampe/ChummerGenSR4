@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace Chummer.Core
@@ -108,19 +109,35 @@ namespace Chummer.Core
 
         public static CharacterDocument CreateNewCharacter(string strDisplayName, string strSettingsFileName,
             string strBuildMethod, int intBuildPoints, int intMaxAvailability, NewCharacterMetatype objMetatype,
-            string strMetavariantName = "", bool blnIgnoreRules = false, string strMagicType = "None")
+            string strMetavariantName = "", bool blnIgnoreRules = false, string strMagicType = "None",
+            CharacterOptions? objCharacterOptions = null)
         {
             bool blnAdept = strMagicType == "Adept" || strMagicType == "MysticAdept";
             bool blnMagician = strMagicType == "Magician" || strMagicType == "MysticAdept";
             bool blnTechnomancer = strMagicType == "Technomancer";
             bool blnKarmaBuild = string.Equals(strBuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            CharacterOptions objOptions = objCharacterOptions ?? new CharacterOptions();
+            if (objCharacterOptions == null)
+                objOptions.Load(string.IsNullOrWhiteSpace(strSettingsFileName) ? "default.xml" : strSettingsFileName);
+            NewCharacterMetavariant? objMetavariant = objMetatype.Metavariants.FirstOrDefault(m =>
+                string.Equals(m.Name, strMetavariantName, StringComparison.Ordinal));
+            // Legacy stores the selected metavariant's listed cost in metatypebp; it replaces
+            // the base metatype cost rather than being added to it (e.g. Dryad is 45 BP, not
+            // Elf 30 + Dryad 45).
+            int intMetatypeBp = objMetavariant?.Bp ?? objMetatype.Bp;
+            int intMetatypeCost = blnKarmaBuild
+                ? (objOptions.MetatypeCostsKarma ? intMetatypeBp * objOptions.MetatypeCostsKarmaMultiplier : 0)
+                : intMetatypeBp;
+            if (!blnIgnoreRules && intMetatypeCost > intBuildPoints)
+                throw new ArgumentOutOfRangeException(nameof(objMetatype), "The selected metatype exceeds the creation budget.");
+            int intRemainingBuildPoints = intBuildPoints - intMetatypeCost;
             XmlDocument objDocument = new XmlDocument();
             XmlElement objRoot = objDocument.CreateElement("character");
             objDocument.AppendChild(objRoot);
 
             AppendElement(objDocument, objRoot, "settings", string.IsNullOrWhiteSpace(strSettingsFileName) ? "default.xml" : strSettingsFileName);
             AppendElement(objDocument, objRoot, "metatype", objMetatype.Name);
-            AppendElement(objDocument, objRoot, "metatypebp", objMetatype.Bp.ToString());
+            AppendElement(objDocument, objRoot, "metatypebp", intMetatypeBp.ToString());
             AppendElement(objDocument, objRoot, "metavariant", strMetavariantName);
             AppendElement(objDocument, objRoot, "metatypecategory", objMetatype.Category);
             AppendElement(objDocument, objRoot, "movement", objMetatype.Movement);
@@ -143,7 +160,7 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "notes", string.Empty);
             AppendElement(objDocument, objRoot, "alias", string.Empty);
             AppendElement(objDocument, objRoot, "playername", string.Empty);
-            AppendElement(objDocument, objRoot, "karma", blnKarmaBuild ? intBuildPoints.ToString() : "0");
+            AppendElement(objDocument, objRoot, "karma", blnKarmaBuild ? intRemainingBuildPoints.ToString() : "0");
             AppendElement(objDocument, objRoot, "totalkarma", "0");
             AppendElement(objDocument, objRoot, "streetcred", "0");
             AppendElement(objDocument, objRoot, "notoriety", "0");
@@ -153,7 +170,7 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "created", "False");
             AppendElement(objDocument, objRoot, "maxavail", intMaxAvailability.ToString());
             AppendElement(objDocument, objRoot, "nuyen", "0");
-            AppendElement(objDocument, objRoot, "bp", blnKarmaBuild ? "0" : intBuildPoints.ToString());
+            AppendElement(objDocument, objRoot, "bp", blnKarmaBuild ? "0" : intRemainingBuildPoints.ToString());
             AppendElement(objDocument, objRoot, "buildkarma", blnKarmaBuild ? intBuildPoints.ToString() : "0");
             // The starting total, unlike bp/buildkarma above which shrink as points are spent -
             // needed by AllowExceedAttributeBp's "max 50% of the starting total on primary
