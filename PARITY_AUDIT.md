@@ -75,7 +75,7 @@ These were absent or too narrowly described in the prior checklist and are now t
 | `BookEnabled` | picker filtering works for ordinary rules-data pickers; Suites and PACKS do not filter |
 | `ConfirmDelete`, `ConfirmKarmaExpense` | persisted only; legacy has confirmations at many destructive/costly commands |
 | `CreateBackupOnCareer` | persisted only; no save/backup action during finalization |
-| `AutomaticCopyProtection`, `AutomaticRegistration` | persisted only; missing automatic child-gear additions for eligible Matrix/soft items |
+| `AutomaticCopyProtection`, `AutomaticRegistration` | implemented in root and nested gear acquisition; eligible Unwired Matrix/soft items gain the zero-cost legacy children |
 | `LocalisedUpdatesOnly` | persisted only; GitHub-release updater does not fetch localized payloads |
 | `OmaeAutoLogin` | obsolete legacy service setting is persisted only; requires an explicit replacement/retirement decision, not silent exclusion |
 | `PrintToFileFirst` | persisted only; native web printing never reads it |

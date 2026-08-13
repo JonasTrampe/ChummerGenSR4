@@ -62,9 +62,12 @@ Everything not `[x]`, in one place, grouped by area.
   saved date values are normalized to a date-only value when the option is disabled.
 - [x] `SingleDiceRoller`: the modeless dice roller focuses and reuses its sole instance when the
   global option is on; with it off, each menu/skill-pool action opens an independent roller.
+- [x] `AutomaticCopyProtection` / `AutomaticRegistration`: acquiring an eligible Unwired
+  Matrix Program/Skillsoft/Autosoft automatically adds the legacy zero-cost, `[0]`-capacity
+  child plugins in both root and nested gear paths; covered by save/reload Core tests.
 - [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
-  `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`, `OmaeAutoLogin`, and
-  `PrintToFileFirst`: now in scope; each needs a verified runtime integration beyond persistence.
+  `BookEnabled`, `OmaeAutoLogin`, and `PrintToFileFirst`: now in scope; each needs a verified
+  runtime integration beyond persistence.
 
 ### Everything else open
 - [~] Cloud save/share: login, folder tree, push/download/archive/unarchive, metadata, revisions,

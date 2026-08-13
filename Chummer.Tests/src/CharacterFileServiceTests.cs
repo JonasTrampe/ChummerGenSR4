@@ -4612,6 +4612,80 @@ public class CharacterFileServiceTests
         Assert.True(character.IsBookEnabled(""));
     }
 
+    [Fact]
+    public void AddGear_AutomaticallyAddsUnwiredProgramOptions_WhenEnabled()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions { AutomaticCopyProtection = true, AutomaticRegistration = true };
+        objOptions.Books.Clear();
+        objOptions.Books.Add("UN");
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        Assert.True(character.AddGear("Analyze", "Matrix Programs", strRating: "3", strCost: "100"));
+
+        CharacterTreeItemData program = Assert.Single(character.Gear);
+        Assert.Equal("900", character.Nuyen);
+        Assert.Collection(program.Children,
+            copy =>
+            {
+                Assert.Equal("Copy Protection", copy.Name);
+                Assert.Equal("3", copy.Rating);
+                Assert.Equal(0, copy.CalculatedCost);
+                Assert.Equal("[0]", copy.Capacity);
+            },
+            registration =>
+            {
+                Assert.Equal("Registration", registration.Name);
+                Assert.Equal("0", registration.Rating);
+                Assert.Equal(0, registration.CalculatedCost);
+                Assert.Equal("[0]", registration.Capacity);
+            });
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(new[] { "Copy Protection", "Registration" }, Assert.Single(reloaded.Gear).Children.Select(c => c.Name));
+    }
+
+    [Fact]
+    public void AddChildGear_AutomaticallyAddsOnlyEnabledUnwiredProgramOptions()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions { AutomaticCopyProtection = false, AutomaticRegistration = true };
+        objOptions.Books.Clear();
+        objOptions.Books.Add("UN");
+        character.SetCharacterOptionsForTesting(objOptions);
+        Assert.True(character.AddGear("Commlink", "Commlink"));
+
+        int intCommlinkId = Assert.Single(character.Gear).GearId;
+        Assert.True(character.AddChildGear(intCommlinkId, "Browse", "Matrix Programs", strRating: "0"));
+
+        CharacterTreeItemData program = Assert.Single(Assert.Single(character.Gear).Children);
+        CharacterTreeItemData registration = Assert.Single(program.Children);
+        Assert.Equal("Registration", registration.Name);
+        Assert.Equal("0", registration.Rating);
+    }
+
+    [Fact]
+    public void AddGear_DoesNotAddAutomaticProgramOptions_WhenUnwiredIsDisabledOrProgramIsSuite()
+    {
+        CharacterDocument noUnwired = LoadXml("<character />");
+        var noUnwiredOptions = new CharacterOptions { AutomaticCopyProtection = true, AutomaticRegistration = true };
+        noUnwiredOptions.Books.Clear();
+        noUnwired.SetCharacterOptionsForTesting(noUnwiredOptions);
+        Assert.True(noUnwired.AddGear("Analyze", "Matrix Programs"));
+        Assert.Empty(Assert.Single(noUnwired.Gear).Children);
+
+        CharacterDocument suite = LoadXml("<character />");
+        var suiteOptions = new CharacterOptions { AutomaticCopyProtection = true, AutomaticRegistration = true };
+        suiteOptions.Books.Clear();
+        suiteOptions.Books.Add("UN");
+        suite.SetCharacterOptionsForTesting(suiteOptions);
+        Assert.True(suite.AddGear("Suite: Common Use", "Matrix Programs"));
+        Assert.Empty(Assert.Single(suite.Gear).Children);
+    }
+
     private static Improvement BuildImprovement(string strUnique, int intValue, string strImprovedName = "")
     {
         var doc = new XmlDocument();

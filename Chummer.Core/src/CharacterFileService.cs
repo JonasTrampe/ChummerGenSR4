@@ -1620,8 +1620,9 @@ namespace Chummer.Core
                 objRoot.AppendChild(objGears);
             }
 
-            AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
-                strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            XmlElement objGear = AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost, strAvail,
+                strSource, strPage, strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            AppendAutomaticProgramOptions(objGear);
             DeductGearCost(strCost, strRating, strQty, strAvail);
             Changed?.Invoke();
             return true;
@@ -1742,8 +1743,9 @@ namespace Chummer.Core
                 objParent.AppendChild(objChildren);
             }
 
-            AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost, strAvail, strSource, strPage,
-                strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            XmlElement objGear = AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost, strAvail,
+                strSource, strPage, strCapacity, strResponse, strSignal, strSystemRating, strFirewall);
+            AppendAutomaticProgramOptions(objGear);
             DeductGearCost(strCost, strRating, strQty, strAvail);
             Changed?.Invoke();
             return true;
@@ -1800,7 +1802,41 @@ namespace Chummer.Core
             return dblCost;
         }
 
-        private void AppendGearNode(XmlNode objParentList, string strName, string strCategory, string strRating,
+        /// <summary>Ports Gear.Create's Unwired convenience children: newly acquired Matrix
+        /// Programs, Skillsofts and Autosofts receive no-cost Copy Protection and/or Registration
+        /// plugins when the corresponding character settings are enabled. They deliberately bypass
+        /// capacity validation and Nuyen deduction, just as the legacy code forces Capacity [0],
+        /// Avail 0 and Cost 0. Suites are excluded because their individual programs create their
+        /// own children in the legacy importer.</summary>
+        private void AppendAutomaticProgramOptions(XmlElement objProgram)
+        {
+            string strCategory = GetValue(objProgram, "category", string.Empty);
+            if (strCategory != "Matrix Programs" && strCategory != "Skillsofts"
+                && strCategory != "Autosofts" && strCategory != "Autosofts, Agent"
+                && strCategory != "Autosofts, Drone")
+                return;
+
+            string strName = GetValue(objProgram, "name", string.Empty);
+            CharacterOptions objOptions = GetCharacterOptions();
+            if (!objOptions.BookEnabled("UN") || strName.StartsWith("Suite:", StringComparison.Ordinal))
+                return;
+
+            XmlElement objChildren = objProgram.SelectSingleNode("children") as XmlElement
+                ?? throw new InvalidOperationException("A newly created Gear item has no children collection.");
+            string strParentRating = GetValue(objProgram, "rating", "0");
+            string strCopyRating = int.TryParse(strParentRating, out int intRating) && intRating > 0
+                ? intRating.ToString(CultureInfo.InvariantCulture)
+                : "1";
+
+            if (objOptions.AutomaticCopyProtection)
+                AppendGearNode(objChildren, "Copy Protection", "Program Options", strCopyRating, "1", "0", "0",
+                    "UN", "114", "[0]", "", "", "", "");
+            if (objOptions.AutomaticRegistration)
+                AppendGearNode(objChildren, "Registration", "Program Options", "0", "1", "0", "0", "UN",
+                    "115", "[0]", "", "", "", "");
+        }
+
+        private XmlElement AppendGearNode(XmlNode objParentList, string strName, string strCategory, string strRating,
             string strQty, string strCost, string strAvail, string strSource, string strPage, string strCapacity,
             string strResponse, string strSignal, string strSystemRating, string strFirewall)
         {
@@ -1830,6 +1866,7 @@ namespace Chummer.Core
             if (!string.IsNullOrEmpty(strFirewall)) AppendElement(objGear, "firewall", strFirewall);
             objGear.AppendChild(Document.CreateElement("children"));
             objParentList.AppendChild(objGear);
+            return objGear;
         }
 
         /// <summary>Removes the gear matching this <see cref="Gear"/> tree's GearId, wherever it
