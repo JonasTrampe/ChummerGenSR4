@@ -2145,6 +2145,36 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ConvertSpriteToFreeSprite_GrantsNonCountingDenialAndTracksRemainingPowerSlots()
+    {
+        CharacterDocument character = LoadXml("<character><metatype>Machine Sprite</metatype>"
+            + "<metatypecategory>Sprites</metatypecategory><attributes><attribute><name>EDG</name>"
+            + "<value>4</value><totalvalue>4</totalvalue></attribute></attributes></character>");
+
+        Assert.True(character.ConvertSpriteToFreeSprite());
+        Assert.True(character.IsFreeSprite);
+        Assert.Equal("Free Sprite", character.MetatypeCategory);
+        CharacterCritterPowerData denial = Assert.Single(character.CritterPowers);
+        Assert.Equal("Denial", denial.Name);
+        Assert.False(denial.CountsTowardsLimit);
+        Assert.Equal(4, character.FreeSpritePowerPoints!.Value);
+
+        character.AddCritterPower("Fear", "0", "SM", "54");
+        Assert.Equal(3, character.FreeSpritePowerPoints!.Value);
+        Assert.False(character.ConvertSpriteToFreeSprite());
+    }
+
+    [Fact]
+    public void ConvertSpriteToFreeSprite_RejectsNonSprites()
+    {
+        CharacterDocument character = LoadXml("<character><metatype>Human</metatype>"
+            + "<metatypecategory>Human</metatypecategory></character>");
+
+        Assert.False(character.ConvertSpriteToFreeSprite());
+        Assert.Empty(character.CritterPowers);
+    }
+
+    [Fact]
     public void RemoveCritterPower_RemovesOnlyTheMatchingEntry()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

@@ -329,6 +329,11 @@ namespace Chummer.Core
         /// character save's INI attribute, just as the legacy character model consumes it.</summary>
         public bool IsSprite => Metatype.EndsWith("Sprite", StringComparison.Ordinal);
 
+        /// <summary>Whether this Sprite has completed the legacy "Convert to Free Sprite"
+        /// special command. The original Sprite metatype is retained; legacy changes only the
+        /// metatype category.</summary>
+        public bool IsFreeSprite => string.Equals(MetatypeCategory, "Free Sprite", StringComparison.Ordinal);
+
         /// <summary>Response rating of the character's equipped, active Commlink (0 if none),
         /// ported from clsCommonFunctions.FindCommlinks + Commlink.TotalResponse as used by
         /// MatrixInitiative. Searches every &lt;gear&gt; node anywhere in the document (so this
@@ -6920,7 +6925,7 @@ namespace Chummer.Core
                 if (!string.Equals(Metatype, "Free Spirit", StringComparison.Ordinal) || IsCritter)
                     return null;
 
-                var decUsed = CritterPowers.Sum(p =>
+                var decUsed = CritterPowers.Where(p => p.CountsTowardsLimit).Sum(p =>
                     decimal.TryParse(p.Points, System.Globalization.NumberStyles.Any,
                         System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : 0m);
 
@@ -6939,6 +6944,31 @@ namespace Chummer.Core
                 var decRemaining = intTotal - decUsed;
                 sb.Append('\n').Append("Übrig: ").Append(decRemaining.ToString(CultureInfo.GetCultureInfo("de-DE")));
                 return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
+            }
+        }
+
+        /// <summary>Remaining innate-power slots for a Free Sprite. Every counted power consumes
+        /// one slot; EDG plus FreeSpiritPowerPoints improvements supplies the available slots.</summary>
+        public CharacterDerivedValueData? FreeSpritePowerPoints
+        {
+            get
+            {
+                if (!IsFreeSprite)
+                    return null;
+
+                int intUsed = CritterPowers.Count(p => p.CountsTowardsLimit);
+                int intBase = GetAttributeInt("EDG");
+                var lstContributions = ImprovementManager
+                    .DescribeAugmentedValueOf(Improvements, ImprovementType.FreeSpiritPowerPoints)
+                    .ToList();
+                int intTotal = intBase + lstContributions.Sum(c => c.Value);
+                var sb = new StringBuilder();
+                sb.Append("EDG: ").Append(intBase);
+                AppendContributions(sb, lstContributions);
+                sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
+                sb.Append('\n').Append("Verbraucht: ").Append(intUsed);
+                sb.Append('\n').Append("Übrig: ").Append(intTotal - intUsed);
+                return new CharacterDerivedValueData(intTotal - intUsed, sb.ToString());
             }
         }
 
@@ -7682,7 +7712,8 @@ namespace Chummer.Core
                 lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0"),
-                    GetValue(objNode, "rating", "0"), GetValue(objNode, "notes", string.Empty)));
+                    GetValue(objNode, "rating", "0"), GetValue(objNode, "notes", string.Empty),
+                    GetValue(objNode, "counttowardslimit", "True") != "False"));
             return lstPowers;
         }
 
@@ -7697,7 +7728,7 @@ namespace Chummer.Core
         /// name="strExtra"/> becomes the corresponding Improvement (see <see
         /// cref="ApplySelectedImprovement"/>).</summary>
         public void AddCritterPower(string strName, string strPoints, string strSource, string strPage,
-            string strExtra = "", string strRating = "1")
+            string strExtra = "", string strRating = "1", bool blnCountTowardsLimit = true)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A critter power name is required.", nameof(strName));
@@ -7720,7 +7751,13 @@ namespace Chummer.Core
             AppendElement(objPower, "guid", Guid.NewGuid().ToString());
             AppendElement(objPower, "name", strName.Trim());
             AppendElement(objPower, "extra", strExtra.Trim());
+            AppendElement(objPower, "category", objXmlPower?.SelectSingleNode("category")?.InnerText ?? string.Empty);
+            AppendElement(objPower, "type", objXmlPower?.SelectSingleNode("type")?.InnerText ?? string.Empty);
+            AppendElement(objPower, "action", objXmlPower?.SelectSingleNode("action")?.InnerText ?? string.Empty);
+            AppendElement(objPower, "range", objXmlPower?.SelectSingleNode("range")?.InnerText ?? string.Empty);
+            AppendElement(objPower, "duration", objXmlPower?.SelectSingleNode("duration")?.InnerText ?? string.Empty);
             AppendElement(objPower, "points", strPoints);
+            AppendElement(objPower, "counttowardslimit", blnCountTowardsLimit ? "True" : "False");
             AppendElement(objPower, "rating", blnHasRating ? strRating : "0");
             AppendElement(objPower, "source", strSource);
             AppendElement(objPower, "page", strPage);
@@ -7733,6 +7770,25 @@ namespace Chummer.Core
                 blnHasRating ? strRating : "1");
 
             Changed?.Invoke();
+        }
+
+        /// <summary>Converts an ordinary Sprite to a Free Sprite. Legacy grants the non-counting
+        /// Denial power and changes only metatypecategory. The method is idempotent to prevent an
+        /// API host from adding duplicate Denial entries.</summary>
+        public bool ConvertSpriteToFreeSprite()
+        {
+            if (!IsSprite || IsFreeSprite)
+                return false;
+
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("critterpowers.xml");
+            XmlNode? objDenial = objPowersDoc.SelectSingleNode("/chummer/powers/power[name = 'Denial']");
+            if (objDenial == null)
+                return false;
+
+            AddCritterPower("Denial", "0", GetValue(objDenial, "source", string.Empty),
+                GetValue(objDenial, "page", string.Empty), blnCountTowardsLimit: false);
+            SetRootValue("metatypecategory", "Free Sprite");
+            return true;
         }
 
         public bool RemoveCritterPower(string strGuid)
@@ -11044,7 +11100,7 @@ namespace Chummer.Core
     public sealed class CharacterCritterPowerData
     {
         internal CharacterCritterPowerData(string strGuid, string strName, string strExtra, string strPoints,
-            string strRating = "0", string strNotes = "")
+            string strRating = "0", string strNotes = "", bool blnCountsTowardsLimit = true)
         {
             Guid = strGuid;
             Name = strName;
@@ -11052,6 +11108,7 @@ namespace Chummer.Core
             Points = strPoints;
             Rating = strRating;
             Notes = strNotes;
+            CountsTowardsLimit = blnCountsTowardsLimit;
         }
 
         public string Guid { get; }
@@ -11064,6 +11121,7 @@ namespace Chummer.Core
         /// "0" for every other power.</summary>
         public string Rating { get; }
         public string Notes { get; }
+        public bool CountsTowardsLimit { get; }
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 
