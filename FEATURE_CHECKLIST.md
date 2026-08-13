@@ -482,12 +482,14 @@ what's ported, not previously tracked anywhere in this file)
   translated *data* to show). Verified zero literal `Header`/`Content`/`Text`/`Title`/
   `ToolTip.Tip`/`Watermark`/`PlaceholderText` attributes remain in any AXAML file and no
   German-language string-literal assignments remain in any `.cs` file under `Chummer.Avalonia/src`.
+  All 236 newly-minted `UI_*` keys also got French (`fr.xml`) and Japanese (`jp.xml`) translations
+  added alongside the English/German ones, so every shipped language file has full coverage of
+  the new keys (verified: zero `UI_*` keys missing from any of `de.xml`/`fr.xml`/`jp.xml` relative
+  to `en-us.xml`). `fr.xml`/`jp.xml` retain their own pre-existing gaps against older, unrelated
+  keys (46 and 32 respectively) - not introduced by this work, not addressed here.
   Not addressed (deliberately out of scope): translating `Chummer.Core/data/data/*.xml` rules-data
-  item names themselves (that's `de_data.xml`'s job, a separate, much larger data-translation
-  effort, not a UI-string one), and the two lower-coverage language files (`fr.xml`/`jp.xml`) don't
-  have the ~250 new `UI_*` keys yet - `LanguageManager` falls back to the `en-us.xml` base for any
-  key a non-`de` language file doesn't override, so this doesn't break French/Japanese, it just
-  means those ~250 strings render in English instead of French/Japanese in that mode.
+  item names themselves (that's `de_data.xml`'s/`fr_data.xml`'s/`jp_data.xml`'s job, a separate,
+  much larger data-translation effort, not a UI-string one).
 - [x] Enabled-sourcebook filtering (`Options.BookXPath()`) — done. Added
   `CharacterDocument.IsBookEnabled(string strSourceCode)` in `Chummer.Core` (blank source is
   always allowed, matching legacy's "only filter items that declare a source" behavior; wraps
