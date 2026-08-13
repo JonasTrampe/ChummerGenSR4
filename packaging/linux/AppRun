@@ -1,0 +1,6 @@
+#!/bin/sh
+# Entry point AppImage's runtime execs after mounting the SquashFS - resolves everything relative
+# to itself (APPDIR is set by the AppImage runtime to the mount point) so it works regardless of
+# where the .AppImage file itself sits or is invoked from.
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "${HERE}/usr/bin/Chummer.Avalonia" "$@"

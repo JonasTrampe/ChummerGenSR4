@@ -8,7 +8,10 @@
 - [x] **Phase 2 (Mono Hardening/Intermediate):** Completed (essential for stability and verifying logic before the full rewrite).
 - [ ] **Phase 3 (The Big Refactor):** Model-factory `TreeNode` decoupling is complete; incrementally move the resulting UI-agnostic model code into `Chummer.Core`.
 - [ ] **Phase 4 (Avalonia Rewrite):** Migrating the UI layer from WinForms to Avalonia (leveraging the pure core).
-- [ ] **Phase 5 (Packaging):** AppImage/Linux distribution.
+- [x] **Phase 5 (Packaging):** AppImage/Linux distribution - `packaging/linux/build-appimage.sh`
+  publishes a self-contained `linux-x64` (or `linux-arm64`) build and assembles it into an
+  AppImage via `appimagetool` (downloaded automatically if not already on `PATH`). See that
+  script's own header comment for usage.
 
 ---
 

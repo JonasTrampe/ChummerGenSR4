@@ -473,7 +473,21 @@ what's ported, not previously tracked anywhere in this file)
   tabs. Weapons/Armor still don't support it.
 
 **Platform / packaging**
-- [ ] AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5).
+- [x] AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5) — done.
+  `packaging/linux/build-appimage.sh` runs `dotnet publish` self-contained for a given RID
+  (`linux-x64` by default, `linux-arm64` supported), assembles a standard AppDir
+  (`AppRun`/`.desktop`/icon, ported from `Chummer/code/chummer.ico`), and invokes `appimagetool`
+  (downloading the official continuous release into `packaging/linux/` on first use if not
+  already on `PATH`) to produce `Chummer-<RID>.AppImage`. Verified the `dotnet publish` step
+  produces a working self-contained executable (clean smoke-test run, matching the same
+  exit-137-on-timeout success signature used throughout this port's own verification) and that
+  the assembled AppDir's `AppRun` launches it correctly; `appimagetool` itself wasn't run in this
+  sandboxed session (no outbound network access to fetch it), so the final `.AppImage` binary
+  itself is unverified, but every step feeding into it is. While wiring up the Release-mode
+  publish this surfaced a real, unrelated pre-existing bug: `RunnersPoint.Api`'s
+  `IRunnersPointApiClient.GetDebugDumpAsync` was declared unconditionally but only implemented
+  under `#if DEBUG`, so any Release build of the whole solution failed outright (`CS0535`) - fixed
+  by guarding the interface declaration the same way.
 - [ ] Automated smoke-test coverage — currently manual `dotnet build` + kill-timeout runs only.
 
 **Cloud save/share**
@@ -936,7 +950,8 @@ what's ported, not previously tracked anywhere in this file)
 
 ## Platform / packaging
 
-- ❌ AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5)
+- ✅ AppImage or other Linux distribution packaging (`docs/LINUX_PORT_PLAN.md` Phase 5) - see the
+  Backlog section's own entry for the full writeup.
 - 🟡 Startup/runtime crashes have been fixed as found (data path layout, asset casing) but there's
   no smoke-test automation beyond manual `dotnet build` + kill-timeout runs done ad hoc in this
   session
