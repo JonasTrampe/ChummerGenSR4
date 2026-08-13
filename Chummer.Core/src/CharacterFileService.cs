@@ -5633,6 +5633,21 @@ namespace Chummer.Core
         /// data drawn from programs.xml (see frmSelectProgram.cs).</summary>
         public IReadOnlyList<CharacterComplexFormData> ComplexForms => ReadComplexForms();
 
+        /// <summary>Creation/career Karma cost for buying a Complex Form at a given rating.
+        /// Uses the legacy Skillsoft exception and AlternateComplexFormCost spell-cost rule.</summary>
+        public int ComputeComplexFormKarmaCost(string strCategory, int intRating)
+        {
+            if (intRating < 1) return 0;
+            CharacterOptions objOptions = GetCharacterOptions();
+            if (objOptions.AlternateComplexFormCost)
+                return intRating * objOptions.KarmaSpell;
+            if (string.Equals(strCategory, "Skillsofts", StringComparison.Ordinal))
+                return intRating * objOptions.KarmaComplexFormSkillsoft;
+            int intCost = objOptions.KarmaNewComplexForm;
+            for (int i = 2; i <= intRating; i++) intCost += i * objOptions.KarmaImproveComplexForm;
+            return intCost;
+        }
+
         private IReadOnlyList<CharacterComplexFormData> ReadComplexForms()
         {
             var lstForms = new List<CharacterComplexFormData>();
