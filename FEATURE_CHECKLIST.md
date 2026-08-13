@@ -43,7 +43,9 @@ Everything not `[x]`, in one place, grouped by area.
 ### Everything else open
 - [ ] Cloud save/share: conflict/newer-revision handling, broader UX parity with legacy's cloud
   flows.
-- [ ] Weapons/Armor trees don't support drag-and-drop reordering (Gear/Cyberware do).
+- [x] Weapons/Armor trees support persisted sibling drag-and-drop reordering. Weapon locations
+  and armor sets remain explicit grouping operations rather than drag targets, matching their
+  legacy XML representation.
 - [ ] Native cross-platform "Drucken" (an actual OS print dialog) — HTML/PDF export exist instead;
   see § Output / tooling.
 - [~] `frmSelectSkillCategory`/`frmSelectSpellCategory` — no real rules-data item needs either
@@ -247,7 +249,8 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] Cyberware/Gear tree drag-and-drop reordering/reparenting, backed by a real
   `MoveGear`/`MoveCyberware` write path (fixed: reordering used to only mutate the in-memory
   ViewModel, silently lost on reload)
-- [ ] Weapons/Armor trees — no drag-and-drop support (see backlog)
+- [x] Weapons/Armor trees — persisted sibling drag-and-drop reordering; locations/sets remain
+  explicit assignment operations.
 
 ## Platform / packaging
 

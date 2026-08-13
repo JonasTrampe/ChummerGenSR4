@@ -55,6 +55,8 @@ public partial class GearSectionTab : UserControl
         DataContext = ViewModel;
         InitializeComponent();
         SetUpGearDragDrop();
+        SetUpRootTreeReorderDragDrop(this.FindControl<TreeView>("WeaponsTree")!, MoveWeapon);
+        SetUpRootTreeReorderDragDrop(this.FindControl<TreeView>("ArmorTree")!, MoveArmor);
     }
 
     public void LoadCharacter(CharacterDocument character)
@@ -630,4 +632,70 @@ public partial class GearSectionTab : UserControl
 
         return false;
     }
+
+    /// <summary>Sets up left-button reordering for trees whose groups (weapon locations and armor
+    /// sets) are presentation-only. Unlike Gear/Cyberware, those XML items cannot be reparented;
+    /// drops are accepted only between siblings and persist their underlying root XML order.</summary>
+    private void SetUpRootTreeReorderDragDrop(TreeView tree, Func<TreeNodeViewModel, TreeNodeViewModel, bool> move)
+    {
+        TreeNodeViewModel? pending = null;
+        PointerPressedEventArgs? pendingArgs = null;
+        Point pendingPoint = default;
+        TreeNodeViewModel? dragged = null;
+
+        tree.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
+        {
+            var props = e.GetCurrentPoint(tree).Properties;
+            if (!props.IsLeftButtonPressed
+                || (e.Source as Visual)?.FindAncestorOfType<ToggleButton>(true) is not null
+                || (e.Source as Visual)?.FindAncestorOfType<TreeViewItem>(true) is not { } item
+                || item.DataContext is not TreeNodeViewModel node)
+                return;
+            pending = node;
+            pendingArgs = e;
+            pendingPoint = e.GetPosition(tree);
+        }, RoutingStrategies.Tunnel);
+
+        tree.AddHandler(InputElement.PointerMovedEvent, async (_, e) =>
+        {
+            if (pending is not { } source || pendingArgs is not { } pressArgs)
+                return;
+            Point current = e.GetPosition(tree);
+            double dx = current.X - pendingPoint.X;
+            double dy = current.Y - pendingPoint.Y;
+            if (Math.Sqrt(dx * dx + dy * dy) < DragThreshold)
+                return;
+
+            pending = null;
+            pendingArgs = null;
+            dragged = source;
+            var transfer = new DataTransfer();
+            var item = new DataTransferItem();
+            item.Set(DataFormat.Text, source.Name);
+            transfer.Add(item);
+            try { await DragDrop.DoDragDropAsync(pressArgs, transfer, DragDropEffects.Move); }
+            catch { /* An abandoned OS drag is a harmless no-op. */ }
+            finally { dragged = null; }
+        }, RoutingStrategies.Tunnel);
+
+        tree.AddHandler(InputElement.PointerReleasedEvent, (_, _) => { pending = null; pendingArgs = null; }, RoutingStrategies.Tunnel);
+        DragDrop.SetAllowDrop(tree, true);
+        tree.AddHandler(DragDrop.DragOverEvent, (_, e) => { e.DragEffects = DragDropEffects.Move; e.Handled = true; });
+        tree.AddHandler(DragDrop.DropEvent, (_, e) =>
+        {
+            e.Handled = true;
+            if (dragged is not { } source || FindTreeNodeAt(tree, e.GetPosition(tree)) is not { } target
+                || source == target || source.Parent != target.Parent)
+                return;
+            if (move(source, target))
+                ViewModel.LoadCharacter(_character!);
+        });
+    }
+
+    private bool MoveWeapon(TreeNodeViewModel source, TreeNodeViewModel target) => _character != null
+        && Guid.TryParse(source.ItemGuid, out Guid sourceId) && Guid.TryParse(target.ItemGuid, out Guid targetId)
+        && _character.MoveWeapon(sourceId, targetId);
+
+    private bool MoveArmor(TreeNodeViewModel source, TreeNodeViewModel target) => _character != null
+        && source.ArmorId >= 0 && target.ArmorId >= 0 && _character.MoveArmor(source.ArmorId, target.ArmorId);
 }

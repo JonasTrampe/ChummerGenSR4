@@ -84,9 +84,17 @@ With Phase 1 in place, port the calculation methods out of `clsCharacter.cs` /
   onboard gear can also be selected from `gear.xml`, stored with the legacy `Gear.Save` fields,
   costed, and removed by GUID. Direct onboard weapons can also be selected from `weapons.xml`,
   stored with the legacy `Weapon.Save` fields, costed, and removed by GUID. Vehicle locations can
-  be created/deleted and persist in the legacy `<locations>` collection, while item-to-location
-  assignment remains open. Vehicle weapon-mount/mod eligibility/slot validation, and
+  be created/deleted and persist in the legacy `<locations>` collection; direct onboard gear can
+  be assigned to or removed from those locations, and deletion clears affected assignments. Vehicle
+  weapon-mount/mod eligibility/slot validation, and
   rules-data-derived totals remain separate follow-ups.
+
+**Interaction follow-up completed:** Gear and Cyberware's persisted tree reordering is now also
+available to Weapons and Armor. Left-button drag moves an item before a sibling in the same
+weapon location or armor set (or among ungrouped items); location/set assignment remains an
+explicit operation because those are display groups over root-level legacy XML, not parents in
+the saved item tree. Weapon moves use persisted GUIDs; Armor uses a read-time root-list identity
+so duplicate armor purchases are individually reorderable without changing character files.
 
 Each step landed as: Core method + a couple of xUnit tests against a known save file, then
 (where a UI slot already existed) one Avalonia section tab wired to stop showing a hardcoded

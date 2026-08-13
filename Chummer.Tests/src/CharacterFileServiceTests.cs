@@ -654,6 +654,48 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MoveWeapon_ReordersSiblingsAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><weapons>"
+            + "<weapon><guid>" + Guid.NewGuid() + "</guid><name>A</name><category>Pistols</category></weapon>"
+            + "<weapon><guid>" + Guid.NewGuid() + "</guid><name>B</name><category>Pistols</category></weapon>"
+            + "<weapon><guid>" + Guid.NewGuid() + "</guid><name>C</name><category>Pistols</category></weapon>"
+            + "</weapons></character>");
+        Guid guiA = Guid.Parse(character.WeaponTrees[0].ItemGuid);
+        Guid guiC = Guid.Parse(character.WeaponTrees[2].ItemGuid);
+
+        Assert.True(character.MoveWeapon(guiC, guiA));
+        Assert.Equal(new[] { "C", "A", "B" }, character.WeaponTrees.Select(w => w.Name));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(new[] { "C", "A", "B" }, reloaded.WeaponTrees.Select(w => w.Name));
+    }
+
+    [Fact]
+    public void MoveArmor_ReordersSiblingsAndPersists()
+    {
+        CharacterDocument character = LoadXml("<character><armors>"
+            + "<armor><name>A</name><category>Armor</category></armor>"
+            + "<armor><name>B</name><category>Armor</category></armor>"
+            + "<armor><name>C</name><category>Armor</category></armor>"
+            + "</armors></character>");
+        int intA = character.Armor[0].ArmorId;
+        int intC = character.Armor[2].ArmorId;
+
+        Assert.True(character.MoveArmor(intC, intA));
+        Assert.Equal(new[] { "C", "A", "B" }, character.Armor.Select(a => a.Name));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(new[] { "C", "A", "B" }, reloaded.Armor.Select(a => a.Name));
+    }
+
+    [Fact]
     public void MoveCyberware_ReordersRootLevelSiblingsAndPersists()
     {
         CharacterDocument character = LoadXml("<character><cyberwares>"

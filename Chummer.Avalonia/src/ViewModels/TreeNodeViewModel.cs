@@ -39,6 +39,9 @@ public sealed class TreeNodeViewModel
     /// Cyberware/Bioware tree nodes. Stable identity for drag/drop reorder/reparent.</summary>
     public int CyberwareId { get; private set; } = -1;
 
+    /// <summary>Position in the root armor collection, used only to persist armor drag-reordering.</summary>
+    public int ArmorId { get; private set; } = -1;
+
     public string Qty { get; private set; } = "1";
 
     /// <summary>Raw saved capacity - only set for Gear tree nodes.</summary>
@@ -196,6 +199,7 @@ public sealed class TreeNodeViewModel
             ItemGuid = item.ItemGuid,
             GearId = item.GearId,
             CyberwareId = item.CyberwareId,
+            ArmorId = item.ArmorId,
             Qty = item.Qty,
             Capacity = item.Capacity,
             CapacityRemaining = item.CapacityRemaining,

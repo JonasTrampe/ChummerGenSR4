@@ -3255,6 +3255,22 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Moves a root weapon immediately before another root weapon. Weapon locations
+        /// are display-only groups, so both items remain assigned to their existing locations.</summary>
+        public bool MoveWeapon(Guid guiSourceWeaponId, Guid guiTargetWeaponId)
+        {
+            XmlNode? objSource = GetWeaponNodeByGuid(guiSourceWeaponId);
+            XmlNode? objTarget = GetWeaponNodeByGuid(guiTargetWeaponId);
+            if (objSource == null || objTarget == null || objSource == objTarget
+                || objSource.ParentNode == null || objSource.ParentNode != objTarget.ParentNode)
+                return false;
+
+            objSource.ParentNode.RemoveChild(objSource);
+            objTarget.ParentNode.InsertBefore(objSource, objTarget);
+            Changed?.Invoke();
+            return true;
+        }
+
         public bool RemoveWeaponLocation(string strName)
         {
             strName = strName.Trim();
@@ -3583,6 +3599,23 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Moves a root armor item immediately before another one. The operation uses
+        /// transient tree IDs rather than name/category, which keeps duplicate armor purchases
+        /// independently addressable without changing legacy character-file shape.</summary>
+        public bool MoveArmor(int intSourceArmorId, int intTargetArmorId)
+        {
+            XmlNode? objSource = GetArmorNodeById(intSourceArmorId);
+            XmlNode? objTarget = GetArmorNodeById(intTargetArmorId);
+            if (objSource == null || objTarget == null || objSource == objTarget
+                || objSource.ParentNode == null || objSource.ParentNode != objTarget.ParentNode)
+                return false;
+
+            objSource.ParentNode.RemoveChild(objSource);
+            objTarget.ParentNode.InsertBefore(objSource, objTarget);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Deletes a bundle and moves all of its armor back to the ungrouped root.</summary>
         public bool RemoveArmorSet(string strName)
         {
@@ -3750,6 +3783,14 @@ namespace Chummer.Core
                     return objArmor;
             }
             return null;
+        }
+
+        private XmlNode? GetArmorNodeById(int intArmorId)
+        {
+            if (intArmorId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/armors/armor");
+            return objNodes != null && intArmorId < objNodes.Count ? objNodes[intArmorId] : null;
         }
 
         /// <summary>Removes the first saved spell with the supplied name.</summary>
@@ -7078,9 +7119,11 @@ namespace Chummer.Core
             var objNodes = Document.SelectNodes("/character/armors/armor");
             if (objNodes == null) return lstArmor;
 
+            int intArmorId = 0;
             foreach (XmlNode objNode in objNodes)
             {
                 var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
+                objArmor.SetArmorId(intArmorId++);
                 objArmor.SetArmorRatings(GetValue(objNode, "b", "0"), GetValue(objNode, "i", "0"));
                 string strSetName = GetValue(objNode, "armorname", string.Empty);
                 objArmor.SetArmorSetName(strSetName);
@@ -8224,6 +8267,9 @@ namespace Chummer.Core
 
         public string Impact { get; private set; } = string.Empty;
         public string ArmorSetName { get; private set; } = string.Empty;
+        /// <summary>Position in the root &lt;armors&gt; XML collection. It is recomputed when the
+        /// tree is read and is used for reorder operations, including duplicate purchases.</summary>
+        public int ArmorId { get; private set; } = -1;
         public string Location { get; private set; } = string.Empty;
         /// <summary>Persisted GUID for items that have one (including vehicle modifications).</summary>
         public string ItemGuid { get; private set; } = string.Empty;
@@ -8262,6 +8308,7 @@ namespace Chummer.Core
         }
 
         internal void SetArmorSetName(string strSetName) => ArmorSetName = strSetName;
+        internal void SetArmorId(int intArmorId) => ArmorId = intArmorId;
         internal void SetLocation(string strLocation) => Location = strLocation;
         internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
         internal void SetModSlots(string strSlots, bool blnIncluded)
