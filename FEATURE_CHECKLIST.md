@@ -25,7 +25,9 @@ Everything not `[x]`, in one place, grouped by area.
   creation): blocks `MetatypeCostsKarma`, `ExceedPositiveQualities`/`ExceedNegativeQualities`/
   `ExceedNegativeQualitiesLimit`, `FreeKarmaKnowledge`, `SpecialAttributeKarmaLimit`,
   `SpecialKarmaCostBasedOnShownValue`, `BreakSkillGroupsInCreateMode`.
-- [ ] **No Complex Form cost calculation**: blocks `AlternateComplexFormCost`.
+- [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
+  `AlternateComplexFormCost` costs and charges Career purchases. Creation still needs the
+  document-wide budget tracker before its points-remaining total can include Complex Forms.
 - [ ] **No Armor capacity-remaining tracking**: blocks `ArmorSuitCapacity`,
   `MaximumArmorModifications`, `ArmorDegradation`.
 - [x] Technomancer Complex-Form eligibility: picker is Technomancer-only, Autosofts honor

@@ -1617,6 +1617,39 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ComputeComplexFormKarmaCost_UsesConfiguredRules()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions
+        {
+            KarmaNewComplexForm = 2,
+            KarmaImproveComplexForm = 3,
+            KarmaComplexFormSkillsoft = 4,
+            KarmaSpell = 5
+        });
+
+        Assert.Equal(17, character.ComputeComplexFormKarmaCost("Common Use", 3));
+        Assert.Equal(12, character.ComputeComplexFormKarmaCost("Skillsofts", 3));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AlternateComplexFormCost = true, KarmaSpell = 5 });
+        Assert.Equal(5, character.ComputeComplexFormKarmaCost("Common Use", 3));
+    }
+
+    [Fact]
+    public void AddComplexForm_CareerChargesKarmaButCreationDoesNot()
+    {
+        CharacterDocument career = LoadXml("<character><created>True</created><karma>5</karma></character>");
+        career.SetCharacterOptionsForTesting(new CharacterOptions { KarmaNewComplexForm = 2 });
+        Assert.True(career.AddComplexForm("Editor", "Common Use", "SR4", "232"));
+        Assert.Equal("3", career.Karma);
+
+        CharacterDocument creation = LoadXml("<character><created>False</created><karma>0</karma></character>");
+        creation.SetCharacterOptionsForTesting(new CharacterOptions { KarmaNewComplexForm = 2 });
+        Assert.True(creation.AddComplexForm("Editor", "Common Use", "SR4", "232"));
+        Assert.Equal("0", creation.Karma);
+    }
+
+    [Fact]
     public void RemoveComplexForm_RemovesOnlyTheMatchingEntry()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

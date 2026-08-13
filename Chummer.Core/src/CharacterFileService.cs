@@ -5654,7 +5654,7 @@ namespace Chummer.Core
             if (intRating < 1) return 0;
             CharacterOptions objOptions = GetCharacterOptions();
             if (objOptions.AlternateComplexFormCost)
-                return intRating * objOptions.KarmaSpell;
+                return objOptions.KarmaSpell;
             if (string.Equals(strCategory, "Skillsofts", StringComparison.Ordinal))
                 return intRating * objOptions.KarmaComplexFormSkillsoft;
             int intCost = objOptions.KarmaNewComplexForm;
@@ -5696,7 +5696,10 @@ namespace Chummer.Core
                 throw new ArgumentException("A complex form name is required.", nameof(strName));
 
             int intCost = ComputeComplexFormKarmaCost(strCategory, 1);
-            if (int.TryParse(Karma, out int intKarma) && intKarma < intCost)
+            // Character creation derives its remaining BP/Karma from the complete document,
+            // rather than deducting individual purchases. Career purchases spend Karma directly.
+            bool blnCareer = Created;
+            if (blnCareer && int.TryParse(Karma, out int intKarma) && intKarma < intCost)
                 return false;
 
             var objRoot = Document.DocumentElement
@@ -5725,7 +5728,7 @@ namespace Chummer.Core
             ApplyBonus(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
 
-            if (int.TryParse(Karma, out intKarma))
+            if (blnCareer && int.TryParse(Karma, out intKarma))
                 Karma = (intKarma - intCost).ToString(CultureInfo.InvariantCulture);
 
             Changed?.Invoke();
