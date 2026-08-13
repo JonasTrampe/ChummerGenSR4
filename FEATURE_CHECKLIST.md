@@ -106,7 +106,7 @@ Everything not `[x]`, in one place, grouped by area.
   Sprite, Reapply Improvements, and BP-availability override; all are currently absent, not retired.
 - [ ] Legacy item clipboard (copy/paste) and `frmHistory` character-history workflow.
 - [~] Per-item rename and notes: Gear (including nested Gear), root Weapons, Armor, Quality,
-  Spell, Adept Power, Martial Art, Maneuver, Metamagic, Complex Form, Critter Power, and Lifestyle
+  Spell, Spirit/Sprite, Adept Power, Martial Art, Maneuver, Metamagic, Complex Form, Critter Power, and Lifestyle
   notes have safe persisted paths; Armor sets are separate from legacy armor labels. Qualities,
   Spells, Adept Powers, Martial Arts, Maneuvers, Metamagics, Complex Forms, Critter Powers, and
   Lifestyles have no legacy custom-name field. Weapon accessories/modifications, attached gear

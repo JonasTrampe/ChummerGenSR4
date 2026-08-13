@@ -66,6 +66,7 @@
                 <TextBlock Text="{loc:Loc Label_Spirits}" FontWeight="Bold" Margin="0,0,0,4" />
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                     <Button Content="{loc:Loc Label_Options_Spirit}" Click="OnAddSpiritClick" />
+                    <Button Content="{loc:Loc Tab_Notes}" Click="OnEditSpiritNotesClick" />
                     <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpiritClick" />
                 </StackPanel>
                 <ListBox ItemsSource="{Binding Spirits}" SelectedItem="{Binding SelectedSpirit, Mode=TwoWay}">
@@ -75,6 +76,7 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+                <TextBlock Text="{Binding SelectedSpirit.Notes, StringFormat='Notizen: {0}'}" TextWrapping="Wrap" />
             </StackPanel>
         </Border>
 

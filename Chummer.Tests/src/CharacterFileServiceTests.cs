@@ -2952,6 +2952,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SpiritNotes_PersistForDuplicateSummonsByListIdentity()
+    {
+        CharacterDocument character = LoadXml("<character><spirits>"
+            + "<spirit><name>Fire Spirit</name><type>Spirit</type><force>4</force></spirit>"
+            + "<spirit><name>Fire Spirit</name><type>Spirit</type><force>4</force></spirit>"
+            + "</spirits></character>");
+        int spiritId = character.Spirits[1].SpiritId;
+        Assert.True(character.SetSpiritNotes(spiritId, "Bound for the next run."));
+        Assert.Equal(string.Empty, character.Spirits[0].Notes);
+        Assert.Equal("Bound for the next run.", character.Spirits[1].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Bound for the next run.", reloaded.Spirits[1].Notes);
+    }
+
+    [Fact]
     public void RemoveSpirit_RemovesOnlyTheMatchingSpirit()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

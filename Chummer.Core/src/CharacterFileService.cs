@@ -6661,6 +6661,19 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Updates a Spirit/Sprite note by the same transient list identity used by the
+        /// reader. Legacy spirit entries do not carry a GUID, and duplicate summons are valid.</summary>
+        public bool SetSpiritNotes(int intSpiritId, string strNotes)
+        {
+            XmlNodeList? objNodes = Document.SelectNodes("/character/spirits/spirit");
+            if (objNodes == null || intSpiritId < 0 || intSpiritId >= objNodes.Count)
+                return false;
+
+            SetChildValue(objNodes[intSpiritId]!, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades => ReadInitiationGrades();
 
         /// <summary>Current Initiate (Magician) or Submersion (Technomancer) Grade - the count of
@@ -9216,11 +9229,14 @@ namespace Chummer.Core
             var lstSpirits = new List<CharacterSpiritData>();
             var objNodes = Document.SelectNodes("/character/spirits/spirit");
             if (objNodes == null) return lstSpirits;
-            foreach (XmlNode objNode in objNodes)
+            for (int intSpiritId = 0; intSpiritId < objNodes.Count; intSpiritId++)
+            {
+                XmlNode objNode = objNodes[intSpiritId]!;
                 lstSpirits.Add(new CharacterSpiritData(GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "crittername", string.Empty), GetValue(objNode, "services", "0"),
                     GetValue(objNode, "force", "0"), GetValue(objNode, "bound", "False") == "True",
-                    GetValue(objNode, "type", "Spirit")));
+                    GetValue(objNode, "type", "Spirit"), intSpiritId, GetValue(objNode, "notes", string.Empty)));
+            }
             return lstSpirits;
         }
 
@@ -10434,7 +10450,7 @@ namespace Chummer.Core
     public sealed class CharacterSpiritData
     {
         internal CharacterSpiritData(string strName, string strCritterName, string strServices, string strForce,
-            bool blnBound, string strType)
+            bool blnBound, string strType, int intSpiritId, string strNotes)
         {
             Name = strName;
             CritterName = strCritterName;
@@ -10442,6 +10458,8 @@ namespace Chummer.Core
             Force = strForce;
             Bound = blnBound;
             Type = strType;
+            SpiritId = intSpiritId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
@@ -10450,6 +10468,8 @@ namespace Chummer.Core
         public string Force { get; }
         public bool Bound { get; }
         public string Type { get; }
+        public int SpiritId { get; }
+        public string Notes { get; }
 
         public string DisplayName => string.IsNullOrEmpty(CritterName) ? Name : Name + " (" + CritterName + ")";
     }

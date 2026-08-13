@@ -16,6 +16,8 @@ public sealed class SpiritRowViewModel
     public string Name { get; }
     public string Type { get; }
     public string Force { get; }
+    public int SpiritId { get; }
+    public string Notes { get; }
 
     public SpiritRowViewModel(CharacterSpiritData spirit)
     {
@@ -24,6 +26,8 @@ public sealed class SpiritRowViewModel
         Name = spirit.Name;
         Type = spirit.Type;
         Force = spirit.Force;
+        SpiritId = spirit.SpiritId;
+        Notes = spirit.Notes;
     }
 }
 

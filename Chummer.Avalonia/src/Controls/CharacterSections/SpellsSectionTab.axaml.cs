@@ -107,6 +107,18 @@ public partial class SpellsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnEditSpiritNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedSpirit is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetSpiritNotes(selected.SpiritId, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddComplexFormClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
