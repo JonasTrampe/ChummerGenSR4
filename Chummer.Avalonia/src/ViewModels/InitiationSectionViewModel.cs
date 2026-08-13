@@ -8,12 +8,14 @@ public sealed class MetamagicRowViewModel
     public string Guid { get; }
     public string Name { get; }
     public string SourcePage { get; }
+    public string Notes { get; }
 
     public MetamagicRowViewModel(CharacterMetamagicData metamagic)
     {
         Guid = metamagic.Guid;
         Name = metamagic.Name;
         SourcePage = metamagic.SourcePage;
+        Notes = metamagic.Notes;
     }
 }
 

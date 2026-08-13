@@ -8,6 +8,7 @@
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                 <Button Content="{loc:Loc Button_AddMetamagic}" Click="OnAddMetamagicClick" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditMetamagicNotesClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteMetamagicClick" />
             </StackPanel>
             <TextBlock DockPanel.Dock="Top" Text="{loc:Loc UI_InitiateGrades}" FontWeight="Bold" Margin="0,0,0,2" />
@@ -57,8 +58,7 @@
                 <TextBlock Text="{loc:Loc Label_Group}" VerticalAlignment="Center" Margin="0,0,6,0" />
                 <TextBox Grid.Column="1" />
             </Grid>
-            <TextBlock Text="{loc:Loc Label_Notes}" FontWeight="Bold" />
-            <Border Classes="groupBox" Height="120" />
+            <TextBlock Text="{Binding SelectedMetamagic.Notes, StringFormat='Notizen: {0}'}" TextWrapping="Wrap" />
         </StackPanel>
     </Grid>
 </UserControl>

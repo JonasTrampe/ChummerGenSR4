@@ -60,6 +60,18 @@ public partial class InitiationSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnEditMetamagicNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedMetamagic is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetMetamagicNotes(selected.Guid, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnRaiseInitiateGradeClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)

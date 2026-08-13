@@ -2355,6 +2355,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MetamagicNotes_PersistForTheMatchingGuid()
+    {
+        CharacterDocument character = LoadXml("<character><metamagics>"
+            + "<metamagic><guid>first</guid><name>Centering</name></metamagic>"
+            + "<metamagic><guid>second</guid><name>Centering</name></metamagic>"
+            + "</metamagics></character>");
+
+        Assert.True(character.SetMetamagicNotes("second", "Second entry only"));
+        Assert.Equal(string.Empty, character.Metamagics[0].Notes);
+        Assert.Equal("Second entry only", character.Metamagics[1].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Second entry only", reloaded.Metamagics[1].Notes);
+    }
+
+    [Fact]
     public void AddMetamagic_AttunementAnimal_AppliesThePlayerEnteredTextAsAnImprovement()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

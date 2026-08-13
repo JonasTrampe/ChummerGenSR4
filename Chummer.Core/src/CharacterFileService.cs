@@ -6770,6 +6770,21 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Updates a Metamagic's free-form notes using its persistent character GUID.</summary>
+        public bool SetMetamagicNotes(string strGuid, string strNotes)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+            XmlNode? objMetamagic = Document.SelectSingleNode(
+                $"/character/metamagics/metamagic[guid = '{strGuid}']");
+            if (objMetamagic == null)
+                return false;
+
+            SetChildValue(objMetamagic, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         private IReadOnlyList<CharacterMetamagicData> ReadMetamagics()
         {
             var lstMetamagics = new List<CharacterMetamagicData>();
@@ -6778,7 +6793,7 @@ namespace Chummer.Core
             foreach (XmlNode objNode in objNodes)
                 lstMetamagics.Add(new CharacterMetamagicData(GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty), GetValue(objNode, "source", string.Empty),
-                    GetValue(objNode, "page", string.Empty)));
+                    GetValue(objNode, "page", string.Empty), GetValue(objNode, "notes", string.Empty)));
             return lstMetamagics;
         }
 
@@ -9801,18 +9816,21 @@ namespace Chummer.Core
 
     public sealed class CharacterMetamagicData
     {
-        internal CharacterMetamagicData(string strGuid, string strName, string strSource, string strPage)
+        internal CharacterMetamagicData(string strGuid, string strName, string strSource, string strPage,
+            string strNotes)
         {
             Guid = strGuid;
             Name = strName;
             Source = strSource;
             Page = strPage;
+            Notes = strNotes;
         }
 
         public string Guid { get; }
         public string Name { get; }
         public string Source { get; }
         public string Page { get; }
+        public string Notes { get; }
         public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
     }
 
