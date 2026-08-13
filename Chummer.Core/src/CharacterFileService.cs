@@ -351,8 +351,9 @@ namespace Chummer.Core
             if (objNodes == null)
                 return;
 
-            foreach (XmlNode objNode in objNodes)
+            for (int intMartialArtId = 0; intMartialArtId < objNodes.Count; intMartialArtId++)
             {
+                XmlNode objNode = objNodes[intMartialArtId]!;
                 string strNodeGuid = GetValue(objNode, "guid", string.Empty);
                 SetChildValue(objNode, "active", strNodeGuid == strGuid ? "True" : "False");
             }
@@ -5897,6 +5898,60 @@ namespace Chummer.Core
             return false;
         }
 
+        public bool RemoveMartialArt(int intMartialArtId)
+        {
+            XmlNode? objMartialArt = GetMartialArtNodeById(intMartialArtId);
+            if (objMartialArt == null)
+                return false;
+            objMartialArt.ParentNode?.RemoveChild(objMartialArt);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool RemoveMartialArtManeuver(int intManeuverId)
+        {
+            XmlNode? objManeuver = GetMartialArtManeuverNodeById(intManeuverId);
+            if (objManeuver == null)
+                return false;
+            objManeuver.ParentNode?.RemoveChild(objManeuver);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool SetMartialArtNotes(int intMartialArtId, string strNotes)
+        {
+            XmlNode? objMartialArt = GetMartialArtNodeById(intMartialArtId);
+            if (objMartialArt == null)
+                return false;
+            SetChildValue(objMartialArt, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool SetMartialArtManeuverNotes(int intManeuverId, string strNotes)
+        {
+            XmlNode? objManeuver = GetMartialArtManeuverNodeById(intManeuverId);
+            if (objManeuver == null)
+                return false;
+            SetChildValue(objManeuver, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetMartialArtNodeById(int intMartialArtId)
+        {
+            if (intMartialArtId < 0) return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/martialarts/martialart");
+            return objNodes != null && intMartialArtId < objNodes.Count ? objNodes[intMartialArtId] : null;
+        }
+
+        private XmlNode? GetMartialArtManeuverNodeById(int intManeuverId)
+        {
+            if (intManeuverId < 0) return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/martialartmaneuvers/martialartmaneuver");
+            return objNodes != null && intManeuverId < objNodes.Count ? objNodes[intManeuverId] : null;
+        }
+
         public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
 
         /// <summary>Ported from frmSelectPower.cs's cmdOK_Click. Also applies the power's own
@@ -6391,8 +6446,9 @@ namespace Chummer.Core
             var lstForms = new List<CharacterComplexFormData>();
             var objNodes = Document.SelectNodes("/character/techprograms/techprogram");
             if (objNodes == null) return lstForms;
-            foreach (XmlNode objNode in objNodes)
+            for (int intMartialArtId = 0; intMartialArtId < objNodes.Count; intMartialArtId++)
             {
+                XmlNode objNode = objNodes[intMartialArtId]!;
                 var lstOptions = new List<(string Name, string Rating)>();
                 var objOptionNodes = objNode.SelectNodes("programoptions/programoption");
                 if (objOptionNodes != null)
@@ -8618,8 +8674,9 @@ namespace Chummer.Core
             var lstMartialArts = new List<CharacterMartialArtData>();
             var objNodes = Document.SelectNodes("/character/martialarts/martialart");
             if (objNodes == null) return lstMartialArts;
-            foreach (XmlNode objNode in objNodes)
+            for (int intMartialArtId = 0; intMartialArtId < objNodes.Count; intMartialArtId++)
             {
+                XmlNode objNode = objNodes[intMartialArtId]!;
                 var lstAdvantages = new List<string>();
                 var objAdvantageNodes = objNode.SelectNodes("martialartadvantages/martialartadvantage");
                 if (objAdvantageNodes != null)
@@ -8628,7 +8685,8 @@ namespace Chummer.Core
 
                 lstMartialArts.Add(new CharacterMartialArtData(GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "rating", "0"), GetValue(objNode, "source", string.Empty),
-                    GetValue(objNode, "page", string.Empty), lstAdvantages));
+                    GetValue(objNode, "page", string.Empty), lstAdvantages, intMartialArtId,
+                    GetValue(objNode, "notes", string.Empty)));
             }
 
             return lstMartialArts;
@@ -8639,8 +8697,12 @@ namespace Chummer.Core
             var lstManeuvers = new List<CharacterMartialArtManeuverData>();
             var objNodes = Document.SelectNodes("/character/martialartmaneuvers/martialartmaneuver");
             if (objNodes == null) return lstManeuvers;
-            foreach (XmlNode objNode in objNodes)
-                lstManeuvers.Add(new CharacterMartialArtManeuverData(GetValue(objNode, "name", string.Empty)));
+            for (int intManeuverId = 0; intManeuverId < objNodes.Count; intManeuverId++)
+            {
+                XmlNode objNode = objNodes[intManeuverId]!;
+                lstManeuvers.Add(new CharacterMartialArtManeuverData(GetValue(objNode, "name", string.Empty),
+                    intManeuverId, GetValue(objNode, "notes", string.Empty)));
+            }
             return lstManeuvers;
         }
 
@@ -9702,13 +9764,15 @@ namespace Chummer.Core
     public sealed class CharacterMartialArtData
     {
         internal CharacterMartialArtData(string strName, string strRating, string strSource, string strPage,
-            IReadOnlyList<string> lstAdvantages)
+            IReadOnlyList<string> lstAdvantages, int intMartialArtId, string strNotes)
         {
             Name = strName;
             Rating = strRating;
             Source = strSource;
             Page = strPage;
             Advantages = lstAdvantages;
+            MartialArtId = intMartialArtId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
@@ -9717,16 +9781,22 @@ namespace Chummer.Core
         public string Page { get; }
         public string SourcePage => string.IsNullOrWhiteSpace(Page) ? Source : Source + " " + Page;
         public IReadOnlyList<string> Advantages { get; }
+        public int MartialArtId { get; }
+        public string Notes { get; }
     }
 
     public sealed class CharacterMartialArtManeuverData
     {
-        internal CharacterMartialArtManeuverData(string strName)
+        internal CharacterMartialArtManeuverData(string strName, int intManeuverId, string strNotes)
         {
             Name = strName;
+            ManeuverId = intManeuverId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
+        public int ManeuverId { get; }
+        public string Notes { get; }
     }
 
     public sealed class CharacterMetamagicData

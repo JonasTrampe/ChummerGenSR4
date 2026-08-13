@@ -36,11 +36,31 @@ public partial class MartialArtsSectionTab : UserControl
 
         bool removed = selected.Kind switch
         {
-            MartialArtsItemKind.MartialArt => _character.RemoveMartialArt(selected.Name),
-            MartialArtsItemKind.Maneuver => _character.RemoveMartialArtManeuver(selected.Name),
+            MartialArtsItemKind.MartialArt => _character.RemoveMartialArt(selected.ItemId),
+            MartialArtsItemKind.Maneuver => _character.RemoveMartialArtManeuver(selected.ItemId),
             _ => false
         };
         if (removed)
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedItem is not { ItemId: >= 0 } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) != true)
+            return;
+
+        bool saved = selected.Kind switch
+        {
+            MartialArtsItemKind.MartialArt => _character.SetMartialArtNotes(selected.ItemId, dialog.Notes),
+            MartialArtsItemKind.Maneuver => _character.SetMartialArtManeuverNotes(selected.ItemId, dialog.Notes),
+            _ => false
+        };
+        if (saved)
             ViewModel.LoadCharacter(_character);
     }
 

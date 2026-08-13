@@ -2504,6 +2504,31 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void MartialArtAndManeuverNotes_PersistAndIdBasedRemovalKeepsDuplicates()
+    {
+        CharacterDocument character = LoadXml("<character><martialarts>"
+            + "<martialart><name>Boxing</name></martialart><martialart><name>Boxing</name></martialart>"
+            + "</martialarts><martialartmaneuvers>"
+            + "<martialartmaneuver><name>Clinch</name></martialartmaneuver>"
+            + "<martialartmaneuver><name>Clinch</name></martialartmaneuver>"
+            + "</martialartmaneuvers></character>");
+
+        Assert.True(character.SetMartialArtNotes(character.MartialArts[1].MartialArtId, "Second art"));
+        Assert.True(character.SetMartialArtManeuverNotes(character.MartialArtManeuvers[1].ManeuverId, "Second maneuver"));
+        Assert.True(character.RemoveMartialArt(character.MartialArts[0].MartialArtId));
+        Assert.True(character.RemoveMartialArtManeuver(character.MartialArtManeuvers[0].ManeuverId));
+        Assert.Equal("Second art", Assert.Single(character.MartialArts).Notes);
+        Assert.Equal("Second maneuver", Assert.Single(character.MartialArtManeuvers).Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Second art", Assert.Single(reloaded.MartialArts).Notes);
+        Assert.Equal("Second maneuver", Assert.Single(reloaded.MartialArtManeuvers).Notes);
+    }
+
+    [Fact]
     public void AddMartialArtManeuver_MutatesCharacterAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
