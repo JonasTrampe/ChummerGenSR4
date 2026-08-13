@@ -3781,6 +3781,22 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Updates a saved weapon accessory or modification's notes by its own GUID,
+        /// scoped to its parent root weapon.</summary>
+        public bool SetWeaponPartNotes(Guid guiWeaponId, Guid guiPartId, string strNotes)
+        {
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            XmlNode? objPart = objWeapon?.SelectSingleNode(
+                $"accessories/accessory[guid = '{guiPartId}']")
+                ?? objWeapon?.SelectSingleNode($"weaponmods/weaponmod[guid = '{guiPartId}']");
+            if (objPart == null)
+                return false;
+
+            SetChildValue(objPart, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Updates the legacy player-facing <c>weaponname</c> field, keeping the raw
         /// name used for data lookups and calculations unchanged.</summary>
         public bool SetWeaponCustomName(int intWeaponId, string strCustomName)

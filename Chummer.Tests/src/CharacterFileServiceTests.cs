@@ -2412,6 +2412,29 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void WeaponPartNotes_PersistForTheSelectedAccessoryAndMod()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><guid>00000000-0000-0000-0000-000000000001</guid><name>Pistol</name>"
+            + "<accessories><accessory><guid>00000000-0000-0000-0000-000000000002</guid><name>Laser Sight</name></accessory></accessories>"
+            + "<weaponmods><weaponmod><guid>00000000-0000-0000-0000-000000000003</guid><name>Smartgun System</name></weaponmod></weaponmods>"
+            + "</weapon></weapons></character>");
+        Assert.True(character.SetWeaponPartNotes(Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            Guid.Parse("00000000-0000-0000-0000-000000000002"), "Accessory note"));
+        Assert.True(character.SetWeaponPartNotes(Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            Guid.Parse("00000000-0000-0000-0000-000000000003"), "Mod note"));
+
+        Assert.Equal("Accessory note", character.WeaponTrees[0].Children[0].Notes);
+        Assert.Equal("Mod note", character.WeaponTrees[0].Children[1].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Accessory note", reloaded.WeaponTrees[0].Children[0].Notes);
+        Assert.Equal("Mod note", reloaded.WeaponTrees[0].Children[1].Notes);
+    }
+
+    [Fact]
     public void AddMetamagic_AttunementAnimal_AppliesThePlayerEnteredTextAsAnImprovement()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

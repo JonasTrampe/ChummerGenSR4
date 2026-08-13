@@ -286,13 +286,25 @@ public partial class GearSectionTab : UserControl
 
     private async void OnEditWeaponNotesClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null, WeaponId: >= 0 } weapon
+        if (_character == null || ViewModel.SelectedWeapon is not { } weapon
             || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
         var dialog = new ContactNotesDialog { Notes = weapon.Notes };
-        if (await dialog.ShowDialog<bool>(window) && _character.SetWeaponNotes(weapon.WeaponId, dialog.Notes))
+        if (await dialog.ShowDialog<bool>(window) && SetWeaponNotes(weapon, dialog.Notes))
             ViewModel.LoadCharacter(_character);
+    }
+
+    private bool SetWeaponNotes(TreeNodeViewModel weapon, string strNotes)
+    {
+        if (_character == null)
+            return false;
+        if (weapon.Parent == null && weapon.WeaponId >= 0)
+            return _character.SetWeaponNotes(weapon.WeaponId, strNotes);
+        return weapon is { IsWeaponPart: true, Parent: { } parent }
+            && Guid.TryParse(parent.ItemGuid, out Guid guiWeaponId)
+            && Guid.TryParse(weapon.ItemGuid, out Guid guiPartId)
+            && _character.SetWeaponPartNotes(guiWeaponId, guiPartId, strNotes);
     }
 
     private async void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
