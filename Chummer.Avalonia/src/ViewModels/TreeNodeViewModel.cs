@@ -149,6 +149,8 @@ public sealed class TreeNodeViewModel
     public bool IsWeaponAccessory { get; private set; }
 
     public bool IsWeaponMod { get; private set; }
+    public bool IsWeaponPart => IsWeaponAccessory || IsWeaponMod;
+    public bool IncludedInWeapon { get; private set; }
 
     /// <summary>Name, with the ballistic/impact rating appended for Armor tree nodes, or the
     /// quantity appended for Gear tree nodes with more than one.</summary>
@@ -224,7 +226,8 @@ public sealed class TreeNodeViewModel
             WeaponRc = item.WeaponRc,
             AmmoStatus = item.AmmoStatus,
             IsWeaponAccessory = item.IsWeaponAccessory,
-            IsWeaponMod = item.IsWeaponMod
+            IsWeaponMod = item.IsWeaponMod,
+            IncludedInWeapon = item.IncludedInWeapon
         };
         foreach (CharacterTreeItemData child in item.Children)
             node.AddChild(FromTreeItem(child));

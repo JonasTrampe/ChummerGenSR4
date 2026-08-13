@@ -176,6 +176,10 @@ namespace Chummer.Core
         /// acquired in an Extended form is active for this character.</summary>
         public bool ExtendAnyDetectionSpellEnabled => GetCharacterOptions().ExtendAnyDetectionSpell;
 
+        /// <summary>Whether the house rule permits changing a weapon accessory or modification's
+        /// <c>included</c> flag after it has been added to a base weapon.</summary>
+        public bool AllowEditPartOfBaseWeaponEnabled => GetCharacterOptions().AllowEditPartOfBaseWeapon;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -3578,6 +3582,32 @@ namespace Chummer.Core
             if (objAccessory?.ParentNode == null)
                 return false;
             objAccessory.ParentNode.RemoveChild(objAccessory);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Changes whether an accessory or weapon modification is included in its base
+        /// weapon. Included mods do not consume the normal six modification slots, so moving one
+        /// out of the base weapon also observes EnforceCapacity.</summary>
+        public bool SetWeaponPartIncluded(Guid guiWeaponId, Guid guiPartId, bool blnIncluded)
+        {
+            if (!AllowEditPartOfBaseWeaponEnabled)
+                return false;
+
+            XmlNode? objWeapon = GetWeaponNodeByGuid(guiWeaponId);
+            if (objWeapon == null)
+                return false;
+            XmlNode? objPart = objWeapon.SelectSingleNode($"accessories/accessory[guid = '{guiPartId}']")
+                ?? objWeapon.SelectSingleNode($"weaponmods/weaponmod[guid = '{guiPartId}']");
+            if (objPart == null)
+                return false;
+
+            bool blnIsMod = string.Equals(objPart.Name, "weaponmod", StringComparison.Ordinal);
+            if (!blnIncluded && blnIsMod && GetCharacterOptions().EnforceCapacity
+                && !WeaponHasModSlotsAvailable(objWeapon, GetValue(objPart, "slots", "0")))
+                return false;
+
+            SetChildValue(objPart, "included", blnIncluded.ToString());
             Changed?.Invoke();
             return true;
         }
@@ -7532,6 +7562,13 @@ namespace Chummer.Core
                     objChild.IsWeaponAccessory = true;
                 else if (!string.IsNullOrEmpty(objChild.ItemGuid) && setModGuids.Contains(objChild.ItemGuid))
                     objChild.IsWeaponMod = true;
+
+                if (objChild.IsWeaponPart)
+                {
+                    XmlNode? objPart = objWeaponNode.SelectSingleNode($"accessories/accessory[guid = '{objChild.ItemGuid}']")
+                        ?? objWeaponNode.SelectSingleNode($"weaponmods/weaponmod[guid = '{objChild.ItemGuid}']");
+                    objChild.SetWeaponPartIncluded(objPart != null && GetValue(objPart, "included", "False") == "True");
+                }
             }
         }
 
@@ -8677,6 +8714,11 @@ namespace Chummer.Core
         /// rationale as IsWeaponAccessory.</summary>
         public bool IsWeaponMod { get; internal set; }
 
+        /// <summary>True for a weapon accessory/mod child; its <see cref="IncludedInWeapon"/>
+        /// flag means it is part of the base weapon rather than an added purchase.</summary>
+        public bool IsWeaponPart => IsWeaponAccessory || IsWeaponMod;
+        public bool IncludedInWeapon { get; private set; }
+
         internal void SetArmorRatings(string strBallistic, string strImpact)
         {
             Ballistic = strBallistic;
@@ -8711,6 +8753,8 @@ namespace Chummer.Core
         public string WeaponRc { get; private set; } = string.Empty;
 
         internal void SetWeaponRc(string strRc) => WeaponRc = strRc;
+
+        internal void SetWeaponPartIncluded(bool blnIncluded) => IncludedInWeapon = blnIncluded;
 
         /// <summary>"12/30 (Ammo: Regular Ammo)" - style summary of what's currently loaded, empty
         /// when nothing is loaded. Only set for root Weapon nodes. See

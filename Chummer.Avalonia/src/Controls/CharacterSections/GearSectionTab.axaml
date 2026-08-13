@@ -138,6 +138,11 @@
                             <TextBlock Grid.Row="3" Text="{loc:Loc UI_InstalledColon}" Width="90" />
                             <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
                         </Grid>
+                        <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding SelectedWeapon.IsWeaponPart}">
+                            <TextBlock Text="In Grundwaffe enthalten:" Width="150" />
+                            <CheckBox Grid.Column="1" IsChecked="{Binding SelectedWeapon.IncludedInWeapon}"
+                                      IsEnabled="{Binding CanEditWeaponParts}" Click="OnToggleWeaponPartIncludedClick" />
+                        </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc UI_CostAvailColon}" Width="90" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">

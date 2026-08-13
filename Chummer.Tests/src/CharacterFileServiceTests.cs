@@ -917,6 +917,43 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SetWeaponPartIncluded_RequiresHouseRuleAndPersistsForAccessoryAndMod()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        Assert.True(character.AddWeaponAccessory(guiWeaponId, "Laser Sight", "Top", "", "4", "200", "SR4", "321"));
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "1", "1", "0", "100", "SR4", "148"));
+
+        CharacterTreeItemData weapon = character.WeaponTrees.Single();
+        Guid guiAccessoryId = Guid.Parse(weapon.Children.Single(c => c.IsWeaponAccessory).ItemGuid);
+        Guid guiModId = Guid.Parse(weapon.Children.Single(c => c.IsWeaponMod).ItemGuid);
+        Assert.False(character.SetWeaponPartIncluded(guiWeaponId, guiAccessoryId, true));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowEditPartOfBaseWeapon = true });
+        Assert.True(character.SetWeaponPartIncluded(guiWeaponId, guiAccessoryId, true));
+        Assert.True(character.SetWeaponPartIncluded(guiWeaponId, guiModId, true));
+        weapon = character.WeaponTrees.Single();
+        Assert.All(weapon.Children.Where(c => c.IsWeaponPart), c => Assert.True(c.IncludedInWeapon));
+    }
+
+    [Fact]
+    public void SetWeaponPartIncluded_DoesNotBypassModificationSlotCapacity()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid guiWeaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowEditPartOfBaseWeapon = true, EnforceCapacity = false });
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "1", "6", "0", "100", "SR4", "148"));
+        Guid guiModId = Guid.Parse(character.WeaponTrees.Single().Children.Single().ItemGuid);
+        Assert.True(character.SetWeaponPartIncluded(guiWeaponId, guiModId, true));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowEditPartOfBaseWeapon = true, EnforceCapacity = true });
+        Assert.True(character.AddWeaponMod(guiWeaponId, "Custom Look", "1", "6", "0", "100", "SR4", "148"));
+        Assert.False(character.SetWeaponPartIncluded(guiWeaponId, guiModId, false));
+    }
+
+    [Fact]
     public void Weapon_DicePool_MatchesTheLinkedActiveSkillsTotalValue()
     {
         // "Assault Rifles" maps to Automatics per clsEquipment.cs's Weapon.DicePool switch.

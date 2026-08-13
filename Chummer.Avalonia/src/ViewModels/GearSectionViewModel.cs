@@ -185,10 +185,14 @@ public sealed class GearSectionViewModel : ViewModelBase
         set => SetField(ref _strArmorEncumbrance, value);
     }
 
+    private bool _blnCanEditWeaponParts;
+    public bool CanEditWeaponParts { get => _blnCanEditWeaponParts; private set => SetField(ref _blnCanEditWeaponParts, value); }
+
     public void LoadCharacter(CharacterDocument character)
     {
         _character = character;
         ArmorDegradationEnabled = character.ArmorDegradationEnabled;
+        CanEditWeaponParts = character.AllowEditPartOfBaseWeaponEnabled;
         _lstAllGear = character.Gear.ToList();
         ApplyGearFilter();
 

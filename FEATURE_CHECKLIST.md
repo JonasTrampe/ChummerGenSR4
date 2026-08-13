@@ -36,8 +36,10 @@ Everything not `[x]`, in one place, grouped by area.
   Matrix Initiative branch.
 - [x] `ExtendAnyDetectionSpell`: picker toggle, save-compatible `extended` flag, +2 Drain display,
   and duplicate rules-data variant suppression match the legacy flow.
+- [x] `AllowEditPartOfBaseWeapon`: the weapon detail pane can toggle an Accessory/Mod's persisted
+  `included` flag only when the rule is on; moving a mod out preserves the six-slot capacity gate.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
-  `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`, `AllowHigherStackedFoci`,
+  `AllowCustomTransgenics`, `AllowHigherStackedFoci`,
   `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
 - Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
   `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,

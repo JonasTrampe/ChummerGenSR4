@@ -341,6 +341,18 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnToggleWeaponPartIncludedClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || sender is not CheckBox { IsChecked: { } blnIncluded }
+            || ViewModel.SelectedWeapon is not { IsWeaponPart: true, Parent: { } parent } part
+            || !Guid.TryParse(parent.ItemGuid, out Guid guiWeaponId)
+            || !Guid.TryParse(part.ItemGuid, out Guid guiPartId))
+            return;
+
+        if (_character.SetWeaponPartIncluded(guiWeaponId, guiPartId, blnIncluded))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddArmorClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
