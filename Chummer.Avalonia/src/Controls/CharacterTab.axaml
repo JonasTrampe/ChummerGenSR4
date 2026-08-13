@@ -10,13 +10,13 @@
             <Grid ColumnDefinitions="*,4,270">
 
                 <TabControl Grid.Column="0">
-                    <TabItem Header="Allgemein">
+                    <TabItem Header="{loc:Loc Tab_Common}">
                         <sections:GeneralSectionTab Name="GeneralTab" />
                     </TabItem>
-                    <TabItem Header="Fertigkeiten">
+                    <TabItem Header="{loc:Loc Tab_Skills}">
                         <sections:SkillsSectionTab Name="SkillsTab" />
                     </TabItem>
-                    <TabItem Header="Kampfkünste">
+                    <TabItem Header="{loc:Loc Tab_MartialArts}">
                         <sections:MartialArtsSectionTab Name="MartialArtsTab" />
                     </TabItem>
                     <!-- Adeptenkräfte: conditional tab - Adept characters only -->
@@ -46,13 +46,13 @@
                     <TabItem Header="{loc:Loc Tab_Karma}">
                         <sections:KarmaNuyenSectionTab Name="KarmaNuyenTab" />
                     </TabItem>
-                    <TabItem Header="Kalender">
+                    <TabItem Header="{loc:Loc Tab_Calendar}">
                         <sections:CalendarTab x:Name="CalendarTab" />
                     </TabItem>
                     <TabItem Header="{loc:Loc Title_Notes}">
                         <sections:NotesTab x:Name="NotesTab" />
                     </TabItem>
-                    <TabItem Header="Verbessern">
+                    <TabItem Header="{loc:Loc UI_Improve}">
                         <sections:ImprovementsTab x:Name="ImprovementsTab" />
                     </TabItem>
                 </TabControl>

@@ -140,7 +140,7 @@ public partial class GearSectionTab : UserControl
     private async void OnAddGearLocationClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
-        var dialog = new ArmorSetDialog { Title = "Ausrüstungsort hinzufügen" };
+        var dialog = new ArmorSetDialog { Title = App.LanguageCatalog.GetString("UI_AddGearLocationTitle") };
         if (await dialog.ShowDialog<bool>(window) && _character.AddGearLocation(dialog.SetName))
             ViewModel.LoadCharacter(_character);
     }
@@ -326,7 +326,7 @@ public partial class GearSectionTab : UserControl
     private async void OnAddWeaponLocationClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window) return;
-        var dialog = new ArmorSetDialog { Title = "Waffenort hinzufügen" };
+        var dialog = new ArmorSetDialog { Title = App.LanguageCatalog.GetString("UI_AddWeaponLocationTitle") };
         if (await dialog.ShowDialog<bool>(window) && _character.AddWeaponLocation(dialog.SetName))
             ViewModel.LoadCharacter(_character);
     }
@@ -454,7 +454,7 @@ public partial class GearSectionTab : UserControl
             return;
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Begleiter-Charakter auswählen",
+            Title = App.LanguageCatalog.GetString("UI_SelectCompanionCharacterTitle"),
             AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("Chummer character") { Patterns = ["*.chum"] }]
         });

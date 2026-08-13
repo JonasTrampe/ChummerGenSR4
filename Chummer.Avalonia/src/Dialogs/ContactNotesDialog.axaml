@@ -2,7 +2,7 @@
              xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.ContactNotesDialog"
-        Width="420" Height="320" WindowStartupLocation="CenterOwner" Title="Notizen">
+        Width="420" Height="320" WindowStartupLocation="CenterOwner" Title="{loc:Loc Tab_Notes}">
     <Grid RowDefinitions="*,Auto" Margin="12">
         <TextBox Name="NotesTextBox" Grid.Row="0" AcceptsReturn="True" TextWrapping="Wrap"
                   VerticalContentAlignment="Top" />

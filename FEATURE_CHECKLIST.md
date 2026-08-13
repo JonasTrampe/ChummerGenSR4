@@ -457,30 +457,37 @@ what's ported, not previously tracked anywhere in this file)
   (silent - only shows a dialog when an update is actually found).
 
 **Settings / i18n**
-- [~] Translate the Avalonia UI — most AXAML files now catalog-driven; some hardcoded text
-  remains (strings with no existing legacy key, plus all `.cs` code-behind literals - dialog
-  titles built in code, MessageBox text, dynamically-formatted strings). Added a `LocExtension`
-  XAML markup extension (`Chummer.Avalonia/src/Markup/LocExtension.cs`, `{loc:Loc Some_Key}`)
-  that resolves a `Chummer.Core/data/lang/*.xml` key via `LanguageManager.Instance` at XAML-load
-  time - the first UI actually driven by the language catalog instead of a literal. Fixed the
-  default-language mismatch this surfaced: `App.axaml.cs` now defaults `GlobalOptions.Language`
-  to `"de"` (matching this fork's target audience and its still-hardcoded remaining text) unless
-  a language was explicitly persisted, instead of leaving `GlobalOptions`' shared `"en-us"`
-  default in place (which would have shown English on files converted here while untouched
-  neighbors kept showing German). Bulk conversion pass: a script matched every hardcoded
-  `Header`/`Content`/`Text`/`Title`/`ToolTip.Tip`/`Watermark`/`PlaceholderText` literal against
-  the ~1760-entry `de.xml` catalog by exact text, keeping only unambiguous single-key matches
-  that also exist in `en-us.xml` - 462 replacements across 68 of the ~70 Avalonia AXAML files
-  (spot-checked across `KarmaCostsOptionsTab`, `HouseRulesOptionsTab`, `MetatypeDialog`; many
-  matched controls already carried a `Tag="ExactSameKey"` attribute from earlier work, which
-  independently confirms the matched keys are correct). Resolved once at XAML-load time, not
-  live-rebound - matches the existing convention elsewhere (`OptionsDialog`'s language switch
-  already expects character windows to be reopened for translated *data* to show). Remaining
-  work: (1) strings with no existing catalog match at all (need new keys minted in both
-  `en-us.xml`/`de.xml`) - not attempted, since inventing translations without a reference wasn't
-  something to rush; (2) `.cs` code-behind literals (dialog `Title=`, `MessageBoxDialog.Show(...)`
-  calls, dynamically-built strings) - a different, non-XAML mechanical pass; (3) recent-files
-  submenu labels in `MainWindow.axaml` have no catalog key yet.
+- [x] Translate the Avalonia UI — done. Every hardcoded `Header`/`Content`/`Text`/`Title`/
+  `ToolTip.Tip`/`Watermark`/`PlaceholderText` literal across all ~70 Avalonia AXAML files, plus
+  every hardcoded UI-facing string literal in `.cs` code-behind (dialog `Title=` assignments,
+  `MessageBoxDialog` text, dynamically-built status/error strings), now resolves through the
+  `Chummer.Core/data/lang/*.xml` catalog instead of a literal. Added a `LocExtension` XAML markup
+  extension (`Chummer.Avalonia/src/Markup/LocExtension.cs`, `{loc:Loc Some_Key}`) that resolves a
+  catalog key via `LanguageManager.Instance` at XAML-load time; `.cs` sites use
+  `App.LanguageCatalog.GetString("Key")` directly (or the existing local `T()` helper in
+  `MainWindow.axaml.cs`). Fixed the default-language mismatch this surfaced: `App.axaml.cs` now
+  defaults `GlobalOptions.Language` to `"de"` (matching this fork's target audience) unless a
+  language was explicitly persisted, instead of `GlobalOptions`' shared `"en-us"` default (which
+  would otherwise show English on catalog-driven files while others still showed German).
+  Three-pass conversion: (1) a script matched every literal against the ~1760-entry `de.xml`
+  catalog by exact text, keeping only unambiguous single-key matches also present in `en-us.xml`
+  - 462 replacements across 68 files (spot-checked; many matched controls already carried a
+  `Tag="ExactSameKey"` attribute from earlier work, independently confirming the matches); (2) 44
+  ambiguous multi-candidate matches (e.g. "Kategorie:" matching both `Label_Category` and
+  `Label_Grade`) resolved by hand to the more generic/contextually-correct key; (3) 204 AXAML
+  strings plus 32 `.cs` string literals with no existing catalog entry at all got newly-authored
+  `UI_*`-prefixed key pairs (English text + the existing German text) added to both `en-us.xml`
+  and `de.xml`. Resolved once at load time, not live-rebound - matches the existing convention
+  (`OptionsDialog`'s language switch already expects character windows to be reopened for
+  translated *data* to show). Verified zero literal `Header`/`Content`/`Text`/`Title`/
+  `ToolTip.Tip`/`Watermark`/`PlaceholderText` attributes remain in any AXAML file and no
+  German-language string-literal assignments remain in any `.cs` file under `Chummer.Avalonia/src`.
+  Not addressed (deliberately out of scope): translating `Chummer.Core/data/data/*.xml` rules-data
+  item names themselves (that's `de_data.xml`'s job, a separate, much larger data-translation
+  effort, not a UI-string one), and the two lower-coverage language files (`fr.xml`/`jp.xml`) don't
+  have the ~250 new `UI_*` keys yet - `LanguageManager` falls back to the `en-us.xml` base for any
+  key a non-`de` language file doesn't override, so this doesn't break French/Japanese, it just
+  means those ~250 strings render in English instead of French/Japanese in that mode.
 - [x] Enabled-sourcebook filtering (`Options.BookXPath()`) — done. Added
   `CharacterDocument.IsBookEnabled(string strSourceCode)` in `Chummer.Core` (blank source is
   always allowed, matching legacy's "only filter items that declare a source" behavior; wraps

@@ -13,11 +13,11 @@
             <TextBlock Classes="settingsHeader" Text="{loc:Loc Tab_Options_OptionalRules}" />
             <CheckBox Content="{loc:Loc Checkbox_Options_MoreLethalGameplace}" IsChecked="{Binding CurrentOptions.MoreLethalGameplay, Mode=TwoWay}" />
             <CheckBox Content="{loc:Loc Checkbox_Options_SingleArmorEncumbrance}" IsChecked="{Binding CurrentOptions.NoSingleArmorEncumbrance, Mode=TwoWay}" />
-            <CheckBox Content="Begrenze Würfelpools auf 20 Würfel oder 2x (natürliches Attribut + Fertigkeitswert) (SR4 83)." IsChecked="{Binding CurrentOptions.CapSkillRating, Mode=TwoWay}" />
+            <CheckBox Content="{loc:Loc UI_CapDicePoolTooltip}" IsChecked="{Binding CurrentOptions.CapSkillRating, Mode=TwoWay}" />
             <CheckBox Content="{loc:Loc Checkbox_Options_SkillRegroup}" IsChecked="{Binding CurrentOptions.AllowSkillRegrouping, Mode=TwoWay}" />
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <CheckBox Content="{loc:Loc Checkbox_Options_MetatypesCostKarma}" IsChecked="{Binding CurrentOptions.MetatypeCostsKarma, Mode=TwoWay}" />
-                <TextBlock Text="x" VerticalAlignment="Center" />
+                <TextBlock Text="{loc:Loc UI_TimesSymbol}" VerticalAlignment="Center" />
                 <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.MetatypeCostsKarmaMultiplier, Mode=TwoWay}" />
             </StackPanel>
             <CheckBox Content="{loc:Loc Checkbox_Options_StrengthAffectsRecoil}" IsChecked="{Binding CurrentOptions.StrengthAffectsRecoil, Mode=TwoWay}" />
@@ -29,7 +29,7 @@
             <CheckBox Content="{loc:Loc Checkbox_Options_AlternateComplexFormCost}" IsChecked="{Binding CurrentOptions.AlternateComplexFormCost, Mode=TwoWay}" />
             <CheckBox Content="{loc:Loc Checkbox_Options_AllowCustomTransgenics}" IsChecked="{Binding CurrentOptions.AllowCustomTransgenics, Mode=TwoWay}" />
             <CheckBox Content="{loc:Loc Checkbox_Options_BreakSkillGroupsInCreateMode}" IsChecked="{Binding CurrentOptions.BreakSkillGroupsInCreateMode, Mode=TwoWay}" />
-            <CheckBox Content="Allow any Detection Spell to be taken as Extended range version (SM 165)" IsChecked="{Binding CurrentOptions.ExtendAnyDetectionSpell, Mode=TwoWay}" />
+            <CheckBox Content="{loc:Loc UI_AllowExtendedDetectionSpells}" IsChecked="{Binding CurrentOptions.ExtendAnyDetectionSpell, Mode=TwoWay}" />
         </StackPanel>
         </Border>
     </ScrollViewer>

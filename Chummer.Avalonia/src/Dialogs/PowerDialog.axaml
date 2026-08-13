@@ -8,9 +8,9 @@
         Width="560" Height="480" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="Kraft auswählen">
+        FontSize="11" Background="White" Title="{loc:Loc UI_SelectPower}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
-        <TextBlock Grid.Row="0" Text="Wähle eine noch nicht vorhandene Kraft aus den installierten Regeln aus." Margin="0,0,0,8" />
+        <TextBlock Grid.Row="0" Text="{loc:Loc UI_SelectPowerTooltip}" Margin="0,0,0,8" />
         <Grid Grid.Row="1" ColumnDefinitions="*,220">
             <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
@@ -20,10 +20,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
-                <TextBlock Text="Punkte/Stufe:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc UI_PointsPerLevelColon}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Selected.PointsPerLevel, TargetNullValue=–}" />
                 <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding CanChooseRating}">
-                    <TextBlock Text="Stufe:" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{loc:Loc Label_Rating}" FontWeight="Bold" VerticalAlignment="Center" />
                     <controls:IntegerSpinner Width="70" Minimum="1" Maximum="20" Value="{Binding Rating, Mode=TwoWay}" />
                 </StackPanel>
                 <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" Margin="0,12,0,0" />
@@ -32,7 +32,7 @@
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
             <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
-            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button Grid.Column="2" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </Grid>
     </Grid>
 </Window>

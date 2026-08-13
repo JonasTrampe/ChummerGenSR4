@@ -5,9 +5,9 @@
         x:Class="Chummer.NewUI.Dialogs.SenseImprovementDialog"
         x:DataType="vm:SenseImprovementDialogViewModel"
         Width="380" Height="420" WindowStartupLocation="CenterOwner"
-        Title="Sinneswahrnehmung auswählen">
+        Title="{loc:Loc UI_SelectSenseImprovement}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
-        <TextBlock Text="Welches Cyberware-/Bioware-/Ausrüstungsstück soll die Sinnesverbesserung liefern?"
+        <TextBlock Text="{loc:Loc UI_SelectSenseImprovementTooltip}"
                    TextWrapping="Wrap" Margin="0,0,0,8" />
         <ListBox Grid.Row="1" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption, Mode=TwoWay}"
                   DisplayMemberBinding="{Binding DisplayName}" />

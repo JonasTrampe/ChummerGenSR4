@@ -26,7 +26,7 @@ public partial class CharacterInfoSectionTab : UserControl
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Portrait auswählen",
+            Title = App.LanguageCatalog.GetString("UI_SelectPortraitTitle"),
             AllowMultiple = false,
             FileTypeFilter =
             [

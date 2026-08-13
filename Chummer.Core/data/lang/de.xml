@@ -7069,5 +7069,949 @@ Stattdessen lokal gespeichert.</text>
 		<string><key>MessageTitle_CredstickTransfer</key><text>Credstick-Transaktion</text></string>
 		<string><key>Message_SpareClipAmmoMismatch</key><text>{0} ist nicht mit {1} kompatibel. Die Munition wurde nicht eingebaut.</text></string>
 		<string><key>MessageTitle_SpareClipAmmoMismatch</key><text>Inkompatible Munition</text></string>
+		<string>
+			<key>UI_Add</key>
+			<text>Hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_Height</key>
+			<text>Height</text>
+		</string>
+		<string>
+			<key>UI_Sell</key>
+			<text>Verkaufen</text>
+		</string>
+		<string>
+			<key>UI_RatingColon</key>
+			<text>Rating:</text>
+		</string>
+		<string>
+			<key>UI_DamagePlus1</key>
+			<text>Schaden +1</text>
+		</string>
+		<string>
+			<key>UI_CostAvailColon</key>
+			<text>Kosten / Verfügbarkeit:</text>
+		</string>
+		<string>
+			<key>UI_AmmoColon</key>
+			<text>Munition:</text>
+		</string>
+		<string>
+			<key>UI_CreateSpell</key>
+			<text>Zauber erstellen</text>
+		</string>
+		<string>
+			<key>UI_DeleteLocation</key>
+			<text>Ort löschen</text>
+		</string>
+		<string>
+			<key>UI_Heal</key>
+			<text>Heilen</text>
+		</string>
+		<string>
+			<key>UI_CreateAdvancedLifestyle</key>
+			<text>Erweiterten Lebensstil erstellen</text>
+		</string>
+		<string>
+			<key>UI_AddMod</key>
+			<text>Mod hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_BallisticImpactColon</key>
+			<text>Ballistisch / Stoß:</text>
+		</string>
+		<string>
+			<key>UI_InstalledColon</key>
+			<text>Installiert:</text>
+		</string>
+		<string>
+			<key>UI_LocationColon</key>
+			<text>Ort:</text>
+		</string>
+		<string>
+			<key>UI_AssembleNexus</key>
+			<text>Nexus zusammenstellen</text>
+		</string>
+		<string>
+			<key>UI_FreeAdj</key>
+			<text>Gratis</text>
+		</string>
+		<string>
+			<key>UI_NotYetPorted</key>
+			<text>Noch nicht portiert - siehe FEATURE_CHECKLIST.md.</text>
+		</string>
+		<string>
+			<key>UI_SkillColon</key>
+			<text>Fertigkeit:</text>
+		</string>
+		<string>
+			<key>UI_ExportAsHtml</key>
+			<text>Als HTML exportieren</text>
+		</string>
+		<string>
+			<key>UI_DamageValueColon</key>
+			<text>Schadenswert:</text>
+		</string>
+		<string>
+			<key>UI_RecentFiles</key>
+			<text>_Zuletzt geöffnet</text>
+		</string>
+		<string>
+			<key>UI_NoRecentFiles</key>
+			<text>Keine zuletzt geöffneten Dateien</text>
+		</string>
+		<string>
+			<key>UI_NewCharacterTooltip</key>
+			<text>Neu (öffnet den Charaktererschaffungs-Assistenten)</text>
+		</string>
+		<string>
+			<key>UI_OpenAdj</key>
+			<text>Öffnen</text>
+		</string>
+		<string>
+			<key>UI_SaveAsAdj</key>
+			<text>Speichern unter</text>
+		</string>
+		<string>
+			<key>UI_CloseCharacter</key>
+			<text>Charakter schließen</text>
+		</string>
+		<string>
+			<key>UI_BurnEdgeTooltip</key>
+			<text>Edge dauerhaft verbrennen (-1 Maximum) - kann nicht rückgängig gemacht werden.</text>
+		</string>
+		<string>
+			<key>UI_Improve</key>
+			<text>Verbessern</text>
+		</string>
+		<string>
+			<key>UI_StreamColon</key>
+			<text>Stream:</text>
+		</string>
+		<string>
+			<key>UI_Program</key>
+			<text>Programm</text>
+		</string>
+		<string>
+			<key>UI_Option</key>
+			<text>Option</text>
+		</string>
+		<string>
+			<key>UI_CritterPowers</key>
+			<text>Kritter-Kräfte</text>
+		</string>
+		<string>
+			<key>UI_AddVehicle</key>
+			<text>Fahrzeug hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddVehicleGear</key>
+			<text>Bordausrüstung hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddVehicleWeapon</key>
+			<text>Fahrzeugwaffe hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_VehicleWeaponMountTooltip</key>
+			<text>Benötigt einen noch freien 'Weapon Mount'/'Mechanical Arm'-Modifikation - je eine Waffe pro installierter Halterung.</text>
+		</string>
+		<string>
+			<key>UI_Repair</key>
+			<text>Reparieren</text>
+		</string>
+		<string>
+			<key>UI_LocationsColon</key>
+			<text>Orte:</text>
+		</string>
+		<string>
+			<key>UI_GearLocationColon</key>
+			<text>Ausrüstung-Ort:</text>
+		</string>
+		<string>
+			<key>UI_Assign</key>
+			<text>Zuweisen</text>
+		</string>
+		<string>
+			<key>UI_AssignVehicleGearLocationTooltip</key>
+			<text>Weist das ausgewählte Bordausrüstungs-Objekt dem oben gewählten Ort zu (leere Auswahl entfernt die Zuweisung).</text>
+		</string>
+		<string>
+			<key>UI_VehicleBaseCostTooltip</key>
+			<text>Kaufpreis des Fahrzeugs allein, ohne Modifikationen/Bordausrüstung.</text>
+		</string>
+		<string>
+			<key>UI_VehicleTotalCostTooltip</key>
+			<text>Grundkosten plus alle installierten Modifikationen und die direkte Bordausrüstung/-waffen.</text>
+		</string>
+		<string>
+			<key>UI_AddWeek</key>
+			<text>Woche hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_FinalizeCharacter</key>
+			<text>Charakter fertigstellen</text>
+		</string>
+		<string>
+			<key>UI_Physical</key>
+			<text>Physisch</text>
+		</string>
+		<string>
+			<key>UI_CyberwareSuite</key>
+			<text>Cyberware-Suite</text>
+		</string>
+		<string>
+			<key>UI_BiowareSuite</key>
+			<text>Bioware-Suite</text>
+		</string>
+		<string>
+			<key>UI_CostAvailShortColon</key>
+			<text>Kosten / Verf.:</text>
+		</string>
+		<string>
+			<key>UI_LifestyleQualitiesHeader</key>
+			<text>Komfort / Unterhaltung / Grundversorgung / Wohngegend / Sicherheit</text>
+		</string>
+		<string>
+			<key>UI_AddArmor</key>
+			<text>Panzerung hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_DeleteMod</key>
+			<text>Mod löschen</text>
+		</string>
+		<string>
+			<key>UI_CreatedColon</key>
+			<text>Angelegt:</text>
+		</string>
+		<string>
+			<key>UI_SetColon</key>
+			<text>Set:</text>
+		</string>
+		<string>
+			<key>UI_DisbandSet</key>
+			<text>Ausgewähltes Set auflösen</text>
+		</string>
+		<string>
+			<key>UI_AddAccessory</key>
+			<text>Zubehör hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddAsAccessory</key>
+			<text>Als Zubehör hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_LinkCharacter</key>
+			<text>Charakter verknüpfen</text>
+		</string>
+		<string>
+			<key>UI_RemoveLink</key>
+			<text>Verknüpfung entfernen</text>
+		</string>
+		<string>
+			<key>UI_PetsLoadedFromContactsTooltip</key>
+			<text>Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen.</text>
+		</string>
+		<string>
+			<key>UI_AddPacksKit</key>
+			<text>PACKS-Kit hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_MetatypeLimit</key>
+			<text>Metatyp-Grenze</text>
+		</string>
+		<string>
+			<key>UI_Source</key>
+			<text>Quelle</text>
+		</string>
+		<string>
+			<key>UI_MysticAdeptMagSplit</key>
+			<text>Magieadept MAG-Aufteilung</text>
+		</string>
+		<string>
+			<key>UI_ManualImprovementScopeTooltip</key>
+			<text>Deckt eine ausgewählte Untermenge von frmCreateImprovement.cs's Typen ab (Attribut, Fertigkeit, Zustandsmonitor, Initiative, Bewegung, Verbergbarkeit, Waffenlos, Reichweite, Lebensstilkosten) - siehe FEATURE_CHECKLIST.md.</text>
+		</string>
+		<string>
+			<key>UI_OnlyManualImprovementsDeletableTooltip</key>
+			<text>Nur manuell angelegte Verbesserungen können hier gelöscht werden - alle anderen sind eine Nebenwirkung einer anderen Position (Gabe/Cyberware/Metamagie/...) und müssen über diese entfernt werden.</text>
+		</string>
+		<string>
+			<key>UI_InitiateGrades</key>
+			<text>Initiatengrade</text>
+		</string>
+		<string>
+			<key>UI_Metamagics</key>
+			<text>Metamagien</text>
+		</string>
+		<string>
+			<key>UI_ImproveInitiationTooltip</key>
+			<text>Initiatengrad um 1 erhöhen (kostet Karma) - portiert aus frmCareer.cs's cmdImproveInitiation_Click.</text>
+		</string>
+		<string>
+			<key>UI_Grade1Ordeal</key>
+			<text>Grad 1 (Prüfung)</text>
+		</string>
+		<string>
+			<key>UI_AddMartialArt</key>
+			<text>Kampfkunst hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddManeuver</key>
+			<text>Manöver hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_BaseCost</key>
+			<text>Grundkosten</text>
+		</string>
+		<string>
+			<key>UI_BpCostsTabTooltip</key>
+			<text>Diese Werte steuern die Standard-GP-Kosten für neue Profile.</text>
+		</string>
+		<string>
+			<key>UI_PdfPathOptional</key>
+			<text>PDF-Pfad (optional)</text>
+		</string>
+		<string>
+			<key>UI_PageOffset</key>
+			<text>Seitenversatz</text>
+		</string>
+		<string>
+			<key>UI_Verify</key>
+			<text>Verify</text>
+		</string>
+		<string>
+			<key>UI_VerifyDataFile</key>
+			<text>Verify Data File</text>
+		</string>
+		<string>
+			<key>UI_DefaultSheetColon</key>
+			<text>Standard Charakterbogen:</text>
+		</string>
+		<string>
+			<key>UI_PdfArgumentStyleColon</key>
+			<text>PDF Argument Style:</text>
+		</string>
+		<string>
+			<key>UI_UseSkillDicePool</key>
+			<text>Würfelpool für Fertigkeiten benutzen</text>
+		</string>
+		<string>
+			<key>UI_ShowAlternateLeadershipSkills</key>
+			<text>Alternative Führungskills anzeigen(aus den "War!" Regelwerk)</text>
+		</string>
+		<string>
+			<key>UI_KarmaCostSpecialAttributesEssenceLoss</key>
+			<text>Karma cost for increasing Special Attributes is reduced with Essence Loss</text>
+		</string>
+		<string>
+			<key>UI_AutoRegisterSoftwareWithPrograms</key>
+			<text>Registrations-Software automatisch an Matrix Programmen koppeln (Vernetzt benötigt)</text>
+		</string>
+		<string>
+			<key>UI_CalculateCommlinkProcessorFromPrograms</key>
+			<text>Berechne den Kommlink-Prozessor anhand der laufenden Programme</text>
+		</string>
+		<string>
+			<key>UI_MysticAdeptSpiritPowerCappedByMagicTooltip</key>
+			<text>Die maximale Geisterstufe und die Kraftstufe des Magieradepten sind auf die Höhe des Magie-Attributes beschränkt.</text>
+		</string>
+		<string>
+			<key>UI_DefaultingIncludesModifiers</key>
+			<text>Proben auf Fertigkeiten ohne Wert beinhalten Modifikatoren</text>
+		</string>
+		<string>
+			<key>UI_AllowMultipleFociAboveForce6</key>
+			<text>Erlauben, dass ein Mehrfachfoki zusammengerchnet über Kraftstufe 6 hinaus generiert werden kann</text>
+		</string>
+		<string>
+			<key>UI_AllowWeaponAccessoryAnyMount</key>
+			<text>Waffenzubehör darf auch an nicht dafür vorgesehenen Stellen an der Waffe angebracht werden</text>
+		</string>
+		<string>
+			<key>UI_GeneralKarmaCosts</key>
+			<text>Allgemeine Karmakosten</text>
+		</string>
+		<string>
+			<key>UI_ComplexFormSkillsoft</key>
+			<text>Komplexe-Form Talensoft</text>
+		</string>
+		<string>
+			<key>UI_TimesConnectionPlusLoyalty</key>
+			<text>x (Connection + Loyalty)</text>
+		</string>
+		<string>
+			<key>UI_TimesNewRatingPlus10</key>
+			<text>x neuer Wert + 10</text>
+		</string>
+		<string>
+			<key>UI_FocusGroupsAndMetamagic</key>
+			<text>Fokus, Gruppen und Metamagie</text>
+		</string>
+		<string>
+			<key>UI_KarmaCostsGroupedForScanningTooltip</key>
+			<text>Komplexe Fokus- und Steigerungswerte sind in zwei Sektionen gruppiert, um das Scannen zu erleichtern.</text>
+		</string>
+		<string>
+			<key>UI_CapDicePoolTooltip</key>
+			<text>Begrenze Würfelpools auf 20 Würfel oder 2x (natürliches Attribut + Fertigkeitswert) (SR4 83).</text>
+		</string>
+		<string>
+			<key>UI_TimesSymbol</key>
+			<text>x</text>
+		</string>
+		<string>
+			<key>UI_AllowExtendedDetectionSpells</key>
+			<text>Allow any Detection Spell to be taken as Extended range version (SM 165)</text>
+		</string>
+		<string>
+			<key>UI_SubTypeColon</key>
+			<text>Sub-Typ:</text>
+		</string>
+		<string>
+			<key>UI_CategoryCombatActive</key>
+			<text>Combat Active</text>
+		</string>
+		<string>
+			<key>UI_CategoryMagicalActive</key>
+			<text>Magical Active</text>
+		</string>
+		<string>
+			<key>UI_CategoryPhysicalActive</key>
+			<text>Physical Active</text>
+		</string>
+		<string>
+			<key>UI_CategoryResonanceActive</key>
+			<text>Resonance Active</text>
+		</string>
+		<string>
+			<key>UI_CategorySocialActive</key>
+			<text>Social Active</text>
+		</string>
+		<string>
+			<key>UI_CategoryTechnicalActive</key>
+			<text>Technical Active</text>
+		</string>
+		<string>
+			<key>UI_CategoryVehicleActive</key>
+			<text>Vehicle Active</text>
+		</string>
+		<string>
+			<key>UI_AttributeColon</key>
+			<text>Attribut:</text>
+		</string>
+		<string>
+			<key>UI_AttributeBodShortLabel</key>
+			<text>BOD</text>
+		</string>
+		<string>
+			<key>UI_AttributeAgiShortLabel</key>
+			<text>AGI</text>
+		</string>
+		<string>
+			<key>UI_LifestyleNameExample</key>
+			<text>z. B. Mein sicheres Versteck</text>
+		</string>
+		<string>
+			<key>UI_NecessitiesColon</key>
+			<text>Notwendigkeiten:</text>
+		</string>
+		<string>
+			<key>UI_NeighborhoodColon</key>
+			<text>Nachbarschaft:</text>
+		</string>
+		<string>
+			<key>UI_SharePercentColon</key>
+			<text>Anteil (%):</text>
+		</string>
+		<string>
+			<key>UI_PositiveQualities</key>
+			<text>Positive Eigenschaften</text>
+		</string>
+		<string>
+			<key>UI_NegativeQualities</key>
+			<text>Negative Eigenschaften</text>
+		</string>
+		<string>
+			<key>UI_SelectArmorMod</key>
+			<text>Panzerungs-Modifikation auswählen</text>
+		</string>
+		<string>
+			<key>UI_BallisticImpactSlashColon</key>
+			<text>Ballistisch/Stoß:</text>
+		</string>
+		<string>
+			<key>UI_ArmorSetNameColon</key>
+			<text>Name des Panzerungssets:</text>
+		</string>
+		<string>
+			<key>UI_ArmorSetNameExample</key>
+			<text>z. B. Einsatzanzug</text>
+		</string>
+		<string>
+			<key>UI_SelectPower</key>
+			<text>Kraft auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectPowerTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Kraft aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_PointsPerLevelColon</key>
+			<text>Punkte/Stufe:</text>
+		</string>
+		<string>
+			<key>UI_PrintMultipleCharacters</key>
+			<text>Mehrere Charaktere drucken</text>
+		</string>
+		<string>
+			<key>UI_AddEllipsis</key>
+			<text>Hinzufügen...</text>
+		</string>
+		<string>
+			<key>UI_Remove</key>
+			<text>Entfernen</text>
+		</string>
+		<string>
+			<key>UI_GameMasterSummarySheet</key>
+			<text>Zusammengefasster Charakterbogen (Game Master Summary)</text>
+		</string>
+		<string>
+			<key>UI_SelectQualityTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Gabe oder ein Handicap aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_SellForWhatPercent</key>
+			<text>Verkaufen für welchen Prozentsatz des Werts?</text>
+		</string>
+		<string>
+			<key>UI_PercentColon</key>
+			<text>Prozent:</text>
+		</string>
+		<string>
+			<key>UI_SelectSenseImprovement</key>
+			<text>Sinneswahrnehmung auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectSenseImprovementTooltip</key>
+			<text>Welches Cyberware-/Bioware-/Ausrüstungsstück soll die Sinnesverbesserung liefern?</text>
+		</string>
+		<string>
+			<key>UI_SelectSettingsProfileTooltip</key>
+			<text>Wählen Sie ein Einstellungsprofil. Jedes Profil regelt die Generierungsart, Anzahl der Generierungspunkte, die maximale Verfügbarkeit und jegliche Haus-Regeln die für bei der Erschaffung eines Charakters benutzt werden.</text>
+		</string>
+		<string>
+			<key>UI_SheetPreviewTitle</key>
+			<text>Charakterbogen Vorschau</text>
+		</string>
+		<string>
+			<key>UI_TemplateColon</key>
+			<text>Vorlage:</text>
+		</string>
+		<string>
+			<key>UI_ExportAsPdf</key>
+			<text>Als PDF exportieren</text>
+		</string>
+		<string>
+			<key>UI_SelectSpellTooltip</key>
+			<text>Wähle einen noch nicht vorhandenen Zauberspruch aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_AddSpiritSprite</key>
+			<text>Geist/Sprite hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_SpiritTypeSpirit</key>
+			<text>Spirit</text>
+		</string>
+		<string>
+			<key>UI_SpiritTypeSprite</key>
+			<text>Sprite</text>
+		</string>
+		<string>
+			<key>UI_CritterTypeColon</key>
+			<text>Kritter-Typ:</text>
+		</string>
+		<string>
+			<key>UI_RecordExpense</key>
+			<text>Aufwendung erfassen</text>
+		</string>
+		<string>
+			<key>UI_ReasonColon</key>
+			<text>Grund:</text>
+		</string>
+		<string>
+			<key>UI_ExportFormatColon</key>
+			<text>Exportformat:</text>
+		</string>
+		<string>
+			<key>UI_ExportEllipsis</key>
+			<text>Exportieren...</text>
+		</string>
+		<string>
+			<key>UI_SelectGear</key>
+			<text>Ausrüstung auswählen</text>
+		</string>
+		<string>
+			<key>UI_DefaultRatingColon</key>
+			<text>Standardstufe:</text>
+		</string>
+		<string>
+			<key>UI_More</key>
+			<text>Weitere</text>
+		</string>
+		<string>
+			<key>UI_AddKeepDialogOpen</key>
+			<text>Hinzufügen, aber Dialog offen lassen</text>
+		</string>
+		<string>
+			<key>UI_Search</key>
+			<text>Suchen</text>
+		</string>
+		<string>
+			<key>UI_RollStartingNuyen</key>
+			<text>Startgeld auswürfeln</text>
+		</string>
+		<string>
+			<key>UI_DiceRollResultColon</key>
+			<text>Würfelergebnis:</text>
+		</string>
+		<string>
+			<key>UI_Selection</key>
+			<text>Auswahl</text>
+		</string>
+		<string>
+			<key>UI_EnterDetail</key>
+			<text>Detail eingeben</text>
+		</string>
+		<string>
+			<key>UI_EnterTextEllipsis</key>
+			<text>Text eingeben...</text>
+		</string>
+		<string>
+			<key>UI_ChummerUpdate</key>
+			<text>Chummer-Aktualisierung</text>
+		</string>
+		<string>
+			<key>UI_HandlingAccelSpeedColon</key>
+			<text>Handling / Beschleunigung / Geschwindigkeit:</text>
+		</string>
+		<string>
+			<key>UI_PilotBodyArmorSensorColon</key>
+			<text>Pilot / Rumpf / Panzerung / Sensor:</text>
+		</string>
+		<string>
+			<key>UI_AvailCostColon</key>
+			<text>Verfügbarkeit / Kosten:</text>
+		</string>
+		<string>
+			<key>UI_RestrictionColon</key>
+			<text>Einschränkung:</text>
+		</string>
+		<string>
+			<key>UI_SelectWeaponAccessory</key>
+			<text>Waffenzubehör auswählen</text>
+		</string>
+		<string>
+			<key>UI_MountColon</key>
+			<text>Mount:</text>
+		</string>
+		<string>
+			<key>UI_RecoilCompensationColon</key>
+			<text>RC:</text>
+		</string>
+		<string>
+			<key>UI_ArmorPenetrationColon</key>
+			<text>Panzerdurchdringung:</text>
+		</string>
+		<string>
+			<key>UI_SelectManeuverTooltip</key>
+			<text>Wähle ein noch nicht vorhandenes Manöver aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_SelectMentorSpirit</key>
+			<text>Mentorgeist auswählen</text>
+		</string>
+		<string>
+			<key>UI_AdvantageColon</key>
+			<text>Vorteil:</text>
+		</string>
+		<string>
+			<key>UI_ChoiceColon</key>
+			<text>Wahl:</text>
+		</string>
+		<string>
+			<key>UI_Apply</key>
+			<text>Übernehmen</text>
+		</string>
+		<string>
+			<key>UI_SelectMetamagic</key>
+			<text>Metamagie auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectMetamagicTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Metamagie aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_EssenceLabel</key>
+			<text>Essenz</text>
+		</string>
+		<string>
+			<key>UI_MagicResonanceColon</key>
+			<text>Magie/Resonanz:</text>
+		</string>
+		<string>
+			<key>UI_None</key>
+			<text>Keine</text>
+		</string>
+		<string>
+			<key>UI_MysticAdept</key>
+			<text>Mystischer Adept</text>
+		</string>
+		<string>
+			<key>UI_TechnomancerLabel</key>
+			<text>Technomancer</text>
+		</string>
+		<string>
+			<key>UI_ArmorPenetrationLongColon</key>
+			<text>Panzerungsdurchdringung:</text>
+		</string>
+		<string>
+			<key>UI_ResponseColon</key>
+			<text>Response:</text>
+		</string>
+		<string>
+			<key>UI_PersonaLimitColon</key>
+			<text>Persona-Limit:</text>
+		</string>
+		<string>
+			<key>UI_FreeOfCharge</key>
+			<text>Kostenlos</text>
+		</string>
+		<string>
+			<key>UI_SelectComplexFormTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Komplexe Form aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_DiceCountColon</key>
+			<text>Würfelanzahl:</text>
+		</string>
+		<string>
+			<key>UI_MethodColon</key>
+			<text>Methode:</text>
+		</string>
+		<string>
+			<key>UI_GremlinsRatingColon</key>
+			<text>Gremlins-Wertung:</text>
+		</string>
+		<string>
+			<key>UI_ThresholdColon</key>
+			<text>Schwellenwert:</text>
+		</string>
+		<string>
+			<key>UI_RuleOfSix</key>
+			<text>Regel der 6</text>
+		</string>
+		<string>
+			<key>UI_CinematicGameplay</key>
+			<text>Kinematisches Spiel</text>
+		</string>
+		<string>
+			<key>UI_RushJob</key>
+			<text>Eiliger Auftrag (Patzer schon bei 1-2)</text>
+		</string>
+		<string>
+			<key>UI_SelectMartialArtTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Kampfkunst aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_AdvantagesColon</key>
+			<text>Vorteile:</text>
+		</string>
+		<string>
+			<key>UI_MagicalResourcesColon</key>
+			<text>Magische Ressourcen:</text>
+		</string>
+		<string>
+			<key>UI_SelectionColon</key>
+			<text>Auswahl:</text>
+		</string>
+		<string>
+			<key>UI_ExtendedMaximumColon</key>
+			<text>Erw. Maximum:</text>
+		</string>
+		<string>
+			<key>UI_ApplyToSkillRating</key>
+			<text>Auf Fertigkeitswert anwenden</text>
+		</string>
+		<string>
+			<key>UI_TypeRangeColon</key>
+			<text>Typ / Reichweite:</text>
+		</string>
+		<string>
+			<key>UI_RestrictedMinus1</key>
+			<text>Restricted (-1)</text>
+		</string>
+		<string>
+			<key>UI_VeryRestrictedMinus2</key>
+			<text>Very Restricted (-2)</text>
+		</string>
+		<string>
+			<key>UI_NumberOfEffectsColon</key>
+			<text>Anzahl Effekte:</text>
+		</string>
+		<string>
+			<key>UI_ModifiersColon</key>
+			<text>Modifikatoren:</text>
+		</string>
+		<string>
+			<key>UI_SelectCritterPower</key>
+			<text>Kritter-Kraft auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectCritterPowerTooltip</key>
+			<text>Wähle eine noch nicht vorhandene Kritter-Kraft aus den installierten Regeln aus.</text>
+		</string>
+		<string>
+			<key>UI_SelectCyberwareBioware</key>
+			<text>Cyberware/Bioware auswählen</text>
+		</string>
+		<string>
+			<key>UI_GradeColon</key>
+			<text>Grad:</text>
+		</string>
+		<string>
+			<key>UI_EssenceDiscountColon</key>
+			<text>Essenzrabatt (%):</text>
+		</string>
+		<string>
+			<key>UI_OpenCharacterFileDialogTitle</key>
+			<text>Chummer-Charakter öffnen</text>
+		</string>
+		<string>
+			<key>UI_SaveCharacterFileDialogTitle</key>
+			<text>Chummer-Charakter speichern</text>
+		</string>
+		<string>
+			<key>UI_NoUpdatesFoundMessage</key>
+			<text>Keine neuen Updates gefunden oder keine Verbindung möglich.</text>
+		</string>
+		<string>
+			<key>UI_AddVehicleLocationTitle</key>
+			<text>Fahrzeugort hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddGearLocationTitle</key>
+			<text>Ausrüstungsort hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_AddWeaponLocationTitle</key>
+			<text>Waffenort hinzufügen</text>
+		</string>
+		<string>
+			<key>UI_SelectCompanionCharacterTitle</key>
+			<text>Begleiter-Charakter auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectPortraitTitle</key>
+			<text>Portrait auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectCharactersTitle</key>
+			<text>Charaktere auswählen</text>
+		</string>
+		<string>
+			<key>UI_ExportSheetsAsHtmlTitle</key>
+			<text>Charakterbögen als HTML exportieren</text>
+		</string>
+		<string>
+			<key>UI_SelectPdfViewerTitle</key>
+			<text>PDF-Betrachter auswählen</text>
+		</string>
+		<string>
+			<key>UI_SelectPdfForBookTitle</key>
+			<text>PDF für {0} auswählen</text>
+		</string>
+		<string>
+			<key>UI_ExportCharacterTitle</key>
+			<text>Charakter exportieren</text>
+		</string>
+		<string>
+			<key>UI_ExportSheetAsHtmlTitle</key>
+			<text>Charakterbogen als HTML exportieren</text>
+		</string>
+		<string>
+			<key>UI_ExportSheetAsPdfTitle</key>
+			<text>Charakterbogen als PDF exportieren</text>
+		</string>
+		<string>
+			<key>UI_InvalidYearWeekMessage</key>
+			<text>Bitte ein gültiges Jahr und eine Kalenderwoche von 1 bis 52 eingeben.</text>
+		</string>
+		<string>
+			<key>UI_PleaseEnterNameMessage</key>
+			<text>Bitte einen Namen eingeben.</text>
+		</string>
+		<string>
+			<key>UI_QuantityMustBeGreaterThanZero</key>
+			<text>Die Menge muss größer als 0 sein.</text>
+		</string>
+		<string>
+			<key>UI_NoCharactersSelectedMessage</key>
+			<text>Es wurden keine Charaktere ausgewählt.</text>
+		</string>
+		<string>
+			<key>UI_ErrorLoadingFilePrefix</key>
+			<text>Fehler beim Laden von </text>
+		</string>
+		<string>
+			<key>UI_ErrorGeneratingSheetPrefix</key>
+			<text>Fehler beim Erzeugen des Charakterbogens: </text>
+		</string>
+		<string>
+			<key>UI_NoAmmoAvailableMessage</key>
+			<text>Keine Munition verfügbar.</text>
+		</string>
+		<string>
+			<key>UI_NoCharacterOpenMessage</key>
+			<text>Kein Charakter geöffnet.</text>
+		</string>
+		<string>
+			<key>UI_NoCharacterSheetFoundMessage</key>
+			<text>Kein Charakterbogen gefunden.</text>
+		</string>
+		<string>
+			<key>UI_ErrorPdfExportPrefix</key>
+			<text>Fehler beim PDF-Export: </text>
+		</string>
+		<string>
+			<key>UI_NoExportFormatAvailableMessage</key>
+			<text>Kein Exportformat verfügbar.</text>
+		</string>
+		<string>
+			<key>UI_ErrorDuringExportPrefix</key>
+			<text>Fehler beim Export: </text>
+		</string>
+		<string>
+			<key>UI_ForceMustBeGreaterThanZero</key>
+			<text>Die Kraftstufe muss größer als 0 sein.</text>
+		</string>
+		<string>
+			<key>UI_ConditionMonitorBoxTooltip</key>
+			<text>Kästchen </text>
+		</string>
+		<string>
+			<key>UI_ConditionMonitorBoxDamaged</key>
+			<text> (Schaden)</text>
+		</string>
+		<string>
+			<key>UI_ConditionMonitorBoxFree</key>
+			<text> (frei)</text>
+		</string>
+		<string>
+			<key>UI_ContactPointsUsedPrefix</key>
+			<text>Punkte für Kontakte: </text>
+		</string>
 	</strings>
 </chummer>

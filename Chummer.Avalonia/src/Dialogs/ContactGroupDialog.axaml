@@ -4,7 +4,7 @@
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.ContactGroupDialog"
         x:DataType="vm:ContactGroupDialogViewModel"
-        Width="420" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        Width="420" SizeToContent="{loc:Loc UI_Height}" WindowStartupLocation="CenterOwner"
         Title="{loc:Loc Title_SelectContactConnection}">
     <StackPanel Margin="16" Spacing="8">
         <TextBlock Text="{loc:Loc Label_SelectContactConnection_GroupName}" FontWeight="Bold" />
@@ -18,7 +18,7 @@
         <ComboBox ItemsSource="{Binding AreaOfInfluenceOptions}" SelectedItem="{Binding SelectedAreaOfInfluence, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 
-        <TextBlock Text="Magische Ressourcen:" FontWeight="Bold" Margin="0,8,0,0" />
+        <TextBlock Text="{loc:Loc UI_MagicalResourcesColon}" FontWeight="Bold" Margin="0,8,0,0" />
         <ComboBox ItemsSource="{Binding MagicalResourcesOptions}" SelectedItem="{Binding SelectedMagicalResources, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 

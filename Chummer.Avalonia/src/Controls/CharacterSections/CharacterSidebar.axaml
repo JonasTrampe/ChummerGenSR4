@@ -11,7 +11,7 @@
         <TabItem Header="{loc:Loc Tab_OtherInfo}">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
-                    <Button Content="Charakter fertigstellen" IsVisible="{Binding IsCreateMode}"
+                    <Button Content="{loc:Loc UI_FinalizeCharacter}" IsVisible="{Binding IsCreateMode}"
                             Click="OnFinalizeCreationClick" Margin="0,0,0,6" />
                     <controls:InfoRow Label="Körperlicher Zustandsmonitor:" Value="{Binding PhysicalMonitor.Value}"
                                        Tooltip="{Binding PhysicalMonitor.Tooltip}" />
@@ -59,7 +59,7 @@
             </ScrollViewer>
         </TabItem>
 
-        <TabItem Header="Zustandsmonitor">
+        <TabItem Header="{loc:Loc Tab_ConditionMonitor}">
             <ScrollViewer>
                 <StackPanel Margin="6" Spacing="4">
                     <controls:InfoRow Label="Körperlicher Schaden:" Value="{Binding PhysicalDamage}" />
@@ -72,7 +72,7 @@
                     <controls:InfoRow Label="Schadenswiderstandswürfelpool:" Value="{Binding DamageResistance.Value}"
                                       Tooltip="{Binding DamageResistance.Tooltip}" />
 
-                    <TextBlock Text="Physisch" Margin="0,6,0,0" />
+                    <TextBlock Text="{loc:Loc UI_Physical}" Margin="0,6,0,0" />
                     <ItemsControl ItemsSource="{Binding PhysicalMonitorBoxes}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -86,8 +86,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="Heilen" Click="OnHealPhysicalDamageClick" />
-                        <Button Content="Schaden +1" Click="OnAddPhysicalDamageClick" />
+                        <Button Content="{loc:Loc UI_Heal}" Click="OnHealPhysicalDamageClick" />
+                        <Button Content="{loc:Loc UI_DamagePlus1}" Click="OnAddPhysicalDamageClick" />
                     </StackPanel>
 
                     <TextBlock Text="{loc:Loc Label_CMStun}" Margin="0,6,0,0" />
@@ -104,8 +104,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="Heilen" Click="OnHealStunDamageClick" />
-                        <Button Content="Schaden +1" Click="OnAddStunDamageClick" />
+                        <Button Content="{loc:Loc UI_Heal}" Click="OnHealStunDamageClick" />
+                        <Button Content="{loc:Loc UI_DamagePlus1}" Click="OnAddStunDamageClick" />
                     </StackPanel>
 
                     <TextBlock Text="{loc:Loc Label_CMEdge}" Margin="0,10,0,0"

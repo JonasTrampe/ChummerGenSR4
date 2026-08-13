@@ -30,7 +30,7 @@ public partial class ExportDialog : Window
     {
         if (_character == null || TemplateBox.SelectedItem is not string strTemplate)
         {
-            ErrorText.Text = "Kein Exportformat verfügbar.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_NoExportFormatAvailableMessage");
             return;
         }
         if (TopLevel.GetTopLevel(this)?.StorageProvider is not { } storage)
@@ -43,14 +43,14 @@ public partial class ExportDialog : Window
         }
         catch (System.Exception ex)
         {
-            ErrorText.Text = "Fehler beim Export: " + ex.Message;
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_ErrorDuringExportPrefix") + ex.Message;
             return;
         }
 
         string strExtension = CharacterSheetExporter.GetExportTemplateExtension(strTemplate);
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Charakter exportieren",
+            Title = App.LanguageCatalog.GetString("UI_ExportCharacterTitle"),
             DefaultExtension = strExtension,
             SuggestedFileName = (_character.Alias.Length > 0 ? _character.Alias : _character.Name),
             FileTypeChoices = new[]

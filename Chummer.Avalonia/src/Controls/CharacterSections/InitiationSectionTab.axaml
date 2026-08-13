@@ -7,12 +7,12 @@
     <Grid ColumnDefinitions="220,4,*" Margin="8">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                <Button Content="Metamagie Hinzufügen" Click="OnAddMetamagicClick" />
+                <Button Content="{loc:Loc Button_AddMetamagic}" Click="OnAddMetamagicClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteMetamagicClick" />
             </StackPanel>
-            <TextBlock DockPanel.Dock="Top" Text="Initiatengrade" FontWeight="Bold" Margin="0,0,0,2" />
+            <TextBlock DockPanel.Dock="Top" Text="{loc:Loc UI_InitiateGrades}" FontWeight="Bold" Margin="0,0,0,2" />
             <ListBox DockPanel.Dock="Top" Height="90" ItemsSource="{Binding Grades}" />
-            <TextBlock DockPanel.Dock="Top" Text="Metamagien" FontWeight="Bold" Margin="0,8,0,2" />
+            <TextBlock DockPanel.Dock="Top" Text="{loc:Loc UI_Metamagics}" FontWeight="Bold" Margin="0,8,0,2" />
             <ListBox ItemsSource="{Binding Metamagics}" SelectedItem="{Binding SelectedMetamagic, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:MetamagicRowViewModel">
@@ -32,7 +32,7 @@
                 <TextBlock Grid.Column="0" Text="{loc:Loc Label_InitiationGrade}" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1" Text="{Binding InitiateGrade}" VerticalAlignment="Center" />
                 <Button Grid.Column="2" Classes="iconButton" Click="OnRaiseInitiateGradeClick"
-                        ToolTip.Tip="Initiatengrad um 1 erhöhen (kostet Karma) - portiert aus frmCareer.cs's cmdImproveInitiation_Click.">
+                        ToolTip.Tip="{loc:Loc UI_ImproveInitiationTooltip}">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
                 </Button>
                 <CheckBox Grid.Column="3" Content="{loc:Loc Checkbox_GroupInitiation}" Margin="16,0,0,0"
@@ -47,14 +47,14 @@
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="{loc:Loc Label_History}" FontWeight="Bold" />
                     <Border Classes="groupBox" Height="70">
-                        <TextBlock Margin="4" Text="Grad 1 (Prüfung)" />
+                        <TextBlock Margin="4" Text="{loc:Loc UI_Grade1Ordeal}" />
                     </Border>
                 </StackPanel>
             </Grid>
 
             <CheckBox Content="{loc:Loc Checkbox_JoinedGroup}" />
             <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Text="Gruppe:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Text="{loc:Loc Label_Group}" VerticalAlignment="Center" Margin="0,0,6,0" />
                 <TextBox Grid.Column="1" />
             </Grid>
             <TextBlock Text="{loc:Loc Label_Notes}" FontWeight="Bold" />

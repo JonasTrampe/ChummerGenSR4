@@ -73,7 +73,7 @@ public partial class MainWindow : Window
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open Chummer character",
+            Title = T("UI_OpenCharacterFileDialogTitle"),
             AllowMultiple = false,
             FileTypeFilter = new[]
             {
@@ -126,7 +126,7 @@ public partial class MainWindow : Window
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save Chummer character",
+            Title = T("UI_SaveCharacterFileDialogTitle"),
             DefaultExtension = "chum",
             SuggestedFileName = tab.Character.Name,
             FileTypeChoices = [new FilePickerFileType("Chummer characters") { Patterns = ["*.chum"] }],
@@ -212,7 +212,7 @@ public partial class MainWindow : Window
 
         if (objResult == null)
         {
-            var dialog = new MessageBoxDialog("Update", "Keine neuen Updates gefunden oder keine Verbindung möglich.");
+            var dialog = new MessageBoxDialog(T("UI_ChummerUpdate"), T("UI_NoUpdatesFoundMessage"));
             await dialog.ShowDialog(this);
             return;
         }

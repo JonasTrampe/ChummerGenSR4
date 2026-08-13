@@ -8,10 +8,10 @@
     <controls:TreeDetailPane TreeWidth="80" ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
-                <Button Content="Gabe hinzufügen" Click="OnAddQualityClick" />
+                <Button Content="{loc:Loc Button_AddQuality}" Click="OnAddQualityClick" />
                 <Button Content="{loc:Loc Button_SwapQuality}" Click="OnSwapQualityClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteQualityClick" />
-                <Button Content="PACKS-Kit hinzufügen" Click="OnAddPacksKitClick" />
+                <Button Content="{loc:Loc UI_AddPacksKit}" Click="OnAddPacksKitClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
@@ -49,11 +49,11 @@
 
                 <StackPanel>
                     <Grid ColumnDefinitions="150,40,110,60,130,60" Margin="0,0,0,2">
-                        <TextBlock Grid.Column="0" Classes="gridHeader" Text="Attribute" />
+                        <TextBlock Grid.Column="0" Classes="gridHeader" Text="{loc:Loc Label_Attributes}" />
                         <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc Label_Base}" />
                         <TextBlock Grid.Column="3" Classes="gridHeader" Text="{loc:Loc Label_Augmented}" />
-                        <TextBlock Grid.Column="4" Classes="gridHeader" Text="Metatyp-Grenze" />
-                        <TextBlock Grid.Column="5" Classes="gridHeader" Text="Quelle" />
+                        <TextBlock Grid.Column="4" Classes="gridHeader" Text="{loc:Loc UI_MetatypeLimit}" />
+                        <TextBlock Grid.Column="5" Classes="gridHeader" Text="{loc:Loc UI_Source}" />
                     </Grid>
                     <ItemsControl ItemsSource="{Binding Attributes}">
                         <ItemsControl.ItemTemplate>
@@ -77,7 +77,7 @@
                             Margin="0,4,0,0"
                             IsVisible="{Binding ShowMysticAdeptMagSplit}">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Magieadept MAG-Aufteilung" FontWeight="Bold" />
+                            <TextBlock Text="{loc:Loc UI_MysticAdeptMagSplit}" FontWeight="Bold" />
                             <Grid ColumnDefinitions="90,90">
                                 <TextBlock Grid.Column="0" Text="{loc:Loc Label_Magician}" FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="1" Text="{loc:Loc Label_Adept}" FontWeight="SemiBold" />
@@ -93,7 +93,7 @@
 
                 <StackPanel>
                     <Grid ColumnDefinitions="Auto,*,Auto">
-                        <TextBlock Grid.Column="0" Text="Connections:" FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Grid.Column="0" Text="{loc:Loc Label_Contacts}" FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBlock Grid.Column="2" Text="{Binding ContactPointsUsed}" Foreground="#666666" />
                     </Grid>
                     <Button Content="{loc:Loc Button_AddContact}" HorizontalAlignment="Left"
@@ -115,9 +115,9 @@
                                                    VerticalAlignment="Center" ToolTip.Tip="{Binding GroupName}" />
                                         <Button Grid.Column="6" Content="..." Click="OnEditContactGroupClick"
                                                 Tag="{Binding}" />
-                                        <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
+                                        <Button Grid.Column="7" Content="{loc:Loc Tab_Notes}" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
-                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
+                                        <CheckBox Grid.Column="8" Content="{loc:Loc UI_FreeAdj}" IsChecked="{Binding Free, Mode=TwoWay}" />
                                         <Button Grid.Column="9" Content="{loc:Loc String_Delete}" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>
@@ -128,7 +128,7 @@
                 </StackPanel>
 
                 <StackPanel>
-                    <TextBlock Text="Feinde" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Text="{loc:Loc Label_Enemies}" FontWeight="Bold" Margin="0,0,0,4" />
                     <Button Content="{loc:Loc Button_AddEnemy}" HorizontalAlignment="Left"
                             Margin="0,0,0,6" Click="OnAddEnemyClick" />
                     <ItemsControl ItemsSource="{Binding Enemies}">
@@ -148,9 +148,9 @@
                                                    VerticalAlignment="Center" ToolTip.Tip="{Binding GroupName}" />
                                         <Button Grid.Column="6" Content="..." Click="OnEditContactGroupClick"
                                                 Tag="{Binding}" />
-                                        <Button Grid.Column="7" Content="Notizen" Click="OnEditContactNotesClick"
+                                        <Button Grid.Column="7" Content="{loc:Loc Tab_Notes}" Click="OnEditContactNotesClick"
                                                 Tag="{Binding}" />
-                                        <CheckBox Grid.Column="8" Content="Gratis" IsChecked="{Binding Free, Mode=TwoWay}" />
+                                        <CheckBox Grid.Column="8" Content="{loc:Loc UI_FreeAdj}" IsChecked="{Binding Free, Mode=TwoWay}" />
                                         <Button Grid.Column="9" Content="{loc:Loc String_Delete}" Click="OnDeleteContactClick"
                                                 Tag="{Binding ContactId}" />
                                     </Grid>

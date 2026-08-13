@@ -5,13 +5,13 @@
         Width="700" Height="560"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="Mehrere Charaktere drucken">
+        FontSize="11" Background="White" Title="{loc:Loc UI_PrintMultipleCharacters}">
     <Grid Margin="12" RowDefinitions="Auto,*,Auto,*,Auto" ColumnDefinitions="220,8,*">
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,4">
-            <Button Content="Hinzufügen..." Click="OnAddClick" />
-            <Button Content="Entfernen" Click="OnRemoveClick" />
+            <Button Content="{loc:Loc UI_AddEllipsis}" Click="OnAddClick" />
+            <Button Content="{loc:Loc UI_Remove}" Click="OnRemoveClick" />
         </StackPanel>
-        <TextBlock Grid.Row="0" Grid.Column="2" Text="Zusammengefasster Charakterbogen (Game Master Summary)" FontWeight="Bold" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Loc UI_GameMasterSummarySheet}" FontWeight="Bold" VerticalAlignment="Center" />
 
         <ListBox Grid.Row="1" Grid.Column="0" x:Name="CharacterList" />
         <TextBox Grid.Row="1" Grid.Column="2" x:Name="OutputText" IsReadOnly="True" AcceptsReturn="True"
@@ -22,9 +22,9 @@
         <TextBlock Grid.Row="3" Grid.ColumnSpan="3" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" />
 
         <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
-            <Button Content="Als HTML exportieren" Click="OnExportHtmlClick" />
+            <Button Content="{loc:Loc UI_ExportAsHtml}" Click="OnExportHtmlClick" />
             <Button Content="{loc:Loc Menu_FilePrint}" Click="OnPrintClick" />
-            <Button Content="Schließen" Click="OnClose" />
+            <Button Content="{loc:Loc Button_CloudRevisions_Close}" Click="OnClose" />
         </StackPanel>
     </Grid>
 </Window>

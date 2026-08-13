@@ -29,13 +29,13 @@
             <MenuItem Header="{loc:Loc Menu_Main_File}">
                 <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_Open}" Click="OnOpenCharacterClick" />
-                <MenuItem Header="_Zuletzt geöffnet" ItemsSource="{Binding RecentCharacters}">
+                <MenuItem Header="{loc:Loc UI_RecentFiles}" ItemsSource="{Binding RecentCharacters}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecentCharacterEntryViewModel">
                             <MenuItem Header="{Binding DisplayText}" Click="OnOpenRecentCharacterClick" />
                         </DataTemplate>
                     </MenuItem.ItemTemplate>
-                    <MenuItem Header="Keine zuletzt geöffneten Dateien"
+                    <MenuItem Header="{loc:Loc UI_NoRecentFiles}"
                               IsEnabled="False"
                               IsVisible="{Binding HasNoRecentCharacters}" />
                 </MenuItem>
@@ -63,15 +63,15 @@
         <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <Button Name="NewCharacterButton" Classes="toolbarButton"
-                        ToolTip.Tip="Neu (öffnet den Charaktererschaffungs-Assistenten)"
+                        ToolTip.Tip="{loc:Loc UI_NewCharacterTooltip}"
                         AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/page.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Öffnen"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc UI_OpenAdj}"
                         AutomationProperties.Name="Öffnen" Click="OnOpenCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/folder_page.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Speichern unter"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc UI_SaveAsAdj}"
                         AutomationProperties.Name="Speichern unter" Click="OnSaveCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/disk.png" />
                 </Button>
@@ -103,7 +103,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
                         <Button Content="×" Click="OnCloseCharacterTabClick"
-                                ToolTip.Tip="Charakter schließen" Padding="3,0" MinWidth="0" />
+                                ToolTip.Tip="{loc:Loc UI_CloseCharacter}" Padding="3,0" MinWidth="0" />
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>

@@ -5,10 +5,10 @@
         xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.GearDialog"
         x:DataType="vm:GearDialogViewModel"
-        Width="620" Height="520" WindowStartupLocation="CenterOwner" Title="Ausrüstung auswählen">
+        Width="620" Height="520" WindowStartupLocation="CenterOwner" Title="{loc:Loc UI_SelectGear}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <Grid Grid.Row="0" ColumnDefinitions="Auto,150,Auto,*" Margin="0,0,0,8">
-            <TextBlock Grid.Column="0" Text="Kategorie:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBlock Grid.Column="0" Text="{loc:Loc Label_Category}" VerticalAlignment="Center" Margin="0,0,6,0" />
             <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}"
                       SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" MaxDropDownHeight="300">
                 <!-- Plain (non-virtualizing) ItemsPanel so every item is measured up front - the
@@ -35,9 +35,9 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
-                <TextBlock Text="Kategorie:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Category}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedGear.CategoryDisplay, TargetNullValue=–}" />
-                <TextBlock Text="Standardstufe:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc UI_DefaultRatingColon}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
                 <TextBlock Text="{loc:Loc Label_Avail}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedGear.Availability, TargetNullValue=–}" />
@@ -50,7 +50,7 @@
                 <TextBlock Text="{Binding SelectedGear.Capacity, TargetNullValue=–}" />
                 <StackPanel Spacing="2" IsVisible="{Binding SelectedGear.IsCommlink}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="Prozessor:" FontWeight="Bold" />
+                        <TextBlock Text="{loc:Loc Label_SelectNexus_Processor}" FontWeight="Bold" />
                         <TextBlock Text="{Binding SelectedGear.Response, TargetNullValue=–}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="4">
@@ -72,9 +72,9 @@
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,12,0,0">
             <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
-            <Button Grid.Column="2" Content="Weitere" Width="80" Margin="0,0,6,0" Click="OnAddAnother"
-                    ToolTip.Tip="Hinzufügen, aber Dialog offen lassen" />
-            <Button Grid.Column="3" Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button Grid.Column="2" Content="{loc:Loc UI_More}" Width="80" Margin="0,0,6,0" Click="OnAddAnother"
+                    ToolTip.Tip="{loc:Loc UI_AddKeepDialogOpen}" />
+            <Button Grid.Column="3" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </Grid>
     </Grid>
 </Window>

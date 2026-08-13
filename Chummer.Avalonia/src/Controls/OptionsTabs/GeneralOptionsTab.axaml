@@ -23,12 +23,12 @@
                                          configured on the Global tab above. -->
                                     <Grid ColumnDefinitions="*,Auto,50" ColumnSpacing="4" Margin="20,0,0,0">
                                         <TextBox Grid.Column="0" Text="{Binding PdfPath, Mode=TwoWay}"
-                                                  PlaceholderText="PDF-Pfad (optional)" FontSize="10" />
+                                                  PlaceholderText="{loc:Loc UI_PdfPathOptional}" FontSize="10" />
                                         <Button Grid.Column="1" Content="..." Click="OnBrowseSourcebookPdf"
                                                 Padding="6,0" MinWidth="0" />
                                         <controls:IntegerSpinner Grid.Column="2" Minimum="-100" Maximum="100"
                                                                   Value="{Binding PdfOffset, Mode=TwoWay}"
-                                                                  ToolTip.Tip="Seitenversatz" />
+                                                                  ToolTip.Tip="{loc:Loc UI_PageOffset}" />
                                     </Grid>
                                 </StackPanel>
                             </DataTemplate>
@@ -39,7 +39,7 @@
         </Border>
 
         <TabControl Grid.Column="1">
-            <TabItem Tag="Tab_Options_Global" Header="Global">
+            <TabItem Tag="Tab_Options_Global" Header="{loc:Loc Tab_Options_Global}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10" Spacing="10">
@@ -52,11 +52,11 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <Button Grid.Column="2" Content="Verify" Width="90" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyLanguage" />
-                            <Button Grid.Column="3" Content="Verify Data File" Width="120" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyData" />
+                            <Button Grid.Column="2" Content="{loc:Loc UI_Verify}" Width="90" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyLanguage" />
+                            <Button Grid.Column="3" Content="{loc:Loc UI_VerifyDataFile}" Width="120" IsEnabled="{Binding CanVerifyLanguage}" Click="OnVerifyData" />
                         </Grid>
                         <Grid ColumnDefinitions="140,*" ColumnSpacing="8">
-                            <TextBlock Grid.Column="0" Tag="Label_Options_DefaultCharacterSheet" Text="Standard Charakterbogen:" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="0" Tag="Label_Options_DefaultCharacterSheet" Text="{loc:Loc UI_DefaultSheetColon}" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding Sheets}" SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" MaxDropDownHeight="320">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -76,7 +76,7 @@
                             <Button Grid.Column="2" Content="..." Click="OnBrowsePdfApp" />
                         </Grid>
                         <Grid ColumnDefinitions="140,220,*" ColumnSpacing="8">
-                            <TextBlock Grid.Column="0" Tag="Label_Options_PDFArgumentStyle" Text="PDF Argument Style:" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="0" Tag="Label_Options_PDFArgumentStyle" Text="{loc:Loc UI_PdfArgumentStyleColon}" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding PdfArgumentStyles}" SelectedItem="{Binding SelectedPdfArgumentStyle, Mode=TwoWay}" MaxDropDownHeight="200">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -132,10 +132,10 @@
                                                      HorizontalAlignment="Left" Width="104"
                                                      Value="{Binding CurrentOptions.Availability, Mode=TwoWay}" />
                         </Grid>
-                        <CheckBox Content="Würfelpool für Fertigkeiten benutzen" IsChecked="{Binding CurrentOptions.AllowSkillDiceRolling, Mode=TwoWay}" />
+                        <CheckBox Content="{loc:Loc UI_UseSkillDicePool}" IsChecked="{Binding CurrentOptions.AllowSkillDiceRolling, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_PrintAllSkills" Content="{loc:Loc Checkbox_Options_PrintAllSkills}" IsChecked="{Binding CurrentOptions.PrintSkillsWithZeroRating, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_PrintExpenses" Content="{loc:Loc Checkbox_Options_PrintExpenses}" IsChecked="{Binding CurrentOptions.PrintExpenses, Mode=TwoWay}" />
-                        <CheckBox Content="Alternative Führungskills anzeigen(aus den &quot;War!&quot; Regelwerk)" IsChecked="{Binding CurrentOptions.PrintLeadershipAlternates, Mode=TwoWay}" />
+                        <CheckBox Content="{loc:Loc UI_ShowAlternateLeadershipSkills}" IsChecked="{Binding CurrentOptions.PrintLeadershipAlternates, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc Checkbox_Option_PrintArcanaAlternates}" IsChecked="{Binding CurrentOptions.PrintArcanaAlternates, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc Checkbox_Option_PrintNotes}" IsChecked="{Binding CurrentOptions.PrintNotes, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc Checkbox_Option_PrintToFileFirst}" IsChecked="{Binding PrintToFileFirst, Mode=TwoWay}" />
@@ -163,10 +163,10 @@
                         <CheckBox Tag="Checkbox_Options_UseRestrictionsToRecoilCompensation" Content="{loc:Loc Checkbox_Options_UseRestrictionsToRecoilCompensation}" IsChecked="{Binding CurrentOptions.RestrictRecoil, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc Checkbox_Option_EnforceCapacity}" IsChecked="{Binding CurrentOptions.EnforceCapacity, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_EnforceSkillRating" Content="{loc:Loc Checkbox_Options_EnforceSkillRating}" IsChecked="{Binding CurrentOptions.EnforceMaximumSkillRatingModifier, Mode=TwoWay}" />
-                        <CheckBox Content="Karma cost for increasing Special Attributes is reduced with Essence Loss" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
+                        <CheckBox Content="{loc:Loc UI_KarmaCostSpecialAttributesEssenceLoss}" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_AutomaticCopyProtection" Content="{loc:Loc Checkbox_Options_AutomaticCopyProtection}" IsChecked="{Binding CurrentOptions.AutomaticCopyProtection, Mode=TwoWay}" />
-                        <CheckBox Tag="Checkbox_Options_AutomaticRegistration" Content="Registrations-Software automatisch an Matrix Programmen koppeln (Vernetzt benötigt)" IsChecked="{Binding CurrentOptions.AutomaticRegistration, Mode=TwoWay}" />
-                        <CheckBox Content="Berechne den Kommlink-Prozessor anhand der laufenden Programme" IsChecked="{Binding CurrentOptions.CalculateCommlinkResponse, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_AutomaticRegistration" Content="{loc:Loc UI_AutoRegisterSoftwareWithPrograms}" IsChecked="{Binding CurrentOptions.AutomaticRegistration, Mode=TwoWay}" />
+                        <CheckBox Content="{loc:Loc UI_CalculateCommlinkProcessorFromPrograms}" IsChecked="{Binding CurrentOptions.CalculateCommlinkResponse, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_ErgonomicProgramLimit" Content="{loc:Loc Checkbox_Options_ErgonomicProgramLimit}" IsChecked="{Binding CurrentOptions.ErgonomicProgramLimit, Mode=TwoWay}" />
                     </StackPanel>
                 </ScrollViewer>

@@ -8,7 +8,7 @@
     <DockPanel Margin="8">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
             <Button Content="{loc:Loc Button_AddSpell}" Click="OnAddSpellClick" />
-            <Button Content="Zauber erstellen" Click="OnCreateSpellClick" />
+            <Button Content="{loc:Loc UI_CreateSpell}" Click="OnCreateSpellClick" />
             <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpellClick" />
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
@@ -19,7 +19,7 @@
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
                     IsVisible="{Binding ShowStream}">
-            <TextBlock Text="Stream:" VerticalAlignment="Center" />
+            <TextBlock Text="{loc:Loc UI_StreamColon}" VerticalAlignment="Center" />
             <ComboBox ItemsSource="{Binding Streams}" SelectedItem="{Binding SelectedStream, Mode=TwoWay}" Width="180" />
             <TextBlock Text="{Binding FadingResistanceText}" IsVisible="{Binding ShowFadingResistance}" VerticalAlignment="Center" FontWeight="Bold" />
         </StackPanel>
@@ -60,7 +60,7 @@
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <StackPanel>
-                <TextBlock Text="Geister" FontWeight="Bold" Margin="0,0,0,4" />
+                <TextBlock Text="{loc:Loc Label_Spirits}" FontWeight="Bold" Margin="0,0,0,4" />
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                     <Button Content="{loc:Loc Label_Options_Spirit}" Click="OnAddSpiritClick" />
                     <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpiritClick" />
@@ -80,10 +80,10 @@
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <Grid ColumnDefinitions="*,*">
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Komplexe Formen" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Text="{loc:Loc Label_ComplexForms}" FontWeight="Bold" Margin="0,0,0,4" />
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
-                        <Button Content="Programm" Click="OnAddComplexFormClick" />
-                        <Button Content="Option" Click="OnAddComplexFormOptionClick" />
+                        <Button Content="{loc:Loc UI_Program}" Click="OnAddComplexFormClick" />
+                        <Button Content="{loc:Loc UI_Option}" Click="OnAddComplexFormOptionClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteComplexFormClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding ComplexForms}" SelectedItem="{Binding SelectedComplexForm, Mode=TwoWay}">
@@ -95,7 +95,7 @@
                     </ListBox>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="Kritter-Kräfte" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Text="{loc:Loc UI_CritterPowers}" FontWeight="Bold" Margin="0,0,0,4" />
                     <TextBlock Text="{Binding FreeSpiritPowerPointsText}" IsVisible="{Binding ShowFreeSpiritPowerPoints}" Margin="0,0,0,4" />
                     <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,6">
                         <Button Content="{loc:Loc String_Force}" Click="OnAddCritterPowerClick" />

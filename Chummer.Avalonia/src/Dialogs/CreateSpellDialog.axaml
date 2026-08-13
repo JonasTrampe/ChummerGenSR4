@@ -2,19 +2,19 @@
              xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.CreateSpellDialog"
-        Width="460" SizeToContent="Height" CanResize="False"
+        Width="460" SizeToContent="{loc:Loc UI_Height}" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="Zauber erstellen">
+        FontSize="11" Background="White" Title="{loc:Loc UI_CreateSpell}">
     <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110,*">
-        <TextBlock Grid.Row="0" Text="Name:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" VerticalAlignment="Center" />
         <TextBox Grid.Row="0" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,6" />
 
-        <TextBlock Grid.Row="1" Text="Kategorie:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" Text="{loc:Loc Label_Category}" VerticalAlignment="Center" />
         <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CategoryBox" HorizontalAlignment="Stretch" Margin="0,0,0,6"
                   SelectionChanged="OnCategoryChanged" />
 
-        <TextBlock Grid.Row="2" Text="Typ / Reichweite:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Text="{loc:Loc UI_TypeRangeColon}" VerticalAlignment="Center" />
         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
             <ComboBox x:Name="TypeBox" Width="110" SelectionChanged="OnFieldChanged" />
             <ComboBox x:Name="RangeBox" Width="110" SelectionChanged="OnFieldChanged" />
@@ -24,26 +24,26 @@
         <TextBlock Grid.Row="3" Text="{loc:Loc Label_Duration}" VerticalAlignment="Center" />
         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
             <ComboBox x:Name="DurationBox" Width="110" SelectionChanged="OnFieldChanged" />
-            <CheckBox x:Name="RestrictedBox" Content="Restricted (-1)" Click="OnFieldChanged" />
-            <CheckBox x:Name="VeryRestrictedBox" Content="Very Restricted (-2)" Click="OnFieldChanged" />
+            <CheckBox x:Name="RestrictedBox" Content="{loc:Loc UI_RestrictedMinus1}" Click="OnFieldChanged" />
+            <CheckBox x:Name="VeryRestrictedBox" Content="{loc:Loc UI_VeryRestrictedMinus2}" Click="OnFieldChanged" />
         </StackPanel>
 
-        <TextBlock Grid.Row="4" Text="Anzahl Effekte:" VerticalAlignment="Center" x:Name="NumberOfEffectsLabel" />
+        <TextBlock Grid.Row="4" Text="{loc:Loc UI_NumberOfEffectsColon}" VerticalAlignment="Center" x:Name="NumberOfEffectsLabel" />
         <NumericUpDown Grid.Row="4" Grid.Column="1" x:Name="NumberOfEffectsBox" Minimum="0" Maximum="20" Increment="1"
                        Value="1" FormatString="0" HorizontalAlignment="Left" Width="90" Margin="0,0,0,6"
                        ValueChanged="OnFieldChanged" />
 
-        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="Modifikatoren:" FontWeight="Bold" Margin="0,4,0,2" />
+        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="{loc:Loc UI_ModifiersColon}" FontWeight="Bold" Margin="0,4,0,2" />
         <StackPanel Grid.Row="6" Grid.ColumnSpan="2" x:Name="ModifiersPanel" Margin="0,0,0,6" />
 
-        <TextBlock Grid.Row="7" Text="Schadenswert:" VerticalAlignment="Center" FontWeight="Bold" />
+        <TextBlock Grid.Row="7" Text="{loc:Loc UI_DamageValueColon}" VerticalAlignment="Center" FontWeight="Bold" />
         <TextBlock Grid.Row="7" Grid.Column="1" x:Name="DvText" VerticalAlignment="Center" FontWeight="Bold" />
 
         <TextBlock Grid.Row="8" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,6,0,0" />
 
         <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,32,0,0">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
-            <Button Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>
 </Window>

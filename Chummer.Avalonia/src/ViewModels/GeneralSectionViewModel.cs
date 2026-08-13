@@ -263,6 +263,6 @@ public sealed class GeneralSectionViewModel : ViewModelBase
         foreach (CharacterContactData enemy in character.Enemies)
             Enemies.Add(new ContactRowViewModel(character, enemy));
 
-        ContactPointsUsed = "Punkte für Kontakte: " + character.ContactPointsUsed;
+        ContactPointsUsed = App.LanguageCatalog.GetString("UI_ContactPointsUsedPrefix") + character.ContactPointsUsed;
     }
 }

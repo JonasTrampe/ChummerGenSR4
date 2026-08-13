@@ -58,11 +58,11 @@ public partial class SheetPreviewDialog : Window
 
         if (_character == null)
         {
-            SheetText = "Kein Charakter geöffnet.";
+            SheetText = App.LanguageCatalog.GetString("UI_NoCharacterOpenMessage");
         }
         else if (strSheetName == null)
         {
-            SheetText = "Kein Charakterbogen gefunden.";
+            SheetText = App.LanguageCatalog.GetString("UI_NoCharacterSheetFoundMessage");
         }
         else
         {
@@ -73,7 +73,7 @@ public partial class SheetPreviewDialog : Window
             }
             catch (Exception ex)
             {
-                SheetText = "Fehler beim Erzeugen des Charakterbogens: " + ex.Message;
+                SheetText = App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message;
             }
         }
 
@@ -112,7 +112,7 @@ public partial class SheetPreviewDialog : Window
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Charakterbogen als HTML exportieren",
+            Title = App.LanguageCatalog.GetString("UI_ExportSheetAsHtmlTitle"),
             DefaultExtension = "html",
             SuggestedFileName = _character?.Name ?? "Charakterbogen",
             FileTypeChoices = [new FilePickerFileType("HTML-Datei") { Patterns = ["*.html", "*.htm"] }],
@@ -140,7 +140,7 @@ public partial class SheetPreviewDialog : Window
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Charakterbogen als PDF exportieren",
+            Title = App.LanguageCatalog.GetString("UI_ExportSheetAsPdfTitle"),
             DefaultExtension = "pdf",
             SuggestedFileName = _character.Name ?? "Charakterbogen",
             FileTypeChoices = [new FilePickerFileType("PDF-Datei") { Patterns = ["*.pdf"] }],
@@ -158,7 +158,7 @@ public partial class SheetPreviewDialog : Window
         }
         catch (Exception ex)
         {
-            SheetText = "Fehler beim PDF-Export: " + ex.Message;
+            SheetText = App.LanguageCatalog.GetString("UI_ErrorPdfExportPrefix") + ex.Message;
             this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
         }
     }

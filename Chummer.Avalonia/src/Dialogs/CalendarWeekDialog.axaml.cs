@@ -32,7 +32,7 @@ public partial class CalendarWeekDialog : Window
     {
         if (!int.TryParse(YearBox.Text, out int year) || !int.TryParse(WeekBox.Text, out int week) || week is < 1 or > 52)
         {
-            ErrorText.Text = "Bitte ein gültiges Jahr und eine Kalenderwoche von 1 bis 52 eingeben.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_InvalidYearWeekMessage");
             return;
         }
         Year = year;

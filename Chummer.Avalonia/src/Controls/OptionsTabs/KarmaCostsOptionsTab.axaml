@@ -12,7 +12,7 @@
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <Border Grid.Column="0" Classes="settingsCard">
                     <StackPanel>
-                        <TextBlock Classes="settingsHeader" Text="Allgemeine Karmakosten" />
+                        <TextBlock Classes="settingsHeader" Text="{loc:Loc UI_GeneralKarmaCosts}" />
                         <Grid ColumnDefinitions="*,110,Auto"
                               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                               ColumnSpacing="12" RowSpacing="8">
@@ -49,7 +49,7 @@
                             <TextBlock Grid.Row="12" Text="{loc:Loc Label_Options_ComplexFormOptions}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="12" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaComplexFormOption, Mode=TwoWay}" />
                             <TextBlock Grid.Row="12" Grid.Column="2" Text="{loc:Loc Label_Options_Rating}" VerticalAlignment="Center" />
-                            <TextBlock Grid.Row="13" Text="Komplexe-Form Talensoft" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="13" Text="{loc:Loc UI_ComplexFormSkillsoft}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="13" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaComplexFormSkillsoft, Mode=TwoWay}" />
                             <TextBlock Grid.Row="13" Grid.Column="2" Text="{loc:Loc Label_Options_Rating}" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="14" Text="{loc:Loc Label_Options_Spirit}" VerticalAlignment="Center" />
@@ -57,25 +57,25 @@
                             <TextBlock Grid.Row="14" Grid.Column="2" Text="{loc:Loc Label_Options_ServicesOwed}" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="15" Text="{loc:Loc Label_Options_CombatManeuver}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="15" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaManeuver, Mode=TwoWay}" />
-                            <TextBlock Grid.Row="16" Text="Nuyen" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="16" Text="{loc:Loc Label_SummaryNuyen}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="16" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaNuyenPer, Mode=TwoWay}" />
                             <TextBlock Grid.Row="16" Grid.Column="2" Text="{loc:Loc Label_Options_PerKarma}" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="17" Text="{loc:Loc Label_SummaryContacts}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="17" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaContact, Mode=TwoWay}" />
-                            <TextBlock Grid.Row="17" Grid.Column="2" Text="x (Connection + Loyalty)" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="17" Grid.Column="2" Text="{loc:Loc UI_TimesConnectionPlusLoyalty}" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="18" Text="{loc:Loc Label_Options_Carryover}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="18" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaCarryover, Mode=TwoWay}" />
                             <TextBlock Grid.Row="18" Grid.Column="2" Text="{loc:Loc Label_Options_Maximum}" VerticalAlignment="Center" />
-                            <TextBlock Grid.Row="19" Text="Initiation/Wandlung" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="19" Text="{loc:Loc Label_SummaryInitiation}" VerticalAlignment="Center" />
                             <controls:IntegerSpinner Grid.Row="19" Grid.Column="1" Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.KarmaInitiation, Mode=TwoWay}" />
-                            <TextBlock Grid.Row="19" Grid.Column="2" Text="x neuer Wert + 10" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="19" Grid.Column="2" Text="{loc:Loc UI_TimesNewRatingPlus10}" VerticalAlignment="Center" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Classes="settingsCard">
                     <StackPanel>
-                        <TextBlock Classes="settingsHeader" Text="Fokus, Gruppen und Metamagie" />
+                        <TextBlock Classes="settingsHeader" Text="{loc:Loc UI_FocusGroupsAndMetamagic}" />
                         <Grid ColumnDefinitions="*,110,Auto"
                               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                               ColumnSpacing="12" RowSpacing="8">
@@ -141,10 +141,10 @@
                 <TextBlock Classes="settingsHint"
                            DockPanel.Dock="Left"
                            VerticalAlignment="Center"
-                           Text="Komplexe Fokus- und Steigerungswerte sind in zwei Sektionen gruppiert, um das Scannen zu erleichtern." />
+                           Text="{loc:Loc UI_KarmaCostsGroupedForScanningTooltip}" />
                 <Button DockPanel.Dock="Right"
                         HorizontalAlignment="Right"
-                        Content="Auf Standard zurücksetzen"
+                        Content="{loc:Loc Button_Options_RestoreDefaults}"
                         Click="OnResetKarma" />
             </DockPanel>
         </StackPanel>

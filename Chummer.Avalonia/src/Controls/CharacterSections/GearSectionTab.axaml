@@ -12,7 +12,7 @@
                 <DockPanel Grid.Column="0">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                         <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
-                        <Button Content="Erweiterten Lebensstil erstellen" Click="OnAddAdvancedLifestyleClick" />
+                        <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
@@ -25,20 +25,20 @@
                 <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
                     <TextBlock Text="{Binding LifestyleCost}" />
                     <TextBlock
-                        Text="Komfort / Unterhaltung / Grundversorgung / Wohngegend / Sicherheit"
+                        Text="{loc:Loc UI_LifestyleQualitiesHeader}"
                         Foreground="#666666" FontStyle="Italic" />
                 </StackPanel>
             </Grid>
         </TabItem>
-        <TabItem Header="Panzerung">
+        <TabItem Header="{loc:Loc Tab_Armor}">
             <controls:TreeDetailPane TreeWidth="220" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
+                        <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
-                        <Button Content="Verkaufen" Click="OnSellArmorClick" />
-                        <Button Content="Mod hinzufügen" Click="OnAddArmorModClick" />
-                        <Button Content="Mod löschen" Click="OnDeleteArmorModClick" />
+                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
+                        <Button Content="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
+                        <Button Content="{loc:Loc UI_DeleteMod}" Click="OnDeleteArmorModClick" />
                         <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"
@@ -57,22 +57,22 @@
                 <controls:TreeDetailPane.DetailContent>
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                        <TextBlock Grid.Row="0" Text="Name:" Width="90" />
+                        <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" Width="90" />
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedArmor.Name, TargetNullValue=–}" FontWeight="SemiBold" />
-                        <TextBlock Grid.Row="1" Text="Kategorie:" Width="90" />
+                        <TextBlock Grid.Row="1" Text="{loc:Loc Label_Category}" Width="90" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedArmor.Category, TargetNullValue=–}" />
-                        <TextBlock Grid.Row="2" Text="Ballistisch / Stoß:" Width="90" />
+                        <TextBlock Grid.Row="2" Text="{loc:Loc UI_BallisticImpactColon}" Width="90" />
                         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="{Binding SelectedArmor.Ballistic, TargetNullValue=–}" />
                             <TextBlock Text="/" />
                             <TextBlock Text="{Binding SelectedArmor.Impact, TargetNullValue=–}" />
                         </StackPanel>
-                        <TextBlock Grid.Row="3" Text="Angelegt:" Width="90" />
+                        <TextBlock Grid.Row="3" Text="{loc:Loc UI_CreatedColon}" Width="90" />
                         <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedArmor.Equipped}"
                                   Click="OnToggleArmorEquippedClick" />
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                        <TextBlock Text="{loc:Loc UI_CostAvailColon}" Width="90" />
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="{Binding SelectedArmor.Cost, TargetNullValue=–}" />
                             <TextBlock Text="¥ /" />
@@ -80,11 +80,11 @@
                         </StackPanel>
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Text="Set:" Width="90" />
+                        <TextBlock Text="{loc:Loc UI_SetColon}" Width="90" />
                         <ComboBox Grid.Column="1" ItemsSource="{Binding ArmorSets}"
                                   SelectedItem="{Binding SelectedArmorSet, Mode=TwoWay}" />
                     </Grid>
-                    <Button Content="Ausgewähltes Set auflösen" HorizontalAlignment="Left"
+                    <Button Content="{loc:Loc UI_DisbandSet}" HorizontalAlignment="Left"
                             IsVisible="{Binding IsArmorSetSelected}" Click="OnRemoveArmorSetClick" />
                     <Separator Margin="0,4" />
                     <TextBlock Text="{Binding ArmorRating}" FontWeight="Bold" />
@@ -94,16 +94,16 @@
             </controls:TreeDetailPane>
         </TabItem>
 
-        <TabItem Header="Waffen">
+        <TabItem Header="{loc:Loc Tab_Weapons}">
             <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" />
-                        <Button Content="Natürliche Waffe erstellen" Click="OnAddNaturalWeaponClick" />
-                        <Button Content="Zubehör hinzufügen" Click="OnAddWeaponAccessoryClick" />
-                        <Button Content="Mod hinzufügen" Click="OnAddWeaponModClick" />
+                        <Button Content="{loc:Loc Menu_AddNaturalWeapon}" Click="OnAddNaturalWeaponClick" />
+                        <Button Content="{loc:Loc UI_AddAccessory}" Click="OnAddWeaponAccessoryClick" />
+                        <Button Content="{loc:Loc UI_AddMod}" Click="OnAddWeaponModClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
-                        <Button Content="Verkaufen" Click="OnSellWeaponClick" />
+                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellWeaponClick" />
                         <Button Content="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
@@ -121,17 +121,17 @@
                     <ScrollViewer>
                         <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                            <TextBlock Grid.Row="0" Text="Name:" Width="90" />
+                            <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" Width="90" />
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedWeapon.Name, TargetNullValue=–}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="1" Text="Kategorie:" Width="90" />
+                            <TextBlock Grid.Row="1" Text="{loc:Loc Label_Category}" Width="90" />
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedWeapon.Category, TargetNullValue=–}" />
-                            <TextBlock Grid.Row="2" Text="Stufe:" Width="90" />
+                            <TextBlock Grid.Row="2" Text="{loc:Loc Label_Rating}" Width="90" />
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedWeapon.Rating, TargetNullValue=–}" />
-                            <TextBlock Grid.Row="3" Text="Installiert:" Width="90" />
+                            <TextBlock Grid.Row="3" Text="{loc:Loc UI_InstalledColon}" Width="90" />
                             <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding SelectedWeapon.Equipped}" Click="OnToggleWeaponEquippedClick" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_CostAvailColon}" Width="90" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="{Binding SelectedWeapon.Cost, TargetNullValue=–}" />
                                 <TextBlock Text="¥ /" />
@@ -144,11 +144,11 @@
                                        ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Munition:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_AmmoColon}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.AmmoStatus, TargetNullValue=Nicht geladen, FallbackValue=Nicht geladen}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Ort:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_LocationColon}" Width="90" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding WeaponLocations}"
                                       SelectedItem="{Binding SelectedWeaponLocation, Mode=TwoWay}" />
                         </Grid>
@@ -158,17 +158,17 @@
             </controls:TreeDetailPane>
         </TabItem>
 
-        <TabItem Header="Ausrüstung">
+        <TabItem Header="{loc:Loc Tab_Gear}">
             <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="Ausrüstung hinzufügen" Click="OnAddGearClick" />
-                        <Button Content="Nexus zusammenstellen" Click="OnAddNexusClick" />
-                        <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
+                        <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
+                        <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" />
+                        <Button Content="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
-                        <Button Content="Verkaufen" Click="OnSellGearClick" />
+                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
-                        <Button Content="Ort löschen" Click="OnRemoveGearLocationClick" />
+                        <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveGearLocationClick" />
                         <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
@@ -187,15 +187,15 @@
                 <controls:TreeDetailPane.DetailContent>
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Name:" Width="90" />
+                            <TextBlock Text="{loc:Loc Label_Name}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.TranslatedName, TargetNullValue=–}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kategorie:" Width="90" />
+                            <TextBlock Text="{loc:Loc Label_Category}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Category, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Grid.Column="0" Text="Stufe:" />
+                            <TextBlock Grid.Column="0" Text="{loc:Loc Label_Rating}" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.Rating, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
@@ -204,7 +204,7 @@
                                                       Value="{Binding SelectedGearQuantity, Mode=TwoWay}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Installiert:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_InstalledColon}" Width="90" />
                             <CheckBox Grid.Column="1" IsChecked="{Binding SelectedGear.Equipped}"
                                       Click="OnToggleGearEquippedClick" />
                         </Grid>
@@ -213,7 +213,7 @@
                             <TextBlock Grid.Column="1" Text="{Binding SelectedGear.CapacityDisplay, TargetNullValue=–}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Kosten / Verfügbarkeit:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_CostAvailColon}" Width="90" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="{Binding SelectedGear.Cost, TargetNullValue=–}" />
                                 <TextBlock Text="¥ /" />
@@ -221,13 +221,13 @@
                             </StackPanel>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding !IsGearLocationSelected}">
-                            <TextBlock Text="Ort:" Width="90" />
+                            <TextBlock Text="{loc:Loc UI_LocationColon}" Width="90" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding GearLocations}"
                                       SelectedItem="{Binding SelectedGearLocation, Mode=TwoWay}" />
                         </Grid>
                         <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding SelectedGear.HasCommlinkStats}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="Prozessor:" FontWeight="Bold" />
+                                <TextBlock Text="{loc:Loc Label_SelectNexus_Processor}" FontWeight="Bold" />
                                 <TextBlock Text="{Binding SelectedGear.EffectiveResponse, TargetNullValue=–}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -252,14 +252,14 @@
             <StackPanel Margin="8" Spacing="6">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Button Content="{loc:Loc Button_AddPet}" Click="OnAddPetClick" />
-                    <Button Content="Charakter verknüpfen" Click="OnLinkPetClick" />
+                    <Button Content="{loc:Loc UI_LinkCharacter}" Click="OnLinkPetClick" />
                     <Button Content="{loc:Loc MenuItem_OpenCharacter}" Click="OnOpenLinkedPetCharacterClick"
                             IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
-                    <Button Content="Verknüpfung entfernen" Click="OnUnlinkPetClick"
+                    <Button Content="{loc:Loc UI_RemoveLink}" Click="OnUnlinkPetClick"
                             IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
                     <Button Content="{loc:Loc String_Delete}" Click="OnDeletePetClick" />
                 </StackPanel>
-                <TextBlock Text="Haustiere und Begleiter werden aus den gespeicherten Kontakt-Einträgen geladen." Foreground="#666666" />
+                <TextBlock Text="{loc:Loc UI_PetsLoadedFromContactsTooltip}" Foreground="#666666" />
                 <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"
                            Foreground="#666666" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding SelectedPet.LinkedMetatype, StringFormat='Metatyp: {0}'}"
@@ -269,7 +269,7 @@
                         <DataTemplate x:DataType="vm:ContactRowViewModel">
                             <Grid ColumnDefinitions="180,*,Auto" ColumnSpacing="8" Margin="0,2">
                                 <TextBox Text="{Binding Name, Mode=TwoWay}" FontWeight="SemiBold" />
-                                <TextBox Grid.Column="1" Text="{Binding Notes, Mode=TwoWay}" PlaceholderText="Notizen" />
+                                <TextBox Grid.Column="1" Text="{Binding Notes, Mode=TwoWay}" PlaceholderText="{loc:Loc Tab_Notes}" />
                                 <TextBlock Grid.Column="2" Text="{Binding Free, StringFormat='Kostenlos: {0}'}" />
                             </Grid>
                         </DataTemplate>

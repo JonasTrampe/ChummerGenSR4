@@ -40,7 +40,7 @@ public partial class ExpenseDialog : Window
     {
         if (!decimal.TryParse(AmountBox.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal amount) || amount <= 0)
         {
-            ErrorText.Text = "Die Menge muss größer als 0 sein.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_QuantityMustBeGreaterThanZero");
             return;
         }
         if (string.IsNullOrWhiteSpace(ReasonBox.Text))

@@ -14,8 +14,8 @@
     <controls:TreeDetailPane TreeWidth="220" ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                <Button Content="Kampfkunst hinzufügen" Click="OnAddMartialArtClick" />
-                <Button Content="Manöver hinzufügen" Click="OnAddManeuverClick" />
+                <Button Content="{loc:Loc UI_AddMartialArt}" Click="OnAddMartialArtClick" />
+                <Button Content="{loc:Loc UI_AddManeuver}" Click="OnAddManeuverClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
@@ -32,7 +32,7 @@
         <controls:TreeDetailPane.DetailContent>
             <StackPanel Margin="12,0,0,0" Spacing="6">
                 <Grid ColumnDefinitions="Auto,Auto">
-                    <TextBlock Text="Stufe:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Text="{loc:Loc Label_Rating}" VerticalAlignment="Center" Margin="0,0,6,0" />
                     <Button Grid.Column="1" Classes="iconButton">
                         <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
                     </Button>

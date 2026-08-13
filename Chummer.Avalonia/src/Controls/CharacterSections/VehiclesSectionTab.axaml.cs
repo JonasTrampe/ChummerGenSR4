@@ -125,7 +125,7 @@ public partial class VehiclesSectionTab : UserControl
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window
             || ViewModel.SelectedVehicle is not { Parent: null } vehicle
             || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)) return;
-        var dialog = new ArmorSetDialog { Title = "Fahrzeugort hinzufügen" };
+        var dialog = new ArmorSetDialog { Title = App.LanguageCatalog.GetString("UI_AddVehicleLocationTitle") };
         if (await dialog.ShowDialog<bool>(window) && _character.AddVehicleLocation(guiVehicleId, dialog.SetName))
             ViewModel.LoadCharacter(_character);
     }

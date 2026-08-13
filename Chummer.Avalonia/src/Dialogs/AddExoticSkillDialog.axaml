@@ -7,24 +7,24 @@
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11" Background="White" Title="{loc:Loc Button_AddExoticSkill}">
     <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="110,*">
-        <TextBlock Grid.Row="0" Text="Fertigkeit:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0" Text="{loc:Loc UI_SkillColon}" VerticalAlignment="Center" />
         <TextBox Grid.Row="0" Grid.Column="1" x:Name="NameBox" />
-        <TextBlock Grid.Row="1" Text="Sub-Typ:" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="1" Text="{loc:Loc UI_SubTypeColon}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="SubTypeBox" Margin="0,8,0,0" />
-        <TextBlock Grid.Row="2" Text="Kategorie:" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="2" Text="{loc:Loc Label_Category}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CategoryBox" Margin="0,8,0,0" SelectedIndex="0">
-            <ComboBoxItem Content="Combat Active" />
-            <ComboBoxItem Content="Magical Active" />
-            <ComboBoxItem Content="Physical Active" />
-            <ComboBoxItem Content="Resonance Active" />
-            <ComboBoxItem Content="Social Active" />
-            <ComboBoxItem Content="Technical Active" />
-            <ComboBoxItem Content="Vehicle Active" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryCombatActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryMagicalActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryPhysicalActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryResonanceActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategorySocialActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryTechnicalActive}" />
+            <ComboBoxItem Content="{loc:Loc UI_CategoryVehicleActive}" />
         </ComboBox>
-        <TextBlock Grid.Row="3" Text="Attribut:" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="3" Text="{loc:Loc UI_AttributeColon}" VerticalAlignment="Center" Margin="0,8,0,0" />
         <ComboBox Grid.Row="3" Grid.Column="1" x:Name="AttributeBox" Margin="0,8,0,0" SelectedIndex="0">
-            <ComboBoxItem Content="BOD" />
-            <ComboBoxItem Content="AGI" />
+            <ComboBoxItem Content="{loc:Loc UI_AttributeBodShortLabel}" />
+            <ComboBoxItem Content="{loc:Loc UI_AttributeAgiShortLabel}" />
             <ComboBoxItem Content="{loc:Loc String_AttributeREAShort}" />
             <ComboBoxItem Content="{loc:Loc String_AttributeSTRShort}" />
             <ComboBoxItem Content="{loc:Loc String_AttributeCHAShort}" />
@@ -37,7 +37,7 @@
         <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
         <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
-            <Button Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>
 </Window>

@@ -12,7 +12,7 @@
         FontSize="11"
         Background="White"
         Tag="Title_Options"
-        Title="Optionen">
+        Title="{loc:Loc Title_Options}">
 	<DockPanel Margin="10" LastChildFill="True">
 		<StackPanel DockPanel.Dock="Top" Spacing="8">
 			<Grid ColumnDefinitions="Auto,240,Auto,260,*" ColumnSpacing="8">
@@ -34,7 +34,7 @@
 		</StackPanel>
 
 		<TabControl>
-			<TabItem Tag="Tab_Options_General" Header="Allgemein">
+			<TabItem Tag="Tab_Options_General" Header="{loc:Loc Tab_Common}">
 				<tabs:GeneralOptionsTab />
 			</TabItem>
 			<TabItem Tag="Tab_Options_BPCosts" Header="{loc:Loc Tab_Options_BPCosts}">

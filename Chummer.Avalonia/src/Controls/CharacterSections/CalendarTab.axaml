@@ -6,13 +6,13 @@
              x:DataType="vm:CalendarSectionViewModel">
     <DockPanel Margin="4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-            <Button Content="Woche hinzufügen" Click="OnAddWeekClick" />
+            <Button Content="{loc:Loc UI_AddWeek}" Click="OnAddWeekClick" />
             <Button Content="{loc:Loc Button_EditWeek}" Click="OnEditWeekClick" />
             <Button Content="{loc:Loc Button_ChangeStartWeek}" HorizontalAlignment="Right" Click="OnChangeStartClick" />
         </StackPanel>
         <Grid ColumnDefinitions="120,*" Margin="0,0,0,4">
             <TextBlock Grid.Column="0" Classes="gridHeader" Text="{loc:Loc String_Date}" />
-            <TextBlock Grid.Column="1" Classes="gridHeader" Text="Notizen" />
+            <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc Tab_Notes}" />
         </Grid>
         <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek, Mode=TwoWay}">
             <ListBox.ItemTemplate>

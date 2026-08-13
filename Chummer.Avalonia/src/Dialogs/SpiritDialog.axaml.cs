@@ -25,7 +25,7 @@ public partial class SpiritDialog : Window
         }
         if (!int.TryParse(ForceBox.Text, out int intForce) || intForce <= 0)
         {
-            ErrorText.Text = "Die Kraftstufe muss größer als 0 sein.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_ForceMustBeGreaterThanZero");
             return;
         }
         if (!int.TryParse(ServicesBox.Text, out int intServices) || intServices < 0)

@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.TextSelectionDialog"
         Width="420" Height="160" WindowStartupLocation="CenterOwner"
-        Title="Detail eingeben" CanResize="False">
+        Title="{loc:Loc UI_EnterDetail}" CanResize="False">
     <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16" RowSpacing="10">
         <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" />
-        <TextBox x:Name="ValueBox" Watermark="Text eingeben..." />
+        <TextBox x:Name="ValueBox" Watermark="{loc:Loc UI_EnterTextEllipsis}" />
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
             <Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />

@@ -20,8 +20,8 @@
                 <controls:IntegerSpinner Width="104" HorizontalAlignment="Left" Value="{Binding CurrentOptions.FreeContactsFlatNumber, Mode=TwoWay}" />
             </StackPanel>
             <CheckBox Tag="Checkbox_Options_FreeKnowledgeSkills" Content="{loc:Loc Checkbox_Options_FreeKnowledgeSkills}" IsChecked="{Binding CurrentOptions.FreeKarmaKnowledge, Mode=TwoWay}" />
-            <CheckBox Tag="Checkbox_Options_MaxSpiritForce" Content="Die maximale Geisterstufe und die Kraftstufe des Magieradepten sind auf die Höhe des Magie-Attributes beschränkt." IsChecked="{Binding CurrentOptions.SpiritForceBasedOnTotalMag, Mode=TwoWay}" />
-            <CheckBox Tag="Checkbox_Options_DefaultIncludeModifiers" Content="Proben auf Fertigkeiten ohne Wert beinhalten Modifikatoren" IsChecked="{Binding CurrentOptions.SkillDefaultingIncludesModifiers, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_MaxSpiritForce" Content="{loc:Loc UI_MysticAdeptSpiritPowerCappedByMagicTooltip}" IsChecked="{Binding CurrentOptions.SpiritForceBasedOnTotalMag, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Options_DefaultIncludeModifiers" Content="{loc:Loc UI_DefaultingIncludesModifiers}" IsChecked="{Binding CurrentOptions.SkillDefaultingIncludesModifiers, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Options_EssenceLossReducesMaximum" Content="{loc:Loc Checkbox_Options_EssenceLossReducesMaximum}" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Options_NoArmorEncumbrance" Content="{loc:Loc Checkbox_Options_NoArmorEncumbrance}" IsChecked="{Binding CurrentOptions.IgnoreArmorEncumbrance, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Options_AlternateArmorEncumbrance" Content="{loc:Loc Checkbox_Options_AlternateArmorEncumbrance}" IsChecked="{Binding CurrentOptions.AlternateArmorEncumbrance, Mode=TwoWay}" />
@@ -39,8 +39,8 @@
             </StackPanel>
             <CheckBox Content="{loc:Loc Checkbox_Option_AllowExceedAttributeBP}" IsChecked="{Binding CurrentOptions.AllowExceedAttributeBp, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Option_UnrestrictedNuyen" Content="{loc:Loc Checkbox_Option_UnrestrictedNuyen}" IsChecked="{Binding CurrentOptions.UnrestrictedNuyen, Mode=TwoWay}" />
-            <CheckBox Tag="Checkbox_Option_AllowHigherStackedFoci" Content="Erlauben, dass ein Mehrfachfoki zusammengerchnet über Kraftstufe 6 hinaus generiert werden kann" IsChecked="{Binding CurrentOptions.AllowHigherStackedFoci, Mode=TwoWay}" />
-            <CheckBox Tag="Checkbox_Option_AllowEditPartOfBaseWeapon" Content="Waffenzubehör darf auch an nicht dafür vorgesehenen Stellen an der Waffe angebracht werden" IsChecked="{Binding CurrentOptions.AllowEditPartOfBaseWeapon, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowHigherStackedFoci" Content="{loc:Loc UI_AllowMultipleFociAboveForce6}" IsChecked="{Binding CurrentOptions.AllowHigherStackedFoci, Mode=TwoWay}" />
+            <CheckBox Tag="Checkbox_Option_AllowEditPartOfBaseWeapon" Content="{loc:Loc UI_AllowWeaponAccessoryAnyMount}" IsChecked="{Binding CurrentOptions.AllowEditPartOfBaseWeapon, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Option_AlternateMetatypeAttributeKarma" Content="{loc:Loc Checkbox_Option_AlternateMetatypeAttributeKarma}" IsChecked="{Binding CurrentOptions.AlternateMetatypeAttributeKarma, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Option_AllowObsolescentUpgrade" Content="{loc:Loc Checkbox_Option_AllowObsolescentUpgrade}" IsChecked="{Binding CurrentOptions.AllowObsolescentUpgrade, Mode=TwoWay}" />
             <CheckBox Tag="Checkbox_Option_AllowBiowareSuites" Content="{loc:Loc Checkbox_Option_AllowBiowareSuites}" IsChecked="{Binding CurrentOptions.AllowBiowareSuites, Mode=TwoWay}" />

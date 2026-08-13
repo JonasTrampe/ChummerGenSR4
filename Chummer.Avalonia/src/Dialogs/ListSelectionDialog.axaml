@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Chummer.NewUI.Dialogs.ListSelectionDialog"
         Width="360" Height="420" WindowStartupLocation="CenterOwner"
-        Title="Auswahl">
+        Title="{loc:Loc UI_Selection}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Margin="0,0,0,8" />
         <ListBox x:Name="OptionsList" Grid.Row="1" />

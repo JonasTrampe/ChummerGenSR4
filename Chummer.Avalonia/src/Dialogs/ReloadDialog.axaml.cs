@@ -38,7 +38,7 @@ public partial class ReloadDialog : Window
         int intIndex = AmmoBox.SelectedIndex;
         if (intIndex < 0 || intIndex >= _lstAmmo.Count)
         {
-            ErrorText.Text = "Keine Munition verfügbar.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_NoAmmoAvailableMessage");
             return;
         }
         if (CountBox.SelectedItem is not int intCount)

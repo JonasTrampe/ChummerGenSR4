@@ -31,7 +31,7 @@ public partial class PrintMultipleDialog : Window
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Charaktere auswählen",
+            Title = App.LanguageCatalog.GetString("UI_SelectCharactersTitle"),
             AllowMultiple = true,
             FileTypeFilter = new[]
             {
@@ -59,7 +59,7 @@ public partial class PrintMultipleDialog : Window
         ErrorText.Text = string.Empty;
         if (_lstPaths.Count == 0)
         {
-            ErrorText.Text = "Es wurden keine Charaktere ausgewählt.";
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_NoCharactersSelectedMessage");
             return;
         }
 
@@ -77,7 +77,7 @@ public partial class PrintMultipleDialog : Window
             }
             catch (Exception ex)
             {
-                ErrorText.Text = "Fehler beim Laden von " + Path.GetFileName(strPath) + ": " + ex.Message;
+                ErrorText.Text = App.LanguageCatalog.GetString("UI_ErrorLoadingFilePrefix") + Path.GetFileName(strPath) + ": " + ex.Message;
                 return;
             }
             Progress.Value++;
@@ -90,7 +90,7 @@ public partial class PrintMultipleDialog : Window
         }
         catch (Exception ex)
         {
-            ErrorText.Text = "Fehler beim Erzeugen des Charakterbogens: " + ex.Message;
+            ErrorText.Text = App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message;
         }
         finally
         {
@@ -105,7 +105,7 @@ public partial class PrintMultipleDialog : Window
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Charakterbögen als HTML exportieren",
+            Title = App.LanguageCatalog.GetString("UI_ExportSheetsAsHtmlTitle"),
             DefaultExtension = "html",
             SuggestedFileName = "Charaktere",
             FileTypeChoices = new[] { new FilePickerFileType("HTML-Datei") { Patterns = new[] { "*.html", "*.htm" } } },

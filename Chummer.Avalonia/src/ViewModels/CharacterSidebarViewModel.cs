@@ -208,7 +208,7 @@ public sealed class ConditionMonitorBoxViewModel
     internal ConditionMonitorBoxViewModel(bool blnFilled, int intPosition)
     {
         IsFilled = blnFilled;
-        Tooltip = "Kästchen " + intPosition + (blnFilled ? " (Schaden)" : " (frei)");
+        Tooltip = App.LanguageCatalog.GetString("UI_ConditionMonitorBoxTooltip") + intPosition + (blnFilled ? App.LanguageCatalog.GetString("UI_ConditionMonitorBoxDamaged") : App.LanguageCatalog.GetString("UI_ConditionMonitorBoxFree"));
     }
 
     public bool IsFilled { get; }

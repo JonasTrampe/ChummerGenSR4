@@ -12,7 +12,7 @@
         Title="{loc:Loc Title_SelectSetting}">
 	<StackPanel Margin="12" Spacing="10">
 		<TextBlock Foreground="#2E6B2E" TextWrapping="Wrap"
-		           Text="Wählen Sie ein Einstellungsprofil. Jedes Profil regelt die Generierungsart, Anzahl der Generierungspunkte, die maximale Verfügbarkeit und jegliche Haus-Regeln die für bei der Erschaffung eines Charakters benutzt werden." />
+		           Text="{loc:Loc UI_SelectSettingsProfileTooltip}" />
 
 		<Grid ColumnDefinitions="Auto,*">
 			<TextBlock Text="{loc:Loc Label_Options_SettingsFile}" VerticalAlignment="Center" Margin="0,0,8,0" />

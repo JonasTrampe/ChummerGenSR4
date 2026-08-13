@@ -11,7 +11,7 @@
         <StackPanel Spacing="12" MaxWidth="520">
             <Border Classes="settingsCard">
                 <StackPanel>
-                    <TextBlock Classes="settingsHeader" Text="Grundkosten" />
+                    <TextBlock Classes="settingsHeader" Text="{loc:Loc UI_BaseCost}" />
                     <Grid ColumnDefinitions="*,110"
                           RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                           ColumnSpacing="12" RowSpacing="8">
@@ -50,10 +50,10 @@
                 <TextBlock Classes="settingsHint"
                            DockPanel.Dock="Left"
                            VerticalAlignment="Center"
-                           Text="Diese Werte steuern die Standard-GP-Kosten für neue Profile." />
+                           Text="{loc:Loc UI_BpCostsTabTooltip}" />
                 <Button DockPanel.Dock="Right"
                         HorizontalAlignment="Right"
-                        Content="Auf Standard zurücksetzen"
+                        Content="{loc:Loc Button_Options_RestoreDefaults}"
                         Click="OnResetBp" />
             </DockPanel>
         </StackPanel>

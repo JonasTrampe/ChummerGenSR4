@@ -10,16 +10,16 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="{loc:Loc Button_AddImproevment}" Click="OnAddImprovementClick"
-                            ToolTip.Tip="Deckt eine ausgewählte Untermenge von frmCreateImprovement.cs's Typen ab (Attribut, Fertigkeit, Zustandsmonitor, Initiative, Bewegung, Verbergbarkeit, Waffenlos, Reichweite, Lebensstilkosten) - siehe FEATURE_CHECKLIST.md." />
+                            ToolTip.Tip="{loc:Loc UI_ManualImprovementScopeTooltip}" />
                     <Button Content="{loc:Loc Button_EditImprovement}" IsEnabled="False"
-                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md." />
+                            ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="{loc:Loc String_Delete}" Click="OnDeleteImprovementClick"
                             IsEnabled="{Binding SelectedImprovement.IsCustom}"
-                            ToolTip.Tip="Nur manuell angelegte Verbesserungen können hier gelöscht werden - alle anderen sind eine Nebenwirkung einer anderen Position (Gabe/Cyberware/Metamagie/...) und müssen über diese entfernt werden." />
+                            ToolTip.Tip="{loc:Loc UI_OnlyManualImprovementsDeletableTooltip}" />
                     <Button Content="{loc:Loc Button_AddGroup}" IsEnabled="False"
-                            ToolTip.Tip="Noch nicht portiert - siehe FEATURE_CHECKLIST.md." />
+                            ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
                 </StackPanel>
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
