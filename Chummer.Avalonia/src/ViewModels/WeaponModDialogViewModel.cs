@@ -59,10 +59,10 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
             }
 
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(o => o.Category).Where(c => c.Length > 0).Distinct().OrderBy(c => c))
             Categories.Add(category);
-        _selectedCategory = "Alle";
+        _selectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -71,7 +71,7 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
     {
         ModOptions.Clear();
         IEnumerable<WeaponModOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle")
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
             query = query.Where(o => o.Category == SelectedCategory);
         if (!string.IsNullOrWhiteSpace(SearchText))
             query = query.Where(o => o.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));

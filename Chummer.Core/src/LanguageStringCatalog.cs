@@ -4,45 +4,65 @@ using System.Xml;
 
 namespace Chummer.Core
 {
-    /// <summary>Platform-neutral language string catalog loaded from Chummer language XML files.</summary>
+    /// <summary>Platform-neutral language string catalog loaded from Chummer language XML files.
+    /// Multiple call sites reload this lazily on first access (GlobalOptions, XmlManager) - under
+    /// concurrent test execution (or any multi-threaded host) that reload could previously race
+    /// against a concurrent <see cref="GetString"/> read on another thread, intermittently
+    /// throwing KeyNotFoundException mid-repopulation. Guarded by a lock so a reload always
+    /// completes atomically from a reader's perspective.</summary>
     public sealed class LanguageStringCatalog
     {
-        private readonly Dictionary<string, string> _dicStrings = new();
+        private readonly object _lockObject = new();
+        private Dictionary<string, string> _dicStrings = new();
         public XmlDocument? DataDocument { get; private set; }
 
-        public void Reset()
+        /// <summary>Loads the base en-us strings and, if <paramref name="strLanguage"/> isn't
+        /// "en-us", overlays that language's strings/data on top - all built into a local working
+        /// dictionary that only replaces the live <see cref="_dicStrings"/>/<see
+        /// cref="DataDocument"/> in one atomic swap at the very end. Reset()/LoadBase()/
+        /// ApplyLanguage() used to be three separate public calls each mutating the shared field
+        /// directly, which left a real window (the moment right after a Reset(), before the next
+        /// LoadFile() repopulated it) where a concurrent <see cref="GetString"/> on another thread
+        /// could observe a genuinely empty catalog and throw - this reload can be called from
+        /// several unrelated first-access sites (GlobalOptions, XmlManager, every
+        /// `new CharacterOptions()`), so that's not a hypothetical, it reproduced reliably under
+        /// this port's own parallel test run.</summary>
+        public void Load(string strLanguageDirectory, string strLanguage)
         {
-            _dicStrings.Clear();
-            DataDocument = null;
-        }
+            var dicNew = new Dictionary<string, string>();
+            LoadFileInto(dicNew, Path.Combine(strLanguageDirectory, "en-us.xml"), true);
 
-        public void LoadBase(string strLanguageDirectory)
-        {
-            LoadFile(Path.Combine(strLanguageDirectory, "en-us.xml"), true);
-        }
-
-        public void ApplyLanguage(string strLanguageDirectory, string strLanguage)
-        {
+            XmlDocument? objNewDataDocument = null;
             if (strLanguage != "en-us")
             {
-                LoadFile(Path.Combine(strLanguageDirectory, strLanguage + ".xml"), false);
+                LoadFileInto(dicNew, Path.Combine(strLanguageDirectory, strLanguage + ".xml"), false);
                 var strDataPath = Path.Combine(strLanguageDirectory, strLanguage + "_data.xml");
                 if (File.Exists(strDataPath))
+                {
                     try
                     {
-                        DataDocument = new XmlDocument();
-                        DataDocument.Load(strDataPath);
+                        objNewDataDocument = new XmlDocument();
+                        objNewDataDocument.Load(strDataPath);
                     }
                     catch
                     {
-                        DataDocument = new XmlDocument();
+                        objNewDataDocument = new XmlDocument();
                     }
+                }
+            }
+
+            lock (_lockObject)
+            {
+                _dicStrings = dicNew;
+                DataDocument = objNewDataDocument;
             }
         }
 
         public string GetString(string strKey)
         {
-            return _dicStrings[strKey].Replace("\\n", "\n");
+            Dictionary<string, string> dicSnapshot;
+            lock (_lockObject) dicSnapshot = _dicStrings;
+            return dicSnapshot[strKey].Replace("\\n", "\n");
         }
 
         public List<string> VerifyLanguage(string strLanguageDirectory, string strLanguage)
@@ -69,15 +89,15 @@ namespace Chummer.Core
             return dicStrings;
         }
 
-        private void LoadFile(string strPath, bool blnReplace)
+        private static void LoadFileInto(Dictionary<string, string> dicTarget, string strPath, bool blnReplace)
         {
             var objDocument = new XmlDocument();
             objDocument.Load(strPath);
             foreach (XmlNode objNode in GetStringNodes(objDocument))
             {
                 var strKey = GetRequiredValue(objNode, "key");
-                if (blnReplace || _dicStrings.ContainsKey(strKey))
-                    _dicStrings[strKey] = GetRequiredValue(objNode, "text");
+                if (blnReplace || dicTarget.ContainsKey(strKey))
+                    dicTarget[strKey] = GetRequiredValue(objNode, "text");
             }
         }
 

@@ -36,15 +36,15 @@ public sealed class VehicleDialogViewModel : ViewModelBase
                     node["sensor"]?.InnerText ?? "0", node["devicerating"]?.InnerText ?? "0", node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));
             }
-        Categories.Clear(); Categories.Add("Alle");
+        Categories.Clear(); Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(o => o.Category).Where(c => c.Length > 0).Distinct().OrderBy(c => c)) Categories.Add(category);
-        _selectedCategory = "Alle"; OnPropertyChanged(nameof(SelectedCategory)); ApplyFilter();
+        _selectedCategory = App.LanguageCatalog.GetString("UI_All"); OnPropertyChanged(nameof(SelectedCategory)); ApplyFilter();
     }
 
     private void ApplyFilter()
     {
         VehicleOptions.Clear(); IEnumerable<VehicleOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle") query = query.Where(o => o.Category == SelectedCategory);
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All")) query = query.Where(o => o.Category == SelectedCategory);
         if (!string.IsNullOrWhiteSpace(SearchText)) query = query.Where(o => o.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (VehicleOptionViewModel item in query) VehicleOptions.Add(item);
     }

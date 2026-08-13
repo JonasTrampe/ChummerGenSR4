@@ -92,12 +92,12 @@ public sealed class GearDialogViewModel : ViewModelBase
         }
 
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string strCategory in _lstAllOptions.Select(o => o.CategoryDisplay).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             Categories.Add(strCategory);
 
-        _strSelectedCategory = "Alle";
+        _strSelectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -114,7 +114,7 @@ public sealed class GearDialogViewModel : ViewModelBase
             query = query.Where(o => o.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || o.SourceName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
-        else if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle")
+        else if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
         {
             query = query.Where(o => o.CategoryDisplay == SelectedCategory);
         }

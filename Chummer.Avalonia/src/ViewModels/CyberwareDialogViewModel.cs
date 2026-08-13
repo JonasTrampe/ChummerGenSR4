@@ -173,12 +173,12 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
         }
 
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string strCategory in _lstAllOptions.Select(o => o.Category).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             Categories.Add(strCategory);
 
-        _strSelectedCategory = "Alle";
+        _strSelectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
 
         Grades.Clear();
@@ -207,7 +207,7 @@ public sealed class CyberwareDialogViewModel : ViewModelBase
         CyberwareOptions.Clear();
         IEnumerable<CyberwareOptionViewModel> query = _lstAllOptions;
 
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle")
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
             query = query.Where(o => o.Category == SelectedCategory);
 
         if (!string.IsNullOrWhiteSpace(SearchText))

@@ -252,5 +252,16 @@ Everything not `[x]`, in one place, grouped by area.
 ## Test infrastructure
 
 - [x] `Chummer.Tests` has real coverage for `CharacterFileService`; `dotnet test` passes locally
-  (389 tests as of this writing). Known pre-existing noise: a `System.Net.Http` MSBuild conflict
-  warning, and occasional flaky XML-cache-parallelism test failures unrelated to any change here.
+  and reliably (389 tests, 5 consecutive clean runs). Known pre-existing noise: a
+  `System.Net.Http` MSBuild conflict warning.
+  Fixed a real thread-safety bug in `LanguageStringCatalog`/`LanguageManager`: every
+  `new CharacterOptions()` (plus `GlobalOptions`'/`XmlManager`'s static constructors) lazily
+  re-triggers `LanguageManager.Instance.Load(...)`, and under this port's parallelized test run
+  (dozens of `CharacterOptions` instances constructed concurrently) two overlapping reloads could
+  interleave and leave the catalog briefly, observably empty - a concurrent `GetString` on another
+  thread would throw a bare `KeyNotFoundException`. `LanguageStringCatalog.Load` now builds the
+  whole new dictionary off to the side and swaps it in with one atomic, locked assignment instead
+  of the old three-call `Reset()`/`LoadBase()`/`ApplyLanguage()` sequence (each separately mutating
+  the shared field); `LanguageManager.Load` also now serializes concurrent reload attempts against
+  each other. Added `Chummer.Tests/src/TestSetup.cs` (a `[ModuleInitializer]`) so the catalog is
+  guaranteed loaded before any test runs, matching what `App.axaml.cs` does for the real app.
