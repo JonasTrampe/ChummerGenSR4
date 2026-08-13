@@ -22,6 +22,7 @@ namespace Chummer.NewUI;
 public partial class MainWindow : Window
 {
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
+    private DiceRollerDialog? _singleDiceRoller;
     private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
 
     public MainWindow()
@@ -182,10 +183,34 @@ public partial class MainWindow : Window
         await dialog.ShowDialog(this);
     }
 
-    private async void OnDiceRollerClick(object? sender, RoutedEventArgs e)
+    private void OnDiceRollerClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new DiceRollerDialog();
-        await dialog.ShowDialog(this);
+        OpenDiceRoller();
+    }
+
+    /// <summary>Opens the dice roller modelessly. With SingleDiceRoller enabled, the legacy
+    /// one-window behavior focuses the existing roller instead of spawning another instance.</summary>
+    public void OpenDiceRoller(int? intDiceCount = null)
+    {
+        if (GlobalOptions.Instance.SingleDiceRoller && _singleDiceRoller is { IsVisible: true } existing)
+        {
+            if (intDiceCount.HasValue)
+                existing.ViewModel.DiceCount = intDiceCount.Value;
+            existing.Activate();
+            return;
+        }
+
+        var dialog = intDiceCount.HasValue ? new DiceRollerDialog(intDiceCount.Value) : new DiceRollerDialog();
+        if (GlobalOptions.Instance.SingleDiceRoller)
+        {
+            _singleDiceRoller = dialog;
+            dialog.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_singleDiceRoller, dialog))
+                    _singleDiceRoller = null;
+            };
+        }
+        dialog.Show(this);
     }
 
     private async void OnOptionsClick(object? sender, RoutedEventArgs e)

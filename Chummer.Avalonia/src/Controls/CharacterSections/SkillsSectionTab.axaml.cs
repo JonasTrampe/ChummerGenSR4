@@ -53,24 +53,30 @@ public partial class SkillsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private async void OnRollSkillClick(object? sender, System.EventArgs e)
+    private void OnRollSkillClick(object? sender, System.EventArgs e)
     {
         if (sender is not SkillRow { DataContext: SkillRowViewModel { CanRoll: true } row }
             || !int.TryParse(row.Pool, out int intPool)
             || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        await new DiceRollerDialog(intPool).ShowDialog(window);
+        if (window is MainWindow mainWindow)
+            mainWindow.OpenDiceRoller(intPool);
+        else
+            new DiceRollerDialog(intPool).Show(window);
     }
 
-    private async void OnRollKnowledgeSkillClick(object? sender, RoutedEventArgs e)
+    private void OnRollKnowledgeSkillClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { DataContext: KnowledgeSkillRowViewModel { CanRoll: true } row }
             || !int.TryParse(row.Pool, out int intPool)
             || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
-        await new DiceRollerDialog(intPool).ShowDialog(window);
+        if (window is MainWindow mainWindow)
+            mainWindow.OpenDiceRoller(intPool);
+        else
+            new DiceRollerDialog(intPool).Show(window);
     }
 
     private void OnSpecializationCommitted(object? sender, string strSpecialization)

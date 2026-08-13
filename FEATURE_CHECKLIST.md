@@ -60,10 +60,11 @@ Everything not `[x]`, in one place, grouped by area.
   cloud failure flow already read the corresponding persisted global options.
 - [x] `DatesIncludeTime`: expense entry/editing binds a date and, when enabled, a time picker;
   saved date values are normalized to a date-only value when the option is disabled.
+- [x] `SingleDiceRoller`: the modeless dice roller focuses and reuses its sole instance when the
+  global option is on; with it off, each menu/skill-pool action opens an independent roller.
 - [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
-  `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`, `OmaeAutoLogin`,
-  `PrintToFileFirst`, and `SingleDiceRoller`: now in scope; each needs a verified runtime
-  integration beyond its existing Options persistence/binding.
+  `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`, `OmaeAutoLogin`, and
+  `PrintToFileFirst`: now in scope; each needs a verified runtime integration beyond persistence.
 
 ### Everything else open
 - [~] Cloud save/share: login, folder tree, push/download/archive/unarchive, metadata, revisions,
