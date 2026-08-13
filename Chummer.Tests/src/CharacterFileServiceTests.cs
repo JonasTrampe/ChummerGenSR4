@@ -254,6 +254,24 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ConfigureCreationBudget_SwitchesBuildModeAndAvailabilityAtomically()
+    {
+        CharacterDocument character = LoadXml("<character><created>False</created></character>");
+
+        Assert.True(character.ConfigureCreationBudget("BP", 400, 12, true));
+        Assert.Equal("BP", character.BuildMethod);
+        Assert.Equal("400", character.Bp);
+        Assert.Equal("50", character.Document.SelectSingleNode("/character/nuyenmaxbp")!.InnerText);
+        Assert.Equal("12", character.Document.SelectSingleNode("/character/maxavail")!.InnerText);
+
+        Assert.True(character.ConfigureCreationBudget("Karma", 750, 18, false));
+        Assert.Equal("0", character.Bp);
+        Assert.Equal("750", character.Karma);
+        Assert.Equal("100", character.Document.SelectSingleNode("/character/nuyenmaxbp")!.InnerText);
+        Assert.False(character.ConfigureCreationBudget("Invalid", 1, 1, false));
+    }
+
+    [Fact]
     public void RemoveQuality_MatchesNameTypeAndDetail()
     {
         CharacterDocument character = LoadXml("<character><qualities><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Gold</extra></quality></qualities></character>");

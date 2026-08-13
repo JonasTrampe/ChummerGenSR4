@@ -523,6 +523,28 @@ namespace Chummer.Core
             set => SetRootValue("bp", value);
         }
 
+        /// <summary>Core counterpart to frmSelectBP when opened from Special/Change BP/Avail
+        /// Limit. Replaces the creation-pool configuration as one operation; it deliberately
+        /// does not attempt to recalculate already-spent categories.</summary>
+        public bool ConfigureCreationBudget(string strBuildMethod, int intBuildPoints, int intMaximumAvailability,
+            bool blnIgnoreRules)
+        {
+            if (Created || intBuildPoints < 0 || intMaximumAvailability < 0
+                || (strBuildMethod != "BP" && strBuildMethod != "Karma"))
+                return false;
+            bool blnKarma = strBuildMethod == "Karma";
+            SetRootValue("buildmethod", strBuildMethod);
+            SetRootValue("bp", blnKarma ? "0" : intBuildPoints.ToString(CultureInfo.InvariantCulture));
+            SetRootValue("buildkarma", blnKarma ? intBuildPoints.ToString(CultureInfo.InvariantCulture) : "0");
+            SetRootValue("karma", blnKarma ? intBuildPoints.ToString(CultureInfo.InvariantCulture) : "0");
+            SetRootValue("startingbuildpoints", intBuildPoints.ToString(CultureInfo.InvariantCulture));
+            SetRootValue("nuyenmaxbp", blnKarma ? "100" : "50");
+            SetRootValue("maxavail", intMaximumAvailability.ToString(CultureInfo.InvariantCulture));
+            SetRootValue("ignorerules", blnIgnoreRules ? "True" : "False");
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>The starting BP/Karma total the character was created with (unlike <see
         /// cref="Bp"/>/<see cref="Karma"/>, which shrink as points are spent) - only set for
         /// characters created through <see cref="NewCharacterFactory"/>; "0" for older save files.
