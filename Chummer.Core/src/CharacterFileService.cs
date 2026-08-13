@@ -3854,9 +3854,8 @@ namespace Chummer.Core
         /// <summary>Adds an Armor Modification to a root-level Armor item, matched by name+category
         /// (this port's Armor items have no guid, same lookup approach as <see
         /// cref="RemoveArmor"/>/<see cref="SetArmorEquipped"/>) - deducts cost and applies the
-        /// mod's own rules-data &lt;bonus&gt; block at the given Rating. Ported from
-        /// clsEquipment.cs's ArmorMod.Create/Save. Not ported: Armor capacity enforcement (this
-        /// port doesn't track Armor capacity remaining at all yet, unlike Gear/Weapon Mod slots).</summary>
+        /// mod's own rules-data &lt;bonus&gt; block at the given Rating. Armor Suit Capacity and
+        /// Maximum Armor Modifications are enforced when their respective house rules are on.</summary>
         public bool AddArmorMod(string strArmorName, string strArmorCategory, string strName, string strRating,
             string strB, string strI, string strAvail, string strCost, string strSource, string strPage)
         {
@@ -3868,12 +3867,20 @@ namespace Chummer.Core
             if (objArmor == null || objMods == null)
                 return false;
 
+            XmlDocument objArmorDoc = XmlManager.Instance.Load("armor.xml");
+            XmlNode? objXmlMod = objArmorDoc.SelectSingleNode($"/chummer/mods/mod[name = '{strName.Trim()}']");
+            string strArmorCapacity = objXmlMod == null ? string.Empty
+                : GetValue(objXmlMod, "armorcapacity", string.Empty);
+            if (!ArmorHasCapacityForMod(objArmor, strArmorCapacity, strRating))
+                return false;
+
             var objMod = Document.CreateElement("armormod");
             AppendElement(objMod, "guid", Guid.NewGuid().ToString());
             AppendElement(objMod, "name", strName.Trim());
             AppendElement(objMod, "rating", strRating);
             AppendElement(objMod, "b", strB);
             AppendElement(objMod, "i", strI);
+            AppendElement(objMod, "armorcapacity", strArmorCapacity);
             AppendElement(objMod, "avail", strAvail);
             AppendElement(objMod, "cost", strCost);
             AppendElement(objMod, "included", "False");
@@ -3884,12 +3891,87 @@ namespace Chummer.Core
 
             DeductGearCost(strCost, strRating, "1", strAvail);
 
-            XmlDocument objArmorDoc = XmlManager.Instance.Load("armor.xml");
-            XmlNode? objXmlMod = objArmorDoc.SelectSingleNode($"/chummer/mods/mod[name = '{strName.Trim()}']");
             ApplyBonus(objXmlMod?.SelectSingleNode("bonus"), ImprovementSource.ArmorMod, strName.Trim(), strRating);
 
             Changed?.Invoke();
             return true;
+        }
+
+        private bool ArmorHasCapacityForMod(XmlNode objArmor, string strModCapacity, string strRating)
+        {
+            CharacterArmorCapacityData objCapacity = ComputeArmorCapacity(objArmor);
+            if (objCapacity.Total <= 0)
+                return true;
+            string strArmorCapacity = GetValue(objArmor, "armorcapacity", string.Empty);
+            if (!string.IsNullOrWhiteSpace(strArmorCapacity) && strArmorCapacity != "0"
+                && GetCharacterOptions().ArmorSuitCapacity)
+                return objCapacity.Remaining >= EvaluateArmorCapacity(strModCapacity, ParseInteger(strRating));
+
+            // Standard armor under Maximum Armor Modifications consumes a slot per mod rating,
+            // with unrated modifications consuming one slot.
+            int intRating = ParseInteger(strRating);
+            return objCapacity.Remaining >= Math.Max(1, intRating);
+        }
+
+        private CharacterArmorCapacityData ComputeArmorCapacity(XmlNode objArmor)
+        {
+            string strRawCapacity = GetValue(objArmor, "armorcapacity", string.Empty);
+            CharacterOptions objOptions = GetCharacterOptions();
+            bool blnSuitCapacity = !string.IsNullOrWhiteSpace(strRawCapacity) && strRawCapacity != "0"
+                && objOptions.ArmorSuitCapacity;
+            bool blnMaximumMods = !blnSuitCapacity && (string.IsNullOrWhiteSpace(strRawCapacity) || strRawCapacity == "0")
+                && objOptions.MaximumArmorModifications;
+            int intTotal;
+            if (blnSuitCapacity)
+                intTotal = EvaluateArmorCapacity(strRawCapacity, 0);
+            else if (blnMaximumMods)
+            {
+                int intBallistic = Math.Abs(ParseInteger(GetValue(objArmor, "b", "0")));
+                int intImpact = Math.Abs(ParseInteger(GetValue(objArmor, "i", "0")));
+                intTotal = Math.Max(6, (int)Math.Ceiling(Math.Max(intBallistic, intImpact) * 1.5));
+            }
+            else
+                return new CharacterArmorCapacityData(0, 0);
+
+            int intUsed = 0;
+            foreach (XmlNode objMod in objArmor.SelectNodes("armormods/armormod")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+            {
+                int intRating = ParseInteger(GetValue(objMod, "rating", "0"));
+                intUsed += blnSuitCapacity
+                    ? EvaluateArmorCapacity(GetValue(objMod, "armorcapacity", string.Empty), intRating)
+                    : Math.Max(1, intRating);
+            }
+            foreach (XmlNode objGear in objArmor.SelectNodes("gears/gear")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+            {
+                int intRating = ParseInteger(GetValue(objGear, "rating", "0"));
+                intUsed += blnSuitCapacity
+                    ? EvaluateArmorCapacity(GetValue(objGear, "armorcapacity", string.Empty), intRating)
+                    : Math.Max(1, intRating);
+            }
+            return new CharacterArmorCapacityData(intTotal, intTotal - intUsed);
+        }
+
+        private static int EvaluateArmorCapacity(string strCapacity, int intRating)
+        {
+            if (string.IsNullOrWhiteSpace(strCapacity) || strCapacity == "*" || strCapacity == "[*]")
+                return 0;
+            int intSlash = strCapacity.IndexOf("/[", StringComparison.Ordinal);
+            if (intSlash >= 0)
+                strCapacity = strCapacity.Substring(intSlash + 1);
+            if (strCapacity.StartsWith("FixedValues(", StringComparison.Ordinal) && strCapacity.EndsWith(")", StringComparison.Ordinal))
+            {
+                string[] astrValues = strCapacity.Substring("FixedValues(".Length,
+                    strCapacity.Length - "FixedValues(".Length - 1).Split(',');
+                if (astrValues.Length == 0) return 0;
+                strCapacity = astrValues[Math.Clamp(Math.Max(1, intRating) - 1, 0, astrValues.Length - 1)];
+            }
+            strCapacity = strCapacity.Trim().Trim('[', ']');
+            if (int.TryParse(strCapacity, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intValue))
+                return intValue;
+            return (int)Math.Round(RatingExpression.Evaluate(strCapacity, intRating.ToString(CultureInfo.InvariantCulture)),
+                MidpointRounding.AwayFromZero);
         }
 
         /// <summary>Removes the first saved Armor Modification matching its name, wherever it's
@@ -7299,6 +7381,10 @@ namespace Chummer.Core
                 var objArmor = ReadTreeItem(objNode, "armormods/armormod", "gears/gear");
                 objArmor.SetArmorId(intArmorId++);
                 objArmor.SetArmorRatings(GetValue(objNode, "b", "0"), GetValue(objNode, "i", "0"));
+                CharacterArmorCapacityData objCapacity = ComputeArmorCapacity(objNode);
+                if (objCapacity.Total > 0)
+                    objArmor.SetCapacityDetails(objCapacity.Total.ToString(CultureInfo.InvariantCulture),
+                        objCapacity.Remaining.ToString(CultureInfo.InvariantCulture));
                 string strSetName = GetValue(objNode, "armorname", string.Empty);
                 objArmor.SetArmorSetName(strSetName);
                 if (string.IsNullOrWhiteSpace(strSetName))
@@ -8272,6 +8358,18 @@ namespace Chummer.Core
         public int Cost { get; }
     }
 
+    public sealed class CharacterArmorCapacityData
+    {
+        internal CharacterArmorCapacityData(int intTotal, int intRemaining)
+        {
+            Total = intTotal;
+            Remaining = intRemaining;
+        }
+
+        public int Total { get; }
+        public int Remaining { get; }
+    }
+
     public sealed class CharacterAttributeData
     {
         internal CharacterAttributeData(string strCode, string strValue, string strTotalValue, string strMinimum,
@@ -8562,8 +8660,9 @@ namespace Chummer.Core
 
         internal void SetCyberwareId(int intCyberwareId) => CyberwareId = intCyberwareId;
 
-        /// <summary>Raw saved capacity (e.g. "8" or "[2]") - only set for Gear tree nodes.</summary>
+        /// <summary>Raw saved capacity (e.g. "8" or "[2]") - set for Gear and calculated Armor tree nodes.</summary>
         public string Capacity { get; private set; } = string.Empty;
+        private string? _strCapacityRemainingOverride;
 
         /// <summary>Commlink stats - only set (non-empty) for Commlink-category Gear nodes.</summary>
         public string Response { get; private set; } = string.Empty;
@@ -8584,6 +8683,12 @@ namespace Chummer.Core
             Active = blnActive;
         }
 
+        internal void SetCapacityDetails(string strCapacity, string strRemaining)
+        {
+            Capacity = strCapacity;
+            _strCapacityRemainingOverride = strRemaining;
+        }
+
         /// <summary>Own capacity minus the sum of children's own capacity (each child's Capacity is
         /// treated as how much of the parent's slots it consumes) - a simplified version of
         /// clsEquipment.cs's Gear.CapacityRemaining that doesn't handle bracketed "[x]" capacity
@@ -8592,6 +8697,8 @@ namespace Chummer.Core
         {
             get
             {
+                if (_strCapacityRemainingOverride != null)
+                    return _strCapacityRemainingOverride;
                 double dblOwn = double.TryParse(Capacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var d0) ? d0 : 0;
                 double dblUsed = Children.Sum(c =>
                     double.TryParse(c.Capacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0);

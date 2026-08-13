@@ -1057,6 +1057,39 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ArmorSuitCapacity_TracksRulesDataModCapacityAndRejectsOverflow()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ArmorSuitCapacity = true });
+        character.AddArmor("Capacity Suit", "Armor", "2", "2", "4", "100", "0", "SR4", "326");
+
+        Assert.True(character.AddArmorMod("Capacity Suit", "Armor", "Auto-Injector", "1",
+            "0", "0", "4", "1500", "AR", "50")); // [2] capacity
+        Assert.True(character.AddArmorMod("Capacity Suit", "Armor", "Chemical Protection", "1",
+            "0", "0", "9", "Rating * 250", "SR4", "327")); // [2] capacity
+        Assert.Equal("4", character.Armor.Single().Capacity);
+        Assert.Equal("0", character.Armor.Single().CapacityRemaining);
+        Assert.False(character.AddArmorMod("Capacity Suit", "Armor", "Auto-Injector", "1",
+            "0", "0", "4", "1500", "AR", "50"));
+    }
+
+    [Fact]
+    public void MaximumArmorModifications_UsesArmorRatingSlotsWhenEnabled()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { MaximumArmorModifications = true });
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "100", "0", "SR4", "326");
+
+        // max(6, ceil(max(2, 2) * 1.5)) gives six rating slots.
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "Chemical Protection", "6",
+            "0", "0", "9", "Rating * 250", "SR4", "327"));
+        Assert.Equal("6", character.Armor.Single().Capacity);
+        Assert.Equal("0", character.Armor.Single().CapacityRemaining);
+        Assert.False(character.AddArmorMod("Leather Jacket", "Clothing", "Auto-Injector", "1",
+            "0", "0", "4", "1500", "AR", "50"));
+    }
+
+    [Fact]
     public void AddArmorMod_AppliesItsRulesDataBonus()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

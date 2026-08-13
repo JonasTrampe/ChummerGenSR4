@@ -47,6 +47,8 @@ public sealed class TreeNodeViewModel
     /// <summary>Raw saved capacity - only set for Gear tree nodes.</summary>
     public string Capacity { get; private set; } = string.Empty;
 
+    public bool HasCapacity => !string.IsNullOrEmpty(Capacity);
+
     public string CapacityRemaining { get; private set; } = string.Empty;
     public string CapacityDisplay { get; private set; } = string.Empty;
 

@@ -29,8 +29,9 @@ Everything not `[x]`, in one place, grouped by area.
 - [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
   `AlternateComplexFormCost` costs and charges Career purchases. Creation still needs the
   document-wide budget tracker before its points-remaining total can include Complex Forms.
-- [ ] **No Armor capacity-remaining tracking**: blocks `ArmorSuitCapacity`,
-  `MaximumArmorModifications`, `ArmorDegradation`.
+- [~] **Armor capacity and modification limits**: `ArmorSuitCapacity` and
+  `MaximumArmorModifications` now calculate, display, persist, and reject overflow when adding
+  armor mods. `ArmorDegradation` controls are still outstanding.
 - [x] Technomancer Complex-Form eligibility: picker is Technomancer-only, Autosofts honor
   `TechnomancerAllowAutosoft`, and `TechnomancerAllowCommlink` selects the active-Commlink
   Matrix Initiative branch.
