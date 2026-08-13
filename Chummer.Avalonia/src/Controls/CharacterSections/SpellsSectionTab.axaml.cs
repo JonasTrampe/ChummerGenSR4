@@ -105,8 +105,8 @@ public partial class SpellsSectionTab : UserControl
         if (!blnProceed)
             return;
 
-        _character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page, strExtra);
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page, strExtra))
+            ViewModel.LoadCharacter(_character);
     }
 
     /// <summary>Shared selecttext/selectskill/selectattribute prompt for CritterPower/ComplexForm

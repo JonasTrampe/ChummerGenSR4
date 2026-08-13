@@ -5675,11 +5675,15 @@ namespace Chummer.Core
         /// when the bonus is a &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node,
         /// <paramref name="strExtra"/> becomes the corresponding Improvement (see <see
         /// cref="ApplySelectedImprovement"/>).</summary>
-        public void AddComplexForm(string strName, string strCategory, string strSource, string strPage,
+        public bool AddComplexForm(string strName, string strCategory, string strSource, string strPage,
             string strExtra = "")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A complex form name is required.", nameof(strName));
+
+            int intCost = ComputeComplexFormKarmaCost(strCategory, 1);
+            if (int.TryParse(Karma, out int intKarma) && intKarma < intCost)
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -5707,7 +5711,11 @@ namespace Chummer.Core
             ApplyBonus(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
 
+            if (int.TryParse(Karma, out intKarma))
+                Karma = (intKarma - intCost).ToString(CultureInfo.InvariantCulture);
+
             Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Program Options offered for a Complex Form of the given category - ported
