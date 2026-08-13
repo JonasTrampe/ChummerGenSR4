@@ -304,7 +304,7 @@ public partial class GearSectionTab : UserControl
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedAccessory is not { } accessory) return;
         if (_character.AddWeaponAccessory(guiWeaponId, accessory.Name, accessory.Mount, accessory.Rc,
-                accessory.Availability, accessory.Cost, accessory.Source, accessory.Page))
+                accessory.Availability, accessory.Cost, accessory.Source, accessory.Page, accessory.RcGroup))
             ViewModel.LoadCharacter(_character);
     }
 
@@ -319,7 +319,7 @@ public partial class GearSectionTab : UserControl
         bool added = await dialog.ShowDialog<bool>(window);
         if (!added || dialog.SelectedMod is not { } mod) return;
         if (_character.AddWeaponMod(guiWeaponId, mod.Name, dialog.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                mod.Slots, mod.Availability, mod.Cost, mod.Source, mod.Page))
+                mod.Slots, mod.Availability, mod.Cost, mod.Source, mod.Page, mod.Rc, mod.RcGroup))
             ViewModel.LoadCharacter(_character);
     }
 

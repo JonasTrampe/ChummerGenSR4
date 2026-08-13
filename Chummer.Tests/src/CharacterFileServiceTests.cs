@@ -843,6 +843,83 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Weapon_TotalRc_SumsAccessoryAndModBonusesOutsideAnyRcGroup()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Alpha</name>"
+            + "<category>Assault Rifles</category><rc>1</rc>"
+            + "<accessories><accessory><name>Some Sight</name><rc>1</rc><rcgroup>0</rcgroup><installed>True</installed></accessory></accessories>"
+            + "<weaponmods><weaponmod><name>Some Mod</name><rc>1</rc><rcgroup>0</rcgroup><installed>True</installed></weaponmod></weaponmods>"
+            + "</weapon></weapons></character>");
+
+        // Base 1 + accessory 1 + mod 1 = 3 (RcGroup 0 items are never grouped, they always stack).
+        Assert.Equal("3", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
+    public void Weapon_TotalRc_RestrictRecoilOn_OnlyHighestPerGroupCounts()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Alpha</name>"
+            + "<category>Assault Rifles</category><rc>0</rc>"
+            + "<accessories><accessory><name>Bipod</name><rc>(2)</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "<accessory><name>Some Other Group 1 Item</name><rc>1</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "</accessories></weapon></weapons></character>");
+
+        // RestrictRecoil defaults to true (CharacterOptions._blnRestrictRecoil) - only the higher
+        // of the two Group 1 items (Bipod's 2) counts, not both summed (which would be 3).
+        Assert.Equal("2", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
+    public void Weapon_TotalRc_RestrictRecoilOff_GroupedItemsStackInstead()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Alpha</name>"
+            + "<category>Assault Rifles</category><rc>0</rc>"
+            + "<accessories><accessory><name>Bipod</name><rc>(2)</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "<accessory><name>Some Other Group 1 Item</name><rc>1</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "</accessories></weapon></weapons></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { RestrictRecoil = false });
+
+        // With the house rule off, RC Group is ignored entirely and both items' RC just stacks: 2 + 1 = 3.
+        Assert.Equal("3", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
+    public void Weapon_TotalRc_ForegripAndSlingComboGuaranteesAtLeastTwoInGroup1()
+    {
+        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Alpha</name>"
+            + "<category>Assault Rifles</category><rc>0</rc>"
+            + "<accessories><accessory><name>Foregrip</name><rc>1</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "<accessory><name>Sling</name><rc>1</rc><rcgroup>1</rcgroup><installed>True</installed></accessory>"
+            + "</accessories></weapon></weapons></character>");
+
+        // Each item alone only grants 1, but SR4 83's Foregrip+Sling combo guarantees 2 in Group 1.
+        Assert.Equal("2", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
+    public void Weapon_TotalRc_StrengthAffectsRecoilHouseRule_AddsStrBasedBonus()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("STR", "10")
+            + "</attributes><weapons><weapon><name>Ares Alpha</name><category>Assault Rifles</category>"
+            + "<rc>1</rc><accessories /></weapon></weapons></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { StrengthAffectsRecoil = true });
+
+        // STR 10-13 grants +2 per the house rule's tiered bonus table.
+        Assert.Equal("3", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
+    public void Weapon_TotalRc_StrengthAffectsRecoilHouseRule_OffByDefault()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("STR", "18")
+            + "</attributes><weapons><weapon><name>Ares Alpha</name><category>Assault Rifles</category>"
+            + "<rc>1</rc><accessories /></weapon></weapons></character>");
+
+        // StrengthAffectsRecoil defaults to false - no bonus even at very high Strength.
+        Assert.Equal("1", character.Weapons.Single().Rc);
+    }
+
+    [Fact]
     public void Weapon_DicePool_AddsSmartlinkBonusWhenAccessoryAndImprovementBothPresent()
     {
         CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")

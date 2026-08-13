@@ -3345,7 +3345,7 @@ namespace Chummer.Core
         /// a root-level weapon, deducting its cost. Rejects if the weapon's mount-slot eligibility
         /// check (<see cref="WeaponAllowsAccessoryMount"/>) fails.</summary>
         public bool AddWeaponAccessory(Guid guiWeaponId, string strName, string strMount, string strRc,
-            string strAvail, string strCost, string strSource, string strPage)
+            string strAvail, string strCost, string strSource, string strPage, string strRcGroup = "0")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A weapon accessory name is required.", nameof(strName));
@@ -3360,6 +3360,7 @@ namespace Chummer.Core
             AppendElement(objAccessory, "name", strName.Trim());
             AppendElement(objAccessory, "mount", strMount);
             AppendElement(objAccessory, "rc", strRc);
+            AppendElement(objAccessory, "rcgroup", strRcGroup);
             AppendElement(objAccessory, "avail", strAvail);
             AppendElement(objAccessory, "cost", strCost);
             AppendElement(objAccessory, "included", "False");
@@ -3424,7 +3425,8 @@ namespace Chummer.Core
         /// weapon has (clsEquipment.cs's Weapon.SlotsRemaining hardcodes this as a constant, not a
         /// per-weapon data field).</summary>
         public bool AddWeaponMod(Guid guiWeaponId, string strName, string strRating, string strSlots,
-            string strAvail, string strCost, string strSource, string strPage)
+            string strAvail, string strCost, string strSource, string strPage, string strRc = "",
+            string strRcGroup = "0")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A weapon mod name is required.", nameof(strName));
@@ -3443,6 +3445,8 @@ namespace Chummer.Core
             AppendElement(objMod, "slots", strSlots);
             AppendElement(objMod, "avail", strAvail);
             AppendElement(objMod, "cost", strCost);
+            AppendElement(objMod, "rc", strRc);
+            AppendElement(objMod, "rcgroup", strRcGroup);
             AppendElement(objMod, "included", "False");
             AppendElement(objMod, "installed", "True");
             AppendElement(objMod, "source", strSource);
@@ -7078,6 +7082,7 @@ namespace Chummer.Core
                     GetValue(objNode, "category", string.Empty), GetValue(objNode, "name", string.Empty),
                     WeaponNodeHasSmartgun(objNode), objNode);
                 objWeapon.SetWeaponDicePool(strPoolDisplay, strTooltip);
+                objWeapon.SetWeaponRc(ComputeWeaponTotalRc(objNode));
                 objWeapon.SetAmmoStatus(ComputeAmmoStatus(objNode));
                 if (!string.IsNullOrEmpty(strLocation) && dicLocations.TryGetValue(strLocation, out var objLocation))
                     objLocation.Children.Add(objWeapon);
@@ -7145,9 +7150,129 @@ namespace Chummer.Core
 
                 lstWeapons.Add(new CharacterWeaponData(strName, strCategory, GetValue(objNode, "damage", string.Empty),
                     GetValue(objNode, "ammo", string.Empty), GetValue(objNode, "ap", string.Empty),
-                    GetValue(objNode, "rc", string.Empty), strPoolDisplay, strTooltip));
+                    ComputeWeaponTotalRc(objNode), strPoolDisplay, strTooltip));
             }
             return lstWeapons;
+        }
+
+        /// <summary>Ported from clsEquipment.cs's Weapon.TotalRC: the weapon's own base
+        /// &lt;rc&gt; (which may be "x", "(x)" - entirely from removable parts - or "x(y)" - a
+        /// fixed x plus removable y) plus installed Accessories'/Mods' own &lt;rc&gt; contributions,
+        /// the Strength-affects-recoil house rule, and the RestrictRecoil house rule's
+        /// per-mount-point-group ("RC Group" 1-5) cap - only the single highest &lt;rc&gt; value
+        /// within each group counts when the house rule is on, instead of every item in that group
+        /// stacking freely; a Foregrip+Sling combo in Group 1 is guaranteed at least 2 either way
+        /// (SR4 83). "x(y)"-form items only ever contribute to the removable/full total, never the
+        /// fixed base (legacy's own asymmetry, preserved here). Not ported: loaded-ammo
+        /// &lt;weaponbonus&gt;&lt;rc&gt; (no real gear.xml entry uses it, unlike the dice-pool
+        /// equivalent - see SumLoadedAmmoDicePoolBonus).</summary>
+        private string ComputeWeaponTotalRc(XmlNode objWeaponNode)
+        {
+            string strRc = GetValue(objWeaponNode, "rc", "0");
+            (int intRcBase, int intRcFull) = ParseRc(strRc);
+
+            var dicGroupMax = new int[6]; // index 1-5 used, matching legacy's RC Group numbering.
+            bool blnHasForegrip = false;
+            bool blnHasSling = false;
+
+            void ProcessItem(string strItemRc, int intRcGroup, string strItemName)
+            {
+                if (string.IsNullOrEmpty(strItemRc))
+                    return;
+
+                if (GetCharacterOptions().RestrictRecoil && intRcGroup != 0)
+                {
+                    int intItemRc = int.TryParse(strItemRc.Replace("(", string.Empty).Replace(")", string.Empty),
+                        out var i) ? i : 0;
+                    if (intRcGroup is >= 1 and <= 5 && dicGroupMax[intRcGroup] < intItemRc)
+                        dicGroupMax[intRcGroup] = intItemRc;
+                    if (intRcGroup == 1)
+                    {
+                        if (strItemName == "Foregrip") blnHasForegrip = true;
+                        if (strItemName == "Sling") blnHasSling = true;
+                    }
+                }
+                else
+                {
+                    (int intItemBase, int intItemFull) = ParseRc(strItemRc);
+                    intRcBase += intItemBase;
+                    intRcFull += intItemFull;
+                }
+            }
+
+            XmlNodeList? objAccessoryNodes = objWeaponNode.SelectNodes("accessories/accessory");
+            if (objAccessoryNodes != null)
+                foreach (XmlNode objAccessoryNode in objAccessoryNodes)
+                    if (GetValue(objAccessoryNode, "installed", "True") == "True")
+                        ProcessItem(GetValue(objAccessoryNode, "rc", string.Empty),
+                            int.TryParse(GetValue(objAccessoryNode, "rcgroup", "0"), out var g) ? g : 0,
+                            GetValue(objAccessoryNode, "name", string.Empty));
+
+            XmlNodeList? objModNodes = objWeaponNode.SelectNodes("weaponmods/weaponmod");
+            if (objModNodes != null)
+                foreach (XmlNode objModNode in objModNodes)
+                    if (GetValue(objModNode, "installed", "True") == "True")
+                        ProcessItem(GetValue(objModNode, "rc", string.Empty),
+                            int.TryParse(GetValue(objModNode, "rcgroup", "0"), out var g) ? g : 0,
+                            GetValue(objModNode, "name", string.Empty));
+
+            if (blnHasForegrip && blnHasSling && dicGroupMax[1] < 2)
+                dicGroupMax[1] = 2;
+
+            int intGroupTotal = dicGroupMax[1] + dicGroupMax[2] + dicGroupMax[3] + dicGroupMax[4] + dicGroupMax[5];
+            intRcBase += intGroupTotal;
+            intRcFull += intGroupTotal;
+
+            if (GetCharacterOptions().StrengthAffectsRecoil)
+            {
+                int intStr = GetAttributeInt("STR");
+                int intStrBonus = intStr switch
+                {
+                    >= 18 => 4,
+                    >= 14 => 3,
+                    >= 10 => 2,
+                    >= 6 => 1,
+                    _ => 0,
+                };
+                intRcBase += intStrBonus;
+                intRcFull += intStrBonus;
+            }
+
+            return intRcFull.ToString();
+        }
+
+        /// <summary>Splits a weapon/accessory/mod RC string into its fixed ("base") and full
+        /// (base + removable) components - "x" is both, "(x)" is entirely removable (base 0), and
+        /// "x(y)" is a fixed x plus removable y. Ported from the parsing at the top of
+        /// clsEquipment.cs's Weapon.TotalRC.</summary>
+        private static (int RcBase, int RcFull) ParseRc(string strRc)
+        {
+            string strRcBase = "0";
+            string strRcFull = "0";
+            if (strRc.Contains('('))
+            {
+                if (strRc.StartsWith("(", StringComparison.Ordinal))
+                {
+                    strRcFull = strRc;
+                }
+                else
+                {
+                    int intPos = strRc.IndexOf('(');
+                    strRcBase = strRc.Substring(0, intPos);
+                    strRcFull = strRc.Substring(intPos);
+                }
+            }
+            else
+            {
+                strRcBase = strRc;
+                strRcFull = strRc;
+            }
+
+            int intRcBase = int.TryParse(strRcBase, out var b) ? b : 0;
+            int intRcFull = int.TryParse(strRcFull.Replace("(", string.Empty).Replace(")", string.Empty), out var f) ? f : 0;
+            if (intRcBase < 0)
+                intRcBase = 0;
+            return (intRcBase, intRcFull);
         }
 
         // Ported from clsEquipment.cs's Weapon.DicePool: which Active Skill a weapon Category
@@ -8115,6 +8240,12 @@ namespace Chummer.Core
             WeaponDicePool = strDicePool;
             WeaponDicePoolTooltip = strTooltip;
         }
+
+        /// <summary>Only set (non-empty) for Weapon root nodes - see
+        /// CharacterDocument.ComputeWeaponTotalRc.</summary>
+        public string WeaponRc { get; private set; } = string.Empty;
+
+        internal void SetWeaponRc(string strRc) => WeaponRc = strRc;
 
         /// <summary>"12/30 (Ammo: Regular Ammo)" - style summary of what's currently loaded, empty
         /// when nothing is loaded. Only set for root Weapon nodes. See

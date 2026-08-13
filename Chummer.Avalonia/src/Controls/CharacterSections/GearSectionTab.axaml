@@ -144,6 +144,10 @@
                                        ToolTip.Tip="{Binding SelectedWeapon.WeaponDicePoolTooltip}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text="{loc:Loc UI_RecoilCompensationColon}" Width="90" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.WeaponRc, TargetNullValue=–}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc UI_AmmoColon}" Width="90" />
                             <TextBlock Grid.Column="1" Text="{Binding SelectedWeapon.AmmoStatus, TargetNullValue=Nicht geladen, FallbackValue=Nicht geladen}" />
                         </Grid>

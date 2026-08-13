@@ -30,8 +30,6 @@ Everything not `[x]`, in one place, grouped by area.
   `MaximumArmorModifications`, `ArmorDegradation`.
 - [ ] **No Commlink Response/System/Firewall/Signal derived calculation** (raw persisted fields
   only): blocks `CalculateCommlinkResponse`.
-- [ ] **No weapon recoil-compensation calculation**: blocks `RestrictRecoil`/
-  `StrengthAffectsRecoil`.
 - [ ] **No Technomancer gear/Complex-Form eligibility gating**: blocks
   `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
@@ -129,7 +127,13 @@ Everything not `[x]`, in one place, grouped by area.
   rates, worn armor rating, wound modifier, damage resistance pool, Edge tracking + Burn Edge,
   Adept power points (incl. Mystic Adept MAG-split), attribute karma-cost curve, cyberware/
   bioware essence cost, gear/weapon/armor/cyberware avail & cost, Max Spirit/Sprite Force (Mystic
-  Adept split vs. `SpiritForceBasedOnTotalMag`, Technomancer RES)
+  Adept split vs. `SpiritForceBasedOnTotalMag`, Technomancer RES), weapon recoil compensation
+  (`ComputeWeaponTotalRc`, ported from `clsEquipment.cs`'s `Weapon.TotalRC`: base + installed
+  Accessory/Mod `<rc>` contributions, `RestrictRecoil`'s per-RC-Group cap - only the group's
+  highest item counts instead of every item stacking, with the Foregrip+Sling combo guaranteeing
+  at least 2 in Group 1 - and `StrengthAffectsRecoil`'s tiered STR bonus; shown in the Waffen tab's
+  detail pane and the print sheet). Not ported: loaded-ammo `<weaponbonus><rc>` (no real gear.xml
+  entry uses it, unlike the dice-pool equivalent).
 - [~] House-rule awareness — most Karma/BP costs and the house rules listed below are wired; the
   remainder is tracked in the backlog above. Wired: `IgnoreArmorEncumbrance`/
   `AlternateArmorEncumbrance`/`NoSingleArmorEncumbrance`, `AlternateMetatypeAttributeKarma`,

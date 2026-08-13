@@ -55,7 +55,8 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
                     node["rating"]?.InnerText ?? "0", node["slots"]?.InnerText ?? "0",
                     node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,
-                    node["page"]?.InnerText ?? string.Empty));
+                    node["page"]?.InnerText ?? string.Empty, node["rc"]?.InnerText ?? string.Empty,
+                    node["rcgroup"]?.InnerText ?? "0"));
             }
 
         Categories.Clear();
@@ -83,7 +84,7 @@ public sealed class WeaponModDialogViewModel : ViewModelBase
 public sealed class WeaponModOptionViewModel
 {
     public WeaponModOptionViewModel(string name, string category, string defaultRating, string slots,
-        string availability, string cost, string source, string page)
+        string availability, string cost, string source, string page, string rc = "", string rcGroup = "0")
     {
         Name = name;
         Category = category;
@@ -93,6 +94,8 @@ public sealed class WeaponModOptionViewModel
         Cost = cost;
         Source = source;
         Page = page;
+        Rc = rc;
+        RcGroup = rcGroup;
         SourcePage = string.IsNullOrWhiteSpace(page) ? source : source + " " + page;
     }
 
@@ -104,5 +107,7 @@ public sealed class WeaponModOptionViewModel
     public string Cost { get; }
     public string Source { get; }
     public string Page { get; }
+    public string Rc { get; }
+    public string RcGroup { get; }
     public string SourcePage { get; }
 }

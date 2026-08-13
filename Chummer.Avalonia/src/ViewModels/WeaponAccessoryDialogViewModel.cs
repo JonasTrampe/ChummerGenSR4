@@ -41,7 +41,7 @@ public sealed class WeaponAccessoryDialogViewModel : ViewModelBase
                 _allOptions.Add(new WeaponAccessoryOptionViewModel(name, node["mount"]?.InnerText ?? string.Empty,
                     node["rc"]?.InnerText ?? string.Empty, node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,
-                    node["page"]?.InnerText ?? string.Empty));
+                    node["page"]?.InnerText ?? string.Empty, node["rcgroup"]?.InnerText ?? "0"));
             }
 
         ApplyFilter();
@@ -61,7 +61,7 @@ public sealed class WeaponAccessoryDialogViewModel : ViewModelBase
 public sealed class WeaponAccessoryOptionViewModel
 {
     public WeaponAccessoryOptionViewModel(string name, string mount, string rc, string availability, string cost,
-        string source, string page)
+        string source, string page, string rcGroup = "0")
     {
         Name = name;
         Mount = mount;
@@ -70,12 +70,14 @@ public sealed class WeaponAccessoryOptionViewModel
         Cost = cost;
         Source = source;
         Page = page;
+        RcGroup = rcGroup;
         SourcePage = string.IsNullOrWhiteSpace(page) ? source : source + " " + page;
     }
 
     public string Name { get; }
     public string Mount { get; }
     public string Rc { get; }
+    public string RcGroup { get; }
     public string Availability { get; }
     public string Cost { get; }
     public string Source { get; }
