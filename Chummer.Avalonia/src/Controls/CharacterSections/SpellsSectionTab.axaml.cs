@@ -193,6 +193,18 @@ public partial class SpellsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnEditComplexFormNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetComplexFormNotes(selected.Guid, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddCritterPowerClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
@@ -224,6 +236,18 @@ public partial class SpellsSectionTab : UserControl
         if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteCritterPower"))
             return;
         if (_character.RemoveCritterPower(selected.Guid))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditCritterPowerNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedCritterPower is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetCritterPowerNotes(selected.Guid, dialog.Notes))
             ViewModel.LoadCharacter(_character);
     }
 }

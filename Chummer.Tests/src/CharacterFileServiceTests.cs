@@ -2374,6 +2374,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ComplexFormAndCritterPowerNotes_PersistByGuid()
+    {
+        CharacterDocument character = LoadXml("<character><techprograms>"
+            + "<techprogram><guid>form-id</guid><name>Armor</name></techprogram></techprograms>"
+            + "<critterpowers><critterpower><guid>power-id</guid><name>Armor</name></critterpower>"
+            + "</critterpowers></character>");
+
+        Assert.True(character.SetComplexFormNotes("form-id", "Form note"));
+        Assert.True(character.SetCritterPowerNotes("power-id", "Power note"));
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Form note", Assert.Single(reloaded.ComplexForms).Notes);
+        Assert.Equal("Power note", Assert.Single(reloaded.CritterPowers).Notes);
+    }
+
+    [Fact]
     public void AddMetamagic_AttunementAnimal_AppliesThePlayerEnteredTextAsAnImprovement()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

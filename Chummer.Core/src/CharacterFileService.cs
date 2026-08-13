@@ -351,9 +351,9 @@ namespace Chummer.Core
             if (objNodes == null)
                 return;
 
-            for (int intMartialArtId = 0; intMartialArtId < objNodes.Count; intMartialArtId++)
+            for (int intFormId = 0; intFormId < objNodes.Count; intFormId++)
             {
-                XmlNode objNode = objNodes[intMartialArtId]!;
+                XmlNode objNode = objNodes[intFormId]!;
                 string strNodeGuid = GetValue(objNode, "guid", string.Empty);
                 SetChildValue(objNode, "active", strNodeGuid == strGuid ? "True" : "False");
             }
@@ -6446,9 +6446,9 @@ namespace Chummer.Core
             var lstForms = new List<CharacterComplexFormData>();
             var objNodes = Document.SelectNodes("/character/techprograms/techprogram");
             if (objNodes == null) return lstForms;
-            for (int intMartialArtId = 0; intMartialArtId < objNodes.Count; intMartialArtId++)
+            for (int intFormId = 0; intFormId < objNodes.Count; intFormId++)
             {
-                XmlNode objNode = objNodes[intMartialArtId]!;
+                XmlNode objNode = objNodes[intFormId]!;
                 var lstOptions = new List<(string Name, string Rating)>();
                 var objOptionNodes = objNode.SelectNodes("programoptions/programoption");
                 if (objOptionNodes != null)
@@ -6458,7 +6458,8 @@ namespace Chummer.Core
 
                 lstForms.Add(new CharacterComplexFormData(GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty), GetValue(objNode, "category", string.Empty),
-                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"), lstOptions));
+                    GetValue(objNode, "extra", string.Empty), GetValue(objNode, "rating", "0"), lstOptions,
+                    GetValue(objNode, "notes", string.Empty)));
             }
 
             return lstForms;
@@ -6613,6 +6614,19 @@ namespace Chummer.Core
             return false;
         }
 
+        public bool SetComplexFormNotes(string strGuid, string strNotes)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+            XmlNode? objForm = Document.SelectSingleNode(
+                $"/character/techprograms/techprogram[guid = '{strGuid}']");
+            if (objForm == null)
+                return false;
+            SetChildValue(objForm, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>A Critter/Free Spirit's innate powers - ported (read-only) from clsUnique.cs's
         /// CritterPower class. No add/remove/picker yet, only read+print support.</summary>
         public IReadOnlyList<CharacterCritterPowerData> CritterPowers => ReadCritterPowers();
@@ -6626,7 +6640,7 @@ namespace Chummer.Core
                 lstPowers.Add(new CharacterCritterPowerData(GetValue(objNode, "guid", string.Empty),
                     GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "points", "0"),
-                    GetValue(objNode, "rating", "0")));
+                    GetValue(objNode, "rating", "0"), GetValue(objNode, "notes", string.Empty)));
             return lstPowers;
         }
 
@@ -6701,6 +6715,19 @@ namespace Chummer.Core
             }
 
             return false;
+        }
+
+        public bool SetCritterPowerNotes(string strGuid, string strNotes)
+        {
+            if (string.IsNullOrWhiteSpace(strGuid))
+                return false;
+            XmlNode? objPower = Document.SelectSingleNode(
+                $"/character/critterpowers/critterpower[guid = '{strGuid}']");
+            if (objPower == null)
+                return false;
+            SetChildValue(objPower, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Whether adding this Metamagic prompts for a free-text detail - ported from
@@ -9837,7 +9864,7 @@ namespace Chummer.Core
     public sealed class CharacterComplexFormData
     {
         internal CharacterComplexFormData(string strGuid, string strName, string strCategory, string strExtra,
-            string strRating, IReadOnlyList<(string Name, string Rating)> lstOptions)
+            string strRating, IReadOnlyList<(string Name, string Rating)> lstOptions, string strNotes)
         {
             Guid = strGuid;
             Name = strName;
@@ -9845,6 +9872,7 @@ namespace Chummer.Core
             Extra = strExtra;
             Rating = strRating;
             Options = lstOptions;
+            Notes = strNotes;
         }
 
         public string Guid { get; }
@@ -9853,19 +9881,21 @@ namespace Chummer.Core
         public string Extra { get; }
         public string Rating { get; }
         public IReadOnlyList<(string Name, string Rating)> Options { get; }
+        public string Notes { get; }
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 
     public sealed class CharacterCritterPowerData
     {
         internal CharacterCritterPowerData(string strGuid, string strName, string strExtra, string strPoints,
-            string strRating = "0")
+            string strRating = "0", string strNotes = "")
         {
             Guid = strGuid;
             Name = strName;
             Extra = strExtra;
             Points = strPoints;
             Rating = strRating;
+            Notes = strNotes;
         }
 
         public string Guid { get; }
@@ -9877,6 +9907,7 @@ namespace Chummer.Core
         /// whose rules-data entry sets &lt;rating&gt;yes&lt;/rating&gt; (e.g. Armor (Ballistic));
         /// "0" for every other power.</summary>
         public string Rating { get; }
+        public string Notes { get; }
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }
 

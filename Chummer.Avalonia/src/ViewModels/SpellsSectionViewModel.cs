@@ -33,6 +33,7 @@ public sealed class ComplexFormRowViewModel
     public string Label { get; }
     public string Value { get; }
     public string Category { get; }
+    public string Notes { get; }
 
     public ComplexFormRowViewModel(CharacterComplexFormData form, int intKarmaCost)
     {
@@ -40,6 +41,7 @@ public sealed class ComplexFormRowViewModel
         Label = form.DisplayName;
         Value = form.Rating + " · " + intKarmaCost + " Karma";
         Category = form.Category;
+        Notes = form.Notes;
     }
 }
 
@@ -48,12 +50,14 @@ public sealed class CritterPowerRowViewModel
     public string Guid { get; }
     public string Label { get; }
     public string Value { get; }
+    public string Notes { get; }
 
     public CritterPowerRowViewModel(CharacterCritterPowerData power)
     {
         Guid = power.Guid;
         Label = power.DisplayName;
         Value = power.Points;
+        Notes = power.Notes;
     }
 }
 
