@@ -15,6 +15,7 @@
                         ToolTip.Tip="{loc:Loc UI_VehicleWeaponMountTooltip}" />
                 <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddVehicleLocationClick" />
                 <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveVehicleLocationClick" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditVehicleNotesClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
                 <Button Content="{loc:Loc UI_Sell}" Click="OnSellVehicleClick" />
                 <Button Content="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />

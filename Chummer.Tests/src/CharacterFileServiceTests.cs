@@ -1026,6 +1026,31 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleNotes_PersistForTheVehicleAndItsInstalledItem()
+    {
+        Guid guiVehicleId = Guid.NewGuid();
+        Guid guiModId = Guid.NewGuid();
+        CharacterDocument character = LoadXml("<character><vehicles><vehicle><guid>" + guiVehicleId
+            + "</guid><name>Americar</name><category>Cars</category><notes>Original owner</notes><mods><mod><guid>"
+            + guiModId + "</guid><name>Armor</name><category>Armor</category></mod></mods><gears /><weapons />"
+            + "</vehicle></vehicles></character>");
+
+        Assert.True(character.SetVehicleNotes(guiVehicleId, "Loaned to the team"));
+        Assert.True(character.SetVehicleItemNotes(guiVehicleId, guiModId, "Scratched after the last run"));
+        CharacterVehicleData vehicle = Assert.Single(character.Vehicles);
+        Assert.Equal("Loaned to the team", vehicle.Notes);
+        Assert.Equal("Scratched after the last run", Assert.Single(vehicle.Children).Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        CharacterVehicleData reloadedVehicle = Assert.Single(reloaded.Vehicles);
+        Assert.Equal("Loaned to the team", reloadedVehicle.Notes);
+        Assert.Equal("Scratched after the last run", Assert.Single(reloadedVehicle.Children).Notes);
+    }
+
+    [Fact]
     public void MoveCyberware_RejectsMovingAnItemIntoItsOwnSubtree()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

@@ -3423,6 +3423,31 @@ namespace Chummer.Core
         private XmlNode? GetVehicleNode(Guid guiVehicleId)
             => Document.SelectSingleNode($"/character/vehicles/vehicle[guid = '{guiVehicleId}']");
 
+        public bool SetVehicleNotes(Guid guiVehicleId, string strNotes)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+
+            SetChildValue(objVehicle, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Updates a saved installed vehicle Mod, Gear, or Weapon by its own GUID.
+        /// The GUID is stable across the vehicle tree's separate display projections.</summary>
+        public bool SetVehicleItemNotes(Guid guiVehicleId, Guid guiItemId, string strNotes)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            XmlNode? objItem = objVehicle?.SelectSingleNode($".//*[guid = '{guiItemId}']");
+            if (objItem == null)
+                return false;
+
+            SetChildValue(objItem, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         private void DeductVehicleModCost(string strCost, string strRating, string strBody, string strAvail = "")
         {
             string strExpression = strCost.Replace("Body", strBody, StringComparison.OrdinalIgnoreCase);
@@ -9219,7 +9244,8 @@ namespace Chummer.Core
                     GetValue(objNode, "sensor", string.Empty), GetValue(objNode, "devicerating", string.Empty),
                     GetValue(objNode, "avail", string.Empty), GetValue(objNode, "cost", string.Empty),
                     GetValue(objNode, "addslots", string.Empty), GetValue(objNode, "source", string.Empty),
-                    GetValue(objNode, "page", string.Empty), GetValue(objNode, "physicalcmfilled", "0"));
+                    GetValue(objNode, "page", string.Empty), GetValue(objNode, "physicalcmfilled", "0"),
+                    GetValue(objNode, "notes", string.Empty));
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("mods/mod"), "Vehicle Mod");
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("gears/gear"), "Gear");
                 AddVehicleChildren(objVehicle.Children, objNode.SelectNodes("weapons/weapon"), "Weapon");
@@ -9249,6 +9275,7 @@ namespace Chummer.Core
                     GetValue(objNode, "cost", string.Empty), GetValue(objNode, "avail", string.Empty),
                     GetValue(objNode, "qty", "1"));
                 objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
+                objItem.SetNotes(GetValue(objNode, "notes", string.Empty));
                 if (strFallbackCategory == "Vehicle Mod")
                     objItem.SetModSlots(GetValue(objNode, "slots", "0"), GetValue(objNode, "included", "False") == "True");
                 if (strFallbackCategory == "Weapon")
@@ -9904,7 +9931,7 @@ namespace Chummer.Core
         internal CharacterVehicleData(string strGuid, string strName, string strCategory, string strHandling, string strAcceleration,
             string strSpeed, string strPilot, string strBody, string strArmor, string strSensor,
             string strDeviceRating, string strAvail, string strCost, string strSlots, string strSource,
-            string strPage, string strPhysicalCmFilled)
+            string strPage, string strPhysicalCmFilled, string strNotes)
         {
             Guid = strGuid;
             Name = strName;
@@ -9923,6 +9950,7 @@ namespace Chummer.Core
             Source = strSource;
             Page = strPage;
             PhysicalCmFilled = strPhysicalCmFilled;
+            Notes = strNotes;
         }
 
         public string Guid { get; }
@@ -9942,6 +9970,7 @@ namespace Chummer.Core
         public string Source { get; }
         public string Page { get; }
         public string PhysicalCmFilled { get; }
+        public string Notes { get; }
         public List<string> Locations { get; } = new();
         public List<CharacterTreeItemData> Children { get; } = new();
 

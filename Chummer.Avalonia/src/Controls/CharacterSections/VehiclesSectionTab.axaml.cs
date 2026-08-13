@@ -99,6 +99,30 @@ public partial class VehiclesSectionTab : UserControl
         }
     }
 
+    private async void OnEditVehicleNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        TreeNodeViewModel vehicle = selected;
+        while (vehicle.Parent != null)
+            vehicle = vehicle.Parent;
+        if (!Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId))
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = selected.Notes };
+        if (await dialog.ShowDialog<bool?>(window) != true)
+            return;
+
+        bool blnSaved = selected.Parent == null
+            ? _character.SetVehicleNotes(guiVehicleId, dialog.Notes)
+            : Guid.TryParse(selected.ItemGuid, out Guid guiItemId)
+                && _character.SetVehicleItemNotes(guiVehicleId, guiItemId, dialog.Notes);
+        if (blnSaved)
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnAddVehicleModClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || TopLevel.GetTopLevel(this) is not Window window

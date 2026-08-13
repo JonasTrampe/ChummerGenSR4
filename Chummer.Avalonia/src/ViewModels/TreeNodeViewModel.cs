@@ -277,6 +277,7 @@ public sealed class TreeNodeViewModel
             Page = item.Page,
             PhysicalCmFilled = item.PhysicalCmFilled,
             VehicleLocations = item.Locations,
+            Notes = item.Notes,
             HasVehicleDetails = true
         };
         foreach (CharacterTreeItemData child in item.Children)
