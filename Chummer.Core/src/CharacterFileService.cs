@@ -197,6 +197,10 @@ namespace Chummer.Core
         /// <summary>Whether skill dice pools can be sent directly to the dice roller.</summary>
         public bool AllowSkillDiceRollingEnabled => GetCharacterOptions().AllowSkillDiceRolling;
 
+        /// <summary>Whether destructive UI actions should ask for confirmation, matching the
+        /// per-character settings profile's ConfirmDelete option.</summary>
+        public bool ConfirmDeleteEnabled => GetCharacterOptions().ConfirmDelete;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition

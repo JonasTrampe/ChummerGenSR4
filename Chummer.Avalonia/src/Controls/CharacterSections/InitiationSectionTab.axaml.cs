@@ -48,11 +48,14 @@ public partial class InitiationSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteMetamagicClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteMetamagicClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedMetamagic is not { } selected)
+        if (_character == null || ViewModel.SelectedMetamagic is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteMetamagic"))
+            return;
         if (_character.RemoveMetamagic(selected.Guid))
             ViewModel.LoadCharacter(_character);
     }

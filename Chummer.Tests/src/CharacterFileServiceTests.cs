@@ -4613,6 +4613,17 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ConfirmDeleteEnabled_UsesCharacterSettingsProfile()
+    {
+        CharacterDocument character = LoadXml("<character />");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmDelete = false });
+        Assert.False(character.ConfirmDeleteEnabled);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmDelete = true });
+        Assert.True(character.ConfirmDeleteEnabled);
+    }
+
+    [Fact]
     public void AddGear_AutomaticallyAddsUnwiredProgramOptions_WhenEnabled()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");

@@ -2,8 +2,10 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
+using System.Linq;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
+using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 using ContactGroupDialog = Chummer.NewUI.Dialogs.ContactGroupDialog;
 using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
@@ -146,12 +148,15 @@ public partial class GeneralSectionTab : UserControl
             : (false, string.Empty, string.Empty);
     }
 
-    private void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedQualityNode?.Parent == null)
+        if (_character == null || ViewModel.SelectedQualityNode?.Parent == null
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
         var quality = ViewModel.SelectedQualityNode;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteQuality"))
+            return;
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
             ViewModel.LoadCharacter(_character);
     }
@@ -227,11 +232,16 @@ public partial class GeneralSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteContactClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteContactClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || sender is not Button { Tag: int intContactId })
+        if (_character == null || sender is not Button { Tag: int intContactId }
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        string strKey = ViewModel.Enemies.Any(c => c.ContactId == intContactId)
+            ? "Message_DeleteEnemy" : "Message_DeleteContact";
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, strKey))
+            return;
         if (_character.RemoveContact(intContactId))
             ViewModel.LoadCharacter(_character);
     }

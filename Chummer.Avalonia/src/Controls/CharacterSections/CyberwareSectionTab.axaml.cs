@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Chummer.Core;
 using Chummer.NewUI.ViewModels;
+using Chummer.NewUI.Dialogs;
 using CyberwareDialog = Chummer.NewUI.Dialogs.CyberwareDialog;
 using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
 using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
@@ -107,15 +108,19 @@ public partial class CyberwareSectionTab : UserControl
         }
     }
 
-    private void OnDeleteClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteClick(object? sender, RoutedEventArgs e)
     {
         // Roots is CyberwareRoot/BiowareRoot, two synthetic header nodes - actual saved items are
         // their immediate children, so only allow deleting a node one level under one of those
         // (deeper nesting would be an installed mod, not deletable this way yet).
-        if (_character == null || ViewModel.SelectedNode is not { Parent: { Parent: null } parent } node)
+        if (_character == null || ViewModel.SelectedNode is not { Parent: { Parent: null } parent } node
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
         bool blnBioware = ReferenceEquals(parent, ViewModel.BiowareRoot);
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character,
+                blnBioware ? "Message_DeleteBioware" : "Message_DeleteCyberware"))
+            return;
         if (_character.RemoveCyberware(node.SourceName, node.Category, node.Rating, blnBioware))
             ViewModel.LoadCharacter(_character);
     }

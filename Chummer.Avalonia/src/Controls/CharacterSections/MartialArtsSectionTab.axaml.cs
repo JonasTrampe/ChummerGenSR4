@@ -25,9 +25,13 @@ public partial class MartialArtsSectionTab : UserControl
         ViewModel.LoadCharacter(character);
     }
 
-    private void OnDeleteClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedItem is not { } selected)
+        if (_character == null || ViewModel.SelectedItem is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteMartialArt"))
             return;
 
         bool removed = selected.Kind switch

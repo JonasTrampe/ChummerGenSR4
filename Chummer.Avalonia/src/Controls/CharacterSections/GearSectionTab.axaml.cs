@@ -23,6 +23,7 @@ using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
 using NaturalWeaponDialog = Chummer.NewUI.Dialogs.NaturalWeaponDialog;
 using ReloadDialog = Chummer.NewUI.Dialogs.ReloadDialog;
+using Chummer.NewUI.Dialogs;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -92,9 +93,12 @@ public partial class GearSectionTab : UserControl
         }
     }
 
-    private void OnDeleteLifestyleClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteLifestyleClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedLifestyle == null) return;
+        if (_character == null || ViewModel.SelectedLifestyle == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteLifestyle"))
+            return;
         if (_character.RemoveLifestyle(ViewModel.SelectedLifestyle.Name)) ViewModel.LoadCharacter(_character);
     }
 
@@ -147,9 +151,12 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRemoveGearLocationClick(object? sender, RoutedEventArgs e)
+    private async void OnRemoveGearLocationClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedGear is not { Category: "Gear location" } location)
+        if (_character == null || ViewModel.SelectedGear is not { Category: "Gear location" } location
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteGearLocation"))
             return;
         if (_character.RemoveGearLocation(location.Name))
             ViewModel.LoadCharacter(_character);
@@ -181,11 +188,14 @@ public partial class GearSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteGearClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteGearClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node)
+        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteGear"))
+            return;
         if (_character.RemoveGear(node.GearId))
             ViewModel.LoadCharacter(_character);
     }
@@ -226,9 +236,13 @@ public partial class GearSectionTab : UserControl
         }
     }
 
-    private void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedWeapon is not { } selected)
+        if (_character == null || ViewModel.SelectedWeapon is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteWeapon"))
             return;
 
         if (selected.Parent == null)
@@ -369,16 +383,20 @@ public partial class GearSectionTab : UserControl
         }
     }
 
-    private void OnDeleteArmorClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteArmorClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedArmor == null)
+        if (_character == null || ViewModel.SelectedArmor == null || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
         if (ViewModel.SelectedArmor.Category == "Armor set")
         {
+            if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteArmorLocation"))
+                return;
             if (_character.RemoveArmorSet(ViewModel.SelectedArmor.Name)) ViewModel.LoadCharacter(_character);
             return;
         }
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteArmor"))
+            return;
         if (_character.RemoveArmor(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category))
             ViewModel.LoadCharacter(_character);
     }
@@ -421,11 +439,14 @@ public partial class GearSectionTab : UserControl
         }
     }
 
-    private void OnDeleteArmorModClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteArmorModClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedArmor is not { Parent.Category: not "Armor set" } mod)
+        if (_character == null || ViewModel.SelectedArmor is not { Parent.Category: not "Armor set" } mod
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteArmor"))
+            return;
         if (_character.RemoveArmorMod(mod.SourceName))
             ViewModel.LoadCharacter(_character);
     }
@@ -452,9 +473,12 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRemoveArmorSetClick(object? sender, RoutedEventArgs e)
+    private async void OnRemoveArmorSetClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedArmor is not { Category: "Armor set" } armorSet)
+        if (_character == null || ViewModel.SelectedArmor is not { Category: "Armor set" } armorSet
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteArmorLocation"))
             return;
         if (_character.RemoveArmorSet(armorSet.Name)) ViewModel.LoadCharacter(_character);
     }
@@ -467,9 +491,11 @@ public partial class GearSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeletePetClick(object? sender, RoutedEventArgs e)
+    private async void OnDeletePetClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedPet == null)
+        if (_character == null || ViewModel.SelectedPet == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteContact"))
             return;
         if (_character.RemoveContact(ViewModel.SelectedPet.ContactId))
             ViewModel.LoadCharacter(_character);

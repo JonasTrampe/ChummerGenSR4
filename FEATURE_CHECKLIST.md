@@ -65,7 +65,10 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] `AutomaticCopyProtection` / `AutomaticRegistration`: acquiring an eligible Unwired
   Matrix Program/Skillsoft/Autosoft automatically adds the legacy zero-cost, `[0]`-capacity
   child plugins in both root and nested gear paths; covered by save/reload Core tests.
-- [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
+- [~] `ConfirmDelete`: shared Yes/No dialog honors the character profile for all main item/list
+  delete actions (qualities, contacts, skills, spells/forms/powers, gear, armor, vehicles,
+  cyberware, martial arts and custom Improvements). Remaining non-item removal actions need audit.
+- [ ] `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
   `BookEnabled`, `OmaeAutoLogin`, and `PrintToFileFirst`: now in scope; each needs a verified
   runtime integration beyond persistence.
 

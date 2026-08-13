@@ -36,9 +36,12 @@ public partial class ImprovementsTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteImprovementClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteImprovementClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedImprovement is not { IsCustom: true } selected)
+        if (_character == null || ViewModel.SelectedImprovement is not { IsCustom: true } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteImprovement"))
             return;
         if (_character.RemoveCustomImprovement(selected.SourceName))
             ViewModel.LoadCharacter(_character);

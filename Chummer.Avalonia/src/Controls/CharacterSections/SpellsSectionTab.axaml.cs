@@ -56,11 +56,14 @@ public partial class SpellsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteSpellClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteSpellClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedSpellNode?.Parent == null)
+        if (_character == null || ViewModel.SelectedSpellNode?.Parent == null
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteSpell"))
+            return;
         if (_character.RemoveSpell(ViewModel.SelectedSpellNode.Name))
             ViewModel.LoadCharacter(_character);
     }
@@ -79,11 +82,15 @@ public partial class SpellsSectionTab : UserControl
         }
     }
 
-    private void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedSpirit is not { } selected)
+        if (_character == null || ViewModel.SelectedSpirit is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character,
+                selected.Type == "Sprite" ? "Message_DeleteSprite" : "Message_DeleteSpirit"))
+            return;
         if (_character.RemoveSpirit(selected.Name, selected.Type, selected.Force))
             ViewModel.LoadCharacter(_character);
     }
@@ -162,11 +169,14 @@ public partial class SpellsSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedComplexForm is not { } selected)
+        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteComplexForm"))
+            return;
         if (_character.RemoveComplexForm(selected.Guid))
             ViewModel.LoadCharacter(_character);
     }
@@ -193,11 +203,14 @@ public partial class SpellsSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteCritterPowerClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteCritterPowerClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedCritterPower is not { } selected)
+        if (_character == null || ViewModel.SelectedCritterPower is not { } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteCritterPower"))
+            return;
         if (_character.RemoveCritterPower(selected.Guid))
             ViewModel.LoadCharacter(_character);
     }

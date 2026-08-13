@@ -66,11 +66,14 @@ public partial class AdeptPowersSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeletePowerClick(object? sender, System.EventArgs e)
+    private async void OnDeletePowerClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row })
+        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeletePower"))
+            return;
         if (_character.RemoveAdeptPower(row.Name))
             ViewModel.LoadCharacter(_character);
     }

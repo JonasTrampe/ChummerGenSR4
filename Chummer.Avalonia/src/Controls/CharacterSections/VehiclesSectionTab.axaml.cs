@@ -68,7 +68,10 @@ public partial class VehiclesSectionTab : UserControl
 
     private async void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || ViewModel.SelectedVehicle is not { } vehicle)
+        if (_character == null || ViewModel.SelectedVehicle is not { } vehicle
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteVehicle"))
             return;
         if (vehicle.Parent == null && Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
             && _character.RemoveVehicle(guiVehicleId))
@@ -82,8 +85,6 @@ public partial class VehiclesSectionTab : UserControl
                     && _character.AllowObsolescentUpgradeEnabled);
             if (blnIsRetrofitCandidate)
             {
-                if (TopLevel.GetTopLevel(this) is not Window window)
-                    return;
                 var dialog = new RetrofitDialog();
                 if (await dialog.ShowDialog<bool>(window)
                     && _character.RetrofitVehicleObsolescence(guiVehicleId, guiItemId, dialog.Percentage))
@@ -146,11 +147,14 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRemoveVehicleLocationClick(object? sender, RoutedEventArgs e)
+    private async void OnRemoveVehicleLocationClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle
             || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
-            || string.IsNullOrWhiteSpace(ViewModel.SelectedVehicleLocation)) return;
+            || string.IsNullOrWhiteSpace(ViewModel.SelectedVehicleLocation)
+            || TopLevel.GetTopLevel(this) is not Window window) return;
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteVehicleLocation"))
+            return;
         if (_character.RemoveVehicleLocation(guiVehicleId, ViewModel.SelectedVehicleLocation))
             ViewModel.LoadCharacter(_character);
     }

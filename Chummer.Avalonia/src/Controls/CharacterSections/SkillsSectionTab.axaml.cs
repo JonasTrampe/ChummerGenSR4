@@ -35,11 +35,14 @@ public partial class SkillsSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteKnowledgeSkillClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteKnowledgeSkillClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || sender is not Button { Tag: int intSkillId })
+        if (_character == null || sender is not Button { Tag: int intSkillId }
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteKnowledgeSkill"))
+            return;
         if (_character.RemoveKnowledgeSkill(intSkillId))
             ViewModel.LoadCharacter(_character);
     }
