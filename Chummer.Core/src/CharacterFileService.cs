@@ -1323,7 +1323,8 @@ namespace Chummer.Core
         /// selecttext/selectskill/selectattribute handlers. No real qualities.xml Quality combines
         /// more than one of these, so a single strExtra value is unambiguous.</summary>
         public bool AddQuality(string strName, string strType, string strExtra = "",
-            string strMentorSpirit = "", string strMentorChoice1 = "", string strMentorChoice2 = "")
+            string strMentorSpirit = "", string strMentorChoice1 = "", string strMentorChoice2 = "",
+            QualitySource eQualitySource = QualitySource.Selected)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A quality name is required.", nameof(strName));
@@ -1353,6 +1354,9 @@ namespace Chummer.Core
             AppendElement(objQuality, "name", strName.Trim());
             AppendElement(objQuality, "extra", strExtra.Trim());
             AppendElement(objQuality, "qualitytype", strType);
+            // This is the legacy save field (Quality.Save writes qualitysource). Existing saves
+            // that predate it are read as Selected below, preserving their historical behavior.
+            AppendElement(objQuality, "qualitysource", eQualitySource.ToString());
             if (!string.IsNullOrWhiteSpace(strMentorSpirit))
             {
                 AppendElement(objQuality, "mentorspirit", strMentorSpirit.Trim());
@@ -9085,9 +9089,13 @@ namespace Chummer.Core
             for (int intQualityId = 0; intQualityId < objNodes.Count; intQualityId++)
             {
                 XmlNode objNode = objNodes[intQualityId]!;
+                QualitySource eSource = Enum.TryParse(GetValue(objNode, "qualitysource", "Selected"),
+                    ignoreCase: true, out QualitySource eParsedSource)
+                    ? eParsedSource
+                    : QualitySource.Selected;
                 lstQualities.Add(new CharacterQualityData(GetValue(objNode, "name", string.Empty),
                     GetValue(objNode, "extra", string.Empty), GetValue(objNode, "qualitytype", string.Empty),
-                    intQualityId, GetValue(objNode, "notes", string.Empty)));
+                    intQualityId, GetValue(objNode, "notes", string.Empty), eSource));
             }
             return lstQualities;
         }
@@ -10356,13 +10364,14 @@ namespace Chummer.Core
     public sealed class CharacterQualityData
     {
         internal CharacterQualityData(string strName, string strExtra, string strType, int intQualityId,
-            string strNotes)
+            string strNotes, QualitySource eSource = QualitySource.Selected)
         {
             Name = strName;
             Extra = strExtra;
             Type = strType;
             QualityId = intQualityId;
             Notes = strNotes;
+            Source = eSource;
         }
 
         public string Name { get; }
@@ -10370,6 +10379,7 @@ namespace Chummer.Core
         public string Type { get; private set; }
         public int QualityId { get; }
         public string Notes { get; }
+        public QualitySource Source { get; }
 
         public string DisplayName => string.IsNullOrEmpty(Extra) ? Name : Name + " (" + Extra + ")";
     }

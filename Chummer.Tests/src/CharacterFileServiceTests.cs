@@ -219,6 +219,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void QualitySource_PersistsMetatypeProvenanceAndDefaultsLegacySavesToSelected()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.AddQuality("Ambidextrous", "Positive",
+            eQualitySource: QualitySource.MetatypeRemovable));
+        Assert.Equal(QualitySource.MetatypeRemovable, Assert.Single(character.Qualities).Source);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(QualitySource.MetatypeRemovable, Assert.Single(reloaded.Qualities).Source);
+
+        CharacterDocument legacy = LoadXml("<character><qualities><quality><name>Ambidextrous</name>"
+            + "<qualitytype>Positive</qualitytype></quality></qualities></character>");
+        Assert.Equal(QualitySource.Selected, Assert.Single(legacy.Qualities).Source);
+    }
+
+    [Fact]
     public void RemoveQuality_MatchesNameTypeAndDetail()
     {
         CharacterDocument character = LoadXml("<character><qualities><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Gold</extra></quality></qualities></character>");
