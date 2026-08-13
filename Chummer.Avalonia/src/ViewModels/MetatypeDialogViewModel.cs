@@ -43,12 +43,14 @@ public sealed class MetatypeDialogViewModel : ViewModelBase
         set => SetField(ref _selectedMetavariant, value);
     }
 
-    public void LoadMetatypes()
+    public void LoadMetatypes(string strSettingsFileName = "default.xml")
     {
         _allMetatypes.Clear();
         Categories.Clear();
         Metatypes.Clear();
-        foreach (NewCharacterMetatype objMetatype in NewCharacterFactory.LoadMetatypes())
+        var objOptions = new CharacterOptions();
+        objOptions.Load(string.IsNullOrWhiteSpace(strSettingsFileName) ? "default.xml" : strSettingsFileName);
+        foreach (NewCharacterMetatype objMetatype in NewCharacterFactory.LoadMetatypes(objOptions))
             _allMetatypes.Add(objMetatype);
 
         foreach (string strCategory in _allMetatypes.Select(x => x.CategoryLabel).Distinct())

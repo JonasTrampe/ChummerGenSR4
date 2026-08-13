@@ -9,6 +9,7 @@ namespace Chummer.Core
     {
         public string Name { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
         public int Bp { get; set; }
         public string Movement { get; set; } = string.Empty;
         public List<NewCharacterMetavariant> Metavariants { get; } = new();
@@ -48,6 +49,7 @@ namespace Chummer.Core
     {
         public string Name { get; set; } = string.Empty;
         public int Bp { get; set; }
+        public string Source { get; set; } = string.Empty;
 
         public override string ToString()
         {
@@ -62,7 +64,9 @@ namespace Chummer.Core
             "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "INI", "EDG", "MAG", "RES", "ESS"
         };
 
-        public static List<NewCharacterMetatype> LoadMetatypes()
+        /// <summary>Loads metatypes for the new-character picker. Supplying the selected profile's
+        /// options applies its enabled-sourcebook filter before a character document exists.</summary>
+        public static List<NewCharacterMetatype> LoadMetatypes(CharacterOptions? objOptions = null)
         {
             XmlDocument objDocument = XmlManager.Instance.Load("metatypes.xml");
             List<NewCharacterMetatype> lstMetatypes = new List<NewCharacterMetatype>();
@@ -76,8 +80,12 @@ namespace Chummer.Core
                 {
                     Name = GetValue(objNode, "name", string.Empty),
                     Category = GetValue(objNode, "category", string.Empty),
-                    Movement = GetValue(objNode, "movement", string.Empty)
+                    Movement = GetValue(objNode, "movement", string.Empty),
+                    Source = GetValue(objNode, "source", string.Empty)
                 };
+                if (objOptions != null && !string.IsNullOrEmpty(objMetatype.Source)
+                    && !objOptions.BookEnabled(objMetatype.Source))
+                    continue;
                 int.TryParse(GetValue(objNode, "bp", "0"), out int intBp);
                 objMetatype.Bp = intBp;
 
@@ -94,7 +102,7 @@ namespace Chummer.Core
                 AddAttributeRange(objMetatype, objNode, "MAG", "mag");
                 AddAttributeRange(objMetatype, objNode, "RES", "res");
                 AddAttributeRange(objMetatype, objNode, "ESS", "ess");
-                AddMetavariants(objMetatype, objNode);
+                AddMetavariants(objMetatype, objNode, objOptions);
 
                 lstMetatypes.Add(objMetatype);
             }
@@ -250,7 +258,8 @@ namespace Chummer.Core
                 GetValue(objNode, strPrefix + "aug", GetValue(objNode, strPrefix + "max", "0")));
         }
 
-        private static void AddMetavariants(NewCharacterMetatype objMetatype, XmlNode objNode)
+        private static void AddMetavariants(NewCharacterMetatype objMetatype, XmlNode objNode,
+            CharacterOptions? objOptions)
         {
             XmlNodeList? objMetavariantNodes = objNode.SelectNodes("metavariants/metavariant");
             if (objMetavariantNodes == null)
@@ -260,8 +269,12 @@ namespace Chummer.Core
             {
                 NewCharacterMetavariant objMetavariant = new NewCharacterMetavariant
                 {
-                    Name = GetValue(objMetavariantNode, "name", string.Empty)
+                    Name = GetValue(objMetavariantNode, "name", string.Empty),
+                    Source = GetValue(objMetavariantNode, "source", string.Empty)
                 };
+                if (objOptions != null && !string.IsNullOrEmpty(objMetavariant.Source)
+                    && !objOptions.BookEnabled(objMetavariant.Source))
+                    continue;
                 int.TryParse(GetValue(objMetavariantNode, "bp", "0"), out int intBp);
                 objMetavariant.Bp = intBp;
                 if (!string.IsNullOrWhiteSpace(objMetavariant.Name))

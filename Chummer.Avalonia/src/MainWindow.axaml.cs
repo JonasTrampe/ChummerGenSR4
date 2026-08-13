@@ -50,7 +50,7 @@ public partial class MainWindow : Window
         if (objBuildSelection == null)
             return;
 
-        var metatypeDialog = new MetatypeDialog();
+        var metatypeDialog = new MetatypeDialog(objSettingsSelection.FileName);
         MetatypeSelection? objMetatypeSelection = await metatypeDialog.ShowDialog<MetatypeSelection?>(this);
         if (objMetatypeSelection == null)
             return;

@@ -8,11 +8,11 @@ public partial class MetatypeDialog : Window
 {
     public MetatypeDialogViewModel ViewModel { get; } = new();
 
-    public MetatypeDialog()
+    public MetatypeDialog(string strSettingsFileName = "default.xml")
     {
         DataContext = ViewModel;
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
-        ViewModel.LoadMetatypes();
+        ViewModel.LoadMetatypes(strSettingsFileName);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)

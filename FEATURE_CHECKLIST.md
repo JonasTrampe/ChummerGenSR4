@@ -79,8 +79,10 @@ Everything not `[x]`, in one place, grouped by area.
   and is deleted when that browser closes, matching the legacy Wine workaround safely.
 - [~] `ConfirmKarmaExpense`: character-profile setting is exposed from Core and Career attribute/
   skill/group/specialization/initiation actions use a shared confirmation dialog; purchases remain.
-- [ ] `LocalisedUpdatesOnly`, `BookEnabled`, and `OmaeAutoLogin`: now in scope; each needs a
-  verified runtime integration beyond persistence.
+- [ ] `LocalisedUpdatesOnly` and `OmaeAutoLogin`: now in scope; each needs a verified runtime
+  integration beyond persistence.
+- [x] `BookEnabled`: enabled-book filtering is applied by all rules-data pickers, including the
+  selected-settings-aware metatype/metavariant dialog used before character creation.
 
 ### Everything else open
 - [~] Cloud save/share: login, folder tree, push/download/archive/unarchive, metadata, revisions,

@@ -15,6 +15,20 @@ public class NewCharacterFactoryTests
         => NewCharacterFactory.LoadMetatypes().Single(m => m.Name == "Elf");
 
     [Fact]
+    public void LoadMetatypes_UsesTheSelectedProfileSourcebookFilter()
+    {
+        var options = new CharacterOptions();
+        options.Books.Clear();
+        options.Books.Add("SR4");
+
+        var metatypes = NewCharacterFactory.LoadMetatypes(options);
+
+        Assert.Contains(metatypes, m => m.Name == "Human");
+        Assert.DoesNotContain(metatypes, m => m.Name == "Nartaki"); // Runner's Companion.
+        Assert.Empty(metatypes.Single(m => m.Name == "Elf").Metavariants); // Dryad is RC.
+    }
+
+    [Fact]
     public void CreateNewCharacter_KarmaBuild_SeedsStartingKarmaFromBuildPoints()
     {
         CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
