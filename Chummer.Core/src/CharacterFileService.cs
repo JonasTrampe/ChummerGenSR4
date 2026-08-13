@@ -4366,6 +4366,37 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Adds Gear inside one root Armor item, preserving the legacy
+        /// <c>armor/gears/gear</c> containment shape and normal purchase accounting.</summary>
+        public bool AddArmorGear(int intArmorId, string strName, string strCategory, string strRating = "0",
+            string strQty = "1", string strCost = "", string strAvail = "", string strSource = "",
+            string strPage = "", string strCapacity = "")
+        {
+            if (string.IsNullOrWhiteSpace(strName) || !StickNShockAllowed(strName))
+                return false;
+            XmlNode? objArmor = GetArmorNodeById(intArmorId);
+            XmlElement? objGears = objArmor?.SelectSingleNode("gears") as XmlElement;
+            if (objGears == null)
+                return false;
+            XmlElement objGear = AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost,
+                strAvail, strSource, strPage, strCapacity, string.Empty, string.Empty, string.Empty, string.Empty);
+            AppendAutomaticProgramOptions(objGear);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Removes a direct armor-contained Gear item by its persistent GUID.</summary>
+        public bool RemoveArmorGear(int intArmorId, Guid guiGearId)
+        {
+            XmlNode? objGear = GetArmorNodeById(intArmorId)?.SelectSingleNode($"gears/gear[guid = '{guiGearId}']");
+            if (objGear?.ParentNode == null)
+                return false;
+            objGear.ParentNode.RemoveChild(objGear);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root Armor
         /// item (including its own installed mods/gear cost).</summary>
         public bool SellArmor(string strName, string strCategory, double dblSellPercent)

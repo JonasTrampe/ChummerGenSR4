@@ -1645,6 +1645,29 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddArmorGear_NestsDeductsAndRoundTrips()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+        int armorId = Assert.Single(character.Armor).ArmorId;
+
+        Assert.True(character.AddArmorGear(armorId, "Gecko Tape Gloves", "Tools", "0", "1", "250", "4", "SR4", "322"));
+        CharacterTreeItemData gear = Assert.Single(Assert.Single(character.Armor).Children);
+        Assert.Equal("Gecko Tape Gloves", gear.Name);
+        Assert.Equal("550", character.Nuyen);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "armor-gear.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "armor-gear.chum");
+        Assert.Equal("Gecko Tape Gloves", Assert.Single(Assert.Single(reloaded.Armor).Children).Name);
+
+        Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
+        Assert.True(character.RemoveArmorGear(armorId, gearId));
+        Assert.Empty(Assert.Single(character.Armor).Children);
+    }
+
+    [Fact]
     public void AddCyberware_SideSelection_IsDetectedPersistedAndRemovable()
     {
         CharacterDocument character = LoadXml("<character></character>");
