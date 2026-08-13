@@ -66,7 +66,7 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedVehicle is not { } vehicle)
             return;
@@ -75,11 +75,27 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
         else if (vehicle.Parent is { Parent: null } vehicleRoot
             && Guid.TryParse(vehicleRoot.VehicleGuid, out guiVehicleId)
-            && Guid.TryParse(vehicle.ItemGuid, out Guid guiItemId)
-            && (_character.RemoveVehicleMod(guiVehicleId, guiItemId)
+            && Guid.TryParse(vehicle.ItemGuid, out Guid guiItemId))
+        {
+            bool blnIsRetrofitCandidate = string.Equals(vehicle.Name, "Obsolete", StringComparison.Ordinal)
+                || (string.Equals(vehicle.Name, "Obsolescent", StringComparison.Ordinal)
+                    && _character.AllowObsolescentUpgradeEnabled);
+            if (blnIsRetrofitCandidate)
+            {
+                if (TopLevel.GetTopLevel(this) is not Window window)
+                    return;
+                var dialog = new RetrofitDialog();
+                if (await dialog.ShowDialog<bool>(window)
+                    && _character.RetrofitVehicleObsolescence(guiVehicleId, guiItemId, dialog.Percentage))
+                    ViewModel.LoadCharacter(_character);
+                return;
+            }
+
+            if (_character.RemoveVehicleMod(guiVehicleId, guiItemId)
                 || _character.RemoveVehicleGear(guiVehicleId, guiItemId)
-                || _character.RemoveVehicleWeapon(guiVehicleId, guiItemId)))
-            ViewModel.LoadCharacter(_character);
+                || _character.RemoveVehicleWeapon(guiVehicleId, guiItemId))
+                ViewModel.LoadCharacter(_character);
+        }
     }
 
     private async void OnAddVehicleModClick(object? sender, RoutedEventArgs e)

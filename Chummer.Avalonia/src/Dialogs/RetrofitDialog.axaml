@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.RetrofitDialog"
+        x:DataType="vm:RetrofitDialogViewModel"
+        Width="400" Height="180" WindowStartupLocation="CenterOwner"
+        Title="{loc:Loc String_Retrofit}" CanResize="False">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16" RowSpacing="10">
+        <TextBlock Text="{loc:Loc String_Retrofit}" FontWeight="Bold" />
+        <TextBlock Grid.Row="1" Text="{loc:Loc String_Retrofit}" TextWrapping="Wrap" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Text="%" VerticalAlignment="Center" />
+            <NumericUpDown Minimum="0" Maximum="1000" Increment="1" FormatString="0"
+                            Value="{Binding Percentage, Mode=TwoWay}" Width="140" />
+        </StackPanel>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

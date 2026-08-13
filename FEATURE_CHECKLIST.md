@@ -44,8 +44,11 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] `AllowBiowareSuites`: Bioware suite lookup/addition and its UI action are available only
   when the house rule is enabled; Cyberware suites remain available unconditionally.
 - [ ] Depends on the unported Foci/Stacked Foci subsystem: `AllowHigherStackedFoci`.
-- [ ] Standalone, no missing subsystem, just not done:
-  `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
+- [x] `AllowObsolescentUpgrade`: deleting an eligible Obsolete/Obsolescent vehicle modification
+  opens a percentage-based Retrofit flow that checks funds, replaces the modification, and records
+  its Nuyen expense; Obsolescent remains gated by the house rule.
+- [ ] Standalone, no missing subsystem, just not done: `AllowSkillDiceRolling`,
+  `MoreLethalGameplay`.
 - [x] `StartupFullscreen`: the desktop lifetime creates the main Avalonia window in native
   fullscreen when the persisted option is enabled.
 - [x] `AutomaticUpdate` / `SuppressCloudUnreachableWarning`: startup update check and local-open
