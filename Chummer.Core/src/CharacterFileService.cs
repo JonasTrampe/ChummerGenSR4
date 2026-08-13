@@ -193,6 +193,9 @@ namespace Chummer.Core
         /// manner as an Obsolete modification.</summary>
         public bool AllowObsolescentUpgradeEnabled => GetCharacterOptions().AllowObsolescentUpgrade;
 
+        /// <summary>Whether skill dice pools can be sent directly to the dice roller.</summary>
+        public bool AllowSkillDiceRollingEnabled => GetCharacterOptions().AllowSkillDiceRolling;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition

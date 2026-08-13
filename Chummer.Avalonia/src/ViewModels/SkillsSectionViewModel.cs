@@ -80,6 +80,7 @@ public sealed class SkillRowViewModel : ViewModelBase
     public string Rating { get; }
     public string Pool { get; }
     public string PoolTooltip { get; }
+    public bool CanRoll { get; }
 
     private int _intRatingValue;
     public int RatingValue
@@ -127,6 +128,8 @@ public sealed class SkillRowViewModel : ViewModelBase
         Rating = skill.Rating;
         Pool = skill.TotalValue;
         PoolTooltip = skill.PoolTooltip;
+        CanRoll = character.AllowSkillDiceRollingEnabled
+            && int.TryParse(skill.TotalValue, out int intPool) && intPool > 0;
         IsGroupLocked = skill.IsGroupLocked;
         IsCreateMode = !character.Created;
 
@@ -160,10 +163,13 @@ public sealed class KnowledgeSkillRowViewModel : ViewModelBase
         _strPoolTooltip = skill.PoolTooltip;
         _strSpecialization = skill.Specialization;
         _strCategory = skill.Category;
+        CanRoll = character.AllowSkillDiceRollingEnabled
+            && int.TryParse(skill.TotalValue, out int intPool) && intPool > 0;
     }
 
     public int SkillId { get; }
     public bool AllowDelete { get; }
+    public bool CanRoll { get; }
 
     private string _strSkillName = string.Empty;
     public string SkillName

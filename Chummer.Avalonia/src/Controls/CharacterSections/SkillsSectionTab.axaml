@@ -56,8 +56,10 @@
                                                 Specialization="{Binding Specialization, Mode=TwoWay}"
                                                 IsGroupLocked="{Binding IsGroupLocked}"
                                                 IsCreateMode="{Binding IsCreateMode}"
+                                                CanRoll="{Binding CanRoll}"
                                                 RatingValue="{Binding RatingValue, Mode=TwoWay}"
                                                 RaiseClicked="OnRaiseSkillClick"
+                                                RollClicked="OnRollSkillClick"
                                                 SpecializationCommitted="OnSpecializationCommitted" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -79,15 +81,19 @@
                 <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding KnowledgeSkills}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:KnowledgeSkillRowViewModel">
-                            <Grid ColumnDefinitions="160,50,40,160,130,Auto" Margin="0,2,0,2" ColumnSpacing="6">
+                            <Grid ColumnDefinitions="160,50,40,24,160,130,Auto" Margin="0,2,0,2" ColumnSpacing="6">
                                 <TextBox Grid.Column="0" Text="{Binding SkillName}" VerticalAlignment="Center" />
                                 <TextBox Grid.Column="1" Text="{Binding Rating}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="2" Text="{Binding Pool}" ToolTip.Tip="{Binding PoolTooltip}"
                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                <TextBox Grid.Column="3" Text="{Binding Specialization}" VerticalAlignment="Center" />
-                                <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}"
+                                <Button Grid.Column="3" Classes="iconButton" IsVisible="{Binding CanRoll}"
+                                        ToolTip.Tip="{loc:Loc Tip_DiceRoller}" Click="OnRollKnowledgeSkillClick">
+                                    <TextBlock Text="🎲" FontSize="12" />
+                                </Button>
+                                <TextBox Grid.Column="4" Text="{Binding Specialization}" VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="5" ItemsSource="{Binding Categories}"
                                           SelectedItem="{Binding Category, Mode=TwoWay}" />
-                                <Button Grid.Column="5" Content="{loc:Loc String_Delete}" Click="OnDeleteKnowledgeSkillClick"
+                                <Button Grid.Column="6" Content="{loc:Loc String_Delete}" Click="OnDeleteKnowledgeSkillClick"
                                         Tag="{Binding SkillId}" IsEnabled="{Binding AllowDelete}" />
                             </Grid>
                         </DataTemplate>

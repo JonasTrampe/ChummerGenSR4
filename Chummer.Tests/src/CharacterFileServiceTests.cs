@@ -3632,6 +3632,16 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SkillDiceRollingAvailability_UsesTheCharacterHouseRule()
+    {
+        CharacterDocument character = LoadXml("<character />");
+
+        Assert.False(character.AllowSkillDiceRollingEnabled);
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowSkillDiceRolling = true });
+        Assert.True(character.AllowSkillDiceRollingEnabled);
+    }
+
+    [Fact]
     public void VehicleSlots_ComputedFromBodyAndSummedAcrossInstalledMods()
     {
         Guid vehicleId = Guid.NewGuid();

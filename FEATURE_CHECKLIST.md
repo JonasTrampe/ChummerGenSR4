@@ -47,8 +47,9 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] `AllowObsolescentUpgrade`: deleting an eligible Obsolete/Obsolescent vehicle modification
   opens a percentage-based Retrofit flow that checks funds, replaces the modification, and records
   its Nuyen expense; Obsolescent remains gated by the house rule.
-- [ ] Standalone, no missing subsystem, just not done: `AllowSkillDiceRolling`,
-  `MoreLethalGameplay`.
+- [x] `AllowSkillDiceRolling`: enabled characters expose a dice action beside each nonzero active
+  and knowledge-skill pool; it opens the standard Dice Roller prefilled with that exact pool.
+- [ ] Standalone, no missing subsystem, just not done: `MoreLethalGameplay`.
 - [x] `StartupFullscreen`: the desktop lifetime creates the main Avalonia window in native
   fullscreen when the persisted option is enabled.
 - [x] `AutomaticUpdate` / `SuppressCloudUnreachableWarning`: startup update check and local-open
