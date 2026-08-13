@@ -2659,7 +2659,8 @@ namespace Chummer.Core
         /// <paramref name="strAmmo"/> are copied as-is from weapons.xml (no STR-substitution or
         /// underbarrel/accessory bonus math is ported for the damage code).</summary>
         public void AddWeapon(string strName, string strCategory, string strDamage, string strAp, string strMode,
-            string strRc, string strAmmo, string strCost, string strAvail, string strSource, string strPage)
+            string strRc, string strAmmo, string strCost, string strAvail, string strSource, string strPage,
+            string strUseSkill = "", string strReach = "0")
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A weapon name is required.", nameof(strName));
@@ -2681,6 +2682,7 @@ namespace Chummer.Core
             AppendElement(objWeapon, "guid", Guid.NewGuid().ToString());
             AppendElement(objWeapon, "name", strName.Trim());
             AppendElement(objWeapon, "category", strCategory);
+            AppendElement(objWeapon, "reach", strReach);
             AppendElement(objWeapon, "damage", strDamage);
             AppendElement(objWeapon, "ap", strAp);
             AppendElement(objWeapon, "mode", strMode);
@@ -2688,6 +2690,7 @@ namespace Chummer.Core
             AppendElement(objWeapon, "ammo", strAmmo);
             AppendElement(objWeapon, "cost", strCost);
             AppendElement(objWeapon, "avail", strAvail);
+            AppendElement(objWeapon, "useskill", strUseSkill);
             AppendElement(objWeapon, "source", strSource);
             AppendElement(objWeapon, "page", strPage);
             AppendElement(objWeapon, "location", string.Empty);
@@ -2699,6 +2702,58 @@ namespace Chummer.Core
             objWeapons.AppendChild(objWeapon);
             DeductGearCost(strCost, "0", "1", strAvail);
             Changed?.Invoke();
+        }
+
+        /// <summary>Ported from frmNaturalWeapon.cs: manually defines a melee Weapon for an adept/
+        /// critter power (e.g. Claws) instead of picking one from weapons.xml - assembles the
+        /// Damage Value from a base (a fixed rating or "(STR/2)"), an optional +/- modifier, and a
+        /// P/S type, an AP value, and links it to a player-chosen Combat Active Skill (persisted as
+        /// the new UseSkill override <see cref="ComputeWeaponDicePool"/> now understands) instead
+        /// of relying on the weapon's Category. Source/page are copied from critterpowers.xml's
+        /// "Natural Weapon" power entry, matching legacy. Always Avail 0/Cost 0, like legacy.</summary>
+        public IReadOnlyList<string> GetCombatActiveSkillNames()
+        {
+            XmlDocument objSkillsDoc = XmlManager.Instance.Load("skills.xml");
+            var lstNames = new List<string>();
+            XmlNodeList? objNodes = objSkillsDoc.SelectNodes("/chummer/skills/skill[category = \"Combat Active\"]");
+            if (objNodes != null)
+                foreach (XmlNode objNode in objNodes)
+                {
+                    string strName = objNode["name"]?.InnerText ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(strName))
+                        lstNames.Add(strName);
+                }
+            return lstNames;
+        }
+
+        public bool AddNaturalWeapon(string strName, string strUseSkill, string strDvBase, int intDvMod,
+            string strDvType, int intAp, int intReach)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            string strDamage = strDvBase;
+            if (intDvMod > 0)
+                strDamage += "+" + intDvMod;
+            else if (intDvMod < 0)
+                strDamage += intDvMod.ToString(CultureInfo.InvariantCulture);
+            strDamage += strDvType;
+
+            string strAp = intAp switch
+            {
+                0 => "0",
+                > 0 => "+" + intAp.ToString(CultureInfo.InvariantCulture),
+                _ => intAp.ToString(CultureInfo.InvariantCulture)
+            };
+
+            XmlDocument objPowersDoc = XmlManager.Instance.Load("critterpowers.xml");
+            XmlNode? objPower = objPowersDoc.SelectSingleNode("/chummer/powers/power[name = \"Natural Weapon\"]");
+            string strSource = objPower?["source"]?.InnerText ?? string.Empty;
+            string strPage = objPower?["page"]?.InnerText ?? string.Empty;
+
+            AddWeapon(strName, "Natürliche Waffe", strDamage, strAp, "0", "0", string.Empty, "0", "0",
+                strSource, strPage, strUseSkill, intReach.ToString(CultureInfo.InvariantCulture));
+            return true;
         }
 
         /// <summary>Named weapon locations remain persisted even while empty.</summary>
@@ -6606,8 +6661,7 @@ namespace Chummer.Core
         }
 
         // Ported from clsEquipment.cs's Weapon.DicePool: which Active Skill a weapon Category
-        // rolls against. Not ported: the strRange-based "Special Weapons" disambiguation and a
-        // per-weapon UseSkill override, since neither is saved anywhere in this port's write path.
+        // rolls against. Not ported: the strRange-based "Special Weapons" disambiguation.
         private static readonly Dictionary<string, string> s_dicWeaponCategorySkills = new(StringComparer.Ordinal)
         {
             ["Bows"] = "Archery",
@@ -6645,12 +6699,17 @@ namespace Chummer.Core
         private (string PoolDisplay, string Tooltip) ComputeWeaponDicePool(string strCategory, string strWeaponName,
             bool blnHasSmartgun, XmlNode? objWeaponNode = null)
         {
-            string strSkillName = s_dicWeaponCategorySkills.TryGetValue(strCategory, out var strMapped)
-                ? strMapped
-                : strCategory is "Exotic Melee Weapons" or "Exotic Ranged Weapons" or "Cyberware Exotic Melee Weapons"
-                    or "Cyberware Exotic Ranged Weapons"
-                    ? (strCategory.Contains("Melee") ? "Exotic Melee Weapon" : "Exotic Ranged Weapon")
-                    : "Pistols";
+            // A per-weapon UseSkill override (e.g. a homebrew Natural Weapon linked to a chosen
+            // Combat Active Skill, see AddNaturalWeapon) takes priority over the Category mapping.
+            string strUseSkillOverride = objWeaponNode != null ? GetValue(objWeaponNode, "useskill", string.Empty) : string.Empty;
+            string strSkillName = !string.IsNullOrEmpty(strUseSkillOverride)
+                ? strUseSkillOverride
+                : s_dicWeaponCategorySkills.TryGetValue(strCategory, out var strMapped)
+                    ? strMapped
+                    : strCategory is "Exotic Melee Weapons" or "Exotic Ranged Weapons" or "Cyberware Exotic Melee Weapons"
+                        or "Cyberware Exotic Ranged Weapons"
+                        ? (strCategory.Contains("Melee") ? "Exotic Melee Weapon" : "Exotic Ranged Weapon")
+                        : "Pistols";
 
             CharacterSkillData? objSkill = Skills.FirstOrDefault(s => s.Name == strSkillName
                 && (!s.Exotic || s.Specialization == strWeaponName));

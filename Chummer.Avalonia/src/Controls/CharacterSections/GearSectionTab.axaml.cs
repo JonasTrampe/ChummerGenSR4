@@ -21,6 +21,7 @@ using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
 using AdvancedLifestyleDialog = Chummer.NewUI.Dialogs.AdvancedLifestyleDialog;
 using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
 using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
+using NaturalWeaponDialog = Chummer.NewUI.Dialogs.NaturalWeaponDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -243,6 +244,18 @@ public partial class GearSectionTab : UserControl
             if (removed)
                 ViewModel.LoadCharacter(_character);
         }
+    }
+
+    private async void OnAddNaturalWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new NaturalWeaponDialog(_character);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.AddNaturalWeapon(dialog.ResultName, dialog.ResultSkill, dialog.ResultDvBase,
+                dialog.ResultDvMod, dialog.ResultDvType, dialog.ResultAp, dialog.ResultReach))
+            ViewModel.LoadCharacter(_character);
     }
 
     private async void OnSellWeaponClick(object? sender, RoutedEventArgs e)

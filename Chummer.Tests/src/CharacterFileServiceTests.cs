@@ -3673,6 +3673,52 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddNaturalWeapon_AssemblesDamageAndApFromTheChosenFields()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        Assert.True(character.AddNaturalWeapon("Claws", "Unarmed Combat", "(STR/2)", 1, "P", -1, 0));
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        Assert.Equal("Claws", weapon.Name);
+        Assert.Equal("(STR/2)+1P", weapon.Damage);
+        Assert.Equal("-1", weapon.Ap);
+    }
+
+    [Fact]
+    public void AddNaturalWeapon_NoModifier_OmitsTheSignedSuffix()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+        Assert.True(character.AddNaturalWeapon("Bite", "Unarmed Combat", "3", 0, "P", 0, 1));
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        Assert.Equal("3P", weapon.Damage);
+        Assert.Equal("0", weapon.Ap);
+    }
+
+    [Fact]
+    public void AddNaturalWeapon_DicePool_UsesTheChosenSkillInsteadOfTheCategoryMapping()
+    {
+        // "Natürliche Waffe" isn't in weapons.xml's Category->Skill map at all, so without the
+        // UseSkill override the dice pool would resolve to nothing.
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Unarmed Combat</name><attribute>STR</attribute><rating>4</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills></character>");
+        character.AddNaturalWeapon("Claws", "Unarmed Combat", "(STR/2)", 1, "P", -1, 0);
+
+        CharacterWeaponData weapon = character.Weapons.Single();
+        Assert.NotEmpty(weapon.DicePool);
+        Assert.NotEqual("0", weapon.DicePool);
+    }
+
+    [Fact]
+    public void GetCombatActiveSkillNames_IncludesUnarmedCombat()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+        Assert.Contains("Unarmed Combat", character.GetCombatActiveSkillNames());
+    }
+
+    [Fact]
     public void AddWeapon_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

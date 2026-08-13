@@ -316,9 +316,19 @@ what's ported, not previously tracked anywhere in this file)
   rules-data building blocks (type/range/duration/damage formula) instead of picking one from
   `spells.xml`. Sizable feature, similar in spirit to `AddNexus`/`AddAdvancedLifestyle` but
   bigger.
-- [ ] `frmNaturalWeapon` (176 lines) — small tool to manually define a Weapon (name, associated
-  Combat Active skill, DV base/type) for adept/critter natural weapons not in `weapons.xml`.
-  Self-contained, no rules-data lookup needed.
+- [x] `frmNaturalWeapon` — done. Added `AddNaturalWeapon`/`GetCombatActiveSkillNames` to
+  `Chummer.Core/src/CharacterFileService.cs`: assembles the Damage Value string from a base
+  (a fixed rating or "(STR/2)"), an optional signed modifier, and a P/S type, formats AP the
+  same signed way, and copies Source/Page from critterpowers.xml's "Natural Weapon" power entry -
+  Avail 0/Cost 0, matching legacy. Also found and fixed a real pre-existing gap this surfaced:
+  `AddWeapon` had no way to link a weapon to a specific Active Skill at all - `ComputeWeaponDicePool`
+  only ever mapped dice pools by weapon Category, so a Natural Weapon's Category (not in the
+  Category-&gt;Skill table) would silently roll an empty pool. Added a `strUseSkill` parameter to
+  `AddWeapon` (persisted as `<useskill>`, previously always hardcoded empty) and made
+  `ComputeWeaponDicePool` prefer it over the Category mapping when present - this also means any
+  future weapon type needing a per-item Skill override (not just Natural Weapons) is now
+  supported. New `NaturalWeaponDialog` (Name/Skill/DV base+mod+type/AP/Reach) wired into a
+  "Natürliche Waffe erstellen" button on the Waffen tab next to "Waffe hinzufügen".
 - [ ] `frmPrintMultiple` — batch-loads several `.chum` files and renders them together into one
   combined sheet. `SheetPreviewDialog` only handles one character at a time. Niche (GM tooling).
 - [ ] `data/export/Squad Manager.xsl` — a second XSLT export pipeline separate from
