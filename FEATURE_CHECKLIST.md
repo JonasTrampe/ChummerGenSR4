@@ -488,7 +488,17 @@ what's ported, not previously tracked anywhere in this file)
   `IRunnersPointApiClient.GetDebugDumpAsync` was declared unconditionally but only implemented
   under `#if DEBUG`, so any Release build of the whole solution failed outright (`CS0535`) - fixed
   by guarding the interface declaration the same way.
-- [ ] Automated smoke-test coverage — currently manual `dotnet build` + kill-timeout runs only.
+- [x] Automated smoke-test coverage — done. Found the entire Avalonia port
+  (`Chummer.Core`/`Chummer.Avalonia`/`Chummer.Tests`/`RunnersPoint.Api`) had zero CI coverage -
+  `.github/workflows/autobuild.yml` only ever built/tested the legacy WinForms app (the `build`/
+  `build-mono` jobs). Added a new `build-avalonia` job mirroring the exact sequence used to
+  verify every change on this branch locally: `dotnet build` both Core and Avalonia, `dotnet test`
+  for the full `Chummer.Tests` suite, then a headless (`xvfb-run`) `timeout -s KILL 10` smoke-test
+  launch of the real app, asserting exit code 137 (killed cleanly after a successful startup, the
+  same "run/kill" convention this whole port's manual verification has used throughout) and that
+  the captured output contains no exception text. Verified locally (minus `xvfb`, which isn't
+  needed to validate the timeout/exit-code/log-grep logic itself): a Release build of
+  `Chummer.Avalonia` under this exact `timeout -s KILL 10` invocation exits 137 with a clean log.
 
 **Cloud save/share**
 - [ ] Conflict/newer-revision handling and broader UX parity with legacy's cloud flows.
