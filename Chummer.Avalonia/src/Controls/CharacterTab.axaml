@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:sections="clr-namespace:Chummer.NewUI.Controls.CharacterSections"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chummer.NewUI.Controls.CharacterTab">
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
@@ -48,7 +49,7 @@
                     <TabItem Header="Kalender">
                         <sections:CalendarTab x:Name="CalendarTab" />
                     </TabItem>
-                    <TabItem Header="Notizen">
+                    <TabItem Header="{loc:Loc Title_Notes}">
                         <sections:NotesTab x:Name="NotesTab" />
                     </TabItem>
                     <TabItem Header="Verbessern">

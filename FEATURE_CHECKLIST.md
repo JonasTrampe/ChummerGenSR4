@@ -457,8 +457,22 @@ what's ported, not previously tracked anywhere in this file)
   (silent - only shows a dialog when an update is actually found).
 
 **Settings / i18n**
-- [ ] Translate the Avalonia UI — most strings are still hard-coded despite the language-selection
-  UI and catalog reload already existing.
+- [~] Translate the Avalonia UI — pilot slice done, most strings still hard-coded. Added a
+  `LocExtension` XAML markup extension (`Chummer.Avalonia/src/Markup/LocExtension.cs`, `{loc:Loc
+  Some_Key}`) that resolves a `Chummer.Core/data/lang/*.xml` key via `LanguageManager.Instance`
+  at XAML-load time - the first UI actually driven by the language catalog instead of a literal.
+  Wired into `MainWindow.axaml`'s top-level menu (File/Tools/Special/Window/Help and their direct
+  children that have an existing matching key - "Zuletzt geöffnet"/recent-files submenu has no
+  catalog key yet and stays hardcoded) and `CharacterTab.axaml`'s "Notizen" tab header
+  (`Title_Notes`). Resolved once at load time, not live-rebound - matches the existing convention
+  elsewhere (`OptionsDialog`'s language switch already expects character windows to be reopened
+  for translated *data* to show), so no new live-rebind machinery was added. Note this is a real
+  behavioral change for the ~40 remaining files still untouched: `GlobalOptions.Instance.Language`
+  defaults to `"en-us"`, so any file converted to `{loc:Loc ...}` will show English text by
+  default even though its neighbors still show the hardcoded German placeholder text - continuing
+  this rollout file-by-file will produce a mixed-language UI until every file is converted (or the
+  default language is deliberately changed to `"de"` for this port, a separate decision). Doing
+  the other ~40 AXAML/`.cs` files is a large, mechanical, multi-session effort; not attempted here.
 - [x] Enabled-sourcebook filtering (`Options.BookXPath()`) — done. Added
   `CharacterDocument.IsBookEnabled(string strSourceCode)` in `Chummer.Core` (blank source is
   always allowed, matching legacy's "only filter items that declare a source" behavior; wraps

@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:newUi="clr-namespace:Chummer.NewUI"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
         x:Class="Chummer.NewUI.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -25,9 +26,9 @@
     <DockPanel LastChildFill="True">
 
         <Menu DockPanel.Dock="Top" Background="White">
-            <MenuItem Header="_Datei">
-                <MenuItem Header="_Neu" Click="OnNewCharacterClick" />
-                <MenuItem Header="Ö_ffnen..." Click="OnOpenCharacterClick" />
+            <MenuItem Header="{loc:Loc Menu_Main_File}">
+                <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_Open}" Click="OnOpenCharacterClick" />
                 <MenuItem Header="_Zuletzt geöffnet" ItemsSource="{Binding RecentCharacters}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecentCharacterEntryViewModel">
@@ -38,24 +39,24 @@
                               IsEnabled="False"
                               IsVisible="{Binding HasNoRecentCharacters}" />
                 </MenuItem>
-                <MenuItem Header="_Speichern" Click="OnSaveCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_FileSave}" Click="OnSaveCharacterClick" />
                 <Separator />
-                <MenuItem Header="_Drucken" Click="OnPrintClick" />
-                <MenuItem Header="_Mehrere Charaktere drucken..." Click="OnPrintMultipleClick" />
-                <MenuItem Header="E_xportieren..." Click="OnExportClick" />
+                <MenuItem Header="{loc:Loc Menu_FilePrint}" Click="OnPrintClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_PrintMultiple}" Click="OnPrintMultipleClick" />
+                <MenuItem Header="{loc:Loc Menu_FileExport}" Click="OnExportClick" />
                 <Separator />
-                <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
+                <MenuItem Header="{loc:Loc Menu_FileClose}" Click="OnCloseWindowClick" />
             </MenuItem>
-            <MenuItem Header="_Zubehör">
-                <MenuItem Header="_Cloud Documents..." Click="OnCloudDocumentsClick" />
-                <MenuItem Header="_Würfeln..." Click="OnDiceRollerClick" />
+            <MenuItem Header="{loc:Loc Menu_Main_Tools}">
+                <MenuItem Header="{loc:Loc Menu_Main_CloudDocuments}" Click="OnCloudDocumentsClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_DiceRoller}" Click="OnDiceRollerClick" />
             </MenuItem>
-            <MenuItem Header="_Spezial">
-                <MenuItem Header="_Optionen..." Click="OnOptionsClick" />
+            <MenuItem Header="{loc:Loc Menu_Special}">
+                <MenuItem Header="{loc:Loc Menu_Main_Options}" Click="OnOptionsClick" />
             </MenuItem>
-            <MenuItem Header="_Fenster" />
-            <MenuItem Header="_Hilfe">
-                <MenuItem Header="Nach _Updates suchen..." Click="OnCheckForUpdatesClick" />
+            <MenuItem Header="{loc:Loc Menu_Main_Window}" />
+            <MenuItem Header="{loc:Loc Menu_Main_Help}">
+                <MenuItem Header="{loc:Loc Menu_Main_Update}" Click="OnCheckForUpdatesClick" />
             </MenuItem>
         </Menu>
 
