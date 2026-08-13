@@ -48,7 +48,9 @@ Everything not `[x]`, in one place, grouped by area.
   visible Transgenic indicator after reload.
 - [x] `AllowBiowareSuites`: Bioware suite lookup/addition and its UI action are available only
   when the house rule is enabled; Cyberware suites remain available unconditionally.
-- [ ] Depends on the unported Foci/Stacked Foci subsystem: `AllowHigherStackedFoci`.
+- [ ] **Foci / Stacked Foci Core subsystem:** legacy `<foci>`/`<stackedfoci>` save collections
+  have no `CharacterDocument` projection, bond/unbond, Karma/improvement, or stacking path;
+  `AllowHigherStackedFoci` depends on this first-class Core feature.
 - [x] `AllowObsolescentUpgrade`: deleting an eligible Obsolete/Obsolescent vehicle modification
   opens a percentage-based Retrofit flow that checks funds, replaces the modification, and records
   its Nuyen expense; Obsolescent remains gated by the house rule.
@@ -232,6 +234,16 @@ Everything not `[x]`, in one place, grouped by area.
     per-vehicle Improvement scoping this port's Vehicle model lacks); `essencemax`/`nuyenamt`/
     `freepositivequalities`/`freenegativequalities`/`cyberwareessmultiplier` (no consumer yet —
     would be unverifiable inert data).
+
+### Core-parity scan priorities (2026-08-13)
+
+- [ ] Persisted Focus and Stacked Focus read/write, bond limits/costs, improvement lifecycle,
+  stacking/unstacking, and save/reload coverage. This is the only top-level legacy collection
+  written by `clsCharacter.Save` without a `CharacterDocument` equivalent.
+- [ ] Core-only rule branches: vehicle-scoped bonuses; `essencemax`, `nuyenamt`, free-quality and
+  cyberware-essence-multiplier bonuses; ArmorMod B/I; loaded-ammo recoil; special-weapon ranges;
+  Skillsoft/Activesoft, Mystic-Adept, SwapSkillAttribute, Enhanced Articulation,
+  MetaRatingModifier, and Cyborg Essence cases.
 - [x] Selectable Improvement flow — `selecttext`, `selectskill`/`selectattribute` all wired into
   Quality/Metamagic/Critter Power/Complex Form/Adept Power add flows via one shared apply path
   (`ApplySelectedImprovement`).

@@ -23,6 +23,27 @@ not optional polish.
 Everything below is sequenced around closing it a slice at a time, always keeping the app
 buildable and runnable at each step.
 
+## Phase 0 — Core legacy-parity closure (active)
+
+The 2026-08-13 Core re-scan compares every collection written by legacy `clsCharacter.Save` with
+`CharacterDocument`. All major collections have a Core projection and mutation path except
+`<foci>` and `<stackedfoci>`; `Focus.cs` is currently an unused compatibility value object.
+This phase keeps Core rules complete before presentation-only work.
+
+1. **Foci / Stacked Foci:** expose saved Focus and Stacked Focus records, locate their linked
+   Gear safely, bind/unbind with legacy MAG count/Force limits and Karma costs, apply/remove
+   bonuses, stack/unstack valid unbonded Foci, and preserve all legacy XML through save/reload.
+   `AllowHigherStackedFoci` becomes a tested behavior here.
+2. **Missing Core rule consumers:** add fixture-tested consumers for vehicle-scoped bonuses,
+   `essencemax`, `nuyenamt`, free-quality, cyberware-essence-multiplier, ArmorMod B/I,
+   loaded-ammo recoil, special-weapon range matching, Skillsoft/Activesoft overrides,
+   Mystic-Adept/SwapSkillAttribute/Enhanced Articulation/MetaRatingModifier edge cases, and
+   Cyborg Essence.
+3. **Legacy command data operations:** extract Core APIs for creation special commands,
+   character clipboard/history semantics, and the remaining nested containment flows before UI
+   commands are added. Every operation requires an XML round-trip test and direct legacy-shape
+   fixture.
+
 ## Phase 1 — Improvement engine (the thing everything else depends on) ✅
 
 Port `clsImprovement.cs` (`Improvement` + `ImprovementManager`) into `Chummer.Core` first.

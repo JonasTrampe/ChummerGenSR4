@@ -1,4 +1,4 @@
-# Avalonia parity audit — 2026-08-13 (full legacy surface scan)
+# Avalonia/Core parity audit — 2026-08-13 (full legacy surface scan)
 
 This is the authoritative static comparison of the legacy WinForms application
 (`Chummer/code/frm*.cs`, `clsCharacter.cs`, `clsEquipment.cs`, `clsImprovement.cs`) with
@@ -14,18 +14,26 @@ feature checklist requires its visible legacy behavior and a Core test or smoke-
   binding.
 - Reviewed all explicit Core port-boundary comments and export paths. This is a source-level
   audit: it cannot prove platform dialogs or cloud servers without runtime smoke tests.
+- **Core re-scan (2026-08-13):** compared every top-level collection written by
+  `clsCharacter.Save` with `CharacterDocument` projections and mutation APIs. Contacts, spells,
+  powers, spirits, techprograms, martial arts, armor, weapons, cyberware, qualities, lifestyles,
+  gear, vehicles, initiation grades, improvements, expenses, and calendar all have a Core path.
+  `<foci>` and `<stackedfoci>` are the two persisted legacy collections with no
+  `CharacterDocument` projection or mutation path. The scan also rechecked all explicit Core
+  "not ported" boundaries; they are summarized below and belong to the Core backlog, not UI-only
+  cleanup.
 
 ## Surface map
 
 | Legacy area | Port status | Evidence / remaining work |
 | --- | --- | --- |
-| File, tabbed documents, save, recent files | partial | Open/save/recent/multi-tab work. There is no separate Save As command, dirty-close prompt, or legacy Window-menu navigation. |
-| Character creation / career transition | partial | Normal Karma/BP creation and finalization work. Budget enforcement, backup-on-career, creation clipboard, metatype change, critter conversions, Free Sprite conversion, and BP availability override do not. |
-| Core character tabs | partial | All primary tabs render and most common add/remove operations work. Per-item rename/notes, several nested add-as-plugin flows, Foci, and special conversion flows are absent. |
+| File, tabbed documents, save, recent files | partial | Open/save/Save As/recent/multi-tab, dirty prompts, and Window-menu navigation work. Character history remains absent. |
+| Character creation / career transition | partial | Normal Karma/BP creation, budget categories, and backup-on-career work. Complete budget enforcement, creation clipboard, metatype change, critter conversions, Free Sprite conversion, and BP availability override remain absent. |
+| Core character tabs | partial | All primary tabs render and common add/remove operations work. Persisted per-item notes now cover roots and installed equipment, including Spirits/Sprites. Nested add-as-plugin flows, Foci, and special conversion flows remain absent. |
 | Item pickers | partial | Common rules-data pickers are present. Category pickers, several generic legacy selection modes, and complete PACKS expansion are not. |
 | Improvements and rules calculations | partial | Common bonus types and displayed calculations work. The omitted bonus nodes and documented skill/weapon/vehicle edge cases still change legitimate legacy characters. |
 | Vehicles / drones | partial | Root vehicle, mod, gear, weapon, location, damage and mount workflows work. Sensor/cyberware/nexus/plugin nesting, underbarrels, item notes/names, and vehicle-scoped Improvements do not. |
-| Output / print / export | partial | XSLT preview, HTML/PDF export, multiple-character and Squad Manager export work. Native-print behavior, PrintToFileFirst, full print XML, and mounted-weapon fields remain incomplete. |
+| Output / print / export | partial | XSLT preview, HTML/PDF export, multiple-character and Squad Manager export work. PrintToFileFirst is implemented. Native-print smoke testing and mounted-weapon sheet fields remain incomplete. |
 | Cloud | partial | Documents/folders/revisions/share plus login, newer-revision and conflict choice flows are present. What remains is an end-to-end server round-trip verification pass. |
 | Settings / localization | partial | Profiles and almost all controls persist. Several behavior options are only persisted; sourcebook filtering does not cover Suites/PACKS. |
 
@@ -47,6 +55,18 @@ These were absent or too narrowly described in the prior checklist and are now t
    neither applies the CreateBackupOnCareer setting nor covers all legacy creation/career costs.
 5. **Output data:** the exporter omits or simplifies fields some shipped sheets consume, including
    vehicle-mounted weapon Damage/AP/RC and item-level notes; this makes “full print XML” inaccurate.
+
+6. **Core persisted-collection gap:** legacy saves retain Focus and Stacked Focus state in
+   `<foci>` and `<stackedfoci>`, including gear linkage, bond state, stacking composition and
+   Karma/improvement implications. `Focus.cs` exists as an unused value object, but
+   `CharacterDocument` neither projects nor mutates either collection. This is the first Core
+   subsystem to port because it also unlocks `AllowHigherStackedFoci`.
+
+7. **Core rule-boundary gap:** the explicit Core omissions are actionable parity work: vehicle-
+   scoped bonus effects; `essencemax`, `nuyenamt`, free-quality and cyberware-essence-multiplier
+   bonuses; ArmorMod B/I effects; loaded-ammo recoil; special-weapon range matching; Skillsoft/
+   Activesoft overrides; Mystic-Adept/SwapSkillAttribute/Enhanced Articulation/MetaRatingModifier
+   edge cases; and Cyborg Essence. Each needs a consumer plus a fixture-based regression test.
 
 ## Existing partial areas confirmed by the scan
 
