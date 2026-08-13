@@ -2952,6 +2952,20 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Foci_ProjectLegacyRecordsAndRetainBrokenGearLinks()
+    {
+        CharacterDocument character = LoadXml("<character><gears><gear><guid>00000000-0000-0000-0000-000000000001</guid><name>Power Focus</name><category>Foci</category></gear></gears><foci>"
+            + "<focus><guid>00000000-0000-0000-0000-000000000010</guid><name>Power Focus (Force 3)</name><gearid>00000000-0000-0000-0000-000000000001</gearid><rating>3</rating></focus>"
+            + "<focus><guid>00000000-0000-0000-0000-000000000011</guid><name>Lost Focus</name><gearid>00000000-0000-0000-0000-000000000099</gearid><rating>2</rating></focus>"
+            + "</foci></character>");
+
+        Assert.Equal(2, character.Foci.Count);
+        Assert.True(character.Foci[0].LinkedGearExists);
+        Assert.Equal("Foci", character.Foci[0].GearCategory);
+        Assert.False(character.Foci[1].LinkedGearExists);
+    }
+
+    [Fact]
     public void SpiritNotes_PersistForDuplicateSummonsByListIdentity()
     {
         CharacterDocument character = LoadXml("<character><spirits>"

@@ -6609,6 +6609,11 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterSpiritData> Spirits => ReadSpirits();
 
+        /// <summary>Saved bonded Foci, joined to their linked Gear by GUID. Focus records are
+        /// separate from Gear in the legacy file, so a broken GearId is preserved and surfaced
+        /// instead of silently dropping the player's bonded record.</summary>
+        public IReadOnlyList<CharacterFocusData> Foci => ReadFoci();
+
         /// <summary>Ported from frmCareer.cs's cmdAddSpirit_Click, simplified to the fields the
         /// port's Spirits list actually displays - Spirits/Sprites are freely typed (no rules-data
         /// cross-reference like Gear/Cyberware), so this doesn't need a picker dialog.</summary>
@@ -9240,6 +9245,23 @@ namespace Chummer.Core
             return lstSpirits;
         }
 
+        private IReadOnlyList<CharacterFocusData> ReadFoci()
+        {
+            var lstFoci = new List<CharacterFocusData>();
+            var objNodes = Document.SelectNodes("/character/foci/focus");
+            if (objNodes == null) return lstFoci;
+            foreach (XmlNode objNode in objNodes)
+            {
+                string strGearId = GetValue(objNode, "gearid", string.Empty);
+                XmlNode? objGear = EnumerateGearNodesDfs().FirstOrDefault(node =>
+                    string.Equals(GetValue(node, "guid", string.Empty), strGearId, StringComparison.OrdinalIgnoreCase));
+                lstFoci.Add(new CharacterFocusData(GetValue(objNode, "guid", string.Empty),
+                    GetValue(objNode, "name", string.Empty), strGearId, GetValue(objNode, "rating", "0"),
+                    objGear != null, objGear == null ? string.Empty : GetValue(objGear, "category", string.Empty)));
+            }
+            return lstFoci;
+        }
+
         private IReadOnlyList<CharacterInitiationGradeData> ReadInitiationGrades()
         {
             var lstGrades = new List<CharacterInitiationGradeData>();
@@ -10472,6 +10494,27 @@ namespace Chummer.Core
         public string Notes { get; }
 
         public string DisplayName => string.IsNullOrEmpty(CritterName) ? Name : Name + " (" + CritterName + ")";
+    }
+
+    public sealed class CharacterFocusData
+    {
+        internal CharacterFocusData(string strGuid, string strName, string strGearId, string strRating,
+            bool blnLinkedGearExists, string strGearCategory)
+        {
+            Guid = strGuid;
+            Name = strName;
+            GearId = strGearId;
+            Rating = strRating;
+            LinkedGearExists = blnLinkedGearExists;
+            GearCategory = strGearCategory;
+        }
+
+        public string Guid { get; }
+        public string Name { get; }
+        public string GearId { get; }
+        public string Rating { get; }
+        public bool LinkedGearExists { get; }
+        public string GearCategory { get; }
     }
 
     public sealed class CharacterInitiationGradeData
