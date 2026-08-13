@@ -11,10 +11,9 @@ Status: active. This plan is ordered by Core dependency and user-visible correct
 
 ## Phase 0 — Foci / Stacked Foci
 
-1. Project saved focus records and resolve linked Gear safely.
-2. Bind/unbind with MAG count and total-Force limits, Karma expenses, and improvement lifecycle.
-3. Stack/unstack eligible unbonded Foci; enforce `AllowHigherStackedFoci`.
-4. Cover legacy save/load and broken-link compatibility fixtures.
+1. Project `stackedfoci`, including broken-link compatibility coverage.
+2. Stack/unstack eligible unbonded Foci; enforce `AllowHigherStackedFoci`.
+3. Add Stacked Focus binding cost, bonus lifecycle, and legacy XML round-trip fixtures.
 
 ## Phase 1 — Creation and bonus correctness
 

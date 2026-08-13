@@ -2966,6 +2966,56 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CanBondFocus_EnforcesMagCountAndTotalForce()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("MAG", "2") + "</attributes><gears>"
+            + "<gear><guid>00000000-0000-0000-0000-000000000001</guid><category>Foci</category><rating>5</rating></gear>"
+            + "<gear><guid>00000000-0000-0000-0000-000000000002</guid><category>Foci</category><rating>6</rating></gear>"
+            + "</gears><foci><focus><guid>00000000-0000-0000-0000-000000000010</guid><gearid>00000000-0000-0000-0000-000000000001</gearid><rating>5</rating></focus></foci></character>");
+
+        Assert.False(character.CanBondFocus(Guid.Parse("00000000-0000-0000-0000-000000000001")));
+        Assert.False(character.CanBondFocus(Guid.Parse("00000000-0000-0000-0000-000000000002")));
+    }
+
+    [Fact]
+    public void BindAndUnbindFocus_WritesLegacyRecordsAndKarmaHistory()
+    {
+        Guid gearId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        CharacterDocument character = LoadXml("<character><karma>20</karma><attributes>" + AttributeXml("MAG", "2")
+            + "</attributes><gears><gear><guid>" + gearId + "</guid><name>Power Focus</name><category>Foci</category>"
+            + "<rating>2</rating><equipped>False</equipped></gear></gears></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { KarmaPowerFocus = 8 });
+
+        Assert.Equal(16, character.GetFocusBindingKarmaCost(gearId));
+        Assert.True(character.BindFocus(gearId));
+        Assert.Equal("4", character.Karma);
+        CharacterFocusData focus = Assert.Single(character.Foci);
+        Assert.Equal(gearId.ToString(), focus.GearId);
+        Assert.Equal("Power Focus (Force 2)", focus.Name);
+        Assert.Equal("True", character.Document.SelectSingleNode("/character/gears/gear/bonded")!.InnerText);
+        Assert.Equal("-16", Assert.Single(character.KarmaExpenses).Amount);
+        Assert.Equal("BindFocus", character.Document.SelectSingleNode("/character/expenses/expense/undo/karmatype")!.InnerText);
+        Assert.Equal(gearId.ToString(), character.Document.SelectSingleNode("/character/expenses/expense/undo/objectid")!.InnerText);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "focus.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "focus.chum");
+        Assert.Equal("Power Focus (Force 2)", Assert.Single(reloaded.Foci).Name);
+        Assert.Equal("4", reloaded.Karma);
+
+        Assert.True(character.SetGearEquipped(0, true));
+        Assert.Equal("Gear", character.Document.SelectSingleNode("/character/improvements/improvement/improvementsource")!.InnerText);
+        Assert.Equal(gearId.ToString(), character.Document.SelectSingleNode("/character/improvements/improvement/sourcename")!.InnerText);
+
+        Assert.True(character.UnbindFocus(Guid.Parse(focus.Guid)));
+        Assert.Empty(character.Foci);
+        Assert.Equal("False", character.Document.SelectSingleNode("/character/gears/gear/bonded")!.InnerText);
+        Assert.Null(character.Document.SelectSingleNode("/character/improvements/improvement"));
+        Assert.Equal("4", character.Karma);
+    }
+
+    [Fact]
     public void SpiritNotes_PersistForDuplicateSummonsByListIdentity()
     {
         CharacterDocument character = LoadXml("<character><spirits>"

@@ -2079,7 +2079,23 @@ namespace Chummer.Core
             if (objGear == null)
                 return false;
 
+            bool blnWasEquipped = GetValue(objGear, "equipped", "False") == "True";
+            if (blnWasEquipped == blnEquipped)
+                return true;
+
             SetChildValue(objGear, "equipped", blnEquipped ? "True" : "False");
+            if (Guid.TryParse(GetValue(objGear, "guid", string.Empty), out Guid guiGearId))
+            {
+                CharacterFocusData? objFocus = Foci.FirstOrDefault(focus =>
+                    string.Equals(focus.GearId, guiGearId.ToString(), StringComparison.OrdinalIgnoreCase));
+                if (objFocus != null)
+                {
+                    if (blnEquipped)
+                        ApplyFocusGearBonus(objGear, guiGearId, GetValue(objGear, "rating", "0"));
+                    else
+                        RemoveBonusImprovements(ImprovementSource.Gear, guiGearId.ToString());
+                }
+            }
             Changed?.Invoke();
             return true;
         }
@@ -6613,6 +6629,160 @@ namespace Chummer.Core
         /// separate from Gear in the legacy file, so a broken GearId is preserved and surfaced
         /// instead of silently dropping the player's bonded record.</summary>
         public IReadOnlyList<CharacterFocusData> Foci => ReadFoci();
+
+        /// <summary>Reports whether a Focus Gear can be bonded under the legacy MAG count and
+        /// total-Force limits. Cost and bonus application are deliberately handled by the binding
+        /// transaction, not by this pure validation method.</summary>
+        public bool CanBondFocus(Guid guiGearId)
+        {
+            XmlNode? objGear = FindGearNodeByGuid(guiGearId);
+            if (objGear == null || (GetValue(objGear, "category", string.Empty) != "Foci"
+                && GetValue(objGear, "category", string.Empty) != "Metamagic Foci"))
+                return false;
+            if (Foci.Any(focus => string.Equals(focus.GearId, guiGearId.ToString(), StringComparison.OrdinalIgnoreCase)))
+                return false;
+
+            int intMag = GetAttributeInt("MAG");
+            int intRating = ParseInteger(GetValue(objGear, "rating", "0"));
+            return intMag > 0 && Foci.Count < intMag
+                && Foci.Sum(focus => ParseInteger(focus.Rating)) + intRating <= intMag * 5;
+        }
+
+        /// <summary>Returns the Karma needed to bind a normal Focus Gear, using the active
+        /// character profile's legacy per-focus multiplier. A non-Focus Gear has no binding cost.</summary>
+        public int? GetFocusBindingKarmaCost(Guid guiGearId)
+        {
+            XmlNode? objGear = FindGearNodeByGuid(guiGearId);
+            if (objGear == null || (GetValue(objGear, "category", string.Empty) != "Foci"
+                && GetValue(objGear, "category", string.Empty) != "Metamagic Foci"))
+                return null;
+
+            int intRating = ParseInteger(GetValue(objGear, "rating", "0"));
+            if (intRating < 1)
+                return null;
+            return intRating * GetFocusKarmaMultiplier(GetValue(objGear, "name", string.Empty));
+        }
+
+        /// <summary>Ports frmCareer's normal-Focus binding transaction: validates the MAG limits
+        /// and available Karma, writes the legacy Focus record and bonded Gear flag, records the
+        /// Karma expense with undo information, and applies the Gear bonus when equipped.</summary>
+        public bool BindFocus(Guid guiGearId)
+        {
+            if (!CanBondFocus(guiGearId))
+                return false;
+
+            XmlNode? objGear = FindGearNodeByGuid(guiGearId);
+            int? intCost = GetFocusBindingKarmaCost(guiGearId);
+            if (objGear == null || intCost is not > 0
+                || !int.TryParse(Karma, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intKarma)
+                || intKarma < intCost.Value)
+                return false;
+
+            var objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            var objFoci = objRoot.SelectSingleNode("foci") as XmlElement;
+            if (objFoci == null)
+            {
+                objFoci = Document.CreateElement("foci");
+                objRoot.AppendChild(objFoci);
+            }
+
+            string strRating = GetValue(objGear, "rating", "0");
+            string strName = GetFocusDisplayName(objGear, strRating);
+            string strFocusId = Guid.NewGuid().ToString();
+            var objFocus = Document.CreateElement("focus");
+            AppendElement(objFocus, "guid", strFocusId);
+            AppendElement(objFocus, "name", strName);
+            AppendElement(objFocus, "gearid", guiGearId.ToString());
+            AppendElement(objFocus, "rating", strRating);
+            objFoci.AppendChild(objFocus);
+            SetChildValue(objGear, "bonded", "True");
+
+            if (GetValue(objGear, "equipped", "False") == "True")
+                ApplyFocusGearBonus(objGear, guiGearId, strRating);
+
+            Karma = (intKarma - intCost.Value).ToString(CultureInfo.InvariantCulture);
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.BindFocus, guiGearId.ToString());
+            AddExpense("Karma", -intCost.Value, "Bound " + strName, null, objUndo);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Unbinds a normal Focus by its Focus-record GUID. Karma is not refunded,
+        /// matching the legacy tree's unchecked path.</summary>
+        public bool UnbindFocus(Guid guiFocusId)
+        {
+            XmlNode? objFocus = Document.SelectNodes("/character/foci/focus")?.Cast<XmlNode>().FirstOrDefault(node =>
+                string.Equals(GetValue(node, "guid", string.Empty), guiFocusId.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (objFocus == null)
+                return false;
+
+            string strGearId = GetValue(objFocus, "gearid", string.Empty);
+            if (!Guid.TryParse(strGearId, out Guid guiGearId))
+                return false;
+
+            XmlNode? objGear = FindGearNodeByGuid(guiGearId);
+            if (objGear == null)
+                return false;
+
+            SetChildValue(objGear, "bonded", "False");
+            RemoveBonusImprovements(ImprovementSource.Gear, guiGearId.ToString());
+            objFocus.ParentNode?.RemoveChild(objFocus);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? FindGearNodeByGuid(Guid guiGearId) => EnumerateGearNodesDfs().FirstOrDefault(node =>
+            string.Equals(GetValue(node, "guid", string.Empty), guiGearId.ToString(), StringComparison.OrdinalIgnoreCase));
+
+        private void ApplyFocusGearBonus(XmlNode objGear, Guid guiGearId, string strRating)
+        {
+            string strName = GetValue(objGear, "name", string.Empty);
+            string strCategory = GetValue(objGear, "category", string.Empty);
+            XmlNode? objRulesGear = XmlManager.Instance.Load("gear.xml").SelectNodes("/chummer/gears/gear")?
+                .Cast<XmlNode>().FirstOrDefault(node => GetValue(node, "name", string.Empty) == strName
+                    && GetValue(node, "category", string.Empty) == strCategory);
+            ApplyBonus(objRulesGear?.SelectSingleNode("bonus"), ImprovementSource.Gear, guiGearId.ToString(), strRating);
+        }
+
+        private string GetFocusDisplayName(XmlNode objGear, string strRating)
+        {
+            string strName = GetValue(objGear, "name", string.Empty);
+            string strExtra = GetValue(objGear, "extra", string.Empty);
+            if (!string.IsNullOrWhiteSpace(strExtra) && !strName.Contains("("))
+                strName += " (" + strExtra + ")";
+            return strName + " (Force " + strRating + ")";
+        }
+
+        private int GetFocusKarmaMultiplier(string strFocusName)
+        {
+            int intParenthesis = strFocusName.IndexOf('(');
+            if (intParenthesis >= 0)
+                strFocusName = strFocusName.Substring(0, intParenthesis).TrimEnd();
+
+            CharacterOptions objOptions = GetCharacterOptions();
+            return strFocusName switch
+            {
+                "Symbolic Link Focus" => objOptions.KarmaSymbolicLinkFocus,
+                "Sustaining Focus" => objOptions.KarmaSustainingFocus,
+                "Counterspelling Focus" => objOptions.KarmaCounterspellingFocus,
+                "Banishing Focus" => objOptions.KarmaBanishingFocus,
+                "Binding Focus" => objOptions.KarmaBindingFocus,
+                "Weapon Focus" => objOptions.KarmaWeaponFocus,
+                "Spellcasting Focus" => objOptions.KarmaSpellcastingFocus,
+                "Summoning Focus" => objOptions.KarmaSummoningFocus,
+                "Anchoring Focus" => objOptions.KarmaAnchoringFocus,
+                "Centering Focus" => objOptions.KarmaCenteringFocus,
+                "Masking Focus" => objOptions.KarmaMaskingFocus,
+                "Shielding Focus" => objOptions.KarmaShieldingFocus,
+                "Power Focus" => objOptions.KarmaPowerFocus,
+                "Divining Focus" => objOptions.KarmaDiviningFocus,
+                "Dowsing Focus" => objOptions.KarmaDowsingFocus,
+                "Infusion Focus" => objOptions.KarmaInfusionFocus,
+                _ => 1,
+            };
+        }
 
         /// <summary>Ported from frmCareer.cs's cmdAddSpirit_Click, simplified to the fields the
         /// port's Spirits list actually displays - Spirits/Sprites are freely typed (no rules-data
