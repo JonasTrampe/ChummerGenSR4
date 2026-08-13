@@ -354,6 +354,19 @@ namespace Chummer.Core
             if (HasSelectedQualityDependingOn(Metatype, Metavariant))
                 return false;
 
+            XmlDocument objMetatypes = XmlManager.Instance.Load("metatypes.xml");
+            XmlNode? objTargetRule = objMetatypes.SelectSingleNode(
+                "/chummer/metatypes/metatype[name = '" + objTarget.Name + "']");
+            if (objTargetRule == null)
+                return false;
+            XmlNode? objVariantRule = string.IsNullOrEmpty(strMetavariantName) ? null
+                : objTargetRule.SelectSingleNode("metavariants/metavariant[name = '" + strMetavariantName + "']");
+
+            // Legacy removes the old Metatype and Metavariant improvement sets before the
+            // picker result is applied. Do it only after every rejection condition above.
+            RemoveBonusImprovements(ImprovementSource.Metatype, Metatype);
+            RemoveBonusImprovements(ImprovementSource.Metavariant, Metavariant);
+
             var dicPurchased = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (string strCode in s_astrMetatypeAttributeCodes)
                 dicPurchased[strCode] = Math.Max(0, GetAttributeBaseInt(strCode) - GetAttributeMinimum(strCode));
@@ -384,6 +397,10 @@ namespace Chummer.Core
                 SetChildValue(objAttribute, "value", intValue.ToString(CultureInfo.InvariantCulture));
                 SetChildValue(objAttribute, "totalvalue", intValue.ToString(CultureInfo.InvariantCulture));
             }
+            ApplyBonus(objTargetRule.SelectSingleNode("bonus"), ImprovementSource.Metatype, objTarget.Name);
+            if (objVariantRule != null)
+                ApplyBonus(objVariantRule.SelectSingleNode("bonus"), ImprovementSource.Metavariant,
+                    strMetavariantName);
             Changed?.Invoke();
             return true;
         }
