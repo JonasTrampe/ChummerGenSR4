@@ -41,13 +41,14 @@ Everything not `[x]`, in one place, grouped by area.
   `SuppressCloudUnreachableWarning`).
 
 ### Everything else open
-- [ ] Cloud save/share: conflict/newer-revision handling, broader UX parity with legacy's cloud
-  flows.
+- [x] Cloud save/share: local-open freshness checks (including download-with-backup), stale-push
+  conflict diff with overwrite/local-snapshot/cancel, revision history, shared-document
+  push/download, folders, archive/purge, and share management all have Avalonia flows.
 - [x] Weapons/Armor trees support persisted sibling drag-and-drop reordering. Weapon locations
   and armor sets remain explicit grouping operations rather than drag targets, matching their
   legacy XML representation.
-- [ ] Native cross-platform "Drucken" (an actual OS print dialog) — HTML/PDF export exist instead;
-  see § Output / tooling.
+- [~] Native cross-platform "Drucken" — implemented through Avalonia's NativeWebDialog platform
+  print UI; awaiting a desktop smoke test on Linux/Windows/macOS before it is marked complete.
 - [~] `frmSelectSkillCategory`/`frmSelectSpellCategory` — no real rules-data item needs either
   picker today; the only real caller would be the Manual Improvement Creator's excluded types.
   Nothing to build until that's expanded.

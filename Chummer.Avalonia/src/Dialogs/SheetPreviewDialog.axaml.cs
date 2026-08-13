@@ -101,6 +101,28 @@ public partial class SheetPreviewDialog : Window
         return strText.Trim();
     }
 
+    /// <summary>Uses Avalonia's native WebView dialog rather than a bundled browser. Its
+    /// ShowPrintUI method opens the platform's own print dialog on supported desktop platforms.
+    /// Printing waits for navigation to complete so the dialog never prints a blank about:blank page.</summary>
+    private void OnPrintNativeClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(SheetHtml))
+            return;
+
+        try
+        {
+            var dialog = new NativeWebDialog { Title = Title };
+            dialog.NavigationCompleted += (_, _) => dialog.ShowPrintUI();
+            dialog.Show(this);
+            dialog.NavigateToString(SheetHtml);
+        }
+        catch (Exception ex)
+        {
+            SheetText = App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message;
+            this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
+        }
+    }
+
     /// <summary>Saves the raw rendered XHTML to disk - the closest this port gets to "export" or
     /// "print" for now: there's no PDF library referenced and no cross-platform print backend
     /// wired up, but the actual rendered sheet (not just the tag-stripped preview text) is already

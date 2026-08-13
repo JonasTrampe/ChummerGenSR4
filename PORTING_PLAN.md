@@ -18,7 +18,9 @@ That gap — "reads and displays" vs. "computes and edits" — is the real porti
 One notable exception now exists: the Avalonia shell already has a real Cloud Documents dialog
 backed by the shared RunnersPoint API/auth code, including folders, revisions, metadata, and
 upload/download flows. Cloud parity is therefore no longer a "not started" area; it is a
-partially-complete feature stream that still needs polish and some legacy-flow parity.
+  feature-complete port stream: document and folder management, sharing, revision history, stale
+  revision handling, and local-file freshness checks are all wired. Future changes here are
+  optional polish rather than a feature-parity blocker.
 Everything below is sequenced around closing it a slice at a time, always keeping the app
 buildable and runnable at each step.
 
