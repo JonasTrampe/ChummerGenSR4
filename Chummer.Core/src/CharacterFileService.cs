@@ -464,25 +464,9 @@ namespace Chummer.Core
                 AddCategory("Primary attributes", intPrimaryAttributes);
                 AddCategory("Special attributes", intSpecialAttributes);
 
-                int intContacts = 0;
-                int intEnemies = 0;
-                foreach (XmlNode objContact in Document.SelectNodes("/character/contacts/contact")?.Cast<XmlNode>()
-                    ?? Enumerable.Empty<XmlNode>())
-                {
-                    if (GetValue(objContact, "free", "False") == "True" || GetValue(objContact, "type", string.Empty) == "Pet")
-                        continue;
-                    int intRating = ParseInteger(GetValue(objContact, "connection", "0"))
-                        + ParseInteger(GetValue(objContact, "loyalty", "0"))
-                        + ParseInteger(GetValue(objContact, "membership", "0"))
-                        + ParseInteger(GetValue(objContact, "areaofinfluence", "0"))
-                        + ParseInteger(GetValue(objContact, "magicalresources", "0"))
-                        + ParseInteger(GetValue(objContact, "matrixresources", "0"));
-                    int intCost = intRating * (blnKarma ? objOptions.KarmaContact : 1);
-                    if (GetValue(objContact, "type", string.Empty) == "Enemy") intEnemies -= intCost;
-                    else intContacts += intCost;
-                }
-                AddCategory("Contacts", intContacts);
-                AddCategory("Enemies", intEnemies);
+                // This includes the dynamic FreeContacts allowances and enemy refunds, which
+                // are applied to the aggregate pool rather than a stable individual contact.
+                AddCategory("Contacts", ContactPointsUsed);
 
                 XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
                 int intQualities = 0;
@@ -5748,9 +5732,10 @@ namespace Chummer.Core
         /// <summary>Pets are persisted as Contact entries with <c>type=Pet</c>, matching the legacy app.</summary>
         public IReadOnlyList<CharacterContactData> Pets => ReadPets();
 
-        public void AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy,
+        public bool AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy,
             string strType = "")
         {
+            int intPreviousCreationCost = GetCreationContactCost();
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objContacts = objRoot.SelectSingleNode("contacts");
@@ -5775,7 +5760,13 @@ namespace Chummer.Core
             AppendElement(objContact, "colour", "0");
             AppendElement(objContact, "free", "False");
             objContacts.AppendChild(objContact);
+            if (!ApplyCreationContactBudget(intPreviousCreationCost))
+            {
+                objContacts.RemoveChild(objContact);
+                return false;
+            }
             Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Adds a Pet contact, the same representation used by the legacy PetControl.</summary>
@@ -5787,9 +5778,20 @@ namespace Chummer.Core
             if (objNode == null)
                 return false;
 
+            int intPreviousCreationCost = GetCreationContactCost();
+            string strPreviousName = GetValue(objNode, "name", string.Empty);
+            string strPreviousConnection = GetValue(objNode, "connection", "0");
+            string strPreviousLoyalty = GetValue(objNode, "loyalty", "0");
             SetChildValue(objNode, "name", strName);
             SetChildValue(objNode, "connection", strConnection);
             SetChildValue(objNode, "loyalty", strLoyalty);
+            if (!ApplyCreationContactBudget(intPreviousCreationCost))
+            {
+                SetChildValue(objNode, "name", strPreviousName);
+                SetChildValue(objNode, "connection", strPreviousConnection);
+                SetChildValue(objNode, "loyalty", strPreviousLoyalty);
+                return false;
+            }
             Changed?.Invoke();
             return true;
         }
@@ -5800,7 +5802,18 @@ namespace Chummer.Core
             if (objNode?.ParentNode == null)
                 return false;
 
-            objNode.ParentNode.RemoveChild(objNode);
+            int intPreviousCreationCost = GetCreationContactCost();
+            XmlNode objParent = objNode.ParentNode;
+            XmlNode? objNextSibling = objNode.NextSibling;
+            objParent.RemoveChild(objNode);
+            if (!ApplyCreationContactBudget(intPreviousCreationCost))
+            {
+                if (objNextSibling == null)
+                    objParent.AppendChild(objNode);
+                else
+                    objParent.InsertBefore(objNode, objNextSibling);
+                return false;
+            }
             Changed?.Invoke();
             return true;
         }
@@ -5834,7 +5847,14 @@ namespace Chummer.Core
             if (objNode == null)
                 return false;
 
+            int intPreviousCreationCost = GetCreationContactCost();
+            string strPrevious = GetValue(objNode, "free", "False");
             SetChildValue(objNode, "free", blnFree ? "True" : "False");
+            if (!ApplyCreationContactBudget(intPreviousCreationCost))
+            {
+                SetChildValue(objNode, "free", strPrevious);
+                return false;
+            }
             Changed?.Invoke();
             return true;
         }
@@ -5848,19 +5868,59 @@ namespace Chummer.Core
             if (objNode == null)
                 return false;
 
+            int intPreviousCreationCost = GetCreationContactCost();
+            string strPreviousGroupName = GetValue(objNode, "groupname", string.Empty);
+            string strPreviousMembership = GetValue(objNode, "membership", "0");
+            string strPreviousArea = GetValue(objNode, "areaofinfluence", "0");
+            string strPreviousMagical = GetValue(objNode, "magicalresources", "0");
+            string strPreviousMatrix = GetValue(objNode, "matrixresources", "0");
             SetChildValue(objNode, "groupname", strGroupName);
             SetChildValue(objNode, "membership", intMembership.ToString());
             SetChildValue(objNode, "areaofinfluence", intAreaOfInfluence.ToString());
             SetChildValue(objNode, "magicalresources", intMagicalResources.ToString());
             SetChildValue(objNode, "matrixresources", intMatrixResources.ToString());
+            if (!ApplyCreationContactBudget(intPreviousCreationCost))
+            {
+                SetChildValue(objNode, "groupname", strPreviousGroupName);
+                SetChildValue(objNode, "membership", strPreviousMembership);
+                SetChildValue(objNode, "areaofinfluence", strPreviousArea);
+                SetChildValue(objNode, "magicalresources", strPreviousMagical);
+                SetChildValue(objNode, "matrixresources", strPreviousMatrix);
+                return false;
+            }
             Changed?.Invoke();
+            return true;
+        }
+
+        private int GetCreationContactCost()
+            => !Created && StartingBuildPoints > 0 ? ContactPointsUsed : 0;
+
+        /// <summary>Applies the change in the complete contact/enemy cost after a tentative
+        /// mutation. Free-contact allowances can shift which individual entry is free, so the
+        /// aggregate before/after delta is the only stable creation-budget source of truth.</summary>
+        private bool ApplyCreationContactBudget(int intPreviousCost)
+        {
+            if (Created || StartingBuildPoints <= 0)
+                return true;
+
+            int intDelta = ContactPointsUsed - intPreviousCost;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (intDelta > intPool)
+                return false;
+
+            if (blnKarmaBuild)
+                Karma = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
+            else
+                Bp = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
             return true;
         }
 
         /// <summary>Karma/BP spent at chargen on Contacts, minus what Enemies refund, after the
         /// FreeContacts (CHA x multiplier) and FreeContactsFlat house rules - ported from
-        /// frmCreate.cs. This is purely informational (unlike attribute/skill Karma, legacy doesn't
-        /// deduct it from the Karma pool directly - it only feeds the BP/Karma summary panel).</summary>
+        /// frmCreate.cs. The Avalonia creation flow uses this aggregate as the authoritative
+        /// before/after delta when mutating contacts, since the free allowance is shared across
+        /// entries and cannot be persisted as a fixed per-contact cost.</summary>
         public int ContactPointsUsed
         {
             get

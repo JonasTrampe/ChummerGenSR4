@@ -81,17 +81,20 @@ public sealed class ContactRowViewModel : ViewModelBase
         private set => SetField(ref _intGroupRating, value);
     }
 
-    public void UpdateGroup(string strGroupName, int intMembership, int intAreaOfInfluence,
+    public bool UpdateGroup(string strGroupName, int intMembership, int intAreaOfInfluence,
         int intMagicalResources, int intMatrixResources)
     {
+        if (!_character.UpdateContactGroup(ContactId, strGroupName, intMembership, intAreaOfInfluence,
+            intMagicalResources, intMatrixResources))
+            return false;
+
         GroupName = strGroupName;
         Membership = intMembership;
         AreaOfInfluence = intAreaOfInfluence;
         MagicalResources = intMagicalResources;
         MatrixResources = intMatrixResources;
         GroupRating = intMembership + intAreaOfInfluence + intMagicalResources + intMatrixResources;
-        _character.UpdateContactGroup(ContactId, strGroupName, intMembership, intAreaOfInfluence,
-            intMagicalResources, intMatrixResources);
+        return true;
     }
 
     public int ContactId { get; }
@@ -103,9 +106,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _strName;
         set
         {
+            string strPrevious = _strName;
             if (!SetField(ref _strName, value))
                 return;
-            _character.UpdateContact(ContactId, value, Connection.ToString(), Loyalty.ToString());
+            if (!_character.UpdateContact(ContactId, value, Connection.ToString(), Loyalty.ToString()))
+                SetField(ref _strName, strPrevious);
         }
     }
 
@@ -115,9 +120,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _intConnection;
         set
         {
+            int intPrevious = _intConnection;
             if (!SetField(ref _intConnection, value))
                 return;
-            _character.UpdateContact(ContactId, Name, value.ToString(), Loyalty.ToString());
+            if (!_character.UpdateContact(ContactId, Name, value.ToString(), Loyalty.ToString()))
+                SetField(ref _intConnection, intPrevious);
         }
     }
 
@@ -127,9 +134,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _intLoyalty;
         set
         {
+            int intPrevious = _intLoyalty;
             if (!SetField(ref _intLoyalty, value))
                 return;
-            _character.UpdateContact(ContactId, Name, Connection.ToString(), value.ToString());
+            if (!_character.UpdateContact(ContactId, Name, Connection.ToString(), value.ToString()))
+                SetField(ref _intLoyalty, intPrevious);
         }
     }
 
@@ -154,9 +163,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _blnFree;
         set
         {
+            bool blnPrevious = _blnFree;
             if (!SetField(ref _blnFree, value))
                 return;
-            _character.SetContactFree(ContactId, value);
+            if (!_character.SetContactFree(ContactId, value))
+                SetField(ref _blnFree, blnPrevious);
         }
     }
 }

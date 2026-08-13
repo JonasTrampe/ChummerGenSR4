@@ -49,6 +49,46 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ContactCreationBudget_ChargesEveryContactMutationAndRollsBackUnaffordableEdits()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>5</bp></character>");
+
+        Assert.True(creation.AddContact("Fixer", "1", "1", blnEnemy: false));
+        int intContactId = Assert.Single(creation.Contacts).ContactId;
+        Assert.Equal("3", creation.Bp);
+
+        Assert.True(creation.UpdateContact(intContactId, "Fixer", "4", "1"));
+        Assert.Equal("0", creation.Bp);
+        Assert.False(creation.UpdateContact(intContactId, "Fixer", "4", "2"));
+        Assert.Equal("1", Assert.Single(creation.Contacts).Loyalty);
+        Assert.True(creation.SetContactFree(intContactId, true));
+        Assert.Equal("5", creation.Bp);
+        Assert.True(creation.SetContactFree(intContactId, false));
+        Assert.Equal("0", creation.Bp);
+
+        Assert.True(creation.AddContact("Rival", "1", "1", blnEnemy: true));
+        int intEnemyId = Assert.Single(creation.Enemies).ContactId;
+        Assert.Equal("2", creation.Bp);
+        Assert.True(creation.RemoveContact(intEnemyId));
+        Assert.Equal("0", creation.Bp);
+        Assert.True(creation.RemoveContact(intContactId));
+        Assert.Equal("5", creation.Bp);
+    }
+
+    [Fact]
+    public void ContactCreationBudget_RejectsUnaffordableGroupModifiersWithoutMutating()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>2</bp></character>");
+        Assert.True(creation.AddContact("Fixer", "1", "1", blnEnemy: false));
+        int intContactId = Assert.Single(creation.Contacts).ContactId;
+
+        Assert.False(creation.UpdateContactGroup(intContactId, "Fixers", 1, 0, 0, 0));
+        CharacterContactData contact = Assert.Single(creation.Contacts);
+        Assert.Equal(0, contact.GroupRating);
+        Assert.Equal("0", creation.Bp);
+    }
+
+    [Fact]
     public void PetCharacterLink_PersistsAcrossSaveReload()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

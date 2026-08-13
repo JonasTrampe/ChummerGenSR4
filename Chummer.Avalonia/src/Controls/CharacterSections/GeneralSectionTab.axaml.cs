@@ -237,8 +237,8 @@ public partial class GeneralSectionTab : UserControl
         if (_character == null)
             return;
 
-        _character.AddContact("Neue Connection", "1", "1", blnEnemy: false);
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddContact("Neue Connection", "1", "1", blnEnemy: false))
+            ViewModel.LoadCharacter(_character);
     }
 
     private void OnAddEnemyClick(object? sender, RoutedEventArgs e)
@@ -246,8 +246,8 @@ public partial class GeneralSectionTab : UserControl
         if (_character == null)
             return;
 
-        _character.AddContact("Neuer Feind", "1", "1", blnEnemy: true);
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddContact("Neuer Feind", "1", "1", blnEnemy: true))
+            ViewModel.LoadCharacter(_character);
     }
 
     private async void OnDeleteContactClick(object? sender, RoutedEventArgs e)
@@ -287,10 +287,10 @@ public partial class GeneralSectionTab : UserControl
         bool? saved = await dialog.ShowDialog<bool?>(window);
         if (saved == true)
         {
-            contact.UpdateGroup(dialog.ViewModel.GroupName, dialog.ViewModel.SelectedMembership?.Value ?? 0,
+            if (contact.UpdateGroup(dialog.ViewModel.GroupName, dialog.ViewModel.SelectedMembership?.Value ?? 0,
                 dialog.ViewModel.SelectedAreaOfInfluence?.Value ?? 0, dialog.ViewModel.SelectedMagicalResources?.Value ?? 0,
-                dialog.ViewModel.SelectedMatrixResources?.Value ?? 0);
-            ViewModel.LoadCharacter(_character);
+                dialog.ViewModel.SelectedMatrixResources?.Value ?? 0))
+                ViewModel.LoadCharacter(_character);
         }
     }
 }
