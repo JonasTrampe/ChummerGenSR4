@@ -5068,6 +5068,8 @@ namespace Chummer.Core
         /// to know about every individual mutator that might have spent points.</summary>
         public event Action? Changed;
 
+        internal void NotifyChanged() => Changed?.Invoke();
+
         private void SetRootValue(string strName, string strValue)
         {
             var objRoot = Document.DocumentElement

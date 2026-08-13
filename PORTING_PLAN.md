@@ -37,7 +37,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | P1 | Calculations | `[~]` | Ammo RC, special weapons, soft overrides, Mystic-Adept, cyborg edges. |
 | P1 | Special commands | `[~]` | Reapply known improvements refreshes supported current rules data without deleting unmatched legacy effects; metatype, critter, Free Sprite, BP availability remain. |
 | P1 | Containment | `[x]` | Underbarrels plus armor, cyberware, weapon-accessory, and vehicle gear/plugin trees persist and mutate. |
-| P2 | Clipboard/history | `[ ]` | Character-safe copy/paste and historical snapshots. |
+| P2 | Clipboard/history | `[~]` | Immutable snapshots and typed XML copy/paste exist; per-item validation and host wiring remain. |
 | Product | Cloud conflict/newer revision | `[~]` | Flows exist; server round-trip remains. |
 | Product | Native print | `[~]` | Implementation exists; Linux, Windows, and macOS smoke tests remain. |
 | Product | Sourcebook filtering | `[~]` | Normal pickers work; Suites and PACKS remain. |

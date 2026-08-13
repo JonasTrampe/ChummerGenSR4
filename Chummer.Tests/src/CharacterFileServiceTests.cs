@@ -53,6 +53,22 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterClipboard_CopiesImmutableCollectionItemsIntoMatchingTargets()
+    {
+        CharacterDocument source = LoadXml("<character><gears><gear><name>Toolkit</name><category>Tools</category>"
+            + "<qty>1</qty></gear></gears></character>");
+        CharacterDocument target = LoadXml("<character><gears /></character>");
+        var clipboard = new CharacterClipboard();
+
+        Assert.True(clipboard.Copy(source, "/character/gears/gear", ClipboardContentType.Gear));
+        Assert.False(clipboard.Paste(target, "/character/gears", ClipboardContentType.Weapon));
+        Assert.True(clipboard.Paste(target, "/character/gears", ClipboardContentType.Gear));
+        Assert.Equal("Toolkit", target.Document.SelectSingleNode("/character/gears/gear/name")!.InnerText);
+        source.Document.SelectSingleNode("/character/gears/gear/name")!.InnerText = "Changed";
+        Assert.Equal("Toolkit", target.Document.SelectSingleNode("/character/gears/gear/name")!.InnerText);
+    }
+
+    [Fact]
     public void Contacts_And_Enemies_AreSplitByType()
     {
         CharacterDocument character = LoadFixture();
