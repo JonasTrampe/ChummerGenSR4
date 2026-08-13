@@ -34,11 +34,11 @@ public sealed class ComplexFormRowViewModel
     public string Value { get; }
     public string Category { get; }
 
-    public ComplexFormRowViewModel(CharacterComplexFormData form)
+    public ComplexFormRowViewModel(CharacterComplexFormData form, int intKarmaCost)
     {
         Guid = form.Guid;
         Label = form.DisplayName;
-        Value = form.Rating;
+        Value = form.Rating + " · " + intKarmaCost + " Karma";
         Category = form.Category;
     }
 }
@@ -233,7 +233,8 @@ public sealed class SpellsSectionViewModel : ViewModelBase
 
         ComplexForms.Clear();
         foreach (CharacterComplexFormData form in character.ComplexForms)
-            ComplexForms.Add(new ComplexFormRowViewModel(form));
+            ComplexForms.Add(new ComplexFormRowViewModel(form,
+                character.ComputeComplexFormKarmaCost(form.Category, int.TryParse(form.Rating, out int rating) ? rating : 0)));
 
         CritterPowers.Clear();
         foreach (CharacterCritterPowerData power in character.CritterPowers)
