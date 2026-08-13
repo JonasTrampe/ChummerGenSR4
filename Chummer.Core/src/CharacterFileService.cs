@@ -7034,6 +7034,34 @@ namespace Chummer.Core
             return false;
         }
 
+        public bool RemoveLifestyle(int intLifestyleId)
+        {
+            XmlNode? objLifestyle = GetLifestyleNodeById(intLifestyleId);
+            if (objLifestyle == null)
+                return false;
+            objLifestyle.ParentNode?.RemoveChild(objLifestyle);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool SetLifestyleNotes(int intLifestyleId, string strNotes)
+        {
+            XmlNode? objLifestyle = GetLifestyleNodeById(intLifestyleId);
+            if (objLifestyle == null)
+                return false;
+            SetChildValue(objLifestyle, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetLifestyleNodeById(int intLifestyleId)
+        {
+            if (intLifestyleId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/lifestyles/lifestyle");
+            return objNodes != null && intLifestyleId < objNodes.Count ? objNodes[intLifestyleId] : null;
+        }
+
         /// <summary>The dice/multiplier/bonus needed to prompt for a starting-Nuyen roll, ported
         /// from frmCreate.cs's ConfirmSaveCreatedCharacter.</summary>
         public sealed record LifestyleNuyenRollInfo(int Dice, int Multiplier, int Extra);
@@ -8844,11 +8872,15 @@ namespace Chummer.Core
             var lstLifestyles = new List<CharacterLifestyleData>();
             var objNodes = Document.SelectNodes("/character/lifestyles/lifestyle");
             if (objNodes == null) return lstLifestyles;
-            foreach (XmlNode objNode in objNodes)
+            for (int intLifestyleId = 0; intLifestyleId < objNodes.Count; intLifestyleId++)
+            {
+                XmlNode objNode = objNodes[intLifestyleId]!;
                 lstLifestyles.Add(new CharacterLifestyleData(
                     GetValue(objNode, "lifestylename", GetValue(objNode, "name", string.Empty)),
                     GetValue(objNode, "cost", "0"), GetValue(objNode, "months", "0"),
-                    GetValue(objNode, "dice", string.Empty), GetValue(objNode, "multiplier", string.Empty)));
+                    GetValue(objNode, "dice", string.Empty), GetValue(objNode, "multiplier", string.Empty),
+                    intLifestyleId, GetValue(objNode, "notes", string.Empty)));
+            }
             return lstLifestyles;
         }
 
@@ -10079,13 +10111,15 @@ namespace Chummer.Core
     public sealed class CharacterLifestyleData
     {
         internal CharacterLifestyleData(string strName, string strCost, string strMonths, string strDice,
-            string strMultiplier)
+            string strMultiplier, int intLifestyleId, string strNotes)
         {
             Name = strName;
             Cost = strCost;
             Months = strMonths;
             Dice = strDice;
             Multiplier = strMultiplier;
+            LifestyleId = intLifestyleId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
@@ -10097,6 +10131,8 @@ namespace Chummer.Core
         public string Dice { get; }
 
         public string Multiplier { get; }
+        public int LifestyleId { get; }
+        public string Notes { get; }
     }
 
     public sealed class CharacterExpenseData

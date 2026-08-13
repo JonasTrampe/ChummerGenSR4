@@ -13,6 +13,7 @@
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                         <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
                         <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
+                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
@@ -27,6 +28,8 @@
                     <TextBlock
                         Text="{loc:Loc UI_LifestyleQualitiesHeader}"
                         Foreground="#666666" FontStyle="Italic" />
+                    <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
+                               TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
         </TabItem>

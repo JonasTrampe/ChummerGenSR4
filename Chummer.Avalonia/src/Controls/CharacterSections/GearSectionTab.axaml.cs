@@ -99,7 +99,19 @@ public partial class GearSectionTab : UserControl
             return;
         if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteLifestyle"))
             return;
-        if (_character.RemoveLifestyle(ViewModel.SelectedLifestyle.Name)) ViewModel.LoadCharacter(_character);
+        if (_character.RemoveLifestyle(ViewModel.SelectedLifestyle.LifestyleId)) ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditLifestyleNotesClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedLifestyle is not { } lifestyle
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = lifestyle.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetLifestyleNotes(lifestyle.LifestyleId, dialog.Notes))
+            ViewModel.LoadCharacter(_character);
     }
 
     private async void OnAddGearClick(object? sender, RoutedEventArgs e)

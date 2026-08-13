@@ -2393,6 +2393,25 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void LifestyleNotes_AndIdBasedRemovalPreserveDuplicateNames()
+    {
+        CharacterDocument character = LoadXml("<character><lifestyles>"
+            + "<lifestyle><lifestylename>Low</lifestylename></lifestyle>"
+            + "<lifestyle><lifestylename>Low</lifestylename></lifestyle>"
+            + "</lifestyles></character>");
+
+        Assert.True(character.SetLifestyleNotes(character.Lifestyles[1].LifestyleId, "Second home"));
+        Assert.True(character.RemoveLifestyle(character.Lifestyles[0].LifestyleId));
+        Assert.Equal("Second home", Assert.Single(character.Lifestyles).Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal("Second home", Assert.Single(reloaded.Lifestyles).Notes);
+    }
+
+    [Fact]
     public void AddMetamagic_AttunementAnimal_AppliesThePlayerEnteredTextAsAnImprovement()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

@@ -282,10 +282,14 @@ public sealed class LifestyleRowViewModel
         Name = lifestyle.Name;
         Cost = lifestyle.Cost;
         Months = lifestyle.Months;
+        LifestyleId = lifestyle.LifestyleId;
+        Notes = lifestyle.Notes;
         DisplayName = Name + " (" + Cost + "¥/Monat)";
     }
     public string Name { get; }
     public string Cost { get; }
     public string Months { get; }
+    public int LifestyleId { get; }
+    public string Notes { get; }
     public string DisplayName { get; }
 }
