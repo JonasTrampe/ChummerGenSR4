@@ -4095,8 +4095,40 @@ namespace Chummer.Core
             AppendElement(objAccessory, "installed", "True");
             AppendElement(objAccessory, "source", strSource);
             AppendElement(objAccessory, "page", strPage);
+            objAccessory.AppendChild(Document.CreateElement("gears"));
             objAccessories.AppendChild(objAccessory);
             DeductGearCost(strCost, "0", "1", strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Adds Gear below a weapon accessory, preserving legacy
+        /// <c>accessory/gears/gear</c> containment.</summary>
+        public bool AddWeaponAccessoryGear(Guid guiWeaponId, Guid guiAccessoryId, string strName,
+            string strCategory, string strRating = "0", string strQty = "1", string strCost = "",
+            string strAvail = "", string strSource = "", string strPage = "", string strCapacity = "")
+        {
+            XmlNode? objAccessory = GetWeaponNodeByGuid(guiWeaponId)?.SelectSingleNode(
+                $"accessories/accessory[guid = '{guiAccessoryId}']");
+            if (objAccessory == null || string.IsNullOrWhiteSpace(strName))
+                return false;
+            XmlElement objGears = objAccessory.SelectSingleNode("gears") as XmlElement
+                ?? (XmlElement)objAccessory.AppendChild(Document.CreateElement("gears"));
+            XmlElement objGear = AppendGearNode(objGears, strName, strCategory, strRating, strQty, strCost,
+                strAvail, strSource, strPage, strCapacity, string.Empty, string.Empty, string.Empty, string.Empty);
+            AppendAutomaticProgramOptions(objGear);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool RemoveWeaponAccessoryGear(Guid guiWeaponId, Guid guiAccessoryId, Guid guiGearId)
+        {
+            XmlNode? objGear = GetWeaponNodeByGuid(guiWeaponId)?.SelectSingleNode(
+                $"accessories/accessory[guid = '{guiAccessoryId}']/gears/gear[guid = '{guiGearId}']");
+            if (objGear?.ParentNode == null)
+                return false;
+            objGear.ParentNode.RemoveChild(objGear);
             Changed?.Invoke();
             return true;
         }
@@ -9066,6 +9098,7 @@ namespace Chummer.Core
                 objWeapon.SetWeaponId(intWeaponId++);
                 objWeapon.SetCustomName(GetValue(objNode, "weaponname", string.Empty));
                 MarkWeaponAccessoriesAndMods(objWeapon, objNode);
+                AttachWeaponAccessoryGear(objWeapon, objNode);
                 MarkUnderbarrelWeapons(objWeapon, objNode);
                 string strLocation = GetValue(objNode, "location", string.Empty);
                 objWeapon.SetLocation(strLocation);
@@ -9127,6 +9160,22 @@ namespace Chummer.Core
             foreach (CharacterTreeItemData objChild in objWeapon.Children)
                 if (!string.IsNullOrEmpty(objChild.ItemGuid) && setUnderbarrelGuids.Contains(objChild.ItemGuid))
                     objChild.IsUnderbarrelWeapon = true;
+        }
+
+        private static void AttachWeaponAccessoryGear(CharacterTreeItemData objWeapon, XmlNode objWeaponNode)
+        {
+            foreach (XmlNode objAccessory in objWeaponNode.SelectNodes("accessories/accessory")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strGuid = GetValue(objAccessory, "guid", string.Empty);
+                CharacterTreeItemData? objTreeAccessory = objWeapon.Children.FirstOrDefault(
+                    objChild => objChild.IsWeaponAccessory && objChild.ItemGuid == strGuid);
+                if (objTreeAccessory == null)
+                    continue;
+                foreach (XmlNode objGear in objAccessory.SelectNodes("gears/gear")?.Cast<XmlNode>()
+                         ?? Enumerable.Empty<XmlNode>())
+                    objTreeAccessory.Children.Add(ReadTreeItem(objGear, "children/gear"));
+            }
         }
 
         private bool WeaponNodeHasSmartgun(XmlNode objWeaponNode)

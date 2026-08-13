@@ -1166,6 +1166,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddWeaponAccessoryGear_NestsUnderAccessoryAndCanBeRemoved()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>2000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+        Guid weaponId = Guid.Parse(character.WeaponTrees.Single().ItemGuid);
+        Assert.True(character.AddWeaponAccessory(weaponId, "Laser Sight", "Top", "", "4", "200", "SR4", "321"));
+        Guid accessoryId = Guid.Parse(character.WeaponTrees.Single().Children.Single().ItemGuid);
+
+        Assert.True(character.AddWeaponAccessoryGear(weaponId, accessoryId, "Battery", "Electronics", "0", "1", "50", "0", "SR4", "1"));
+        CharacterTreeItemData gear = Assert.Single(Assert.Single(character.WeaponTrees).Children.Single().Children);
+        Assert.Equal("Battery", gear.Name);
+        Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
+        Assert.True(character.RemoveWeaponAccessoryGear(weaponId, accessoryId, gearId));
+        Assert.Empty(Assert.Single(character.WeaponTrees).Children.Single().Children);
+    }
+
+    [Fact]
     public void Weapons_DicePool_IncludesInstalledAccessoryDicePoolBonus()
     {
         CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen><skills>"
