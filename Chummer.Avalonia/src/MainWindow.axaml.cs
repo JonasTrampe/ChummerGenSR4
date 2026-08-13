@@ -170,6 +170,12 @@ public partial class MainWindow : Window
         await dialog.ShowDialog(this);
     }
 
+    private async void OnExportClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new ExportDialog(ViewModel.SelectedOpenCharacter?.Character);
+        await dialog.ShowDialog(this);
+    }
+
     private async void OnCloudDocumentsClick(object? sender, RoutedEventArgs e)
     {
         var dialog = new CloudDocumentsDialog(ViewModel.SelectedOpenCharacter?.Character, ViewModel.SelectedOpenCharacter?.SourcePath);

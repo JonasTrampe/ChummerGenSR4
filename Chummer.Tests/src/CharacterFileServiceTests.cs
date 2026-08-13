@@ -1641,6 +1641,36 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_GetExportTemplateNames_IncludesSquadManager()
+    {
+        Assert.Contains("Squad Manager", CharacterSheetExporter.GetExportTemplateNames());
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_GetExportTemplateExtension_ReadsTheExtComment()
+    {
+        Assert.Equal("xml", CharacterSheetExporter.GetExportTemplateExtension("Squad Manager"));
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_RenderExport_TransformsThroughSquadManager()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><alias>Ghost</alias></character>");
+
+        string strExport = CharacterSheetExporter.RenderExport(character, "Squad Manager");
+
+        Assert.Contains("Ghost", strExport);
+        Assert.Contains("<Shadowrun", strExport);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_RenderExport_ThrowsForAMissingTemplate()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.Throws<FileNotFoundException>(() => CharacterSheetExporter.RenderExport(character, "Does Not Exist"));
+    }
+
+    [Fact]
     public void CharacterSheetExporter_ThrowsForAMissingSheetFile()
     {
         CharacterDocument character = LoadFixture();

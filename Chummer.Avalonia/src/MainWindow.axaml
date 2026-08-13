@@ -42,6 +42,7 @@
                 <Separator />
                 <MenuItem Header="_Drucken" Click="OnPrintClick" />
                 <MenuItem Header="_Mehrere Charaktere drucken..." Click="OnPrintMultipleClick" />
+                <MenuItem Header="E_xportieren..." Click="OnExportClick" />
                 <Separator />
                 <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
             </MenuItem>

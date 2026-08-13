@@ -381,9 +381,16 @@ what's ported, not previously tracked anywhere in this file)
   for this tool) iterates `/characters/character` regardless of count. New `PrintMultipleDialog`
   (multi-file picker, add/remove list, progress bar while loading, HTML export) wired into a new
   "Mehrere Charaktere drucken..." menu item next to "Drucken" in the Datei menu.
-- [ ] `data/export/Squad Manager.xsl` — a second XSLT export pipeline separate from
-  `data/sheets/` (`frmExport.cs`), currently completely unreachable from any UI in this port.
-  Low value (one template) but literally dead data right now.
+- [x] `data/export/Squad Manager.xsl` (`frmExport.cs`) — done. Added
+  `GetExportTemplateNames`/`GetExportTemplateExtension`/`RenderExport` to
+  `CharacterSheetExporter`: same `BuildExportXml` export document `RenderSheet` uses, but
+  transformed through a `data/export/*.xsl` template instead of `data/sheets/*.xsl` (these
+  produce a data-interchange format like Squad Manager's own XML schema, not an HTML sheet, so
+  the transform's `XmlWriterSettings` relax `CheckCharacters`/`ConformanceLevel` the same way
+  legacy's own does instead of reusing the sheet-oriented defaults) - the extension to save as
+  comes from the template's own `&lt;!-- ext:xxx --&gt;` comment, same as legacy. New
+  `ExportDialog` (template picker + save-file) wired into a new "Exportieren..." menu item next
+  to "Mehrere Charaktere drucken...".
 - [ ] `frmCreateCyberwareSuite`/`frmCreatePACKSKit` — save-your-own-loadout-as-a-reusable-template
   authoring tools (the inverse of `AddCyberwareSuite`/`AddPacksKit`, which only consume existing
   templates). Power-user data authoring, not core gameplay - low priority.

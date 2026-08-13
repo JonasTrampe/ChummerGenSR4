@@ -94,6 +94,69 @@ namespace Chummer.Core
             return sb.ToString();
         }
 
+        /// <summary>Every "*.xsl" file (not "*.xslt" - those are hidden partial templates meant to
+        /// only be xsl:include'd, same distinction legacy's frmExport.cs makes) in
+        /// Chummer.Core/data/export, for an export-format picker.</summary>
+        public static IReadOnlyList<string> GetExportTemplateNames()
+        {
+            string strExportDir = Path.Combine(AppContext.BaseDirectory, "data", "export");
+            if (!Directory.Exists(strExportDir))
+                return Array.Empty<string>();
+
+            return Directory.GetFiles(strExportDir, "*.xsl")
+                .Select(Path.GetFileNameWithoutExtension)
+                .Where(s => !string.IsNullOrEmpty(s))
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList()!;
+        }
+
+        /// <summary>The file extension an export template's own output uses, from its "&lt;!--
+        /// ext:xxx --&gt;" comment (e.g. Squad Manager.xsl's "xml") - ported from frmExport.cs's
+        /// own line-by-line scan for that comment. Falls back to "xml" if the template doesn't
+        /// declare one, matching legacy's default.</summary>
+        public static string GetExportTemplateExtension(string strExportTemplateName)
+        {
+            string strPath = Path.Combine(AppContext.BaseDirectory, "data", "export", strExportTemplateName + ".xsl");
+            if (!File.Exists(strPath))
+                return "xml";
+
+            foreach (string strLine in File.ReadLines(strPath))
+            {
+                if (strLine.StartsWith("<!-- ext:", StringComparison.Ordinal))
+                    return strLine.Replace("<!-- ext:", string.Empty).Replace("-->", string.Empty).Trim();
+            }
+
+            return "xml";
+        }
+
+        /// <summary>Ported from frmExport.cs's cmdOK_Click: runs a character's export XML (same
+        /// shape <see cref="RenderSheet(CharacterDocument,string)"/> uses) through a template from
+        /// Chummer.Core/data/export instead of data/sheets - these produce a data interchange
+        /// format (e.g. Squad Manager's own XML schema) rather than an HTML sheet, so the output
+        /// settings relax CheckCharacters/ConformanceLevel the same way legacy's own transform
+        /// does, instead of reusing the transform's sheet-oriented OutputSettings as-is.</summary>
+        public static string RenderExport(CharacterDocument character, string strExportTemplateName)
+        {
+            string strPath = Path.Combine(AppContext.BaseDirectory, "data", "export", strExportTemplateName + ".xsl");
+            if (!File.Exists(strPath))
+                throw new FileNotFoundException("Export template not found.", strPath);
+
+            var transform = new XslCompiledTransform();
+            transform.Load(strPath, XsltSettings.TrustedXslt, new XmlUrlResolver());
+
+            XmlWriterSettings objSettings = transform.OutputSettings!.Clone();
+            objSettings.CheckCharacters = false;
+            objSettings.ConformanceLevel = ConformanceLevel.Fragment;
+
+            XmlDocument exportXml = BuildExportXml(character);
+            var sb = new StringBuilder();
+            using (var writer = new StringWriter(sb))
+            using (var xmlWriter = XmlWriter.Create(writer, objSettings))
+                transform.Transform(exportXml, xmlWriter);
+
+            return sb.ToString();
+        }
+
         private static XmlElement AddEl(XmlDocument doc, XmlElement parent, string name, string value = "")
         {
             XmlElement el = doc.CreateElement(name);
