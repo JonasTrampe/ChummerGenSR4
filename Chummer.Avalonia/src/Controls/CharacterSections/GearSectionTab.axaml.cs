@@ -211,6 +211,18 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnRenameGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new TextSelectionDialog("Name für „" + node.TranslatedName + "“:", node.CustomName,
+            blnAllowEmpty: true);
+        if (await dialog.ShowDialog<bool>(window) && _character.SetGearCustomName(node.GearId, dialog.EnteredText))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnSellGearClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node

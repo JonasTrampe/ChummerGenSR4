@@ -30,6 +30,7 @@ public sealed class TreeNodeViewModel
     public string Location { get; private set; } = string.Empty;
     public string ItemGuid { get; private set; } = string.Empty;
     public string Notes { get; private set; } = string.Empty;
+    public string CustomName { get; private set; } = string.Empty;
     public string VehicleGuid { get; private set; } = string.Empty;
 
     /// <summary>Depth-first position within the &lt;gears&gt; tree - only set (>=0) for Gear tree
@@ -163,11 +164,12 @@ public sealed class TreeNodeViewModel
     {
         get
         {
+            string strName = string.IsNullOrWhiteSpace(CustomName) ? TranslatedName : TranslatedName + " (\"" + CustomName + "\")";
             if (!string.IsNullOrEmpty(Ballistic) || !string.IsNullOrEmpty(Impact))
-                return TranslatedName + " (B " + Ballistic + " / I " + Impact + ")";
+                return strName + " (B " + Ballistic + " / I " + Impact + ")";
             if (GearId >= 0 && Qty != "1")
-                return TranslatedName + " x" + Qty;
-            return TranslatedName;
+                return strName + " x" + Qty;
+            return strName;
         }
     }
     public ObservableCollection<TreeNodeViewModel> Children { get; } = new();
@@ -207,6 +209,7 @@ public sealed class TreeNodeViewModel
             Location = item.Location,
             ItemGuid = item.ItemGuid,
             Notes = item.Notes,
+            CustomName = item.CustomName,
             GearId = item.GearId,
             CyberwareId = item.CyberwareId,
             ArmorId = item.ArmorId,

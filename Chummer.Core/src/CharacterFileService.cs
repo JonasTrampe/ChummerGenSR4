@@ -2002,6 +2002,20 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Sets Gear's player-facing label without changing its rules-data
+        /// <c>&lt;name&gt;</c>. Legacy saves use <c>&lt;gearname&gt;</c> for this distinction,
+        /// so lookups, costs, and category-based rules remain tied to the original item.</summary>
+        public bool SetGearCustomName(int intGearId, string strCustomName)
+        {
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear == null)
+                return false;
+
+            SetChildValue(objGear, "gearname", strCustomName?.Trim() ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>Moves a gear item within the &lt;gears&gt; tree - either reordering it among its
         /// current siblings (inserted immediately before <paramref name="intTargetGearId"/>) or, with
         /// <paramref name="blnReparent"/>, making it a child of the target instead. GearIds are
@@ -8688,6 +8702,7 @@ namespace Chummer.Core
                 GetValue(objNode, "qty", "1"));
             objItem.SetItemGuid(GetValue(objNode, "guid", string.Empty));
             objItem.SetNotes(GetValue(objNode, "notes", string.Empty));
+            objItem.SetCustomName(GetValue(objNode, "gearname", string.Empty));
             foreach (string strChildXPath in lstChildXPaths)
             {
                 if (string.IsNullOrEmpty(strChildXPath)) continue;
@@ -8962,6 +8977,10 @@ namespace Chummer.Core
         /// the data-file name: notes must never affect rule lookup or calculated values.</summary>
         public string Notes { get; private set; } = string.Empty;
 
+        /// <summary>Optional player-facing label (the legacy <c>gearname</c> field for Gear).
+        /// The raw <see cref="Name"/> remains the stable rules-data identity.</summary>
+        public string CustomName { get; private set; } = string.Empty;
+
         /// <summary>Raw saved slots ("Rating"-formula string) - only set for Vehicle Mod nodes.
         /// See CharacterVehicleData.SlotsUsed for the evaluated total.</summary>
         public string ModSlots { get; private set; } = string.Empty;
@@ -9009,6 +9028,7 @@ namespace Chummer.Core
         internal void SetLocation(string strLocation) => Location = strLocation;
         internal void SetItemGuid(string strItemGuid) => ItemGuid = strItemGuid;
         internal void SetNotes(string strNotes) => Notes = strNotes;
+        internal void SetCustomName(string strCustomName) => CustomName = strCustomName;
         internal void SetModSlots(string strSlots, bool blnIncluded)
         {
             ModSlots = strSlots;

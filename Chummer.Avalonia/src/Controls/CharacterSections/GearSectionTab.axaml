@@ -186,6 +186,7 @@
                         <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
                         <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" />
                         <Button Content="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />
+                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameGearClick" />
                         <Button Content="{loc:Loc Tab_Notes}" Click="OnEditGearNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
@@ -210,7 +211,7 @@
                     <StackPanel Margin="8,0,0,0" Spacing="6">
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc Label_Name}" Width="90" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.TranslatedName, TargetNullValue=–}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedGear.DisplayName, TargetNullValue=–}" FontWeight="SemiBold" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
                             <TextBlock Text="{loc:Loc Label_Category}" Width="90" />

@@ -661,6 +661,20 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SetGearCustomName_UpdatesNestedGearWithoutChangingRulesName()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddGear("Commlink", "Commlink", "0");
+        character.AddChildGear(character.Gear[0].GearId, "Credstick", "ID/Credsticks", "0");
+        int intNestedGearId = character.Gear[0].Children[0].GearId;
+
+        Assert.True(character.SetGearCustomName(intNestedGearId, "Fake identity #3"));
+        CharacterTreeItemData nested = character.Gear[0].Children[0];
+        Assert.Equal("Credstick", nested.Name);
+        Assert.Equal("Fake identity #3", nested.CustomName);
+    }
+
+    [Fact]
     public void MoveGear_ReordersRootLevelSiblingsAndPersists()
     {
         CharacterDocument character = LoadXml("<character><gears>"

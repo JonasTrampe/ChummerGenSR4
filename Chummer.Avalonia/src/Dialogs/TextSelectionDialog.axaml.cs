@@ -9,16 +9,20 @@ namespace Chummer.NewUI.Dialogs;
 public partial class TextSelectionDialog : Window
 {
     public string EnteredText => ValueBox.Text?.Trim() ?? string.Empty;
+    private bool AllowEmpty { get; }
 
-    public TextSelectionDialog(string strDescription)
+    public TextSelectionDialog(string strDescription, string strInitialValue = "", bool blnAllowEmpty = false)
     {
         InitializeComponent();
         DescriptionText.Text = strDescription;
+        ValueBox.Text = strInitialValue;
+        ValueBox.CaretIndex = ValueBox.Text?.Length ?? 0;
+        AllowEmpty = blnAllowEmpty;
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrWhiteSpace(ValueBox.Text))
+        if (AllowEmpty || !string.IsNullOrWhiteSpace(ValueBox.Text))
             Close(true);
     }
 
