@@ -1541,6 +1541,41 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ReapplyKnownRuleImprovements_RefreshesKnownItemsAndPreservesRetiredRulesData()
+    {
+        CharacterDocument character = LoadXml("<character><qualities><quality><name>Retired Quality</name>"
+            + "</quality></qualities><improvements><improvement><improvementttype>Skill</improvementttype>"
+            + "<improvementsource>Quality</improvementsource><sourcename>Retired Quality</sourcename>"
+            + "<improvedname>Retired Skill</improvedname><val>7</val><enabled>True</enabled>"
+            + "</improvement></improvements></character>");
+        character.AddQuality("Analytical Mind", "Positive");
+        Assert.True(character.AddComplexForm("Empathy Software", "Sensor Software", "AR", "60"));
+        character.AddCritterPower("Armor (Ballistic)", "1", "RW", "204", strRating: "4");
+
+        foreach (XmlNode improvement in character.Document.SelectNodes("/character/improvements/improvement")!
+                     .Cast<XmlNode>().Where(node => node["sourcename"]?.InnerText != "Retired Quality"))
+            improvement["val"]!.InnerText = "99";
+
+        Assert.Equal(3, character.ReapplyKnownRuleImprovements());
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Data Search"));
+        Assert.Equal(2, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Software"));
+        Assert.Equal(1, ImprovementManager.ValueOf(character.Improvements, ImprovementType.SkillCategory, "Social Active"));
+        Assert.Equal(4, ImprovementManager.ValueOf(character.Improvements, ImprovementType.BallisticArmor));
+
+        XmlNode retired = Assert.Single(character.Document.SelectNodes(
+            "/character/improvements/improvement[sourcename = 'Retired Quality']")!.Cast<XmlNode>());
+        Assert.Equal("7", retired["val"]!.InnerText);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "reapplied.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "reapplied.chum");
+        Assert.Equal(4, ImprovementManager.ValueOf(reloaded.Improvements, ImprovementType.BallisticArmor));
+        Assert.Contains(reloaded.Improvements, improvement => improvement.SourceName == "Retired Quality"
+            && improvement.Value == 7);
+    }
+
+    [Fact]
     public void AddCyberware_Smartlink_AppliesTheFlagBonus()
     {
         CharacterDocument character = LoadXml("<character></character>");

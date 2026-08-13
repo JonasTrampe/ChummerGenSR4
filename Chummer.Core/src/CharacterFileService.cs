@@ -938,7 +938,7 @@ namespace Chummer.Core
         /// <summary>Removes every &lt;improvement&gt; sharing <paramref name="strSourceName"/> whose
         /// improvementsource is "Custom" - ported from frmCareer.cs's cmdDeleteImprovement_Click,
         /// which only ever calls RemoveImprovements(ImprovementSource.Custom, ...): manually-created
-        /// Improvements (frmCreateImprovement, not ported here - see FEATURE_CHECKLIST.md) are the
+        /// Improvements (frmCreateImprovement, not ported here - see PORTING_PLAN.md) are the
         /// only ones legacy itself lets the user delete from this list, since every other source
         /// (Quality/Cyberware/Metamagic/...) is a side effect of some other owned item and must be
         /// removed by removing that item instead.</summary>
@@ -4731,6 +4731,143 @@ namespace Chummer.Core
                     continue;
 
                 objNode.ParentNode?.RemoveChild(objNode);
+            }
+        }
+
+        /// <summary>Refreshes rules-data improvements for Core item types whose current rules
+        /// entry can be resolved. This is the safe Core counterpart to the legacy Special/Reapply
+        /// Improvements command: an item missing from current rules data is deliberately left
+        /// untouched so an old save never loses its retained legacy improvements. Interactive
+        /// select-senseware powers are also retained until their selected child-item lifecycle is
+        /// represented by Core, rather than silently dropping that choice.</summary>
+        /// <returns>The number of persisted items whose known rules-data improvements were refreshed.</returns>
+        public int ReapplyKnownRuleImprovements()
+        {
+            int intRefreshed = 0;
+
+            XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+            foreach (XmlNode objItem in Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objItem, "name", string.Empty);
+                XmlNode? objRule = FindRuleItemByName(objQualities, "/chummer/qualities/quality", strName);
+                if (objRule == null)
+                    continue;
+
+                RemoveBonusImprovements(ImprovementSource.Quality, strName);
+                XmlNode? objBonus = objRule.SelectSingleNode("bonus");
+                ApplyBonus(objBonus, ImprovementSource.Quality, strName);
+                ApplySelectedImprovement(objBonus, ImprovementSource.Quality, strName,
+                    GetValue(objItem, "extra", string.Empty), "1");
+                ReapplyMentorSpiritBonuses(objItem, strName);
+                intRefreshed++;
+            }
+
+            XmlDocument objPowers = XmlManager.Instance.Load("powers.xml");
+            foreach (XmlNode objItem in Document.SelectNodes("/character/powers/power")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objItem, "name", string.Empty);
+                XmlNode? objRule = FindRuleItemByName(objPowers, "/chummer/powers/power", strName);
+                XmlNode? objBonus = objRule?.SelectSingleNode("bonus");
+                if (objRule == null || objBonus?.SelectSingleNode("selectsenseware") != null)
+                    continue;
+
+                string strRating = GetValue(objItem, "rating", "1");
+                RemoveBonusImprovements(ImprovementSource.Power, strName);
+                ApplyBonus(objBonus, ImprovementSource.Power, strName, strRating);
+                ApplySelectedImprovement(objBonus, ImprovementSource.Power, strName,
+                    GetValue(objItem, "extra", string.Empty), strRating);
+                intRefreshed++;
+            }
+
+            XmlDocument objPrograms = XmlManager.Instance.Load("programs.xml");
+            foreach (XmlNode objItem in Document.SelectNodes("/character/techprograms/techprogram")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objItem, "name", string.Empty);
+                XmlNode? objRule = FindRuleItemByName(objPrograms, "/chummer/programs/program", strName);
+                if (objRule == null)
+                    continue;
+
+                string strRating = GetValue(objItem, "rating", "1");
+                XmlNode? objBonus = objRule.SelectSingleNode("bonus");
+                RemoveBonusImprovements(ImprovementSource.ComplexForm, strName);
+                ApplyBonus(objBonus, ImprovementSource.ComplexForm, strName, strRating);
+                ApplySelectedImprovement(objBonus, ImprovementSource.ComplexForm, strName,
+                    GetValue(objItem, "extra", string.Empty), strRating);
+                intRefreshed++;
+            }
+
+            XmlDocument objCritterPowers = XmlManager.Instance.Load("critterpowers.xml");
+            foreach (XmlNode objItem in Document.SelectNodes("/character/critterpowers/critterpower")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objItem, "name", string.Empty);
+                XmlNode? objRule = FindRuleItemByName(objCritterPowers, "/chummer/powers/power", strName);
+                if (objRule == null)
+                    continue;
+
+                bool blnHasRating = GetValue(objRule, "rating", "no") == "yes";
+                string strRating = blnHasRating ? GetValue(objItem, "rating", "1") : "1";
+                XmlNode? objBonus = objRule.SelectSingleNode("bonus");
+                RemoveBonusImprovements(ImprovementSource.CritterPower, strName);
+                ApplyBonus(objBonus, ImprovementSource.CritterPower, strName, strRating);
+                ApplySelectedImprovement(objBonus, ImprovementSource.CritterPower, strName,
+                    GetValue(objItem, "extra", string.Empty), strRating);
+                intRefreshed++;
+            }
+
+            foreach (XmlNode objItem in Document.SelectNodes("/character/metamagics/metamagic")?.Cast<XmlNode>()
+                     ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objItem, "name", string.Empty);
+                bool blnEcho = GetValue(objItem, "improvementsource", "Metamagic") == ImprovementSource.Echo.ToString();
+                XmlDocument objRules = XmlManager.Instance.Load(blnEcho ? "echoes.xml" : "metamagic.xml");
+                XmlNode? objRule = FindRuleItemByName(objRules,
+                    blnEcho ? "/chummer/echoes/echo" : "/chummer/metamagics/metamagic", strName);
+                if (objRule == null)
+                    continue;
+
+                ImprovementSource eSource = blnEcho ? ImprovementSource.Echo : ImprovementSource.Metamagic;
+                XmlNode? objBonus = objRule.SelectSingleNode("bonus");
+                RemoveBonusImprovements(eSource, strName);
+                ApplyBonus(objBonus, eSource, strName);
+                ApplySelectedImprovement(objBonus, eSource, strName, GetValue(objItem, "extra", string.Empty), "1");
+                intRefreshed++;
+            }
+
+            if (intRefreshed > 0)
+                Changed?.Invoke();
+            return intRefreshed;
+        }
+
+        private static XmlNode? FindRuleItemByName(XmlDocument objDocument, string strPath, string strName) =>
+            objDocument.SelectNodes(strPath)?.Cast<XmlNode>().FirstOrDefault(objNode =>
+                string.Equals(GetValue(objNode, "name", string.Empty), strName, StringComparison.Ordinal));
+
+        private void ReapplyMentorSpiritBonuses(XmlNode objQuality, string strQualityName)
+        {
+            string? strDataFile = QualityMentorSpiritDataFile(strQualityName);
+            string strMentor = GetValue(objQuality, "mentorspirit", string.Empty);
+            if (strDataFile == null || string.IsNullOrWhiteSpace(strMentor))
+                return;
+
+            XmlNode? objMentor = FindRuleItemByName(XmlManager.Instance.Load(strDataFile),
+                "/chummer/mentors/mentor", strMentor);
+            ApplyBonus(objMentor?.SelectSingleNode("bonus"), ImprovementSource.Quality, strQualityName);
+            foreach (string strChoice in new[]
+                     {
+                         GetValue(objQuality, "mentorchoice1", string.Empty),
+                         GetValue(objQuality, "mentorchoice2", string.Empty)
+                     })
+            {
+                if (string.IsNullOrWhiteSpace(strChoice))
+                    continue;
+                XmlNode? objChoice = objMentor?.SelectNodes("choices/choice")?.Cast<XmlNode>().FirstOrDefault(
+                    objNode => string.Equals(GetValue(objNode, "name", string.Empty), strChoice,
+                        StringComparison.Ordinal));
+                ApplyBonus(objChoice?.SelectSingleNode("bonus"), ImprovementSource.Quality, strQualityName);
             }
         }
 
