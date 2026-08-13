@@ -5874,9 +5874,9 @@ namespace Chummer.Core
                 sb.Append("MAG").Append(MysticAdept ? " (Adept-Anteil)" : string.Empty).Append(": ").Append(intMag);
                 AppendContributions(sb, lstContributions);
                 sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
-                sb.Append('\n').Append("Verbraucht: ").Append(decUsed);
+                sb.Append('\n').Append("Verbraucht: ").Append(decUsed.ToString(CultureInfo.GetCultureInfo("de-DE")));
                 var decRemaining = intTotal - decUsed;
-                sb.Append('\n').Append("Übrig: ").Append(decRemaining);
+                sb.Append('\n').Append("Übrig: ").Append(decRemaining.ToString(CultureInfo.GetCultureInfo("de-DE")));
                 return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
             }
         }
@@ -5909,9 +5909,9 @@ namespace Chummer.Core
                 sb.Append(blnUseMag ? "MAG" : "EDG").Append(": ").Append(intBase);
                 AppendContributions(sb, lstContributions);
                 sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
-                sb.Append('\n').Append("Verbraucht: ").Append(decUsed);
+                sb.Append('\n').Append("Verbraucht: ").Append(decUsed.ToString(CultureInfo.GetCultureInfo("de-DE")));
                 var decRemaining = intTotal - decUsed;
-                sb.Append('\n').Append("Übrig: ").Append(decRemaining);
+                sb.Append('\n').Append("Übrig: ").Append(decRemaining.ToString(CultureInfo.GetCultureInfo("de-DE")));
                 return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
             }
         }
