@@ -43,6 +43,19 @@ public partial class SpellsSectionTab : UserControl
         }
     }
 
+    private async void OnCreateSpellClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new CreateSpellDialog(_character);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.AddCustomSpell(dialog.ResultName, dialog.ResultCategory, dialog.ResultType,
+                dialog.ResultRange, dialog.ResultArea, dialog.ResultRestricted, dialog.ResultVeryRestricted,
+                dialog.ResultDuration, dialog.ResultCheckedKeys, dialog.ResultNumberOfEffects))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnDeleteSpellClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedSpellNode?.Parent == null)

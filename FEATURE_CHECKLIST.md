@@ -343,10 +343,24 @@ what's ported, not previously tracked anywhere in this file)
   (Gear/Weapon/Armor), `CyberwareSectionTab`, and `VehiclesSectionTab`. Not covered: Vehicle Mods/
   Gear/Weapons and Weapon Accessories/Mods sold individually (only their parent root item), and
   Lifestyles (legacy doesn't sell Lifestyles either - they're a recurring cost, not owned equipment).
-- [ ] `frmCreateSpell` (867 lines) — player-facing tool to homebrew a new Spell by combining
-  rules-data building blocks (type/range/duration/damage formula) instead of picking one from
-  `spells.xml`. Sizable feature, similar in spirit to `AddNexus`/`AddAdvancedLifestyle` but
-  bigger.
+- [x] `frmCreateSpell` — done. Ported the full Drain Value formula (`ComputeCustomSpellDv`) and
+  the complete per-category modifier catalog (`GetSpellModifierOptions`: all 5 categories' real
+  checkbox labels/DV tags from `Checkbox_XxxSpellN` - 14 Detection modifiers, 6 Manipulation, 5
+  each for Health/Illusion/Combat, including the Combat "Elemental"/Manipulation "Elemental
+  effect" number-of-effects multiplier and Health "Curative" swapping the DV base from `(F/2)` to
+  `(Damage Value)` and exempting Permanent duration's +2). `AddCustomSpell` builds the resulting
+  Spell exactly like a rules-data pick (`AddSpell` - same fields, same shape; legacy's own
+  `AcceptForm` does this too, no separate write path), stamped `SM`/159 (Street Magic's homebrew
+  rules) like legacy. Not ported: the Descriptors/Limited/Restriction-text fields (informational
+  only - this port's Spell model doesn't carry them for any spell, rules-data ones included) and
+  the mutual-exclusion checkbox enable/disable UI guidance (e.g. Combat's Direct/Indirect can't
+  both be checked in legacy's UI) - doesn't change what a given combination computes to, so
+  skipping it doesn't change any DV outcome, just lets a player pick an unusual combination the
+  same as hand-editing a save file would. New `CreateSpellDialog` (category-driven dynamic
+  modifier checkboxes, live DV preview) wired into a "Zauber erstellen" button next to "Zauber
+  hinzufügen". While here, also fixed a real found-along-the-way bug: `AddSpell` never fired
+  `Changed`, so adding a spell (from either picker) never updated dirty-state-driven UI (e.g. the
+  sidebar).
 - [x] `frmNaturalWeapon` — done. Added `AddNaturalWeapon`/`GetCombatActiveSkillNames` to
   `Chummer.Core/src/CharacterFileService.cs`: assembles the Damage Value string from a base
   (a fixed rating or "(STR/2)"), an optional signed modifier, and a P/S type, formats AP the

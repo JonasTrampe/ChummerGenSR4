@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -309,6 +310,91 @@ public class CharacterFileServiceTests
         Assert.Equal("Acid Stream", saved.Name);
         Assert.Equal("SR4", saved.Source);
         Assert.Equal("204", saved.Page);
+    }
+
+    [Fact]
+    public void ComputeCustomSpellDv_ManaLosTouchless_MatchesTheBaseFPlus2Formula()
+    {
+        // Mana (+0), LOS (+0), no Area, not Restricted, Instant duration (+0) - just the (F/2) base.
+        string strDv = CharacterDocument.ComputeCustomSpellDv("Combat", "M", "LOS", blnArea: false,
+            blnRestricted: false, blnVeryRestricted: false, "I", new HashSet<string>(), intNumberOfEffects: 0);
+        Assert.Equal("(F/2)", strDv);
+    }
+
+    [Fact]
+    public void ComputeCustomSpellDv_PhysicalTouchPermanentRestricted_SumsAllTheModifiers()
+    {
+        // Physical (+1), Touch (-2), Permanent duration (+2), Restricted (-1) = +0 net, still shown blank.
+        string strDv = CharacterDocument.ComputeCustomSpellDv("Combat", "P", "T", blnArea: false,
+            blnRestricted: true, blnVeryRestricted: false, "P", new HashSet<string>(), intNumberOfEffects: 0);
+        Assert.Equal("(F/2)", strDv);
+    }
+
+    [Fact]
+    public void ComputeCustomSpellDv_AreaAndModifiers_AddsThemIn()
+    {
+        var setKeys = new HashSet<string> { "direct", "physicaldamage" };
+        // Physical (+1) + LOS (+0) + Area (+2) + Direct (+0) + Physical damage (+0) = +3.
+        string strDv = CharacterDocument.ComputeCustomSpellDv("Combat", "P", "LOS", blnArea: true,
+            blnRestricted: false, blnVeryRestricted: false, "I", setKeys, intNumberOfEffects: 0);
+        Assert.Equal("(F/2)+3", strDv);
+    }
+
+    [Fact]
+    public void ComputeCustomSpellDv_CombatElementalMultipliesByNumberOfEffects()
+    {
+        var setKeys = new HashSet<string> { "direct", "physicaldamage", "elemental" };
+        // Physical (+1) + LOS (+0) + Direct/Physical damage (+0) + Elemental (+2 * 3 effects) = +7.
+        string strDv = CharacterDocument.ComputeCustomSpellDv("Combat", "P", "LOS", blnArea: false,
+            blnRestricted: false, blnVeryRestricted: false, "I", setKeys, intNumberOfEffects: 3);
+        Assert.Equal("(F/2)+7", strDv);
+    }
+
+    [Fact]
+    public void ComputeCustomSpellDv_HealthCurative_UsesDamageValueBaseAndSkipsThePermanentPenalty()
+    {
+        var setKeys = new HashSet<string> { "curative" };
+        // Mana (+0) + LOS (+0) + Curative Permanent duration exemption (+0) = +0 net.
+        string strDv = CharacterDocument.ComputeCustomSpellDv("Health", "M", "LOS", blnArea: false,
+            blnRestricted: false, blnVeryRestricted: false, "P", setKeys, intNumberOfEffects: 0);
+        Assert.Equal("(Damage Value)", strDv);
+    }
+
+    [Fact]
+    public void AddCustomSpell_BuildsAndAddsARealSpellRow()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        var setKeys = new HashSet<string> { "direct", "physicaldamage" };
+
+        Assert.True(character.AddCustomSpell("Homebrew Bolt", "Combat", "P", "LOS", blnArea: false,
+            blnRestricted: false, blnVeryRestricted: false, "I", setKeys, intNumberOfEffects: 0));
+
+        CharacterSpellData added = Assert.Single(character.Spells);
+        Assert.Equal("Homebrew Bolt", added.Name);
+        Assert.Equal("Combat", added.Category);
+        Assert.Equal("P", added.Damage);
+        Assert.Equal("(F/2)+1", added.Dv);
+        Assert.Equal("SM", added.Source);
+        Assert.Equal("159", added.Page);
+    }
+
+    [Fact]
+    public void AddCustomSpell_RejectsAnEmptyName()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.False(character.AddCustomSpell("", "Combat", "P", "LOS", false, false, false, "I",
+            new HashSet<string>(), 0));
+        Assert.Empty(character.Spells);
+    }
+
+    [Fact]
+    public void GetSpellModifierOptions_ReturnsTheRealCatalogForEachCategory()
+    {
+        Assert.Contains(CharacterDocument.GetSpellModifierOptions("Combat"), o => o.Key == "elemental" && o.Dv == 2);
+        Assert.Contains(CharacterDocument.GetSpellModifierOptions("Detection"), o => o.Key == "extendedarea" && o.Dv == 2);
+        Assert.Contains(CharacterDocument.GetSpellModifierOptions("Health"), o => o.Key == "curative" && o.Dv == 0);
+        Assert.Contains(CharacterDocument.GetSpellModifierOptions("Illusion"), o => o.Key == "obvious" && o.Dv == -1);
+        Assert.Contains(CharacterDocument.GetSpellModifierOptions("Manipulation"), o => o.Key == "environmental" && o.Dv == -2);
     }
 
     [Fact]

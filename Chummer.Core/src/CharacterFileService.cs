@@ -1251,6 +1251,147 @@ namespace Chummer.Core
             AppendElement(objSpell, "source", strSource);
             AppendElement(objSpell, "page", strPage);
             objSpells.AppendChild(objSpell);
+            Changed?.Invoke();
+        }
+
+        /// <summary>One selectable Drain-Value modifier for a homebrew Spell's category, ported
+        /// from frmCreateSpell.cs's per-category ChangeModifiers() checkbox catalog (Text+Tag).
+        /// <see cref="Key"/> is a stable identifier this port invented (legacy had no such key,
+        /// just positional checkbox controls) for <see cref="ComputeCustomSpellDv"/>/
+        /// <see cref="AddCustomSpell"/> to reference.</summary>
+        public sealed class SpellModifierOption
+        {
+            internal SpellModifierOption(string strKey, string strLabel, int intDv)
+            {
+                Key = strKey;
+                Label = strLabel;
+                Dv = intDv;
+            }
+
+            public string Key { get; }
+            public string Label { get; }
+            public int Dv { get; }
+        }
+
+        /// <summary>Ported from frmCreateSpell.cs's ChangeModifiers() switch. The mutual-exclusion
+        /// enable/disable wiring between checkboxes (e.g. Combat's Direct/Indirect) is UI-only
+        /// guidance in legacy - not ported here, since it doesn't change what DV a given
+        /// combination computes to; the caller is free to let a player check an unusual
+        /// combination, same as if they'd hand-edited a save file.</summary>
+        public static IReadOnlyList<SpellModifierOption> GetSpellModifierOptions(string strCategory) => strCategory switch
+        {
+            "Detection" => new[]
+            {
+                new SpellModifierOption("directional", "Directional", 0),
+                new SpellModifierOption("area", "Area", 0),
+                new SpellModifierOption("psychic", "Psychic", 0),
+                new SpellModifierOption("active", "Active", 0),
+                new SpellModifierOption("passive", "Passive", 0),
+                new SpellModifierOption("basicdetection", "Basic Detection (ex: Detect Life)", 0),
+                new SpellModifierOption("complexdetection", "Complex Detection (ex: Detect Enemies)", 1),
+                new SpellModifierOption("basicanalyze", "Basic Analyze (ex: Analyze Device)", 1),
+                new SpellModifierOption("complexanalyze", "Complex Analyze (ex: Analyze Truth)", 2),
+                new SpellModifierOption("invasiveanalyze", "Invasive Analyze (ex: Mind Probe)", 4),
+                new SpellModifierOption("improvedsense", "Improved Sense", 1),
+                new SpellModifierOption("newsense", "New Sense", 2),
+                new SpellModifierOption("psychicsense", "Psychic Sense (ie, telepathy, precognition)", 4),
+                new SpellModifierOption("extendedarea", "Extended Area", 2)
+            },
+            "Health" => new[]
+            {
+                new SpellModifierOption("curative", "Curative", 0),
+                new SpellModifierOption("increasesinitiativepasses", "Increases Initiative Passes", 4),
+                new SpellModifierOption("cosmeticeffect", "Cosmetic Effect", -2),
+                new SpellModifierOption("negative", "Negative Health Spell", 2),
+                new SpellModifierOption("restrictedeffect", "Restricted Effect (ie, Symptoms Only)", -2)
+            },
+            "Illusion" => new[]
+            {
+                new SpellModifierOption("obvious", "Obvious", -1),
+                new SpellModifierOption("realistic", "Realistic", 0),
+                new SpellModifierOption("singlesense", "Single-Sense", -2),
+                new SpellModifierOption("multisense", "Multi-Sense", 0),
+                new SpellModifierOption("hidesconceals", "Illusion Hides or Conceals", 2)
+            },
+            "Manipulation" => new[]
+            {
+                new SpellModifierOption("environmental", "Environmental", -2),
+                new SpellModifierOption("mental", "Mental", 0),
+                new SpellModifierOption("physical", "Physical", 0),
+                new SpellModifierOption("minorchange", "Minor Change", 0),
+                new SpellModifierOption("majorchange", "Major Change", 2),
+                new SpellModifierOption("elementaleffect", "Elemental effect", 2)
+            },
+            _ => new[] // Combat.
+            {
+                new SpellModifierOption("direct", "Direct", 0),
+                new SpellModifierOption("indirect", "Indirect", 0),
+                new SpellModifierOption("elemental", "Element effects", 2),
+                new SpellModifierOption("physicaldamage", "Physical damage", 0),
+                new SpellModifierOption("stundamage", "Stun damage", -1)
+            }
+        };
+
+        /// <summary>Ported from frmCreateSpell.cs's CalculateDrain(). <paramref
+        /// name="setCheckedKeys"/> are <see cref="SpellModifierOption.Key"/>s from
+        /// <see cref="GetSpellModifierOptions"/> for <paramref name="strCategory"/>;
+        /// <paramref name="intNumberOfEffects"/> only matters for Combat's "elemental" and
+        /// Manipulation's "elementaleffect" keys, whose DV multiplies by it (nudNumberOfEffects).</summary>
+        public static string ComputeCustomSpellDv(string strCategory, string strType, string strRange, bool blnArea,
+            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlySet<string> setCheckedKeys,
+            int intNumberOfEffects)
+        {
+            int intDv = strType == "M" ? 0 : 1;
+            intDv += strRange == "T" ? -2 : 0;
+            if (blnArea)
+                intDv += 2;
+            if (blnRestricted)
+                intDv -= 1;
+            if (blnVeryRestricted)
+                intDv -= 2;
+
+            bool blnCurative = strCategory == "Health" && setCheckedKeys.Contains("curative");
+            if (strDuration == "P" && !blnCurative)
+                intDv += 2;
+
+            foreach (SpellModifierOption objOption in GetSpellModifierOptions(strCategory))
+            {
+                if (!setCheckedKeys.Contains(objOption.Key))
+                    continue;
+                bool blnMultiplied = (strCategory == "Combat" && objOption.Key == "elemental")
+                    || (strCategory == "Manipulation" && objOption.Key == "elementaleffect");
+                intDv += blnMultiplied ? objOption.Dv * intNumberOfEffects : objOption.Dv;
+            }
+
+            string strBase = blnCurative ? "(Damage Value)" : "(F/2)";
+            string strDvSuffix = intDv == 0 ? "" : intDv > 0 ? "+" + intDv : intDv.ToString(CultureInfo.InvariantCulture);
+            return strBase + strDvSuffix;
+        }
+
+        /// <summary>Ported from frmCreateSpell.cs's AcceptForm: builds a homebrew Spell from the
+        /// same category/type/range/duration/modifier choices <see cref="ComputeCustomSpellDv"/>
+        /// uses, then adds it exactly like a rules-data spells.xml pick (<see cref="AddSpell"/>) -
+        /// legacy's own AcceptForm does the same thing (assembles a Spell record locally, no
+        /// separate write path). Source/page are hardcoded to "SM"/159 (Street Magic's homebrew-
+        /// spell-creation rules), matching legacy. Not ported: the Descriptors/Limited/Restriction-
+        /// text fields, which this port's Spell model doesn't carry for any spell (rules-data ones
+        /// don't either) - purely descriptive, not consumed by any calculation.</summary>
+        public bool AddCustomSpell(string strName, string strCategory, string strType, string strRange, bool blnArea,
+            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlySet<string> setCheckedKeys,
+            int intNumberOfEffects)
+        {
+            if (string.IsNullOrWhiteSpace(strName))
+                return false;
+
+            string strDv = ComputeCustomSpellDv(strCategory, strType, strRange, blnArea, blnRestricted,
+                blnVeryRestricted, strDuration, setCheckedKeys, intNumberOfEffects);
+            string strDamage = strCategory == "Combat"
+                ? (setCheckedKeys.Contains("physicaldamage") ? "P" : "S")
+                : string.Empty;
+            string strFullRange = blnArea ? strRange + " (A)" : strRange;
+
+            AddSpell(strName, strCategory, strType, strFullRange, strDamage, strDuration, strDv, "SM", "159");
+            return true;
         }
 
         /// <summary>Adds a root-level gear item in the minimal saved-character tree shape. Deducts its
