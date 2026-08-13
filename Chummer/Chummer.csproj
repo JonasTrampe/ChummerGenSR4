@@ -136,7 +136,7 @@
          throws FileNotFoundException for System.Memory at runtime despite building fine. -->
   </ItemGroup>
   <ItemGroup>
-    <!-- Shared data/business-logic layer - see docs/LINUX_PORT_PLAN.md. Multi-targeted (net48;net8.0);
+    <!-- Shared data/business-logic layer - see PORTING_PLAN.md. Multi-targeted (net48;net8.0);
          this project's classic non-SDK format resolves it to the net48 build. -->
     <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj">
       <Project>{0A8EA1FE-BF7D-4424-A696-DCE573730831}</Project>

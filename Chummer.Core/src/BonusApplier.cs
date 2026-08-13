@@ -25,7 +25,7 @@ namespace Chummer.Core
     /// given a rules-data &lt;bonus&gt; node, resolves it into the list of effects it should apply.
     /// Only covers the non-interactive bonus node types (no &lt;selecttext&gt;/&lt;selectskill&gt;/
     /// &lt;selectattribute&gt; - those need a player-facing picker, which is a separate, not yet
-    /// built "Selectable Improvement" flow - see FEATURE_CHECKLIST.md). Everything handled here
+    /// built "Selectable Improvement" flow - see PORTING_PLAN.md). Everything handled here
     /// covers the large majority of real usage in this port's own data files (specificattribute,
     /// specificskill, conditionmonitor, skillcategory, skillgroup, skillattribute, initiative/
     /// initiativepass, notoriety, armor, reach, unarmed dv/ap, lifestylecost, matrixinitiative/
@@ -148,7 +148,7 @@ namespace Chummer.Core
         // Shared shape of clsImprovement.cs's skillcategory/skillgroup/skillattribute handlers:
         // name + bonus, optional applytorating, optional exclude (not modeled as a separate field
         // here - excludes are rare enough in this port's data that they're out of MVP scope; see
-        // FEATURE_CHECKLIST.md).
+        // PORTING_PLAN.md).
         private static void ParseSkillGrouping(XmlNode nodBonus, string strTag, ImprovementType eType,
             string strRating, string strUnique, List<ImprovementSpec> lstResult)
         {

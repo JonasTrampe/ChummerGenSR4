@@ -7188,7 +7188,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		</string>
 		<string>
 			<key>UI_NotYetPorted</key>
-			<text>Not yet ported - see FEATURE_CHECKLIST.md.</text>
+			<text>Not yet ported - see PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_SkillColon</key>
@@ -7380,7 +7380,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		</string>
 		<string>
 			<key>UI_ManualImprovementScopeTooltip</key>
-			<text>Covers a curated subset of frmCreateImprovement.cs's types (Attribute, Skill, Condition Monitor, Initiative, Movement, Concealability, Unarmed, Reach, Lifestyle Cost) - see FEATURE_CHECKLIST.md.</text>
+			<text>Covers a curated subset of frmCreateImprovement.cs's types (Attribute, Skill, Condition Monitor, Initiative, Movement, Concealability, Unarmed, Reach, Lifestyle Cost) - see PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_OnlyManualImprovementsDeletableTooltip</key>

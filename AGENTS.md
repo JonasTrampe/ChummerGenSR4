@@ -27,7 +27,7 @@ There is no separate test project/`npm test`-equivalent — validation is build 
 - **UI**: WinForms designer files (`*.Designer.cs` + matching `.resx`), no XAML/MVVM
 - **Data**: XML-driven ruleset (`Chummer/data/data/*.xml` + matching `.xsd` schemas) loaded via `clsXmlManager.cs`
 - **Character sheets**: XSLT (`Chummer/data/sheets/*.xsl`) transform saved characters into printable output
-- **Settings storage**: `SettingsStore` (`Chummer/code/clsSettingsStore.cs`) — an XML file under `ApplicationData`, replacing the old Windows Registry storage (see `docs/LINUX_PORT_PLAN.md` Phase 1)
+- **Settings storage**: `SettingsStore` (`Chummer/code/clsSettingsStore.cs`) — an XML file under `ApplicationData`, replacing the old Windows Registry storage (see `PORTING_PLAN.md`)
 - **Packages**: classic `packages.config` (not `PackageReference`) — restore via `nuget restore`, not `dotnet restore`
 - **CI**: GitHub Actions (`.github/workflows/autobuild.yml`) — builds on `windows-latest` and (in progress) a Mono/`ubuntu-latest` job for the Linux port
 
@@ -48,7 +48,7 @@ Chummer/
 ├── Properties/    # AssemblyInfo.cs, Resources
 └── icons/         # Embedded icon/image resources
 
-docs/                          # Planning docs, incl. LINUX_PORT_PLAN.md (Mono/Linux port roadmap)
+PORTING_PLAN.md                # Cross-platform port roadmap and Core parity tracking
 .github/workflows/autobuild.yml  # CI: build, version, zip, release
 ```
 
@@ -103,7 +103,7 @@ Always add new keys to `en-us.xml` first (mandatory), then optionally to other l
 - DON'T: Touch the Windows Registry directly (`Microsoft.Win32.Registry`) — use `SettingsStore` instead (Linux/Mono has no real registry).
 - DON'T: Hardcode `\` path separators — use `Path.DirectorySeparatorChar` / `Path.Combine` (Linux filesystems are also case-sensitive; XML/sheet/icon filenames must match on-disk casing exactly).
 - DON'T: Delete/rename a form or control's `.cs`/`.Designer.cs`/`.resx` trio without updating `Chummer.csproj`'s explicit `<Compile>`/`<EmbeddedResource>` entries — nothing is glob-included.
-- DO: Check `docs/LINUX_PORT_PLAN.md` before touching anything WinForms/Mono-compatibility related — it tracks the phased Linux port plan and what's already done vs. pending.
+- DO: Check `PORTING_PLAN.md` before touching anything WinForms/Mono-compatibility related — it tracks the migration and current parity work.
 - DO: Keep the Windows CI job (`build` in `autobuild.yml`) and the Mono CI job (`build-mono`) both green — a change that breaks Mono compatibility should be caught there, not just on `windows-latest`.
 
 ## Performance Considerations
@@ -119,6 +119,6 @@ Always add new keys to `en-us.xml` first (mandatory), then optionally to other l
 
 ## Additional Resources
 
-- Linux/Mono port plan and phase tracking: `docs/LINUX_PORT_PLAN.md`
+- Linux/Mono port plan and phase tracking: `PORTING_PLAN.md`
 - Implementation notes/scratch planning: `IMPLEMENTATION_PLAN.md`
 - Changelog: `changelog.txt`

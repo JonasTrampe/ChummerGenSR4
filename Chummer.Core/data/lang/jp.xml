@@ -7085,7 +7085,7 @@
 		</string>
 		<string>
 			<key>UI_NotYetPorted</key>
-			<text>まだ移植されていません - FEATURE_CHECKLIST.md を参照。</text>
+			<text>まだ移植されていません - PORTING_PLAN.md を参照。</text>
 		</string>
 		<string>
 			<key>UI_SkillColon</key>
@@ -7277,7 +7277,7 @@
 		</string>
 		<string>
 			<key>UI_ManualImprovementScopeTooltip</key>
-			<text>frmCreateImprovement.cs のタイプのうち選定されたサブセットをカバーします（属性、技能、コンディションモニター、イニシアチブ、移動、隠蔽性、素手、間合い、ライフスタイルコスト） - FEATURE_CHECKLIST.md を参照。</text>
+			<text>frmCreateImprovement.cs のタイプのうち選定されたサブセットをカバーします（属性、技能、コンディションモニター、イニシアチブ、移動、隠蔽性、素手、間合い、ライフスタイルコスト） - PORTING_PLAN.md を参照。</text>
 		</string>
 		<string>
 			<key>UI_OnlyManualImprovementsDeletableTooltip</key>

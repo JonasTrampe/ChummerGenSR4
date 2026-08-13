@@ -7036,7 +7036,7 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		</string>
 		<string>
 			<key>UI_NotYetPorted</key>
-			<text>Pas encore porté - voir FEATURE_CHECKLIST.md.</text>
+			<text>Pas encore porté - voir PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_SkillColon</key>
@@ -7228,7 +7228,7 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		</string>
 		<string>
 			<key>UI_ManualImprovementScopeTooltip</key>
-			<text>Couvre un sous-ensemble choisi des types de frmCreateImprovement.cs (Attribut, Compétence, Jauge de blessures, Initiative, Mouvement, Discrétion, Combat à mains nues, Allonge, Coût de style de vie) - voir FEATURE_CHECKLIST.md.</text>
+			<text>Couvre un sous-ensemble choisi des types de frmCreateImprovement.cs (Attribut, Compétence, Jauge de blessures, Initiative, Mouvement, Discrétion, Combat à mains nues, Allonge, Coût de style de vie) - voir PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_OnlyManualImprovementsDeletableTooltip</key>

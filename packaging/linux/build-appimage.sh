@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds a single-file, self-contained AppImage for Chummer.Avalonia - Phase 5 of
-# docs/LINUX_PORT_PLAN.md ("a single, user-friendly .AppImage that bundles the required runtimes
+# PORTING_PLAN.md ("a single, user-friendly .AppImage that bundles the required runtimes
 # ... so users can run it on any modern Linux distribution without manual dependency management").
 #
 # Usage: packaging/linux/build-appimage.sh [RID]

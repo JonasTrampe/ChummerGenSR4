@@ -7139,7 +7139,7 @@ Stattdessen lokal gespeichert.</text>
 		</string>
 		<string>
 			<key>UI_NotYetPorted</key>
-			<text>Noch nicht portiert - siehe FEATURE_CHECKLIST.md.</text>
+			<text>Noch nicht portiert - siehe PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_SkillColon</key>
@@ -7331,7 +7331,7 @@ Stattdessen lokal gespeichert.</text>
 		</string>
 		<string>
 			<key>UI_ManualImprovementScopeTooltip</key>
-			<text>Deckt eine ausgewählte Untermenge von frmCreateImprovement.cs's Typen ab (Attribut, Fertigkeit, Zustandsmonitor, Initiative, Bewegung, Verbergbarkeit, Waffenlos, Reichweite, Lebensstilkosten) - siehe FEATURE_CHECKLIST.md.</text>
+			<text>Deckt eine ausgewählte Untermenge von frmCreateImprovement.cs's Typen ab (Attribut, Fertigkeit, Zustandsmonitor, Initiative, Bewegung, Verbergbarkeit, Waffenlos, Reichweite, Lebensstilkosten) - siehe PORTING_PLAN.md.</text>
 		</string>
 		<string>
 			<key>UI_OnlyManualImprovementsDeletableTooltip</key>
