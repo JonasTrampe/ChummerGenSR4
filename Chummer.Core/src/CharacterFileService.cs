@@ -184,6 +184,11 @@ namespace Chummer.Core
         /// Genetech: Transgenics under the Augmentation house rule.</summary>
         public bool AllowCustomTransgenicsEnabled => GetCharacterOptions().AllowCustomTransgenics;
 
+        /// <summary>Whether Bioware suite acquisition is enabled for this character. Cyberware
+        /// suites are always available; legacy exposes the Bioware counterpart only under this
+        /// house rule.</summary>
+        public bool AllowBiowareSuitesEnabled => GetCharacterOptions().AllowBiowareSuites;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -2210,6 +2215,9 @@ namespace Chummer.Core
         /// filter unlike frmSelectPACKSKit).</summary>
         public IReadOnlyList<string> GetCyberwareSuiteNames(bool blnBioware = false)
         {
+            if (blnBioware && !AllowBiowareSuitesEnabled)
+                return Array.Empty<string>();
+
             XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
             var lstNames = new List<string>();
             foreach (XmlNode objSuite in objWareDoc.SelectNodes("/chummer/suites/suite")?.Cast<XmlNode>()
@@ -2235,6 +2243,8 @@ namespace Chummer.Core
         public bool AddCyberwareSuite(string strSuiteName, bool blnBioware = false)
         {
             if (string.IsNullOrWhiteSpace(strSuiteName))
+                return false;
+            if (blnBioware && !AllowBiowareSuitesEnabled)
                 return false;
 
             XmlDocument objWareDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");

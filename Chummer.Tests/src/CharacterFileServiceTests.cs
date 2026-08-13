@@ -1384,6 +1384,20 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void BiowareSuites_RequireTheHouseRuleButCyberwareSuitesDoNot()
+    {
+        CharacterDocument character = LoadXml("<character></character>");
+
+        Assert.False(character.AllowBiowareSuitesEnabled);
+        Assert.Empty(character.GetCyberwareSuiteNames(blnBioware: true));
+        Assert.False(character.AddCyberwareSuite("Any Bioware Suite", blnBioware: true));
+        Assert.Contains("Aztechnology Topo", character.GetCyberwareSuiteNames());
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowBiowareSuites = true });
+        Assert.True(character.AllowBiowareSuitesEnabled);
+    }
+
+    [Fact]
     public void AddPacksKit_Brawler_SetsAllEightAttributes()
     {
         string strAttributes = string.Join(string.Empty, new[] { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL" }

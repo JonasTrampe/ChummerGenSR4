@@ -11,7 +11,8 @@
                 <Button Content="{loc:Loc Button_AddCyberware}" Click="OnAddCyberwareClick" />
                 <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" />
                 <Button Content="{loc:Loc UI_CyberwareSuite}" Click="OnAddCyberwareSuiteClick" />
-                <Button Content="{loc:Loc UI_BiowareSuite}" Click="OnAddBiowareSuiteClick" />
+                <Button Content="{loc:Loc UI_BiowareSuite}" Click="OnAddBiowareSuiteClick"
+                        IsVisible="{Binding CanAddBiowareSuites}" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
                 <Button Content="{loc:Loc UI_Sell}" Click="OnSellClick" />
             </StackPanel>

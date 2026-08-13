@@ -41,8 +41,10 @@ Everything not `[x]`, in one place, grouped by area.
 - [x] `AllowCustomTransgenics`: enabled Bioware picker exposes “Add as Transgenic”, forces
   Standard grade and persists the `Genetech: Transgenics` category; the Cyberware tree retains a
   visible Transgenic indicator after reload.
-- [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
-  `AllowHigherStackedFoci`,
+- [x] `AllowBiowareSuites`: Bioware suite lookup/addition and its UI action are available only
+  when the house rule is enabled; Cyberware suites remain available unconditionally.
+- [ ] Depends on the unported Foci/Stacked Foci subsystem: `AllowHigherStackedFoci`.
+- [ ] Standalone, no missing subsystem, just not done:
   `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `MoreLethalGameplay`.
 - Not in scope at all: app-behavior toggles that aren't calculation house rules (`ConfirmDelete`,
   `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`, `LocalisedUpdatesOnly`,

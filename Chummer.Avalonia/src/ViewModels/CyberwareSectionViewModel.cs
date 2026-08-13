@@ -11,6 +11,15 @@ public sealed class CyberwareSectionViewModel : ViewModelBase
 
     public ObservableCollection<TreeNodeViewModel> Roots { get; }
 
+    private bool _blnCanAddBiowareSuites;
+    /// <summary>Mirrors the house-rule gate for Bioware suites; Cyberware suites remain available
+    /// regardless of this setting, matching the legacy Special menu.</summary>
+    public bool CanAddBiowareSuites
+    {
+        get => _blnCanAddBiowareSuites;
+        private set => SetField(ref _blnCanAddBiowareSuites, value);
+    }
+
     private TreeNodeViewModel? _selectedNode;
     public TreeNodeViewModel? SelectedNode
     {
@@ -39,6 +48,7 @@ public sealed class CyberwareSectionViewModel : ViewModelBase
 
     public void LoadCharacter(CharacterDocument character)
     {
+        CanAddBiowareSuites = character.AllowBiowareSuitesEnabled;
         // Cyberware and bioware share one <cyberwares> save list (split by Chummer.Core on
         // <improvementsource>) but are kept as two separate branches under the same tree here.
         CyberwareRoot.Children.Clear();
