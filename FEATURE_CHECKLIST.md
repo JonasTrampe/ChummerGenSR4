@@ -4,7 +4,7 @@ Status legend: `[x]` verified; `[~]` partial; `[ ]` missing. Keep each row short
 
 ## Core priority
 
-- [~] Foci and Stacked Foci: normal Focus is complete; Stacked Focus projection and round-trip work, but stack/unstack and lifecycle remain.
+- [x] Foci and Stacked Foci: projection, legacy round-trip, stack/unstack, limits, Karma, and equipped bonus lifecycles work.
 - [~] Creation budget: common tracker exists; remaining create mutations and house-rule limits must enforce it.
 - [~] Bonus engine: common types work; vehicle context, essence/nuyen/free-quality/essence-multiplier and ArmorMod B/I remain.
 - [~] Calculations: main pools work; ammo RC, special weapons, soft overrides, Mystic-Adept and cyborg edges remain.

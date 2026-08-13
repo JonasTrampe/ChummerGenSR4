@@ -9,11 +9,9 @@ Status: active. This plan is ordered by Core dependency and user-visible correct
 - Land a Core test and save/reload test with every behavior.
 - Update `FEATURE_CHECKLIST.md` and `PARITY_AUDIT.md` in the same commit.
 
-## Phase 0 — Foci / Stacked Foci
+## Phase 0 — Foci / Stacked Foci `[x]`
 
-1. Project `stackedfoci`, including broken-link compatibility coverage.
-2. Stack/unstack eligible unbonded Foci; enforce `AllowHigherStackedFoci`.
-3. Add Stacked Focus binding cost, bonus lifecycle, and legacy XML round-trip fixtures.
+Normal and stacked focus lifecycle is complete: projections, legacy XML compatibility, limits, stack/unstack, Karma, and equipped bonuses.
 
 ## Phase 1 — Creation and bonus correctness
 

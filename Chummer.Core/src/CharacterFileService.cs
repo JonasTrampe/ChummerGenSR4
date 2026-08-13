@@ -2095,6 +2095,19 @@ namespace Chummer.Core
                     else
                         RemoveBonusImprovements(ImprovementSource.Gear, guiGearId.ToString());
                 }
+                CharacterStackedFocusData? objStack = StackedFoci.FirstOrDefault(focus =>
+                    string.Equals(focus.GearId, guiGearId.ToString(), StringComparison.OrdinalIgnoreCase));
+                if (objStack?.Bonded == true && Guid.TryParse(objStack.Guid, out Guid guiStackId))
+                {
+                    if (blnEquipped)
+                    {
+                        XmlNode? objStackNode = FindStackedFocusNode(guiStackId);
+                        if (objStackNode != null)
+                            ApplyStackedFocusBonuses(objStackNode, guiStackId);
+                    }
+                    else
+                        RemoveBonusImprovements(ImprovementSource.StackedFocus, guiStackId.ToString());
+                }
             }
             Changed?.Invoke();
             return true;
@@ -6735,6 +6748,143 @@ namespace Chummer.Core
             objFocus.ParentNode?.RemoveChild(objFocus);
             Changed?.Invoke();
             return true;
+        }
+
+        /// <summary>Replaces two or more unbonded Focus Gear items with the legacy composite
+        /// Stacked Focus representation. Component Gear is cloned verbatim into the stacked-focus
+        /// record so later binding/unstacking retains all saved item data.</summary>
+        public bool CreateStackedFocus(IReadOnlyCollection<Guid> lstGearIds)
+        {
+            if (lstGearIds == null || lstGearIds.Count < 2 || lstGearIds.Distinct().Count() != lstGearIds.Count)
+                return false;
+
+            var lstGears = lstGearIds.Select(FindGearNodeByGuid).ToList();
+            if (lstGears.Any(objGear => objGear == null) || lstGears.Any(objGear =>
+                    GetValue(objGear!, "category", string.Empty) != "Foci"
+                    && GetValue(objGear!, "category", string.Empty) != "Metamagic Foci")
+                || lstGears.Any(objGear => GetValue(objGear!, "bonded", "False") == "True")
+                || lstGears.Any(objGear => Foci.Any(focus => string.Equals(focus.GearId,
+                    GetValue(objGear!, "guid", string.Empty), StringComparison.OrdinalIgnoreCase))))
+                return false;
+
+            int intTotalForce = lstGears.Sum(objGear => ParseInteger(GetValue(objGear!, "rating", "0")));
+            if (intTotalForce < 1 || (!GetCharacterOptions().AllowHigherStackedFoci && intTotalForce > 6))
+                return false;
+
+            XmlElement objRoot = Document.DocumentElement
+                ?? throw new InvalidOperationException("Character document has no root element.");
+            XmlElement objGears = objRoot.SelectSingleNode("gears") as XmlElement
+                ?? throw new InvalidOperationException("A character with Focus Gear has no gears collection.");
+            int intCost = lstGears.Sum(objGear => ReadTreeItem(objGear!).CalculatedCost);
+            string strComponentNames = string.Join(", ", lstGears.Select(objGear => GetValue(objGear!, "name", string.Empty)));
+            XmlElement objComposite = AppendGearNode(objGears, "Stacked Focus: " + strComponentNames, "Stacked Focus",
+                "0", "1", intCost.ToString(CultureInfo.InvariantCulture), "0", "SM", "84", "", "", "", "", "");
+            string strCompositeId = GetValue(objComposite, "guid", string.Empty);
+
+            XmlElement objStacks = objRoot.SelectSingleNode("stackedfoci") as XmlElement;
+            if (objStacks == null)
+            {
+                objStacks = Document.CreateElement("stackedfoci");
+                objRoot.AppendChild(objStacks);
+            }
+            XmlElement objStack = Document.CreateElement("stackedfocus");
+            AppendElement(objStack, "guid", Guid.NewGuid().ToString());
+            AppendElement(objStack, "gearid", strCompositeId);
+            AppendElement(objStack, "bonded", "False");
+            XmlElement objComponents = Document.CreateElement("gears");
+            foreach (XmlNode objGear in lstGears!)
+                objComponents.AppendChild(objGear.CloneNode(deep: true));
+            objStack.AppendChild(objComponents);
+            objStacks.AppendChild(objStack);
+            foreach (XmlNode objGear in lstGears!)
+                objGear.ParentNode?.RemoveChild(objGear);
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Restores an unbonded Stacked Focus' saved component Gear snapshots and
+        /// removes its generated composite Gear. A bonded stack must be unbound first.</summary>
+        public bool UnstackFocus(Guid guiStackId)
+        {
+            XmlNode? objStack = Document.SelectNodes("/character/stackedfoci/stackedfocus")?.Cast<XmlNode>()
+                .FirstOrDefault(node => string.Equals(GetValue(node, "guid", string.Empty), guiStackId.ToString(),
+                    StringComparison.OrdinalIgnoreCase));
+            if (objStack == null || GetValue(objStack, "bonded", "False") == "True"
+                || !Guid.TryParse(GetValue(objStack, "gearid", string.Empty), out Guid guiCompositeId))
+                return false;
+            XmlNode? objComposite = FindGearNodeByGuid(guiCompositeId);
+            XmlNode? objComponents = objStack.SelectSingleNode("gears");
+            XmlElement? objRootGears = Document.SelectSingleNode("/character/gears") as XmlElement;
+            if (objComposite?.ParentNode == null || objComponents == null || objRootGears == null)
+                return false;
+
+            foreach (XmlNode objGear in objComponents.SelectNodes("gear")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
+                objRootGears.AppendChild(objGear.CloneNode(deep: true));
+            objComposite.ParentNode.RemoveChild(objComposite);
+            objStack.ParentNode?.RemoveChild(objStack);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool BindStackedFocus(Guid guiStackId)
+        {
+            XmlNode? objStack = FindStackedFocusNode(guiStackId);
+            if (objStack == null || GetValue(objStack, "bonded", "False") == "True"
+                || !Guid.TryParse(GetValue(objStack, "gearid", string.Empty), out Guid guiGearId))
+                return false;
+            XmlNode? objComposite = FindGearNodeByGuid(guiGearId);
+            var lstComponents = objStack.SelectNodes("gears/gear")?.Cast<XmlNode>().ToList() ?? new List<XmlNode>();
+            int intForce = lstComponents.Sum(component => ParseInteger(GetValue(component, "rating", "0")));
+            int intMag = GetAttributeInt("MAG");
+            if (objComposite == null || lstComponents.Count == 0 || intMag <= 0
+                || Foci.Count + StackedFoci.Count(focus => focus.Bonded) + 1 > intMag
+                || Foci.Sum(focus => ParseInteger(focus.Rating)) + StackedFoci.Where(focus => focus.Bonded)
+                    .Sum(focus => focus.TotalForce) + intForce > intMag * 5)
+                return false;
+            int intCost = lstComponents.Sum(component => ParseInteger(GetValue(component, "rating", "0"))
+                * GetFocusKarmaMultiplier(GetValue(component, "name", string.Empty)));
+            if (!int.TryParse(Karma, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intKarma)
+                || intCost < 1 || intKarma < intCost)
+                return false;
+
+            SetChildValue(objStack, "bonded", "True");
+            if (GetValue(objComposite, "equipped", "False") == "True")
+                ApplyStackedFocusBonuses(objStack, guiStackId);
+            Karma = (intKarma - intCost).ToString(CultureInfo.InvariantCulture);
+            var objUndo = new ExpenseUndo();
+            objUndo.CreateKarma(KarmaExpenseType.BindFocus, guiStackId.ToString());
+            AddExpense("Karma", -intCost, "Bound Stacked Focus", null, objUndo);
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool UnbindStackedFocus(Guid guiStackId)
+        {
+            XmlNode? objStack = FindStackedFocusNode(guiStackId);
+            if (objStack == null || GetValue(objStack, "bonded", "False") != "True")
+                return false;
+            SetChildValue(objStack, "bonded", "False");
+            RemoveBonusImprovements(ImprovementSource.StackedFocus, guiStackId.ToString());
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? FindStackedFocusNode(Guid guiStackId) => Document.SelectNodes("/character/stackedfoci/stackedfocus")?
+            .Cast<XmlNode>().FirstOrDefault(node => string.Equals(GetValue(node, "guid", string.Empty),
+                guiStackId.ToString(), StringComparison.OrdinalIgnoreCase));
+
+        private void ApplyStackedFocusBonuses(XmlNode objStack, Guid guiStackId)
+        {
+            foreach (XmlNode objComponent in objStack.SelectNodes("gears/gear")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
+            {
+                string strName = GetValue(objComponent, "name", string.Empty);
+                string strCategory = GetValue(objComponent, "category", string.Empty);
+                XmlNode? objRulesGear = XmlManager.Instance.Load("gear.xml").SelectNodes("/chummer/gears/gear")?
+                    .Cast<XmlNode>().FirstOrDefault(node => GetValue(node, "name", string.Empty) == strName
+                        && GetValue(node, "category", string.Empty) == strCategory);
+                ApplyBonus(objRulesGear?.SelectSingleNode("bonus"), ImprovementSource.StackedFocus, guiStackId.ToString(),
+                    GetValue(objComponent, "rating", "0"));
+            }
         }
 
         private XmlNode? FindGearNodeByGuid(Guid guiGearId) => EnumerateGearNodesDfs().FirstOrDefault(node =>
