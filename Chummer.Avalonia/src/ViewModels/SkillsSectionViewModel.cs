@@ -177,9 +177,11 @@ public sealed class KnowledgeSkillRowViewModel : ViewModelBase
         get => _strSkillName;
         set
         {
+            string strPrevious = _strSkillName;
             if (!SetField(ref _strSkillName, value))
                 return;
-            Save();
+            if (!Save())
+                SetField(ref _strSkillName, strPrevious);
         }
     }
 
@@ -189,9 +191,11 @@ public sealed class KnowledgeSkillRowViewModel : ViewModelBase
         get => _strRating;
         set
         {
+            string strPrevious = _strRating;
             if (!SetField(ref _strRating, value))
                 return;
-            Save();
+            if (!Save())
+                SetField(ref _strRating, strPrevious);
         }
     }
 
@@ -215,9 +219,11 @@ public sealed class KnowledgeSkillRowViewModel : ViewModelBase
         get => _strSpecialization;
         set
         {
+            string strPrevious = _strSpecialization;
             if (!SetField(ref _strSpecialization, value))
                 return;
-            Save();
+            if (!Save())
+                SetField(ref _strSpecialization, strPrevious);
         }
     }
 
@@ -227,16 +233,15 @@ public sealed class KnowledgeSkillRowViewModel : ViewModelBase
         get => _strCategory;
         set
         {
+            string strPrevious = _strCategory;
             if (!SetField(ref _strCategory, value))
                 return;
-            Save();
+            if (!Save())
+                SetField(ref _strCategory, strPrevious);
         }
     }
 
-    private void Save()
-    {
-        _character.UpdateKnowledgeSkill(SkillId, SkillName, Rating, Specialization, Category);
-    }
+    private bool Save() => _character.UpdateKnowledgeSkill(SkillId, SkillName, Rating, Specialization, Category);
 }
 
 /// <summary>One entry in the Aktionsfertigkeiten filter dropdown - a label plus the predicate it

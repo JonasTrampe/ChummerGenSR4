@@ -480,30 +480,9 @@ namespace Chummer.Core
                 }
                 AddCategory("Qualities", intQualities);
 
-                int intGroups = 0;
-                foreach (XmlNode objGroup in Document.SelectNodes("/character/skillgroups/skillgroup")?.Cast<XmlNode>()
-                    ?? Enumerable.Empty<XmlNode>())
-                    intGroups += ComputeCreationRatingCost(ParseInteger(GetValue(objGroup, "rating", "0")), blnKarma,
-                        10, objOptions.KarmaNewSkillGroup, objOptions.KarmaImproveSkillGroup);
-                AddCategory("Skill groups", intGroups);
-
-                int intActiveSkills = 0;
-                int intKnowledgeSkills = 0;
-                foreach (XmlNode objSkill in Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>()
-                    ?? Enumerable.Empty<XmlNode>())
-                {
-                    if (GetValue(objSkill, "grouped", "False") == "True")
-                        continue;
-                    int intRating = ParseInteger(GetValue(objSkill, "rating", "0"));
-                    if (GetValue(objSkill, "knowledge", "False") == "True")
-                        intKnowledgeSkills += ComputeCreationRatingCost(intRating, blnKarma, 2,
-                            objOptions.KarmaNewKnowledgeSkill, objOptions.KarmaImproveKnowledgeSkill);
-                    else
-                        intActiveSkills += ComputeCreationRatingCost(intRating, blnKarma, 4,
-                            objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill);
-                }
-                AddCategory("Active skills", intActiveSkills);
-                AddCategory("Knowledge skills", intKnowledgeSkills);
+                AddCategory("Skill groups", GetCreationSkillGroupCost());
+                AddCategory("Active skills", GetCreationActiveSkillCost());
+                AddCategory("Knowledge skills", GetCreationKnowledgeSkillCost());
 
                 AddCategory("Spells", (Document.SelectNodes("/character/spells/spell")?.Count ?? 0)
                     * (blnKarma ? objOptions.KarmaSpell : 3));
@@ -532,6 +511,44 @@ namespace Chummer.Core
             int intCost = intKarmaNew;
             for (int i = 2; i <= intRating; i++) intCost += i * intKarmaImprove;
             return intCost;
+        }
+
+        private int GetCreationActiveSkillCost()
+        {
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            CharacterOptions objOptions = GetCharacterOptions();
+            return (Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
+                .Where(s => GetValue(s, "knowledge", "False") != "True"
+                    && GetValue(s, "grouped", "False") != "True")
+                .Sum(s => ComputeCreationRatingCost(ParseInteger(GetValue(s, "rating", "0")), blnKarmaBuild, 4,
+                    objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill));
+        }
+
+        private int GetCreationSkillGroupCost()
+        {
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            CharacterOptions objOptions = GetCharacterOptions();
+            return (Document.SelectNodes("/character/skillgroups/skillgroup")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                .Sum(g => ComputeCreationRatingCost(ParseInteger(GetValue(g, "rating", "0")), blnKarmaBuild, 10,
+                    objOptions.KarmaNewSkillGroup, objOptions.KarmaImproveSkillGroup));
+        }
+
+        private bool ApplyCreationSkillBudget(int intPreviousCost, int intCurrentCost)
+        {
+            if (Created || StartingBuildPoints <= 0)
+                return true;
+
+            int intDelta = intCurrentCost - intPreviousCost;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (intDelta > intPool)
+                return false;
+            if (blnKarmaBuild)
+                Karma = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
+            else
+                Bp = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
+            return true;
         }
 
         public string Nuyen
@@ -5257,8 +5274,9 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterSkillData> KnowledgeSkills => ReadKnowledgeSkills();
 
-        public void AddKnowledgeSkill(string strName, string strCategory)
+        public bool AddKnowledgeSkill(string strName, string strCategory)
         {
+            int intPreviousCreationCost = GetCreationKnowledgeSkillCost();
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objSkills = objRoot.SelectSingleNode("skills");
@@ -5284,6 +5302,13 @@ namespace Chummer.Core
             AppendElement(objSkill, "attribute", strAttribute);
             AppendElement(objSkill, "totalvalue", "0");
             objSkills.AppendChild(objSkill);
+            if (!ApplyCreationKnowledgeSkillBudget(intPreviousCreationCost))
+            {
+                objSkills.RemoveChild(objSkill);
+                return false;
+            }
+            Changed?.Invoke();
+            return true;
         }
 
         public bool UpdateKnowledgeSkill(int intSkillId, string strName, string strRating, string strSpecialization,
@@ -5292,12 +5317,33 @@ namespace Chummer.Core
             XmlNode? objNode = GetKnowledgeSkillNode(intSkillId);
             if (objNode == null)
                 return false;
+            if (!int.TryParse(strRating, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intRating)
+                || intRating < 0
+                || intRating > ParseInteger(GetValue(objNode, "ratingmax", "6")))
+                return false;
+
+            int intPreviousCreationCost = GetCreationKnowledgeSkillCost();
+            string strPreviousName = GetValue(objNode, "name", string.Empty);
+            string strPreviousRating = GetValue(objNode, "rating", "0");
+            string strPreviousSpecialization = GetValue(objNode, "spec", string.Empty);
+            string strPreviousCategory = GetValue(objNode, "skillcategory", string.Empty);
+            string strPreviousAttribute = GetValue(objNode, "attribute", string.Empty);
 
             SetChildValue(objNode, "name", strName);
             SetChildValue(objNode, "rating", strRating);
             SetChildValue(objNode, "spec", strSpecialization);
             SetChildValue(objNode, "skillcategory", strCategory);
             SetChildValue(objNode, "attribute", AttributeForKnowledgeCategory(strCategory));
+            if (!ApplyCreationKnowledgeSkillBudget(intPreviousCreationCost))
+            {
+                SetChildValue(objNode, "name", strPreviousName);
+                SetChildValue(objNode, "rating", strPreviousRating);
+                SetChildValue(objNode, "spec", strPreviousSpecialization);
+                SetChildValue(objNode, "skillcategory", strPreviousCategory);
+                SetChildValue(objNode, "attribute", strPreviousAttribute);
+                return false;
+            }
+            Changed?.Invoke();
             return true;
         }
 
@@ -5352,7 +5398,18 @@ namespace Chummer.Core
             if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
                 return false;
 
+            int intRatingMax = ParseInteger(GetValue(objNode, "ratingmax", "6"));
+            if (intRating < 0 || intRating > intRatingMax)
+                return false;
+
+            int intPreviousCost = GetCreationActiveSkillCost();
+            string strPreviousRating = GetValue(objNode, "rating", "0");
             SetChildValue(objNode, "rating", intRating.ToString());
+            if (!ApplyCreationSkillBudget(intPreviousCost, GetCreationActiveSkillCost()))
+            {
+                SetChildValue(objNode, "rating", strPreviousRating);
+                return false;
+            }
             return true;
         }
 
@@ -5526,13 +5583,22 @@ namespace Chummer.Core
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
             if (objNode == null)
                 return false;
+            if (intRating < 0 || intRating > 6)
+                return false;
 
             int intCurrentRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
             if (!CanRaiseSkillGroupAsAWhole(strGroupName, intCurrentRating, out _))
                 return false;
 
+            int intPreviousCost = GetCreationSkillGroupCost();
             SetChildValue(objNode, "rating", intRating.ToString());
             SyncGroupedSkillRatings(strGroupName, intRating);
+            if (!ApplyCreationSkillBudget(intPreviousCost, GetCreationSkillGroupCost()))
+            {
+                SetChildValue(objNode, "rating", intCurrentRating.ToString());
+                SyncGroupedSkillRatings(strGroupName, intCurrentRating);
+                return false;
+            }
             return true;
         }
 
@@ -5719,7 +5785,53 @@ namespace Chummer.Core
             if (objNode?.ParentNode == null)
                 return false;
 
-            objNode.ParentNode.RemoveChild(objNode);
+            int intPreviousCreationCost = GetCreationKnowledgeSkillCost();
+            XmlNode objParent = objNode.ParentNode;
+            XmlNode? objNextSibling = objNode.NextSibling;
+            objParent.RemoveChild(objNode);
+            if (!ApplyCreationKnowledgeSkillBudget(intPreviousCreationCost))
+            {
+                if (objNextSibling == null)
+                    objParent.AppendChild(objNode);
+                else
+                    objParent.InsertBefore(objNode, objNextSibling);
+                return false;
+            }
+            Changed?.Invoke();
+            return true;
+        }
+
+        private int GetCreationKnowledgeSkillCost()
+        {
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            CharacterOptions objOptions = GetCharacterOptions();
+            int intCost = 0;
+            foreach (XmlNode objSkill in Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+            {
+                if (GetValue(objSkill, "knowledge", "False") != "True"
+                    || GetValue(objSkill, "grouped", "False") == "True")
+                    continue;
+                intCost += ComputeCreationRatingCost(ParseInteger(GetValue(objSkill, "rating", "0")), blnKarmaBuild,
+                    2, objOptions.KarmaNewKnowledgeSkill, objOptions.KarmaImproveKnowledgeSkill);
+            }
+            return intCost;
+        }
+
+        private bool ApplyCreationKnowledgeSkillBudget(int intPreviousCost)
+        {
+            if (Created || StartingBuildPoints <= 0)
+                return true;
+
+            int intDelta = GetCreationKnowledgeSkillCost() - intPreviousCost;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (intDelta > intPool)
+                return false;
+            if (blnKarmaBuild)
+                Karma = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
+            else
+                Bp = (intPool - intDelta).ToString(CultureInfo.InvariantCulture);
             return true;
         }
 

@@ -31,8 +31,8 @@ public partial class SkillsSectionTab : UserControl
         if (_character == null)
             return;
 
-        _character.AddKnowledgeSkill("Neue Wissensfertigkeit", "Street");
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddKnowledgeSkill("Neue Wissensfertigkeit", "Street"))
+            ViewModel.LoadCharacter(_character);
     }
 
     private async void OnDeleteKnowledgeSkillClick(object? sender, RoutedEventArgs e)

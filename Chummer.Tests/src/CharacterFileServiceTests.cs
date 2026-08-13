@@ -89,6 +89,40 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void KnowledgeSkillCreationBudget_ChargesAddEditAndRefundsRemoval()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>4</bp></character>");
+
+        Assert.True(creation.AddKnowledgeSkill("Shadowing", "Street"));
+        int intSkillId = Assert.Single(creation.KnowledgeSkills).SkillId;
+        Assert.Equal("2", creation.Bp);
+        Assert.True(creation.UpdateKnowledgeSkill(intSkillId, "Shadowing", "2", string.Empty, "Street"));
+        Assert.Equal("0", creation.Bp);
+        Assert.False(creation.UpdateKnowledgeSkill(intSkillId, "Shadowing", "3", string.Empty, "Street"));
+        Assert.Equal("2", Assert.Single(creation.KnowledgeSkills).BaseRating);
+        Assert.True(creation.RemoveKnowledgeSkill(intSkillId));
+        Assert.Equal("4", creation.Bp);
+    }
+
+    [Fact]
+    public void DirectCreationSkillSetters_RespectTheSharedBudgetAndRollBack()
+    {
+        CharacterDocument active = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>20</startingbuildpoints><bp>4</bp><skills><skill><name>Pistols</name><rating>0</rating><ratingmax>6</ratingmax><knowledge>False</knowledge><grouped>False</grouped></skill></skills></character>");
+        Assert.True(active.SetActiveSkillRating(0, 1));
+        Assert.Equal("0", active.Bp);
+        Assert.False(active.SetActiveSkillRating(0, 2));
+        Assert.Equal("1", Assert.Single(active.Skills).BaseRating);
+        Assert.True(active.SetActiveSkillRating(0, 0));
+        Assert.Equal("4", active.Bp);
+
+        CharacterDocument group = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>20</startingbuildpoints><bp>10</bp><skillgroups><skillgroup><name>Firearms</name><rating>0</rating></skillgroup></skillgroups><skills><skill><name>Pistols</name><skillgroup>Firearms</skillgroup><rating>0</rating><knowledge>False</knowledge><grouped>False</grouped></skill></skills></character>");
+        Assert.True(group.SetSkillGroupRating("Firearms", 1));
+        Assert.Equal("0", group.Bp);
+        Assert.False(group.SetSkillGroupRating("Firearms", 2));
+        Assert.Equal("1", Assert.Single(group.SkillGroups).Rating);
+    }
+
+    [Fact]
     public void PetCharacterLink_PersistsAcrossSaveReload()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
