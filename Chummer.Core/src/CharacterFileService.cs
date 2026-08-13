@@ -5913,6 +5913,11 @@ namespace Chummer.Core
                 var strTotalValue = GetValue(objNode, "totalvalue", strValue);
                 if (strCode == "MAG" || strCode == "RES")
                     strTotalValue = ApplyEssencePenaltyToAttribute(strCode, strTotalValue).ToString(CultureInfo.InvariantCulture);
+                else if (strCode == "AGI" || strCode == "BOD" || strCode == "STR")
+                {
+                    int intMeatValue = int.TryParse(strTotalValue, out var intParsedMeat) ? intParsedMeat : 0;
+                    strTotalValue = ApplyCyberlimbAveraging(strCode, intMeatValue).ToString(CultureInfo.InvariantCulture);
+                }
                 var strMinimum = GetValue(objNode, "metatypemin", "0");
                 lstAttributes.Add(new CharacterAttributeData(
                     strCode, strValue, strTotalValue,
@@ -5923,6 +5928,97 @@ namespace Chummer.Core
             }
 
             return lstAttributes;
+        }
+
+        /// <summary>
+        /// Ported from clsUnique.cs's Attribute.TotalValue's Cyberlimb-averaging block: for AGI/
+        /// BOD/STR, replaces the "meat" total with the average across all of the character's
+        /// Cyberlimbs' own stats (any limb slots not replaced by a Cyberlimb still contribute the
+        /// meat value, padded out to Options.LimbCount). Limbs whose &lt;limbslot&gt; matches
+        /// Options.ExcludeLimbSlot (e.g. excluding the skull from a torso-cyberlimb-only build)
+        /// are skipped entirely, same as legacy.
+        /// </summary>
+        private int ApplyCyberlimbAveraging(string strCode, int intMeatValue)
+        {
+            var objNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objNodes == null) return intMeatValue;
+
+            CharacterOptions objOptions = GetCharacterOptions();
+            int intLimbTotal = 0;
+            int intLimbCount = 0;
+            foreach (XmlNode objNode in objNodes)
+            {
+                if (GetValue(objNode, "category", string.Empty) != "Cyberlimb")
+                    continue;
+
+                bool blnBioware = GetValue(objNode, "improvementsource", string.Empty) == "Bioware";
+                string strLimbSlot = GetCyberwareLimbSlot(GetValue(objNode, "name", string.Empty), blnBioware);
+                if (string.IsNullOrEmpty(strLimbSlot) || strLimbSlot == objOptions.ExcludeLimbSlot)
+                    continue;
+
+                intLimbCount++;
+                (int intBody, int intStrength, int intAgility) = ComputeCyberlimbStats(objNode);
+                intLimbTotal += strCode switch
+                {
+                    "BOD" => intBody,
+                    "STR" => intStrength,
+                    _ => intAgility
+                };
+            }
+
+            if (intLimbCount == 0)
+                return intMeatValue;
+
+            if (intLimbCount < objOptions.LimbCount)
+            {
+                // Not all of the limbs have been replaced - fill the rest with the meat value to
+                // get the average.
+                intLimbTotal += intMeatValue * (objOptions.LimbCount - intLimbCount);
+                intLimbCount = objOptions.LimbCount;
+            }
+
+            return (int)Math.Floor(intLimbTotal / (double)intLimbCount);
+        }
+
+        /// <summary>The rules-data &lt;limbslot&gt; (arm/leg/torso/skull) for a named Cyberlimb -
+        /// not persisted per-item in the save file, so looked up by name the same way other
+        /// rules-only metadata (e.g. FindBonusChild) is resolved on demand.</summary>
+        private string GetCyberwareLimbSlot(string strName, bool blnBioware)
+        {
+            XmlDocument objDoc = XmlManager.Instance.Load(blnBioware ? "bioware.xml" : "cyberware.xml");
+            XmlNode? objXmlWare = objDoc.SelectSingleNode(
+                $"/chummer/{(blnBioware ? "biowares/bioware" : "cyberwares/cyberware")}[name = '{strName}']");
+            return objXmlWare?["limbslot"]?.InnerText ?? string.Empty;
+        }
+
+        /// <summary>Ported from clsEquipment.cs's Cyberware.TotalBody/TotalStrength/TotalAgility -
+        /// a Cyberlimb's own physical stats start at a base of 3 and can be overridden/boosted by
+        /// its "Customized X"/"Enhanced X" child plugins.</summary>
+        private (int Body, int Strength, int Agility) ComputeCyberlimbStats(XmlNode objCyberwareNode)
+        {
+            int intBody = 3, intStrength = 3, intAgility = 3;
+            int intBodyBonus = 0, intStrengthBonus = 0, intAgilityBonus = 0;
+
+            XmlNodeList? objChildren = objCyberwareNode.SelectNodes("children/cyberware");
+            if (objChildren != null)
+            {
+                foreach (XmlNode objChild in objChildren)
+                {
+                    string strName = GetValue(objChild, "name", string.Empty);
+                    int intRating = int.TryParse(GetValue(objChild, "rating", "0"), out var intParsed) ? intParsed : 0;
+                    switch (strName)
+                    {
+                        case "Customized Body": intBody = intRating; break;
+                        case "Enhanced Body": intBodyBonus = intRating; break;
+                        case "Customized Strength": intStrength = intRating; break;
+                        case "Enhanced Strength": intStrengthBonus = intRating; break;
+                        case "Customized Agility": intAgility = intRating; break;
+                        case "Enhanced Agility": intAgilityBonus = intRating; break;
+                    }
+                }
+            }
+
+            return (intBody + intBodyBonus, intStrength + intStrengthBonus, intAgility + intAgilityBonus);
         }
 
         // Ported from clsUnique.cs's Attribute.AttributeModifiers/TotalValue.

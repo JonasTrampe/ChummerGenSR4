@@ -3375,6 +3375,55 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CyberlimbAveraging_OneOfSixArms_AveragesWithMeatValuePaddingToLimbCount()
+    {
+        // Base Cyberlimb Agility is 3; with only 1 of the default 6 limbs replaced, the other 5
+        // "limbs" contribute the meat AGI of 4 each: floor((3 + 5*4) / 6) = floor(23/6) = 3.
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")
+            + "</attributes><cyberwares><cyberware><name>Obvious Full Arm</name>"
+            + "<category>Cyberlimb</category><improvementsource>Cyberware</improvementsource>"
+            + "<children /></cyberware></cyberwares></character>");
+
+        Assert.Equal("3", character.Attributes.Single(a => a.Code == "AGI").TotalValue);
+    }
+
+    [Fact]
+    public void CyberlimbAveraging_CustomizedAgilityChild_OverridesLimbBase()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")
+            + "</attributes><cyberwares><cyberware><name>Obvious Full Arm</name>"
+            + "<category>Cyberlimb</category><improvementsource>Cyberware</improvementsource>"
+            + "<children><cyberware><name>Customized Agility</name><rating>6</rating></cyberware></children>"
+            + "</cyberware></cyberwares></character>");
+
+        // floor((6 + 5*4) / 6) = floor(26/6) = 4.
+        Assert.Equal("4", character.Attributes.Single(a => a.Code == "AGI").TotalValue);
+    }
+
+    [Fact]
+    public void CyberlimbAveraging_ExcludedLimbSlot_LeavesMeatValueUnchanged()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "4")
+            + "</attributes><cyberwares><cyberware><name>Obvious Full Arm</name>"
+            + "<category>Cyberlimb</category><improvementsource>Cyberware</improvementsource>"
+            + "<children /></cyberware></cyberwares></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ExcludeLimbSlot = "arm" });
+
+        Assert.Equal("4", character.Attributes.Single(a => a.Code == "AGI").TotalValue);
+    }
+
+    [Fact]
+    public void CyberlimbAveraging_UnrelatedAttribute_IsUnaffected()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("LOG", "4")
+            + "</attributes><cyberwares><cyberware><name>Obvious Full Arm</name>"
+            + "<category>Cyberlimb</category><improvementsource>Cyberware</improvementsource>"
+            + "<children /></cyberware></cyberwares></character>");
+
+        Assert.Equal("4", character.Attributes.Single(a => a.Code == "LOG").TotalValue);
+    }
+
+    [Fact]
     public void IsBookEnabled_TrueForEnabledBook_FalseForDisabledBook_TrueForBlank()
     {
         var character = LoadXml("<character><nuyen>1000</nuyen></character>");

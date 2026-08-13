@@ -325,18 +325,16 @@ what's ported, not previously tracked anywhere in this file)
   from their existing `_character` field. Not yet covered: MentorSpirit picker (mentors.xml has
   no per-item source filtering need in legacy either) and PACKS Kits/Suites (their own
   suites.xml/kits.xml lookups are a separate, smaller surface not addressed here).
-- [ ] Cyberlimb attribute averaging (AGI/BOD/STR) is entirely unimplemented - not just the
-  `LimbCount` option being unconsumed. Legacy's `clsUnique.cs` `Attribute.TotalValue` (~line
-  490-533) overrides a physical attribute's total by summing each Cyberlimb's own
-  `TotalBody`/`TotalStrength`/`TotalAgility` (per-cyberware rating-scaled stats, themselves
-  unported), excludes limbs whose `LimbSlot` matches `Options.ExcludeLimbSlot`, and for missing
-  limbs pads the average with the character's own meat value out to `Options.LimbCount` total
-  limbs before dividing. This port's `CharacterAttributeData`/`ReadAttributes()`
-  (`Chummer.Core/src/CharacterFileService.cs`) reads `<totalvalue>` straight from the save file
-  with no cyberware-derived override at all, so cyberlimbs currently have zero effect on a
-  character's AGI/BOD/STR. Real feature work (cyberware per-limb stat resolution + the averaging
-  formula + wiring into attribute totals and any downstream karma-cost/encumbrance math), not a
-  one-line fix.
+- [x] Cyberlimb attribute averaging (AGI/BOD/STR) — done. Added `ApplyCyberlimbAveraging` to
+  `CharacterFileService.ReadAttributes()` (`Chummer.Core/src/CharacterFileService.cs`), ported
+  from `clsUnique.cs`'s `Attribute.TotalValue`: for AGI/BOD/STR, sums each owned Cyberlimb's own
+  Body/Strength/Agility (base 3, overridden/boosted by "Customized X"/"Enhanced X" child plugins
+  via the new `ComputeCyberlimbStats`), skips limbs whose rules-data `<limbslot>` (looked up on
+  demand via the new `GetCyberwareLimbSlot`, since it isn't persisted per-item) matches
+  `Options.ExcludeLimbSlot`, and pads any unreplaced limbs with the meat value out to
+  `Options.LimbCount` before averaging - same formula as legacy. 4 new tests cover full-vs-partial
+  limb replacement, the Customized-child override, `ExcludeLimbSlot`, and that unrelated
+  attributes are untouched.
 
 **Interaction niceties**
 - [x] Extend drag/drop reordering/reparenting to the Cyberware tree — done, see § Character sheet
