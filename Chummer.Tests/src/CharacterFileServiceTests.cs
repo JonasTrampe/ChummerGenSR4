@@ -3615,6 +3615,64 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SellGear_RefundsPercentOfCostAndRemovesTheItem()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddGear("Medkit", "Biotech", strQty: "1", strCost: "200");
+        int intGearId = character.Gear.Single().GearId;
+
+        Assert.True(character.SellGear(intGearId, 0.5));
+
+        Assert.Equal("900", character.Nuyen); // 1000 - 200 (bought) + 100 (50% refund)
+        Assert.Empty(character.Gear);
+        Assert.Contains(character.NuyenExpenses, exp => exp.Reason.Contains("Medkit"));
+    }
+
+    [Fact]
+    public void SellWeapon_RefundsPercentOfCostAndRemovesTheItem()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15", "350", "4R", "SR4", "313");
+
+        Assert.True(character.SellWeapon("Ares Predator IV", "Heavy Pistols", 0.5));
+
+        Assert.Equal("825", character.Nuyen); // 1000 - 350 (bought) + 175 (50% refund)
+        Assert.Empty(character.WeaponTrees);
+    }
+
+    [Fact]
+    public void SellArmor_RefundsPercentOfCostAndRemovesTheItem()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
+
+        Assert.True(character.SellArmor("Leather Jacket", "Clothing", 0.25));
+
+        Assert.Equal("850", character.Nuyen); // 1000 - 200 (bought) + 50 (25% refund)
+        Assert.Empty(character.Armor);
+    }
+
+    [Fact]
+    public void SellCyberware_RefundsPercentOfCostAndRemovesTheItem()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>2000</nuyen></character>");
+        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
+
+        Assert.True(character.SellCyberware("Cybereyes", "Cyberlimb", "0", 0.5));
+
+        Assert.Equal("1500", character.Nuyen); // 2000 - 1000 (bought) + 500 (50% refund)
+        Assert.Empty(character.Cyberware);
+    }
+
+    [Fact]
+    public void SellGear_MissingItem_ReturnsFalseAndLeavesNuyenUnchanged()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        Assert.False(character.SellGear(999, 0.5));
+        Assert.Equal("1000", character.Nuyen);
+    }
+
+    [Fact]
     public void AddWeapon_ForbiddenAvail_MultipliesCostWhenHouseRuleOn()
     {
         CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen></character>");

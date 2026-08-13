@@ -41,6 +41,18 @@ public partial class VehiclesSectionTab : UserControl
         ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnSellVehicleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedVehicle is not { Parent: null } vehicle
+            || !Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new SellItemDialog();
+        if (await dialog.ShowDialog<bool>(window) && _character.SellVehicle(guiVehicleId, dialog.SellPercent))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedVehicle is not { } vehicle)

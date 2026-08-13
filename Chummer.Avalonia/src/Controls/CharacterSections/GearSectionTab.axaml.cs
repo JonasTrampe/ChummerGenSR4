@@ -20,6 +20,7 @@ using WeaponModDialog = Chummer.NewUI.Dialogs.WeaponModDialog;
 using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
 using AdvancedLifestyleDialog = Chummer.NewUI.Dialogs.AdvancedLifestyleDialog;
 using ArmorSetDialog = Chummer.NewUI.Dialogs.ArmorSetDialog;
+using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -185,6 +186,17 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private async void OnSellGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new SellItemDialog();
+        if (await dialog.ShowDialog<bool>(window) && _character.SellGear(node.GearId, dialog.SellPercent))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnToggleGearEquippedClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node || sender is not CheckBox checkBox)
@@ -231,6 +243,17 @@ public partial class GearSectionTab : UserControl
             if (removed)
                 ViewModel.LoadCharacter(_character);
         }
+    }
+
+    private async void OnSellWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedWeapon is not { Parent: null } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new SellItemDialog();
+        if (await dialog.ShowDialog<bool>(window) && _character.SellWeapon(selected.SourceName, selected.Category, dialog.SellPercent))
+            ViewModel.LoadCharacter(_character);
     }
 
     /// <summary>Resolves the root weapon a "Zubehör/Mod hinzufügen" click applies to: the selected
@@ -316,6 +339,17 @@ public partial class GearSectionTab : UserControl
             return;
         }
         if (_character.RemoveArmor(ViewModel.SelectedArmor.SourceName, ViewModel.SelectedArmor.Category))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnSellArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedArmor is not { } selected || selected.Category == "Armor set"
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new SellItemDialog();
+        if (await dialog.ShowDialog<bool>(window) && _character.SellArmor(selected.SourceName, selected.Category, dialog.SellPercent))
             ViewModel.LoadCharacter(_character);
     }
 

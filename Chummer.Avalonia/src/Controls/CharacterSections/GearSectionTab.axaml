@@ -35,6 +35,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="Panzerung hinzufügen" Click="OnAddArmorClick" />
                         <Button Content="Löschen" Click="OnDeleteArmorClick" />
+                        <Button Content="Verkaufen" Click="OnSellArmorClick" />
                         <Button Content="Mod hinzufügen" Click="OnAddArmorModClick" />
                         <Button Content="Mod löschen" Click="OnDeleteArmorModClick" />
                         <Button Content="Panzerungsset hinzufügen" Click="OnAddArmorSetClick" />
@@ -100,6 +101,7 @@
                         <Button Content="Zubehör hinzufügen" Click="OnAddWeaponAccessoryClick" />
                         <Button Content="Mod hinzufügen" Click="OnAddWeaponModClick" />
                         <Button Content="Löschen" Click="OnDeleteWeaponClick" />
+                        <Button Content="Verkaufen" Click="OnSellWeaponClick" />
                         <Button Content="Ort hinzufügen" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
@@ -157,6 +159,7 @@
                         <Button Content="Nexus zusammenstellen" Click="OnAddNexusClick" />
                         <Button Content="Als Zubehör hinzufügen" Click="OnAddChildGearClick" />
                         <Button Content="Löschen" Click="OnDeleteGearClick" />
+                        <Button Content="Verkaufen" Click="OnSellGearClick" />
                         <Button Content="Ort hinzufügen" Click="OnAddGearLocationClick" />
                         <Button Content="Ort löschen" Click="OnRemoveGearLocationClick" />
                         <CheckBox Content="Zeige nur Kommlinks" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />

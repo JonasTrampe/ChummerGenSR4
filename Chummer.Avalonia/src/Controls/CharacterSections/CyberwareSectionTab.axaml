@@ -12,6 +12,7 @@
                 <Button Content="Cyberware-Suite" Click="OnAddCyberwareSuiteClick" />
                 <Button Content="Bioware-Suite" Click="OnAddBiowareSuiteClick" />
                 <Button Content="Löschen" Click="OnDeleteClick" />
+                <Button Content="Verkaufen" Click="OnSellClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>

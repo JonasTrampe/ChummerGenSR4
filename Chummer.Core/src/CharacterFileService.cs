@@ -1368,6 +1368,36 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Ported from frmSellItem.cs/frmCareer.cs's per-item "tsXxxSell_Click" handlers:
+        /// refunds <paramref name="dblSellPercent"/> (0.0-1.0) of the item's current total cost
+        /// back to Nuyen (logged as a Nuyen expense entry) before removing it. Refunds round to the
+        /// nearest whole Nuyen, same as legacy's Convert.ToInt32.</summary>
+        public bool SellGear(int intGearId, double dblSellPercent)
+        {
+            XmlNode? objGear = GetGearNodeById(intGearId);
+            if (objGear == null)
+                return false;
+
+            int intRefund = ComputeSellRefund(ReadTreeItem(objGear).CalculatedCost, dblSellPercent);
+            string strName = GetValue(objGear, "name", string.Empty);
+            if (!RemoveGear(intGearId))
+                return false;
+
+            ApplySellRefund(intRefund, strName);
+            return true;
+        }
+
+        private static int ComputeSellRefund(double dblCost, double dblSellPercent) =>
+            (int)Math.Round(dblCost * dblSellPercent, MidpointRounding.AwayFromZero);
+
+        private void ApplySellRefund(int intRefund, string strItemName)
+        {
+            double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) ? n : 0;
+            Nuyen = (dblNuyen + intRefund).ToString(CultureInfo.InvariantCulture);
+            if (intRefund != 0)
+                AddExpense("Nuyen", intRefund, "Verkauft: " + strItemName);
+        }
+
         /// <summary>Equips or unequips a gear item - matches the legacy tree's "angelegt" checkbox.</summary>
         public bool SetGearEquipped(int intGearId, bool blnEquipped)
         {
@@ -1516,6 +1546,24 @@ namespace Chummer.Core
 
             objVehicle.ParentNode.RemoveChild(objVehicle);
             Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root Vehicle
+        /// (including its own installed mods' cost; onboard Weapons/Gear aren't costed here, same
+        /// simplification <see cref="CalculatedCost"/>'s tree reading already makes elsewhere).</summary>
+        public bool SellVehicle(Guid guiVehicleId, double dblSellPercent)
+        {
+            XmlNode? objVehicle = GetVehicleNode(guiVehicleId);
+            if (objVehicle == null)
+                return false;
+
+            int intRefund = ComputeSellRefund(ReadTreeItem(objVehicle, "mods/mod").CalculatedCost, dblSellPercent);
+            string strName = GetValue(objVehicle, "name", string.Empty);
+            if (!RemoveVehicle(guiVehicleId))
+                return false;
+
+            ApplySellRefund(intRefund, strName);
             return true;
         }
 
@@ -2249,6 +2297,41 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root
+        /// Cyberware/Bioware item (including its own installed plugins' cost).</summary>
+        public bool SellCyberware(string strName, string strCategory, string strRating, double dblSellPercent, bool blnBioware = false)
+        {
+            XmlNode? objNode = FindCyberwareNode(strName, strCategory, strRating, blnBioware);
+            if (objNode == null)
+                return false;
+
+            int intRefund = ComputeSellRefund(ReadTreeItem(objNode, "children/cyberware").CalculatedCost, dblSellPercent);
+            if (!RemoveCyberware(strName, strCategory, strRating, blnBioware))
+                return false;
+
+            ApplySellRefund(intRefund, strName);
+            return true;
+        }
+
+        private XmlNode? FindCyberwareNode(string strName, string strCategory, string strRating, bool blnBioware)
+        {
+            var objNodes = Document.SelectNodes("/character/cyberwares/cyberware");
+            if (objNodes == null)
+                return null;
+
+            string strExpectedSource = blnBioware ? "Bioware" : "Cyberware";
+            foreach (XmlNode objCyberware in objNodes)
+            {
+                if (string.Equals(GetValue(objCyberware, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    && string.Equals(GetValue(objCyberware, "category", string.Empty), strCategory, StringComparison.Ordinal)
+                    && string.Equals(GetValue(objCyberware, "rating", "0"), strRating, StringComparison.Ordinal)
+                    && string.Equals(GetValue(objCyberware, "improvementsource", string.Empty), strExpectedSource, StringComparison.Ordinal))
+                    return objCyberware;
+            }
+
+            return null;
+        }
+
         /// <summary>Adjusts the filled physical condition-monitor boxes of a root vehicle.</summary>
         public bool AdjustVehicleDamage(string strName, string strCategory, int intDelta)
         {
@@ -2698,6 +2781,26 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root Weapon
+        /// (including its own installed accessories/mods/loaded gear cost).</summary>
+        public bool SellWeapon(string strName, string strCategory, double dblSellPercent)
+        {
+            XmlNode? objNode = Document.SelectNodes("/character/weapons/weapon")?.Cast<XmlNode>()
+                .FirstOrDefault(n => string.Equals(GetValue(n, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    && string.Equals(GetValue(n, "category", string.Empty), strCategory, StringComparison.Ordinal));
+            if (objNode == null)
+                return false;
+
+            int intRefund = ComputeSellRefund(
+                ReadTreeItem(objNode, "accessories/accessory", "weaponmods/weaponmod", "gears/gear", "ammos/ammo").CalculatedCost,
+                dblSellPercent);
+            if (!RemoveWeapon(strName, strCategory))
+                return false;
+
+            ApplySellRefund(intRefund, strName);
+            return true;
+        }
+
         /// <summary>Sets the equipped state of the first root-level weapon matching name and category.</summary>
         public bool SetWeaponEquipped(string strName, string strCategory, bool blnEquipped)
         {
@@ -2995,6 +3098,25 @@ namespace Chummer.Core
             }
 
             return false;
+        }
+
+        /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root Armor
+        /// item (including its own installed mods/gear cost).</summary>
+        public bool SellArmor(string strName, string strCategory, double dblSellPercent)
+        {
+            XmlNode? objNode = Document.SelectNodes("/character/armors/armor")?.Cast<XmlNode>()
+                .FirstOrDefault(n => string.Equals(GetValue(n, "name", string.Empty), strName.Trim(), StringComparison.Ordinal)
+                    && string.Equals(GetValue(n, "category", string.Empty), strCategory, StringComparison.Ordinal));
+            if (objNode == null)
+                return false;
+
+            int intRefund = ComputeSellRefund(
+                ReadTreeItem(objNode, "armormods/armormod", "gears/gear").CalculatedCost, dblSellPercent);
+            if (!RemoveArmor(strName, strCategory))
+                return false;
+
+            ApplySellRefund(intRefund, strName);
+            return true;
         }
 
         /// <summary>Equips or unequips the first root-level saved armor matching its name/category -

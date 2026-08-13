@@ -15,6 +15,7 @@
                 <Button Content="Ort hinzufügen" Click="OnAddVehicleLocationClick" />
                 <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
                 <Button Content="Löschen" Click="OnDeleteVehicleClick" />
+                <Button Content="Verkaufen" Click="OnSellVehicleClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>

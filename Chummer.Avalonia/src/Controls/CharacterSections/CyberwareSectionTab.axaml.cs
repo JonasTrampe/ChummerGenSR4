@@ -10,6 +10,7 @@ using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 using CyberwareDialog = Chummer.NewUI.Dialogs.CyberwareDialog;
 using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
+using SellItemDialog = Chummer.NewUI.Dialogs.SellItemDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
@@ -116,6 +117,19 @@ public partial class CyberwareSectionTab : UserControl
 
         bool blnBioware = ReferenceEquals(parent, ViewModel.BiowareRoot);
         if (_character.RemoveCyberware(node.SourceName, node.Category, node.Rating, blnBioware))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnSellClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedNode is not { Parent: { Parent: null } parent } node
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        bool blnBioware = ReferenceEquals(parent, ViewModel.BiowareRoot);
+        var dialog = new SellItemDialog();
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.SellCyberware(node.SourceName, node.Category, node.Rating, dialog.SellPercent, blnBioware))
             ViewModel.LoadCharacter(_character);
     }
 

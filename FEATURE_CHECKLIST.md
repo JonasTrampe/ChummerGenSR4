@@ -300,8 +300,18 @@ context on each.
 
 **Small self-contained tools** (found via a fresh audit of all 70 legacy `frm*.cs` forms against
 what's ported, not previously tracked anywhere in this file)
-- [ ] `frmSellItem` (~45 lines) — career-mode "remove an item and receive back X% of its value in
-  Nuyen." This port currently only has plain removal (no refund) for every item type.
+- [x] `frmSellItem` — done for Gear/Weapon/Armor/Cyberware/Bioware/Vehicle (the 5 most common
+  root item types). Added `SellGear`/`SellWeapon`/`SellArmor`/`SellCyberware`/`SellVehicle` to
+  `Chummer.Core/src/CharacterFileService.cs`, each computing the refund from the item's current
+  total cost (its own cost plus installed mods/accessories/plugins, reusing the existing
+  `CharacterTreeItemData.CalculatedCost`/`ReadTreeItem` machinery) times a 0.0-1.0 sell
+  percentage, rounded to the nearest whole Nuyen (matching legacy's `Convert.ToInt32`), before
+  removing the item and logging a Nuyen expense entry via the existing `AddExpense`. New
+  `SellItemDialog` (a single 0-100% `NumericUpDown`, ported from `frmSellItem.cs`) wired into a
+  "Verkaufen" button next to each item type's existing "Löschen" button in `GearSectionTab`
+  (Gear/Weapon/Armor), `CyberwareSectionTab`, and `VehiclesSectionTab`. Not covered: Vehicle Mods/
+  Gear/Weapons and Weapon Accessories/Mods sold individually (only their parent root item), and
+  Lifestyles (legacy doesn't sell Lifestyles either - they're a recurring cost, not owned equipment).
 - [ ] `frmCreateSpell` (867 lines) — player-facing tool to homebrew a new Spell by combining
   rules-data building blocks (type/range/duration/damage formula) instead of picking one from
   `spells.xml`. Sizable feature, similar in spirit to `AddNexus`/`AddAdvancedLifestyle` but
