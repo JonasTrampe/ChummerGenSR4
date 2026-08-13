@@ -21,10 +21,11 @@ the change it describes.
 Everything not `[x]`, in one place, grouped by area.
 
 ### House rules — blocked on missing subsystems
-- [ ] **No creation-mode BP/Karma budget tracker** (no "points remaining" summary during
-  creation): blocks `MetatypeCostsKarma`, `ExceedPositiveQualities`/`ExceedNegativeQualities`/
-  `ExceedNegativeQualitiesLimit`, `FreeKarmaKnowledge`, `SpecialAttributeKarmaLimit`,
-  `SpecialKarmaCostBasedOnShownValue`, `BreakSkillGroupsInCreateMode`.
+- [~] **Creation-mode BP/Karma budget tracker**: the status bar now shows the authoritative
+  remaining pool and a hoverable, document-derived breakdown (metatype, attributes, contacts,
+  qualities, skills, spells, complex forms, and starting Nuyen), including an explicit
+  "not yet categorized" reconciliation row. The remaining house-rule limits and all creation
+  mutations still need to consume this tracker directly.
 - [~] **Complex Form costs**: Core now calculates normal, Skillsoft, and
   `AlternateComplexFormCost` costs and charges Career purchases. Creation still needs the
   document-wide budget tracker before its points-remaining total can include Complex Forms.

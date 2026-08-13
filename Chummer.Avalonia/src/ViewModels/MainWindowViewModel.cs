@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Text;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
 
@@ -9,6 +10,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 {
     private OpenCharacterTab? _selectedOpenCharacter;
     private string _strKarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+    private string _strCreationBudgetTooltip = string.Empty;
     private string _strEssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
     private string _strNuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
     private string _strErrorMessage = string.Empty;
@@ -39,6 +41,13 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         get => _strKarmaStatus;
         private set => SetField(ref _strKarmaStatus, value);
+    }
+
+    /// <summary>Creation-only point breakdown shown by the status-bar budget tracker.</summary>
+    public string CreationBudgetTooltip
+    {
+        get => _strCreationBudgetTooltip;
+        private set => SetField(ref _strCreationBudgetTooltip, value);
     }
 
     public string EssenceStatus
@@ -154,24 +163,44 @@ public sealed class MainWindowViewModel : ViewModelBase
         {
             WindowTitle = "Chummer";
             KarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+            CreationBudgetTooltip = string.Empty;
             EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
             NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
             return;
         }
 
-        KarmaStatus = !character.Created
-            ? (string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
-                ? App.LanguageCatalog.GetString("String_BP") + ": " + character.CreationBudget.Remaining
-                    + " / " + character.CreationBudget.Starting + " (" + character.CreationBudget.Spent + " used)"
-                : App.LanguageCatalog.GetString("String_Karma") + ": " + character.CreationBudget.Remaining
-                    + " / " + character.CreationBudget.Starting + " (" + character.CreationBudget.Spent + " used)")
-            : string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+        if (!character.Created)
+        {
+            CharacterCreationBudgetData budget = character.CreationBudget;
+            string strPoolName = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+                ? App.LanguageCatalog.GetString("String_BP")
+                : App.LanguageCatalog.GetString("String_Karma");
+            KarmaStatus = strPoolName + ": " + budget.Remaining + " / " + budget.Starting
+                + " (" + budget.Spent + " used)";
+            CreationBudgetTooltip = FormatCreationBudgetTooltip(strPoolName, budget);
+        }
+        else
+        {
+            CreationBudgetTooltip = string.Empty;
+            KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
             ? App.LanguageCatalog.GetString("String_BP") + ": " + character.Bp + " / "
                 + App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma
             : App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma;
+        }
         EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusPrefix") + character.Condition.Essence;
         NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusPrefix") + character.Nuyen + "¥";
         WindowTitle = "Chummer - " + character.Name;
+    }
+
+    private static string FormatCreationBudgetTooltip(string strPoolName, CharacterCreationBudgetData budget)
+    {
+        var builder = new StringBuilder();
+        builder.Append(strPoolName).Append(": ").Append(budget.Remaining).Append(" remaining of ")
+            .Append(budget.Starting).Append("\nSpent: ").Append(budget.Spent);
+        foreach (CharacterCreationBudgetCategoryData category in budget.Categories)
+            builder.Append('\n').Append(category.Name).Append(": ").Append(category.Cost >= 0 ? "+" : string.Empty)
+                .Append(category.Cost);
+        return builder.ToString();
     }
 
     private void RebuildRecentCharacters()

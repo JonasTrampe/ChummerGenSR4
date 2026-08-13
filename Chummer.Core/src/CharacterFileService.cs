@@ -326,18 +326,148 @@ namespace Chummer.Core
         /// Used by <see cref="RaiseAttributeCreate"/>'s AllowExceedAttributeBp gate.</summary>
         public int StartingBuildPoints => int.TryParse(GetValue("/character/startingbuildpoints", "0"), out var i) ? i : 0;
 
-        /// <summary>Creation budget state suitable for UI summaries. It intentionally exposes
-        /// the persisted remaining pool instead of reconstructing it from incomplete feature
-        /// slices, while later budget categories can be added without changing consumers.</summary>
+        /// <summary>Creation budget state suitable for UI summaries. The persisted pool remains
+        /// authoritative, while the individual categories make the spent total explainable and
+        /// expose any document parts that have not yet been ported to the tracker.</summary>
         public CharacterCreationBudgetData CreationBudget
         {
             get
             {
-                bool karma = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
-                int remaining = int.TryParse(karma ? Karma : Bp, out int value) ? value : 0;
-                int starting = StartingBuildPoints;
-                return new CharacterCreationBudgetData(BuildMethod, starting, remaining, Math.Max(0, starting - remaining));
+                bool blnKarma = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+                int intRemaining = int.TryParse(blnKarma ? Karma : Bp, out int intRemainingValue) ? intRemainingValue : 0;
+                int intStarting = StartingBuildPoints;
+                int intSpent = intStarting - intRemaining;
+                var lstCategories = new List<CharacterCreationBudgetCategoryData>();
+                CharacterOptions objOptions = GetCharacterOptions();
+
+                void AddCategory(string strName, int intCost)
+                {
+                    if (intCost != 0)
+                        lstCategories.Add(new CharacterCreationBudgetCategoryData(strName, intCost));
+                }
+
+                int intMetatypeBp = ParseInteger(GetValue("/character/metatypebp", "0"));
+                AddCategory("Metatype", blnKarma
+                    ? (objOptions.MetatypeCostsKarma ? intMetatypeBp * objOptions.MetatypeCostsKarmaMultiplier : 0)
+                    : intMetatypeBp);
+
+                int intPrimaryAttributes = 0;
+                int intSpecialAttributes = 0;
+                foreach (XmlNode objAttribute in Document.SelectNodes("/character/attributes/attribute")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                {
+                    string strCode = GetValue(objAttribute, "name", string.Empty);
+                    if (strCode == "ESS")
+                        continue;
+                    int intValue = ParseInteger(GetValue(objAttribute, "value", "0"));
+                    int intMinimum = ParseInteger(GetValue(objAttribute, "metatypemin", "0"));
+                    int intMaximum = ParseInteger(GetValue(objAttribute, "metatypemax", "0"));
+                    if (intValue == 0 && intMaximum == 0)
+                        continue;
+                    int intCost;
+                    if (blnKarma)
+                    {
+                        int intStart = objOptions.AlternateMetatypeAttributeKarma ? 1 : intMinimum + 1;
+                        intCost = 0;
+                        for (int i = intStart; i <= intValue; i++)
+                            intCost += i * objOptions.KarmaAttribute;
+                    }
+                    else
+                    {
+                        intCost = Math.Max(0, intValue - intMinimum) * 10;
+                        if (intValue == intMaximum && intMaximum > intMinimum)
+                            intCost += 15;
+                    }
+                    if (strCode == "EDG" || strCode == "MAG" || strCode == "RES") intSpecialAttributes += intCost;
+                    else intPrimaryAttributes += intCost;
+                }
+                AddCategory("Primary attributes", intPrimaryAttributes);
+                AddCategory("Special attributes", intSpecialAttributes);
+
+                int intContacts = 0;
+                int intEnemies = 0;
+                foreach (XmlNode objContact in Document.SelectNodes("/character/contacts/contact")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                {
+                    if (GetValue(objContact, "free", "False") == "True" || GetValue(objContact, "type", string.Empty) == "Pet")
+                        continue;
+                    int intRating = ParseInteger(GetValue(objContact, "connection", "0"))
+                        + ParseInteger(GetValue(objContact, "loyalty", "0"))
+                        + ParseInteger(GetValue(objContact, "membership", "0"))
+                        + ParseInteger(GetValue(objContact, "areaofinfluence", "0"))
+                        + ParseInteger(GetValue(objContact, "magicalresources", "0"))
+                        + ParseInteger(GetValue(objContact, "matrixresources", "0"));
+                    int intCost = intRating * (blnKarma ? objOptions.KarmaContact : 1);
+                    if (GetValue(objContact, "type", string.Empty) == "Enemy") intEnemies -= intCost;
+                    else intContacts += intCost;
+                }
+                AddCategory("Contacts", intContacts);
+                AddCategory("Enemies", intEnemies);
+
+                XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+                int intQualities = 0;
+                foreach (XmlNode objQuality in Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                {
+                    string strName = GetValue(objQuality, "name", string.Empty);
+                    XmlNode? objRule = objQualities.SelectSingleNode($"/chummer/qualities/quality[name = '{strName}']");
+                    int intBp = ParseInteger(GetValue(objRule, "bp", "0"));
+                    intQualities += blnKarma ? intBp * objOptions.KarmaQuality : intBp;
+                }
+                AddCategory("Qualities", intQualities);
+
+                int intGroups = 0;
+                foreach (XmlNode objGroup in Document.SelectNodes("/character/skillgroups/skillgroup")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                    intGroups += ComputeCreationRatingCost(ParseInteger(GetValue(objGroup, "rating", "0")), blnKarma,
+                        10, objOptions.KarmaNewSkillGroup, objOptions.KarmaImproveSkillGroup);
+                AddCategory("Skill groups", intGroups);
+
+                int intActiveSkills = 0;
+                int intKnowledgeSkills = 0;
+                foreach (XmlNode objSkill in Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                {
+                    if (GetValue(objSkill, "grouped", "False") == "True")
+                        continue;
+                    int intRating = ParseInteger(GetValue(objSkill, "rating", "0"));
+                    if (GetValue(objSkill, "knowledge", "False") == "True")
+                        intKnowledgeSkills += ComputeCreationRatingCost(intRating, blnKarma, 2,
+                            objOptions.KarmaNewKnowledgeSkill, objOptions.KarmaImproveKnowledgeSkill);
+                    else
+                        intActiveSkills += ComputeCreationRatingCost(intRating, blnKarma, 4,
+                            objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill);
+                }
+                AddCategory("Active skills", intActiveSkills);
+                AddCategory("Knowledge skills", intKnowledgeSkills);
+
+                AddCategory("Spells", (Document.SelectNodes("/character/spells/spell")?.Count ?? 0)
+                    * (blnKarma ? objOptions.KarmaSpell : 3));
+                int intComplexForms = ComplexForms.Sum(f => blnKarma
+                    ? ComputeComplexFormKarmaCost(f.Category, ParseInteger(f.Rating))
+                    : (objOptions.AlternateComplexFormCost ? 3 : ParseInteger(f.Rating)));
+                AddCategory("Complex Forms", intComplexForms);
+                AddCategory("Starting Nuyen", NuyenPoints);
+
+                int intCategorized = lstCategories.Sum(c => c.Cost);
+                int intUncategorized = intSpent - intCategorized;
+                if (intUncategorized != 0)
+                    lstCategories.Add(new CharacterCreationBudgetCategoryData("Other / not yet categorized", intUncategorized));
+                return new CharacterCreationBudgetData(BuildMethod, intStarting, intRemaining, intSpent, lstCategories);
             }
+        }
+
+        private static int ParseInteger(string strValue) => int.TryParse(strValue, NumberStyles.Integer,
+            CultureInfo.InvariantCulture, out int intValue) ? intValue : 0;
+
+        private static int ComputeCreationRatingCost(int intRating, bool blnKarma, int intBpPerRating,
+            int intKarmaNew, int intKarmaImprove)
+        {
+            if (intRating <= 0) return 0;
+            if (!blnKarma) return intRating * intBpPerRating;
+            int intCost = intKarmaNew;
+            for (int i = 2; i <= intRating; i++) intCost += i * intKarmaImprove;
+            return intCost;
         }
 
         public string Nuyen
@@ -8113,18 +8243,33 @@ namespace Chummer.Core
 
     public sealed class CharacterCreationBudgetData
     {
-        internal CharacterCreationBudgetData(string strBuildMethod, int intStarting, int intRemaining, int intSpent)
+        internal CharacterCreationBudgetData(string strBuildMethod, int intStarting, int intRemaining, int intSpent,
+            IReadOnlyList<CharacterCreationBudgetCategoryData> lstCategories)
         {
             BuildMethod = strBuildMethod;
             Starting = intStarting;
             Remaining = intRemaining;
             Spent = intSpent;
+            Categories = lstCategories;
         }
 
         public string BuildMethod { get; }
         public int Starting { get; }
         public int Remaining { get; }
         public int Spent { get; }
+        public IReadOnlyList<CharacterCreationBudgetCategoryData> Categories { get; }
+    }
+
+    public sealed class CharacterCreationBudgetCategoryData
+    {
+        internal CharacterCreationBudgetCategoryData(string strName, int intCost)
+        {
+            Name = strName;
+            Cost = intCost;
+        }
+
+        public string Name { get; }
+        public int Cost { get; }
     }
 
     public sealed class CharacterAttributeData

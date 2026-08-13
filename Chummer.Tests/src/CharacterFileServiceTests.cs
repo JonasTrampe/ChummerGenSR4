@@ -1617,6 +1617,28 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CreationBudget_ExplainsPersistedBpWithDocumentCategories()
+    {
+        CharacterDocument character = LoadXml("<character><buildmethod>BP</buildmethod><startingbuildpoints>100</startingbuildpoints><bp>58</bp>"
+            + "<metatypebp>10</metatypebp><nuyenbp>1</nuyenbp>"
+            + "<attributes><attribute><name>BOD</name><value>3</value><metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes>"
+            + "<contacts><contact><type>Contact</type><connection>2</connection><loyalty>1</loyalty><free>False</free></contact></contacts>"
+            + "<skills><skill><rating>2</rating><knowledge>False</knowledge><grouped>False</grouped></skill></skills></character>");
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+
+        Assert.Equal(100, budget.Starting);
+        Assert.Equal(58, budget.Remaining);
+        Assert.Equal(42, budget.Spent);
+        Assert.Equal(10, budget.Categories.Single(c => c.Name == "Metatype").Cost);
+        Assert.Equal(20, budget.Categories.Single(c => c.Name == "Primary attributes").Cost);
+        Assert.Equal(3, budget.Categories.Single(c => c.Name == "Contacts").Cost);
+        Assert.Equal(8, budget.Categories.Single(c => c.Name == "Active skills").Cost);
+        Assert.Equal(1, budget.Categories.Single(c => c.Name == "Starting Nuyen").Cost);
+        Assert.DoesNotContain(budget.Categories, c => c.Name == "Other / not yet categorized");
+    }
+
+    [Fact]
     public void ComputeComplexFormKarmaCost_UsesConfiguredRules()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");

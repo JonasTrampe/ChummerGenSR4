@@ -84,7 +84,7 @@
 
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
-                <TextBlock Text="{Binding KarmaStatus}" />
+                <TextBlock Text="{Binding KarmaStatus}" ToolTip.Tip="{Binding CreationBudgetTooltip}" />
                 <TextBlock Text="{Binding EssenceStatus}" />
                 <TextBlock Text="{Binding NuyenStatus}" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" IsVisible="{Binding HasError}" />
