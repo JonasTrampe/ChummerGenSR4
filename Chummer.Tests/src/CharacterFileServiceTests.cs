@@ -123,6 +123,26 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SpellNotes_PersistForTheSelectedDuplicateAndSurviveReload()
+    {
+        CharacterDocument character = LoadXml("<character><spells>"
+            + "<spell><name>Heal</name><category>Health</category></spell>"
+            + "<spell><name>Heal</name><category>Health</category></spell>"
+            + "</spells></character>");
+
+        Assert.True(character.SetSpellNotes(character.Spells[1].SpellId, "Second entry only"));
+        Assert.Equal(string.Empty, character.Spells[0].Notes);
+        Assert.Equal("Second entry only", character.Spells[1].Notes);
+
+        using var stream = new MemoryStream();
+        new CharacterFileService().Save(character, stream, "saved.chum");
+        stream.Position = 0;
+        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
+        Assert.Equal(string.Empty, reloaded.Spells[0].Notes);
+        Assert.Equal("Second entry only", reloaded.Spells[1].Notes);
+    }
+
+    [Fact]
     public void QualityNotes_PersistForTheSelectedDuplicateAndSurviveReload()
     {
         CharacterDocument character = LoadXml("<character><qualities>"

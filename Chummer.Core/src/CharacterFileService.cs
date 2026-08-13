@@ -4445,6 +4445,27 @@ namespace Chummer.Core
             return false;
         }
 
+        /// <summary>Updates a spell's free-form notes using its root-list position. This avoids
+        /// relying on spell names, which are not unique in hand-edited older character files.</summary>
+        public bool SetSpellNotes(int intSpellId, string strNotes)
+        {
+            XmlNode? objSpell = GetSpellNodeById(intSpellId);
+            if (objSpell == null)
+                return false;
+
+            SetChildValue(objSpell, "notes", strNotes ?? string.Empty);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private XmlNode? GetSpellNodeById(int intSpellId)
+        {
+            if (intSpellId < 0)
+                return null;
+            XmlNodeList? objNodes = Document.SelectNodes("/character/spells/spell");
+            return objNodes != null && intSpellId < objNodes.Count ? objNodes[intSpellId] : null;
+        }
+
         private void AppendElement(XmlElement objParent, string strName, string strValue)
         {
             var objElement = Document.CreateElement(strName);
@@ -8607,8 +8628,9 @@ namespace Chummer.Core
             var lstSpells = new List<CharacterSpellData>();
             var objNodes = Document.SelectNodes("/character/spells/spell");
             if (objNodes == null) return lstSpells;
-            foreach (XmlNode objNode in objNodes)
+            for (int intSpellId = 0; intSpellId < objNodes.Count; intSpellId++)
             {
+                XmlNode objNode = objNodes[intSpellId]!;
                 string strCategory = GetValue(objNode, "category", string.Empty);
                 (int intPool, string strTooltip) = ComputeSpellDicePool(strCategory);
                 bool blnExtended = string.Equals(GetValue(objNode, "extended", "False"), "True",
@@ -8618,7 +8640,8 @@ namespace Chummer.Core
                     GetValue(objNode, "range", string.Empty), GetValue(objNode, "damage", string.Empty),
                     GetValue(objNode, "duration", string.Empty), GetValue(objNode, "dv", string.Empty),
                     GetValue(objNode, "source", string.Empty), GetValue(objNode, "page", string.Empty),
-                    intPool.ToString(), strTooltip, blnExtended));
+                    intPool.ToString(), strTooltip, blnExtended, intSpellId,
+                    GetValue(objNode, "notes", string.Empty)));
             }
             return lstSpells;
         }
@@ -9800,7 +9823,8 @@ namespace Chummer.Core
     {
         internal CharacterSpellData(string strName, string strCategory, string strType, string strRange,
             string strDamage, string strDuration, string strDv, string strSource, string strPage,
-            string strDicePool = "0", string strDicePoolTooltip = "", bool blnExtended = false)
+            string strDicePool = "0", string strDicePoolTooltip = "", bool blnExtended = false,
+            int intSpellId = -1, string strNotes = "")
         {
             Name = strName;
             Extended = blnExtended;
@@ -9815,6 +9839,8 @@ namespace Chummer.Core
             Page = strPage;
             DicePool = strDicePool;
             DicePoolTooltip = strDicePoolTooltip;
+            SpellId = intSpellId;
+            Notes = strNotes;
         }
 
         public string Name { get; }
@@ -9834,6 +9860,8 @@ namespace Chummer.Core
         /// any SpellCategory Improvements. "0" if the character has no Spellcasting skill at all.</summary>
         public string DicePool { get; }
         public string DicePoolTooltip { get; }
+        public int SpellId { get; }
+        public string Notes { get; }
     }
 
     public sealed class CharacterSpiritData

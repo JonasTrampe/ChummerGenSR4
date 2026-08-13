@@ -9,6 +9,7 @@
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
             <Button Content="{loc:Loc Button_AddSpell}" Click="OnAddSpellClick" />
             <Button Content="{loc:Loc UI_CreateSpell}" Click="OnCreateSpellClick" />
+            <Button Content="{loc:Loc Tab_Notes}" Click="OnEditSpellNotesClick" />
             <Button Content="{loc:Loc String_Delete}" Click="OnDeleteSpellClick" />
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,6"
@@ -50,6 +51,8 @@
             </Grid>
             <TextBlock Text="{Binding SelectedSpellNode.SpellDicePool, StringFormat='Würfelpool: {0}'}"
                        ToolTip.Tip="{Binding SelectedSpellNode.SpellDicePoolTooltip}" FontWeight="Bold" />
+            <TextBlock Text="{Binding SelectedSpellNode.Notes, StringFormat='Notizen: {0}'}"
+                       TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="4">
                 <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" />
                 <controls:SourceLink SourcePage="{Binding SelectedSpellNode.SourcePage}" />

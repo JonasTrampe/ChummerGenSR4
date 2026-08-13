@@ -48,6 +48,7 @@ public sealed class TreeNodeViewModel
     public int ArmorId { get; private set; } = -1;
     public int WeaponId { get; private set; } = -1;
     public int QualityId { get; private set; } = -1;
+    public int SpellId { get; private set; } = -1;
 
     public string Qty { get; private set; } = "1";
 
@@ -183,7 +184,7 @@ public sealed class TreeNodeViewModel
 
     public TreeNodeViewModel(string strName, bool blnExpanded = false, string strCategory = "",
         string strRating = "0", bool blnEquipped = false, string strSourceName = "",
-        int intQualityId = -1, string strNotes = "")
+        int intQualityId = -1, string strNotes = "", int intSpellId = -1)
     {
         Name = strName;
         TranslatedName = strName;
@@ -194,6 +195,7 @@ public sealed class TreeNodeViewModel
         SourceName = strSourceName;
         QualityId = intQualityId;
         Notes = strNotes;
+        SpellId = intSpellId;
     }
 
     public void AddChild(TreeNodeViewModel child)
