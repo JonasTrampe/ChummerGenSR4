@@ -4397,6 +4397,25 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Adds a Gear plugin below a direct armor-contained Gear item.</summary>
+        public bool AddArmorGearPlugin(int intArmorId, Guid guiParentGearId, string strName, string strCategory,
+            string strRating = "0", string strQty = "1", string strCost = "", string strAvail = "",
+            string strSource = "", string strPage = "", string strCapacity = "")
+        {
+            XmlNode? objParent = GetArmorNodeById(intArmorId)?.SelectSingleNode($"gears/gear[guid = '{guiParentGearId}']");
+            if (objParent == null || string.IsNullOrWhiteSpace(strName)
+                || (GetCharacterOptions().EnforceCapacity && !GearCapacityAllowsChild(objParent, strCapacity, strQty)))
+                return false;
+            XmlElement objChildren = objParent.SelectSingleNode("children") as XmlElement
+                ?? (XmlElement)objParent.AppendChild(Document.CreateElement("children"));
+            XmlElement objGear = AppendGearNode(objChildren, strName, strCategory, strRating, strQty, strCost,
+                strAvail, strSource, strPage, strCapacity, string.Empty, string.Empty, string.Empty, string.Empty);
+            AppendAutomaticProgramOptions(objGear);
+            DeductGearCost(strCost, strRating, strQty, strAvail);
+            Changed?.Invoke();
+            return true;
+        }
+
         /// <summary>See <see cref="SellGear"/> - same refund-then-remove pattern for a root Armor
         /// item (including its own installed mods/gear cost).</summary>
         public bool SellArmor(string strName, string strCategory, double dblSellPercent)
@@ -10006,7 +10025,8 @@ namespace Chummer.Core
                 var objChildren = objNode.SelectNodes(strChildXPath);
                 if (objChildren == null) continue;
                 foreach (XmlNode objChild in objChildren)
-                    objItem.Children.Add(ReadTreeItem(objChild, strChildXPath));
+                    objItem.Children.Add(ReadTreeItem(objChild,
+                        strChildXPath == "gears/gear" ? "children/gear" : strChildXPath));
             }
             return objItem;
         }

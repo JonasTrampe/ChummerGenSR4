@@ -1663,6 +1663,9 @@ public class CharacterFileServiceTests
         Assert.Equal("Gecko Tape Gloves", Assert.Single(Assert.Single(reloaded.Armor).Children).Name);
 
         Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
+        Assert.True(character.AddArmorGearPlugin(armorId, gearId, "Registration", "Program Options", "0", "1",
+            "0", "0", "UN", "115", "[0]"));
+        Assert.Equal("Registration", Assert.Single(Assert.Single(character.Armor).Children).Children.Single().Name);
         Assert.True(character.RemoveArmorGear(armorId, gearId));
         Assert.Empty(Assert.Single(character.Armor).Children);
     }
