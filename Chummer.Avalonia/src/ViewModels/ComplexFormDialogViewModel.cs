@@ -20,6 +20,8 @@ public sealed class ComplexFormDialogViewModel : ViewModelBase
     public void LoadOptions(CharacterDocument character)
     {
         Options.Clear();
+        if (!character.Technomancer)
+            return;
         var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (CharacterComplexFormData form in character.ComplexForms)
             existingNames.Add(form.Name);
@@ -35,6 +37,9 @@ public sealed class ComplexFormDialogViewModel : ViewModelBase
             if (string.IsNullOrWhiteSpace(name) || existingNames.Contains(name))
                 continue;
             if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                continue;
+            if (string.Equals(node["category"]?.InnerText, "Autosoft", StringComparison.Ordinal)
+                && !character.TechnomancerAllowsAutosoft)
                 continue;
 
             Options.Add(new ComplexFormOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,

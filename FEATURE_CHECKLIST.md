@@ -28,8 +28,9 @@ Everything not `[x]`, in one place, grouped by area.
 - [ ] **No Complex Form cost calculation**: blocks `AlternateComplexFormCost`.
 - [ ] **No Armor capacity-remaining tracking**: blocks `ArmorSuitCapacity`,
   `MaximumArmorModifications`, `ArmorDegradation`.
-- [ ] **No Technomancer gear/Complex-Form eligibility gating**: blocks
-  `TechnomancerAllowAutosoft`/`TechnomancerAllowCommlink`.
+- [x] Technomancer Complex-Form eligibility: picker is Technomancer-only, Autosofts honor
+  `TechnomancerAllowAutosoft`, and `TechnomancerAllowCommlink` selects the active-Commlink
+  Matrix Initiative branch.
 - [ ] Standalone, no missing subsystem, just not done: `AllowBiowareSuites`,
   `AllowCustomTransgenics`, `AllowEditPartOfBaseWeapon`, `AllowHigherStackedFoci`,
   `AllowObsolescentUpgrade`, `AllowSkillDiceRolling`, `ExtendAnyDetectionSpell`,

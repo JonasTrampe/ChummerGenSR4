@@ -168,6 +168,10 @@ namespace Chummer.Core
 
         public bool Technomancer => GetValue("/character/technomancer", "False") == "True";
 
+        /// <summary>Whether this character may select an Autosoft as a Complex Form under the
+        /// active settings profile's Technomancer house rule.</summary>
+        public bool TechnomancerAllowsAutosoft => Technomancer && GetCharacterOptions().TechnomancerAllowAutosoft;
+
         /// <summary>A Magician's chosen casting Tradition (traditions.xml's &lt;name&gt;), e.g.
         /// "Hermetic" - drives <see cref="DrainResistance"/>'s formula.</summary>
         public string Tradition
@@ -4411,8 +4415,8 @@ namespace Chummer.Core
         ///  - Otherwise: INT + active Commlink's Response + MatrixInitiative Improvements (the
         ///    default human/non-awakened path) - see ActiveCommlinkResponse's doc comment for its
         ///    scoped-down Gear search.
-        /// NOT ported: the TechnomancerAllowCommlink house rule
-        /// (which would let a Technomancer use this branch instead of their own).</summary>
+        /// TechnomancerAllowCommlink switches a Technomancer into the normal active-Commlink
+        /// branch, matching the legacy house-rule behavior.</summary>
         public CharacterInitiativeData MatrixInitiative
         {
             get
@@ -4434,7 +4438,7 @@ namespace Chummer.Core
                     intBase = GetAttributeMinimum("INI");
                     sb.Append("Sprite-Metatype-Initiative: ").Append(intBase);
                 }
-                else if (Technomancer)
+                else if (Technomancer && !GetCharacterOptions().TechnomancerAllowCommlink)
                 {
                     var lstLivingPersona = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.LivingPersonaResponse);
                     intBase = (intInt * 2) + 1 + lstLivingPersona.Sum(c => c.Value);
