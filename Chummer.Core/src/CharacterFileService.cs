@@ -970,7 +970,6 @@ namespace Chummer.Core
             return (dblCyberware, dblBioware, dblHoles);
         }
 
-        // Ported from clsCharacter.cs's Essence property (CyborgEssence override not ported).
         private string ComputeEssence() => ComputeEssenceDecimal().Total.ToString("0.##", CultureInfo.InvariantCulture);
 
         private (double Base, double Total) ComputeEssenceDecimal()
@@ -984,6 +983,11 @@ namespace Chummer.Core
             double dblHigher = Math.Max(dblCyberware, dblBioware);
             double dblLower = Math.Min(dblCyberware, dblBioware);
             double dblTotal = dblBase - dblHigher - (dblLower / 2) - dblHoles;
+
+            // Legacy's CyborgEssence improvement is an explicit fixed-Essence override used by
+            // cyborg bodies: installed ware no longer changes the displayed Essence; it is 0.1.
+            if (Improvements.Any(i => i.Enabled && i.Type == ImprovementType.CyborgEssence))
+                dblTotal = 0.1;
 
             return (dblBase, dblTotal);
         }

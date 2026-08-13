@@ -34,7 +34,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | --- | --- | --- | --- |
 | P0 | Creation budget | `[~]` | Every creation mutation debits/refunds one enforced pool and applies house-rule limits. |
 | P1 | Bonus consumers | `[~]` | Vehicle context, essence/nuyen/free-quality/essence-multiplier, ArmorMod B/I. |
-| P1 | Calculations | `[~]` | Ammo RC, special weapons, soft overrides, Mystic-Adept, cyborg edges. |
+| P1 | Calculations | `[~]` | Recoil and Cyborg Essence override are covered; loaded-ammo RC, special weapons, soft overrides, and remaining Mystic-Adept edges remain. |
 | P1 | Special commands | `[~]` | Reapply known improvements, Free Sprite conversion, transactional metatype replacement, and BP/availability configuration are covered; critter creation remains. |
 | P1 | Containment | `[x]` | Underbarrels plus armor, cyberware, weapon-accessory, and vehicle gear/plugin trees persist and mutate. |
 | P2 | Clipboard/history | `[~]` | Immutable snapshots and typed XML copy/paste exist; per-item validation and host wiring remain. |

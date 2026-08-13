@@ -3827,6 +3827,18 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void Condition_CyborgEssenceOverrideFixesEssenceAtPointOne()
+    {
+        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6")
+            + "</attributes><cyberwares><cyberware><name>Wired Reflexes</name><ess>3</ess>"
+            + "<improvementsource>Cyberware</improvementsource></cyberware></cyberwares><improvements>"
+            + ImprovementXml("CyborgEssence", "1") + "</improvements></character>");
+
+        Assert.Equal("0.1", character.Condition.Essence);
+        Assert.Equal(6, character.EssencePenalty);
+    }
+
+    [Fact]
     public void Condition_ComputesPhysicalAndStunTrackFromImprovements()
     {
         CharacterDocument character = LoadFixture();
