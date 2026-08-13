@@ -40,7 +40,7 @@ public partial class KarmaNuyenSectionTab : UserControl
         bool? added = await dialog.ShowDialog<bool?>(window);
         if (added == true)
         {
-            _character.AddExpense(type, dialog.Amount, dialog.Reason);
+            _character.AddExpense(type, dialog.Amount, dialog.Reason, dialog.Date);
             ViewModel.LoadCharacter(_character);
         }
     }
@@ -54,15 +54,15 @@ public partial class KarmaNuyenSectionTab : UserControl
         decimal decAmount = decimal.TryParse(selected.RawAmount, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.InvariantCulture, out decimal d) ? d : 0m;
 
-        var dialog = new ExpenseDialog(title, decAmount, selected.Reason);
+        System.DateTime datExisting = System.DateTime.TryParse(selected.RawDate,
+            System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind,
+            out System.DateTime dt) ? dt : System.DateTime.Now;
+        var dialog = new ExpenseDialog(title, decAmount, selected.Reason, datExisting);
         bool? edited = await dialog.ShowDialog<bool?>(window);
         if (edited != true)
             return;
 
-        System.DateTime datDate = System.DateTime.TryParse(selected.RawDate, System.Globalization.CultureInfo.InvariantCulture,
-            System.Globalization.DateTimeStyles.RoundtripKind, out System.DateTime dt) ? dt : System.DateTime.Now;
-
-        if (_character.UpdateExpense(selected.Guid, dialog.Reason, dialog.Amount, datDate))
+        if (_character.UpdateExpense(selected.Guid, dialog.Reason, dialog.Amount, dialog.Date))
             ViewModel.LoadCharacter(_character);
     }
 }

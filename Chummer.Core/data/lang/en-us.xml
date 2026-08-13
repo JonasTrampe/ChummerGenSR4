@@ -3953,6 +3953,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Date</text>
 		</string>
 		<string>
+			<key>Label_Expense_Time</key>
+			<text>Time</text>
+		</string>
+		<string>
 			<key>String_Amount</key>
 			<text>Amount</text>
 		</string>

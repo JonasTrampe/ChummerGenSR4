@@ -50,10 +50,12 @@ Everything not `[x]`, in one place, grouped by area.
   fullscreen when the persisted option is enabled.
 - [x] `AutomaticUpdate` / `SuppressCloudUnreachableWarning`: startup update check and local-open
   cloud failure flow already read the corresponding persisted global options.
-- [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `DatesIncludeTime`,
-  `LocalisedUpdatesOnly`, `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`,
-  `OmaeAutoLogin`, `PrintToFileFirst`, and `SingleDiceRoller`: now in scope; each needs a
-  verified runtime integration beyond its existing Options persistence/binding.
+- [x] `DatesIncludeTime`: expense entry/editing binds a date and, when enabled, a time picker;
+  saved date values are normalized to a date-only value when the option is disabled.
+- [ ] `ConfirmDelete`, `ConfirmKarmaExpense`, `CreateBackupOnCareer`, `LocalisedUpdatesOnly`,
+  `AutomaticCopyProtection`, `AutomaticRegistration`, `BookEnabled`, `OmaeAutoLogin`,
+  `PrintToFileFirst`, and `SingleDiceRoller`: now in scope; each needs a verified runtime
+  integration beyond its existing Options persistence/binding.
 
 ### Everything else open
 - [x] Cloud save/share: local-open freshness checks (including download-with-backup), stale-push
