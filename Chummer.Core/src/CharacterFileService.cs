@@ -6430,19 +6430,56 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Ported from frmCreate.cs's "Calculate Free Knowledge Skill Points" comment:
+        /// (INT + LOG) * 3 free points, but only for BP-build characters or Karma-build characters
+        /// with the FreeKarmaKnowledge house rule on - Karma-build otherwise gets none at all.</summary>
+        private int GetFreeKnowledgeSkillPoints(bool blnKarmaBuild)
+        {
+            if (blnKarmaBuild && !GetCharacterOptions().FreeKarmaKnowledge)
+                return 0;
+            return (GetAttributeInt("INT") + GetAttributeInt("LOG")) * 3;
+        }
+
         private int GetCreationKnowledgeSkillCost()
         {
             bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
             CharacterOptions objOptions = GetCharacterOptions();
-            int intCost = 0;
+            int intFreePoints = GetFreeKnowledgeSkillPoints(blnKarmaBuild);
+
+            if (!blnKarmaBuild)
+            {
+                int intTotalPoints = (Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>())
+                    .Where(s => GetValue(s, "knowledge", "False") == "True" && GetValue(s, "grouped", "False") != "True")
+                    .Sum(s => ParseInteger(GetValue(s, "rating", "0")));
+                return Math.Max(0, intTotalPoints - intFreePoints) * objOptions.BpKnowledgeSkill;
+            }
+
+            // Karma build: every rank of every Knowledge Skill costs its own per-step Karma value
+            // (rating 1 = KarmaNewKnowledgeSkill, rating N>1 = N * KarmaImproveKnowledgeSkill). When
+            // FreeKarmaKnowledge is on, the cheapest steps (rating 1 across every Knowledge Skill,
+            // then rating 2, etc. - ported from frmCreate.cs's do/while loop) are waived first, up to
+            // the free-point total.
+            var lstStepCosts = new List<int>();
             foreach (XmlNode objSkill in Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>()
                 ?? Enumerable.Empty<XmlNode>())
             {
                 if (GetValue(objSkill, "knowledge", "False") != "True"
                     || GetValue(objSkill, "grouped", "False") == "True")
                     continue;
-                intCost += ComputeCreationRatingCost(ParseInteger(GetValue(objSkill, "rating", "0")), blnKarmaBuild,
-                    2, objOptions.KarmaNewKnowledgeSkill, objOptions.KarmaImproveKnowledgeSkill);
+                int intRating = ParseInteger(GetValue(objSkill, "rating", "0"));
+                for (int i = 1; i <= intRating; i++)
+                    lstStepCosts.Add(i == 1 ? objOptions.KarmaNewKnowledgeSkill : i * objOptions.KarmaImproveKnowledgeSkill);
+            }
+
+            int intFreeStepsRemaining = intFreePoints;
+            int intCost = 0;
+            foreach (int intStepCost in lstStepCosts.OrderBy(i => i))
+            {
+                if (intFreeStepsRemaining > 0)
+                    intFreeStepsRemaining--;
+                else
+                    intCost += intStepCost;
             }
             return intCost;
         }

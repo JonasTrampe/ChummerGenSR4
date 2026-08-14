@@ -32,7 +32,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 
 | Priority | Area | Status | Required outcome |
 | --- | --- | --- | --- |
-| P0 | Creation budget | `[~]` | Attributes (incl. SpecialAttributeKarmaLimit for MAG/RES/EDG), skills, contacts, qualities (incl. positive/negative quality limits), spells, complex forms, Nuyen, martial arts, maneuvers (with capacity cap), and spirits/sprites debit/refund one enforced pool; FreeKarmaKnowledge, BreakSkillGroupsInCreateMode, and SpecialKarmaCostBasedOnShownValue still need wiring; remaining creation mutators need auditing. |
+| P0 | Creation budget | `[~]` | Attributes (incl. SpecialAttributeKarmaLimit for MAG/RES/EDG), skills, contacts, qualities (incl. positive/negative quality limits), spells, complex forms, Nuyen, martial arts, maneuvers (with capacity cap), and spirits/sprites debit/refund one enforced pool; BreakSkillGroupsInCreateMode and SpecialKarmaCostBasedOnShownValue still need wiring; remaining creation mutators need auditing. |
 | P1 | Bonus consumers | `[~]` | Vehicle context, essence/nuyen/free-quality/essence-multiplier, ArmorMod B/I. |
 | P1 | Calculations | `[~]` | Recoil and Cyborg Essence override are covered; loaded-ammo RC, special weapons, soft overrides, and remaining Mystic-Adept edges remain. |
 | P1 | Special commands | `[~]` | Reapply known improvements, Free Sprite conversion, transactional metatype replacement, and BP/availability configuration are covered; critter creation remains. |

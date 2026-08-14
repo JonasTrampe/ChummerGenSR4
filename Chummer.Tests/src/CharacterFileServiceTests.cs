@@ -137,6 +137,48 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void KnowledgeSkillCreationBudget_BpBuildGetsIntPlusLogTimesThreeFreePoints()
+    {
+        // INT 0 + LOG 1 = 1 attribute point -> 3 free Knowledge Skill points at 3/point.
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>20</startingbuildpoints><bp>20</bp><attributes>"
+            + AttributeXml("LOG", "1") + "</attributes></character>");
+
+        Assert.True(creation.AddKnowledgeSkill("Shadowing", "Street"));
+        Assert.True(creation.UpdateKnowledgeSkill(Assert.Single(creation.KnowledgeSkills).SkillId,
+            "Shadowing", "3", string.Empty, "Street"));
+        Assert.Equal("20", creation.Bp); // fully covered by the 3 free points
+
+        Assert.True(creation.UpdateKnowledgeSkill(Assert.Single(creation.KnowledgeSkills).SkillId,
+            "Shadowing", "4", string.Empty, "Street"));
+        Assert.Equal("18", creation.Bp); // 1 point over free allowance, at BpKnowledgeSkill (2) each
+    }
+
+    [Fact]
+    public void KnowledgeSkillCreationBudget_KarmaBuildGetsNoFreePointsByDefault()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>50</startingbuildpoints><karma>50</karma><attributes>"
+            + AttributeXml("INT", "5") + AttributeXml("LOG", "5") + "</attributes></character>");
+
+        Assert.True(creation.AddKnowledgeSkill("Shadowing", "Street")); // rating 1, costs KarmaNewKnowledgeSkill (2)
+        Assert.Equal("48", creation.Karma);
+    }
+
+    [Fact]
+    public void KnowledgeSkillCreationBudget_FreeKarmaKnowledgeHouseRuleGrantsFreePointsInKarmaBuild()
+    {
+        CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>50</startingbuildpoints><karma>50</karma><attributes>"
+            + AttributeXml("INT", "1") + AttributeXml("LOG", "1") + "</attributes></character>");
+        creation.SetCharacterOptionsForTesting(new CharacterOptions { FreeKarmaKnowledge = true });
+
+        // INT 1 + LOG 1 = 2 -> 6 free points, more than covers a single rating-1 Knowledge Skill.
+        Assert.True(creation.AddKnowledgeSkill("Shadowing", "Street"));
+        Assert.Equal("50", creation.Karma);
+    }
+
+    [Fact]
     public void DirectCreationSkillSetters_RespectTheSharedBudgetAndRollBack()
     {
         CharacterDocument active = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>20</startingbuildpoints><bp>4</bp><skills><skill><name>Pistols</name><rating>0</rating><ratingmax>6</ratingmax><knowledge>False</knowledge><grouped>False</grouped></skill></skills></character>");
