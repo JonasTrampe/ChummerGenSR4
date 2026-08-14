@@ -573,6 +573,37 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddAdeptPower_ImprovedPhysicalAttribute_RaisesShownValueAndKarmaCostToIncrease()
+    {
+        // Ported from clsUnique.cs's AttributeValueModifiers: a selectattribute bonus with
+        // <affectbase> (like Improved Physical Attribute) raises both the shown/augmented value
+        // and the Karma cost to increase the attribute further, unlike a plain Attribute bonus.
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma><attributes>"
+            + AttributeXml("BOD", "3") + "</attributes></character>");
+
+        int intBaseCost = character.Attributes.Single(a => a.Code == "BOD").KarmaCostToIncrease;
+
+        character.AddAdeptPower("Improved Physical Attribute", "1", ".75", "BOD");
+
+        CharacterAttributeData bod = character.Attributes.Single(a => a.Code == "BOD");
+        Assert.Equal(4, bod.Augmented.Value); // 3 base + 1 from the power.
+        Assert.Equal(intBaseCost + 5, bod.KarmaCostToIncrease); // (3+1+1)*5 vs (3+1)*5.
+    }
+
+    [Fact]
+    public void RaiseAttribute_SpecialKarmaCostBasedOnShownValue_UsesEssencePenaltyInsteadOfModifiersForMag()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma>"
+            + "<essence>5</essence><attributes>" + AttributeXml("MAG", "3") + "</attributes></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { SpecialKarmaCostBasedOnShownValue = true });
+
+        // EssencePenalty is 0 here (no cyberware), so the shown-value rule reduces to the same
+        // base formula as usual: (3 - 0 + 1) * KarmaAttribute (5) = 20.
+        Assert.True(character.RaiseAttribute("MAG"));
+        Assert.Equal("80", character.Karma);
+    }
+
+    [Fact]
     public void GetAdeptPowerSkillSelectionOptions_ImprovedAbilityCombat_OnlyListsCombatActiveSkills()
     {
         CharacterDocument character = LoadCharacterWithSkill(3); // "Pistolen", Combat Active.

@@ -1591,7 +1591,12 @@ namespace Chummer.Core
             XmlNode? objSelectAttribute = objXmlBonus.SelectSingleNode("selectattribute");
             if (objSelectAttribute != null)
             {
-                AppendImprovement(new ImprovementSpec(ImprovementType.Attribute, strSelected.Trim(),
+                // "affectbase" (e.g. the Improved Physical Attribute power) raises the Karma-cost
+                // basis, not just the shown/augmented value - ported from clsImprovement.cs's
+                // selectattribute handler, matching ParseSpecificAttribute's own affectbase check.
+                string strAttribute = objSelectAttribute["affectbase"] != null
+                    ? strSelected.Trim() + "Base" : strSelected.Trim();
+                AppendImprovement(new ImprovementSpec(ImprovementType.Attribute, strAttribute,
                     Minimum: (int)RatingExpression.Evaluate(objSelectAttribute["min"]?.InnerText ?? string.Empty, strRating),
                     Maximum: (int)RatingExpression.Evaluate(objSelectAttribute["max"]?.InnerText ?? string.Empty, strRating),
                     Augmented: (int)RatingExpression.Evaluate(objSelectAttribute["val"]?.InnerText ?? string.Empty, strRating),
@@ -9078,7 +9083,7 @@ namespace Chummer.Core
                     strMinimum, GetValue(objNode, "metatypemax", "0"),
                     GetValue(objNode, "metatypeaugmax", GetValue(objNode, "metatypemax", "0")),
                     ComputeAttributeAugmented(strCode, strTotalValue),
-                    ComputeAttributeKarmaCostToIncrease(strValue, strMinimum)));
+                    ComputeAttributeKarmaCostToIncrease(strCode, strValue, strMinimum)));
             }
 
             return lstAttributes;
@@ -9176,11 +9181,22 @@ namespace Chummer.Core
         }
 
         // Ported from clsUnique.cs's Attribute.AttributeModifiers/TotalValue.
+        /// <summary>Ported from clsUnique.cs's Attribute.AttributeValueModifiers: the total of
+        /// every enabled Attribute Improvement whose ImprovedName is the code+"Base" (e.g.
+        /// "BODBase") rather than the plain code - a distinct producer marked by a bonus's
+        /// &lt;affectbase&gt; child (see BonusApplier's specificattribute handler and
+        /// <see cref="ApplySelectedImprovement"/>'s selectattribute handler), used by things like
+        /// the Improved Physical Attribute power. Unlike a plain Attribute bonus, this also raises
+        /// the Karma cost to increase the attribute further, not just its shown/augmented value.</summary>
+        private int GetAttributeValueModifiers(string strCode) =>
+            ImprovementManager.AugmentedValueOf(Improvements, ImprovementType.Attribute, strCode + "Base");
+
         private CharacterDerivedValueData ComputeAttributeAugmented(string strCode, string strTotalValue)
         {
             var intBase = int.TryParse(strTotalValue, out var intParsed) ? intParsed : 0;
             var lstContributions = ImprovementManager.DescribeAugmentedValueOf(Improvements, ImprovementType.Attribute, strCode)
                 .ToList();
+            lstContributions.AddRange(ImprovementManager.DescribeAugmentedValueOf(Improvements, ImprovementType.Attribute, strCode + "Base"));
 
             // Ported from frmCareer.cs/frmCreate.cs: a negative ballistic/impact armor encumbrance
             // penalty is dynamically applied as an AGI and REA reduction (not just a skill dice
@@ -9203,14 +9219,15 @@ namespace Chummer.Core
             return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
-        // Ported from frmCareer.cs's cmdImprove<Attribute>_Click handlers.
-        private int ComputeAttributeKarmaCostToIncrease(string strValue, string strMinimum)
+        // Ported from frmCareer.cs's cmdImprove<Attribute>_Click handlers: cost is based on the
+        // "shown" value (base + AttributeValueModifiers), not just the raw base.
+        private int ComputeAttributeKarmaCostToIncrease(string strCode, string strValue, string strMinimum)
         {
             var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
             var intMinimum = int.TryParse(strMinimum, out var intParsedMinimum) ? intParsedMinimum : 0;
             var objOptions = GetCharacterOptions();
 
-            var intCost = (intValue + 1) * objOptions.KarmaAttribute;
+            var intCost = (intValue + GetAttributeValueModifiers(strCode) + 1) * objOptions.KarmaAttribute;
             if (objOptions.AlternateMetatypeAttributeKarma)
                 intCost -= (intMinimum - 1) * objOptions.KarmaAttribute;
             return intCost;
@@ -9224,11 +9241,20 @@ namespace Chummer.Core
 
             var strValue = GetValue(objNode, "value", "0");
             var strMinimum = GetValue(objNode, "metatypemin", "0");
-            var intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
+            var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
+
+            // Ported from frmCareer.cs's cmdImproveMAG_Click/cmdImproveRES_Click: the
+            // SpecialKarmaCostBasedOnShownValue house rule replaces the usual "shown value"
+            // (base + AttributeValueModifiers) cost basis with base - EssencePenalty, for MAG/RES
+            // only - EDG and the mundane attributes always use the usual formula.
+            int intCost;
+            if ((strCode == "MAG" || strCode == "RES") && GetCharacterOptions().SpecialKarmaCostBasedOnShownValue)
+                intCost = (intValue - EssencePenalty + 1) * GetCharacterOptions().KarmaAttribute;
+            else
+                intCost = ComputeAttributeKarmaCostToIncrease(strCode, strValue, strMinimum);
             var intKarma = int.TryParse(Karma, out var intParsedKarma) ? intParsedKarma : 0;
             if (intCost > intKarma) return false;
 
-            var intValue = int.TryParse(strValue, out var intParsedValue) ? intParsedValue : 0;
             SetChildValue(objNode, "value", (intValue + 1).ToString());
             SetChildValue(objNode, "totalvalue", (intValue + 1).ToString());
             Karma = (intKarma - intCost).ToString();
@@ -9274,7 +9300,7 @@ namespace Chummer.Core
 
             int intCost;
             if (blnKarmaBuild)
-                intCost = ComputeAttributeKarmaCostToIncrease(strValue, strMinimum);
+                intCost = ComputeAttributeKarmaCostToIncrease(strCode, strValue, strMinimum);
             else
                 intCost = objOptions.BpAttribute + (blnReachesMax ? objOptions.BpAttributeMax : 0);
 
@@ -9347,7 +9373,7 @@ namespace Chummer.Core
             {
                 int intSpent = 0;
                 for (int i = intMinimum; i < intValue; i++)
-                    intSpent += ComputeAttributeKarmaCostToIncrease(i.ToString(), intMinimum.ToString());
+                    intSpent += ComputeAttributeKarmaCostToIncrease(strCode, i.ToString(), intMinimum.ToString());
                 return intSpent;
             }
 
@@ -9379,7 +9405,7 @@ namespace Chummer.Core
 
             if (blnKarmaBuild)
             {
-                int intRefund = ComputeAttributeKarmaCostToIncrease((intValue - 1).ToString(), strMinimum);
+                int intRefund = ComputeAttributeKarmaCostToIncrease(strCode, (intValue - 1).ToString(), strMinimum);
                 int intKarma = int.TryParse(Karma, out var k) ? k : 0;
                 Karma = (intKarma + intRefund).ToString();
             }
