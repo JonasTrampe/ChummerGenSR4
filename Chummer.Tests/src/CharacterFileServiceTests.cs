@@ -3667,6 +3667,35 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void RaiseAttributeCreate_SpecialAttributeKarmaLimit_GatesMagWithPrimaryAttributesByDefault()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>20</startingbuildpoints><karma>20</karma>"
+            + "<attributes><attribute><name>MAG</name><value>1</value><totalvalue>1</totalvalue>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
+
+        // SpecialAttributeKarmaLimit defaults to false, so MAG counts towards the primary-attribute
+        // half-of-starting-Karma cap just like BOD/AGI/etc would.
+        Assert.True(character.RaiseAttributeCreate("MAG")); // 1 -> 2, costs 10 of the 10-point half-cap
+        Assert.False(character.RaiseAttributeCreate("MAG")); // 2 -> 3 would cost 15, exceeding the cap
+        Assert.Equal("2", character.Attributes.Single(a => a.Code == "MAG").Value);
+    }
+
+    [Fact]
+    public void RaiseAttributeCreate_SpecialAttributeKarmaLimit_ExemptsMagWhenHouseRuleOn()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>20</startingbuildpoints><karma>30</karma>"
+            + "<attributes><attribute><name>MAG</name><value>1</value><totalvalue>1</totalvalue>"
+            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { SpecialAttributeKarmaLimit = true });
+
+        Assert.True(character.RaiseAttributeCreate("MAG")); // 1 -> 2, costs 10
+        Assert.True(character.RaiseAttributeCreate("MAG")); // 2 -> 3, costs 15 - unrestricted, MAG is exempt
+        Assert.Equal("3", character.Attributes.Single(a => a.Code == "MAG").Value);
+    }
+
+    [Fact]
     public void SetAttributeValue_SetsBaseValueWithoutTouchingKarma()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name><karma>10</karma>"

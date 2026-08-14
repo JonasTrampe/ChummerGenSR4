@@ -9225,8 +9225,11 @@ namespace Chummer.Core
             else
                 intCost = objOptions.BpAttribute + (blnReachesMax ? objOptions.BpAttributeMax : 0);
 
-            if (!objOptions.AllowExceedAttributeBp && s_astrPrimaryAttributeCodes.Contains(strCode)
-                && !ExceedAttributeBpAllowedForThisRaise(intCost))
+            bool blnCheckSpecialAttribute = blnKarmaBuild && !objOptions.SpecialAttributeKarmaLimit
+                && s_astrSpecialAttributeCodes.Contains(strCode);
+            if (!objOptions.AllowExceedAttributeBp
+                && (s_astrPrimaryAttributeCodes.Contains(strCode) || blnCheckSpecialAttribute)
+                && !ExceedAttributeBpAllowedForThisRaise(intCost, blnCheckSpecialAttribute))
                 return false;
 
             if (blnKarmaBuild)
@@ -9255,14 +9258,21 @@ namespace Chummer.Core
         /// no persisted starting total - older save files predating this field, or characters not
         /// created through <see cref="NewCharacterFactory"/> - since there's nothing to check
         /// against. <paramref name="intAdditionalCost"/> is the specific raise being attempted,
-        /// added on top of everything already spent on the 8 primary attributes so far.</summary>
-        private bool ExceedAttributeBpAllowedForThisRaise(int intAdditionalCost)
+        /// added on top of everything already spent on the 8 primary attributes so far.
+        /// <paramref name="blnIncludeSpecialAttributes"/> additionally folds EDG/MAG/RES spend into
+        /// the same pool - ported from CalculatePrimaryAttributeBP()+CalculateSpecialAttributeBP():
+        /// in Karma-build mode, Special Attributes count towards the limit by default, unless the
+        /// SpecialAttributeKarmaLimit house rule excludes them (BP-build mode never counts them at
+        /// all, matching legacy).</summary>
+        private bool ExceedAttributeBpAllowedForThisRaise(int intAdditionalCost, bool blnIncludeSpecialAttributes = false)
         {
             int intStartingTotal = int.TryParse(GetValue("/character/startingbuildpoints", "0"), out var s) ? s : 0;
             if (intStartingTotal <= 0)
                 return true;
 
             int intSpent = s_astrPrimaryAttributeCodes.Sum(ComputeAttributeCreatePointsSpent);
+            if (blnIncludeSpecialAttributes)
+                intSpent += s_astrSpecialAttributeCodes.Sum(ComputeAttributeCreatePointsSpent);
             return intSpent + intAdditionalCost <= intStartingTotal / 2;
         }
 
@@ -9345,6 +9355,8 @@ namespace Chummer.Core
         {
             "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL"
         };
+
+        private static readonly string[] s_astrSpecialAttributeCodes = { "EDG", "MAG", "RES" };
 
         private bool AnyOtherAttributeAtMax(string strExcludeCode)
         {
