@@ -5325,6 +5325,37 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void SetMysticAdeptMagicianMagSplit_SubtractsEssencePenaltyFromTheAdeptShare()
+    {
+        // Ported from frmCareer.cs's nudMysticAdeptMAGMagician_ValueChanged: MAGAdept =
+        // MAG.Value - MAGMagician - EssencePenalty. 6 ESS max - 2.5 installed -> penalty of 3.
+        var character = LoadXml("<character><adept>True</adept><magician>True</magician><attributes>"
+            + AttributeXml("ESS", "6") + AttributeXml("MAG", "6") + "</attributes><cyberwares>"
+            + "<cyberware><name>Wired Reflexes</name><ess>2.5</ess><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+        Assert.Equal(3, character.EssencePenalty);
+
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(2));
+
+        Assert.Equal(2, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(1, character.MysticAdeptAdeptMagSplit); // 6 - 2 - EssencePenalty of 3.
+    }
+
+    [Fact]
+    public void SetMysticAdeptMagicianMagSplit_ClampsTheAdeptShareToZeroWhenEssencePenaltyExceedsTheRemainder()
+    {
+        var character = LoadXml("<character><adept>True</adept><magician>True</magician><attributes>"
+            + AttributeXml("ESS", "6") + AttributeXml("MAG", "6") + "</attributes><cyberwares>"
+            + "<cyberware><name>Wired Reflexes</name><ess>2.5</ess><improvementsource>Cyberware</improvementsource></cyberware>"
+            + "</cyberwares></character>");
+
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(4));
+
+        Assert.Equal(4, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(0, character.MysticAdeptAdeptMagSplit); // 6 - 4 - 3 would be negative, clamped to 0.
+    }
+
+    [Fact]
     public void Attributes_MagAndRes_AreReducedByEssencePenaltyByDefault()
     {
         var character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6") + AttributeXml("MAG", "6")
@@ -5738,6 +5769,40 @@ public class CharacterFileServiceTests
 
         string strWithAmmoBonus = character.Weapons.Single().DicePool;
         Assert.Equal(int.Parse(strBaseline) + 1, int.Parse(strWithAmmoBonus));
+    }
+
+    [Fact]
+    public void DicePool_SpecialWeaponsCategoryUsesRangeAsTheSkillLookupCategory()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen><skills>"
+            + "<skill><name>Automatics</name><attribute>AGI</attribute><rating>5</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills>"
+            + "<weapons><weapon><guid>" + Guid.NewGuid() + "</guid><name>Test Special Weapon</name>"
+            + "<category>Special Weapons</category><range>Assault Rifles</range><reach>0</reach>"
+            + "<damage>6P</damage><ap>-1</ap><mode>SA</mode><rc>0</rc><ammo>20(c)</ammo>"
+            + "<cost>0</cost><avail>0</avail><useskill></useskill><source>SR4</source><page>0</page>"
+            + "<location></location><equipped>True</equipped><ammoloaded>-1</ammoloaded>"
+            + "<ammoremaining>0</ammoremaining><accessories /><weaponmods /><gears /><ammos />"
+            + "</weapon></weapons></character>");
+
+        Assert.Equal("5", character.Weapons.Single().DicePool);
+    }
+
+    [Fact]
+    public void DicePool_SpecialWeaponsCategoryWithoutRangeFallsBackToTheDefault()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>1000</nuyen><skills>"
+            + "<skill><name>Pistols</name><attribute>AGI</attribute><rating>3</rating>"
+            + "<knowledge>False</knowledge><allowdelete>True</allowdelete></skill></skills>"
+            + "<weapons><weapon><guid>" + Guid.NewGuid() + "</guid><name>Test Special Weapon</name>"
+            + "<category>Special Weapons</category><range></range><reach>0</reach>"
+            + "<damage>6P</damage><ap>-1</ap><mode>SA</mode><rc>0</rc><ammo>20(c)</ammo>"
+            + "<cost>0</cost><avail>0</avail><useskill></useskill><source>SR4</source><page>0</page>"
+            + "<location></location><equipped>True</equipped><ammoloaded>-1</ammoloaded>"
+            + "<ammoremaining>0</ammoremaining><accessories /><weaponmods /><gears /><ammos />"
+            + "</weapon></weapons></character>");
+
+        Assert.Equal("3", character.Weapons.Single().DicePool);
     }
 
     [Fact]

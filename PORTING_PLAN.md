@@ -34,7 +34,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | --- | --- | --- | --- |
 | P0 | Creation budget | `[~]` | Attributes (incl. SpecialAttributeKarmaLimit for MAG/RES/EDG), skills (incl. BreakSkillGroupsInCreateMode), contacts, qualities (incl. positive/negative quality limits), spells, complex forms, Nuyen, martial arts, maneuvers (with capacity cap), and spirits/sprites debit/refund one enforced pool; continue auditing the remaining creation mutators and limits. |
 | P1 | Bonus consumers | `[~]` | Vehicle context, essence/nuyen/free-quality/essence-multiplier. ArmorMod B/I is wired. |
-| P1 | Calculations | `[~]` | Recoil and Cyborg Essence override are covered; loaded-ammo RC, special weapons, soft overrides, and remaining Mystic-Adept edges remain. |
+| P1 | Calculations | `[~]` | Recoil (incl. loaded-ammo RC), Cyborg Essence override, Special Weapons range-based skill lookup, and Mystic-Adept EssencePenalty-adjusted split are covered; "soft overrides" has no identifiable referent in the legacy codebase (no matching mechanism found; treat as resolved/moot unless a concrete target surfaces). |
 | P1 | Special commands | `[~]` | Reapply known improvements, Free Sprite conversion, transactional metatype replacement, and BP/availability configuration are covered; critter creation remains. |
 | P1 | Containment | `[x]` | Underbarrels plus armor, cyberware, weapon-accessory, and vehicle gear/plugin trees persist and mutate. |
 | P2 | Clipboard/history | `[~]` | Immutable snapshots and typed XML copy/paste exist; per-item validation and host wiring remain. |

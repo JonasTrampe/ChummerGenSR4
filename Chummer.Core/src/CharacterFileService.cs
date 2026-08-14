@@ -191,9 +191,10 @@ namespace Chummer.Core
         public int MysticAdeptMagicianMagSplit =>
             int.TryParse(GetValue("/character/magsplitmagician", "0"), out var i) ? i : 0;
 
-        /// <summary>Ported from frmCreate.cs's nudMysticAdeptMAGMagician_ValueChanged: sets how
+        /// <summary>Ported from frmCareer.cs's nudMysticAdeptMAGMagician_ValueChanged: sets how
         /// many points of a Mystic Adept's MAG rating go to spellcasting, with the remainder
-        /// (down to 0) going to Adept Powers.</summary>
+        /// (down to 0, and further reduced by EssencePenalty as in legacy) going to Adept
+        /// Powers.</summary>
         public bool SetMysticAdeptMagicianMagSplit(int intMagicianPoints)
         {
             if (!MysticAdept)
@@ -201,8 +202,9 @@ namespace Chummer.Core
 
             int intMag = GetAttributeInt("MAG");
             int intMagician = Math.Clamp(intMagicianPoints, 0, intMag);
+            int intAdept = Math.Max(0, intMag - intMagician - EssencePenalty);
             SetChildValue(Document.DocumentElement!, "magsplitmagician", intMagician.ToString());
-            SetChildValue(Document.DocumentElement!, "magsplitadept", (intMag - intMagician).ToString());
+            SetChildValue(Document.DocumentElement!, "magsplitadept", intAdept.ToString());
             Changed?.Invoke();
             return true;
         }
@@ -9811,9 +9813,9 @@ namespace Chummer.Core
         /// within each group counts when the house rule is on, instead of every item in that group
         /// stacking freely; a Foregrip+Sling combo in Group 1 is guaranteed at least 2 either way
         /// (SR4 83). "x(y)"-form items only ever contribute to the removable/full total, never the
-        /// fixed base (legacy's own asymmetry, preserved here). Not ported: loaded-ammo
-        /// &lt;weaponbonus&gt;&lt;rc&gt; (no real gear.xml entry uses it, unlike the dice-pool
-        /// equivalent - see SumLoadedAmmoDicePoolBonus).</summary>
+        /// fixed base (legacy's own asymmetry, preserved here). Loaded ammo's own
+        /// &lt;weaponbonus&gt;&lt;rc&gt; (e.g. Ammo: Gel Rounds) also adds to both totals, mirroring
+        /// the dice-pool equivalent (see SumLoadedAmmoDicePoolBonus).</summary>
         private string ComputeWeaponTotalRc(XmlNode objWeaponNode)
         {
             string strRc = GetValue(objWeaponNode, "rc", "0");
@@ -9886,7 +9888,30 @@ namespace Chummer.Core
                 intRcFull += intStrBonus;
             }
 
+            int intAmmoRcBonus = SumLoadedAmmoRcBonus(objWeaponNode);
+            intRcBase += intAmmoRcBonus;
+            intRcFull += intAmmoRcBonus;
+
             return intRcFull.ToString();
+        }
+
+        /// <summary>Ported from clsEquipment.cs's Weapon.TotalRC: the currently loaded ammo Gear
+        /// item's rules-data &lt;weaponbonus&gt;/&lt;rc&gt; value, if any.</summary>
+        private int SumLoadedAmmoRcBonus(XmlNode objWeaponNode)
+        {
+            int intGearId = int.TryParse(GetValue(objWeaponNode, "ammoloaded", "-1"), out var g) ? g : -1;
+            if (intGearId < 0)
+                return 0;
+
+            XmlNode? objAmmoGear = GetGearNodeById(intGearId);
+            string strAmmoName = objAmmoGear != null ? GetValue(objAmmoGear, "name", string.Empty) : string.Empty;
+            if (string.IsNullOrEmpty(strAmmoName))
+                return 0;
+
+            XmlDocument objGearDoc = XmlManager.Instance.Load("gear.xml");
+            XmlNode? objXmlAmmo = objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strAmmoName}']");
+            string strRc = objXmlAmmo?.SelectSingleNode("weaponbonus/rc")?.InnerText ?? string.Empty;
+            return int.TryParse(strRc, out int intBonus) ? intBonus : 0;
         }
 
         /// <summary>Splits a weapon/accessory/mod RC string into its fixed ("base") and full
@@ -9924,7 +9949,7 @@ namespace Chummer.Core
         }
 
         // Ported from clsEquipment.cs's Weapon.DicePool: which Active Skill a weapon Category
-        // rolls against. Not ported: the strRange-based "Special Weapons" disambiguation.
+        // rolls against.
         private static readonly Dictionary<string, string> s_dicWeaponCategorySkills = new(StringComparer.Ordinal)
         {
             ["Bows"] = "Archery",
@@ -9965,6 +9990,17 @@ namespace Chummer.Core
             // A per-weapon UseSkill override (e.g. a homebrew Natural Weapon linked to a chosen
             // Combat Active Skill, see AddNaturalWeapon) takes priority over the Category mapping.
             string strUseSkillOverride = objWeaponNode != null ? GetValue(objWeaponNode, "useskill", string.Empty) : string.Empty;
+
+            // Ported from clsEquipment.cs's Weapon.DicePool: a "Special Weapons" Category (e.g.
+            // flamethrowers, tasers) has no direct skill mapping of its own - it borrows its
+            // Range field as a stand-in Category for the lookup below.
+            if (strCategory == "Special Weapons" && objWeaponNode != null)
+            {
+                string strRange = GetValue(objWeaponNode, "range", string.Empty);
+                if (!string.IsNullOrEmpty(strRange))
+                    strCategory = strRange;
+            }
+
             string strSkillName = !string.IsNullOrEmpty(strUseSkillOverride)
                 ? strUseSkillOverride
                 : s_dicWeaponCategorySkills.TryGetValue(strCategory, out var strMapped)
