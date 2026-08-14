@@ -635,6 +635,15 @@ namespace Chummer.Core
                     ? ComputeComplexFormKarmaCost(f.Category, ParseInteger(f.Rating))
                     : (objOptions.AlternateComplexFormCost ? 3 : ParseInteger(f.Rating)));
                 AddCategory("Complex Forms", intComplexForms);
+                int intMartialArts = MartialArts.Sum(a => ParseInteger(a.Rating)
+                    * (blnKarma ? 5 * objOptions.KarmaQuality : objOptions.BpMartialArt));
+                AddCategory("Martial arts", intMartialArts);
+                AddCategory("Martial art maneuvers", MartialArtManeuvers.Count
+                    * (blnKarma ? objOptions.KarmaManeuver : objOptions.BpMartialArtManeuver));
+                int intSpiritCost = (Document.SelectNodes("/character/spirits/spirit")?.Cast<XmlNode>()
+                    ?? Enumerable.Empty<XmlNode>()).Sum(s => ParseInteger(GetValue(s, "services", "0"))
+                    * (blnKarma ? objOptions.KarmaSpirit : objOptions.BpSpirit));
+                AddCategory("Spirits and sprites", intSpiritCost);
                 AddCategory("Starting Nuyen", NuyenPoints);
 
                 int intCategorized = lstCategories.Sum(c => c.Cost);
@@ -1484,6 +1493,9 @@ namespace Chummer.Core
             int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
             if (blnEnforceCreationBudget && intCreationCost > intPool)
                 return false;
+            if (blnEnforceCreationBudget && !IgnoreRules
+                && ExceedsQualityLimit(objXmlQuality, strType, intCreationCost, blnKarmaBuild))
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -1669,6 +1681,46 @@ namespace Chummer.Core
         {
             int intBp = ParseInteger(objXmlQuality?.SelectSingleNode("bp")?.InnerText ?? "0");
             return intBp * (blnKarmaBuild ? GetCharacterOptions().KarmaQuality : 1);
+        }
+
+        private bool ExceedsQualityLimit(XmlNode? objNewQuality, string strType, int intNewCost, bool blnKarmaBuild)
+        {
+            if (string.Equals(GetValue(objNewQuality, "contributetolimit", "yes"), "no",
+                    StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            CharacterOptions objOptions = GetCharacterOptions();
+            if (strType == "Positive" && objOptions.ExceedPositiveQualities)
+                return false;
+            if (strType == "Negative" && objOptions.ExceedNegativeQualities)
+                return false;
+
+            XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+            int intExistingCost = (Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+                .Where(q => GetValue(q, "qualitytype", string.Empty) == strType)
+                .Sum(q =>
+                {
+                    XmlNode? objRule = objQualities.SelectSingleNode(
+                        $"/chummer/qualities/quality[name = '{GetValue(q, "name", string.Empty)}']");
+                    return string.Equals(GetValue(objRule, "contributetolimit", "yes"), "no",
+                        StringComparison.OrdinalIgnoreCase) ? 0 : GetQualityCreationCost(objRule, blnKarmaBuild);
+                });
+            if (strType == "Positive")
+            {
+                int intFree = ImprovementManager.ValueOf(Improvements, ImprovementType.FreePositiveQualities);
+                if (blnKarmaBuild) intFree *= objOptions.KarmaQuality;
+                int intMartialArts = MartialArts.Sum(a => ParseInteger(a.Rating)
+                    * (blnKarmaBuild ? 5 * objOptions.KarmaQuality : objOptions.BpMartialArt));
+                return intExistingCost - intFree + intMartialArts + intNewCost > (blnKarmaBuild ? 70 : 35);
+            }
+
+            int intFreeNegative = ImprovementManager.ValueOf(Improvements, ImprovementType.FreeNegativeQualities);
+            if (blnKarmaBuild) intFreeNegative *= objOptions.KarmaQuality;
+            int intEnemyCost = Enemies.Where(c => !c.Free).Sum(c =>
+                (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty))
+                * (blnKarmaBuild ? objOptions.KarmaContact : objOptions.BpContact));
+            return intExistingCost - intEnemyCost - intFreeNegative + intNewCost < (blnKarmaBuild ? -70 : -35);
         }
 
         /// <summary>Updates a Quality's free-form notes. The root-list index is recomputed when
@@ -6653,10 +6705,19 @@ namespace Chummer.Core
         /// <summary>Ported from frmSelectMartialArt.cs: adds the Martial Art with its full set of
         /// rules-data advantages snapshotted in (matches how ReadMartialArts expects to find them
         /// nested under martialartadvantages, not re-resolved from martialarts.xml every load).</summary>
-        public void AddMartialArt(string strName, IReadOnlyList<string> lstAdvantages, string strSource, string strPage)
+        public bool AddMartialArt(string strName, IReadOnlyList<string> lstAdvantages, string strSource, string strPage)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A martial art name is required.", nameof(strName));
+
+            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            CharacterOptions objOptions = GetCharacterOptions();
+            int intCreationCost = blnKarmaBuild ? 5 * objOptions.KarmaQuality : objOptions.BpMartialArt;
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (blnEnforceCreationBudget && !IgnoreRules
+                && (intCreationCost > intPool || ExceedsPositiveQualityLimit(intCreationCost, blnKarmaBuild)))
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -6672,6 +6733,8 @@ namespace Chummer.Core
             AppendElement(objMartialArt, "rating", "1");
             AppendElement(objMartialArt, "source", strSource);
             AppendElement(objMartialArt, "page", strPage);
+            if (blnEnforceCreationBudget)
+                AppendElement(objMartialArt, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             var objAdvantages = Document.CreateElement("martialartadvantages");
             foreach (string strAdvantage in lstAdvantages)
             {
@@ -6682,14 +6745,33 @@ namespace Chummer.Core
             }
             objMartialArt.AppendChild(objAdvantages);
             objMartialArts.AppendChild(objMartialArt);
+            if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
             Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Ported from frmSelectMartialArt.cs's Maneuver tab.</summary>
-        public void AddMartialArtManeuver(string strName, string strSource, string strPage)
+        public bool AddMartialArtManeuver(string strName, string strSource, string strPage)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A maneuver name is required.", nameof(strName));
+
+            if (!IgnoreRules && MartialArtManeuvers.Count >= MartialArts.Sum(a => ParseInteger(a.Rating) * 2))
+                return false;
+
+            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intCreationCost = blnKarmaBuild ? GetCharacterOptions().KarmaManeuver
+                : GetCharacterOptions().BpMartialArtManeuver;
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (blnEnforceCreationBudget && !IgnoreRules && intCreationCost > intPool)
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -6705,8 +6787,18 @@ namespace Chummer.Core
             AppendElement(objManeuver, "name", strName.Trim());
             AppendElement(objManeuver, "source", strSource);
             AppendElement(objManeuver, "page", strPage);
+            if (blnEnforceCreationBudget)
+                AppendElement(objManeuver, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             objManeuvers.AppendChild(objManeuver);
+            if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
             Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Removes the first saved Martial Art matching its name (and any nested
@@ -6726,9 +6818,7 @@ namespace Chummer.Core
                         StringComparison.Ordinal))
                     continue;
 
-                objMartialArt.ParentNode?.RemoveChild(objMartialArt);
-                Changed?.Invoke();
-                return true;
+                return RemoveMartialArtNode(objMartialArt);
             }
 
             return false;
@@ -6750,9 +6840,7 @@ namespace Chummer.Core
                         StringComparison.Ordinal))
                     continue;
 
-                objManeuver.ParentNode?.RemoveChild(objManeuver);
-                Changed?.Invoke();
-                return true;
+                return RemoveMartialArtManeuverNode(objManeuver);
             }
 
             return false;
@@ -6763,9 +6851,7 @@ namespace Chummer.Core
             XmlNode? objMartialArt = GetMartialArtNodeById(intMartialArtId);
             if (objMartialArt == null)
                 return false;
-            objMartialArt.ParentNode?.RemoveChild(objMartialArt);
-            Changed?.Invoke();
-            return true;
+            return RemoveMartialArtNode(objMartialArt);
         }
 
         public bool RemoveMartialArtManeuver(int intManeuverId)
@@ -6773,9 +6859,65 @@ namespace Chummer.Core
             XmlNode? objManeuver = GetMartialArtManeuverNodeById(intManeuverId);
             if (objManeuver == null)
                 return false;
+            return RemoveMartialArtManeuverNode(objManeuver);
+        }
+
+        private bool RemoveMartialArtNode(XmlNode objMartialArt)
+        {
+            RefundCreationCost(objMartialArt);
+            objMartialArt.ParentNode?.RemoveChild(objMartialArt);
+            Changed?.Invoke();
+            return true;
+        }
+
+        private bool RemoveMartialArtManeuverNode(XmlNode objManeuver)
+        {
+            RefundCreationCost(objManeuver);
             objManeuver.ParentNode?.RemoveChild(objManeuver);
             Changed?.Invoke();
             return true;
+        }
+
+        private bool IgnoreRules => string.Equals(GetValue("/character/ignorerules", "False"), "True",
+            StringComparison.OrdinalIgnoreCase);
+
+        private void RefundCreationCost(XmlNode objNode)
+        {
+            if (Created || StartingBuildPoints <= 0)
+                return;
+            int intRefund = ParseInteger(GetValue(objNode, "creationcost", "0"));
+            if (intRefund == 0)
+                return;
+            if (string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase))
+                Karma = (ParseInteger(Karma) + intRefund).ToString(CultureInfo.InvariantCulture);
+            else
+                Bp = (ParseInteger(Bp) + intRefund).ToString(CultureInfo.InvariantCulture);
+        }
+
+        private bool ExceedsPositiveQualityLimit(int intNewMartialArtCost, bool blnKarmaBuild)
+        {
+            CharacterOptions objOptions = GetCharacterOptions();
+            if (objOptions.ExceedPositiveQualities)
+                return false;
+
+            XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+            int intQualityCost = (Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+                .Where(q => GetValue(q, "qualitytype", string.Empty) == "Positive")
+                .Sum(q =>
+                {
+                    XmlNode? objRule = objQualities.SelectSingleNode(
+                        $"/chummer/qualities/quality[name = '{GetValue(q, "name", string.Empty)}']");
+                    return string.Equals(GetValue(objRule, "contributetolimit", "yes"), "no",
+                        StringComparison.OrdinalIgnoreCase) ? 0 : GetQualityCreationCost(objRule, blnKarmaBuild);
+                });
+            int intFree = ImprovementManager.ValueOf(Improvements, ImprovementType.FreePositiveQualities);
+            if (blnKarmaBuild)
+                intFree *= objOptions.KarmaQuality;
+            int intMartialArts = MartialArts.Sum(a => ParseInteger(a.Rating)
+                * (blnKarmaBuild ? 5 * objOptions.KarmaQuality : objOptions.BpMartialArt));
+            int intLimit = blnKarmaBuild ? 70 : 35;
+            return intQualityCost - intFree + intMartialArts + intNewMartialArtCost > intLimit;
         }
 
         public bool SetMartialArtNotes(int intMartialArtId, string strNotes)
@@ -7450,11 +7592,22 @@ namespace Chummer.Core
         /// <summary>Ported from frmCareer.cs's cmdAddSpirit_Click, simplified to the fields the
         /// port's Spirits list actually displays - Spirits/Sprites are freely typed (no rules-data
         /// cross-reference like Gear/Cyberware), so this doesn't need a picker dialog.</summary>
-        public void AddSpirit(string strName, string strCritterName, string strType, string strForce,
+        public bool AddSpirit(string strName, string strCritterName, string strType, string strForce,
             string strServices, bool blnBound = false)
         {
             if (string.IsNullOrWhiteSpace(strName))
                 throw new ArgumentException("A spirit name is required.", nameof(strName));
+
+            int intServices = ParseInteger(strServices);
+            if (intServices < 0)
+                return false;
+            bool blnEnforceCreationBudget = !Created && StartingBuildPoints > 0;
+            bool blnKarmaBuild = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
+            int intCreationCost = intServices * (blnKarmaBuild ? GetCharacterOptions().KarmaSpirit
+                : GetCharacterOptions().BpSpirit);
+            int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
+            if (blnEnforceCreationBudget && !IgnoreRules && intCreationCost > intPool)
+                return false;
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -7472,8 +7625,18 @@ namespace Chummer.Core
             AppendElement(objSpirit, "force", strForce);
             AppendElement(objSpirit, "bound", blnBound ? "True" : "False");
             AppendElement(objSpirit, "type", strType);
+            if (blnEnforceCreationBudget)
+                AppendElement(objSpirit, "creationcost", intCreationCost.ToString(CultureInfo.InvariantCulture));
             objSpirits.AppendChild(objSpirit);
+            if (blnEnforceCreationBudget)
+            {
+                if (blnKarmaBuild)
+                    Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+                else
+                    Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
             Changed?.Invoke();
+            return true;
         }
 
         /// <summary>Removes the first saved Spirit/Sprite matching name+type+force - legacy has no
@@ -7491,6 +7654,7 @@ namespace Chummer.Core
                     || !string.Equals(GetValue(objSpirit, "force", "0"), strForce, StringComparison.Ordinal))
                     continue;
 
+                RefundCreationCost(objSpirit);
                 objSpirit.ParentNode?.RemoveChild(objSpirit);
                 Changed?.Invoke();
                 return true;

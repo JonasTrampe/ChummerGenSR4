@@ -71,11 +71,9 @@ public partial class MartialArtsSectionTab : UserControl
 
         var dialog = new MartialArtDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedMartialArt is { } selected)
-        {
-            _character.AddMartialArt(selected.Name, selected.Advantages, selected.Source, selected.Page);
+        if (added == true && dialog.SelectedMartialArt is { } selected
+            && _character.AddMartialArt(selected.Name, selected.Advantages, selected.Source, selected.Page))
             ViewModel.LoadCharacter(_character);
-        }
     }
 
     private async void OnAddManeuverClick(object? sender, RoutedEventArgs e)
@@ -85,10 +83,8 @@ public partial class MartialArtsSectionTab : UserControl
 
         var dialog = new MartialArtManeuverDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedManeuver is { } selected)
-        {
-            _character.AddMartialArtManeuver(selected.Name, selected.Source, selected.Page);
+        if (added == true && dialog.SelectedManeuver is { } selected
+            && _character.AddMartialArtManeuver(selected.Name, selected.Source, selected.Page))
             ViewModel.LoadCharacter(_character);
-        }
     }
 }

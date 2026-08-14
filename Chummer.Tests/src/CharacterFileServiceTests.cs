@@ -299,6 +299,19 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_CreationEnforcesThePositiveQualityLimit()
+    {
+        CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>100</startingbuildpoints><bp>100</bp><qualities /></character>");
+
+        Assert.True(character.AddQuality("Aptitude", "Positive", "Pistols"));
+        Assert.True(character.AddQuality("Aptitude", "Positive", "Blades"));
+        Assert.True(character.AddQuality("Aptitude", "Positive", "Unarmed Combat"));
+        Assert.False(character.AddQuality("Aptitude", "Positive", "Hacking"));
+        Assert.Equal("70", character.Bp);
+    }
+
+    [Fact]
     public void RemoveQuality_CreationRejectsRemovingNegativeQualityWithoutItsCost()
     {
         CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>0</bp><qualities><quality><name>Allergy (Uncommon, Mild)</name><qualitytype>Negative</qualitytype><creationcost>-5</creationcost></quality></qualities></character>");
@@ -3062,10 +3075,35 @@ public class CharacterFileServiceTests
     public void AddMartialArtManeuver_MutatesCharacterAndPersists()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        Assert.True(character.AddMartialArt("Boxing", Array.Empty<string>(), "SR4", "128"));
         character.AddMartialArtManeuver("Sweep", "AR", "160");
 
         CharacterMartialArtManeuverData added = Assert.Single(character.MartialArtManeuvers);
         Assert.Equal("Sweep", added.Name);
+    }
+
+    [Fact]
+    public void MartialArtsCreationBudget_ChargesRefundsAndEnforcesManeuverCapacity()
+    {
+        CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>10</startingbuildpoints><bp>10</bp><karma>0</karma>"
+            + "<martialarts /><martialartmaneuvers /></character>");
+
+        Assert.True(character.AddMartialArt("Boxing", Array.Empty<string>(), "SR4", "128"));
+        Assert.Equal("5", character.Bp);
+        Assert.True(character.AddMartialArtManeuver("Sweep", "AR", "160"));
+        Assert.Equal("3", character.Bp);
+        Assert.True(character.AddMartialArtManeuver("Clinch", "AR", "160"));
+        Assert.Equal("1", character.Bp);
+        Assert.False(character.AddMartialArtManeuver("Finishing Move", "AR", "160"));
+
+        Assert.True(character.RemoveMartialArtManeuver("Sweep"));
+        Assert.Equal("3", character.Bp);
+        Assert.True(character.RemoveMartialArt("Boxing"));
+        Assert.Equal("8", character.Bp);
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+        Assert.Contains(budget.Categories, c => c.Name == "Martial art maneuvers" && c.Cost == 2);
     }
 
     [Fact]
@@ -3188,6 +3226,20 @@ public class CharacterFileServiceTests
         stream.Position = 0;
         CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
         Assert.Equal("Fire Spirit", Assert.Single(reloaded.Spirits).Name);
+    }
+
+    [Fact]
+    public void SpiritCreationBudget_ChargesServicesAndRefundsOnRemoval()
+    {
+        CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>4</startingbuildpoints><bp>4</bp><karma>0</karma><spirits /></character>");
+
+        Assert.True(character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "3"));
+        Assert.Equal("1", character.Bp);
+        Assert.False(character.AddSpirit("Task Sprite", "", "Sprite", "3", "2"));
+        Assert.True(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
+        Assert.Equal("4", character.Bp);
+        Assert.Equal(0, character.CreationBudget.Spent);
     }
 
     [Fact]

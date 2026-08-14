@@ -87,11 +87,9 @@ public partial class SpellsSectionTab : UserControl
 
         var dialog = new SpiritDialog(_character.MaxSpiritForce);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true)
-        {
-            _character.AddSpirit(dialog.SpiritName, dialog.CritterName, dialog.Type, dialog.Force, dialog.Services);
+        if (added == true
+            && _character.AddSpirit(dialog.SpiritName, dialog.CritterName, dialog.Type, dialog.Force, dialog.Services))
             ViewModel.LoadCharacter(_character);
-        }
     }
 
     private async void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
