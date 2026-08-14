@@ -1067,7 +1067,8 @@ namespace Chummer.Core
             double dblMax = double.TryParse(GetValue("/character/attributes/attribute[name = 'ESS']/metatypemax", "0"),
                 NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsedMax) ? dblParsedMax : 0;
             var lstEssenceImprovements = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Essence);
-            double dblBase = dblMax + lstEssenceImprovements.Sum(c => c.Value);
+            var lstEssenceMaxImprovements = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.EssenceMax);
+            double dblBase = dblMax + lstEssenceImprovements.Sum(c => c.Value) + lstEssenceMaxImprovements.Sum(c => c.Value);
 
             var (dblCyberware, dblBioware, dblHoles) = SumCyberwareEssence();
             double dblHigher = Math.Max(dblCyberware, dblBioware);
@@ -1608,6 +1609,22 @@ namespace Chummer.Core
             ApplyBonus(objXmlBonus, ImprovementSource.Quality, strName.Trim());
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.Quality, strName.Trim(), strExtra, "1");
 
+            // Ported from frmCreate.cs's CalculateNuyen: a <nuyenamt> bonus (e.g. In Debt) is a
+            // one-time credit added to the character's starting Nuyen pool at creation time only.
+            if (blnEnforceCreationBudget)
+            {
+                string strNuyenAmt = objXmlBonus?["nuyenamt"]?.InnerText ?? string.Empty;
+                if (!string.IsNullOrEmpty(strNuyenAmt))
+                {
+                    int intNuyenBonus = (int)RatingExpression.Evaluate(strNuyenAmt, "1");
+                    if (intNuyenBonus != 0)
+                    {
+                        int intCurrentNuyen = int.TryParse(Nuyen, out var n) ? n : 0;
+                        Nuyen = (intCurrentNuyen + intNuyenBonus).ToString(CultureInfo.InvariantCulture);
+                    }
+                }
+            }
+
             string? strMentorDataFile = QualityMentorSpiritDataFile(strName);
             if (strMentorDataFile != null && !string.IsNullOrWhiteSpace(strMentorSpirit))
             {
@@ -1625,6 +1642,32 @@ namespace Chummer.Core
                         $"choices/choice[name = '{strMentorChoice2.Trim()}']/bonus"),
                         ImprovementSource.Quality, strName.Trim());
             }
+
+            // Ported from frmCreate.cs's addqualities/addquality handling: some Qualities force
+            // another Quality onto the character as a bundled side effect (e.g. Infected qualities
+            // granting Distinctive Style) - granted for free, not charged separately, and skipped
+            // if the character already has a matching Quality+Extra.
+            XmlNodeList? objAddQualityNodes = objXmlQuality?.SelectNodes("addqualities/addquality");
+            if (objAddQualityNodes != null)
+                foreach (XmlNode objXmlAddQuality in objAddQualityNodes)
+                {
+                    string strAddQualityName = objXmlAddQuality.InnerText;
+                    string strAddQualityExtra = objXmlAddQuality.Attributes?["select"]?.InnerText ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(strAddQualityName))
+                        continue;
+
+                    bool blnAlreadyHasQuality = Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
+                        .Any(q => GetValue(q, "name", string.Empty) == strAddQualityName
+                            && GetValue(q, "extra", string.Empty) == strAddQualityExtra) ?? false;
+                    if (blnAlreadyHasQuality)
+                        continue;
+
+                    XmlNode? objXmlAddedQuality = objQualitiesDoc.SelectSingleNode(
+                        $"/chummer/qualities/quality[name = '{strAddQualityName}']");
+                    string strAddedQualityType = GetValue(objXmlAddedQuality, "category", "Positive");
+                    AddQuality(strAddQualityName, strAddedQualityType, strAddQualityExtra,
+                        eQualitySource: QualitySource.Selected, blnChargeCreation: false);
+                }
 
             if (blnEnforceCreationBudget)
             {
@@ -1722,6 +1765,22 @@ namespace Chummer.Core
                         Karma = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
                     else
                         Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
+                }
+
+                if (!Created && StartingBuildPoints > 0)
+                {
+                    XmlNode? objXmlQuality = XmlManager.Instance.Load("qualities.xml")
+                        .SelectSingleNode($"/chummer/qualities/quality[name = '{strName.Trim()}']");
+                    string strNuyenAmt = objXmlQuality?.SelectSingleNode("bonus/nuyenamt")?.InnerText ?? string.Empty;
+                    if (!string.IsNullOrEmpty(strNuyenAmt))
+                    {
+                        int intNuyenBonus = (int)RatingExpression.Evaluate(strNuyenAmt, "1");
+                        if (intNuyenBonus != 0)
+                        {
+                            int intCurrentNuyen = int.TryParse(Nuyen, out var n) ? n : 0;
+                            Nuyen = (intCurrentNuyen - intNuyenBonus).ToString(CultureInfo.InvariantCulture);
+                        }
+                    }
                 }
                 objQuality.ParentNode?.RemoveChild(objQuality);
                 RemoveBonusImprovements(ImprovementSource.Quality, strName);

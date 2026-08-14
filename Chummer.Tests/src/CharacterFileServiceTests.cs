@@ -261,6 +261,47 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_AddQualitiesBundlesTheLinkedQualityForFree()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+
+        character.AddQuality("Changeling (Class I SURGE)", "Positive");
+
+        Assert.Collection(character.Qualities,
+            quality => Assert.Equal("Changeling (Class I SURGE)", quality.Name),
+            quality =>
+            {
+                Assert.Equal("Distinctive Style", quality.Name);
+                Assert.Equal("Negative", quality.Type);
+            });
+    }
+
+    [Fact]
+    public void AddQuality_AddQualitiesSkipsAQualityTheCharacterAlreadyHas()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        character.AddQuality("Distinctive Style", "Negative");
+
+        character.AddQuality("Changeling (Class I SURGE)", "Positive");
+
+        Assert.Equal(2, character.Qualities.Count(q => q.Name == "Distinctive Style" || q.Name == "Changeling (Class I SURGE)"));
+    }
+
+    [Fact]
+    public void AddQuality_NuyenAmtBonusCreditsStartingNuyenAtCreationOnly()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>0</nuyen><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>750</startingbuildpoints><karma>750</karma></character>");
+
+        Assert.True(character.AddQuality("In Debt (5,000¥)", "Negative"));
+
+        Assert.Equal("5000", character.Nuyen);
+
+        Assert.True(character.RemoveQuality("In Debt (5,000¥)", "Negative"));
+        Assert.Equal("0", character.Nuyen);
+    }
+
+    [Fact]
     public void QualitySource_PersistsMetatypeProvenanceAndDefaultsLegacySavesToSelected()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
@@ -5322,6 +5363,20 @@ public class CharacterFileServiceTests
             + "</cyberwares></character>");
 
         Assert.Equal(3, character.EssencePenalty);
+    }
+
+    [Fact]
+    public void EssenceMax_ImprovementRaisesTheEffectiveMaximumEssence()
+    {
+        // Ported from clsImprovement.cs's <essencemax> bonus: a flat delta to the character's
+        // Essence maximum, on top of the metatype's own ESS max (6 here).
+        var character = LoadXml("<character><attributes>" + AttributeXml("ESS", "6") + "</attributes>"
+            + "<improvements><improvement><improvementttype>EssenceMax</improvementttype>"
+            + "<val>2</val><improvementsource>Quality</improvementsource><enabled>True</enabled>"
+            + "</improvement></improvements></character>");
+
+        Assert.Equal("8", character.Condition.Essence);
+        Assert.Equal(0, character.EssencePenalty);
     }
 
     [Fact]

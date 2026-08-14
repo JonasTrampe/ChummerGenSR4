@@ -30,17 +30,18 @@ namespace Chummer.Core
     /// specificskill, conditionmonitor, skillcategory, skillgroup, skillattribute, initiative/
     /// initiativepass, notoriety, armor, reach, unarmed dv/ap, lifestylecost, matrixinitiative/
     /// matrixinitiativepass, damageresistance, movementpercent, smartlink, softweave,
-    /// concealability, skillsoftaccess, blackmarketdiscount, livingpersona, spellcategory,
-    /// weaponcategorydv). Not ported: several node types that are frequency-heavy in raw data but
-    /// architecturally orthogonal to this port's simplified model - &lt;enabletab&gt;/
+    /// concealability, skillsoftaccess, blackmarketdiscount, nuyenamt, essencemax, livingpersona,
+    /// spellcategory, weaponcategorydv). Not ported: several node types that are frequency-heavy
+    /// in raw data but architecturally orthogonal to this port's simplified model - &lt;enabletab&gt;/
     /// &lt;addattribute&gt; toggle Magician/Adept/Technomancer/RES-RES tab visibility, which this
     /// port instead derives from flags set directly at character creation, not from Improvements
     /// (and their real usage is dominated by critters.xml, which this port doesn't build
     /// characters from anyway); vehicle-context stat bonuses (flyspeed/speed/accel/handling/
     /// response) would need per-vehicle Improvement scoping this port's Vehicle model doesn't have
-    /// yet; essencemax/nuyenamt/freepositivequalities/freenegativequalities/cyberwareessmultiplier
-    /// have no consuming calculation anywhere in this port yet, so parsing them would just be
-    /// inert data with no way to verify correctness.</summary>
+    /// yet; freepositivequalities/freenegativequalities are handled separately, directly off
+    /// &lt;addqualities&gt; nodes rather than through this Improvement pipeline (see AddQuality's
+    /// ApplyAddedQualities); cyberwareessmultiplier has no consuming calculation anywhere in this
+    /// port yet, so parsing it would just be inert data with no way to verify correctness.</summary>
     public static class BonusApplier
     {
         public static IReadOnlyList<ImprovementSpec> Parse(XmlNode? nodBonus, string strRating, string strUnique)
@@ -75,6 +76,8 @@ namespace Chummer.Core
             ParseSimpleValue(nodBonus, "skillsoftaccess", ImprovementType.SkillsoftAccess, strRating, "", lstResult);
             ParseSimpleValue(nodBonus, "blackmarketdiscount", ImprovementType.BlackMarketDiscount, strRating,
                 strUnique, lstResult);
+            ParseSimpleValue(nodBonus, "nuyenamt", ImprovementType.Nuyen, strRating, strUnique, lstResult);
+            ParseSimpleValue(nodBonus, "essencemax", ImprovementType.EssenceMax, strRating, "", lstResult);
             ParseLivingPersona(nodBonus, strRating, strUnique, lstResult);
             ParseSpellCategory(nodBonus, strRating, strUnique, lstResult);
             ParseWeaponCategoryDv(nodBonus, strRating, strUnique, lstResult);
