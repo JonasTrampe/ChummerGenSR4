@@ -3239,6 +3239,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Skill Groups</text>
 		</string>
 		<string>
+			<key>Tip_BreakSkillGroup</key>
+			<text>Break this Skill Group to raise its member Skills individually beyond the Group's rating (paid for separately - the Group's own rating stays paid for). Check again to try re-joining it.</text>
+		</string>
+		<string>
 			<key>Label_ActiveSkills</key>
 			<text>Active Skills</text>
 		</string>

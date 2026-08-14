@@ -15,6 +15,28 @@ public sealed class GroupRowViewModel : ViewModelBase
     public bool IsCreateMode { get; private set; }
     public bool IsLoading { get; set; }
 
+    /// <summary>Whether the BreakSkillGroupsInCreateMode house rule and a nonzero rating make
+    /// breaking/regrouping this group possible right now.</summary>
+    public bool CanToggleBroken { get; private set; }
+
+    private bool _blnIsBroken;
+    public bool IsBroken
+    {
+        get => _blnIsBroken;
+        set
+        {
+            if (!SetField(ref _blnIsBroken, value))
+                return;
+            if (IsLoading)
+                return;
+
+            bool blnOk = value ? _character.BreakSkillGroup(GroupName) : _character.RegroupSkillGroup(GroupName);
+            if (!blnOk)
+                _blnIsBroken = !value; // revert the bound value without re-triggering the setter
+            _reload?.Invoke();
+        }
+    }
+
     private string _strRating = "0";
     public string Rating
     {
@@ -56,6 +78,9 @@ public sealed class GroupRowViewModel : ViewModelBase
         Rating = group.Rating;
         IsCreateMode = !_character.Created;
         RatingValue = int.TryParse(group.Rating, out int intRating) ? intRating : 0;
+        IsBroken = group.Broken;
+        CanToggleBroken = IsCreateMode && _character.BreakSkillGroupsInCreateModeEnabled
+            && (group.Broken || RatingValue > 0);
         IsLoading = false;
     }
 

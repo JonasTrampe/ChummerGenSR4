@@ -2806,6 +2806,10 @@ Stattdessen lokal gespeichert.</text>
 			<text>Fertigkeitsgruppen</text>
 		</string>
 		<string>
+			<key>Tip_BreakSkillGroup</key>
+			<text>Diese Fertigkeitsgruppe aufbrechen, um ihre Fertigkeiten einzeln über die Gruppenstufe hinaus zu steigern (separat bezahlt - die Stufe der Gruppe selbst bleibt bezahlt). Erneut anklicken, um wieder beizutreten.</text>
+		</string>
+		<string>
 			<key>Label_ActiveSkills</key>
 			<text>Aktionsfertigkeiten</text>
 		</string>

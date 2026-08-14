@@ -20,6 +20,8 @@
                             <controls:GroupRow GroupName="{Binding GroupName}" Rating="{Binding Rating}"
                                                 IsCreateMode="{Binding IsCreateMode}"
                                                 RatingValue="{Binding RatingValue, Mode=TwoWay}"
+                                                IsBroken="{Binding IsBroken, Mode=TwoWay}"
+                                                CanToggleBroken="{Binding CanToggleBroken}"
                                                 RaiseClicked="OnRaiseGroupClick" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

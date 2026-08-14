@@ -300,6 +300,7 @@ namespace Chummer.Core
                 objGroups.AppendChild(objGroup);
                 AppendElement(objDocument, objGroup, "name", objGroupNode.InnerText);
                 AppendElement(objDocument, objGroup, "rating", "0");
+                AppendElement(objDocument, objGroup, "broken", "False");
             }
         }
 

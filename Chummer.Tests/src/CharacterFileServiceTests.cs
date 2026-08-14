@@ -3935,6 +3935,103 @@ public class CharacterFileServiceTests
         Assert.Equal("85", character.Karma); // caught up from the common rating 2, not the stale group rating 0
     }
 
+    private static CharacterDocument LoadCreationFirearmsGroupAtRating2()
+        => LoadXml("<character><created>False</created><buildmethod>Karma</buildmethod>"
+            + "<startingbuildpoints>100</startingbuildpoints><karma>100</karma>"
+            + "<skillgroups><skillgroup><name>Firearms</name><rating>2</rating><broken>False</broken></skillgroup></skillgroups>"
+            + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>True</grouped><rating>2</rating><knowledge>False</knowledge>"
+            + "<exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Automatik</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>True</grouped><rating>2</rating><knowledge>False</knowledge>"
+            + "<exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill></skills></character>");
+
+    [Fact]
+    public void BreakSkillGroup_RequiresTheHouseRuleOn()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        Assert.False(character.BreakSkillGroup("Firearms"));
+        Assert.False(character.SkillGroups.Single(g => g.Name == "Firearms").Broken);
+    }
+
+    [Fact]
+    public void BreakSkillGroup_UnlocksMemberSkillsForIndividualRaises()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { BreakSkillGroupsInCreateMode = true });
+
+        Assert.True(character.BreakSkillGroup("Firearms"));
+        Assert.True(character.SkillGroups.Single(g => g.Name == "Firearms").Broken);
+        Assert.All(character.Skills, s => Assert.False(s.IsGroupLocked));
+
+        // Raising Firearms as a whole is blocked once broken.
+        Assert.False(character.RaiseSkillGroupCreate("Firearms"));
+
+        int intPistolenId = character.Skills.Single(s => s.Name == "Pistolen").SkillId;
+        Assert.True(character.RaiseActiveSkillCreate(intPistolenId));
+        Assert.Equal("3", character.Skills.Single(s => s.Name == "Pistolen").BaseRating);
+        Assert.Equal("2", character.Skills.Single(s => s.Name == "Automatik").BaseRating); // untouched
+        Assert.Equal("94", character.Karma); // (2+1)*KarmaImproveActiveSkill(2) = 6
+    }
+
+    [Fact]
+    public void BreakSkillGroup_LoweringBelowTheFloorIsRejected()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { BreakSkillGroupsInCreateMode = true });
+        Assert.True(character.BreakSkillGroup("Firearms"));
+
+        int intPistolenId = character.Skills.Single(s => s.Name == "Pistolen").SkillId;
+        // Floor is 2 (the group's rating when broken) - can't refund Karma never spent individually.
+        Assert.False(character.LowerActiveSkillCreate(intPistolenId));
+        Assert.Equal("2", character.Skills.Single(s => s.Name == "Pistolen").BaseRating);
+        Assert.Equal("100", character.Karma);
+    }
+
+    [Fact]
+    public void BreakSkillGroup_CreationBudgetOnlyChargesTheExcessAboveTheFloor()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { BreakSkillGroupsInCreateMode = true });
+        Assert.True(character.BreakSkillGroup("Firearms"));
+
+        int intPistolenId = character.Skills.Single(s => s.Name == "Pistolen").SkillId;
+        Assert.True(character.RaiseActiveSkillCreate(intPistolenId)); // Pistolen: 2 -> 3
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+        // Firearms group itself: KarmaNewSkillGroup(10) + 2*KarmaImproveSkillGroup(5) = 20.
+        Assert.Contains(budget.Categories, c => c.Name == "Skill groups" && c.Cost == 20);
+        // Active skills: only Pistolen's excess above the floor (rating 3 minus floor 2) = 6, not
+        // the full cost of a rating-3 Pistolen (14) which would double-charge the group's floor.
+        Assert.Contains(budget.Categories, c => c.Name == "Active skills" && c.Cost == 6);
+    }
+
+    [Fact]
+    public void RegroupSkillGroup_RelocksWhenMemberSkillsStillAgree()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { BreakSkillGroupsInCreateMode = true });
+        Assert.True(character.BreakSkillGroup("Firearms"));
+
+        Assert.True(character.RegroupSkillGroup("Firearms"));
+        Assert.False(character.SkillGroups.Single(g => g.Name == "Firearms").Broken);
+        Assert.All(character.Skills, s => Assert.True(s.IsGroupLocked));
+        Assert.Equal("2", character.SkillGroups.Single(g => g.Name == "Firearms").Rating);
+    }
+
+    [Fact]
+    public void RegroupSkillGroup_RejectsWhenMemberSkillsHaveDiverged()
+    {
+        CharacterDocument character = LoadCreationFirearmsGroupAtRating2();
+        character.SetCharacterOptionsForTesting(new CharacterOptions { BreakSkillGroupsInCreateMode = true });
+        Assert.True(character.BreakSkillGroup("Firearms"));
+
+        int intPistolenId = character.Skills.Single(s => s.Name == "Pistolen").SkillId;
+        Assert.True(character.RaiseActiveSkillCreate(intPistolenId)); // Pistolen now 3, Automatik still 2.
+
+        Assert.False(character.RegroupSkillGroup("Firearms"));
+    }
+
     [Fact]
     public void AddActiveSkillSpecialization_CostsKarmaSpecializationInCareerMode()
     {

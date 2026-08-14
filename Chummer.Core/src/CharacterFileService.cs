@@ -237,6 +237,9 @@ namespace Chummer.Core
         /// <summary>Whether skill dice pools can be sent directly to the dice roller.</summary>
         public bool AllowSkillDiceRollingEnabled => GetCharacterOptions().AllowSkillDiceRolling;
 
+        /// <summary>Whether Skill Groups can be broken during creation - see <see cref="BreakSkillGroup"/>.</summary>
+        public bool BreakSkillGroupsInCreateModeEnabled => GetCharacterOptions().BreakSkillGroupsInCreateMode;
+
         /// <summary>Whether the character's profile requests a pre-career backup.</summary>
         public bool CreateBackupOnCareerEnabled => GetCharacterOptions().CreateBackupOnCareer;
 
@@ -674,8 +677,84 @@ namespace Chummer.Core
             return (Document.SelectNodes("/character/skills/skill")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
                 .Where(s => GetValue(s, "knowledge", "False") != "True"
                     && GetValue(s, "grouped", "False") != "True")
-                .Sum(s => ComputeCreationRatingCost(ParseInteger(GetValue(s, "rating", "0")), blnKarmaBuild, 4,
-                    objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill));
+                .Sum(s =>
+                {
+                    int intRating = ParseInteger(GetValue(s, "rating", "0"));
+                    int intCost = ComputeCreationRatingCost(intRating, blnKarmaBuild, 4,
+                        objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill);
+                    // BreakSkillGroupsInCreateMode: the Skill Group's own cost already covers every
+                    // member Skill up to the Group's rating at the time it was broken (see
+                    // BreakSkillGroup) - only the excess above that floor is charged individually
+                    // here, ported from frmCreate.cs's "refund the cost of the first X points"
+                    // comment.
+                    int intFloor = GetSkillGroupBrokenFloor(GetValue(s, "skillgroup", string.Empty));
+                    if (intFloor > 0)
+                        intCost -= ComputeCreationRatingCost(intFloor, blnKarmaBuild, 4,
+                            objOptions.KarmaNewActiveSkill, objOptions.KarmaImproveActiveSkill);
+                    return Math.Max(0, intCost);
+                });
+        }
+
+        /// <summary>The Skill Group rating a broken group's member Skills were locked to before
+        /// being broken (0 if the group isn't broken or doesn't exist) - see <see
+        /// cref="BreakSkillGroup"/>/<see cref="GetCreationActiveSkillCost"/>.</summary>
+        private int GetSkillGroupBrokenFloor(string strGroupName)
+        {
+            if (string.IsNullOrEmpty(strGroupName))
+                return 0;
+            XmlNode? objGroup = GetSkillGroupNode(strGroupName);
+            if (objGroup == null || GetValue(objGroup, "broken", "False") != "True")
+                return 0;
+            return ParseInteger(GetValue(objGroup, "rating", "0"));
+        }
+
+        /// <summary>Create mode: breaks a Skill Group (the BreakSkillGroupsInCreateMode house rule),
+        /// unlocking its member Skills so they can be raised individually beyond the Group's own
+        /// rating, while that rating's cost remains paid via the Group and only the excess is
+        /// charged per Skill - ported from frmCreate.cs's chkBroken handling.</summary>
+        public bool BreakSkillGroup(string strGroupName)
+        {
+            if (!GetCharacterOptions().BreakSkillGroupsInCreateMode || Created)
+                return false;
+
+            XmlNode? objGroup = GetSkillGroupNode(strGroupName);
+            if (objGroup == null || GetValue(objGroup, "broken", "False") == "True")
+                return false;
+            if (ParseInteger(GetValue(objGroup, "rating", "0")) <= 0)
+                return false;
+
+            SetChildValue(objGroup, "broken", "True");
+            var objNodes = Document.SelectNodes("/character/skills/skill");
+            if (objNodes != null)
+            {
+                foreach (XmlNode objSkillNode in objNodes)
+                {
+                    if (GetValue(objSkillNode, "skillgroup", string.Empty) == strGroupName)
+                        SetChildValue(objSkillNode, "grouped", "False");
+                }
+            }
+            Changed?.Invoke();
+            return true;
+        }
+
+        /// <summary>Create mode: re-locks a broken Skill Group, provided its member Skills still
+        /// agree with each other (or with <see cref="Options.AllowSkillRegrouping"/> - see <see
+        /// cref="CanRaiseSkillGroupAsAWhole"/>), adopting their shared rating as the Group's own.</summary>
+        public bool RegroupSkillGroup(string strGroupName)
+        {
+            XmlNode? objGroup = GetSkillGroupNode(strGroupName);
+            if (objGroup == null || GetValue(objGroup, "broken", "False") != "True")
+                return false;
+
+            int intGroupRating = ParseInteger(GetValue(objGroup, "rating", "0"));
+            if (!CanRaiseSkillGroupAsAWhole(strGroupName, intGroupRating, out int intCommonRating))
+                return false;
+
+            SetChildValue(objGroup, "broken", "False");
+            SetChildValue(objGroup, "rating", intCommonRating.ToString(CultureInfo.InvariantCulture));
+            SyncGroupedSkillRatings(strGroupName, intCommonRating);
+            Changed?.Invoke();
+            return true;
         }
 
         private int GetCreationSkillGroupCost()
@@ -6036,6 +6115,10 @@ namespace Chummer.Core
             int intRatingMax = ParseInteger(GetValue(objNode, "ratingmax", "6"));
             if (intRating < 0 || intRating > intRatingMax)
                 return false;
+            // A broken Skill Group's floor rating was paid via the Group itself - it can't be
+            // refunded by dropping the member Skill below it (see BreakSkillGroup).
+            if (intRating < GetSkillGroupBrokenFloor(GetValue(objNode, "skillgroup", string.Empty)))
+                return false;
 
             int intPreviousCost = GetCreationActiveSkillCost();
             string strPreviousRating = GetValue(objNode, "rating", "0");
@@ -6098,6 +6181,10 @@ namespace Chummer.Core
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
             if (intRating <= 0)
+                return false;
+            // A broken Skill Group's floor rating was paid via the Group itself - it can't be
+            // refunded by dropping the member Skill below it (see BreakSkillGroup).
+            if (intRating <= GetSkillGroupBrokenFloor(GetValue(objNode, "skillgroup", string.Empty)))
                 return false;
 
             var objOptions = GetCharacterOptions();
@@ -6216,7 +6303,7 @@ namespace Chummer.Core
         public bool SetSkillGroupRating(string strGroupName, int intRating)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
-            if (objNode == null)
+            if (objNode == null || GetValue(objNode, "broken", "False") == "True")
                 return false;
             if (intRating < 0 || intRating > 6)
                 return false;
@@ -6243,7 +6330,7 @@ namespace Chummer.Core
         public bool RaiseSkillGroupCreate(string strGroupName)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
-            if (objNode == null)
+            if (objNode == null || GetValue(objNode, "broken", "False") == "True")
                 return false;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -6286,7 +6373,7 @@ namespace Chummer.Core
         public bool LowerSkillGroupCreate(string strGroupName)
         {
             XmlNode? objNode = GetSkillGroupNode(strGroupName);
-            if (objNode == null)
+            if (objNode == null || GetValue(objNode, "broken", "False") == "True")
                 return false;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -10001,7 +10088,7 @@ namespace Chummer.Core
             if (objNodes == null) return lstGroups;
             foreach (XmlNode objNode in objNodes)
                 lstGroups.Add(new CharacterSkillGroupData(GetValue(objNode, "name", string.Empty),
-                    GetValue(objNode, "rating", "0")));
+                    GetValue(objNode, "rating", "0"), GetValue(objNode, "broken", "False") == "True"));
             return lstGroups;
         }
 
@@ -11304,14 +11391,19 @@ namespace Chummer.Core
 
     public sealed class CharacterSkillGroupData
     {
-        internal CharacterSkillGroupData(string strName, string strRating)
+        internal CharacterSkillGroupData(string strName, string strRating, bool blnBroken)
         {
             Name = strName;
             Rating = strRating;
+            Broken = blnBroken;
         }
 
         public string Name { get; private set; }
         public string Rating { get; private set; }
+
+        /// <summary>Whether the BreakSkillGroupsInCreateMode house rule has unlocked this group's
+        /// member Skills to be raised individually - see <see cref="CharacterFileService.BreakSkillGroup"/>.</summary>
+        public bool Broken { get; private set; }
     }
 
     public sealed class CharacterSkillData

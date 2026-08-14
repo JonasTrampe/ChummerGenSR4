@@ -3132,6 +3132,10 @@
 			<text>技能グループ</text>
 		</string>
 		<string>
+			<key>Tip_BreakSkillGroup</key>
+			<text>この技能グループを分割し、グループの等級を超えて個別に技能を上げられるようにする(別途費用がかかる - グループ自体の等級分の費用は支払い済みのまま)。再度チェックすると再統合を試みる。</text>
+		</string>
+		<string>
 			<key>Label_ActiveSkills</key>
 			<text>能動技能</text>
 		</string>

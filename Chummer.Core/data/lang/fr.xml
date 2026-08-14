@@ -3119,6 +3119,10 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<text>Groupes de Compétences</text>
 		</string>
 		<string>
+			<key>Tip_BreakSkillGroup</key>
+			<text>Rompre ce Groupe de Compétences pour augmenter ses compétences individuellement au-delà du niveau du groupe (payé séparément - le niveau du groupe lui-même reste acquis). Recocher pour tenter de le rejoindre.</text>
+		</string>
+		<string>
 			<key>Label_ActiveSkills</key>
 			<text>Compétences actives</text>
 		</string>
