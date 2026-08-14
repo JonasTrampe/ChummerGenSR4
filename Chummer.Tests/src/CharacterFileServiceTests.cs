@@ -2035,6 +2035,23 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ArmorEncumbrance_EquippedArmorModRatingBonusesCountTowardsArmorRating()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><attributes><attribute><name>BOD</name><value>4</value><totalvalue>4</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
+        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "4", "200", "0", "SR4", "326");
+
+        Assert.Equal(2, character.ArmorEncumbrance.BallisticRating.Value);
+        Assert.Equal(2, character.ArmorEncumbrance.ImpactRating.Value);
+
+        Assert.True(character.AddArmorMod("Leather Jacket", "Clothing", "Fire Resistance", "1", "1", "1",
+            "0", "50", "SR4", "326"));
+
+        Assert.Equal(3, character.ArmorEncumbrance.BallisticRating.Value);
+        Assert.Equal(3, character.ArmorEncumbrance.ImpactRating.Value);
+    }
+
+    [Fact]
     public void ArmorEncumbrance_IgnoreArmorEncumbranceHouseRule_ZeroesThePenalty()
     {
         CharacterDocument character = LoadXml(

@@ -5671,8 +5671,9 @@ namespace Chummer.Core
         /// Improvement, and all three optional house rules (IgnoreArmorEncumbrance,
         /// AlternateArmorEncumbrance's BOD+STR threshold, NoSingleArmorEncumbrance - Helmets and
         /// Shields/SecureTech PPP System don't count as a "piece" for that last rule, matching
-        /// clsCharacter.cs). Not yet ported: ArmorMod bonuses to ballistic/impact rating (base
-        /// &lt;b&gt;/&lt;i&gt; values only).</summary>
+        /// clsCharacter.cs), and equipped ArmorMod bonuses to ballistic/impact rating (see
+        /// <see cref="GetArmorNodeTotalRating"/>, ported from clsEquipment.cs's Armor.TotalBallistic/
+        /// TotalImpact).</summary>
         public CharacterEncumbranceData ArmorEncumbrance => ComputeArmorEncumbrance();
 
         /// <summary>Composure (WIL + CHA + Improvements), ported from clsCharacter.cs.</summary>
@@ -8828,6 +8829,21 @@ namespace Chummer.Core
             return new CharacterDerivedValueData(intTotal, sb.ToString());
         }
 
+        /// <summary>Ported from clsEquipment.cs's Armor.TotalBallistic/TotalImpact: an armor's own
+        /// base rating plus every currently-equipped ArmorMod's flat contribution (armor.xml mod
+        /// ratings are plain integers, never "+"-prefixed stacking values like base armor).</summary>
+        private int GetArmorNodeTotalRating(XmlNode objArmorNode, string strElement)
+        {
+            int intTotal = ParseArmorRating(GetValue(objArmorNode, strElement, "0"));
+            foreach (XmlNode objMod in objArmorNode.SelectNodes("armormods/armormod")?.Cast<XmlNode>()
+                ?? Enumerable.Empty<XmlNode>())
+            {
+                if (GetValue(objMod, "equipped", "True") == "True")
+                    intTotal += ParseInteger(GetValue(objMod, strElement, "0"));
+            }
+            return intTotal;
+        }
+
         private CharacterEncumbranceData ComputeArmorEncumbrance()
         {
             var objOptions = GetCharacterOptions();
@@ -8856,8 +8872,8 @@ namespace Chummer.Core
 
                     var strName = GetValue(objNode, "name", string.Empty);
                     var blnFormFitting = strName.StartsWith("Form-Fitting");
-                    var intBallistic = ParseArmorRating(GetValue(objNode, "b", "0"));
-                    var intImpact = ParseArmorRating(GetValue(objNode, "i", "0"));
+                    var intBallistic = GetArmorNodeTotalRating(objNode, "b");
+                    var intImpact = GetArmorNodeTotalRating(objNode, "i");
                     var intCountedBallistic = blnFormFitting ? intBallistic / 2 : intBallistic;
                     var intCountedImpact = blnFormFitting ? intImpact / 2 : intImpact;
                     intTotalBallistic += intCountedBallistic;
@@ -8918,7 +8934,7 @@ namespace Chummer.Core
                 foreach (XmlNode objNode in objNodes)
                 {
                     var strRating = GetValue(objNode, strElement, "0");
-                    var intRating = ParseArmorRating(strRating);
+                    var intRating = GetArmorNodeTotalRating(objNode, strElement);
                     if (!strRating.StartsWith("+"))
                     {
                         intHighest = Math.Max(intHighest, intRating);
@@ -8945,7 +8961,7 @@ namespace Chummer.Core
             {
                 foreach (XmlNode objNode in objNodes)
                     sb.Append('\n').Append("  ").Append(GetValue(objNode, "name", string.Empty)).Append(": ")
-                        .Append(ParseArmorRating(GetValue(objNode, strElement, "0")));
+                        .Append(GetArmorNodeTotalRating(objNode, strElement));
             }
 
             foreach (var objContribution in ImprovementManager.DescribeValueOf(Improvements, eImprovementType))
