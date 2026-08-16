@@ -471,6 +471,70 @@ public class NewCharacterFactoryTests
     }
 
     [Fact]
+    public void LoadCritterMetatypes_ReadsCrittersXmlByTheSameSchemaAsMetatypes()
+    {
+        var critters = NewCharacterFactory.LoadCritterMetatypes();
+
+        var dog = critters.Single(c => c.Name == "Dog");
+        Assert.Equal("Mundane Critters", dog.Category);
+        Assert.Equal("2/2 (2)", dog.BodRange); // Plain-integer critter: min == max == aug.
+
+        var allySpirit = critters.Single(c => c.Name == "Ally Spirit");
+        Assert.Equal("F/F (F)", allySpirit.BodRange); // Force-based critter: unresolved formula.
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_PlainIntegerCritter_SetsFixedAttributesSkillsAndPowers()
+    {
+        var dog = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Dog");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter("Rex", "default.xml", dog);
+
+        Assert.True(character.IsCritter);
+        Assert.Equal("Bp", character.BuildMethod);
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("2", attributes["BOD"].TotalValue);
+        Assert.Equal("3", attributes["AGI"].TotalValue);
+        Assert.Equal("1", attributes["LOG"].TotalValue);
+
+        var skills = character.Skills.ToDictionary(s => s.Name);
+        Assert.Equal("3", skills["Unarmed Combat"].Rating);
+        Assert.Equal("2", skills["Tracking"].Rating);
+
+        Assert.Contains(character.CritterPowers, p => p.Name == "Enhanced Senses");
+        Assert.Contains(character.CritterPowers, p => p.Name == "Natural Weapon");
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_ForceBasedCritter_ResolvesFAttributeAndSkillFormulas()
+    {
+        var allySpirit = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Ally Spirit");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter(
+            "Test Spirit", "default.xml", allySpirit, intForce: 6);
+
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("6", attributes["BOD"].TotalValue); // "F" at Force 6.
+        Assert.Equal("6", attributes["MAG"].TotalValue); // Also "F".
+
+        var skills = character.Skills.ToDictionary(s => s.Name);
+        Assert.Equal("6", skills["Astral Combat"].Rating); // rating="F" at Force 6.
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_SpiritOfAir_ResolvesOffsetForceFormulas()
+    {
+        var spiritOfAir = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Spirit of Air");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter(
+            "Air Spirit", "default.xml", spiritOfAir, intForce: 6);
+
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("4", attributes["BOD"].TotalValue); // "F-2" at Force 6.
+        Assert.Equal("9", attributes["AGI"].TotalValue); // "F+3" at Force 6.
+    }
+
+    [Fact]
     public void CreateCareerBackup_IsNoOpWithoutSettingOrSourcePath()
     {
         CharacterDocument character = NewCharacterFactory.CreateNewCharacter(

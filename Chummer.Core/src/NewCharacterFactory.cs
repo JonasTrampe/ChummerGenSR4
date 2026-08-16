@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 
@@ -113,6 +114,276 @@ namespace Chummer.Core
                 return intCategory != 0 ? intCategory : string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
             });
             return lstMetatypes;
+        }
+
+        /// <summary>Loads critters.xml's own &lt;metatype&gt; entries for the critter-creation
+        /// picker - ported from frmMain.cs's "Create Critter" flow opening frmMetatype pointed at
+        /// critters.xml instead of metatypes.xml. Shares NewCharacterMetatype's shape with
+        /// LoadMetatypes since both files use an identical schema; Force-based critters (Spirits/
+        /// Sprites) simply carry "F"/"F-2"/"F+3"-style formula strings in their attribute ranges
+        /// instead of plain integers - resolved by CreateCritterCharacter via a supplied Force.</summary>
+        public static List<NewCharacterMetatype> LoadCritterMetatypes(CharacterOptions? objOptions = null)
+        {
+            XmlDocument objDocument = XmlManager.Instance.Load("critters.xml");
+            List<NewCharacterMetatype> lstMetatypes = new List<NewCharacterMetatype>();
+            XmlNodeList? objNodes = objDocument.SelectNodes("/chummer/metatypes/metatype");
+            if (objNodes == null)
+                return lstMetatypes;
+
+            foreach (XmlNode objNode in objNodes)
+            {
+                NewCharacterMetatype objMetatype = new NewCharacterMetatype
+                {
+                    Name = GetValue(objNode, "name", string.Empty),
+                    Category = GetValue(objNode, "category", string.Empty),
+                    Movement = GetValue(objNode, "movement", string.Empty),
+                    Source = GetValue(objNode, "source", string.Empty)
+                };
+                if (objOptions != null && !string.IsNullOrEmpty(objMetatype.Source)
+                    && !objOptions.BookEnabled(objMetatype.Source))
+                    continue;
+
+                AddAttributeRange(objMetatype, objNode, "BOD", "bod");
+                AddAttributeRange(objMetatype, objNode, "AGI", "agi");
+                AddAttributeRange(objMetatype, objNode, "REA", "rea");
+                AddAttributeRange(objMetatype, objNode, "STR", "str");
+                AddAttributeRange(objMetatype, objNode, "CHA", "cha");
+                AddAttributeRange(objMetatype, objNode, "INT", "int");
+                AddAttributeRange(objMetatype, objNode, "LOG", "log");
+                AddAttributeRange(objMetatype, objNode, "WIL", "wil");
+                AddAttributeRange(objMetatype, objNode, "INI", "ini");
+                AddAttributeRange(objMetatype, objNode, "EDG", "edg");
+                AddAttributeRange(objMetatype, objNode, "MAG", "mag");
+                AddAttributeRange(objMetatype, objNode, "RES", "res");
+                AddAttributeRange(objMetatype, objNode, "ESS", "ess");
+
+                lstMetatypes.Add(objMetatype);
+            }
+
+            lstMetatypes.Sort((x, y) =>
+            {
+                int intCategory = string.Compare(x.Category, y.Category, StringComparison.OrdinalIgnoreCase);
+                return intCategory != 0 ? intCategory : string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+            });
+            return lstMetatypes;
+        }
+
+        /// <summary>Ported from frmMain.cs's "Create Critter" flow (IsCritter=true, IgnoreRules=true,
+        /// BuildMethod=Bp/BuildPoints=0, opening frmMetatype pointed at critters.xml) plus
+        /// frmMetatype.cs's critter-specific branch: unlike a normal metatype's point-buy ranges,
+        /// a critter's attributes are all set directly to their (optionally Force-scaled, e.g.
+        /// "F-2"/"F+3") metatype values, and its Skills/Skill Groups/Knowledge Skills/Critter
+        /// Powers are all seeded straight from the critters.xml entry rather than chosen by the
+        /// player.</summary>
+        public static CharacterDocument CreateCritterCharacter(string strDisplayName, string strSettingsFileName,
+            NewCharacterMetatype objMetatype, int intForce = 0, CharacterOptions? objCharacterOptions = null)
+        {
+            XmlDocument objCrittersDoc = XmlManager.Instance.Load("critters.xml");
+            XmlNode? objCritterNode = objCrittersDoc.SelectSingleNode(
+                $"/chummer/metatypes/metatype[name = '{objMetatype.Name}']");
+
+            CharacterOptions objOptions = objCharacterOptions ?? new CharacterOptions();
+            if (objCharacterOptions == null)
+                objOptions.Load(string.IsNullOrWhiteSpace(strSettingsFileName) ? "default.xml" : strSettingsFileName);
+
+            XmlDocument objDocument = new XmlDocument();
+            XmlElement objRoot = objDocument.CreateElement("character");
+            objDocument.AppendChild(objRoot);
+
+            AppendElement(objDocument, objRoot, "settings", string.IsNullOrWhiteSpace(strSettingsFileName) ? "default.xml" : strSettingsFileName);
+            AppendElement(objDocument, objRoot, "metatype", objMetatype.Name);
+            AppendElement(objDocument, objRoot, "metatypebp", "0");
+            AppendElement(objDocument, objRoot, "metavariant", string.Empty);
+            AppendElement(objDocument, objRoot, "metatypecategory", objMetatype.Category);
+            AppendElement(objDocument, objRoot, "movement", objMetatype.Movement);
+            AppendElement(objDocument, objRoot, "movementwalk", ExtractMovementPart(objMetatype.Movement, 0));
+            AppendElement(objDocument, objRoot, "movementswim", ExtractSwimMovement(objMetatype.Movement));
+            AppendElement(objDocument, objRoot, "movementfly", string.Empty);
+            AppendElement(objDocument, objRoot, "mutantcritterbaseskills", "0");
+            AppendElement(objDocument, objRoot, "name", strDisplayName);
+            AppendElement(objDocument, objRoot, "mugshot", string.Empty);
+            AppendElement(objDocument, objRoot, "sex", string.Empty);
+            AppendElement(objDocument, objRoot, "age", string.Empty);
+            AppendElement(objDocument, objRoot, "eyes", string.Empty);
+            AppendElement(objDocument, objRoot, "height", string.Empty);
+            AppendElement(objDocument, objRoot, "weight", string.Empty);
+            AppendElement(objDocument, objRoot, "skin", string.Empty);
+            AppendElement(objDocument, objRoot, "hair", string.Empty);
+            AppendElement(objDocument, objRoot, "description", string.Empty);
+            AppendElement(objDocument, objRoot, "background", string.Empty);
+            AppendElement(objDocument, objRoot, "concept", string.Empty);
+            AppendElement(objDocument, objRoot, "notes", string.Empty);
+            AppendElement(objDocument, objRoot, "alias", string.Empty);
+            AppendElement(objDocument, objRoot, "playername", string.Empty);
+            AppendElement(objDocument, objRoot, "karma", "0");
+            AppendElement(objDocument, objRoot, "totalkarma", "0");
+            AppendElement(objDocument, objRoot, "streetcred", "0");
+            AppendElement(objDocument, objRoot, "notoriety", "0");
+            AppendElement(objDocument, objRoot, "publicawareness", "0");
+            AppendElement(objDocument, objRoot, "ignorerules", "True");
+            AppendElement(objDocument, objRoot, "created", "False");
+            AppendElement(objDocument, objRoot, "maxavail", "0");
+            AppendElement(objDocument, objRoot, "nuyen", "0");
+            AppendElement(objDocument, objRoot, "bp", "0");
+            AppendElement(objDocument, objRoot, "buildkarma", "0");
+            AppendElement(objDocument, objRoot, "startingbuildpoints", "0");
+            AppendElement(objDocument, objRoot, "buildmethod", "Bp");
+            AppendElement(objDocument, objRoot, "knowpts", "0");
+            AppendElement(objDocument, objRoot, "nuyenbp", "0");
+            AppendElement(objDocument, objRoot, "nuyenmaxbp", "50");
+            AppendElement(objDocument, objRoot, "adept", "False");
+            AppendElement(objDocument, objRoot, "magician", "False");
+            AppendElement(objDocument, objRoot, "technomancer", "False");
+            AppendElement(objDocument, objRoot, "initiationoverride", "False");
+            AppendElement(objDocument, objRoot, "critter", "True");
+            AppendElement(objDocument, objRoot, "uneducated", "False");
+            AppendElement(objDocument, objRoot, "uncouth", "False");
+            AppendElement(objDocument, objRoot, "infirm", "False");
+
+            XmlElement objAttributes = objDocument.CreateElement("attributes");
+            objRoot.AppendChild(objAttributes);
+            int intMagMax = 0, intResMax = 0;
+            foreach (string strAttributeCode in s_astrAttributeCodes)
+            {
+                (string Min, string Max, string Aug) objRange = objMetatype.AttributeRanges.ContainsKey(strAttributeCode)
+                    ? objMetatype.AttributeRanges[strAttributeCode]
+                    : ("0", "0", "0");
+                int intMin = EvaluateForceExpression(objRange.Min, intForce);
+                int intMax = EvaluateForceExpression(objRange.Max, intForce);
+                int intAug = EvaluateForceExpression(objRange.Aug, intForce);
+                if (strAttributeCode == "MAG") intMagMax = intMax;
+                if (strAttributeCode == "RES") intResMax = intMax;
+
+                XmlElement objAttribute = objDocument.CreateElement("attribute");
+                objAttributes.AppendChild(objAttribute);
+                AppendElement(objDocument, objAttribute, "name", strAttributeCode);
+                AppendElement(objDocument, objAttribute, "metatypemin", intMin.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objDocument, objAttribute, "metatypemax", intMax.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objDocument, objAttribute, "metatypeaugmax", intAug.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objDocument, objAttribute, "value", intMin.ToString(CultureInfo.InvariantCulture));
+                AppendElement(objDocument, objAttribute, "augmodifier", "0");
+                AppendElement(objDocument, objAttribute, "totalvalue", intMin.ToString(CultureInfo.InvariantCulture));
+            }
+
+            AppendElement(objDocument, objRoot, "magenabled", (intMagMax > 0).ToString());
+            AppendElement(objDocument, objRoot, "initiategrade", "0");
+            AppendElement(objDocument, objRoot, "resenabled", (intResMax > 0).ToString());
+            AppendElement(objDocument, objRoot, "submersiongrade", "0");
+            AppendElement(objDocument, objRoot, "groupmember", "False");
+            AppendElement(objDocument, objRoot, "totaless", "6");
+            AppendElement(objDocument, objRoot, "tradition", string.Empty);
+            AppendElement(objDocument, objRoot, "stream", string.Empty);
+            AppendElement(objDocument, objRoot, "physicalcmfilled", "0");
+            AppendElement(objDocument, objRoot, "stuncmfilled", "0");
+
+            AppendSkillGroups(objDocument, objRoot);
+            AppendActiveSkills(objDocument, objRoot);
+            ApplyCritterSkills(objDocument, objRoot, objCritterNode, intForce);
+            AppendEmptyContainer(objDocument, objRoot, "martialarts");
+            AppendEmptyContainer(objDocument, objRoot, "martialartmaneuvers");
+            AppendEmptyContainer(objDocument, objRoot, "powers");
+            AppendEmptyContainer(objDocument, objRoot, "spells");
+            AppendEmptyContainer(objDocument, objRoot, "spirits");
+            AppendEmptyContainer(objDocument, objRoot, "initiationgrades");
+            AppendEmptyContainer(objDocument, objRoot, "cyberwares");
+            AppendEmptyContainer(objDocument, objRoot, "biowares");
+            AppendEmptyContainer(objDocument, objRoot, "armors");
+            AppendEmptyContainer(objDocument, objRoot, "weapons");
+            AppendEmptyContainer(objDocument, objRoot, "gears");
+            AppendEmptyContainer(objDocument, objRoot, "vehicles");
+            AppendEmptyContainer(objDocument, objRoot, "contacts");
+            AppendEmptyContainer(objDocument, objRoot, "qualities");
+            AppendEmptyContainer(objDocument, objRoot, "expenses");
+            AppendEmptyContainer(objDocument, objRoot, "calendar");
+            AppendEmptyContainer(objDocument, objRoot, "improvements");
+            AppendEmptyContainer(objDocument, objRoot, "lifestyles");
+
+            var objCharacter = new CharacterDocument(objDocument, strDisplayName);
+
+            XmlNodeList? objPowerNodes = objCritterNode?.SelectNodes("powers/power");
+            if (objPowerNodes != null)
+                foreach (XmlNode objPowerNode in objPowerNodes)
+                {
+                    string strPowerName = objPowerNode.InnerText;
+                    if (string.IsNullOrWhiteSpace(strPowerName))
+                        continue;
+                    string strSelect = objPowerNode.Attributes?["select"]?.InnerText ?? string.Empty;
+                    objCharacter.AddCritterPower(strPowerName, "0", objMetatype.Source, string.Empty, strSelect,
+                        blnCountTowardsLimit: false);
+                }
+
+            return objCharacter;
+        }
+
+        /// <summary>Evaluates a critter attribute's "F"/"F-2"/"F+3"-style Force formula (or a plain
+        /// integer for non-Force critters) against the supplied Force, floored at 0.</summary>
+        private static int EvaluateForceExpression(string strExpression, int intForce)
+        {
+            if (string.IsNullOrWhiteSpace(strExpression))
+                return 0;
+            string strSubstituted = strExpression.Replace("F", intForce.ToString(CultureInfo.InvariantCulture));
+            return Math.Max(0, (int)RatingExpression.Evaluate(strSubstituted, "0"));
+        }
+
+        /// <summary>Seeds a critter's Active Skills/Skill Groups/Knowledge Skills straight from its
+        /// critters.xml entry - ported from frmMetatype.cs's critter-specific skill population.
+        /// Ratings may themselves be Force formulas (e.g. Ally Spirit's `rating="F"`).</summary>
+        private static void ApplyCritterSkills(XmlDocument objDocument, XmlElement objRoot, XmlNode? objCritterNode,
+            int intForce)
+        {
+            if (objCritterNode == null)
+                return;
+
+            XmlNodeList? objSkillNodes = objCritterNode.SelectNodes("skills/skill");
+            if (objSkillNodes != null)
+                foreach (XmlNode objSkillNode in objSkillNodes)
+                {
+                    string strName = objSkillNode.InnerText;
+                    string strRating = EvaluateForceExpression(
+                        objSkillNode.Attributes?["rating"]?.InnerText ?? "0", intForce).ToString(CultureInfo.InvariantCulture);
+                    XmlNode? objMatch = objRoot.SelectSingleNode($"skills/skill[name = '{strName}']");
+                    if (objMatch?["rating"] != null)
+                        objMatch["rating"]!.InnerText = strRating;
+                }
+
+            XmlNodeList? objGroupNodes = objCritterNode.SelectNodes("skills/group");
+            if (objGroupNodes != null)
+                foreach (XmlNode objGroupNode in objGroupNodes)
+                {
+                    string strName = objGroupNode.InnerText;
+                    string strRating = EvaluateForceExpression(
+                        objGroupNode.Attributes?["rating"]?.InnerText ?? "0", intForce).ToString(CultureInfo.InvariantCulture);
+                    XmlNode? objMatch = objRoot.SelectSingleNode($"skillgroups/skillgroup[name = '{strName}']");
+                    if (objMatch?["rating"] != null)
+                        objMatch["rating"]!.InnerText = strRating;
+                }
+
+            XmlElement objSkills = (XmlElement?)objRoot.SelectSingleNode("skills")
+                ?? (XmlElement)objRoot.AppendChild(objDocument.CreateElement("skills"))!;
+            XmlNodeList? objKnowledgeNodes = objCritterNode.SelectNodes("skills/knowledge");
+            if (objKnowledgeNodes != null)
+                foreach (XmlNode objKnowledgeNode in objKnowledgeNodes)
+                {
+                    string strRating = EvaluateForceExpression(
+                        objKnowledgeNode.Attributes?["rating"]?.InnerText ?? "0", intForce).ToString(CultureInfo.InvariantCulture);
+                    string strCategory = objKnowledgeNode.Attributes?["category"]?.InnerText ?? string.Empty;
+
+                    XmlElement objSkill = objDocument.CreateElement("skill");
+                    objSkills.AppendChild(objSkill);
+                    AppendElement(objDocument, objSkill, "name", objKnowledgeNode.InnerText);
+                    AppendElement(objDocument, objSkill, "skillgroup", string.Empty);
+                    AppendElement(objDocument, objSkill, "skillcategory", strCategory);
+                    AppendElement(objDocument, objSkill, "grouped", "False");
+                    AppendElement(objDocument, objSkill, "default", "False");
+                    AppendElement(objDocument, objSkill, "rating", strRating);
+                    AppendElement(objDocument, objSkill, "ratingmax", "6");
+                    AppendElement(objDocument, objSkill, "knowledge", "True");
+                    AppendElement(objDocument, objSkill, "exotic", "False");
+                    AppendElement(objDocument, objSkill, "spec", string.Empty);
+                    AppendElement(objDocument, objSkill, "allowdelete", "True");
+                    AppendElement(objDocument, objSkill, "attribute", "LOG");
+                    AppendElement(objDocument, objSkill, "totalvalue", "0");
+                }
         }
 
         public static CharacterDocument CreateNewCharacter(string strDisplayName, string strSettingsFileName,
