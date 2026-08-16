@@ -69,6 +69,33 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterClipboard_Copy_RejectsAnXPathThatDoesNotResolveToTheExpectedType_sRootElement()
+    {
+        // Ported from frmCreate.cs's mnuEditPaste_Click's second, independent check beyond the
+        // ClipboardContentType tag - here caught even earlier, at Copy time: a caller passing the
+        // wrong XPath/type pairing (e.g. tagging a <weapon> node as Gear) must not succeed.
+        CharacterDocument source = LoadXml("<character><weapons><weapon><name>Katana</name>"
+            + "<category>Blades</category></weapon></weapons></character>");
+        var clipboard = new CharacterClipboard();
+
+        Assert.False(clipboard.Copy(source, "/character/weapons/weapon", ClipboardContentType.Gear));
+        Assert.Null(clipboard.Item);
+    }
+
+    [Fact]
+    public void CharacterClipboard_CommlinkAndOperatingSystem_ShareGearsRootElementWithPlainGear()
+    {
+        CharacterDocument source = LoadXml("<character><gears><gear><name>Fairlight Caliban</name>"
+            + "<category>Commlink</category></gear></gears></character>");
+        CharacterDocument target = LoadXml("<character><gears /></character>");
+        var clipboard = new CharacterClipboard();
+
+        Assert.True(clipboard.Copy(source, "/character/gears/gear", ClipboardContentType.Commlink));
+        Assert.True(clipboard.Paste(target, "/character/gears", ClipboardContentType.Commlink));
+        Assert.Equal("Fairlight Caliban", target.Document.SelectSingleNode("/character/gears/gear/name")!.InnerText);
+    }
+
+    [Fact]
     public void Contacts_And_Enemies_AreSplitByType()
     {
         CharacterDocument character = LoadFixture();
