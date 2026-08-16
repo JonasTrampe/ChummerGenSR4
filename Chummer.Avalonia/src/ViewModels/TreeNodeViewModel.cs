@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
@@ -258,12 +259,12 @@ public sealed class TreeNodeViewModel
         var node = new TreeNodeViewModel(item.Name, item.Children.Count > 0, item.Category)
         {
             VehicleGuid = item.Guid,
-            Handling = item.Handling,
-            Acceleration = item.Acceleration,
-            Speed = item.Speed,
+            Handling = item.TotalHandling.ToString(CultureInfo.InvariantCulture),
+            Acceleration = item.TotalAccel,
+            Speed = item.TotalSpeed.ToString(CultureInfo.InvariantCulture),
             Pilot = item.Pilot,
-            Body = item.Body,
-            VehicleArmor = item.Armor,
+            Body = item.TotalBody.ToString(CultureInfo.InvariantCulture),
+            VehicleArmor = item.TotalArmor.ToString(CultureInfo.InvariantCulture),
             Sensor = item.SensorDisplay,
             DeviceRating = item.DeviceRating,
             Avail = item.Avail,

@@ -33,7 +33,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | Priority | Area | Status | Required outcome |
 | --- | --- | --- | --- |
 | P0 | Creation budget | `[~]` | Attributes (incl. SpecialAttributeKarmaLimit for MAG/RES/EDG), skills (incl. BreakSkillGroupsInCreateMode), contacts, qualities (incl. positive/negative quality limits), spells, complex forms, Nuyen, martial arts, maneuvers (with capacity cap), and spirits/sprites debit/refund one enforced pool; continue auditing the remaining creation mutators and limits. |
-| P1 | Bonus consumers | `[~]` | ArmorMod B/I, essence, nuyen (nuyenamt), free-quality (addqualities), and essence-multiplier (essencemax) are wired. Vehicle-context stat bonuses (flyspeed/speed/accel/handling/response) remain - need per-vehicle Improvement scoping this port's Vehicle model doesn't have yet. |
+| P1 | Bonus consumers | `[x]` | ArmorMod B/I, essence, nuyen (nuyenamt), free-quality (addqualities), essence-multiplier (essencemax), and Vehicle Mod speed/accel/body/handling/armor bonuses are all wired. |
 | P1 | Calculations | `[~]` | Recoil (incl. loaded-ammo RC), Cyborg Essence override, Special Weapons range-based skill lookup, and Mystic-Adept EssencePenalty-adjusted split are covered; "soft overrides" has no identifiable referent in the legacy codebase (no matching mechanism found; treat as resolved/moot unless a concrete target surfaces). |
 | P1 | Special commands | `[~]` | Reapply known improvements, Free Sprite conversion, transactional metatype replacement, and BP/availability configuration are covered; critter creation remains. |
 | P1 | Containment | `[x]` | Underbarrels plus armor, cyberware, weapon-accessory, and vehicle gear/plugin trees persist and mutate. |

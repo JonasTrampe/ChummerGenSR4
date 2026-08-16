@@ -951,6 +951,70 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void VehicleTotals_ModsAddFlatBonusesToBodyAndHandling()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen></character>");
+        character.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "3/6", "180", "2", "10", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+        Guid guiVehicleId = Guid.Parse(character.Vehicles.Single().Guid);
+
+        Assert.True(character.AddVehicleMod(guiVehicleId, "Unstable Structural Agility", "All", "0",
+            "4", "12R", "0", "AR", "146"));
+
+        CharacterVehicleData vehicle = character.Vehicles.Single();
+        Assert.Equal(10, vehicle.TotalBody); // No <body> bonus on this mod.
+        Assert.Equal(3 + 3, vehicle.TotalHandling); // Base 3 + the Mod's flat +3.
+    }
+
+    [Fact]
+    public void VehicleTotals_ArmorModReplacesRatherThanAddsToTheBaseArmor()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen></character>");
+        character.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "3/6", "180", "2", "10", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+        Guid guiVehicleId = Guid.Parse(character.Vehicles.Single().Guid);
+
+        Assert.True(character.AddVehicleMod(guiVehicleId, "Armor, Normal", "All", "8",
+            "1", "6R", "0", "AR", "132"));
+
+        // Base Armor of 6 is entirely replaced (not added to) by the Mod's own Rating-scaled bonus.
+        Assert.Equal(8, character.Vehicles.Single().TotalArmor);
+    }
+
+    [Fact]
+    public void VehicleTotals_SpeedAndAccelModsApplyAsPercentMultipliers()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen></character>");
+        character.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "3/6", "100", "2", "10", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+        Guid guiVehicleId = Guid.Parse(character.Vehicles.Single().Guid);
+
+        Assert.True(character.AddVehicleMod(guiVehicleId, "Engine Customization, Speed", "All", "0",
+            "2", "6", "0", "AR", "135"));
+        Assert.True(character.AddVehicleMod(guiVehicleId, "Engine Customization, Acceleration", "All", "0",
+            "2", "6", "0", "AR", "135"));
+
+        CharacterVehicleData vehicle = character.Vehicles.Single();
+        Assert.Equal(120, vehicle.TotalSpeed); // 100 + 100 * 0.2.
+        Assert.Equal("4/8", vehicle.TotalAccel); // 3/6 base + 20%, rounded up.
+    }
+
+    [Fact]
+    public void VehicleTotals_RatingScaledAccelBonusResolvesRatingInTheExpression()
+    {
+        CharacterDocument character = LoadXml("<character><nuyen>500000</nuyen></character>");
+        character.AddVehicle("Bulldog Step Van", "Trucks", "3", "3/6", "100", "2", "12", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+        Guid guiVehicleId = Guid.Parse(character.Vehicles.Single().Guid);
+
+        Assert.True(character.AddVehicleMod(guiVehicleId, "Turbocharger", "Standard", "4",
+            "4", "4", "0", "AR", "146"));
+
+        // "+(Rating * 5)/+(Rating * 10)" at Rating 4 -> +20/+40 on top of the 3/6 base.
+        Assert.Equal("23/46", character.Vehicles.Single().TotalAccel);
+    }
+
+    [Fact]
     public void RemoveGear_RemovesOnlyMatchingRootLevelEntry()
     {
         CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");
