@@ -102,6 +102,21 @@ public partial class GearSectionTab : UserControl
         if (_character.RemoveLifestyle(ViewModel.SelectedLifestyle.LifestyleId)) ViewModel.LoadCharacter(_character);
     }
 
+    // Ported from frmCreate.cs's per-collection Copy/Paste menu commands (mnuEditCopy_Click/
+    // mnuEditPaste_Click): the shared, process-wide CharacterClipboard.Instance lets a Lifestyle/
+    // Armor/Weapon/Gear item copied from one open character be pasted into any other.
+    private void OnCopyLifestyleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && ViewModel.SelectedLifestyle is { } lifestyle)
+            _character.CopyLifestyle(lifestyle.LifestyleId);
+    }
+
+    private void OnPasteLifestyleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && _character.PasteLifestyle())
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnEditLifestyleNotesClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedLifestyle is not { } lifestyle
@@ -246,6 +261,18 @@ public partial class GearSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnCopyGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && ViewModel.SelectedGear is { GearId: >= 0 } node)
+            _character.CopyGear(node.GearId);
+    }
+
+    private void OnPasteGearClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && _character.PasteGear())
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void OnToggleGearEquippedClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedGear is not { GearId: >= 0 } node || sender is not CheckBox checkBox)
@@ -367,6 +394,18 @@ public partial class GearSectionTab : UserControl
 
         var dialog = new SellItemDialog();
         if (await dialog.ShowDialog<bool>(window) && _character.SellWeapon(selected.SourceName, selected.Category, dialog.SellPercent))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnCopyWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && ViewModel.SelectedWeapon is { Parent: null, WeaponId: >= 0 } weapon)
+            _character.CopyWeapon(weapon.WeaponId);
+    }
+
+    private void OnPasteWeaponClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && _character.PasteWeapon())
             ViewModel.LoadCharacter(_character);
     }
 
@@ -515,6 +554,18 @@ public partial class GearSectionTab : UserControl
 
         var dialog = new SellItemDialog();
         if (await dialog.ShowDialog<bool>(window) && _character.SellArmor(selected.SourceName, selected.Category, dialog.SellPercent))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnCopyArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && ViewModel.SelectedArmor is { ArmorId: >= 0 } armor)
+            _character.CopyArmor(armor.ArmorId);
+    }
+
+    private void OnPasteArmorClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && _character.PasteArmor())
             ViewModel.LoadCharacter(_character);
     }
 

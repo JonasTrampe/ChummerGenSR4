@@ -53,6 +53,19 @@ public partial class VehiclesSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    private void OnCopyVehicleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && ViewModel.SelectedVehicle is { Parent: null } vehicle
+            && Guid.TryParse(vehicle.VehicleGuid, out Guid guiVehicleId))
+            _character.CopyVehicle(guiVehicleId);
+    }
+
+    private void OnPasteVehicleClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character != null && _character.PasteVehicle())
+            ViewModel.LoadCharacter(_character);
+    }
+
     private async void OnReloadVehicleWeaponClick(object? sender, RoutedEventArgs e)
     {
         if (_character == null || ViewModel.SelectedVehicle is not { Parent: not null } weapon

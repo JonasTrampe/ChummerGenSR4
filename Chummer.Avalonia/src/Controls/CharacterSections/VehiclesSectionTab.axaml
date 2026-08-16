@@ -18,6 +18,8 @@
                 <Button Content="{loc:Loc Tab_Notes}" Click="OnEditVehicleNotesClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
                 <Button Content="{loc:Loc UI_Sell}" Click="OnSellVehicleClick" />
+                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyVehicleClick" />
+                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteVehicleClick" />
                 <Button Content="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>

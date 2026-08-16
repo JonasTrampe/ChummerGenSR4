@@ -69,6 +69,67 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void ClipboardConvenienceMethods_CopyAndPasteEachCollectionAcrossCharacters()
+    {
+        // Ported from frmCreate.cs's per-collection Copy/Paste menu commands: each collection's
+        // own By-Id lookup (GetGearNodeById etc.) is used to resolve the node, so hosts never need
+        // to build XPaths or a <guid> themselves - CharacterClipboard.Instance is the single,
+        // process-wide clipboard shared by every open character, matching legacy's
+        // GlobalOptions.Instance.Clipboard.
+        CharacterClipboard.Instance.Clear();
+
+        CharacterDocument source = LoadXml("<character><nuyen>100000</nuyen></character>");
+        CharacterDocument target = LoadXml("<character><nuyen>0</nuyen></character>");
+
+        source.AddGear("Toolkit", "Tools", strQty: "1", strCost: "0");
+        Assert.True(source.CopyGear(source.Gear[0].GearId));
+        Assert.True(target.HasClipboardItemOfType(ClipboardContentType.Gear));
+        Assert.True(target.PasteGear());
+        Assert.Equal("Toolkit", target.Gear[0].Name);
+
+        source.AddWeapon("Katana", "Blades", "5P", "-2", "-", "0", "-", "0", "4", "SR4", "313");
+        Assert.True(source.CopyWeapon(0));
+        Assert.True(target.PasteWeapon());
+        Assert.Contains(target.Weapons, w => w.Name == "Katana");
+
+        source.AddArmor("Armor Jacket", "Armor", "6", "0", "0", "600", "2", "SR4", "319");
+        Assert.True(source.CopyArmor(0));
+        Assert.True(target.PasteArmor());
+        Assert.Contains(target.Armor, a => a.Name == "Armor Jacket");
+
+        source.AddCyberware("Cyberear", "Headware", "1", "0.1", "500", "4", "SR4", "319");
+        Assert.True(source.CopyCyberware(0, blnBioware: false));
+        Assert.True(target.PasteCyberware(blnBioware: false));
+        Assert.Contains(target.Cyberware, c => c.Name == "Cyberear");
+
+        source.AddLifestyle("Squatter", "0", "1");
+        Assert.True(source.CopyLifestyle(0));
+        Assert.True(target.PasteLifestyle());
+        Assert.Contains(target.Lifestyles, l => l.Name == "Squatter");
+
+        source.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "15", "180", "2", "10", "6", "2", "3",
+            "4", "16000", "SR4", "351");
+        Guid guiVehicleId = Guid.Parse(source.Vehicles.Single().Guid);
+        Assert.True(source.CopyVehicle(guiVehicleId));
+        Assert.True(target.PasteVehicle());
+        Assert.Contains(target.Vehicles, v => v.Name == "Hyundai Shin-Hyung");
+    }
+
+    [Fact]
+    public void ClipboardConvenienceMethods_PasteRejectsAMismatchedCollectionType()
+    {
+        CharacterClipboard.Instance.Clear();
+
+        CharacterDocument source = LoadXml("<character><nuyen>100000</nuyen></character>");
+        CharacterDocument target = LoadXml("<character><nuyen>0</nuyen></character>");
+        source.AddGear("Toolkit", "Tools", strQty: "1", strCost: "0");
+
+        Assert.True(source.CopyGear(source.Gear[0].GearId));
+        Assert.False(target.PasteArmor());
+        Assert.Empty(target.Armor);
+    }
+
+    [Fact]
     public void CharacterClipboard_Copy_RejectsAnXPathThatDoesNotResolveToTheExpectedType_sRootElement()
     {
         // Ported from frmCreate.cs's mnuEditPaste_Click's second, independent check beyond the

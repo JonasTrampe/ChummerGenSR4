@@ -16,6 +16,8 @@
                 <Button Content="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" />
                 <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
                 <Button Content="{loc:Loc UI_Sell}" Click="OnSellClick" />
+                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyClick" />
+                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>

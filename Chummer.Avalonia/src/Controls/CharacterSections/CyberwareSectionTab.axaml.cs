@@ -151,6 +151,25 @@ public partial class CyberwareSectionTab : UserControl
             ViewModel.LoadCharacter(_character);
     }
 
+    // Ported from frmCareer.cs's per-collection Copy/Paste menu commands: which of the two
+    // synthetic root nodes the selection belongs to decides Cyberware vs. Bioware content type,
+    // same as OnDeleteClick/OnSellClick.
+    private void OnCopyClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedNode is not { Parent: { Parent: null } parent, CyberwareId: >= 0 } node)
+            return;
+        _character.CopyCyberware(node.CyberwareId, ReferenceEquals(parent, ViewModel.BiowareRoot));
+    }
+
+    private void OnPasteClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null)
+            return;
+        bool blnBioware = CharacterClipboard.Instance.Item?.ContentType == ClipboardContentType.Bioware;
+        if (_character.PasteCyberware(blnBioware))
+            ViewModel.LoadCharacter(_character);
+    }
+
     private void SetUpCyberwareDragDrop()
     {
         var tree = this.FindControl<TreeView>("CyberwareTree")!;

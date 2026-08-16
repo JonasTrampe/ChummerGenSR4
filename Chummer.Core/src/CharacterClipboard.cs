@@ -43,6 +43,11 @@ namespace Chummer.Core
             [ClipboardContentType.Lifestyle] = "lifestyle",
         };
 
+        // Ported from clsOptions.cs's GlobalOptions.Instance.Clipboard/.ClipboardContentType: a
+        // single, process-wide clipboard shared by every open character window, not one per
+        // character - so copying from one character and pasting into another works, same as legacy.
+        public static CharacterClipboard Instance { get; } = new();
+
         public CharacterClipboardItem? Item { get; private set; }
 
         public bool Copy(CharacterDocument objCharacter, string strItemXPath, ClipboardContentType objType)

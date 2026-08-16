@@ -15,6 +15,8 @@
                         <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
                         <Button Content="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
+                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyLifestyleClick" />
+                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteLifestyleClick" />
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
@@ -42,6 +44,8 @@
                         <Button Content="{loc:Loc Tab_Notes}" Click="OnEditArmorNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
+                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyArmorClick" />
+                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteArmorClick" />
                         <Button Content="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
                         <Button Content="{loc:Loc UI_DeleteMod}" Click="OnDeleteArmorModClick" />
                         <Button Content="B−" Click="OnArmorBallisticDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
@@ -124,6 +128,8 @@
                         <Button Content="{loc:Loc Tab_Notes}" Click="OnEditWeaponNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellWeaponClick" />
+                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyWeaponClick" />
+                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteWeaponClick" />
                         <Button Content="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
@@ -207,6 +213,8 @@
                         <Button Content="{loc:Loc Tab_Notes}" Click="OnEditGearNotesClick" />
                         <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
                         <Button Content="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
+                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyGearClick" />
+                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteGearClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
                         <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveGearLocationClick" />
                         <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
