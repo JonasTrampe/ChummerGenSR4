@@ -8,11 +8,14 @@ public partial class MetatypeDialog : Window
 {
     public MetatypeDialogViewModel ViewModel { get; } = new();
 
-    public MetatypeDialog(string strSettingsFileName = "default.xml")
+    public MetatypeDialog(string strSettingsFileName = "default.xml", bool blnCritterMode = false)
     {
         DataContext = ViewModel;
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
-        ViewModel.LoadMetatypes(strSettingsFileName);
+        if (blnCritterMode)
+            ViewModel.LoadCritterMetatypes(strSettingsFileName);
+        else
+            ViewModel.LoadMetatypes(strSettingsFileName);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)
@@ -27,7 +30,8 @@ public partial class MetatypeDialog : Window
         {
             Metatype = ViewModel.SelectedMetatype,
             MetavariantName = ViewModel.SelectedMetavariant == "-" ? string.Empty : ViewModel.SelectedMetavariant,
-            MagicType = strMagicType
+            MagicType = strMagicType,
+            Force = ViewModel.Force
         });
     }
 

@@ -69,6 +69,41 @@ public partial class MainWindow : Window
         ViewModel.AddOpenCharacter(objCharacter, null);
     }
 
+    // Ported from frmMain.cs's mnuNewCritter_Click: builds a character directly from a
+    // critters.xml template (IsCritter=true, IgnoreRules=true, BuildMethod=Bp/BuildPoints=0)
+    // instead of the normal point-buy metatype selection.
+    private async void OnNewCritterClick(object? sender, RoutedEventArgs e)
+    {
+        var settingsDialog = new SettingsProfileDialog();
+        SettingsProfileSelection? objSettingsSelection = await settingsDialog.ShowDialog<SettingsProfileSelection?>(this);
+        if (objSettingsSelection == null)
+            return;
+
+        var objOptions = new CharacterOptions();
+        objOptions.Load(objSettingsSelection.FileName);
+        if (!objOptions.Books.Contains("RW"))
+        {
+            var warningDialog = new MessageBoxDialog(
+                T("MessageTitle_Main_RunningWild"), T("Message_Main_RunningWild"));
+            await warningDialog.ShowDialog(this);
+            return;
+        }
+
+        var metatypeDialog = new MetatypeDialog(objSettingsSelection.FileName, blnCritterMode: true);
+        MetatypeSelection? objMetatypeSelection = await metatypeDialog.ShowDialog<MetatypeSelection?>(this);
+        if (objMetatypeSelection == null)
+            return;
+
+        string strCharacterName = "New " + objMetatypeSelection.Metatype.Name;
+        CharacterDocument objCharacter = NewCharacterFactory.CreateCritterCharacter(
+            strCharacterName,
+            objSettingsSelection.FileName,
+            objMetatypeSelection.Metatype,
+            objMetatypeSelection.Force,
+            objOptions);
+        ViewModel.AddOpenCharacter(objCharacter, null);
+    }
+
     private async void OnOpenCharacterClick(object? sender, RoutedEventArgs e)
     {
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;

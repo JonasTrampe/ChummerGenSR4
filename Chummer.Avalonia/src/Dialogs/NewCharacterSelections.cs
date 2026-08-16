@@ -27,4 +27,8 @@ public sealed class MetatypeSelection
     /// <summary>"None", "Magician", "Adept", or "Technomancer" - which of the three mutually
     /// exclusive SR4 magic/resonance paths (if any) this character starts with.</summary>
     public string MagicType { get; init; } = "None";
+
+    /// <summary>Only meaningful when the dialog was opened in critter mode - see
+    /// MetatypeDialogViewModel.Force/NewCharacterFactory.CreateCritterCharacter.</summary>
+    public int Force { get; init; } = 1;
 }

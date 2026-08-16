@@ -28,6 +28,7 @@
         <Menu DockPanel.Dock="Top" Background="White">
             <MenuItem Header="{loc:Loc Menu_Main_File}">
                 <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_NewCritter}" Click="OnNewCritterClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_Open}" Click="OnOpenCharacterClick" />
                 <MenuItem Header="{loc:Loc UI_RecentFiles}" ItemsSource="{Binding RecentCharacters}">
                     <MenuItem.ItemTemplate>

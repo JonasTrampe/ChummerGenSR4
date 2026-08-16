@@ -64,7 +64,7 @@
 					<TextBlock Grid.Row="5" Grid.Column="3" Text="{Binding SelectedMetatype.ResRange}" />
 				</Grid>
 
-				<StackPanel Grid.Row="3" Spacing="4">
+				<StackPanel Grid.Row="3" Spacing="4" IsVisible="{Binding !IsCritterMode}">
 					<TextBlock Text="{loc:Loc Label_Metavariant}" />
 					<ComboBox Width="220"
 					          HorizontalAlignment="Left"
@@ -77,7 +77,7 @@
 					<TextBlock Grid.Column="1" Text="{Binding SelectedMetatype.EssRange}" />
 				</Grid>
 
-				<StackPanel Grid.Row="5" Spacing="4" VerticalAlignment="Bottom">
+				<StackPanel Grid.Row="5" Spacing="4" VerticalAlignment="Bottom" IsVisible="{Binding !IsCritterMode}">
 					<TextBlock Text="{loc:Loc UI_MagicResonanceColon}" />
 					<ComboBox Width="220" HorizontalAlignment="Left" Name="MagicTypeBox" SelectedIndex="0">
 						<ComboBoxItem Content="{loc:Loc UI_None}" Tag="None" />
@@ -86,6 +86,12 @@
 						<ComboBoxItem Content="{loc:Loc UI_MysticAdept}" Tag="MysticAdept" />
 						<ComboBoxItem Content="{loc:Loc UI_TechnomancerLabel}" Tag="Technomancer" />
 					</ComboBox>
+				</StackPanel>
+
+				<StackPanel Grid.Row="5" Spacing="4" VerticalAlignment="Bottom" IsVisible="{Binding SelectedCritterUsesForce}">
+					<TextBlock Text="{loc:Loc String_Force}" />
+					<NumericUpDown Width="120" HorizontalAlignment="Left" Minimum="1" Maximum="50"
+					                Value="{Binding Force, Mode=TwoWay}" />
 				</StackPanel>
 			</Grid>
 		</Grid>
