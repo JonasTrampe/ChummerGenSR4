@@ -1579,6 +1579,22 @@ namespace Chummer.Core
                 && ExceedsQualityLimit(objXmlQuality, strType, intCreationCost, blnKarmaBuild))
                 return false;
 
+            // Ported from frmCareer.cs's cmdAddQuality_Click: after character creation, buying a
+            // Positive Quality costs BP*KarmaQuality Karma (the same formula GetQualityCreationCost
+            // uses for a Karma-mode creation purchase); Negative Qualities are free to add in
+            // career mode too (legacy still confirms via a separate Message_AddNegativeQuality
+            // Yes/No, but grants no Karma back - only its UI-side confirmation is out of scope
+            // here). blnChargeCreation doubles as "should this add be charged at all" so a
+            // free/bundled grant (addqualities, mentor spirits) skips the career charge too.
+            bool blnCareerPurchase = blnChargeCreation && Created;
+            int intCareerKarmaCost = 0;
+            if (blnCareerPurchase && strType == "Positive")
+            {
+                intCareerKarmaCost = GetQualityCreationCost(objXmlQuality, blnKarmaBuild: true);
+                if (intCareerKarmaCost > ParseInteger(Karma))
+                    return false;
+            }
+
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objQualities = objRoot.SelectSingleNode("qualities");
@@ -1676,6 +1692,13 @@ namespace Chummer.Core
                 else
                     Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
             }
+            else if (intCareerKarmaCost > 0)
+            {
+                Karma = (ParseInteger(Karma) - intCareerKarmaCost).ToString(CultureInfo.InvariantCulture);
+                var objUndo = new ExpenseUndo();
+                objUndo.CreateKarma(KarmaExpenseType.AddQuality, strName.Trim());
+                AddExpense("Karma", -intCareerKarmaCost, "Quality hinzugefügt: " + strName.Trim(), null, objUndo);
+            }
             Changed?.Invoke();
             return true;
         }
@@ -1767,6 +1790,19 @@ namespace Chummer.Core
                         Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
                 }
 
+                // Ported from frmCareer.cs's cmdDeleteQuality_Click: after character creation,
+                // "buying off" a Negative Quality costs BP*KarmaQuality Karma - removing a Positive
+                // Quality, by contrast, is free (no refund), matching legacy's asymmetry.
+                int intCareerBuyOffCost = 0;
+                if (Created && strType == "Negative")
+                {
+                    XmlNode? objXmlNegativeQuality = XmlManager.Instance.Load("qualities.xml")
+                        .SelectSingleNode($"/chummer/qualities/quality[name = '{strName.Trim()}']");
+                    intCareerBuyOffCost = Math.Abs(GetQualityCreationCost(objXmlNegativeQuality, blnKarmaBuild: true));
+                    if (intCareerBuyOffCost > ParseInteger(Karma))
+                        return false;
+                }
+
                 if (!Created && StartingBuildPoints > 0)
                 {
                     XmlNode? objXmlQuality = XmlManager.Instance.Load("qualities.xml")
@@ -1784,6 +1820,13 @@ namespace Chummer.Core
                 }
                 objQuality.ParentNode?.RemoveChild(objQuality);
                 RemoveBonusImprovements(ImprovementSource.Quality, strName);
+                if (intCareerBuyOffCost > 0)
+                {
+                    Karma = (ParseInteger(Karma) - intCareerBuyOffCost).ToString(CultureInfo.InvariantCulture);
+                    var objUndo = new ExpenseUndo();
+                    objUndo.CreateKarma(KarmaExpenseType.RemoveQuality, strName.Trim());
+                    AddExpense("Karma", -intCareerBuyOffCost, "Quality entfernt: " + strName.Trim(), null, objUndo);
+                }
                 Changed?.Invoke();
                 return true;
             }
@@ -1826,6 +1869,17 @@ namespace Chummer.Core
         {
             int intBp = ParseInteger(objXmlQuality?.SelectSingleNode("bp")?.InnerText ?? "0");
             return intBp * (blnKarmaBuild ? GetCharacterOptions().KarmaQuality : 1);
+        }
+
+        /// <summary>The Karma cost a career-mode AddQuality (Positive) or RemoveQuality (Negative
+        /// buy-off) call for this Quality would charge - exposed so a host can preview the amount
+        /// in a KarmaExpenseConfirmation prompt before committing, matching frmCareer.cs's
+        /// pre-computed intKarmaCost shown in its own confirmation messages.</summary>
+        public int GetQualityCareerKarmaCost(string strName)
+        {
+            XmlNode? objXmlQuality = XmlManager.Instance.Load("qualities.xml")
+                .SelectSingleNode($"/chummer/qualities/quality[name = '{strName.Trim()}']");
+            return Math.Abs(GetQualityCreationCost(objXmlQuality, blnKarmaBuild: true));
         }
 
         private bool ExceedsQualityLimit(XmlNode? objNewQuality, string strType, int intNewCost, bool blnKarmaBuild)

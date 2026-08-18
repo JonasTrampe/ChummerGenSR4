@@ -493,6 +493,75 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddQuality_CareerMode_PositiveQualityChargesKarmaAndLogsAnExpense()
+    {
+        // Ported from frmCareer.cs's cmdAddQuality_Click: Ambidextrous is bp=5, default
+        // KarmaQuality is 2 -> 10 Karma.
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>15</karma></character>");
+
+        Assert.True(character.AddQuality("Ambidextrous", "Positive"));
+
+        Assert.Equal("5", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Ambidextrous") && e.Amount == "-10");
+    }
+
+    [Fact]
+    public void AddQuality_CareerMode_InsufficientKarmaRejectsThePositivePurchase()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>5</karma></character>");
+
+        Assert.False(character.AddQuality("Ambidextrous", "Positive"));
+        Assert.Empty(character.Qualities);
+        Assert.Equal("5", character.Karma);
+    }
+
+    [Fact]
+    public void AddQuality_CareerMode_NegativeQualityIsFree()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>5</karma></character>");
+
+        Assert.True(character.AddQuality("Astral Beacon", "Negative"));
+
+        Assert.Equal("5", character.Karma);
+    }
+
+    [Fact]
+    public void RemoveQuality_CareerMode_BuyingOffANegativeQualityChargesKarma()
+    {
+        // Astral Beacon is bp=-5, default KarmaQuality is 2 -> 10 Karma to buy off.
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>15</karma>"
+            + "<qualities><quality><name>Astral Beacon</name><qualitytype>Negative</qualitytype></quality></qualities></character>");
+
+        Assert.True(character.RemoveQuality("Astral Beacon", "Negative"));
+
+        Assert.Equal("5", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Astral Beacon") && e.Amount == "-10");
+    }
+
+    [Fact]
+    public void RemoveQuality_CareerMode_InsufficientKarmaRejectsBuyingOffTheNegativeQuality()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>5</karma>"
+            + "<qualities><quality><name>Astral Beacon</name><qualitytype>Negative</qualitytype></quality></qualities></character>");
+
+        Assert.False(character.RemoveQuality("Astral Beacon", "Negative"));
+        Assert.Single(character.Qualities);
+        Assert.Equal("5", character.Karma);
+    }
+
+    [Fact]
+    public void RemoveQuality_CareerMode_RemovingAPositiveQualityIsFree()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>5</karma>"
+            + "<qualities><quality><name>Ambidextrous</name><qualitytype>Positive</qualitytype></quality></qualities></character>");
+
+        Assert.True(character.RemoveQuality("Ambidextrous", "Positive"));
+
+        Assert.Empty(character.Qualities);
+        Assert.Equal("5", character.Karma);
+    }
+
+    [Fact]
     public void ReplaceQuality_CreationAllowsAnEqualCostSwapWithoutFreePoints()
     {
         CharacterDocument creation = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod><startingbuildpoints>10</startingbuildpoints><bp>0</bp><qualities><quality><name>Ambidextrous</name><qualitytype>Positive</qualitytype><creationcost>5</creationcost></quality></qualities></character>");

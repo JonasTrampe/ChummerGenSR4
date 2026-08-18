@@ -93,6 +93,18 @@ public partial class GeneralSectionTab : UserControl
         if (!blnMentorProceed)
             return;
 
+        // Ported from frmCareer.cs's cmdAddQuality_Click: buying a Positive Quality after
+        // creation costs Karma and confirms via Message_ConfirmKarmaExpenseSpend; Negative
+        // Qualities are free in career mode too, so no prompt needed for those.
+        if (_character.Created && selected.Category == "Positive")
+        {
+            int intKarmaCost = _character.GetQualityCareerKarmaCost(selected.Name);
+            string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpend"),
+                selected.Name, intKarmaCost);
+            if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
+                return;
+        }
+
         if (_character.AddQuality(selected.Name, selected.Category, strExtra, strMentor, strChoice))
             ViewModel.LoadCharacter(_character);
     }
@@ -157,6 +169,19 @@ public partial class GeneralSectionTab : UserControl
         var quality = ViewModel.SelectedQualityNode;
         if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteQuality"))
             return;
+
+        // Ported from frmCareer.cs's cmdDeleteQuality_Click: buying off a Negative Quality after
+        // creation costs Karma and confirms via Message_ConfirmKarmaExpenseRemove; removing a
+        // Positive Quality is free in career mode, so no prompt needed for those.
+        if (_character.Created && quality.Category == "Negative")
+        {
+            int intKarmaCost = _character.GetQualityCareerKarmaCost(quality.SourceName);
+            string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseRemove"),
+                quality.SourceName, intKarmaCost);
+            if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
+                return;
+        }
+
         if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
             ViewModel.LoadCharacter(_character);
     }
@@ -222,10 +247,26 @@ public partial class GeneralSectionTab : UserControl
     }
 
     /// <summary>Only wired up for EDG (see AttributeRow.ShowRemove) - ported from
-    /// frmCareer.cs's cmdBurnEdge_Click.</summary>
-    private void OnRemoveAttributeClick(object? sender, System.EventArgs e)
+    /// frmCareer.cs's cmdBurnEdge_Click: an unconditional (not gated by ConfirmDelete/
+    /// ConfirmKarmaExpense) Yes/No prompt before the irreversible burn, since legacy always asks
+    /// regardless of the character's confirmation settings.</summary>
+    private async void OnRemoveAttributeClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not AttributeRow)
+        if (_character == null || sender is not AttributeRow || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        CharacterAttributeData? edge = _character.Attributes.FirstOrDefault(a => a.Code == "EDG");
+        if (edge == null || !int.TryParse(edge.Value, out int intCurrentEdge) || intCurrentEdge <= 0)
+        {
+            var cannotDialog = new MessageBoxDialog(App.LanguageCatalog.GetString("MessageTitle_CannotBurnEdge"),
+                App.LanguageCatalog.GetString("Message_CannotBurnEdge"));
+            await cannotDialog.ShowDialog(window);
+            return;
+        }
+
+        var dialog = new ConfirmationDialog(App.LanguageCatalog.GetString("MessageTitle_BurnEdge"),
+            App.LanguageCatalog.GetString("Message_BurnEdge"));
+        if (!await dialog.ShowDialog<bool>(window))
             return;
 
         if (_character.BurnEdge())

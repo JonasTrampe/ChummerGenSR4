@@ -41,7 +41,7 @@ Status: active. This is the single source of truth for Linux/Avalonia migration 
 | Product | Cloud conflict/newer revision | `[~]` | Flows exist; server round-trip remains. |
 | Product | Native print | `[~]` | Implementation exists; Linux, Windows, and macOS smoke tests remain. |
 | Product | Sourcebook filtering | `[~]` | Normal pickers work; Suites and PACKS remain. |
-| Product | ConfirmDelete/ConfirmKarmaExpense | `[~]` | Primary paths work; audit remaining costly/destructive paths. |
+| Product | ConfirmDelete/ConfirmKarmaExpense | `[~]` | Delete confirmations cover every collection (fixed the one gap found: Burn Edge now shows its own unconditional confirm, matching legacy). ConfirmKarmaExpense covers Attributes/Skills/Initiation plus, newly, career-mode Quality purchase/buy-off (Core: AddQuality/RemoveQuality now actually charge Karma post-creation, which they didn't before). Still missing career-mode Karma charging + confirmation for Spells, Complex Forms, Martial Arts, and Focus binding - these don't charge Karma in Core at all yet, not just missing a confirm dialog, so wiring them is a larger follow-on than an audit. |
 | Product | LocalisedUpdatesOnly/OmaeAutoLogin | `[ ]` | Runtime decisions remain. |
 
 ## Delivery sequence
