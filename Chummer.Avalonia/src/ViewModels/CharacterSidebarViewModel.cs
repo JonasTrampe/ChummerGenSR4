@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Chummer.NewUI.ViewModels;
 
+// Split out into their own files: CreationBudgetCategoryViewModel.cs, CommlinkItemViewModel.cs,
+// ConditionMonitorBoxViewModel.cs.
 public sealed class CharacterSidebarViewModel : ViewModelBase
 {
     private CharacterDocument? _objCharacter;
@@ -234,49 +236,4 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         target.Value = data.Display;
         target.Tooltip = data.Tooltip;
     }
-}
-
-public sealed class CreationBudgetCategoryViewModel
-{
-    internal CreationBudgetCategoryViewModel(CharacterCreationBudgetCategoryData objData)
-    {
-        Name = objData.Name;
-        Cost = objData.Cost;
-    }
-
-    public string Name { get; }
-    public int Cost { get; }
-    public string DisplayCost => (Cost >= 0 ? "+" : string.Empty) + Cost;
-}
-
-public sealed class CommlinkItemViewModel
-{
-    internal CommlinkItemViewModel(CharacterCommlinkData objData)
-    {
-        Guid = objData.Guid;
-        Name = objData.Name;
-        Response = objData.Response;
-        Equipped = objData.Equipped;
-        Active = objData.Active;
-    }
-
-    public string Guid { get; }
-    public string Name { get; }
-    public int Response { get; }
-    public bool Equipped { get; }
-    public bool Active { get; }
-    public string DisplayName => Equipped ? Name + " (R " + Response + ")" : Name + " (nicht ausgerüstet)";
-}
-
-public sealed class ConditionMonitorBoxViewModel
-{
-    internal ConditionMonitorBoxViewModel(bool blnFilled, int intPosition)
-    {
-        IsFilled = blnFilled;
-        Tooltip = App.LanguageCatalog.GetString("UI_ConditionMonitorBoxTooltip") + intPosition + (blnFilled ? App.LanguageCatalog.GetString("UI_ConditionMonitorBoxDamaged") : App.LanguageCatalog.GetString("UI_ConditionMonitorBoxFree"));
-    }
-
-    public bool IsFilled { get; }
-    public string Tooltip { get; }
-    public string Background => IsFilled ? "#B64C4C" : "White";
 }

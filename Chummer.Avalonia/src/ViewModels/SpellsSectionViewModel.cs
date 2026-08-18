@@ -6,65 +6,8 @@ using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
 
-public sealed class SpiritRowViewModel
-{
-    public string Label { get; }
-    public string Value { get; }
-
-    /// <summary>Fields needed to identify this row for RemoveSpirit - see
-    /// CharacterDocument.RemoveSpirit's first-occurrence-by-fields matching.</summary>
-    public string Name { get; }
-    public string Type { get; }
-    public string Force { get; }
-    public int SpiritId { get; }
-    public string Notes { get; }
-
-    public SpiritRowViewModel(CharacterSpiritData spirit)
-    {
-        Label = spirit.DisplayName + " (Kraft " + spirit.Force + (spirit.Bound ? ", gebunden" : "") + "):";
-        Value = spirit.Services;
-        Name = spirit.Name;
-        Type = spirit.Type;
-        Force = spirit.Force;
-        SpiritId = spirit.SpiritId;
-        Notes = spirit.Notes;
-    }
-}
-
-public sealed class ComplexFormRowViewModel
-{
-    public string Guid { get; }
-    public string Label { get; }
-    public string Value { get; }
-    public string Category { get; }
-    public string Notes { get; }
-
-    public ComplexFormRowViewModel(CharacterComplexFormData form, int intKarmaCost)
-    {
-        Guid = form.Guid;
-        Label = form.DisplayName;
-        Value = form.Rating + " · " + intKarmaCost + " Karma";
-        Category = form.Category;
-        Notes = form.Notes;
-    }
-}
-
-public sealed class CritterPowerRowViewModel
-{
-    public string Guid { get; }
-    public string Label { get; }
-    public string Value { get; }
-    public string Notes { get; }
-
-    public CritterPowerRowViewModel(CharacterCritterPowerData power)
-    {
-        Guid = power.Guid;
-        Label = power.DisplayName;
-        Value = power.Points;
-        Notes = power.Notes;
-    }
-}
-
+// Split out into their own files: SpiritRowViewModel.cs, ComplexFormRowViewModel.cs,
+// CritterPowerRowViewModel.cs.
 public sealed class SpellsSectionViewModel : ViewModelBase
 {
     private readonly TreeNodeViewModel _combat = new("Kampfzauber auswählen", blnExpanded: true);
