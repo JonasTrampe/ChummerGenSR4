@@ -17,6 +17,8 @@ public partial class SpellsSectionTab
         if (added && dialog.SelectedSpell != null)
         {
             var spell = dialog.SelectedSpell;
+            if (!await ConfirmSpellKarmaExpenseAsync(window, spell.Name))
+                return;
             if (_character.AddSpell(spell.Name, spell.Category, spell.Type, spell.Range, spell.Damage, spell.Duration,
                 spell.DrainValue, spell.Source, spell.Page, dialog.Extended))
                 ViewModel.LoadCharacter(_character);
@@ -29,11 +31,27 @@ public partial class SpellsSectionTab
             return;
 
         var dialog = new CreateSpellDialog(_character);
-        if (await dialog.ShowDialog<bool>(window)
-            && _character.AddCustomSpell(dialog.ResultName, dialog.ResultCategory, dialog.ResultType,
+        if (await dialog.ShowDialog<bool>(window) != true)
+            return;
+        if (!await ConfirmSpellKarmaExpenseAsync(window, dialog.ResultName))
+            return;
+        if (_character.AddCustomSpell(dialog.ResultName, dialog.ResultCategory, dialog.ResultType,
                 dialog.ResultRange, dialog.ResultArea, dialog.ResultRestricted, dialog.ResultVeryRestricted,
                 dialog.ResultDuration, dialog.ResultCheckedKeys, dialog.ResultNumberOfEffects))
             ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Ported from frmCareer.cs's cmdAddSpell_Click: learning a Spell after creation
+    /// costs a flat KarmaSpell Karma and confirms via Message_ConfirmKarmaExpenseSpend.</summary>
+    private async System.Threading.Tasks.Task<bool> ConfirmSpellKarmaExpenseAsync(Window window, string strSpellName)
+    {
+        if (_character == null || !_character.Created)
+            return true;
+
+        int intKarmaCost = _character.GetSpellCareerKarmaCost();
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpend"),
+            strSpellName, intKarmaCost);
+        return await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage);
     }
 
     private async void OnDeleteSpellClick(object? sender, RoutedEventArgs e)

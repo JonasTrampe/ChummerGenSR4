@@ -25,6 +25,18 @@ public partial class SpellsSectionTab
         if (!blnProceed)
             return;
 
+        // Ported from frmCareer.cs's cmdAddComplexForm_Click: learning a Complex Form after
+        // creation costs Karma (category/house-rule dependent) and confirms via
+        // Message_ConfirmKarmaExpenseSpend.
+        if (_character.Created)
+        {
+            int intKarmaCost = _character.GetComplexFormCareerKarmaCost(selected.Category);
+            string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpend"),
+                selected.Name, intKarmaCost);
+            if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
+                return;
+        }
+
         if (_character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page, strExtra))
             ViewModel.LoadCharacter(_character);
     }

@@ -64,6 +64,11 @@ namespace Chummer.Core
                 astrCodes.Select(strCode => (strCode, GetAttributeLabel(strCode))).ToArray());
         }
 
+        /// <summary>Ported from frmCareer.cs's cmdAddSpell_Click: after character creation,
+        /// learning a Spell costs a flat KarmaSpell Karma (no formula, single option-driven
+        /// constant, unlike Qualities' BP-scaled cost).</summary>
+        public int GetSpellCareerKarmaCost() => GetCharacterOptions().KarmaSpell;
+
         public bool AddSpell(string strName, string strCategory, string strType, string strRange, string strDamage,
             string strDuration, string strDv, string strSource, string strPage, bool blnExtended = false)
         {
@@ -79,6 +84,14 @@ namespace Chummer.Core
             int intPool = int.TryParse(blnKarmaBuild ? Karma : Bp, out int intParsedPool) ? intParsedPool : 0;
             if (blnEnforceCreationBudget && intPool < intCreationCost)
                 return false;
+
+            int intCareerKarmaCost = 0;
+            if (!blnEnforceCreationBudget && Created)
+            {
+                intCareerKarmaCost = GetSpellCareerKarmaCost();
+                if (intCareerKarmaCost > ParseInteger(Karma))
+                    return false;
+            }
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -109,6 +122,13 @@ namespace Chummer.Core
                     Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
                 else
                     Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
+            else if (intCareerKarmaCost > 0)
+            {
+                Karma = (ParseInteger(Karma) - intCareerKarmaCost).ToString(CultureInfo.InvariantCulture);
+                var objUndo = new ExpenseUndo();
+                objUndo.CreateKarma(KarmaExpenseType.AddSpell, strName.Trim());
+                AddExpense("Karma", -intCareerKarmaCost, "Zauber gelernt: " + strName.Trim(), null, objUndo);
             }
             Changed?.Invoke();
             return true;

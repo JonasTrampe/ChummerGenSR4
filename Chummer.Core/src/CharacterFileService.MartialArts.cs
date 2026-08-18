@@ -16,9 +16,16 @@ namespace Chummer.Core
 
         public IReadOnlyList<CharacterMartialArtManeuverData> MartialArtManeuvers => ReadMartialArtManeuvers();
 
-        /// <summary>Ported from frmSelectMartialArt.cs: adds the Martial Art with its full set of
-        /// rules-data advantages snapshotted in (matches how ReadMartialArts expects to find them
-        /// nested under martialartadvantages, not re-resolved from martialarts.xml every load).</summary>
+        /// <summary>Ported from frmCareer.cs's cmdAddMartialArt_Click: career-mode cost is a flat
+        /// 5*KarmaQuality Karma, the same formula a Karma-mode creation purchase uses - legacy
+        /// shows no confirm dialog for this purchase (only the affordability guard), unlike
+        /// Qualities/Spells/Complex Forms/Foci.</summary>
+        public int GetMartialArtCareerKarmaCost() => 5 * GetCharacterOptions().KarmaQuality;
+
+        /// <summary>Ported from frmCareer.cs's cmdAddMartialArt_Click: adds the Martial Art with its
+        /// full set of rules-data advantages snapshotted in (matches how ReadMartialArts expects to
+        /// find them nested under martialartadvantages, not re-resolved from martialarts.xml every
+        /// load).</summary>
         public bool AddMartialArt(string strName, IReadOnlyList<string> lstAdvantages, string strSource, string strPage)
         {
             if (string.IsNullOrWhiteSpace(strName))
@@ -32,6 +39,14 @@ namespace Chummer.Core
             if (blnEnforceCreationBudget && !IgnoreRules
                 && (intCreationCost > intPool || ExceedsPositiveQualityLimit(intCreationCost, blnKarmaBuild)))
                 return false;
+
+            int intCareerKarmaCost = 0;
+            if (!blnEnforceCreationBudget && Created)
+            {
+                intCareerKarmaCost = GetMartialArtCareerKarmaCost();
+                if (intCareerKarmaCost > ParseInteger(Karma))
+                    return false;
+            }
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -66,9 +81,21 @@ namespace Chummer.Core
                 else
                     Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
             }
+            else if (intCareerKarmaCost > 0)
+            {
+                Karma = (ParseInteger(Karma) - intCareerKarmaCost).ToString(CultureInfo.InvariantCulture);
+                var objUndo = new ExpenseUndo();
+                objUndo.CreateKarma(KarmaExpenseType.AddMartialArt, strName.Trim());
+                AddExpense("Karma", -intCareerKarmaCost, "Kampfkunst hinzugefügt: " + strName.Trim(), null, objUndo);
+            }
             Changed?.Invoke();
             return true;
         }
+
+        /// <summary>Ported from frmCareer.cs's cmdAddManeuver_Click: career-mode cost preview - a
+        /// flat KarmaManeuver Karma, no confirm dialog in legacy (same as <see
+        /// cref="GetMartialArtCareerKarmaCost"/>).</summary>
+        public int GetMartialArtManeuverCareerKarmaCost() => GetCharacterOptions().KarmaManeuver;
 
         /// <summary>Ported from frmSelectMartialArt.cs's Maneuver tab.</summary>
         public bool AddMartialArtManeuver(string strName, string strSource, string strPage)
@@ -86,6 +113,14 @@ namespace Chummer.Core
             int intPool = ParseInteger(blnKarmaBuild ? Karma : Bp);
             if (blnEnforceCreationBudget && !IgnoreRules && intCreationCost > intPool)
                 return false;
+
+            int intCareerKarmaCost = 0;
+            if (!blnEnforceCreationBudget && Created)
+            {
+                intCareerKarmaCost = GetMartialArtManeuverCareerKarmaCost();
+                if (intCareerKarmaCost > ParseInteger(Karma))
+                    return false;
+            }
 
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
@@ -110,6 +145,13 @@ namespace Chummer.Core
                     Karma = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
                 else
                     Bp = (intPool - intCreationCost).ToString(CultureInfo.InvariantCulture);
+            }
+            else if (intCareerKarmaCost > 0)
+            {
+                Karma = (ParseInteger(Karma) - intCareerKarmaCost).ToString(CultureInfo.InvariantCulture);
+                var objUndo = new ExpenseUndo();
+                objUndo.CreateKarma(KarmaExpenseType.AddMartialArtManeuver, strName.Trim());
+                AddExpense("Karma", -intCareerKarmaCost, "Manöver hinzugefügt: " + strName.Trim(), null, objUndo);
             }
             Changed?.Invoke();
             return true;

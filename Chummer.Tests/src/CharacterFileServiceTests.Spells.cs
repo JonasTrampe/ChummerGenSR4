@@ -283,4 +283,26 @@ public partial class CharacterFileServiceTests
         Assert.Equal(9, fading.Value); // WIL(3) + RES(6).
     }
 
+    [Fact]
+    public void AddSpell_CareerMode_ChargesFlatKarmaSpellCostAndLogsAnExpense()
+    {
+        // Ported from frmCareer.cs's cmdAddSpell_Click: default KarmaSpell is 5.
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>10</karma></character>");
+
+        Assert.True(character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204"));
+
+        Assert.Equal("5", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Acid Stream") && e.Amount == "-5");
+    }
+
+    [Fact]
+    public void AddSpell_CareerMode_InsufficientKarmaRejectsThePurchase()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>4</karma></character>");
+
+        Assert.False(character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204"));
+        Assert.Empty(character.Spells);
+        Assert.Equal("4", character.Karma);
+    }
+
 }

@@ -73,6 +73,24 @@ public partial class CharacterFileServiceTests
     }
 
     [Fact]
+    public void GetStackedFocusBindingKarmaCost_MatchesTheCostBindStackedFocusActuallyCharges()
+    {
+        Guid compositeId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid stackId = Guid.Parse("00000000-0000-0000-0000-000000000010");
+        CharacterDocument character = LoadXml("<character><karma>30</karma><attributes>" + AttributeXml("MAG", "3")
+            + "</attributes><gears><gear><guid>" + compositeId + "</guid><name>Stacked Focus</name><category>Stacked Focus</category>"
+            + "<equipped>True</equipped></gear></gears><stackedfoci><stackedfocus><guid>" + stackId + "</guid>"
+            + "<gearid>" + compositeId + "</gearid><bonded>False</bonded><gears>"
+            + "<gear><name>Power Focus</name><category>Foci</category><rating>2</rating></gear>"
+            + "<gear><name>Weapon Focus</name><category>Foci</category><rating>3</rating></gear>"
+            + "</gears></stackedfocus></stackedfoci></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { KarmaPowerFocus = 8, KarmaWeaponFocus = 3 });
+
+        Assert.Equal(25, character.GetStackedFocusBindingKarmaCost(stackId));
+        Assert.Null(character.GetStackedFocusBindingKarmaCost(Guid.NewGuid()));
+    }
+
+    [Fact]
     public void CanBondFocus_EnforcesMagCountAndTotalForce()
     {
         CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("MAG", "2") + "</attributes><gears>"

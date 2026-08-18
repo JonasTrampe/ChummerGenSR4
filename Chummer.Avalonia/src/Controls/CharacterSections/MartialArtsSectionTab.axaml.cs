@@ -71,8 +71,22 @@ public partial class MartialArtsSectionTab : UserControl
 
         var dialog = new MartialArtDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedMartialArt is { } selected
-            && _character.AddMartialArt(selected.Name, selected.Advantages, selected.Source, selected.Page))
+        if (added != true || dialog.SelectedMartialArt is not { } selected)
+            return;
+
+        // Ported from frmCareer.cs's cmdAddMartialArt_Click: a flat 5*KarmaQuality Karma cost
+        // after creation. Legacy shows no confirm dialog here, but this port confirms every
+        // career-mode Karma spend for consistency with Qualities/Spells/Complex Forms.
+        if (_character.Created)
+        {
+            int intKarmaCost = _character.GetMartialArtCareerKarmaCost();
+            string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpend"),
+                selected.Name, intKarmaCost);
+            if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
+                return;
+        }
+
+        if (_character.AddMartialArt(selected.Name, selected.Advantages, selected.Source, selected.Page))
             ViewModel.LoadCharacter(_character);
     }
 
@@ -83,8 +97,22 @@ public partial class MartialArtsSectionTab : UserControl
 
         var dialog = new MartialArtManeuverDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedManeuver is { } selected
-            && _character.AddMartialArtManeuver(selected.Name, selected.Source, selected.Page))
+        if (added != true || dialog.SelectedManeuver is not { } selected)
+            return;
+
+        // Ported from frmCareer.cs's cmdAddManeuver_Click: a flat KarmaManeuver Karma cost after
+        // creation. Legacy shows no confirm dialog here either; confirmed for the same consistency
+        // reason as OnAddMartialArtClick above.
+        if (_character.Created)
+        {
+            int intKarmaCost = _character.GetMartialArtManeuverCareerKarmaCost();
+            string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpend"),
+                selected.Name, intKarmaCost);
+            if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
+                return;
+        }
+
+        if (_character.AddMartialArtManeuver(selected.Name, selected.Source, selected.Page))
             ViewModel.LoadCharacter(_character);
     }
 }

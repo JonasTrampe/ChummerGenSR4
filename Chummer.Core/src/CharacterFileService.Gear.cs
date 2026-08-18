@@ -1121,6 +1121,19 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Career-mode cost preview for <see cref="BindStackedFocus"/> - sums each
+        /// component Gear's Rating times its own per-focus-type Karma multiplier, the same formula
+        /// the bind transaction itself uses. Null if the stack doesn't exist or has no components.</summary>
+        public int? GetStackedFocusBindingKarmaCost(Guid guiStackId)
+        {
+            XmlNode? objStack = FindStackedFocusNode(guiStackId);
+            var lstComponents = objStack?.SelectNodes("gears/gear")?.Cast<XmlNode>().ToList();
+            if (lstComponents == null || lstComponents.Count == 0)
+                return null;
+            return lstComponents.Sum(component => ParseInteger(GetValue(component, "rating", "0"))
+                * GetFocusKarmaMultiplier(GetValue(component, "name", string.Empty)));
+        }
+
         /// <summary>Restores an unbonded Stacked Focus' saved component Gear snapshots and
         /// removes its generated composite Gear. A bonded stack must be unbound first.</summary>
         public bool BindStackedFocus(Guid guiStackId)
@@ -1138,8 +1151,7 @@ namespace Chummer.Core
                 || Foci.Sum(focus => ParseInteger(focus.Rating)) + StackedFoci.Where(focus => focus.Bonded)
                     .Sum(focus => focus.TotalForce) + intForce > intMag * 5)
                 return false;
-            int intCost = lstComponents.Sum(component => ParseInteger(GetValue(component, "rating", "0"))
-                * GetFocusKarmaMultiplier(GetValue(component, "name", string.Empty)));
+            int intCost = GetStackedFocusBindingKarmaCost(guiStackId) ?? 0;
             if (!int.TryParse(Karma, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intKarma)
                 || intCost < 1 || intKarma < intCost)
                 return false;

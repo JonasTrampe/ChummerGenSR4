@@ -116,4 +116,53 @@ public partial class CharacterFileServiceTests
         Assert.Equal("Constrictor's Crush", remaining.Name);
     }
 
+    [Fact]
+    public void AddMartialArt_CareerMode_ChargesFlatFiveTimesKarmaQualityAndLogsAnExpense()
+    {
+        // Ported from frmCareer.cs's cmdAddMartialArt_Click: 5*KarmaQuality, default KarmaQuality
+        // is 2 -> 10 Karma.
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>15</karma></character>");
+
+        Assert.True(character.AddMartialArt("Krav Maga", System.Array.Empty<string>(), "SR4", "121"));
+
+        Assert.Equal("5", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Krav Maga") && e.Amount == "-10");
+    }
+
+    [Fact]
+    public void AddMartialArt_CareerMode_InsufficientKarmaRejectsThePurchase()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>9</karma></character>");
+
+        Assert.False(character.AddMartialArt("Krav Maga", System.Array.Empty<string>(), "SR4", "121"));
+        Assert.Empty(character.MartialArts);
+        Assert.Equal("9", character.Karma);
+    }
+
+    [Fact]
+    public void AddMartialArtManeuver_CareerMode_ChargesFlatKarmaManeuverAndLogsAnExpense()
+    {
+        // Ported from frmCareer.cs's cmdAddManeuver_Click: default KarmaManeuver is 4.
+        CharacterDocument character = LoadXml(
+            "<character><created>True</created><karma>10</karma>"
+            + "<martialarts><martialart><name>Krav Maga</name><rating>1</rating></martialart></martialarts></character>");
+
+        Assert.True(character.AddMartialArtManeuver("Sweep", "SR4", "121"));
+
+        Assert.Equal("6", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Sweep") && e.Amount == "-4");
+    }
+
+    [Fact]
+    public void AddMartialArtManeuver_CareerMode_InsufficientKarmaRejectsThePurchase()
+    {
+        CharacterDocument character = LoadXml(
+            "<character><created>True</created><karma>3</karma>"
+            + "<martialarts><martialart><name>Krav Maga</name><rating>1</rating></martialart></martialarts></character>");
+
+        Assert.False(character.AddMartialArtManeuver("Sweep", "SR4", "121"));
+        Assert.Empty(character.MartialArtManeuvers);
+        Assert.Equal("3", character.Karma);
+    }
+
 }

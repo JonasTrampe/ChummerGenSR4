@@ -117,4 +117,26 @@ public partial class CharacterFileServiceTests
         Assert.Contains("Fear", html);
     }
 
+    [Fact]
+    public void AddComplexForm_CareerMode_ChargesKarmaAndLogsAnExpense()
+    {
+        // Ported from frmCareer.cs's cmdAddComplexForm_Click: default KarmaNewComplexForm is 2.
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>5</karma></character>");
+
+        Assert.True(character.AddComplexForm("Diagnostics", "Common Use", "SR4", "234"));
+
+        Assert.Equal("3", character.Karma);
+        Assert.Contains(character.KarmaExpenses, e => e.Reason.Contains("Diagnostics") && e.Amount == "-2");
+    }
+
+    [Fact]
+    public void AddComplexForm_CareerMode_InsufficientKarmaRejectsThePurchase()
+    {
+        CharacterDocument character = LoadXml("<character><created>True</created><karma>1</karma></character>");
+
+        Assert.False(character.AddComplexForm("Diagnostics", "Common Use", "SR4", "234"));
+        Assert.Empty(character.ComplexForms);
+        Assert.Equal("1", character.Karma);
+    }
+
 }

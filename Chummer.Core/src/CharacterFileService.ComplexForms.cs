@@ -41,6 +41,11 @@ namespace Chummer.Core
         /// when the bonus is a &lt;selecttext&gt;/&lt;selectskill&gt;/&lt;selectattribute&gt; node,
         /// <paramref name="strExtra"/> becomes the corresponding Improvement (see <see
         /// cref="ApplySelectedImprovement"/>).</summary>
+        /// <summary>Ported from frmCareer.cs's cmdAddComplexForm_Click: career-mode cost preview -
+        /// same <see cref="ComputeComplexFormKarmaCost"/> formula <see cref="AddComplexForm"/> uses
+        /// to actually charge, exposed separately so the UI can build a confirm message first.</summary>
+        public int GetComplexFormCareerKarmaCost(string strCategory) => ComputeComplexFormKarmaCost(strCategory, 1);
+
         public bool AddComplexForm(string strName, string strCategory, string strSource, string strPage,
             string strExtra = "")
         {
@@ -86,7 +91,12 @@ namespace Chummer.Core
             ApplySelectedImprovement(objXmlBonus, ImprovementSource.ComplexForm, strName.Trim(), strExtra, "1");
 
             if (blnCareer && int.TryParse(Karma, out int intKarma))
+            {
                 Karma = (intKarma - intCost).ToString(CultureInfo.InvariantCulture);
+                var objUndo = new ExpenseUndo();
+                objUndo.CreateKarma(KarmaExpenseType.AddComplexForm, strName.Trim());
+                AddExpense("Karma", -intCost, "Programm hinzugefügt: " + strName.Trim(), null, objUndo);
+            }
             else if (blnEnforceCreationBudget)
             {
                 if (blnKarmaBuild)
