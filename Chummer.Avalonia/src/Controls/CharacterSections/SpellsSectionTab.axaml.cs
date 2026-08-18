@@ -1,14 +1,18 @@
-using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Chummer.Core;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
-using SpellDialog = Chummer.NewUI.Dialogs.SpellDialog;
+using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
+using TextSelectionDialog = Chummer.NewUI.Dialogs.TextSelectionDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
+// Split by concern into partial-class files: .Spells.cs, .Spirits.cs, .ComplexForms.cs,
+// .CritterPowers.cs. This file keeps the shared construction/load surface plus
+// CollectSelectionAsync, the selecttext/selectskill/selectattribute prompt helper used by both
+// ComplexForms and CritterPowers.
 public partial class SpellsSectionTab : UserControl
 {
     public SpellsSectionViewModel ViewModel { get; } = new();
@@ -27,124 +31,13 @@ public partial class SpellsSectionTab : UserControl
         ViewModel.LoadCharacter(character);
     }
 
-    private async void OnAddSpellClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new SpellDialog(_character);
-        bool added = await dialog.ShowDialog<bool>(window);
-        if (added && dialog.SelectedSpell != null)
-        {
-            var spell = dialog.SelectedSpell;
-            if (_character.AddSpell(spell.Name, spell.Category, spell.Type, spell.Range, spell.Damage, spell.Duration,
-                spell.DrainValue, spell.Source, spell.Page, dialog.Extended))
-                ViewModel.LoadCharacter(_character);
-        }
-    }
-
-    private async void OnCreateSpellClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new CreateSpellDialog(_character);
-        if (await dialog.ShowDialog<bool>(window)
-            && _character.AddCustomSpell(dialog.ResultName, dialog.ResultCategory, dialog.ResultType,
-                dialog.ResultRange, dialog.ResultArea, dialog.ResultRestricted, dialog.ResultVeryRestricted,
-                dialog.ResultDuration, dialog.ResultCheckedKeys, dialog.ResultNumberOfEffects))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnDeleteSpellClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpellNode?.Parent == null
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteSpell"))
-            return;
-        if (_character.RemoveSpell(ViewModel.SelectedSpellNode.Name))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnEditSpellNotesClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpellNode is not { Parent: not null, SpellId: >= 0 } spell
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new ContactNotesDialog { Notes = spell.Notes };
-        if (await dialog.ShowDialog<bool?>(window) == true
-            && _character.SetSpellNotes(spell.SpellId, dialog.Notes))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnAddSpiritClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new SpiritDialog(_character.MaxSpiritForce);
-        bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true
-            && _character.AddSpirit(dialog.SpiritName, dialog.CritterName, dialog.Type, dialog.Force, dialog.Services))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpirit is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        if (!await DeleteConfirmation.ConfirmAsync(window, _character,
-                selected.Type == "Sprite" ? "Message_DeleteSprite" : "Message_DeleteSpirit"))
-            return;
-        if (_character.RemoveSpirit(selected.Name, selected.Type, selected.Force))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnEditSpiritNotesClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpirit is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new ContactNotesDialog { Notes = selected.Notes };
-        if (await dialog.ShowDialog<bool?>(window) == true
-            && _character.SetSpiritNotes(selected.SpiritId, dialog.Notes))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnAddComplexFormClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new ComplexFormDialog(_character);
-        bool added = await dialog.ShowDialog<bool>(window);
-        if (!added || dialog.SelectedForm is not { } selected)
-            return;
-
-        var (blnProceed, strExtra) = await CollectSelectionAsync(window, selected.Name,
-            _character.ComplexFormRequiresTextSelection(selected.Name),
-            _character.GetComplexFormSkillSelectionOptions(selected.Name),
-            Array.Empty<string>());
-        if (!blnProceed)
-            return;
-
-        if (_character.AddComplexForm(selected.Name, selected.Category, selected.Source, selected.Page, strExtra))
-            ViewModel.LoadCharacter(_character);
-    }
-
     /// <summary>Shared selecttext/selectskill/selectattribute prompt for CritterPower/ComplexForm
     /// adds - ported from clsImprovement.cs's respective handlers, same pattern as
     /// GeneralSectionTab's Quality flow.</summary>
-    private static async System.Threading.Tasks.Task<(bool Proceed, string Extra)> CollectSelectionAsync(
+    private static async Task<(bool Proceed, string Extra)> CollectSelectionAsync(
         Window window, string strItemName, bool blnRequiresText,
-        System.Collections.Generic.IReadOnlyList<string> lstSkillOptions,
-        System.Collections.Generic.IReadOnlyList<string> lstAttributeOptions)
+        IReadOnlyList<string> lstSkillOptions,
+        IReadOnlyList<string> lstAttributeOptions)
     {
         if (blnRequiresText)
         {
@@ -171,93 +64,5 @@ public partial class SpellsSectionTab : UserControl
         }
 
         return (true, string.Empty);
-    }
-
-    private async void OnAddComplexFormOptionClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var lstChoices = _character.GetComplexFormOptionChoices(selected.Category);
-        if (lstChoices.Count == 0)
-            return;
-
-        var dialog = new ListSelectionDialog($"„{selected.Label}“ - Programmoption auswählen:", lstChoices);
-        if (!await dialog.ShowDialog<bool>(window) || dialog.SelectedValue == null)
-            return;
-
-        if (_character.AddComplexFormOption(selected.Guid, dialog.SelectedValue))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnDeleteComplexFormClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteComplexForm"))
-            return;
-        if (_character.RemoveComplexForm(selected.Guid))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnEditComplexFormNotesClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedComplexForm is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new ContactNotesDialog { Notes = selected.Notes };
-        if (await dialog.ShowDialog<bool?>(window) == true
-            && _character.SetComplexFormNotes(selected.Guid, dialog.Notes))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnAddCritterPowerClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new CritterPowerDialog(_character);
-        bool added = await dialog.ShowDialog<bool>(window);
-        if (!added || dialog.SelectedPower is not { } selected)
-            return;
-
-        var (blnProceed, strExtra) = await CollectSelectionAsync(window, selected.Name,
-            _character.CritterPowerRequiresTextSelection(selected.Name),
-            _character.GetCritterPowerSkillSelectionOptions(selected.Name),
-            _character.GetCritterPowerAttributeSelectionOptions(selected.Name));
-        if (!blnProceed)
-            return;
-
-        _character.AddCritterPower(selected.Name, selected.Points, selected.Source, selected.Page, strExtra,
-            dialog.SelectedRating);
-        ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnDeleteCritterPowerClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedCritterPower is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteCritterPower"))
-            return;
-        if (_character.RemoveCritterPower(selected.Guid))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnEditCritterPowerNotesClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedCritterPower is not { } selected
-            || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new ContactNotesDialog { Notes = selected.Notes };
-        if (await dialog.ShowDialog<bool?>(window) == true
-            && _character.SetCritterPowerNotes(selected.Guid, dialog.Notes))
-            ViewModel.LoadCharacter(_character);
     }
 }
