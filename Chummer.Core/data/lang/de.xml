@@ -1714,6 +1714,22 @@ Stattdessen lokal gespeichert.</text>
 			<text>Fokus lösen</text>
 		</string>
 		<string>
+			<key>UI_BindFocus</key>
+			<text>Fokus binden</text>
+		</string>
+		<string>
+			<key>UI_UnbindFocus</key>
+			<text>Fokus lösen</text>
+		</string>
+		<string>
+			<key>UI_BindStackedFocus</key>
+			<text>Fokusverbund binden</text>
+		</string>
+		<string>
+			<key>UI_UnbindStackedFocus</key>
+			<text>Fokusverbund lösen</text>
+		</string>
+		<string>
 			<key>Message_AttributeMaximum</key>
 			<text>Sie können bei der Charakter-Erschaffung nicht mehr als ein Attribut auf das natürliche Maximum steigern.</text>
 		</string>

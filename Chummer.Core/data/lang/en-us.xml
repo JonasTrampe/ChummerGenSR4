@@ -2004,6 +2004,22 @@ Saved locally instead.</text>
 			<text>Un-bind Focus</text>
 		</string>
 		<string>
+			<key>UI_BindFocus</key>
+			<text>Bind Focus</text>
+		</string>
+		<string>
+			<key>UI_UnbindFocus</key>
+			<text>Un-bind Focus</text>
+		</string>
+		<string>
+			<key>UI_BindStackedFocus</key>
+			<text>Bind Stacked Focus</text>
+		</string>
+		<string>
+			<key>UI_UnbindStackedFocus</key>
+			<text>Un-bind Stacked Focus</text>
+		</string>
+		<string>
 			<key>Message_AttributeMaximum</key>
 			<text>You cannot have more than one Attribute at its maximum value during character creation.</text>
 		</string>

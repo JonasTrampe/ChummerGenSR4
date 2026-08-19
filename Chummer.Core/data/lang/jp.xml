@@ -1898,6 +1898,22 @@
 			<text>収束具の結合解除</text>
 		</string>
 		<string>
+			<key>UI_BindFocus</key>
+			<text>収束具を結合</text>
+		</string>
+		<string>
+			<key>UI_UnbindFocus</key>
+			<text>収束具の結合を解除</text>
+		</string>
+		<string>
+			<key>UI_BindStackedFocus</key>
+			<text>収束具連結を結合</text>
+		</string>
+		<string>
+			<key>UI_UnbindStackedFocus</key>
+			<text>収束具連結の結合を解除</text>
+		</string>
+		<string>
 			<key>Message_AttributeMaximum</key>
 			<text>キャラクター作成地は, 2つ以上の能力値を最大値にすることはできません.</text>
 		</string>

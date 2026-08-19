@@ -1892,6 +1892,22 @@ Enregistré localement à la place.</text>
 			<text>Délier le focus</text>
 		</string>
 		<string>
+			<key>UI_BindFocus</key>
+			<text>Lier le focus</text>
+		</string>
+		<string>
+			<key>UI_UnbindFocus</key>
+			<text>Délier le focus</text>
+		</string>
+		<string>
+			<key>UI_BindStackedFocus</key>
+			<text>Lier le focus empilé</text>
+		</string>
+		<string>
+			<key>UI_UnbindStackedFocus</key>
+			<text>Délier le focus empilé</text>
+		</string>
+		<string>
 			<key>Message_AttributeMaximum</key>
 			<text>Vous ne pouvez pas avoir plus d'un Attribut à son maximum à la création du personnage.</text>
 		</string>
