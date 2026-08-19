@@ -2012,6 +2012,10 @@ Saved locally instead.</text>
 			<text>Un-bind Focus</text>
 		</string>
 		<string>
+			<key>UI_CreateStackedFocus</key>
+			<text>Create Stacked Focus</text>
+		</string>
+		<string>
 			<key>UI_BindStackedFocus</key>
 			<text>Bind Stacked Focus</text>
 		</string>

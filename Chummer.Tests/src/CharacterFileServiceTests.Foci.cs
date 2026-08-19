@@ -44,6 +44,28 @@ public partial class CharacterFileServiceTests
     }
 
     [Fact]
+    public void GetStackableFocusGear_ExcludesBondedAndAlreadyStackedFoci()
+    {
+        Guid unbonded = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid bonded = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        Guid toBeStacked = Guid.Parse("00000000-0000-0000-0000-000000000003");
+        CharacterDocument character = LoadXml("<character><gears>"
+            + "<gear><guid>" + unbonded + "</guid><name>Power Focus</name><category>Foci</category><rating>2</rating></gear>"
+            + "<gear><guid>" + bonded + "</guid><name>Weapon Focus</name><category>Foci</category><rating>3</rating><bonded>True</bonded></gear>"
+            + "<gear><guid>" + toBeStacked + "</guid><name>Sustaining Focus</name><category>Foci</category><rating>1</rating></gear>"
+            + "</gears></character>");
+
+        var lstBeforeStacking = character.GetStackableFocusGear();
+        Assert.Equal(2, lstBeforeStacking.Count);
+        Assert.Contains(lstBeforeStacking, o => o.GearId == unbonded);
+        Assert.Contains(lstBeforeStacking, o => o.GearId == toBeStacked);
+        Assert.DoesNotContain(lstBeforeStacking, o => o.GearId == bonded);
+
+        Assert.True(character.CreateStackedFocus(new[] { unbonded, toBeStacked }));
+        Assert.Empty(character.GetStackableFocusGear());
+    }
+
+    [Fact]
     public void BindStackedFocus_ChargesCombinedCostAndAppliesEquippedBonuses()
     {
         Guid compositeId = Guid.Parse("00000000-0000-0000-0000-000000000001");

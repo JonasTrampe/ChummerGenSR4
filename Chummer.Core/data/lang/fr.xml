@@ -1900,6 +1900,10 @@ Enregistré localement à la place.</text>
 			<text>Délier le focus</text>
 		</string>
 		<string>
+			<key>UI_CreateStackedFocus</key>
+			<text>Créer un focus empilé</text>
+		</string>
+		<string>
 			<key>UI_BindStackedFocus</key>
 			<text>Lier le focus empilé</text>
 		</string>

@@ -1906,6 +1906,10 @@
 			<text>収束具の結合を解除</text>
 		</string>
 		<string>
+			<key>UI_CreateStackedFocus</key>
+			<text>収束具連結を作成</text>
+		</string>
+		<string>
 			<key>UI_BindStackedFocus</key>
 			<text>収束具連結を結合</text>
 		</string>

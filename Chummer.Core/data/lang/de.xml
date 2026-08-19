@@ -1722,6 +1722,10 @@ Stattdessen lokal gespeichert.</text>
 			<text>Fokus lösen</text>
 		</string>
 		<string>
+			<key>UI_CreateStackedFocus</key>
+			<text>Fokusverbund erstellen</text>
+		</string>
+		<string>
 			<key>UI_BindStackedFocus</key>
 			<text>Fokusverbund binden</text>
 		</string>

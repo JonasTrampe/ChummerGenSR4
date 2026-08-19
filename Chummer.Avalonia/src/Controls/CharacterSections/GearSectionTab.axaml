@@ -219,6 +219,7 @@
                         <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveGearLocationClick" />
                         <Button Content="{loc:Loc UI_BindFocus}" Click="OnBindFocusClick" />
                         <Button Content="{loc:Loc UI_UnbindFocus}" Click="OnUnbindFocusClick" />
+                        <Button Content="{loc:Loc UI_CreateStackedFocus}" Click="OnCreateStackedFocusClick" />
                         <Button Content="{loc:Loc UI_BindStackedFocus}" Click="OnBindStackedFocusClick" />
                         <Button Content="{loc:Loc UI_UnbindStackedFocus}" Click="OnUnbindStackedFocusClick" />
                         <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />

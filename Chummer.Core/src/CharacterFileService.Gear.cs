@@ -1091,6 +1091,19 @@ namespace Chummer.Core
             return true;
         }
 
+        /// <summary>Focus Gear eligible to go into a new Stacked Focus - unbonded, matching <see
+        /// cref="CreateStackedFocus"/>'s own eligibility checks (a stack's component Gear is
+        /// removed from the main tree once stacked, so it can't reappear here). Used to populate
+        /// the Avalonia "Create Stacked Focus" picker.</summary>
+        public IReadOnlyList<(Guid GearId, string DisplayName)> GetStackableFocusGear() =>
+            EnumerateGearNodesDfs()
+                .Where(objGear => (GetValue(objGear, "category", string.Empty) == "Foci"
+                        || GetValue(objGear, "category", string.Empty) == "Metamagic Foci")
+                    && GetValue(objGear, "bonded", "False") != "True")
+                .Select(objGear => (Guid.Parse(GetValue(objGear, "guid", string.Empty)),
+                    GetFocusDisplayName(objGear, GetValue(objGear, "rating", "0"))))
+                .ToList();
+
         /// <summary>Replaces two or more unbonded Focus Gear items with the legacy composite
         /// Stacked Focus representation. Component Gear is cloned verbatim into the stacked-focus
         /// record so later binding/unstacking retains all saved item data.</summary>

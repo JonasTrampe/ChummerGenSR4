@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Chummer.Core;
@@ -100,6 +101,29 @@ public partial class GearSectionTab
             return;
 
         if (_character.UnbindStackedFocus(guiStackId))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    /// <summary>Ported from frmCareer.cs's cmdCreateStackedFocus_Click: merges 2+ unbonded Focus
+    /// Gear into a composite Stacked Focus - free, no Karma charge (binding it later is what
+    /// costs Karma). Legacy picks components via multi-select in the Foci tree; this port's
+    /// single-selection Gear tree can't do that, so a checkbox picker stands in for it.</summary>
+    private async void OnCreateStackedFocusClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var lstCandidates = _character.GetStackableFocusGear();
+        if (lstCandidates.Count < 2)
+            return;
+
+        var dialog = new MultiSelectionDialog(App.LanguageCatalog.GetString("UI_CreateStackedFocus"),
+            lstCandidates.Select(c => (c.DisplayName, c.GearId.ToString())).ToList());
+        if (await dialog.ShowDialog<bool>(window) != true)
+            return;
+
+        var lstSelectedIds = dialog.SelectedValues.Select(Guid.Parse).ToList();
+        if (_character.CreateStackedFocus(lstSelectedIds))
             ViewModel.LoadCharacter(_character);
     }
 
