@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -9,15 +8,18 @@ using Chummer.Core;
 
 namespace Chummer.NewUI.Dialogs;
 
+/// <summary>Character-sheet print preview - real Avalonia toolbar controls (proven 100% reliable
+/// via direct C# event handlers) driving a <see cref="UltralightHtmlView"/> for the styled
+/// preview itself. Printing reuses Avalonia.Controls.WebView's NativeWebDialog purely to trigger
+/// the platform's native print dialog (the one thing Ultralight has no equivalent for) - that
+/// mechanism was already proven reliable when driven by a direct button click, it just isn't used
+/// as the visible preview surface anymore since embedding it as a child control failed to render
+/// on this port's target NVIDIA/GBM hardware.</summary>
 public partial class SheetPreviewDialog : Window
 {
     private CharacterDocument? _character;
 
-    // Raw XHTML from CharacterSheetExporter.RenderSheet - kept around for a future "export" action
-    // (e.g. saving straight to a .html file) even though the TextBox below only shows the
-    // tag-stripped SheetText, since Avalonia has no first-party cross-platform HTML renderer.
     public string SheetHtml { get; private set; } = string.Empty;
-    public string SheetText { get; private set; } = string.Empty;
 
     public SheetPreviewDialog()
     {
@@ -58,55 +60,43 @@ public partial class SheetPreviewDialog : Window
 
         if (_character == null)
         {
-            SheetText = App.LanguageCatalog.GetString("UI_NoCharacterOpenMessage");
+            ShowStatus(App.LanguageCatalog.GetString("UI_NoCharacterOpenMessage"));
+            return;
         }
-        else if (strSheetName == null)
+        if (strSheetName == null)
         {
-            SheetText = App.LanguageCatalog.GetString("UI_NoCharacterSheetFoundMessage");
-        }
-        else
-        {
-            try
-            {
-                SheetHtml = CharacterSheetExporter.RenderSheet(_character, strSheetName);
-                SheetText = HtmlToPlainText(SheetHtml);
-            }
-            catch (Exception ex)
-            {
-                SheetText = App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message;
-            }
+            ShowStatus(App.LanguageCatalog.GetString("UI_NoCharacterSheetFoundMessage"));
+            return;
         }
 
-        this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
+        try
+        {
+            SheetHtml = CharacterSheetExporter.RenderSheet(_character, strSheetName);
+            HideStatus();
+            this.FindControl<UltralightHtmlView>("SheetImage")!.LoadHtml(SheetHtml, (uint)Width - 40);
+        }
+        catch (Exception ex)
+        {
+            ShowStatus(App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message);
+        }
     }
 
-    // Text-Only.xsl is meant to read like plain text once a browser renders its <br/> tags as line
-    // breaks - since the TextBox here can't render HTML, do that translation by hand instead of
-    // showing raw markup.
-    private static string HtmlToPlainText(string strHtml)
+    private void ShowStatus(string strMessage)
     {
-        // Strip <style>/<script> blocks including their contents first - the generic tag-strip
-        // below only removes the tags themselves, which would otherwise leave raw CSS/JS visible
-        // as text (every shipped sheet embeds both, not just the fancier ones).
-        string strText = Regex.Replace(strHtml, "<style[^>]*>.*?</style>", string.Empty,
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        strText = Regex.Replace(strText, "<script[^>]*>.*?</script>", string.Empty,
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        strText = Regex.Replace(strText, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase);
-        strText = Regex.Replace(strText, "</(p|div|tr|table|h[1-6])>", "\n", RegexOptions.IgnoreCase);
-        strText = Regex.Replace(strText, "<td[^>]*>", "  ", RegexOptions.IgnoreCase);
-        strText = Regex.Replace(strText, "<[^>]+>", string.Empty);
-        strText = System.Net.WebUtility.HtmlDecode(strText);
-        strText = Regex.Replace(strText, "\n{3,}", "\n\n");
-        return strText.Trim();
+        var statusText = this.FindControl<TextBlock>("StatusText")!;
+        statusText.Text = strMessage;
+        statusText.IsVisible = true;
     }
 
-    /// <summary>Uses Avalonia's native WebView dialog rather than a bundled browser. Its
-    /// ShowPrintUI method opens the platform's own print dialog on supported desktop platforms.
-    /// When PrintToFileFirst is enabled, follow the legacy Wine workaround by writing the rendered
-    /// sheet to a temporary HTML file and navigating the native browser to its file URI; the file
-    /// stays alive until that browser closes so asynchronous navigation cannot observe a deleted
-    /// source.</summary>
+    private void HideStatus() => this.FindControl<TextBlock>("StatusText")!.IsVisible = false;
+
+    /// <summary>Prints via a transient Avalonia.Controls.WebView NativeWebDialog, the same
+    /// mechanism a standalone print-preview dialog already proved capable of both rendering and
+    /// printing to a real printer - it's shown only for the duration of the print action (the OS's
+    /// own native print dialog is itself a separate system window on every platform anyway, so
+    /// this doesn't meaningfully change the "one window" preview experience). When
+    /// PrintToFileFirst is enabled, follows the legacy Wine workaround by navigating to a
+    /// temporary HTML file first instead of an in-memory string.</summary>
     private void OnPrintNativeClick(object? sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(SheetHtml))
@@ -136,8 +126,7 @@ public partial class SheetPreviewDialog : Window
         }
         catch (Exception ex)
         {
-            SheetText = App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message;
-            this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
+            ShowStatus(App.LanguageCatalog.GetString("UI_ErrorGeneratingSheetPrefix") + ex.Message);
         }
     }
 
@@ -198,8 +187,7 @@ public partial class SheetPreviewDialog : Window
         }
         catch (Exception ex)
         {
-            SheetText = App.LanguageCatalog.GetString("UI_ErrorPdfExportPrefix") + ex.Message;
-            this.FindControl<TextBox>("SheetHtmlPanel")!.Text = SheetText;
+            ShowStatus(App.LanguageCatalog.GetString("UI_ErrorPdfExportPrefix") + ex.Message);
         }
     }
 
