@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.InitiationSectionTab"
@@ -6,12 +7,13 @@
     <Grid ColumnDefinitions="220,4,*" Margin="8">
         <DockPanel Grid.Column="0">
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                <Button Content="Metamagie Hinzufügen" Click="OnAddMetamagicClick" />
-                <Button Content="Löschen" Click="OnDeleteMetamagicClick" />
+                <Button Content="{loc:Loc Button_AddMetamagic}" Click="OnAddMetamagicClick" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditMetamagicNotesClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteMetamagicClick" />
             </StackPanel>
-            <TextBlock DockPanel.Dock="Top" Text="Initiatengrade" FontWeight="Bold" Margin="0,0,0,2" />
+            <TextBlock DockPanel.Dock="Top" Text="{loc:Loc UI_InitiateGrades}" FontWeight="Bold" Margin="0,0,0,2" />
             <ListBox DockPanel.Dock="Top" Height="90" ItemsSource="{Binding Grades}" />
-            <TextBlock DockPanel.Dock="Top" Text="Metamagien" FontWeight="Bold" Margin="0,8,0,2" />
+            <TextBlock DockPanel.Dock="Top" Text="{loc:Loc UI_Metamagics}" FontWeight="Bold" Margin="0,8,0,2" />
             <ListBox ItemsSource="{Binding Metamagics}" SelectedItem="{Binding SelectedMetamagic, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:MetamagicRowViewModel">
@@ -26,36 +28,37 @@
 
         <GridSplitter Grid.Column="1" Background="#E4E4E4" />
 
-        <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="8">
+        <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="8" IsVisible="{Binding CanInitiate}">
             <Grid ColumnDefinitions="Auto,40,26,Auto,Auto">
-                <TextBlock Grid.Column="0" Text="Initiatengrad:" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="1" VerticalAlignment="Center" />
-                <Button Grid.Column="2" Classes="iconButton">
+                <TextBlock Grid.Column="0" Text="{loc:Loc Label_InitiationGrade}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding InitiateGrade}" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Classes="iconButton" Click="OnRaiseInitiateGradeClick"
+                        ToolTip.Tip="{loc:Loc UI_ImproveInitiationTooltip}">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" />
                 </Button>
-                <CheckBox Grid.Column="3" Content="Gruppeninitiation (-20%)" Margin="16,0,0,0" />
+                <CheckBox Grid.Column="3" Content="{loc:Loc Checkbox_GroupInitiation}" Margin="16,0,0,0"
+                          IsChecked="{Binding IsGroup, Mode=TwoWay}" />
             </Grid>
-            <CheckBox Content="Initiationsprüfung (-20%)" />
+            <CheckBox Content="{loc:Loc Checkbox_InitiationOrdeal}" IsChecked="{Binding IsOrdeal, Mode=TwoWay}" />
 
             <Grid ColumnDefinitions="*,*">
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Quelle:" FontWeight="Bold" />
+                    <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" />
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="Geschichte:" FontWeight="Bold" />
+                    <TextBlock Text="{loc:Loc Label_History}" FontWeight="Bold" />
                     <Border Classes="groupBox" Height="70">
-                        <TextBlock Margin="4" Text="Grad 1 (Prüfung)" />
+                        <TextBlock Margin="4" Text="{loc:Loc UI_Grade1Ordeal}" />
                     </Border>
                 </StackPanel>
             </Grid>
 
-            <CheckBox Content="beigetretene Gruppe:" />
+            <CheckBox Content="{loc:Loc Checkbox_JoinedGroup}" />
             <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Text="Gruppe:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Text="{loc:Loc Label_Group}" VerticalAlignment="Center" Margin="0,0,6,0" />
                 <TextBox Grid.Column="1" />
             </Grid>
-            <TextBlock Text="Notizen:" FontWeight="Bold" />
-            <Border Classes="groupBox" Height="120" />
+            <TextBlock Text="{Binding SelectedMetamagic.Notes, StringFormat='Notizen: {0}'}" TextWrapping="Wrap" />
         </StackPanel>
     </Grid>
 </UserControl>

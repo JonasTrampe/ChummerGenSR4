@@ -1,15 +1,13 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Chummer.Core;
-using Chummer.NewUI.Controls;
 using Chummer.NewUI.ViewModels;
-using ContactGroupDialog = Chummer.NewUI.Dialogs.ContactGroupDialog;
-using ContactNotesDialog = Chummer.NewUI.Dialogs.ContactNotesDialog;
-using QualityDialog = Chummer.NewUI.Dialogs.QualityDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
+// Split by concern into partial-class files: .Qualities.cs (add/swap/delete Quality + PACKS
+// Kits, and their selecttext/selectskill/selectattribute/mentor-spirit picker helpers),
+// .Attributes.cs (raise/Burn Edge), .Contacts.cs (contact/enemy CRUD). This file keeps the
+// shared construction/load surface.
 public partial class GeneralSectionTab : UserControl
 {
     private CharacterDocument? _character;
@@ -26,98 +24,5 @@ public partial class GeneralSectionTab : UserControl
     {
         _character = character;
         ViewModel.LoadCharacter(character);
-    }
-
-    private async void OnAddQualityClick(object? sender, RoutedEventArgs e)
-    {
-        if (TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        if (_character == null)
-            return;
-
-        var dialog = new QualityDialog(_character);
-        bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedQuality != null)
-        {
-            _character.AddQuality(dialog.SelectedQuality.Name, dialog.SelectedQuality.Category);
-            ViewModel.LoadCharacter(_character);
-        }
-    }
-
-    private void OnDeleteQualityClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedQualityNode?.Parent == null)
-            return;
-
-        var quality = ViewModel.SelectedQualityNode;
-        if (_character.RemoveQuality(quality.SourceName, quality.Category, quality.Rating))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private void OnRaiseAttributeClick(object? sender, System.EventArgs e)
-    {
-        if (_character == null || sender is not AttributeRow { Code: { } strCode })
-            return;
-
-        if (_character.RaiseAttribute(strCode))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private void OnAddContactClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null)
-            return;
-
-        _character.AddContact("Neue Connection", "1", "1", blnEnemy: false);
-        ViewModel.LoadCharacter(_character);
-    }
-
-    private void OnAddEnemyClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null)
-            return;
-
-        _character.AddContact("Neuer Feind", "1", "1", blnEnemy: true);
-        ViewModel.LoadCharacter(_character);
-    }
-
-    private void OnDeleteContactClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || sender is not Button { Tag: int intContactId })
-            return;
-
-        if (_character.RemoveContact(intContactId))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnEditContactNotesClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
-            || sender is not Button { Tag: ContactRowViewModel contact })
-            return;
-
-        var dialog = new ContactNotesDialog { Notes = contact.Notes };
-        bool? saved = await dialog.ShowDialog<bool?>(window);
-        if (saved == true)
-            contact.Notes = dialog.Notes;
-    }
-
-    private async void OnEditContactGroupClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window
-            || sender is not Button { Tag: ContactRowViewModel contact })
-            return;
-
-        var dialog = new ContactGroupDialog();
-        dialog.ViewModel.LoadFrom(contact);
-        bool? saved = await dialog.ShowDialog<bool?>(window);
-        if (saved == true)
-        {
-            contact.UpdateGroup(dialog.ViewModel.GroupName, dialog.ViewModel.SelectedMembership?.Value ?? 0,
-                dialog.ViewModel.SelectedAreaOfInfluence?.Value ?? 0, dialog.ViewModel.SelectedMagicalResources?.Value ?? 0,
-                dialog.ViewModel.SelectedMatrixResources?.Value ?? 0);
-            ViewModel.LoadCharacter(_character);
-        }
     }
 }

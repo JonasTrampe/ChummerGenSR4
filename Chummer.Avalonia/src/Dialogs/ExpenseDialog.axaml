@@ -1,20 +1,29 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.ExpenseDialog"
-        Width="400" Height="220" CanResize="False"
+        x:DataType="vm:ExpenseDialogViewModel"
+        Width="400" Height="290" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="Aufwendung erfassen">
-    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,*,Auto" ColumnDefinitions="80,*">
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="PromptText" Margin="0,0,0,12" />
-        <TextBlock Grid.Row="1" Text="Menge:" VerticalAlignment="Center" />
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AmountBox" Text="1" />
-        <TextBlock Grid.Row="2" Text="Grund:" VerticalAlignment="Center" Margin="0,8,0,0" />
-        <TextBox Grid.Row="2" Grid.Column="1" x:Name="ReasonBox" Margin="0,8,0,0" />
-        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
-        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
-            <Button Content="Abbruch" Width="80" Click="OnCancel" />
-            <Button x:Name="OkButton" Content="Hinzufügen" Width="80" Click="OnOk" />
+        FontSize="11" Background="White" Title="{loc:Loc UI_RecordExpense}">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="80,*">
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Prompt}" Margin="0,0,0,12" />
+        <TextBlock Grid.Row="1" Text="{loc:Loc Label_Qty}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AmountText}" />
+        <TextBlock Grid.Row="2" Text="{loc:Loc UI_ReasonColon}" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Reason}" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="3" Text="{loc:Loc Label_Expense_Date}" VerticalAlignment="Center" Margin="0,8,0,0" />
+        <DatePicker Grid.Row="3" Grid.Column="1" SelectedDate="{Binding SelectedDate}" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="4" Text="{loc:Loc Label_Expense_Time}" VerticalAlignment="Center" Margin="0,8,0,0"
+                   IsVisible="{Binding IncludeTime}" />
+        <TimePicker Grid.Row="4" Grid.Column="1" SelectedTime="{Binding SelectedTime}" ClockIdentifier="24HourClock"
+                    Margin="0,8,0,0" IsVisible="{Binding IncludeTime}" />
+        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Error}" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button x:Name="OkButton" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </StackPanel>
     </Grid>
 </Window>

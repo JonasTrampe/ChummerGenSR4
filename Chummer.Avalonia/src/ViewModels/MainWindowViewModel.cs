@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Text;
 using Chummer.Core;
 using Chummer.NewUI.Controls;
 
@@ -8,9 +9,10 @@ namespace Chummer.NewUI.ViewModels;
 public sealed class MainWindowViewModel : ViewModelBase
 {
     private OpenCharacterTab? _selectedOpenCharacter;
-    private string _strKarmaStatus = "Karma: —";
-    private string _strEssenceStatus = "Essenz: —";
-    private string _strNuyenStatus = "Nuyen: —";
+    private string _strKarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+    private string _strCreationBudgetTooltip = string.Empty;
+    private string _strEssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
+    private string _strNuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
     private string _strErrorMessage = string.Empty;
     private string _strWindowTitle = "Chummer";
 
@@ -39,6 +41,13 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         get => _strKarmaStatus;
         private set => SetField(ref _strKarmaStatus, value);
+    }
+
+    /// <summary>Creation-only point breakdown shown by the status-bar budget tracker.</summary>
+    public string CreationBudgetTooltip
+    {
+        get => _strCreationBudgetTooltip;
+        private set => SetField(ref _strCreationBudgetTooltip, value);
     }
 
     public string EssenceStatus
@@ -80,7 +89,8 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            WindowTitle = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " (Default Settings)]";
+            WindowTitle = "Chummer - [" + App.LanguageCatalog.GetString("Title_CareerMode") + " ("
+                + App.LanguageCatalog.GetString("UI_DefaultSettingsName") + ")]";
         }
         catch
         {
@@ -94,6 +104,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     public void AddOpenCharacter(CharacterDocument character, string? sourcePath = null)
     {
         var tab = new OpenCharacterTab(character, sourcePath);
+        tab.BackupFailed += message => ReportError("Could not create the pre-career backup: " + message);
         OpenCharacters.Add(tab);
         SelectedOpenCharacter = tab;
         ClearError();
@@ -131,6 +142,12 @@ public sealed class MainWindowViewModel : ViewModelBase
             GlobalOptions.Instance.AddToMruList(filePath);
     }
 
+    public void MarkSaved(OpenCharacterTab tab, string? filePath)
+    {
+        tab.SetSavedPath(filePath);
+        RememberSavedPath(filePath ?? string.Empty);
+    }
+
     public void RemoveRecentCharacter(string filePath, bool isSticky)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -152,18 +169,45 @@ public sealed class MainWindowViewModel : ViewModelBase
         if (character is null)
         {
             WindowTitle = "Chummer";
-            KarmaStatus = "Karma: —";
-            EssenceStatus = "Essenz: —";
-            NuyenStatus = "Nuyen: —";
+            KarmaStatus = App.LanguageCatalog.GetString("UI_KarmaStatusDefault");
+            CreationBudgetTooltip = string.Empty;
+            EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusDefault");
+            NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusDefault");
             return;
         }
 
-        KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
-            ? "BP: " + character.Bp + " / Karma: " + character.Karma
-            : "Karma: " + character.Karma;
-        EssenceStatus = "Essenz: " + character.Condition.Essence;
-        NuyenStatus = "Nuyen: " + character.Nuyen + "¥";
+        if (!character.Created)
+        {
+            CharacterCreationBudgetData budget = character.CreationBudget;
+            string strPoolName = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+                ? App.LanguageCatalog.GetString("String_BP")
+                : App.LanguageCatalog.GetString("String_Karma");
+            KarmaStatus = strPoolName + ": " + budget.Remaining + " / " + budget.Starting
+                + " (" + budget.Spent + " used)";
+            CreationBudgetTooltip = FormatCreationBudgetTooltip(strPoolName, budget);
+        }
+        else
+        {
+            CreationBudgetTooltip = string.Empty;
+            KarmaStatus = string.Equals(character.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+            ? App.LanguageCatalog.GetString("String_BP") + ": " + character.Bp + " / "
+                + App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma
+            : App.LanguageCatalog.GetString("String_Karma") + ": " + character.Karma;
+        }
+        EssenceStatus = App.LanguageCatalog.GetString("UI_EssenceStatusPrefix") + character.Condition.Essence;
+        NuyenStatus = App.LanguageCatalog.GetString("UI_NuyenStatusPrefix") + character.Nuyen + "¥";
         WindowTitle = "Chummer - " + character.Name;
+    }
+
+    private static string FormatCreationBudgetTooltip(string strPoolName, CharacterCreationBudgetData budget)
+    {
+        var builder = new StringBuilder();
+        builder.Append(strPoolName).Append(": ").Append(budget.Remaining).Append(" remaining of ")
+            .Append(budget.Starting).Append("\nSpent: ").Append(budget.Spent);
+        foreach (CharacterCreationBudgetCategoryData category in budget.Categories)
+            builder.Append('\n').Append(category.Name).Append(": ").Append(category.Cost >= 0 ? "+" : string.Empty)
+                .Append(category.Cost);
+        return builder.ToString();
     }
 
     private void RebuildRecentCharacters()

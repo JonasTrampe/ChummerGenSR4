@@ -61,6 +61,11 @@ namespace RunnersPoint.Api
         Task PurgeSharedDocumentAsync(string strDocumentId, string strIfMatch);
         Task PurgeRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch);
         Task PurgeSharedRevisionAsync(string strDocumentId, string strRevisionId, string strIfMatch);
+#if DEBUG
+        // Only implemented in Debug builds (RunnersPointApiClient.GetDebugDumpAsync) - guarded
+        // the same way here so a Release build (e.g. for AppImage packaging) compiles at all
+        // instead of failing CS0535 on a member the implementation never provides in Release.
         Task<string> GetDebugDumpAsync(string strDocumentId);
+#endif
     }
 }

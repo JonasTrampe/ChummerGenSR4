@@ -87,6 +87,7 @@ namespace Chummer.Core
 		
 		static readonly XmlManager ObjInstance = new XmlManager();
 		static private readonly List<XmlReference> LstXmlDocuments = new List<XmlReference>();
+		static private readonly object ObjCacheLock = new object();
 
 		#region Constructor and Instance
 		static XmlManager()
@@ -121,34 +122,21 @@ namespace Chummer.Core
 			strPath = Path.Combine(strPath, strFileName);
 			var datDate = File.GetLastWriteTime(strPath);
 
-			// Look to see if this XmlDocument is already loaded.
-			var blnFound = false;
-			var objReference = new XmlReference();
-			foreach (var objCurrentReference in LstXmlDocuments)
+			// The cache is shared by parallel Core callers. Protect lookup/add so enumeration cannot
+			// race another first load; returned documents are cloned below and remain caller-owned.
+			XmlReference objReference;
+			bool blnLoadFile;
+			lock (ObjCacheLock)
 			{
-				if (objCurrentReference.FileName == strFileName)
+				objReference = LstXmlDocuments.Find(objCurrentReference => objCurrentReference.FileName == strFileName);
+				if (objReference == null)
 				{
-					objReference = objCurrentReference;
-					blnFound = true;
-					break;
-				}
-			}
-
-			var blnLoadFile = false;
-			if (!blnFound)
-			{
-				// The file was not found in the reference list, so it must be loaded.
-				blnLoadFile = true;
-				LstXmlDocuments.Add(objReference);
-			}
-			else
-			{
-				// The file was found in the List, so check the last write time.
-				if (datDate != objReference.FileDate)
-				{
-					// The last write time does not match, so it must be reloaded.
+					objReference = new XmlReference();
+					LstXmlDocuments.Add(objReference);
 					blnLoadFile = true;
 				}
+				else
+					blnLoadFile = datDate != objReference.FileDate;
 			}
 
 			// Create a new document that everything will be merged into.

@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:newUi="clr-namespace:Chummer.NewUI"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="745"
         x:Class="Chummer.NewUI.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -25,52 +26,64 @@
     <DockPanel LastChildFill="True">
 
         <Menu DockPanel.Dock="Top" Background="White">
-            <MenuItem Header="_Datei">
-                <MenuItem Header="_Neu" Click="OnNewCharacterClick" />
-                <MenuItem Header="Ö_ffnen..." Click="OnOpenCharacterClick" />
-                <MenuItem Header="_Zuletzt geöffnet" ItemsSource="{Binding RecentCharacters}">
+            <MenuItem Header="{loc:Loc Menu_Main_File}">
+                <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_NewCritter}" Click="OnNewCritterClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_Open}" Click="OnOpenCharacterClick" />
+                <MenuItem Header="{loc:Loc UI_RecentFiles}" ItemsSource="{Binding RecentCharacters}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecentCharacterEntryViewModel">
                             <MenuItem Header="{Binding DisplayText}" Click="OnOpenRecentCharacterClick" />
                         </DataTemplate>
                     </MenuItem.ItemTemplate>
-                    <MenuItem Header="Keine zuletzt geöffneten Dateien"
+                    <MenuItem Header="{loc:Loc UI_NoRecentFiles}"
                               IsEnabled="False"
                               IsVisible="{Binding HasNoRecentCharacters}" />
                 </MenuItem>
-                <MenuItem Header="_Speichern" Click="OnSaveCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_FileSave}" Click="OnSaveCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_FileSaveAs}" Click="OnSaveCharacterAsClick" />
                 <Separator />
-                <MenuItem Header="_Drucken" Click="OnPrintClick" />
+                <MenuItem Header="{loc:Loc Menu_FilePrint}" Click="OnPrintClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_PrintMultiple}" Click="OnPrintMultipleClick" />
+                <MenuItem Header="{loc:Loc Menu_FileExport}" Click="OnExportClick" />
                 <Separator />
-                <MenuItem Header="_Schließen" Click="OnCloseWindowClick" />
+                <MenuItem Header="{loc:Loc Menu_FileClose}" Click="OnCloseWindowClick" />
             </MenuItem>
-            <MenuItem Header="_Zubehör">
-                <MenuItem Header="_Cloud Documents..." Click="OnCloudDocumentsClick" />
-                <MenuItem Header="_Würfeln..." Click="OnDiceRollerClick" />
+            <MenuItem Header="{loc:Loc Menu_Main_Tools}">
+                <MenuItem Header="{loc:Loc Menu_Main_CloudDocuments}" Click="OnCloudDocumentsClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_DiceRoller}" Click="OnDiceRollerClick" />
             </MenuItem>
-            <MenuItem Header="_Spezial">
-                <MenuItem Header="_Optionen..." Click="OnOptionsClick" />
+            <MenuItem Header="{loc:Loc Menu_Special}">
+                <MenuItem Header="{loc:Loc Menu_Main_Options}" Click="OnOptionsClick" />
             </MenuItem>
-            <MenuItem Header="_Fenster" />
-            <MenuItem Header="_Hilfe" />
+            <MenuItem Header="{loc:Loc Menu_Main_Window}" ItemsSource="{Binding OpenCharacters}">
+                <MenuItem.ItemTemplate>
+                    <DataTemplate x:DataType="newUi:OpenCharacterTab">
+                        <MenuItem Header="{Binding Title}" Click="OnActivateCharacterClick" />
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+            </MenuItem>
+            <MenuItem Header="{loc:Loc Menu_Main_Help}">
+                <MenuItem Header="{loc:Loc Menu_Main_Update}" Click="OnCheckForUpdatesClick" />
+            </MenuItem>
         </Menu>
 
         <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <Button Name="NewCharacterButton" Classes="toolbarButton"
-                        ToolTip.Tip="Neu (öffnet den Charaktererschaffungs-Assistenten)"
+                        ToolTip.Tip="{loc:Loc UI_NewCharacterTooltip}"
                         AutomationProperties.Name="Neu" Click="OnNewCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/page.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Öffnen"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc UI_OpenAdj}"
                         AutomationProperties.Name="Öffnen" Click="OnOpenCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/folder_page.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Speichern unter"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc UI_SaveAsAdj}"
                         AutomationProperties.Name="Speichern unter" Click="OnSaveCharacterClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/disk.png" />
                 </Button>
-                <Button Classes="toolbarButton" ToolTip.Tip="Drucken"
+                <Button Classes="toolbarButton" ToolTip.Tip="{loc:Loc Menu_FilePrint}"
                         AutomationProperties.Name="Drucken" Click="OnPrintClick">
                     <Image Source="avares://Chummer.Avalonia/assets/icons/printer.png" />
                 </Button>
@@ -79,7 +92,7 @@
 
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
-                <TextBlock Text="{Binding KarmaStatus}" />
+                <TextBlock Text="{Binding KarmaStatus}" ToolTip.Tip="{Binding CreationBudgetTooltip}" />
                 <TextBlock Text="{Binding EssenceStatus}" />
                 <TextBlock Text="{Binding NuyenStatus}" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" IsVisible="{Binding HasError}" />
@@ -98,7 +111,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
                         <Button Content="×" Click="OnCloseCharacterTabClick"
-                                ToolTip.Tip="Charakter schließen" Padding="3,0" MinWidth="0" />
+                                ToolTip.Tip="{loc:Loc UI_CloseCharacter}" Padding="3,0" MinWidth="0" />
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>

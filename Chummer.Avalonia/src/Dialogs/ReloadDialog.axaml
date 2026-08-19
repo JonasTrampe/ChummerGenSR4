@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.ReloadDialog"
+        Width="380" SizeToContent="{loc:Loc UI_Height}" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="{loc:Loc Title_Reload}">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="70,*">
+        <TextBlock Grid.Row="0" Text="{loc:Loc UI_AmmoColon}" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="AmmoBox" HorizontalAlignment="Stretch" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="1" Text="{loc:Loc Label_Qty}" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CountBox" HorizontalAlignment="Stretch" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,0,0,6" />
+
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc Button_Reload}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

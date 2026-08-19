@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        x:Class="Chummer.NewUI.Dialogs.ConfirmationDialog"
+        Width="420" Height="180" WindowStartupLocation="CenterOwner" CanResize="False">
+    <Grid RowDefinitions="*,Auto" Margin="16" RowSpacing="12">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{loc:Loc String_No}" Width="80" IsCancel="True" Click="OnCancel" />
+            <Button Content="{loc:Loc String_Yes}" Width="80" IsDefault="True" Click="OnConfirm" />
+        </StackPanel>
+    </Grid>
+</Window>

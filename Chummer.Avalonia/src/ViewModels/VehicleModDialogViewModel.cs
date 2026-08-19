@@ -35,7 +35,7 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
     public decimal Rating { get => _rating; set => SetField(ref _rating, Math.Max(0, value)); }
     public bool HasRating => SelectedMod?.DefaultRating > 0;
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _allOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("vehicles.xml");
@@ -45,16 +45,17 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
             {
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name)) continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty)) continue;
                 _allOptions.Add(new VehicleModOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                     node["rating"]?.InnerText ?? "0", node["slots"]?.InnerText ?? "0", node["avail"]?.InnerText ?? string.Empty,
                     node["cost"]?.InnerText ?? "0", node["source"]?.InnerText ?? string.Empty,
                     node["page"]?.InnerText ?? string.Empty, node["limit"]?.InnerText ?? string.Empty));
             }
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(option => option.Category).Where(category => category.Length > 0).Distinct().OrderBy(category => category))
             Categories.Add(category);
-        _selectedCategory = "Alle";
+        _selectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -63,7 +64,7 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
     {
         ModOptions.Clear();
         IEnumerable<VehicleModOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle") query = query.Where(option => option.Category == SelectedCategory);
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All")) query = query.Where(option => option.Category == SelectedCategory);
         if (!string.IsNullOrWhiteSpace(SearchText)) query = query.Where(option => option.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (VehicleModOptionViewModel option in query) ModOptions.Add(option);
     }

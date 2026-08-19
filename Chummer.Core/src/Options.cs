@@ -48,7 +48,6 @@ public sealed class GlobalOptions
 	public static string StrPdfAppPath = "";
 	public static List<SourcebookInfo> LstSourcebookInfo = new List<SourcebookInfo>();
 
-	#region Helper
 	static string CheckAndGetRegistryKeyWithFallback(string baseSubkey, string value, string fallback)
 	{
 		var data = SettingsStore.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
@@ -112,9 +111,7 @@ public sealed class GlobalOptions
 
 		return list;
 	}
-	#endregion
 
-	#region Constructor and Instance
 	static GlobalOptions()
 	{
 		if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings")))
@@ -300,9 +297,7 @@ public sealed class GlobalOptions
 			return ObjInstance;
 		}
 	}
-	#endregion
 
-	#region Properties
 	/// <summary>
 	/// Whether or not Automatic Updates are enabled.
 	/// </summary>
@@ -586,9 +581,7 @@ public sealed class GlobalOptions
 			LstSourcebookInfo = value;
 		}
 	}
-	#endregion
 
-	#region MRU Methods
 	/// <summary>
 	/// Add a file to the most recently used characters.
 	/// </summary>
@@ -744,10 +737,9 @@ public sealed class GlobalOptions
 		return ReadRegistryFileListing("Software\\Chummer", "stickymru", 1, 10);
 
 	}
-	#endregion
 }
 
-public class CharacterOptions
+public partial class CharacterOptions
 {
 	/// <summary>
 	/// Lets a host application answer "the named settings file is missing - use default.xml
@@ -775,7 +767,6 @@ public class CharacterOptions
 
 	// Settings.
 	private bool _blnConfirmDelete = true;
-	private bool _blnConfirmKarmaExpense = true;
 	private bool _blnPrintSkillsWithZeroRating = true;
 	private bool _blnMoreLethalGameplay = false;
 	private bool _blnSpiritForceBasedOnTotalMag = false;
@@ -785,7 +776,6 @@ public class CharacterOptions
 	private bool _blnPrintExpenses = false;
 	private bool _blnFreeContacts = false;
 	private bool _blnFreeContactsFlat = false;
-	private bool _blnFreeKarmaKnowledge = false;
 	private bool _blnNoSingleArmorEncumbrance = false;
 	private bool _blnIgnoreArmorEncumbrance = false;
 	private bool _blnAlternateArmorEncumbrance = false;
@@ -801,7 +791,6 @@ public class CharacterOptions
 	private bool _blnAutomaticCopyProtection = true;
 	private bool _blnAutomaticRegistration = true;
 	private bool _blnErgonomicProgramsLimit = true;
-	private bool _blnSpecialKarmaCostBasedOnShownValue = false;
 	private bool _blnExceedPositiveQualities = false;
 	private bool _blnExceedNegativeQualities = false;
 	private bool _blnExceedNegativeQualitiesLimit = false;
@@ -829,7 +818,6 @@ public class CharacterOptions
 	private bool _blnAllowBiowareSuites = false;
 	private bool _blnPrintNotes = false;
 	private bool _blnFreeSpiritPowerPointsMag = false;
-	private bool _blnSpecialAttributeKarmaLimit = false;
 	private bool _blnTechnomancerAllowAutosoft = false;
 	private bool _blnTechnomancerAllowCommlink = false;
 	private bool _blnRestrictStickNShock = false;
@@ -847,65 +835,6 @@ public class CharacterOptions
 	private readonly XmlDocument _objBookDoc = new XmlDocument();
 
 	// BP variables.
-	private int _intBpAttribute = 10;
-	private int _intBpAttributeMax = 15;
-	private int _intBpContact = 1;
-	private int _intBpMartialArt = 5;
-	private int _intBpMartialArtManeuver = 2;
-	private int _intBpSkillGroup = 10;
-	private int _intBpActiveSkill = 4;
-	private int _intBpActiveSkillSpecialization = 2;
-	private int _intBpKnowledgeSkill = 2;
-	private int _intBpSpell = 3;
-	private int _intBpFocus = 1;
-	private int _intBpSpirit = 1;
-	private int _intBpComplexForm = 1;
-	private int _intBpComplexFormOption = 1;
-
-	// Karma variables.
-	private int _intKarmaAttribute = 5;
-	private int _intKarmaQuality = 2;
-	private int _intKarmaSpecialization = 2;
-	private int _intKarmaNewKnowledgeSkill = 2;
-	private int _intKarmaNewActiveSkill = 4;
-	private int _intKarmaNewSkillGroup = 10;
-	private int _intKarmaImproveKnowledgeSkill = 1;
-	private int _intKarmaImproveActiveSkill = 2;
-	private int _intKarmaImproveSkillGroup = 5;
-	private int _intKarmaSpell = 5;
-	private int _intKarmaNewComplexForm = 2;
-	private int _intKarmaImproveComplexForm = 1;
-	private int _intKarmaComplexFormOption = 2;
-	private int _intKarmaComplexFormSkillfot = 1;
-	private int _intKarmaNuyenPer = 2500;
-	private int _intKarmaContact = 2;
-	private int _intKarmaCarryover = 5;
-	private int _intKarmaSpirit = 2;
-	private int _intKarmaManeuver = 4;
-	private int _intKarmaInitiation = 3;
-	private int _intKarmaMetamagic = 15;
-	private int _intKarmaJoinGroup = 5;
-	private int _intKarmaLeaveGroup = 1;
-
-	// Karma Foci variables.
-	private int _intKarmaAnchoringFocus = 6;
-	private int _intKarmaBanishingFocus = 3;
-	private int _intKarmaBindingFocus = 3;
-	private int _intKarmaCenteringFocus = 6;
-	private int _intKarmaCounterspellingFocus = 3;
-	private int _intKarmaDiviningFocus = 6;
-	private int _intKarmaDowsingFocus = 6;
-	private int _intKarmaInfusionFocus = 3;
-	private int _intKarmaMaskingFocus = 6;
-	private int _intKarmaPowerFocus = 8;
-	private int _intKarmaShieldingFocus = 6;
-	private int _intKarmaSpellcastingFocus = 4;
-	private int _intKarmaSummoningFocus = 4;
-	private int _intKarmaSustainingFocus = 2;
-	private int _intKarmaSymbolicLinkFocus = 1;
-	private int _intKarmaWeaponFocus = 3;
-
-	// Default build settings.
 	private string _strBuildMethod = "BP";
 	private int _intBuildPoints = 400;
 	private int _intAvailability = 12;
@@ -913,7 +842,6 @@ public class CharacterOptions
 	// Sourcebook list.
 	private readonly List<string> _lstBooks = new List<string>();
 
-	#region Initialization, Save, and Load Methods
 	public CharacterOptions()
 	{
 		// Create the settings directory if it does not exist.
@@ -1814,9 +1742,7 @@ public class CharacterOptions
 
 		return true;
 	}
-	#endregion
 
-	#region Properties and Methods
 	/// <summary>
 	/// Load the Options from the Registry (which will subsequently be converted to the XML Settings File format). Registry keys are deleted once they are read since they will no longer be used.
 	/// </summary>
@@ -3242,808 +3168,7 @@ public class CharacterOptions
 	}
 
 	public HashSet<string> StickNShockExcludedWeaponCategories => _setStickNShockExcludedWeaponCategories;
-	#endregion
 
-	#region BP
-	/// <summary>
-	/// BP cost for each Attribute = this value.
-	/// </summary>
-	public int BpAttribute
-	{
-		get
-		{
-			return _intBpAttribute;
-		}
-		set
-		{
-			_intBpAttribute = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost to raise an Attribute to its Metatype Maximum = this value.
-	/// </summary>
-	public int BpAttributeMax
-	{
-		get
-		{
-			return _intBpAttributeMax;
-		}
-		set
-		{
-			_intBpAttributeMax = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Loyalty, Connection, and Group point = this value.
-	/// </summary>
-	public int BpContact
-	{
-		get
-		{
-			return _intBpContact;
-		}
-		set
-		{
-			_intBpContact = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Martial Arts Rating = this value.
-	/// </summary>
-	public int BpMartialArt
-	{
-		get
-		{
-			return _intBpMartialArt;
-		}
-		set
-		{
-			_intBpMartialArt = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Martial Art Maneuver = this value.
-	/// </summary>
-	public int BpMartialArtManeuver
-	{
-		get
-		{
-			return _intBpMartialArtManeuver;
-		}
-		set
-		{
-			_intBpMartialArtManeuver = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Skill Group Rating = this value.
-	/// </summary>
-	public int BpSkillGroup
-	{
-		get
-		{
-			return _intBpSkillGroup;
-		}
-		set
-		{
-			_intBpSkillGroup = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Active Skill Rating = this value.
-	/// </summary>
-	public int BpActiveSkill
-	{
-		get
-		{
-			return _intBpActiveSkill;
-		}
-		set
-		{
-			_intBpActiveSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Active Skill Specialization = this value.
-	/// </summary>
-	public int BpActiveSkillSpecialization
-	{
-		get
-		{
-			return _intBpActiveSkillSpecialization;
-		}
-		set
-		{
-			_intBpActiveSkillSpecialization = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Knowledge Skill Rating = this value.
-	/// </summary>
-	public int BpKnowledgeSkill
-	{
-		get
-		{
-			return _intBpKnowledgeSkill;
-		}
-		set
-		{
-			_intBpKnowledgeSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Spell = this value.
-	/// </summary>
-	public int BpSpell
-	{
-		get
-		{
-			return _intBpSpell;
-		}
-		set
-		{
-			_intBpSpell = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Rating of Foci.
-	/// </summary>
-	public int BpFocus
-	{
-		get
-		{
-			return _intBpFocus;
-		}
-		set
-		{
-			_intBpFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each service a Sprit owes = this value.
-	/// </summary>
-	public int BpSpirit
-	{
-		get
-		{
-			return _intBpSpirit;
-		}
-		set
-		{
-			_intBpSpirit = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Complex Form Rating = this value.
-	/// </summary>
-	public int BpComplexForm
-	{
-		get
-		{
-			return _intBpComplexForm;
-		}
-		set
-		{
-			_intBpComplexForm = value;
-		}
-	}
-
-	/// <summary>
-	/// BP cost for each Complex Form Option Rating = this value.
-	/// </summary>
-	public int BpComplexFormOption
-	{
-		get
-		{
-			return _intBpComplexFormOption;
-		}
-		set
-		{
-			_intBpComplexFormOption = value;
-		}
-	}
-	#endregion
-
-	#region Karma
-	/// <summary>
-	/// Karma cost to improve an Attribute = New Rating X this value.
-	/// </summary>
-	public int KarmaAttribute
-	{
-		get
-		{
-			return _intKarmaAttribute;
-		}
-		set
-		{
-			_intKarmaAttribute = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to purchase a Quality = BP Cost x this value.
-	/// </summary>
-	public int KarmaQuality
-	{
-		get
-		{
-			return _intKarmaQuality;
-		}
-		set
-		{
-			_intKarmaQuality = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to purchase a Specialization = this value.
-	/// </summary>
-	public int KarmaSpecialization
-	{
-		get
-		{
-			return _intKarmaSpecialization;
-		}
-		set
-		{
-			_intKarmaSpecialization = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to purchase a new Knowledge Skill = this value.
-	/// </summary>
-	public int KarmaNewKnowledgeSkill
-	{
-		get
-		{
-			return _intKarmaNewKnowledgeSkill;
-		}
-		set
-		{
-			_intKarmaNewKnowledgeSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to purchase a new Active Skill = this value.
-	/// </summary>
-	public int KarmaNewActiveSkill
-	{
-		get
-		{
-			return _intKarmaNewActiveSkill;
-		}
-		set
-		{
-			_intKarmaNewActiveSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to purchase a new Skill Group = this value.
-	/// </summary>
-	public int KarmaNewSkillGroup
-	{
-		get
-		{
-			return _intKarmaNewSkillGroup;
-		}
-		set
-		{
-			_intKarmaNewSkillGroup = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to improve a Knowledge Skill = New Rating x this value.
-	/// </summary>
-	public int KarmaImproveKnowledgeSkill
-	{
-		get
-		{
-			return _intKarmaImproveKnowledgeSkill;
-		}
-		set
-		{
-			_intKarmaImproveKnowledgeSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to improve an Active Skill = New Rating x this value.
-	/// </summary>
-	public int KarmaImproveActiveSkill
-	{
-		get
-		{
-			return _intKarmaImproveActiveSkill;
-		}
-		set
-		{
-			_intKarmaImproveActiveSkill = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to improve a Skill Group = New Rating x this value.
-	/// </summary>
-	public int KarmaImproveSkillGroup
-	{
-		get
-		{
-			return _intKarmaImproveSkillGroup;
-		}
-		set
-		{
-			_intKarmaImproveSkillGroup = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for each Spell = this value.
-	/// </summary>
-	public int KarmaSpell
-	{
-		get
-		{
-			return _intKarmaSpell;
-		}
-		set
-		{
-			_intKarmaSpell = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a new Complex Form = this value.
-	/// </summary>
-	public int KarmaNewComplexForm
-	{
-		get
-		{
-			return _intKarmaNewComplexForm;
-		}
-		set
-		{
-			_intKarmaNewComplexForm = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to improve a Complex Form = New Rating x this value.
-	/// </summary>
-	public int KarmaImproveComplexForm
-	{
-		get
-		{
-			return _intKarmaImproveComplexForm;
-		}
-		set
-		{
-			_intKarmaImproveComplexForm = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Complex Form Options = Rating x this value.
-	/// </summary>
-	public int KarmaComplexFormOption
-	{
-		get
-		{
-			return _intKarmaComplexFormOption;
-		}
-		set
-		{
-			_intKarmaComplexFormOption = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Complex Form Skillsofts = Rating x this value.
-	/// </summary>
-	public int KarmaComplexFormSkillsoft
-	{
-		get
-		{
-			return _intKarmaComplexFormSkillfot;
-		}
-		set
-		{
-			_intKarmaComplexFormSkillfot = value;
-		}
-	}
-
-	/// <summary>
-	/// Amount of Nueyn objtained per Karma point.
-	/// </summary>
-	public int KarmaNuyenPer
-	{
-		get
-		{
-			return _intKarmaNuyenPer;
-		}
-		set
-		{
-			_intKarmaNuyenPer = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a Contact = (Connection + Loyalty) x this value.
-	/// </summary>
-	public int KarmaContact
-	{
-		get
-		{
-			return _intKarmaContact;
-		}
-		set
-		{
-			_intKarmaContact = value;
-		}
-	}
-
-	/// <summary>
-	/// Maximum amount of remaining Karma that is carried over to the character once they are created.
-	/// </summary>
-	public int KarmaCarryover
-	{
-		get
-		{
-			return _intKarmaCarryover;
-		}
-		set
-		{
-			_intKarmaCarryover = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a Spirit = this value.
-	/// </summary>
-	public int KarmaSpirit
-	{
-		get
-		{
-			return _intKarmaSpirit;
-		}
-		set
-		{
-			_intKarmaSpirit = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a Combat Maneuver = this value.
-	/// </summary>
-	public int KarmaManeuver
-	{
-		get
-		{
-			return _intKarmaManeuver;
-		}
-		set
-		{
-			_intKarmaManeuver = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a Initiation = 10 + (New Rating x this value).
-	/// </summary>
-	public int KarmaInitiation
-	{
-		get
-		{
-			return _intKarmaInitiation;
-		}
-		set
-		{
-			_intKarmaInitiation = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for a Metamagic = this value.
-	/// </summary>
-	public int KarmaMetamagic
-	{
-		get
-		{
-			return _intKarmaMetamagic;
-		}
-		set
-		{
-			_intKarmaMetamagic = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to join a Group = this value.
-	/// </summary>
-	public int KarmaJoinGroup
-	{
-		get
-		{
-			return _intKarmaJoinGroup;
-		}
-		set
-		{
-			_intKarmaJoinGroup = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost to leave a Group = this value.
-	/// </summary>
-	public int KarmaLeaveGroup
-	{
-		get
-		{
-			return _intKarmaLeaveGroup;
-		}
-		set
-		{
-			_intKarmaLeaveGroup = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Anchoring Foci.
-	/// </summary>
-	public int KarmaAnchoringFocus
-	{
-		get
-		{
-			return _intKarmaAnchoringFocus;
-		}
-		set
-		{
-			_intKarmaAnchoringFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Banishing Foci.
-	/// </summary>
-	public int KarmaBanishingFocus
-	{
-		get
-		{
-			return _intKarmaBanishingFocus;
-		}
-		set
-		{
-			_intKarmaBanishingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Binding Foci.
-	/// </summary>
-	public int KarmaBindingFocus
-	{
-		get
-		{
-			return _intKarmaBindingFocus;
-		}
-		set
-		{
-			_intKarmaBindingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Centering Foci.
-	/// </summary>
-	public int KarmaCenteringFocus
-	{
-		get
-		{
-			return _intKarmaCenteringFocus;
-		}
-		set
-		{
-			_intKarmaCenteringFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Counterspelling Foci.
-	/// </summary>
-	public int KarmaCounterspellingFocus
-	{
-		get
-		{
-			return _intKarmaCounterspellingFocus;
-		}
-		set
-		{
-			_intKarmaCounterspellingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Divining Foci.
-	/// </summary>
-	public int KarmaDiviningFocus
-	{
-		get
-		{
-			return _intKarmaDiviningFocus;
-		}
-		set
-		{
-			_intKarmaDiviningFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Dowsing Foci.
-	/// </summary>
-	public int KarmaDowsingFocus
-	{
-		get
-		{
-			return _intKarmaDowsingFocus;
-		}
-		set
-		{
-			_intKarmaDowsingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Infusion Foci.
-	/// </summary>
-	public int KarmaInfusionFocus
-	{
-		get
-		{
-			return _intKarmaInfusionFocus;
-		}
-		set
-		{
-			_intKarmaInfusionFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Masking Foci.
-	/// </summary>
-	public int KarmaMaskingFocus
-	{
-		get
-		{
-			return _intKarmaMaskingFocus;
-		}
-		set
-		{
-			_intKarmaMaskingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Power Foci.
-	/// </summary>
-	public int KarmaPowerFocus
-	{
-		get
-		{
-			return _intKarmaPowerFocus;
-		}
-		set
-		{
-			_intKarmaPowerFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Shielding Foci.
-	/// </summary>
-	public int KarmaShieldingFocus
-	{
-		get
-		{
-			return _intKarmaShieldingFocus;
-		}
-		set
-		{
-			_intKarmaShieldingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Spellcasting Foci.
-	/// </summary>
-	public int KarmaSpellcastingFocus
-	{
-		get
-		{
-			return _intKarmaSpellcastingFocus;
-		}
-		set
-		{
-			_intKarmaSpellcastingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Summoning Foci.
-	/// </summary>
-	public int KarmaSummoningFocus
-	{
-		get
-		{
-			return _intKarmaSummoningFocus;
-		}
-		set
-		{
-			_intKarmaSummoningFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Sustaining Foci.
-	/// </summary>
-	public int KarmaSustainingFocus
-	{
-		get
-		{
-			return _intKarmaSustainingFocus;
-		}
-		set
-		{
-			_intKarmaSustainingFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Symbolic Link Foci.
-	/// </summary>
-	public int KarmaSymbolicLinkFocus
-	{
-		get
-		{
-			return _intKarmaSymbolicLinkFocus;
-		}
-		set
-		{
-			_intKarmaSymbolicLinkFocus = value;
-		}
-	}
-
-	/// <summary>
-	/// Karma cost for Weapon Foci.
-	/// </summary>
-	public int KarmaWeaponFocus
-	{
-		get
-		{
-			return _intKarmaWeaponFocus;
-		}
-		set
-		{
-			_intKarmaWeaponFocus = value;
-		}
-	}
-	#endregion
-
-	#region Default Build
 	/// <summary>
 	/// Default build method.
 	/// </summary>
@@ -4088,7 +3213,6 @@ public class CharacterOptions
 			_intAvailability = value;
 		}
 	}
-	#endregion
 }
 
 }

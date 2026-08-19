@@ -1,38 +1,39 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         x:Class="Chummer.NewUI.Dialogs.ContactGroupDialog"
         x:DataType="vm:ContactGroupDialogViewModel"
-        Width="420" SizeToContent="Height" WindowStartupLocation="CenterOwner"
-        Title="Zusätzliche Connectioneinstellungen">
+        Width="420" SizeToContent="{loc:Loc UI_Height}" WindowStartupLocation="CenterOwner"
+        Title="{loc:Loc Title_SelectContactConnection}">
     <StackPanel Margin="16" Spacing="8">
-        <TextBlock Text="Berufsgruppe:" FontWeight="Bold" />
+        <TextBlock Text="{loc:Loc Label_SelectContactConnection_GroupName}" FontWeight="Bold" />
         <TextBox Text="{Binding GroupName, Mode=TwoWay}" />
 
-        <TextBlock Text="Mitgliedschaft:" FontWeight="Bold" Margin="0,8,0,0" />
+        <TextBlock Text="{loc:Loc Label_SelectContactConnection_Membership}" FontWeight="Bold" Margin="0,8,0,0" />
         <ComboBox ItemsSource="{Binding MembershipOptions}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 
-        <TextBlock Text="Einflussbereich:" FontWeight="Bold" Margin="0,8,0,0" />
+        <TextBlock Text="{loc:Loc Label_SelectContactConnection_AreaOfInfluence}" FontWeight="Bold" Margin="0,8,0,0" />
         <ComboBox ItemsSource="{Binding AreaOfInfluenceOptions}" SelectedItem="{Binding SelectedAreaOfInfluence, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 
-        <TextBlock Text="Magische Ressourcen:" FontWeight="Bold" Margin="0,8,0,0" />
+        <TextBlock Text="{loc:Loc UI_MagicalResourcesColon}" FontWeight="Bold" Margin="0,8,0,0" />
         <ComboBox ItemsSource="{Binding MagicalResourcesOptions}" SelectedItem="{Binding SelectedMagicalResources, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 
-        <TextBlock Text="Matrix-Ressourcen:" FontWeight="Bold" Margin="0,8,0,0" />
+        <TextBlock Text="{loc:Loc Label_SelectContactConnection_MatrixResources}" FontWeight="Bold" Margin="0,8,0,0" />
         <ComboBox ItemsSource="{Binding MatrixResourcesOptions}" SelectedItem="{Binding SelectedMatrixResources, Mode=TwoWay}"
                   HorizontalAlignment="Stretch" />
 
         <Grid ColumnDefinitions="Auto,*" Margin="0,12,0,0">
-            <TextBlock Grid.Column="0" Text="Gesamtverbindungen Modifikator:" FontWeight="Bold" />
+            <TextBlock Grid.Column="0" Text="{loc:Loc Label_SelectContactConnection_TotalModifier}" FontWeight="Bold" />
             <TextBlock Grid.Column="1" Text="{Binding TotalConnectionModifier}" Margin="6,0,0,0" />
         </Grid>
 
         <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,16,0,0">
-            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
-            <Button Grid.Column="2" Content="OK" Width="80" Click="OnOk" />
+            <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
         </Grid>
     </StackPanel>
 </Window>

@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using Chummer.Core;
 using Xunit;
@@ -8,6 +10,23 @@ public class NewCharacterFactoryTests
 {
     private static NewCharacterMetatype LoadHuman()
         => NewCharacterFactory.LoadMetatypes().Single(m => m.Name == "Human");
+
+    private static NewCharacterMetatype LoadElf()
+        => NewCharacterFactory.LoadMetatypes().Single(m => m.Name == "Elf");
+
+    [Fact]
+    public void LoadMetatypes_UsesTheSelectedProfileSourcebookFilter()
+    {
+        var options = new CharacterOptions();
+        options.Books.Clear();
+        options.Books.Add("SR4");
+
+        var metatypes = NewCharacterFactory.LoadMetatypes(options);
+
+        Assert.Contains(metatypes, m => m.Name == "Human");
+        Assert.DoesNotContain(metatypes, m => m.Name == "Nartaki"); // Runner's Companion.
+        Assert.Empty(metatypes.Single(m => m.Name == "Elf").Metavariants); // Dryad is RC.
+    }
 
     [Fact]
     public void CreateNewCharacter_KarmaBuild_SeedsStartingKarmaFromBuildPoints()
@@ -25,6 +44,37 @@ public class NewCharacterFactoryTests
             "Test", "default.xml", "BP", 400, 12, LoadHuman());
 
         Assert.Equal("0", character.Karma);
+    }
+
+    [Fact]
+    public void CreateNewCharacter_BpBuild_DeductsTheSelectedMetatypeFromTheActivePool()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 400, 12, LoadElf());
+
+        Assert.Equal("370", character.Bp);
+        Assert.Equal(30, character.CreationBudget.Categories.Single(c => c.Name == "Metatype").Cost);
+        Assert.DoesNotContain(character.CreationBudget.Categories, c => c.Name == "Other / not yet categorized");
+    }
+
+    [Fact]
+    public void CreateNewCharacter_KarmaBuild_UsesTheMetatypeKarmaConversionWhenEnabled()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadElf(),
+            objCharacterOptions: new CharacterOptions { MetatypeCostsKarma = true, MetatypeCostsKarmaMultiplier = 2 });
+
+        Assert.Equal("690", character.Karma);
+    }
+
+    [Fact]
+    public void CreateNewCharacter_MetavariantCostReplacesTheBaseMetatypeCost()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 400, 12, LoadElf(), strMetavariantName: "Dryad");
+
+        Assert.Equal("355", character.Bp);
+        Assert.Equal(45, character.CreationBudget.Categories.Single(c => c.Name == "Metatype").Cost);
     }
 
     [Fact]
@@ -69,6 +119,46 @@ public class NewCharacterFactoryTests
 
         Assert.True(character.LowerAttributeCreate("BOD"));
         Assert.Equal(intStartKarma, int.Parse(character.Karma));
+    }
+
+    [Fact]
+    public void RaiseAttributeCreate_BlocksExceedingHalfStartingKarmaOnPrimaryAttributes()
+    {
+        // KarmaAttribute is 5 in default.xml, BOD starts at metatypemin 1 for Human: raises cost
+        // 10, 15, 20, 25 (cumulative 10, 25, 45, 70). With 100 starting Karma, half is 50 - the
+        // 4th raise (cumulative 70) should be blocked even though 55 Karma is still available
+        // (100 - 45), isolating the cap from a plain insufficient-Karma failure.
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 100, 12, LoadHuman());
+        Assert.Equal(100, character.StartingBuildPoints);
+
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.False(character.RaiseAttributeCreate("BOD")); // Cumulative 70 > half of 100.
+        Assert.True(int.Parse(character.Karma) >= 25); // Plenty of Karma left - it's the cap, not funds.
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowExceedAttributeBp = true });
+        Assert.True(character.RaiseAttributeCreate("BOD"));
+    }
+
+    [Fact]
+    public void RaiseAttributeCreate_BpBuild_BlocksExceedingHalfStartingBpOnPrimaryAttributes()
+    {
+        // BpAttribute is a flat 10 per point in default.xml (BOD: metatypemin 1, metatypemax 6
+        // for Human): the first 4 raises (1->2->3->4->5) cost 10 each (cumulative 40); the 5th
+        // (5->6) reaches the racial max, adding the BpAttributeMax(15) surcharge on top, so its
+        // cumulative cost of 65 exceeds half of a 100 BP starting total (50) and must be blocked.
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "BP", 100, 12, LoadHuman());
+        Assert.Equal(100, character.StartingBuildPoints);
+
+        for (int i = 0; i < 4; i++)
+            Assert.True(character.RaiseAttributeCreate("BOD"));
+        Assert.False(character.RaiseAttributeCreate("BOD"));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { AllowExceedAttributeBp = true });
+        Assert.True(character.RaiseAttributeCreate("BOD"));
     }
 
     [Fact]
@@ -266,6 +356,7 @@ public class NewCharacterFactoryTests
     [InlineData("None", false, false, false, false)]
     [InlineData("Adept", true, false, false, true)]
     [InlineData("Magician", false, true, false, true)]
+    [InlineData("MysticAdept", true, true, false, true)]
     [InlineData("Technomancer", false, false, true, false)]
     public void CreateNewCharacter_MagicType_SetsAdeptMagicianTechnomancerAndAwakenedFlags(
         string strMagicType, bool blnAdept, bool blnMagician, bool blnTechnomancer, bool blnAwakened)
@@ -277,6 +368,59 @@ public class NewCharacterFactoryTests
         Assert.Equal(blnMagician, character.Magician);
         Assert.Equal(blnTechnomancer, character.Technomancer);
         Assert.Equal(blnAwakened, character.Awakened);
+    }
+
+    [Fact]
+    public void SetMysticAdeptMagicianMagSplit_SplitsMagBetweenMagicianAndAdept()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman(), strMagicType: "MysticAdept");
+        for (int i = 0; i < 6; i++)
+            character.RaiseAttributeCreate("MAG");
+
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(2));
+        Assert.Equal(2, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(6 - 2, character.MysticAdeptAdeptMagSplit);
+
+        // Clamped to [0, MAG].
+        Assert.True(character.SetMysticAdeptMagicianMagSplit(99));
+        Assert.Equal(6, character.MysticAdeptMagicianMagSplit);
+        Assert.Equal(0, character.MysticAdeptAdeptMagSplit);
+    }
+
+    [Fact]
+    public void GetLifestyleNuyenRollInfo_AutoAddsStreetLifestyleAndComputesDiceMultiplierExtra()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.Nuyen = "250"; // +2 bonus (floor(250/100)), capped at 3x dice.
+        Assert.Empty(character.Lifestyles);
+
+        var info = character.GetLifestyleNuyenRollInfo();
+
+        Assert.NotNull(info);
+        Assert.Single(character.Lifestyles); // Street auto-added, per frmCreate.cs.
+        Assert.Equal("Street", character.Lifestyles.Single().Name);
+        Assert.Equal(1, info.Dice);
+        Assert.Equal(10, info.Multiplier);
+        Assert.Equal(2, info.Extra);
+    }
+
+    [Fact]
+    public void FinalizeCreationWithLifestyleNuyenRoll_AppliesRollAndFinalizes()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.Nuyen = "0";
+
+        Assert.True(character.FinalizeCreationWithLifestyleNuyenRoll(4));
+
+        Assert.True(character.Created);
+        Assert.Equal("40", character.Nuyen); // (4 + 0 extra) * 10 multiplier.
+
+        // Already Created - the roll info is gone and finalizing again is a no-op.
+        Assert.Null(character.GetLifestyleNuyenRollInfo());
+        Assert.False(character.FinalizeCreationWithLifestyleNuyenRoll(4));
     }
 
     [Fact]
@@ -295,5 +439,110 @@ public class NewCharacterFactoryTests
         // Already created - finalizing again is a no-op.
         Assert.False(character.FinalizeCreation());
         Assert.Equal(1, intChangedCount);
+    }
+
+    [Fact]
+    public void CreateCareerBackup_WritesPreCareerSnapshotBesideSourceFile()
+    {
+        string strDirectory = Path.Combine(Path.GetTempPath(), "chummer-backup-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(strDirectory);
+        try
+        {
+            CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+                "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+            character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = true });
+            string strSourcePath = Path.Combine(strDirectory, "Runner.chum");
+
+            string strBackupPath = new CharacterFileService().CreateCareerBackup(character, strSourcePath)
+                ?? throw new InvalidOperationException("Expected a pre-career backup path.");
+
+            Assert.Equal(Path.Combine(strDirectory, "backup", "Runner (Create Mode).chum"), strBackupPath);
+            Assert.True(File.Exists(strBackupPath));
+            using FileStream objStream = File.OpenRead(strBackupPath);
+            CharacterDocument snapshot = new CharacterFileService().Load(objStream, "backup.chum");
+            Assert.False(snapshot.Created);
+            Assert.Equal("Test", snapshot.Name);
+        }
+        finally
+        {
+            if (Directory.Exists(strDirectory))
+                Directory.Delete(strDirectory, true);
+        }
+    }
+
+    [Fact]
+    public void LoadCritterMetatypes_ReadsCrittersXmlByTheSameSchemaAsMetatypes()
+    {
+        var critters = NewCharacterFactory.LoadCritterMetatypes();
+
+        var dog = critters.Single(c => c.Name == "Dog");
+        Assert.Equal("Mundane Critters", dog.Category);
+        Assert.Equal("2/2 (2)", dog.BodRange); // Plain-integer critter: min == max == aug.
+
+        var allySpirit = critters.Single(c => c.Name == "Ally Spirit");
+        Assert.Equal("F/F (F)", allySpirit.BodRange); // Force-based critter: unresolved formula.
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_PlainIntegerCritter_SetsFixedAttributesSkillsAndPowers()
+    {
+        var dog = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Dog");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter("Rex", "default.xml", dog);
+
+        Assert.True(character.IsCritter);
+        Assert.Equal("Bp", character.BuildMethod);
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("2", attributes["BOD"].TotalValue);
+        Assert.Equal("3", attributes["AGI"].TotalValue);
+        Assert.Equal("1", attributes["LOG"].TotalValue);
+
+        var skills = character.Skills.ToDictionary(s => s.Name);
+        Assert.Equal("3", skills["Unarmed Combat"].Rating);
+        Assert.Equal("2", skills["Tracking"].Rating);
+
+        Assert.Contains(character.CritterPowers, p => p.Name == "Enhanced Senses");
+        Assert.Contains(character.CritterPowers, p => p.Name == "Natural Weapon");
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_ForceBasedCritter_ResolvesFAttributeAndSkillFormulas()
+    {
+        var allySpirit = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Ally Spirit");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter(
+            "Test Spirit", "default.xml", allySpirit, intForce: 6);
+
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("6", attributes["BOD"].TotalValue); // "F" at Force 6.
+        Assert.Equal("6", attributes["MAG"].TotalValue); // Also "F".
+
+        var skills = character.Skills.ToDictionary(s => s.Name);
+        Assert.Equal("6", skills["Astral Combat"].Rating); // rating="F" at Force 6.
+    }
+
+    [Fact]
+    public void CreateCritterCharacter_SpiritOfAir_ResolvesOffsetForceFormulas()
+    {
+        var spiritOfAir = NewCharacterFactory.LoadCritterMetatypes().Single(c => c.Name == "Spirit of Air");
+
+        CharacterDocument character = NewCharacterFactory.CreateCritterCharacter(
+            "Air Spirit", "default.xml", spiritOfAir, intForce: 6);
+
+        var attributes = character.Attributes.ToDictionary(a => a.Code);
+        Assert.Equal("4", attributes["BOD"].TotalValue); // "F-2" at Force 6.
+        Assert.Equal("9", attributes["AGI"].TotalValue); // "F+3" at Force 6.
+    }
+
+    [Fact]
+    public void CreateCareerBackup_IsNoOpWithoutSettingOrSourcePath()
+    {
+        CharacterDocument character = NewCharacterFactory.CreateNewCharacter(
+            "Test", "default.xml", "Karma", 750, 12, LoadHuman());
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = false });
+        Assert.Null(new CharacterFileService().CreateCareerBackup(character, "/tmp/Runner.chum"));
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { CreateBackupOnCareer = true });
+        Assert.Null(new CharacterFileService().CreateCareerBackup(character, null));
     }
 }

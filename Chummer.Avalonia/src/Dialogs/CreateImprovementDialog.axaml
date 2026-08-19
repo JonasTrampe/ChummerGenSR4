@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.CreateImprovementDialog"
+        Width="420" SizeToContent="{loc:Loc UI_Height}" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="{loc:Loc Button_AddImproevment}">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110,*">
+        <TextBlock Grid.Row="0" Text="{loc:Loc Label_Type}" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="TypeBox" HorizontalAlignment="Stretch" Margin="0,0,0,6"
+                  SelectionChanged="OnTypeChanged" />
+
+        <TextBlock Grid.Row="1" Text="{loc:Loc Label_Name}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="2" x:Name="SelectLabel" Text="{loc:Loc UI_SelectionColon}" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="SelectBox" HorizontalAlignment="Stretch" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="3" x:Name="ValLabel" Text="{loc:Loc Label_CreateImprovementValue}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="3" Grid.Column="1" x:Name="ValBox" Minimum="-100" Maximum="100" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="4" x:Name="MinLabel" Text="{loc:Loc Label_CreateImprovementMinimum}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="4" Grid.Column="1" x:Name="MinBox" Minimum="-100" Maximum="100" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="5" x:Name="MaxLabel" Text="{loc:Loc Label_CreateImprovementMaximum}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="5" Grid.Column="1" x:Name="MaxBox" Minimum="-100" Maximum="100" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="6" x:Name="AugLabel" Text="{loc:Loc UI_ExtendedMaximumColon}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="6" Grid.Column="1" x:Name="AugBox" Minimum="-100" Maximum="100" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <CheckBox Grid.Row="7" Grid.Column="1" x:Name="ApplyToRatingBox" Content="{loc:Loc UI_ApplyToSkillRating}" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="8" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,0,0,6" />
+
+        <StackPanel Grid.Row="9" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -20,7 +20,7 @@ public partial class ArmorSetDialog : Window
     {
         if (SetName.Length == 0)
         {
-            ViewModel.ErrorMessage = "Bitte einen Namen eingeben.";
+            ViewModel.ErrorMessage = App.LanguageCatalog.GetString("UI_PleaseEnterNameMessage");
             return;
         }
         Close(true);

@@ -33,19 +33,60 @@ public partial class AdeptPowersSectionTab : UserControl
 
         var dialog = new PowerDialog(_character);
         bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true && dialog.SelectedPower is { } selected)
-        {
-            _character.AddAdeptPower(selected.Name, dialog.SelectedRating.ToString(), selected.PointsPerLevel);
-            ViewModel.LoadCharacter(_character);
-        }
-    }
-
-    private void OnDeletePowerClick(object? sender, System.EventArgs e)
-    {
-        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row })
+        if (added != true || dialog.SelectedPower is not { } selected)
             return;
 
-        if (_character.RemoveAdeptPower(row.Name))
+        string strRating = dialog.SelectedRating.ToString();
+        if (_character.GetSenseImprovementOptions(selected.Name).Count > 0)
+        {
+            var senseDialog = new SenseImprovementDialog(_character, selected.Name);
+            bool senseSelected = await senseDialog.ShowDialog<bool>(window);
+            if (!senseSelected || senseDialog.SelectedName == null)
+                return;
+
+            if (_character.AddImprovedSensePower(selected.Name, strRating, selected.PointsPerLevel, senseDialog.SelectedName))
+                ViewModel.LoadCharacter(_character);
+            return;
+        }
+
+        string strSelected = string.Empty;
+        var skillOptions = _character.GetAdeptPowerSkillSelectionOptions(selected.Name);
+        var attributeOptions = _character.GetAdeptPowerAttributeSelectionOptions(selected.Name);
+        if (skillOptions.Count > 0 || attributeOptions.Count > 0)
+        {
+            var listDialog = new ListSelectionDialog($"„{selected.Name}“ - "
+                    + (skillOptions.Count > 0 ? "Fertigkeit auswählen:" : "Attribut auswählen:"),
+                skillOptions.Count > 0 ? skillOptions : attributeOptions);
+            if (!await listDialog.ShowDialog<bool>(window) || listDialog.SelectedValue == null)
+                return;
+            strSelected = listDialog.SelectedValue;
+        }
+
+        _character.AddAdeptPower(selected.Name, strRating, selected.PointsPerLevel, strSelected);
+        ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnDeletePowerClick(object? sender, System.EventArgs e)
+    {
+        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeletePower"))
+            return;
+        if (_character.RemoveAdeptPower(row.PowerId))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnEditPowerNotesClick(object? sender, System.EventArgs e)
+    {
+        if (_character == null || sender is not AdeptPowerRow { DataContext: AdeptPowerRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new ContactNotesDialog { Notes = row.Notes };
+        if (await dialog.ShowDialog<bool?>(window) == true
+            && _character.SetAdeptPowerNotes(row.PowerId, dialog.Notes))
             ViewModel.LoadCharacter(_character);
     }
 }

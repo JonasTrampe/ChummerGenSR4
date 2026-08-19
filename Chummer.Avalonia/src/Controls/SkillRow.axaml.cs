@@ -93,6 +93,9 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<int> MaxRatingValueProperty =
         AvaloniaProperty.Register<SkillRow, int>(nameof(MaxRatingValue), 6);
 
+    public static readonly StyledProperty<bool> CanRollProperty =
+        AvaloniaProperty.Register<SkillRow, bool>(nameof(CanRoll));
+
     private bool _blnIsEditingSpecialization;
     public bool IsEditingSpecialization
     {
@@ -107,6 +110,7 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
 
     public event EventHandler? RaiseClicked;
     public event EventHandler<string>? SpecializationCommitted;
+    public event EventHandler? RollClicked;
 
     public SkillRow()
     {
@@ -191,6 +195,12 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
         set => SetValue(MaxRatingValueProperty, value);
     }
 
+    public bool CanRoll
+    {
+        get => GetValue(CanRollProperty);
+        set => SetValue(CanRollProperty, value);
+    }
+
     public bool HasPool => !string.IsNullOrWhiteSpace(Pool) && Pool.Trim() != "0";
     public bool CanEditRating => !IsUnavailable && !IsGroupLocked;
     public bool CanEditSpecialization => IsCreateMode || IsEditingSpecialization;
@@ -198,6 +208,11 @@ public partial class SkillRow : UserControl, INotifyPropertyChanged
     private void OnRaiseButtonClick(object? sender, RoutedEventArgs e)
     {
         RaiseClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnRollButtonClick(object? sender, RoutedEventArgs e)
+    {
+        RollClicked?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnEditSpecializationClick(object? sender, RoutedEventArgs e)

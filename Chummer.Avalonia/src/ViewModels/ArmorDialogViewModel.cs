@@ -47,7 +47,7 @@ public sealed class ArmorDialogViewModel : ViewModelBase
         set => SetField(ref _selectedArmor, value);
     }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("armor.xml");
@@ -59,6 +59,8 @@ public sealed class ArmorDialogViewModel : ViewModelBase
                 string name = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(name))
                     continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                    continue;
 
                 _lstAllOptions.Add(new ArmorOptionViewModel(name, node["category"]?.InnerText ?? string.Empty,
                     node["b"]?.InnerText ?? "0", node["i"]?.InnerText ?? "0",
@@ -69,12 +71,12 @@ public sealed class ArmorDialogViewModel : ViewModelBase
         }
 
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string strCategory in _lstAllOptions.Select(o => o.Category).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             Categories.Add(strCategory);
 
-        _strSelectedCategory = "Alle";
+        _strSelectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -84,7 +86,7 @@ public sealed class ArmorDialogViewModel : ViewModelBase
         ArmorOptions.Clear();
         IEnumerable<ArmorOptionViewModel> query = _lstAllOptions;
 
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle")
+        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
             query = query.Where(o => o.Category == SelectedCategory);
 
         if (!string.IsNullOrWhiteSpace(SearchText))

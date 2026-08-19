@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
         xmlns:tabs="using:Chummer.NewUI.Controls.OptionsTabs"
@@ -11,11 +12,11 @@
         FontSize="11"
         Background="White"
         Tag="Title_Options"
-        Title="Optionen">
+        Title="{loc:Loc Title_Options}">
 	<DockPanel Margin="10" LastChildFill="True">
 		<StackPanel DockPanel.Dock="Top" Spacing="8">
 			<Grid ColumnDefinitions="Auto,240,Auto,260,*" ColumnSpacing="8">
-				<TextBlock Grid.Column="0" Tag="Label_Options_SettingsFile" Text="Konfigurationsdatei:" VerticalAlignment="Center" />
+				<TextBlock Grid.Column="0" Tag="Label_Options_SettingsFile" Text="{loc:Loc Label_Options_SettingsFile}" VerticalAlignment="Center" />
 				<ComboBox Grid.Column="1" ItemsSource="{Binding SettingsProfiles}" SelectedItem="{Binding SelectedSettingsProfile, Mode=TwoWay}">
 					<ComboBox.ItemTemplate>
 						<DataTemplate>
@@ -23,29 +24,29 @@
 						</DataTemplate>
 					</ComboBox.ItemTemplate>
 				</ComboBox>
-				<TextBlock Grid.Column="2" Tag="Label_Options_SettingName" Text="Konfigurationsprofil:" VerticalAlignment="Center" />
+				<TextBlock Grid.Column="2" Tag="Label_Options_SettingName" Text="{loc:Loc Label_Options_SettingName}" VerticalAlignment="Center" />
 				<TextBox Grid.Column="3" Text="{Binding SettingsProfileName, Mode=TwoWay}" />
 			</Grid>
 		</StackPanel>
 
 		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-			<Button Tag="String_OK" Content="OK" Width="90" Click="OnOk" />
+			<Button Tag="String_OK" Content="{loc:Loc String_OK}" Width="90" Click="OnOk" />
 		</StackPanel>
 
 		<TabControl>
-			<TabItem Tag="Tab_Options_General" Header="Allgemein">
+			<TabItem Tag="Tab_Options_General" Header="{loc:Loc Tab_Common}">
 				<tabs:GeneralOptionsTab />
 			</TabItem>
-			<TabItem Tag="Tab_Options_BPCosts" Header="GP-Kosten">
+			<TabItem Tag="Tab_Options_BPCosts" Header="{loc:Loc Tab_Options_BPCosts}">
 				<tabs:BpCostsOptionsTab />
 			</TabItem>
-			<TabItem Tag="Tab_Options_KarmaCosts" Header="Karmakosten">
+			<TabItem Tag="Tab_Options_KarmaCosts" Header="{loc:Loc Tab_Options_KarmaCosts}">
 				<tabs:KarmaCostsOptionsTab />
 			</TabItem>
-			<TabItem Tag="Tab_Options_OptionalRules" Header="Optionale Regeln">
+			<TabItem Tag="Tab_Options_OptionalRules" Header="{loc:Loc Tab_Options_OptionalRules}">
 				<tabs:OptionalRulesOptionsTab />
 			</TabItem>
-			<TabItem Tag="Tab_Options_HouseRules" Header="Hausregeln">
+			<TabItem Tag="Tab_Options_HouseRules" Header="{loc:Loc Tab_Options_HouseRules}">
 				<tabs:HouseRulesOptionsTab />
 			</TabItem>
 		</TabControl>

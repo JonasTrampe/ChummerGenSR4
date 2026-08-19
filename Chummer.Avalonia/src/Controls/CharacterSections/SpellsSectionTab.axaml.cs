@@ -1,13 +1,18 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Chummer.Core;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
-using SpellDialog = Chummer.NewUI.Dialogs.SpellDialog;
+using ListSelectionDialog = Chummer.NewUI.Dialogs.ListSelectionDialog;
+using TextSelectionDialog = Chummer.NewUI.Dialogs.TextSelectionDialog;
 
 namespace Chummer.NewUI.Controls.CharacterSections;
 
+// Split by concern into partial-class files: .Spells.cs, .Spirits.cs, .ComplexForms.cs,
+// .CritterPowers.cs. This file keeps the shared construction/load surface plus
+// CollectSelectionAsync, the selecttext/selectskill/selectattribute prompt helper used by both
+// ComplexForms and CritterPowers.
 public partial class SpellsSectionTab : UserControl
 {
     public SpellsSectionViewModel ViewModel { get; } = new();
@@ -26,51 +31,38 @@ public partial class SpellsSectionTab : UserControl
         ViewModel.LoadCharacter(character);
     }
 
-    private async void OnAddSpellClick(object? sender, RoutedEventArgs e)
+    /// <summary>Shared selecttext/selectskill/selectattribute prompt for CritterPower/ComplexForm
+    /// adds - ported from clsImprovement.cs's respective handlers, same pattern as
+    /// GeneralSectionTab's Quality flow.</summary>
+    private static async Task<(bool Proceed, string Extra)> CollectSelectionAsync(
+        Window window, string strItemName, bool blnRequiresText,
+        IReadOnlyList<string> lstSkillOptions,
+        IReadOnlyList<string> lstAttributeOptions)
     {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new SpellDialog(_character);
-        bool added = await dialog.ShowDialog<bool>(window);
-        if (added && dialog.SelectedSpell != null)
+        if (blnRequiresText)
         {
-            var spell = dialog.SelectedSpell;
-            _character.AddSpell(spell.Name, spell.Category, spell.Type, spell.Range, spell.Damage, spell.Duration,
-                spell.DrainValue, spell.Source, spell.Page);
-            ViewModel.LoadCharacter(_character);
+            var textDialog = new TextSelectionDialog($"„{strItemName}“ benötigt eine Detailangabe:");
+            return await textDialog.ShowDialog<bool>(window)
+                ? (true, textDialog.EnteredText)
+                : (false, string.Empty);
         }
-    }
 
-    private void OnDeleteSpellClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpellNode?.Parent == null)
-            return;
-
-        if (_character.RemoveSpell(ViewModel.SelectedSpellNode.Name))
-            ViewModel.LoadCharacter(_character);
-    }
-
-    private async void OnAddSpiritClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || TopLevel.GetTopLevel(this) is not Window window)
-            return;
-
-        var dialog = new SpiritDialog();
-        bool? added = await dialog.ShowDialog<bool?>(window);
-        if (added == true)
+        if (lstSkillOptions.Count > 0)
         {
-            _character.AddSpirit(dialog.SpiritName, dialog.CritterName, dialog.Type, dialog.Force, dialog.Services);
-            ViewModel.LoadCharacter(_character);
+            var listDialog = new ListSelectionDialog($"„{strItemName}“ - Fertigkeit auswählen:", lstSkillOptions);
+            return await listDialog.ShowDialog<bool>(window) && listDialog.SelectedValue != null
+                ? (true, listDialog.SelectedValue)
+                : (false, string.Empty);
         }
-    }
 
-    private void OnDeleteSpiritClick(object? sender, RoutedEventArgs e)
-    {
-        if (_character == null || ViewModel.SelectedSpirit is not { } selected)
-            return;
+        if (lstAttributeOptions.Count > 0)
+        {
+            var listDialog = new ListSelectionDialog($"„{strItemName}“ - Attribut auswählen:", lstAttributeOptions);
+            return await listDialog.ShowDialog<bool>(window) && listDialog.SelectedValue != null
+                ? (true, listDialog.SelectedValue)
+                : (false, string.Empty);
+        }
 
-        if (_character.RemoveSpirit(selected.Name, selected.Type, selected.Force))
-            ViewModel.LoadCharacter(_character);
+        return (true, string.Empty);
     }
 }

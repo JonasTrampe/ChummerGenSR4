@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Xml;
 using Avalonia;
@@ -22,12 +23,16 @@ namespace Chummer.NewUI;
 public partial class MainWindow : Window
 {
     private readonly CharacterFileService _characterFiles = new CharacterFileService();
+    private DiceRollerDialog? _singleDiceRoller;
+    private bool _allowWindowClose;
     private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
 
     public MainWindow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
         DataContext = new MainWindowViewModel();
+        Closing += OnWindowClosing;
+        CheckForUpdateOnStartupAsync();
     }
 
     // Demo wiring only, for the look-and-feel spike: chains the three real character-creation
@@ -45,7 +50,7 @@ public partial class MainWindow : Window
         if (objBuildSelection == null)
             return;
 
-        var metatypeDialog = new MetatypeDialog();
+        var metatypeDialog = new MetatypeDialog(objSettingsSelection.FileName);
         MetatypeSelection? objMetatypeSelection = await metatypeDialog.ShowDialog<MetatypeSelection?>(this);
         if (objMetatypeSelection == null)
             return;
@@ -64,6 +69,41 @@ public partial class MainWindow : Window
         ViewModel.AddOpenCharacter(objCharacter, null);
     }
 
+    // Ported from frmMain.cs's mnuNewCritter_Click: builds a character directly from a
+    // critters.xml template (IsCritter=true, IgnoreRules=true, BuildMethod=Bp/BuildPoints=0)
+    // instead of the normal point-buy metatype selection.
+    private async void OnNewCritterClick(object? sender, RoutedEventArgs e)
+    {
+        var settingsDialog = new SettingsProfileDialog();
+        SettingsProfileSelection? objSettingsSelection = await settingsDialog.ShowDialog<SettingsProfileSelection?>(this);
+        if (objSettingsSelection == null)
+            return;
+
+        var objOptions = new CharacterOptions();
+        objOptions.Load(objSettingsSelection.FileName);
+        if (!objOptions.Books.Contains("RW"))
+        {
+            var warningDialog = new MessageBoxDialog(
+                T("MessageTitle_Main_RunningWild"), T("Message_Main_RunningWild"));
+            await warningDialog.ShowDialog(this);
+            return;
+        }
+
+        var metatypeDialog = new MetatypeDialog(objSettingsSelection.FileName, blnCritterMode: true);
+        MetatypeSelection? objMetatypeSelection = await metatypeDialog.ShowDialog<MetatypeSelection?>(this);
+        if (objMetatypeSelection == null)
+            return;
+
+        string strCharacterName = "New " + objMetatypeSelection.Metatype.Name;
+        CharacterDocument objCharacter = NewCharacterFactory.CreateCritterCharacter(
+            strCharacterName,
+            objSettingsSelection.FileName,
+            objMetatypeSelection.Metatype,
+            objMetatypeSelection.Force,
+            objOptions);
+        ViewModel.AddOpenCharacter(objCharacter, null);
+    }
+
     private async void OnOpenCharacterClick(object? sender, RoutedEventArgs e)
     {
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
@@ -72,7 +112,7 @@ public partial class MainWindow : Window
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open Chummer character",
+            Title = T("UI_OpenCharacterFileDialogTitle"),
             AllowMultiple = false,
             FileTypeFilter = new[]
             {
@@ -106,12 +146,19 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
+    private async void OnCloseCharacterTabClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { DataContext: OpenCharacterTab tab })
             return;
 
-        ViewModel.CloseCharacter(tab);
+        if (await ConfirmCloseTabAsync(tab))
+            ViewModel.CloseCharacter(tab);
+    }
+
+    private void OnActivateCharacterClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { DataContext: OpenCharacterTab tab })
+            ViewModel.SelectedOpenCharacter = tab;
     }
 
     private async void OnSaveCharacterClick(object? sender, RoutedEventArgs e)
@@ -119,25 +166,62 @@ public partial class MainWindow : Window
         if (ViewModel.SelectedOpenCharacter is not { } tab)
             return;
 
+        await SaveTabAsync(tab, forceSaveAs: false);
+    }
+
+    private async void OnSaveCharacterAsClick(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedOpenCharacter is not { } tab)
+            return;
+
+        await SaveTabAsync(tab, forceSaveAs: true);
+    }
+
+    private async System.Threading.Tasks.Task<bool> SaveTabAsync(OpenCharacterTab tab, bool forceSaveAs)
+    {
+        if (!forceSaveAs && !string.IsNullOrWhiteSpace(tab.SourcePath))
+        {
+            try
+            {
+                await using FileStream stream = File.Create(tab.SourcePath);
+                _characterFiles.Save(tab.Character, stream, Path.GetFileName(tab.SourcePath));
+                ViewModel.MarkSaved(tab, tab.SourcePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ViewModel.ReportError("Fehler beim Speichern von " + tab.SourcePath + ": " + ex.Message);
+                return false;
+            }
+        }
+
         var storage = TopLevel.GetTopLevel(this)?.StorageProvider;
         if (storage is null)
-            return;
+            return false;
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save Chummer character",
+            Title = T("UI_SaveCharacterFileDialogTitle"),
             DefaultExtension = "chum",
-            SuggestedFileName = tab.Character.Name,
+            SuggestedFileName = string.IsNullOrWhiteSpace(tab.Character.Name) ? "character" : tab.Character.Name,
             FileTypeChoices = [new FilePickerFileType("Chummer characters") { Patterns = ["*.chum"] }],
         });
 
-        if (file is not null)
+        if (file is null)
+            return false;
+
+        try
         {
             await using var stream = await file.OpenWriteAsync();
             _characterFiles.Save(tab.Character, stream, file.Name);
             string? strLocalPath = file.TryGetLocalPath();
-            if (!string.IsNullOrWhiteSpace(strLocalPath))
-                ViewModel.RememberSavedPath(strLocalPath);
+            ViewModel.MarkSaved(tab, strLocalPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError("Fehler beim Speichern von " + file.Name + ": " + ex.Message);
+            return false;
         }
     }
 
@@ -163,16 +247,52 @@ public partial class MainWindow : Window
         await dialog.ShowDialog(this);
     }
 
+    private async void OnPrintMultipleClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new PrintMultipleDialog();
+        await dialog.ShowDialog(this);
+    }
+
+    private async void OnExportClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new ExportDialog(ViewModel.SelectedOpenCharacter?.Character);
+        await dialog.ShowDialog(this);
+    }
+
     private async void OnCloudDocumentsClick(object? sender, RoutedEventArgs e)
     {
         var dialog = new CloudDocumentsDialog(ViewModel.SelectedOpenCharacter?.Character, ViewModel.SelectedOpenCharacter?.SourcePath);
         await dialog.ShowDialog(this);
     }
 
-    private async void OnDiceRollerClick(object? sender, RoutedEventArgs e)
+    private void OnDiceRollerClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new DiceRollerDialog();
-        await dialog.ShowDialog(this);
+        OpenDiceRoller();
+    }
+
+    /// <summary>Opens the dice roller modelessly. With SingleDiceRoller enabled, the legacy
+    /// one-window behavior focuses the existing roller instead of spawning another instance.</summary>
+    public void OpenDiceRoller(int? intDiceCount = null)
+    {
+        if (GlobalOptions.Instance.SingleDiceRoller && _singleDiceRoller is { IsVisible: true } existing)
+        {
+            if (intDiceCount.HasValue)
+                existing.ViewModel.DiceCount = intDiceCount.Value;
+            existing.Activate();
+            return;
+        }
+
+        var dialog = intDiceCount.HasValue ? new DiceRollerDialog(intDiceCount.Value) : new DiceRollerDialog();
+        if (GlobalOptions.Instance.SingleDiceRoller)
+        {
+            _singleDiceRoller = dialog;
+            dialog.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_singleDiceRoller, dialog))
+                    _singleDiceRoller = null;
+            };
+        }
+        dialog.Show(this);
     }
 
     private async void OnOptionsClick(object? sender, RoutedEventArgs e)
@@ -185,6 +305,48 @@ public partial class MainWindow : Window
         // instead of only after closing and reopening the character.
         foreach (var tab in ViewModel.OpenCharacters)
             tab.Content.LoadCharacter(tab.Character);
+    }
+
+    /// <summary>Ported from frmMain.cs's mnuToolsUpdate_Click - always shows a result, even
+    /// "already up to date" (a plain message box, unlike the startup silent check).</summary>
+    private async void OnCheckForUpdatesClick(object? sender, RoutedEventArgs e)
+    {
+        string strCurrentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            ?? "0.0.0";
+        using var objClient = new System.Net.Http.HttpClient();
+        UpdateChecker.UpdateCheckResult? objResult =
+            await UpdateChecker.CheckForUpdateAsync(objClient, strCurrentVersion);
+
+        if (objResult == null)
+        {
+            var dialog = new MessageBoxDialog(T("UI_ChummerUpdate"), T("UI_NoUpdatesFoundMessage"));
+            await dialog.ShowDialog(this);
+            return;
+        }
+
+        var updateDialog = new UpdateDialog(strCurrentVersion, objResult);
+        await updateDialog.ShowDialog(this);
+    }
+
+    /// <summary>Ported from frmMain.cs's constructor: if Automatic Updates is on, checks for an
+    /// update on startup - but only shows a dialog if one is actually found (silent mode), matching
+    /// legacy's frmUpdate.SilentMode. Fire-and-forget: doesn't block the window from opening, unlike
+    /// legacy's blocking ShowDialog before frmMain finishes loading.</summary>
+    private async void CheckForUpdateOnStartupAsync()
+    {
+        if (!GlobalOptions.Instance.AutomaticUpdate)
+            return;
+
+        string strCurrentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            ?? "0.0.0";
+        using var objClient = new System.Net.Http.HttpClient();
+        UpdateChecker.UpdateCheckResult? objResult =
+            await UpdateChecker.CheckForUpdateAsync(objClient, strCurrentVersion);
+        if (objResult == null)
+            return;
+
+        var updateDialog = new UpdateDialog(strCurrentVersion, objResult);
+        await updateDialog.ShowDialog(this);
     }
 
     public void LoadCharacterIntoTabs(CharacterDocument character, string? sourcePath = null)
@@ -433,6 +595,34 @@ public partial class MainWindow : Window
     private System.Threading.Tasks.Task ShowMessageDialogAsync(string strTitle, string strMessage)
     {
         return ShowChoiceDialogAsync(strTitle, strMessage, T("String_OK"));
+    }
+
+    private async System.Threading.Tasks.Task<bool> ConfirmCloseTabAsync(OpenCharacterTab tab)
+    {
+        if (!tab.IsDirty)
+            return true;
+
+        int intChoice = await ShowChoiceDialogAsync(
+            T("MessageTitle_UnsavedChanges"),
+            string.Format(T("Message_UnsavedChanges"), tab.Title),
+            T("Menu_FileSave"), T("String_No"), T("String_Cancel"));
+        if (intChoice == 0)
+            return await SaveTabAsync(tab, forceSaveAs: false);
+        return intChoice == 1;
+    }
+
+    private async void OnWindowClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (_allowWindowClose)
+            return;
+
+        e.Cancel = true;
+        foreach (OpenCharacterTab tab in ViewModel.OpenCharacters.ToArray())
+            if (!await ConfirmCloseTabAsync(tab))
+                return;
+
+        _allowWindowClose = true;
+        Close();
     }
 
     private static string T(string strKey)

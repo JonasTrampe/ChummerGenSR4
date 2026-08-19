@@ -19,6 +19,12 @@ public partial class GroupRow : UserControl
     public static readonly StyledProperty<int> RatingValueProperty =
         AvaloniaProperty.Register<GroupRow, int>(nameof(RatingValue), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
+    public static readonly StyledProperty<bool> IsBrokenProperty =
+        AvaloniaProperty.Register<GroupRow, bool>(nameof(IsBroken), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+
+    public static readonly StyledProperty<bool> CanToggleBrokenProperty =
+        AvaloniaProperty.Register<GroupRow, bool>(nameof(CanToggleBroken));
+
     public event EventHandler? RaiseClicked;
 
     public GroupRow()
@@ -48,6 +54,18 @@ public partial class GroupRow : UserControl
     {
         get => GetValue(RatingValueProperty);
         set => SetValue(RatingValueProperty, value);
+    }
+
+    public bool IsBroken
+    {
+        get => GetValue(IsBrokenProperty);
+        set => SetValue(IsBrokenProperty, value);
+    }
+
+    public bool CanToggleBroken
+    {
+        get => GetValue(CanToggleBrokenProperty);
+        set => SetValue(CanToggleBrokenProperty, value);
     }
 
     private void OnRaiseButtonClick(object? sender, RoutedEventArgs e)

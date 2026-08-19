@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -10,7 +11,7 @@
 	     the way the previous pass had it. -->
     <Grid RowDefinitions="*,Auto" ColumnDefinitions="180,4,*" Margin="4">
         <DockPanel Grid.Row="0" Grid.Column="0" Margin="2 8 2 4">
-            <TextBlock DockPanel.Dock="Top" Text="Fertigkeitsgruppen" FontWeight="Bold"
+            <TextBlock DockPanel.Dock="Top" Text="{loc:Loc Label_SkillGroups}" FontWeight="Bold"
                        Margin="0,0,0, 18" />
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding SkillGroups}">
@@ -19,6 +20,8 @@
                             <controls:GroupRow GroupName="{Binding GroupName}" Rating="{Binding Rating}"
                                                 IsCreateMode="{Binding IsCreateMode}"
                                                 RatingValue="{Binding RatingValue, Mode=TwoWay}"
+                                                IsBroken="{Binding IsBroken, Mode=TwoWay}"
+                                                CanToggleBroken="{Binding CanToggleBroken}"
                                                 RaiseClicked="OnRaiseGroupClick" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -30,8 +33,8 @@
 
         <DockPanel Grid.Row="0" Grid.Column="2" Margin="2 8 2 4">
             <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,0,0,6">
-                <Button Grid.Column="0" Content="Exotische Fertigkeit hinzufügen" Click="OnAddExoticSkillClick" />
-                <TextBlock Grid.Column="2" Classes="gridHeader" Text="Aktionsfertigkeiten"
+                <Button Grid.Column="0" Content="{loc:Loc Button_AddExoticSkill}" Click="OnAddExoticSkillClick" />
+                <TextBlock Grid.Column="2" Classes="gridHeader" Text="{loc:Loc Label_ActiveSkills}"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <ComboBox Grid.Column="3" Width="220" HorizontalAlignment="Right"
                           ItemsSource="{Binding SkillFilters}"
@@ -55,8 +58,10 @@
                                                 Specialization="{Binding Specialization, Mode=TwoWay}"
                                                 IsGroupLocked="{Binding IsGroupLocked}"
                                                 IsCreateMode="{Binding IsCreateMode}"
+                                                CanRoll="{Binding CanRoll}"
                                                 RatingValue="{Binding RatingValue, Mode=TwoWay}"
                                                 RaiseClicked="OnRaiseSkillClick"
+                                                RollClicked="OnRollSkillClick"
                                                 SpecializationCommitted="OnSpecializationCommitted" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -71,22 +76,26 @@
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="8,6,0,0">
             <StackPanel Margin="2 8 2 4">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Text="Wissensfertigkeiten" FontWeight="Bold" />
-                    <Button Grid.Column="1" Content="Fertigkeit" Click="OnAddKnowledgeSkillClick" />
+                    <TextBlock Text="{loc:Loc Label_KnowledgeSkills}" FontWeight="Bold" />
+                    <Button Grid.Column="1" Content="{loc:Loc String_ExpenseActiveSkill}" Click="OnAddKnowledgeSkillClick" />
                 </Grid>
                 <!-- Name | Rating | [+] | Pool | Spezialisierung dropdown | [+] | Kategorie dropdown | Löschen -->
                 <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding KnowledgeSkills}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:KnowledgeSkillRowViewModel">
-                            <Grid ColumnDefinitions="160,50,40,160,130,Auto" Margin="0,2,0,2" ColumnSpacing="6">
+                            <Grid ColumnDefinitions="160,50,40,24,160,130,Auto" Margin="0,2,0,2" ColumnSpacing="6">
                                 <TextBox Grid.Column="0" Text="{Binding SkillName}" VerticalAlignment="Center" />
                                 <TextBox Grid.Column="1" Text="{Binding Rating}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="2" Text="{Binding Pool}" ToolTip.Tip="{Binding PoolTooltip}"
                                            VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                <TextBox Grid.Column="3" Text="{Binding Specialization}" VerticalAlignment="Center" />
-                                <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}"
-                                          SelectedItem="{Binding Category}" />
-                                <Button Grid.Column="5" Content="Löschen" Click="OnDeleteKnowledgeSkillClick"
+                                <Button Grid.Column="3" Classes="iconButton" IsVisible="{Binding CanRoll}"
+                                        ToolTip.Tip="{loc:Loc Tip_DiceRoller}" Click="OnRollKnowledgeSkillClick">
+                                    <TextBlock Text="🎲" FontSize="12" />
+                                </Button>
+                                <TextBox Grid.Column="4" Text="{Binding Specialization}" VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="5" ItemsSource="{Binding Categories}"
+                                          SelectedItem="{Binding Category, Mode=TwoWay}" />
+                                <Button Grid.Column="6" Content="{loc:Loc String_Delete}" Click="OnDeleteKnowledgeSkillClick"
                                         Tag="{Binding SkillId}" IsEnabled="{Binding AllowDelete}" />
                             </Grid>
                         </DataTemplate>

@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -7,13 +8,19 @@
     <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                <Button Content="Fahrzeug hinzufügen" Click="OnAddVehicleClick" />
-                <Button Content="Modifikation hinzufügen" Click="OnAddVehicleModClick" />
-                <Button Content="Bordausrüstung hinzufügen" Click="OnAddVehicleGearClick" />
-                <Button Content="Fahrzeugwaffe hinzufügen" Click="OnAddVehicleWeaponClick" />
-                <Button Content="Ort hinzufügen" Click="OnAddVehicleLocationClick" />
-                <Button Content="Ort löschen" Click="OnRemoveVehicleLocationClick" />
-                <Button Content="Löschen" Click="OnDeleteVehicleClick" />
+                <Button Content="{loc:Loc UI_AddVehicle}" Click="OnAddVehicleClick" />
+                <Button Content="{loc:Loc Menu_AddModification}" Click="OnAddVehicleModClick" />
+                <Button Content="{loc:Loc UI_AddVehicleGear}" Click="OnAddVehicleGearClick" />
+                <Button Content="{loc:Loc UI_AddVehicleWeapon}" Click="OnAddVehicleWeaponClick"
+                        ToolTip.Tip="{loc:Loc UI_VehicleWeaponMountTooltip}" />
+                <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddVehicleLocationClick" />
+                <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveVehicleLocationClick" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditVehicleNotesClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
+                <Button Content="{loc:Loc UI_Sell}" Click="OnSellVehicleClick" />
+                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyVehicleClick" />
+                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteVehicleClick" />
+                <Button Content="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
@@ -29,11 +36,11 @@
             <ScrollViewer>
                 <StackPanel Margin="8,0,0,0" Spacing="6">
                     <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Text="Name:" Width="70" />
+                        <TextBlock Text="{loc:Loc Label_Name}" Width="70" />
                         <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Name}" />
                     </Grid>
                     <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Text="Kategorie:" Width="70" />
+                        <TextBlock Text="{loc:Loc Label_Category}" Width="70" />
                         <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Category}" />
                     </Grid>
                     <Separator Margin="0,2" />
@@ -49,25 +56,38 @@
                         <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.VehicleArmor, StringFormat='Panzerung: {0}'}" />
                         <TextBlock Grid.Column="3" Text="{Binding SelectedVehicle.Sensor, StringFormat='Sensor: {0}'}" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,*,*,*">
-                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Source, StringFormat='Quelle: {0}'}" />
-                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Page, StringFormat='Seite: {0}'}" />
-                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.PhysicalCmFilled, StringFormat='Schaden: {0}'}" />
+                    <Grid ColumnDefinitions="Auto,Auto,*">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{loc:Loc Label_Source}" />
+                            <controls:SourceLink SourcePage="{Binding SelectedVehicle.SourcePage}" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedVehicle.PhysicalCmFilled, StringFormat='Schaden: {0}'}" Margin="16,0,0,0" />
                     </Grid>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="Reparieren" Click="OnRepairVehicleClick" />
-                        <Button Content="Schaden +1" Click="OnDamageVehicleClick" />
+                        <Button Content="{loc:Loc UI_Repair}" Click="OnRepairVehicleClick" />
+                        <Button Content="{loc:Loc UI_DamagePlus1}" Click="OnDamageVehicleClick" />
                     </StackPanel>
                     <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Text="Orte:" Width="70" />
+                        <TextBlock Text="{loc:Loc UI_LocationsColon}" Width="70" />
                         <ComboBox Grid.Column="1" ItemsSource="{Binding SelectedVehicle.VehicleLocations}"
                                   SelectedItem="{Binding SelectedVehicleLocation, Mode=TwoWay}" />
                     </Grid>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Text="{loc:Loc UI_GearLocationColon}" Width="130" />
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Location, TargetNullValue=(keiner)}" VerticalAlignment="Center" />
+                        <Button Grid.Column="2" Content="{loc:Loc UI_Assign}" Click="OnAssignVehicleGearLocationClick"
+                                ToolTip.Tip="{loc:Loc UI_AssignVehicleGearLocationTooltip}" />
+                    </Grid>
                     <Separator Margin="0,2" />
-                    <Grid ColumnDefinitions="*,*,*">
+                    <Grid ColumnDefinitions="*,*">
                         <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.Avail, StringFormat='Verfügbarkeit: {0}'}" />
-                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Kosten: {0}¥'}" />
-                        <TextBlock Grid.Column="2">
+                        <TextBlock Grid.Column="1" Text="{Binding SelectedVehicle.Cost, StringFormat='Grundkosten: {0}¥'}"
+                                   ToolTip.Tip="{loc:Loc UI_VehicleBaseCostTooltip}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding SelectedVehicle.TotalCost, StringFormat='Gesamtkosten: {0}¥'}"
+                                   ToolTip.Tip="{loc:Loc UI_VehicleTotalCostTooltip}" />
+                        <TextBlock Grid.Column="1">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="Slots: {0}/{1} ({2} frei)">
                                     <Binding Path="SelectedVehicle.SlotsUsed" />

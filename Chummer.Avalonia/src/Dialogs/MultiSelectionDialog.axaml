@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:Chummer.NewUI.Dialogs"
+        x:Class="Chummer.NewUI.Dialogs.MultiSelectionDialog"
+        Width="360" Height="420" WindowStartupLocation="CenterOwner"
+        Title="{loc:Loc UI_Selection}">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+        <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl x:Name="OptionsList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="dialogs:MultiSelectionDialog+CheckableOption">
+                        <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" Margin="0,2" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0" Spacing="8">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc String_OK}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

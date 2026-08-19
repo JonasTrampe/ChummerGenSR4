@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
@@ -13,10 +14,13 @@ namespace Chummer.NewUI.Controls;
 public partial class CharacterTab : UserControl
 {
     public CharacterDocument? Character { get; private set; }
+    public event Func<CharacterDocument, System.Threading.Tasks.Task<bool>>? FinalizingCreation;
 
     public CharacterTab()
     {
         InitializeComponent();
+        this.FindControl<CharacterSidebar>("Sidebar")!.FinalizingCreation += character =>
+            FinalizingCreation?.Invoke(character) ?? System.Threading.Tasks.Task.FromResult(true);
     }
 
     /// <summary>Populates every section tab from the given character's data.</summary>

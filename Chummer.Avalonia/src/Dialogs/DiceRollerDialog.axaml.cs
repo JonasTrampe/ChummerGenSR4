@@ -14,6 +14,12 @@ public partial class DiceRollerDialog : Window
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>Opens the generic roller prefilled with an already calculated character pool.</summary>
+    public DiceRollerDialog(int intDiceCount) : this()
+    {
+        ViewModel.DiceCount = intDiceCount;
+    }
+
     private void OnRollClick(object? sender, RoutedEventArgs e) => ViewModel.Roll();
 
     private void OnClose(object? sender, RoutedEventArgs e) => Close();

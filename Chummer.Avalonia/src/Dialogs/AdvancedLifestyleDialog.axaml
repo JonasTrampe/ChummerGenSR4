@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Chummer.NewUI.ViewModels"
+        x:Class="Chummer.NewUI.Dialogs.AdvancedLifestyleDialog"
+        x:DataType="vm:AdvancedLifestyleDialogViewModel"
+        Title="{loc:Loc UI_CreateAdvancedLifestyle}" Width="620" Height="560"
+        WindowStartupLocation="CenterOwner">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16" RowSpacing="8">
+        <StackPanel Grid.Row="0" Spacing="6">
+            <TextBlock Text="{loc:Loc Label_Name}" />
+            <TextBox Text="{Binding Name, Mode=TwoWay}" PlaceholderText="{loc:Loc UI_LifestyleNameExample}" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="6" Margin="0,8,0,0">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_SelectAdvancedLifestyle_Comforts}" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ComfortsOptions}"
+                          SelectedItem="{Binding Comforts, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Loc Label_SelectAdvancedLifestyle_Entertainment}" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="0" Grid.Column="3" ItemsSource="{Binding EntertainmentOptions}"
+                          SelectedItem="{Binding Entertainment, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc UI_NecessitiesColon}" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding NecessitiesOptions}"
+                          SelectedItem="{Binding Necessities, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{loc:Loc UI_NeighborhoodColon}" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="1" Grid.Column="3" ItemsSource="{Binding NeighborhoodOptions}"
+                          SelectedItem="{Binding Neighborhood, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc Label_SelectAdvancedLifestyle_Security}" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding SecurityOptions}"
+                          SelectedItem="{Binding Security, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{loc:Loc Label_SelectLifestyle_Roommates}" VerticalAlignment="Center" />
+                    <NumericUpDown Minimum="0" Maximum="10" Increment="1" Value="{Binding Roommates, Mode=TwoWay}" Width="110" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{loc:Loc UI_SharePercentColon}" VerticalAlignment="Center" />
+                    <NumericUpDown Minimum="1" Maximum="100" Increment="1" Value="{Binding Percentage, Mode=TwoWay}" Width="110" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,8,0,0">
+            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                <TextBlock Text="{loc:Loc UI_PositiveQualities}" FontWeight="Bold" Margin="0,0,0,4" />
+                <Border BorderBrush="#C8C8C8" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="220">
+                        <ItemsControl ItemsSource="{Binding PositiveQualities}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LifestyleQualityItemViewModel">
+                                    <CheckBox Margin="6,2" Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                <TextBlock Text="{loc:Loc UI_NegativeQualities}" FontWeight="Bold" Margin="0,0,0,4" />
+                <Border BorderBrush="#C8C8C8" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="220">
+                        <ItemsControl ItemsSource="{Binding NegativeQualities}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LifestyleQualityItemViewModel">
+                                    <CheckBox Margin="6,2" Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
+            <TextBlock Text="{Binding LpPreview, StringFormat='LP: {0}'}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBlock Text="{Binding CostPreview, StringFormat='Kosten: {0}'}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <Button Content="{loc:Loc String_Cancel}" Click="OnCancel" />
+            <Button Content="{loc:Loc UI_Add}" Click="OnAdd" />
+        </StackPanel>
+    </Grid>
+</Window>

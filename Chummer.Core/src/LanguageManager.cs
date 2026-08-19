@@ -18,6 +18,7 @@ public sealed class LanguageManager
     public static LanguageManager Instance { get; } = new();
 
     private readonly LanguageStringCatalog _objCatalog = new();
+    private readonly object _lockObject = new();
 
     private LanguageManager()
     {
@@ -37,20 +38,27 @@ public sealed class LanguageManager
     /// <param name="strLanguage">Language code to load, e.g. "de-de". "en-us" is the built-in base.</param>
     public void Load(string strLanguage)
     {
-        var strLanguageDirectory = Path.Combine(AppContext.BaseDirectory, "data", "lang");
-        try
+        // Several call sites (GlobalOptions/XmlManager's own static constructors, every
+        // `new CharacterOptions()`) lazily re-trigger a reload on first access, independently of
+        // App's own startup Load - under concurrent/multi-threaded access (this class has no way
+        // to know it's not the only caller) this lock keeps concurrent reload attempts from
+        // interleaving. LanguageStringCatalog.Load itself builds the new catalog off to the side
+        // and only swaps it in atomically at the end, so a concurrent GetString on another thread
+        // never observes a half-populated/empty catalog either.
+        lock (_lockObject)
         {
-            _objCatalog.Reset();
-            _objCatalog.LoadBase(strLanguageDirectory);
-            Loaded = true;
-            if (strLanguage != "en-us")
-                _objCatalog.ApplyLanguage(strLanguageDirectory, strLanguage);
-        }
-        catch
-        {
-            // No usable en-us.xml on disk - GetString() will throw for callers. The legacy
-            // version popped a MessageBox and called Application.Exit() here, which isn't
-            // appropriate for a library with no UI or process ownership of its own.
+            var strLanguageDirectory = Path.Combine(AppContext.BaseDirectory, "data", "lang");
+            try
+            {
+                _objCatalog.Load(strLanguageDirectory, strLanguage);
+                Loaded = true;
+            }
+            catch
+            {
+                // No usable en-us.xml on disk - GetString() will throw for callers. The legacy
+                // version popped a MessageBox and called Application.Exit() here, which isn't
+                // appropriate for a library with no UI or process ownership of its own.
+            }
         }
     }
 

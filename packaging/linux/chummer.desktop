@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Chummer
+GenericName=Shadowrun Character Generator
+Comment=Shadowrun 4th Edition character generator and manager
+Exec=Chummer.Avalonia %f
+Icon=chummer
+Categories=Game;RolePlaying;Utility;
+Terminal=false
+StartupWMClass=Chummer.Avalonia

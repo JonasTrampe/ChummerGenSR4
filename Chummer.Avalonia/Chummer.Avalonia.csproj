@@ -2,7 +2,11 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
+        <!-- Continues legacy's own AssemblyVersion numbering (Chummer/Properties/AssemblyInfo.cs
+             was "0.1.496.*") - compared against GitHub release tags by UpdateChecker. -->
+        <Version>0.1.496</Version>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <EnableAvaloniaXamlCompilation>true</EnableAvaloniaXamlCompilation>
         <LangVersion>latest</LangVersion>
@@ -10,34 +14,34 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="assets\**"/>
+        <AvaloniaResource Include="assets\**" />
         <!-- Game/language/sheet/settings/example-save data lives in Chummer.Core\data and is
              copied verbatim (source tree structure preserved) under a single "data\" folder next
              to the exe - i.e. Chummer.Core\data\data\weapons.xml -> <exe>\data\data\weapons.xml,
              Chummer.Core\data\lang\en-us.xml -> <exe>\data\lang\en-us.xml, etc. XmlManager and
              LanguageManager (Chummer.Core) look for everything under AppContext.BaseDirectory\data
              to match. Demo/example characters in data\saves ARE included - they're meant to ship. -->
-        <None Include="..\Chummer.Core\data\**\*.*"
-              Link="data/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\Chummer.Core\data\**\*.*" Link="data/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
         <!-- CharacterOptions.Load()/Save() (Chummer.Core) look for settings profiles directly
              under AppContext.BaseDirectory\settings (matching the legacy Chummer.csproj's shipped
              location), not under \data\settings like the rules-data files above - copy them there
              too so a character's referenced settings file (or the default.xml fallback) actually
              resolves instead of silently falling back to CharacterOptions' hardcoded defaults. -->
-        <None Include="..\Chummer.Core\data\settings\*.xml"
-              Link="settings/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\Chummer.Core\data\settings\*.xml" Link="settings/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.1" />
         <PackageReference Include="Dock.MarkupExtension" Version="12.0.0.2" />
         <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.10" />
+        <PackageReference Include="UltralightNet.Bundle" Version="2.2.4" />
         <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj" />
         <ProjectReference Include="..\RunnersPoint.Api\RunnersPoint.Api.csproj" />
-        <PackageReference Include="Avalonia" Version="12.1.0"/>
-        <PackageReference Include="Avalonia.Desktop" Version="12.1.0"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0"/>
-        <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59"/>
+        <PackageReference Include="Avalonia" Version="12.1.0" />
+        <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+        <PackageReference Include="ScottPlot.Avalonia" Version="5.1.59" />
         <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>

@@ -37,12 +37,29 @@ public partial class OptionsDialog : Window
 
         var lstFiles = await objStorage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "PDF-Betrachter auswählen",
+            Title = App.LanguageCatalog.GetString("UI_SelectPdfViewerTitle"),
             AllowMultiple = false
         });
 
         if (lstFiles.Count > 0)
             ViewModel.PdfAppPath = lstFiles[0].TryGetLocalPath() ?? string.Empty;
+    }
+
+    public async void OnBrowseSourcebookPdf(OptionsBookItemViewModel book)
+    {
+        IStorageProvider? objStorage = TopLevel.GetTopLevel(this)?.StorageProvider;
+        if (objStorage == null)
+            return;
+
+        var lstFiles = await objStorage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = App.LanguageCatalog.GetString("UI_SelectPdfForBookTitle").Replace("{0}", book.DisplayName),
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("PDF") { Patterns = ["*.pdf"] }]
+        });
+
+        if (lstFiles.Count > 0)
+            book.PdfPath = lstFiles[0].TryGetLocalPath() ?? string.Empty;
     }
 
     public void OnResetBp(object? sender, RoutedEventArgs e)

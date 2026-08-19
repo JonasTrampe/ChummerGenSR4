@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              x:Class="Chummer.NewUI.Controls.AttributeRow"
@@ -17,7 +18,8 @@
             <Button Classes="iconButton" Click="OnRaiseButtonClick">
                 <Image Source="avares://Chummer.Avalonia/assets/icons/add.png" Width="16" Height="16" />
             </Button>
-            <Button Classes="iconButton" IsVisible="{Binding ShowRemove}">
+            <Button Classes="iconButton" IsVisible="{Binding ShowRemove}" Click="OnRemoveButtonClick"
+                    ToolTip.Tip="{loc:Loc UI_BurnEdgeTooltip}">
                 <Image Source="avares://Chummer.Avalonia/assets/icons/delete.png" Width="16" Height="16" />
             </Button>
         </StackPanel>

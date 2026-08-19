@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.SellItemDialog"
+        Width="320" Height="150" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="{loc:Loc Title_SellItem}">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="Auto,*,Auto">
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{loc:Loc UI_SellForWhatPercent}" Margin="0,0,0,12" />
+        <TextBlock Grid.Row="1" Text="{loc:Loc UI_PercentColon}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="1" Grid.Column="1" x:Name="PercentBox" Minimum="0" Maximum="100" Increment="5" Value="10" FormatString="0" />
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="%" VerticalAlignment="Center" Margin="4,0,0,0" />
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc UI_Sell}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

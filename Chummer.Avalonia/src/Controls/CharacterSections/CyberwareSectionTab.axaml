@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -7,13 +8,20 @@
     <controls:TreeDetailPane TreeWidth="330" ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                <Button Content="Cyberware hinzufügen" Click="OnAddCyberwareClick" />
-                <Button Content="Bioware hinzufügen" Click="OnAddBiowareClick" />
-                <Button Content="Löschen" Click="OnDeleteClick" />
+                <Button Content="{loc:Loc Button_AddCyberware}" Click="OnAddCyberwareClick" />
+                <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" />
+                <Button Content="{loc:Loc UI_CyberwareSuite}" Click="OnAddCyberwareSuiteClick" />
+                <Button Content="{loc:Loc UI_BiowareSuite}" Click="OnAddBiowareSuiteClick"
+                        IsVisible="{Binding CanAddBiowareSuites}" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
+                <Button Content="{loc:Loc UI_Sell}" Click="OnSellClick" />
+                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyClick" />
+                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
+            <TreeView Name="CyberwareTree" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />
@@ -23,16 +31,20 @@
         </controls:TreeDetailPane.TreeContent>
         <controls:TreeDetailPane.DetailContent>
             <StackPanel Margin="8,0,0,0" Spacing="6">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Width="80" />
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_Name}" Width="80" />
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedNode.Name, TargetNullValue=–}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Kategorie:" Width="80" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Category}" Width="80" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedNode.Category, TargetNullValue=–}" />
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Rating:" Width="80" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc UI_RatingColon}" Width="80" />
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNode.Rating, TargetNullValue=–}" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc Checkbox_Transgenic}" Width="80"
+                           IsVisible="{Binding SelectedNode.IsTransgenic}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="✓" Foreground="#287A3D"
+                           IsVisible="{Binding SelectedNode.IsTransgenic}" />
             </Grid>
             <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Text="Kosten / Verf.:" Width="80" />
+                <TextBlock Text="{loc:Loc UI_CostAvailShortColon}" Width="80" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                     <TextBlock Text="{Binding SelectedNode.Cost, TargetNullValue=–}" />
                     <TextBlock Text="¥ /" />
@@ -40,11 +52,11 @@
                 </StackPanel>
             </Grid>
             <Separator Margin="0,4" />
-            <TextBlock Text="Verbrauchte Essenz" FontWeight="Bold" />
+            <TextBlock Text="{loc:Loc Label_EssenceConsumption}" FontWeight="Bold" />
             <Grid ColumnDefinitions="Auto,60" RowDefinitions="Auto,Auto" RowSpacing="2">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Cyberware:" />
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc Label_Cyberware}" />
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CyberwareEssence}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Bioware:" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Label_Bioware}" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BiowareEssence}" />
             </Grid>
             </StackPanel>

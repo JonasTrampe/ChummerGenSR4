@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,36 +13,50 @@ namespace Chummer.Core
     ///     into a rendered sheet - ported from clsCharacter.cs's PrintToStream, matching the field
     ///     names/shape Text-Only.xsl expects (the simplest of the shipped sheets and the first one
     ///     this port targets). Deliberately scoped to the sections a typical character actually uses:
-    ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers, Martial
-    ///     Arts, Lifestyles, Cyberware/Bioware, Gear (incl. Commlinks), and Armor. Not yet covered:
-    ///     Weapon dice pool/AP/RC (never computed elsewhere in Core), Complex Forms, Critter Powers,
-    ///     and Vehicles - all read-only gaps rather than incorrect output, since the XSLT simply
-    ///     skips an empty/missing section.
+    ///     Info, Attributes, derived stats, Skills, Contacts, Qualities, Spells, Adept Powers,
+    ///     Complex Forms, Critter Powers, Martial Arts, Lifestyles, Cyberware/Bioware, Gear (incl.
+    ///     Commlinks), Armor, Weapons (incl. dice pool), and Vehicles (mods/gear/weapons, though
+    ///     vehicle-mounted Weapons don't carry damage/AP/RC in this port's saved tree data yet).
     /// </summary>
     public static class CharacterSheetExporter
     {
-        public static XmlDocument BuildExportXml(CharacterDocument character)
+        public static XmlDocument BuildExportXml(CharacterDocument character) =>
+            BuildExportXml(new[] { character });
+
+        /// <summary>Ported from frmPrintMultiple.cs's cmdPrint_Click: builds one combined export
+        /// document with a &lt;character&gt; element per character, in the same shape a
+        /// single-character export uses - "Game Master Summary.xsl" (and any other sheet) can
+        /// iterate /characters/character regardless of whether there's one or several.</summary>
+        public static XmlDocument BuildExportXml(IEnumerable<CharacterDocument> characters)
         {
             var doc = new XmlDocument();
             XmlElement root = doc.CreateElement("characters");
             doc.AppendChild(root);
-            XmlElement charEl = doc.CreateElement("character");
-            root.AppendChild(charEl);
 
-            AppendInfo(doc, charEl, character);
-            AppendAttributes(doc, charEl, character);
-            AppendDerived(doc, charEl, character);
-            AppendSkills(doc, charEl, character);
-            AppendContacts(doc, charEl, character);
-            AppendQualities(doc, charEl, character);
-            AppendSpells(doc, charEl, character);
-            AppendPowers(doc, charEl, character);
-            AppendMartialArts(doc, charEl, character);
-            AppendLifestyles(doc, charEl, character);
-            AppendCyberware(doc, charEl, character);
-            AppendGear(doc, charEl, character);
-            AppendArmor(doc, charEl, character);
-            AppendExpenses(doc, charEl, character);
+            foreach (CharacterDocument character in characters)
+            {
+                XmlElement charEl = doc.CreateElement("character");
+                root.AppendChild(charEl);
+
+                AppendInfo(doc, charEl, character);
+                AppendAttributes(doc, charEl, character);
+                AppendDerived(doc, charEl, character);
+                AppendSkills(doc, charEl, character);
+                AppendContacts(doc, charEl, character);
+                AppendQualities(doc, charEl, character);
+                AppendSpells(doc, charEl, character);
+                AppendPowers(doc, charEl, character);
+                AppendComplexForms(doc, charEl, character);
+                AppendCritterPowers(doc, charEl, character);
+                AppendMartialArts(doc, charEl, character);
+                AppendLifestyles(doc, charEl, character);
+                AppendCyberware(doc, charEl, character);
+                AppendGear(doc, charEl, character);
+                AppendArmor(doc, charEl, character);
+                AppendWeapons(doc, charEl, character);
+                AppendVehicles(doc, charEl, character);
+                AppendExpenses(doc, charEl, character);
+            }
 
             return doc;
         }
@@ -51,23 +66,212 @@ namespace Chummer.Core
         /// System.Xml.Xsl.XslCompiledTransform is a first-party .NET API and works cross-platform,
         /// unlike the legacy app's reliance on a Windows-only WebBrowser control to render the
         /// result - this returns the raw HTML string for a host UI to display however it likes.</summary>
-        public static string RenderSheet(CharacterDocument character, string strSheetFileName)
+        public static string RenderSheet(CharacterDocument character, string strSheetFileName) =>
+            RenderSheet(new[] { character }, strSheetFileName);
+
+        /// <summary>Same as <see cref="RenderSheet(CharacterDocument,string)"/> but for several
+        /// characters at once through one combined export document - ported from
+        /// frmPrintMultiple.cs, whose own default sheet is "Game Master Summary.xsl".</summary>
+        public static string RenderSheet(IEnumerable<CharacterDocument> characters, string strSheetFileName)
         {
             string strSheetPath = Path.Combine(AppContext.BaseDirectory, "data", "sheets", strSheetFileName);
             if (!File.Exists(strSheetPath))
                 throw new FileNotFoundException("Character sheet not found.", strSheetPath);
 
+            // Several shipped sheets (Shadowrun 4.xsl, the "Grouped Skills" variants) xsl:include
+            // a shared base stylesheet from the same folder - XmlReader.Create's default resolver
+            // refuses that as an "external URI" under .NET's hardened-by-default settings, so load
+            // via the path overload with an explicit resolver instead.
             var transform = new XslCompiledTransform();
-            using (var xmlReader = XmlReader.Create(strSheetPath))
-                transform.Load(xmlReader);
+            transform.Load(strSheetPath, XsltSettings.TrustedXslt, new XmlUrlResolver());
 
-            XmlDocument exportXml = BuildExportXml(character);
+            XmlDocument exportXml = BuildExportXml(characters);
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             using (var xmlWriter = XmlWriter.Create(writer, transform.OutputSettings))
                 transform.Transform(exportXml, xmlWriter);
 
             return sb.ToString();
+        }
+
+        /// <summary>Every "*.xsl" file (not "*.xslt" - those are hidden partial templates meant to
+        /// only be xsl:include'd, same distinction legacy's frmExport.cs makes) in
+        /// Chummer.Core/data/export, for an export-format picker.</summary>
+        public static IReadOnlyList<string> GetExportTemplateNames()
+        {
+            string strExportDir = Path.Combine(AppContext.BaseDirectory, "data", "export");
+            if (!Directory.Exists(strExportDir))
+                return Array.Empty<string>();
+
+            return Directory.GetFiles(strExportDir, "*.xsl")
+                .Select(Path.GetFileNameWithoutExtension)
+                .Where(s => !string.IsNullOrEmpty(s))
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList()!;
+        }
+
+        /// <summary>The file extension an export template's own output uses, from its "&lt;!--
+        /// ext:xxx --&gt;" comment (e.g. Squad Manager.xsl's "xml") - ported from frmExport.cs's
+        /// own line-by-line scan for that comment. Falls back to "xml" if the template doesn't
+        /// declare one, matching legacy's default.</summary>
+        public static string GetExportTemplateExtension(string strExportTemplateName)
+        {
+            string strPath = Path.Combine(AppContext.BaseDirectory, "data", "export", strExportTemplateName + ".xsl");
+            if (!File.Exists(strPath))
+                return "xml";
+
+            foreach (string strLine in File.ReadLines(strPath))
+            {
+                if (strLine.StartsWith("<!-- ext:", StringComparison.Ordinal))
+                    return strLine.Replace("<!-- ext:", string.Empty).Replace("-->", string.Empty).Trim();
+            }
+
+            return "xml";
+        }
+
+        /// <summary>Ported from frmExport.cs's cmdOK_Click: runs a character's export XML (same
+        /// shape <see cref="RenderSheet(CharacterDocument,string)"/> uses) through a template from
+        /// Chummer.Core/data/export instead of data/sheets - these produce a data interchange
+        /// format (e.g. Squad Manager's own XML schema) rather than an HTML sheet, so the output
+        /// settings relax CheckCharacters/ConformanceLevel the same way legacy's own transform
+        /// does, instead of reusing the transform's sheet-oriented OutputSettings as-is.</summary>
+        public static string RenderExport(CharacterDocument character, string strExportTemplateName)
+        {
+            string strPath = Path.Combine(AppContext.BaseDirectory, "data", "export", strExportTemplateName + ".xsl");
+            if (!File.Exists(strPath))
+                throw new FileNotFoundException("Export template not found.", strPath);
+
+            var transform = new XslCompiledTransform();
+            transform.Load(strPath, XsltSettings.TrustedXslt, new XmlUrlResolver());
+
+            XmlWriterSettings objSettings = transform.OutputSettings!.Clone();
+            objSettings.CheckCharacters = false;
+            objSettings.ConformanceLevel = ConformanceLevel.Fragment;
+
+            XmlDocument exportXml = BuildExportXml(character);
+            var sb = new StringBuilder();
+            using (var writer = new StringWriter(sb))
+            using (var xmlWriter = XmlWriter.Create(writer, objSettings))
+                transform.Transform(exportXml, xmlWriter);
+
+            return sb.ToString();
+        }
+
+        /// <summary>Common names a headless Chromium/Chrome binary is installed under across
+        /// Linux distros (in rough preference order) plus the Windows executable name, checked
+        /// via PATH resolution below. No PDF library is bundled - the existing XSL-rendered HTML
+        /// sheet (<see cref="RenderSheet(CharacterDocument,string)"/>) is fed straight into the
+        /// system browser's own "--headless --print-to-pdf" mode, avoiding both a large bundled
+        /// rendering engine and any PDF-library licensing question.</summary>
+        private static readonly string[] s_astrHeadlessBrowserNames =
+        {
+            "chromium", "chromium-browser", "google-chrome", "google-chrome-stable",
+            "microsoft-edge", "microsoft-edge-stable", "chrome",
+        };
+
+        /// <summary>Locates a system-installed Chromium/Chrome-family browser on PATH, or null if
+        /// none of <see cref="s_astrHeadlessBrowserNames"/> resolves. Uses `command -v` on
+        /// POSIX platforms (Linux/macOS) and `where` on Windows - both no-op quickly if the name
+        /// isn't found, unlike actually spawning each candidate to see if it errors.</summary>
+        public static string? FindHeadlessBrowserExecutable()
+        {
+            string strLookupCommand = OperatingSystem.IsWindows() ? "where" : "command";
+            foreach (string strName in s_astrHeadlessBrowserNames)
+            {
+                try
+                {
+                    var psi = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = OperatingSystem.IsWindows() ? "where" : "/bin/sh",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                    };
+                    if (OperatingSystem.IsWindows())
+                        psi.ArgumentList.Add(strName);
+                    else
+                    {
+                        psi.ArgumentList.Add("-c");
+                        psi.ArgumentList.Add($"command -v {strName}");
+                    }
+
+                    using var proc = System.Diagnostics.Process.Start(psi);
+                    if (proc == null)
+                        continue;
+                    string strOutput = proc.StandardOutput.ReadToEnd();
+                    proc.WaitForExit();
+                    if (proc.ExitCode == 0)
+                    {
+                        string strPath = strOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(strPath))
+                            return strPath;
+                    }
+                }
+                catch
+                {
+                    // Candidate not resolvable this way on this platform - try the next name.
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Renders a character sheet to PDF by writing the existing XSL-generated HTML
+        /// (<see cref="RenderSheet(CharacterDocument,string)"/>) to a temp file and invoking a
+        /// system headless Chromium/Chrome browser's own "print to PDF" mode on it - the browser
+        /// does the actual HTML/CSS layout and pagination, so this doesn't need to reimplement
+        /// any of that. Throws <see cref="InvalidOperationException"/> if no such browser is
+        /// installed (see <see cref="FindHeadlessBrowserExecutable"/>).</summary>
+        public static void RenderSheetToPdf(CharacterDocument character, string strSheetFileName, string strOutputPdfPath) =>
+            RenderSheetToPdf(new[] { character }, strSheetFileName, strOutputPdfPath);
+
+        /// <summary>Same as <see cref="RenderSheetToPdf(CharacterDocument,string,string)"/> but
+        /// for several characters through one combined sheet, mirroring
+        /// <see cref="RenderSheet(IEnumerable{CharacterDocument},string)"/>.</summary>
+        public static void RenderSheetToPdf(IEnumerable<CharacterDocument> characters, string strSheetFileName, string strOutputPdfPath)
+        {
+            string? strBrowserPath = FindHeadlessBrowserExecutable();
+            if (strBrowserPath == null)
+            {
+                throw new InvalidOperationException(
+                    "No headless Chromium/Chrome-family browser (chromium, google-chrome, microsoft-edge, ...) " +
+                    "was found on PATH. Install one to enable PDF export.");
+            }
+
+            string strHtml = RenderSheet(characters, strSheetFileName);
+            string strTempHtmlPath = Path.Combine(Path.GetTempPath(), $"chummer-sheet-{Guid.NewGuid():N}.html");
+            try
+            {
+                File.WriteAllText(strTempHtmlPath, strHtml, Encoding.UTF8);
+
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = strBrowserPath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                };
+                psi.ArgumentList.Add("--headless");
+                psi.ArgumentList.Add("--disable-gpu");
+                psi.ArgumentList.Add($"--print-to-pdf={strOutputPdfPath}");
+                psi.ArgumentList.Add("--no-pdf-header-footer");
+                psi.ArgumentList.Add(new Uri(strTempHtmlPath).AbsoluteUri);
+
+                using System.Diagnostics.Process? proc = System.Diagnostics.Process.Start(psi);
+                if (proc == null)
+                    throw new InvalidOperationException($"Failed to start '{strBrowserPath}' for PDF export.");
+                string strStdErr = proc.StandardError.ReadToEnd();
+                proc.WaitForExit();
+                if (proc.ExitCode != 0 || !File.Exists(strOutputPdfPath))
+                {
+                    throw new InvalidOperationException(
+                        $"PDF export via '{strBrowserPath}' failed (exit code {proc.ExitCode}). {strStdErr}");
+                }
+            }
+            finally
+            {
+                try { File.Delete(strTempHtmlPath); } catch { /* best-effort cleanup */ }
+            }
         }
 
         private static XmlElement AddEl(XmlDocument doc, XmlElement parent, string name, string value = "")
@@ -104,6 +308,11 @@ namespace Chummer.Core
             AddEl(doc, charEl, "resenabled", c.Technomancer.ToString());
             AddEl(doc, charEl, "tradition", string.Empty);
             AddEl(doc, charEl, "drain", string.Empty);
+            // Ported from clsCharacter.cs's PrintToStream: the PrintNotes house rule also gates
+            // Contact/MartialArtManeuver notes there, but this port's shipped sheets (Text-Only.xsl)
+            // only ever read the character's own general notes field, so that's the only notes
+            // output this house rule needs to control here.
+            AddEl(doc, charEl, "notes", c.PrintNotesEnabled ? c.Notes : string.Empty);
         }
 
         private static void AppendAttributes(XmlDocument doc, XmlElement charEl, CharacterDocument c)
@@ -144,7 +353,38 @@ namespace Chummer.Core
         {
             XmlElement skillsEl = doc.CreateElement("skills");
             charEl.AppendChild(skillsEl);
-            foreach (CharacterSkillData skill in c.Skills.Concat(c.KnowledgeSkills))
+
+            // Ported from clsCharacter.cs's PrintToStream: PrintLeadershipAlternates/
+            // PrintArcanaAlternates staple a couple of synthetic same-rating copies of Leadership/
+            // Arcana onto the printed skill list, each linked to a different Attribute.
+            var lstActiveSkills = new List<CharacterSkillData>(c.Skills);
+            if (c.PrintLeadershipAlternates)
+            {
+                CharacterSkillData? leadership = lstActiveSkills.FirstOrDefault(s => s.Name == "Leadership");
+                if (leadership != null)
+                {
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(leadership, "Command", "LOG"));
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(leadership, "Direct Fire", "INT"));
+                }
+            }
+            if (c.PrintArcanaAlternates)
+            {
+                CharacterSkillData? arcana = lstActiveSkills.FirstOrDefault(s => s.Name == "Arcana");
+                if (arcana != null)
+                {
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(arcana, "Metamagic", "INT"));
+                    lstActiveSkills.Add(c.BuildAlternateSkillForPrint(arcana, "Artificing", "MAG"));
+                }
+            }
+
+            IEnumerable<CharacterSkillData> lstPrintedSkills = lstActiveSkills.Concat(c.KnowledgeSkills);
+            if (!c.PrintSkillsWithZeroRating)
+            {
+                lstPrintedSkills = lstPrintedSkills.Where(skill =>
+                    skill.KnowledgeSkill || (int.TryParse(skill.BaseRating, out var intRating) && intRating > 0));
+            }
+
+            foreach (CharacterSkillData skill in lstPrintedSkills)
             {
                 XmlElement skillEl = doc.CreateElement("skill");
                 skillsEl.AppendChild(skillEl);
@@ -193,7 +433,7 @@ namespace Chummer.Core
             {
                 XmlElement spellEl = doc.CreateElement("spell");
                 spellsEl.AppendChild(spellEl);
-                AddEl(doc, spellEl, "name", spell.Name);
+                AddEl(doc, spellEl, "name", spell.DisplayName);
                 AddEl(doc, spellEl, "extra", string.Empty);
                 AddEl(doc, spellEl, "dv", spell.Dv);
             }
@@ -210,6 +450,43 @@ namespace Chummer.Core
                 AddEl(doc, powerEl, "name", power.Name);
                 AddEl(doc, powerEl, "extra", power.Extra);
                 AddEl(doc, powerEl, "rating", power.Rating);
+            }
+        }
+
+        private static void AppendComplexForms(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement formsEl = doc.CreateElement("techprograms");
+            charEl.AppendChild(formsEl);
+            foreach (CharacterComplexFormData form in c.ComplexForms)
+            {
+                XmlElement formEl = doc.CreateElement("techprogram");
+                formsEl.AppendChild(formEl);
+                AddEl(doc, formEl, "name", form.Name);
+                AddEl(doc, formEl, "extra", form.Extra);
+                AddEl(doc, formEl, "rating", form.Rating);
+                XmlElement optionsEl = doc.CreateElement("programoptions");
+                formEl.AppendChild(optionsEl);
+                foreach ((string strOptionName, string strOptionRating) in form.Options)
+                {
+                    XmlElement optionEl = doc.CreateElement("programoption");
+                    optionsEl.AppendChild(optionEl);
+                    AddEl(doc, optionEl, "name", strOptionName);
+                    AddEl(doc, optionEl, "rating", strOptionRating);
+                }
+            }
+        }
+
+        private static void AppendCritterPowers(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement powersEl = doc.CreateElement("critterpowers");
+            charEl.AppendChild(powersEl);
+            foreach (CharacterCritterPowerData power in c.CritterPowers)
+            {
+                XmlElement powerEl = doc.CreateElement("critterpower");
+                powersEl.AppendChild(powerEl);
+                AddEl(doc, powerEl, "name", power.Name);
+                AddEl(doc, powerEl, "extra", power.Extra);
+                AddEl(doc, powerEl, "rating", power.Points);
             }
         }
 
@@ -311,10 +588,82 @@ namespace Chummer.Core
             }
         }
 
+        private static void AppendWeapons(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement weaponsEl = doc.CreateElement("weapons");
+            charEl.AppendChild(weaponsEl);
+            foreach (CharacterWeaponData weapon in c.Weapons)
+            {
+                XmlElement weaponEl = doc.CreateElement("weapon");
+                weaponsEl.AppendChild(weaponEl);
+                AddEl(doc, weaponEl, "name", weapon.Name);
+                AddEl(doc, weaponEl, "weaponname", string.Empty);
+                AddEl(doc, weaponEl, "dicepool", weapon.DicePool);
+                AddEl(doc, weaponEl, "damage", weapon.Damage);
+                AddEl(doc, weaponEl, "ap", weapon.Ap);
+                AddEl(doc, weaponEl, "rc", weapon.Rc);
+                weaponEl.AppendChild(doc.CreateElement("accessories"));
+                weaponEl.AppendChild(doc.CreateElement("mods"));
+            }
+        }
+
+        private static void AppendVehicles(XmlDocument doc, XmlElement charEl, CharacterDocument c)
+        {
+            XmlElement vehiclesEl = doc.CreateElement("vehicles");
+            charEl.AppendChild(vehiclesEl);
+            foreach (CharacterVehicleData vehicle in c.Vehicles)
+            {
+                XmlElement vehicleEl = doc.CreateElement("vehicle");
+                vehiclesEl.AppendChild(vehicleEl);
+                AddEl(doc, vehicleEl, "name", vehicle.Name);
+                AddEl(doc, vehicleEl, "vehiclename", string.Empty);
+
+                XmlElement modsEl = doc.CreateElement("mods");
+                vehicleEl.AppendChild(modsEl);
+                XmlElement gearsEl = doc.CreateElement("gears");
+                vehicleEl.AppendChild(gearsEl);
+                XmlElement weaponsEl = doc.CreateElement("weapons");
+                vehicleEl.AppendChild(weaponsEl);
+
+                foreach (CharacterTreeItemData item in vehicle.Children)
+                {
+                    if (item.IsVehicleMod)
+                    {
+                        XmlElement modEl = doc.CreateElement("mod");
+                        modsEl.AppendChild(modEl);
+                        AddEl(doc, modEl, "name", item.TranslatedName);
+                        AddEl(doc, modEl, "rating", item.Rating);
+                        modEl.AppendChild(doc.CreateElement("cyberwares"));
+                    }
+                    else if (item.IsVehicleWeapon)
+                    {
+                        XmlElement weaponEl = doc.CreateElement("weapon");
+                        weaponsEl.AppendChild(weaponEl);
+                        AddEl(doc, weaponEl, "name", item.TranslatedName);
+                        AddEl(doc, weaponEl, "weaponname", string.Empty);
+                        // Vehicle-mounted weapons don't carry damage/AP/RC in this port's saved
+                        // tree data (only name/rating/cost/avail) - left blank rather than wrong.
+                        AddEl(doc, weaponEl, "damage", string.Empty);
+                        AddEl(doc, weaponEl, "ap", string.Empty);
+                        AddEl(doc, weaponEl, "rc", string.Empty);
+                        weaponEl.AppendChild(doc.CreateElement("accessories"));
+                        weaponEl.AppendChild(doc.CreateElement("mods"));
+                    }
+                    else
+                    {
+                        AppendGearLikeItem(doc, gearsEl, "gear", item, includeChildren: true);
+                    }
+                }
+            }
+        }
+
         private static void AppendExpenses(XmlDocument doc, XmlElement charEl, CharacterDocument c)
         {
             XmlElement expensesEl = doc.CreateElement("expenses");
             charEl.AppendChild(expensesEl);
+            if (!c.PrintExpenses)
+                return;
+
             foreach (CharacterExpenseData expense in c.KarmaExpenses)
                 AppendExpense(doc, expensesEl, expense, "Karma");
             foreach (CharacterExpenseData expense in c.NuyenExpenses)

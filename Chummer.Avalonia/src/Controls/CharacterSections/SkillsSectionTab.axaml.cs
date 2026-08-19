@@ -31,40 +31,94 @@ public partial class SkillsSectionTab : UserControl
         if (_character == null)
             return;
 
-        _character.AddKnowledgeSkill("Neue Wissensfertigkeit", "Street");
-        ViewModel.LoadCharacter(_character);
+        if (_character.AddKnowledgeSkill("Neue Wissensfertigkeit", "Street"))
+            ViewModel.LoadCharacter(_character);
     }
 
-    private void OnDeleteKnowledgeSkillClick(object? sender, RoutedEventArgs e)
+    private async void OnDeleteKnowledgeSkillClick(object? sender, RoutedEventArgs e)
     {
-        if (_character == null || sender is not Button { Tag: int intSkillId })
+        if (_character == null || sender is not Button { Tag: int intSkillId }
+            || TopLevel.GetTopLevel(this) is not Window window)
             return;
 
+        if (!await DeleteConfirmation.ConfirmAsync(window, _character, "Message_DeleteKnowledgeSkill"))
+            return;
         if (_character.RemoveKnowledgeSkill(intSkillId))
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRaiseSkillClick(object? sender, System.EventArgs e)
+    private async void OnRaiseSkillClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not SkillRow { DataContext: SkillRowViewModel row })
+        if (_character == null || sender is not SkillRow { DataContext: SkillRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        int? intCost = _character.GetActiveSkillKarmaCostToIncrease(row.SkillId);
+        if (intCost == null || !int.TryParse(row.Rating, out int intRating))
+            return;
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpense"),
+            row.SkillName, intRating + 1, intCost.Value);
+        if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
             return;
 
         if (row.Raise())
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnSpecializationCommitted(object? sender, string strSpecialization)
+    private void OnRollSkillClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not SkillRow { DataContext: SkillRowViewModel row })
+        if (sender is not SkillRow { DataContext: SkillRowViewModel { CanRoll: true } row }
+            || !int.TryParse(row.Pool, out int intPool)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        if (window is MainWindow mainWindow)
+            mainWindow.OpenDiceRoller(intPool);
+        else
+            new DiceRollerDialog(intPool).Show(window);
+    }
+
+    private void OnRollKnowledgeSkillClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { DataContext: KnowledgeSkillRowViewModel { CanRoll: true } row }
+            || !int.TryParse(row.Pool, out int intPool)
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        if (window is MainWindow mainWindow)
+            mainWindow.OpenDiceRoller(intPool);
+        else
+            new DiceRollerDialog(intPool).Show(window);
+    }
+
+    private async void OnSpecializationCommitted(object? sender, string strSpecialization)
+    {
+        if (_character == null || sender is not SkillRow { DataContext: SkillRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        int intCost = _character.GetActiveSkillSpecializationKarmaCost();
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpenseSpecialization"),
+            strSpecialization, intCost);
+        if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
             return;
 
         if (row.CommitSpecialization(strSpecialization))
             ViewModel.LoadCharacter(_character);
     }
 
-    private void OnRaiseGroupClick(object? sender, System.EventArgs e)
+    private async void OnRaiseGroupClick(object? sender, System.EventArgs e)
     {
-        if (_character == null || sender is not GroupRow { DataContext: GroupRowViewModel row })
+        if (_character == null || sender is not GroupRow { DataContext: GroupRowViewModel row }
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        int? intCost = _character.GetSkillGroupKarmaCostToIncrease(row.GroupName);
+        if (intCost == null || !int.TryParse(row.Rating, out int intRating))
+            return;
+        string strMessage = string.Format(App.LanguageCatalog.GetString("Message_ConfirmKarmaExpense"),
+            row.GroupName, intRating + 1, intCost.Value);
+        if (!await KarmaExpenseConfirmation.ConfirmAsync(window, _character, strMessage))
             return;
 
         if (row.Raise())

@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Chummer.NewUI.ViewModels"
+        xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
         x:Class="Chummer.NewUI.Dialogs.QualityDialog"
         x:DataType="vm:QualityDialogViewModel"
         Width="620" Height="520" CanResize="True"
@@ -8,9 +10,9 @@
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
         Background="White"
-        Title="Gabe auswählen">
+        Title="{loc:Loc Title_SelectQuality}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
-        <TextBlock Grid.Row="0" Text="Wähle eine noch nicht vorhandene Gabe oder ein Handicap aus den installierten Regeln aus."
+        <TextBlock Grid.Row="0" Text="{loc:Loc UI_SelectQualityTooltip}"
                    Margin="0,0,0,8" />
 
         <Grid Grid.Row="1" ColumnDefinitions="*,190">
@@ -26,18 +28,18 @@
             </ListBox>
 
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
-                <TextBlock Text="GP:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_BP}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedQuality.Cost, TargetNullValue=–}" />
-                <TextBlock Text="Quelle:" FontWeight="Bold" />
-                <TextBlock Text="{Binding SelectedQuality.SourcePage, TargetNullValue=–}" />
-                <TextBlock Text="Kategorie:" FontWeight="Bold" />
+                <TextBlock Text="{loc:Loc Label_Source}" FontWeight="Bold" />
+                <controls:SourceLink SourcePage="{Binding SelectedQuality.SourcePage}" />
+                <TextBlock Text="{loc:Loc Label_Category}" FontWeight="Bold" />
                 <TextBlock Text="{Binding SelectedQuality.Category, TargetNullValue=–}" />
             </StackPanel>
         </Grid>
 
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
-            <Button Grid.Column="1" Content="Abbruch" Width="80" Margin="0,0,6,0" Click="OnCancel" />
-            <Button Grid.Column="2" Content="Hinzufügen" Width="80" Click="OnOk" />
+            <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
+            <Button Grid.Column="2" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </Grid>
     </Grid>
 </Window>

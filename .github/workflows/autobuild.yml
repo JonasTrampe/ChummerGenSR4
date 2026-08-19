@@ -159,6 +159,59 @@ jobs:
           fi
           kill $APP_PID
 
+  build-avalonia:
+    # Builds/tests/smoke-tests the Avalonia port (Chummer.Core, Chummer.Avalonia,
+    # Chummer.Tests, RunnersPoint.Api) - previously this workflow only covered the legacy
+    # WinForms app (build/build-mono jobs), leaving the entire feature/linux-port stack with no
+    # CI coverage at all. Mirrors the exact build/test/smoke-test sequence used to verify every
+    # change on this branch locally.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build Chummer.Core
+        run: dotnet build Chummer.Core/Chummer.Core.csproj -c Release
+
+      - name: Build Chummer.Avalonia
+        run: dotnet build Chummer.Avalonia/Chummer.Avalonia.csproj -c Release
+
+      - name: Run Chummer.Tests
+        run: dotnet test Chummer.Tests/Chummer.Tests.csproj -c Release --logger "console;verbosity=normal"
+
+      - name: Install Xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Headless startup smoke test
+        # Same convention used throughout this branch's own development: a short-lived run that's
+        # killed by timeout counts as success (SIGKILL -> exit 137) as long as nothing in its
+        # captured output looks like an unhandled exception - catches crash-on-startup regressions
+        # (bad data paths, missing assets, XAML load failures) without needing a full UI test
+        # framework.
+        run: |
+          DLL=".artifacts/bin/Chummer.Avalonia/Release/net10.0/Chummer.Avalonia.dll"
+          xvfb-run --auto-servernum timeout -s KILL 10 dotnet "$DLL" > smoke-test.log 2>&1
+          status=$?
+          echo "Exit code: $status"
+          cat smoke-test.log
+          if [ "$status" -ne 137 ]; then
+            echo "Expected exit 137 (killed by the smoke-test timeout after a clean startup), got $status."
+            exit 1
+          fi
+          if grep -qiE "unhandled exception|Fehler beim" smoke-test.log; then
+            echo "Smoke test log contains an exception - treating as a crash."
+            exit 1
+          fi
+
   validate-xml:
     runs-on: ubuntu-latest
 

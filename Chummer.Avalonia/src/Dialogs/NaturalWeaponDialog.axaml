@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.NaturalWeaponDialog"
+        Width="420" SizeToContent="{loc:Loc UI_Height}" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
+        FontSize="11" Background="White" Title="{loc:Loc Menu_AddNaturalWeapon}">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110,*">
+        <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" VerticalAlignment="Center" />
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="1" Text="{loc:Loc UI_SkillColon}" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="SkillBox" HorizontalAlignment="Stretch" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="2" Text="{loc:Loc UI_DamageValueColon}" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
+            <ComboBox x:Name="DvBaseBox" Width="90" />
+            <NumericUpDown x:Name="DvModBox" Width="90" Minimum="-20" Maximum="20" Increment="1" Value="0" FormatString="0" />
+            <ComboBox x:Name="DvTypeBox" Width="80" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" Text="{loc:Loc UI_ArmorPenetrationLongColon}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="3" Grid.Column="1" x:Name="ApBox" Minimum="-20" Maximum="0" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="4" Text="{loc:Loc Label_Range}" VerticalAlignment="Center" />
+        <NumericUpDown Grid.Row="4" Grid.Column="1" x:Name="ReachBox" Minimum="0" Maximum="10" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
+
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,0,0,6" />
+
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+            <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
+            <Button Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
+        </StackPanel>
+    </Grid>
+</Window>

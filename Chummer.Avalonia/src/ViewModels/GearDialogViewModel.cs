@@ -45,7 +45,7 @@ public sealed class GearDialogViewModel : ViewModelBase
         set => SetField(ref _selectedGear, value);
     }
 
-    public void LoadOptions()
+    public void LoadOptions(CharacterDocument? character = null)
     {
         _lstAllOptions.Clear();
         XmlDocument document = XmlManager.Instance.Load("gear.xml");
@@ -73,6 +73,8 @@ public sealed class GearDialogViewModel : ViewModelBase
                 string strName = node["name"]?.InnerText ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(strName))
                     continue;
+                if (character != null && !character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
+                    continue;
 
                 string strCategory = node["category"]?.InnerText ?? string.Empty;
                 string strTranslatedName = node["translate"]?.InnerText ?? strName;
@@ -90,12 +92,12 @@ public sealed class GearDialogViewModel : ViewModelBase
         }
 
         Categories.Clear();
-        Categories.Add("Alle");
+        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string strCategory in _lstAllOptions.Select(o => o.CategoryDisplay).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             Categories.Add(strCategory);
 
-        _strSelectedCategory = "Alle";
+        _strSelectedCategory = App.LanguageCatalog.GetString("UI_All");
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -112,7 +114,7 @@ public sealed class GearDialogViewModel : ViewModelBase
             query = query.Where(o => o.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || o.SourceName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
-        else if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "Alle")
+        else if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
         {
             query = query.Where(o => o.CategoryDisplay == SelectedCategory);
         }

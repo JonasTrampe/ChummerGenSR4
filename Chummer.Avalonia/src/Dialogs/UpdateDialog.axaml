@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Chummer.NewUI.Dialogs.UpdateDialog"
+        Width="480" Height="360" WindowStartupLocation="CenterOwner"
+        Title="{loc:Loc UI_ChummerUpdate}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16" RowSpacing="8">
+        <TextBlock x:Name="CurrentVersionText" FontWeight="Bold" />
+        <TextBlock x:Name="LatestVersionText" FontWeight="Bold" />
+        <ScrollViewer Grid.Row="2">
+            <TextBlock x:Name="ReleaseNotesText" TextWrapping="Wrap" />
+        </ScrollViewer>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{loc:Loc Button_CloudRevisions_Close}" Width="90" Click="OnClose" />
+            <Button Content="{loc:Loc Omae_Download}" Width="110" Click="OnDownload" />
+        </StackPanel>
+    </Grid>
+</Window>

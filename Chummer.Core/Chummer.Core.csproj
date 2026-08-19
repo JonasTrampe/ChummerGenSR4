@@ -16,11 +16,11 @@
         <!--
           Shared data/business-logic layer for both the legacy WinForms app (Chummer.csproj, net48) and
           the new Avalonia port (Chummer.Avalonia today, Chummer.Avalonia eventually) - see
-          docs/LINUX_PORT_PLAN.md. Multi-targeted so the net48 consumer keeps working exactly as before
+          PORTING_PLAN.md. Multi-targeted so the net48 consumer keeps working exactly as before
           while the net8.0 build is what the cross-platform Avalonia app actually references.
     
           Files land here once they're confirmed to have zero System.Windows.Forms/System.Drawing
-          dependency (or have had the handful of leak points fixed) - see docs/LINUX_PORT_PLAN.md's
+          dependency (or have had the handful of leak points fixed) - see PORTING_PLAN.md's
           Chummer.Core migration notes for the current boundary.
         -->
     </PropertyGroup>

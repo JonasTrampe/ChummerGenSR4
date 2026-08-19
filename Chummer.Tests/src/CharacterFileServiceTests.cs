@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 using Xunit;
 
 namespace Chummer.Tests;
 
-public class CharacterFileServiceTests
+public partial class CharacterFileServiceTests
 {
     private static CharacterDocument LoadFixture()
     {
@@ -16,464 +19,109 @@ public class CharacterFileServiceTests
         return new CharacterFileService().Load(stream, "sample.chum");
     }
 
-    private static CharacterDocument LoadXml(string strXml)
+    [Fact]
+    public void CharacterHistory_CapturesImmutableSnapshotsAndRestoresFreshDocuments()
     {
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(strXml));
-        return new CharacterFileService().Load(stream, "test.chum");
+        CharacterDocument character = LoadXml("<character><name>Runner</name><alias>Before</alias></character>");
+        var history = new CharacterHistory(2);
+        CharacterSnapshot snapshot = history.Capture(character, "Before change");
+        character.Alias = "After";
+
+        CharacterDocument restored = history.Restore(snapshot);
+        Assert.Equal("Before", restored.Alias);
+        restored.Alias = "Restored change";
+        Assert.Equal("After", character.Alias);
+        Assert.Single(history.Snapshots);
+        Assert.Equal("Before change", snapshot.Label);
     }
 
     [Fact]
-    public void Load_ReadsBasicIdentity()
+    public void ConvertSpriteToFreeSprite_GrantsNonCountingDenialAndTracksRemainingPowerSlots()
     {
-        CharacterDocument character = LoadFixture();
+        CharacterDocument character = LoadXml("<character><metatype>Machine Sprite</metatype>"
+            + "<metatypecategory>Sprites</metatypecategory><attributes><attribute><name>EDG</name>"
+            + "<value>4</value><totalvalue>4</totalvalue></attribute></attributes></character>");
 
-        Assert.Equal("Testrunner", character.Name);
-        Assert.Equal("Ghost", character.Alias);
-        Assert.Equal("Mensch", character.Metatype);
-        Assert.Equal("Jonas", character.PlayerName);
+        Assert.True(character.ConvertSpriteToFreeSprite());
+        Assert.True(character.IsFreeSprite);
+        Assert.Equal("Free Sprite", character.MetatypeCategory);
+        CharacterCritterPowerData denial = Assert.Single(character.CritterPowers);
+        Assert.Equal("Denial", denial.Name);
+        Assert.False(denial.CountsTowardsLimit);
+        Assert.Equal(4, character.FreeSpritePowerPoints!.Value);
+
+        character.AddCritterPower("Fear", "0", "SM", "54");
+        Assert.Equal(3, character.FreeSpritePowerPoints!.Value);
+        Assert.False(character.ConvertSpriteToFreeSprite());
     }
 
     [Fact]
-    public void Contacts_And_Enemies_AreSplitByType()
+    public void CharacterSheetExporter_RendersMultipleCharactersThroughOneCombinedGameMasterSheet()
     {
-        CharacterDocument character = LoadFixture();
+        CharacterDocument alice = LoadXml("<character><name>Alice</name></character>");
+        CharacterDocument bob = LoadXml("<character><name>Bob</name></character>");
 
-        Assert.Single(character.Contacts);
-        Assert.Equal("Schieber: Stef", character.Contacts[0].Name);
+        XmlDocument exportXml = CharacterSheetExporter.BuildExportXml(new[] { alice, bob });
+        Assert.Equal(2, exportXml.SelectNodes("/characters/character")!.Count);
 
-        Assert.Single(character.Enemies);
-        Assert.Equal("Lonestar Sergeant", character.Enemies[0].Name);
+        string html = CharacterSheetExporter.RenderSheet(new[] { alice, bob }, "Game Master Summary.xsl");
+        Assert.Contains("Alice", html);
+        Assert.Contains("Bob", html);
     }
 
     [Fact]
-    public void PetCharacterLink_PersistsAcrossSaveReload()
+    public void CharacterSheetExporter_RenderSheetToPdf_ThrowsAClearErrorWhenNoHeadlessBrowserIsInstalled()
+    {
+        // This test environment (and many CI/dev machines) has no Chromium/Chrome-family browser
+        // on PATH - RenderSheetToPdf should fail with a clear, actionable message rather than an
+        // obscure ProcessStartInfo/FileNotFoundException, regardless of whether a browser happens
+        // to be present. Skip the "no browser" assertion when one actually is found, since then
+        // the method should succeed instead.
+        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
+        string strOutputPath = Path.Combine(Path.GetTempPath(), $"chummer-pdf-test-{Guid.NewGuid():N}.pdf");
+
+        if (CharacterSheetExporter.FindHeadlessBrowserExecutable() == null)
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                CharacterSheetExporter.RenderSheetToPdf(character, "Text-Only.xsl", strOutputPath));
+            Assert.Contains("headless", ex.Message, StringComparison.OrdinalIgnoreCase);
+        }
+        else
+        {
+            CharacterSheetExporter.RenderSheetToPdf(character, "Text-Only.xsl", strOutputPath);
+            Assert.True(File.Exists(strOutputPath));
+            File.Delete(strOutputPath);
+        }
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_GetExportTemplateNames_IncludesSquadManager()
+    {
+        Assert.Contains("Squad Manager", CharacterSheetExporter.GetExportTemplateNames());
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_GetExportTemplateExtension_ReadsTheExtComment()
+    {
+        Assert.Equal("xml", CharacterSheetExporter.GetExportTemplateExtension("Squad Manager"));
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_RenderExport_TransformsThroughSquadManager()
+    {
+        CharacterDocument character = LoadXml("<character><name>Runner</name><alias>Ghost</alias></character>");
+
+        string strExport = CharacterSheetExporter.RenderExport(character, "Squad Manager");
+
+        Assert.Contains("Ghost", strExport);
+        Assert.Contains("<Shadowrun", strExport);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_RenderExport_ThrowsForAMissingTemplate()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddPet("Sparky");
-        int intPetId = Assert.Single(character.Pets).ContactId;
-
-        Assert.True(character.UpdateContactFile(intPetId, "/characters/sparky.chum", "../characters/sparky.chum"));
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        CharacterContactData pet = Assert.Single(reloaded.Pets);
-
-        Assert.Equal("/characters/sparky.chum", pet.FileName);
-        Assert.Equal("../characters/sparky.chum", pet.RelativeFileName);
-    }
-
-    [Fact]
-    public void AddQuality_MutatesCharacterAndPersistsTheMinimalSaveShape()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddQuality("Ambidextrous", "Positive");
-        character.AddQuality("Allergy", "Negative", "Silver (Mild)");
-
-        Assert.Collection(character.Qualities,
-            quality =>
-            {
-                Assert.Equal("Ambidextrous", quality.Name);
-                Assert.Equal("Positive", quality.Type);
-                Assert.Equal(string.Empty, quality.Extra);
-            },
-            quality =>
-            {
-                Assert.Equal("Allergy", quality.Name);
-                Assert.Equal("Negative", quality.Type);
-                Assert.Equal("Silver (Mild)", quality.Extra);
-            });
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-
-        Assert.Equal(2, reloaded.Qualities.Count);
-        Assert.Equal("Allergy (Silver (Mild))", reloaded.Qualities[1].DisplayName);
-    }
-
-    [Fact]
-    public void RemoveQuality_MatchesNameTypeAndDetail()
-    {
-        CharacterDocument character = LoadXml("<character><qualities><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Silver</extra></quality><quality><name>Allergy</name><qualitytype>Negative</qualitytype><extra>Gold</extra></quality></qualities></character>");
-
-        Assert.True(character.RemoveQuality("Allergy", "Negative", "Silver"));
-        CharacterQualityData remaining = Assert.Single(character.Qualities);
-        Assert.Equal("Gold", remaining.Extra);
-    }
-
-    [Fact]
-    public void AddSpell_MutatesCharacterAndPersistsRuleFields()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddSpell("Acid Stream", "Combat", "P", "LOS", "P", "I", "(F/2)+3", "SR4", "204");
-
-        CharacterSpellData added = Assert.Single(character.Spells);
-        Assert.Equal("Combat", added.Category);
-        Assert.Equal("(F/2)+3", added.Dv);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-
-        CharacterSpellData saved = Assert.Single(reloaded.Spells);
-        Assert.Equal("Acid Stream", saved.Name);
-        Assert.Equal("SR4", saved.Source);
-        Assert.Equal("204", saved.Page);
-    }
-
-    [Fact]
-    public void AddGear_MutatesCharacterTreeAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddGear("Medkit", "Biotech", "6");
-
-        CharacterTreeItemData added = Assert.Single(character.Gear);
-        Assert.Equal("Medkit", added.Name);
-        Assert.Equal("Biotech", added.Category);
-        Assert.Equal("6", added.Rating);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Medkit", Assert.Single(reloaded.Gear).Name);
-    }
-
-    [Fact]
-    public void Vehicles_ReadSavedStatsAndInstalledItemTree()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><vehicles><vehicle>"
-            + "<name>Hyundai Shin-Hyung</name><category>Cars</category><handling>3</handling>"
-            + "<accel>15</accel><speed>180</speed><pilot>2</pilot><body>10</body><armor>6</armor>"
-            + "<sensor>2</sensor><devicerating>3</devicerating><avail>4</avail><cost>16000</cost><addslots>2</addslots>"
-            + "<source>SR4</source><page>351</page><physicalcmfilled>1</physicalcmfilled>"
-            + "<mods><mod><name>Armor</name><category>Vehicle Mod</category><rating>2</rating><cost>1000</cost></mod></mods>"
-            + "<gears><gear><name>Vehicle Toolkit</name><category>Tools</category><qty>1</qty></gear></gears>"
-            + "<weapons><weapon><name>LMG</name><category>Machine Guns</category><damage>6P</damage></weapon></weapons>"
-            + "</vehicle></vehicles></character>");
-
-        CharacterVehicleData vehicle = Assert.Single(character.Vehicles);
-        Assert.Equal("180", vehicle.Speed);
-        Assert.Equal("16000", vehicle.Cost);
-        Assert.Equal(3, vehicle.Children.Count);
-        Assert.Equal("Armor", vehicle.Children[0].Name);
-        Assert.Equal("Vehicle Toolkit", vehicle.Children[1].Name);
-        Assert.Equal("LMG", vehicle.Children[2].Name);
-    }
-
-    [Fact]
-    public void AddAndRemoveVehicle_PersistsTheLegacyVehicleShapeAndDeductsCost()
-    {
-        CharacterDocument character = LoadXml("<character><nuyen>50000</nuyen></character>");
-        character.AddVehicle("Hyundai Shin-Hyung", "Cars", "3", "15", "180", "2", "10", "6", "2", "3",
-            "4", "16000", "SR4", "351");
-
-        CharacterVehicleData vehicle = Assert.Single(character.Vehicles);
-        Assert.Equal("180", vehicle.Speed);
-        Assert.Equal("34000", character.Nuyen);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Hyundai Shin-Hyung", Assert.Single(reloaded.Vehicles).Name);
-        Assert.True(reloaded.RemoveVehicle("Hyundai Shin-Hyung", "Cars"));
-        Assert.Empty(reloaded.Vehicles);
-    }
-
-    [Fact]
-    public void RemoveGear_RemovesOnlyMatchingRootLevelEntry()
-    {
-        CharacterDocument character = LoadXml("<character><gears><gear><name>Medkit</name><category>Biotech</category><rating>6</rating></gear><gear><name>Medkit</name><category>Biotech</category><rating>3</rating></gear></gears></character>");
-
-        int intGearId = character.Gear[0].GearId;
-        Assert.True(character.RemoveGear(intGearId));
-        CharacterTreeItemData remaining = Assert.Single(character.Gear);
-        Assert.Equal("3", remaining.Rating);
-    }
-
-    [Fact]
-    public void AddGear_WritesQuantityCostAvailAndSource()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddGear("Stim Patch", "Biotech", "0", "5", "50", "4", "SR4 60");
-
-        CharacterTreeItemData added = Assert.Single(character.Gear);
-        Assert.Equal("5", added.Qty);
-        Assert.Equal("50", added.Cost);
-        Assert.Equal("4", added.Avail);
-        Assert.True(added.GearId >= 0);
-    }
-
-    [Fact]
-    public void AddChildGear_NestsUnderTheParentAndCanBeRemovedById()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddGear("Commlink", "Commlink", "0");
-        int intParentId = character.Gear[0].GearId;
-
-        Assert.True(character.AddChildGear(intParentId, "Certified Credstick, Silver", "Commlink Accessory", "0"));
-        CharacterTreeItemData parent = character.Gear[0];
-        CharacterTreeItemData child = Assert.Single(parent.Children);
-        Assert.Equal("Certified Credstick, Silver", child.Name);
-        Assert.True(child.GearId > intParentId);
-
-        Assert.True(character.RemoveGear(child.GearId));
-        Assert.Empty(character.Gear[0].Children);
-    }
-
-    [Fact]
-    public void SetGearQuantity_UpdatesAnExistingItemsCount()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddGear("Stim Patch", "Biotech", "0", "1");
-        int intGearId = character.Gear[0].GearId;
-
-        Assert.True(character.SetGearQuantity(intGearId, "10"));
-        Assert.Equal("10", character.Gear[0].Qty);
-    }
-
-    [Fact]
-    public void AddWeapon_MutatesCharacterTreeAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddWeapon("Ares Predator IV", "Heavy Pistols", "6P", "-1", "SA", "0", "15",
-            "350", "4R", "SR4", "313");
-
-        CharacterTreeItemData added = Assert.Single(character.WeaponTrees);
-        Assert.Equal("Ares Predator IV", added.Name);
-        Assert.Equal("Heavy Pistols", added.Category);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        CharacterWeaponData savedWeapon = Assert.Single(reloaded.Weapons);
-        Assert.Equal("Ares Predator IV", savedWeapon.Name);
-        Assert.Equal("6P", savedWeapon.Damage);
-    }
-
-    [Fact]
-    public void RemoveWeapon_RemovesOnlyMatchingRootLevelEntry()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><weapons>"
-            + "<weapon><name>Ares Predator IV</name><category>Heavy Pistols</category></weapon>"
-            + "<weapon><name>Ares Predator IV</name><category>Exotic Ranged Weapon</category></weapon>"
-            + "</weapons></character>");
-
-        Assert.True(character.RemoveWeapon("Ares Predator IV", "Heavy Pistols"));
-        CharacterTreeItemData remaining = Assert.Single(character.WeaponTrees);
-        Assert.Equal("Exotic Ranged Weapon", remaining.Category);
-    }
-
-    [Fact]
-    public void AddArmor_MutatesCharacterTreeAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
-
-        CharacterTreeItemData added = Assert.Single(character.Armor);
-        Assert.Equal("Leather Jacket", added.Name);
-        Assert.Equal("Clothing", added.Category);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Leather Jacket", Assert.Single(reloaded.Armor).Name);
-    }
-
-    [Fact]
-    public void ArmorEncumbrance_ExceedsThreshold_AppliesCeilingHalfPenalty()
-    {
-        // BOD 4 -> threshold 8. Two Leather Jackets (B2 each, non-stacking category so both count
-        // toward the total) push total Ballistic to 4 - under threshold, so add a third heavier
-        // piece to push it over: total 10 vs threshold 8 -> ceil((10-8)/2) = 1 penalty.
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>4</value><totalvalue>4</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
-        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
-        character.AddArmor("Heavy Jacket", "Clothing", "8", "8", "0", "500", "0", "SR4", "326");
-
-        Assert.Equal(-1, character.ArmorEncumbrance.BallisticPenalty.Value);
-    }
-
-    [Fact]
-    public void ArmorEncumbrance_IgnoreArmorEncumbranceHouseRule_ZeroesThePenalty()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>1</value><totalvalue>1</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
-        character.AddArmor("Heavy Jacket", "Clothing", "20", "20", "0", "500", "0", "SR4", "326");
-        Assert.NotEqual(0, character.ArmorEncumbrance.BallisticPenalty.Value);
-
-        var objOptions = new CharacterOptions { IgnoreArmorEncumbrance = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
-    }
-
-    [Fact]
-    public void ArmorEncumbrance_NoSingleArmorEncumbranceHouseRule_ZeroesThePenaltyForOnePiece()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>1</value><totalvalue>1</totalvalue></attribute><attribute><name>STR</name><value>0</value><totalvalue>0</totalvalue></attribute></attributes></character>");
-        character.AddArmor("Heavy Jacket", "Clothing", "20", "20", "0", "500", "0", "SR4", "326");
-
-        var objOptions = new CharacterOptions { NoSingleArmorEncumbrance = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
-
-        // A second piece means it's no longer "a single piece", so the penalty applies again.
-        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
-        Assert.NotEqual(0, character.ArmorEncumbrance.BallisticPenalty.Value);
-    }
-
-    [Fact]
-    public void ArmorEncumbrance_AlternateArmorEncumbranceHouseRule_UsesBodPlusStrThreshold()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>4</value><totalvalue>4</totalvalue></attribute><attribute><name>STR</name><value>4</value><totalvalue>4</totalvalue></attribute></attributes></character>");
-        character.AddArmor("Heavy Jacket", "Clothing", "8", "8", "0", "500", "0", "SR4", "326");
-
-        // Standard rule: threshold = BOD*2 = 8, total 8 -> no penalty.
-        Assert.Equal(0, character.ArmorEncumbrance.BallisticPenalty.Value);
-
-        // Alternate rule: threshold = BOD*1 + STR = 4 + 4 = 8 - still exactly at threshold here,
-        // so bump BOD up via a second piece instead to make the difference observable.
-        var objOptions = new CharacterOptions { AlternateArmorEncumbrance = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-        character.AddArmor("Leather Jacket", "Clothing", "3", "3", "0", "200", "0", "SR4", "326");
-        // Total 11, alternate threshold 8 -> ceil((11-8)/2) = 2.
-        Assert.Equal(-2, character.ArmorEncumbrance.BallisticPenalty.Value);
-    }
-
-    [Fact]
-    public void AddArmor_EquippedByDefault_FeedsIntoArmorEncumbranceAndRating()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>4</value></attribute></attributes></character>");
-
-        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
-
-        CharacterEncumbranceData encumbrance = character.ArmorEncumbrance;
-        Assert.Equal(2, encumbrance.BallisticRating.Value);
-        Assert.Equal(2, encumbrance.ImpactRating.Value);
-    }
-
-    [Fact]
-    public void SetArmorEquipped_UnequippingRemovesItFromArmorEncumbrance()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>BOD</name><value>4</value></attribute></attributes></character>");
-        character.AddArmor("Leather Jacket", "Clothing", "2", "2", "0", "200", "0", "SR4", "326");
-        Assert.Equal(2, character.ArmorEncumbrance.BallisticRating.Value);
-
-        Assert.True(character.SetArmorEquipped("Leather Jacket", "Clothing", false));
-        Assert.Equal(0, character.ArmorEncumbrance.BallisticRating.Value);
-
-        Assert.True(character.SetArmorEquipped("Leather Jacket", "Clothing", true));
-        Assert.Equal(2, character.ArmorEncumbrance.BallisticRating.Value);
-    }
-
-    [Fact]
-    public void RemoveArmor_RemovesOnlyMatchingRootLevelEntry()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><armors>"
-            + "<armor><name>Leather Jacket</name><category>Clothing</category></armor>"
-            + "<armor><name>Leather Jacket</name><category>Armor Vest</category></armor>"
-            + "</armors></character>");
-
-        Assert.True(character.RemoveArmor("Leather Jacket", "Clothing"));
-        CharacterTreeItemData remaining = Assert.Single(character.Armor);
-        Assert.Equal("Armor Vest", remaining.Category);
-    }
-
-    [Fact]
-    public void AddCyberware_FiresChangedEvent_SoTheMainWindowStatusBarRefreshesItsEssenceDisplay()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        int intChangedCount = 0;
-        character.Changed += () => intChangedCount++;
-
-        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
-        Assert.True(intChangedCount > 0);
-
-        Assert.True(character.RemoveCyberware("Cybereyes", "Cyberlimb", "0"));
-        Assert.True(intChangedCount > 1);
-    }
-
-    [Fact]
-    public void AddCyberware_MutatesCharacterTreeAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "Rating * 1000", "8R", "SR4", "339");
-
-        CharacterTreeItemData added = Assert.Single(character.Cyberware);
-        Assert.Equal("Cybereyes", added.Name);
-        Assert.Equal("Cyberlimb", added.Category);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Cybereyes", Assert.Single(reloaded.Cyberware).Name);
-        Assert.Empty(reloaded.Bioware);
-    }
-
-    [Fact]
-    public void AddCyberware_Bioware_GoesIntoTheBiowareTreeNotCyberware()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddCyberware("Muscle Toner", "Basic", "2", "0.4", "Rating * 8000", "8R", "SR4", "339", blnBioware: true);
-
-        Assert.Empty(character.Cyberware);
-        CharacterTreeItemData added = Assert.Single(character.Bioware);
-        Assert.Equal("Muscle Toner", added.Name);
-    }
-
-    [Fact]
-    public void AddCyberware_EssenceCostFeedsIntoComputedEssence()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><attributes><attribute><name>ESS</name><metatypemax>6</metatypemax></attribute></attributes></character>");
-        Assert.Equal("6", character.Condition.Essence);
-
-        character.AddCyberware("Cybereyes", "Cyberlimb", "0", "0.2", "1000", "8R", "SR4", "339");
-        Assert.Equal("5.8", character.Condition.Essence);
-    }
-
-    [Fact]
-    public void RemoveCyberware_RemovesOnlyMatchingRootLevelEntryAndDistinguishesFromBioware()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><cyberwares>"
-            + "<cyberware><name>Datajack</name><category>Headware</category><rating>0</rating><improvementsource>Cyberware</improvementsource></cyberware>"
-            + "<cyberware><name>Datajack</name><category>Headware</category><rating>0</rating><improvementsource>Bioware</improvementsource></cyberware>"
-            + "</cyberwares></character>");
-
-        Assert.True(character.RemoveCyberware("Datajack", "Headware", "0"));
-        Assert.Empty(character.Cyberware);
-        Assert.Single(character.Bioware);
-    }
-
-    [Fact]
-    public void CharacterSheetExporter_RendersRealFixtureDataThroughTextOnlySheet()
-    {
-        CharacterDocument character = LoadFixture();
-
-        string html = CharacterSheetExporter.RenderSheet(character, "Text-Only.xsl");
-
-        Assert.Contains("Pistolen", html);
-        Assert.Contains("Custom Commlink", html);
-        Assert.Contains("Wired Reflexes", html);
-        // The character has no positive Response saved on its gear, so nothing should be
-        // misclassified into the Commlink section - see the HasCommlinkStats fix.
-        Assert.DoesNotContain("== Commlink ==", html);
+        Assert.Throws<FileNotFoundException>(() => CharacterSheetExporter.RenderExport(character, "Does Not Exist"));
     }
 
     [Fact]
@@ -486,6 +134,33 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CharacterSheetExporter_PrintLeadershipAlternates_StaplesOnCommandAndDirectFireCopies()
+    {
+        CharacterDocument character = LoadXml("<character><skills>"
+            + "<skill><name>Leadership</name><attribute>CHA</attribute><rating>3</rating><knowledge>False</knowledge><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintLeadershipAlternates = true });
+
+        XmlDocument xml = CharacterSheetExporter.BuildExportXml(character);
+        var lstNames = xml.SelectNodes("//skill/name")!.Cast<XmlNode>().Select(n => n.InnerText).ToList();
+
+        Assert.Contains("Leadership, Command", lstNames);
+        Assert.Contains("Leadership, Direct Fire", lstNames);
+    }
+
+    [Fact]
+    public void CharacterSheetExporter_PrintNotes_GatesTheGeneralNotesField()
+    {
+        CharacterDocument character = LoadXml("<character><notes>Secret backstory</notes></character>");
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintNotes = false });
+        Assert.Equal(string.Empty, CharacterSheetExporter.BuildExportXml(character).SelectSingleNode("//notes")!.InnerText);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { PrintNotes = true });
+        Assert.Equal("Secret backstory", CharacterSheetExporter.BuildExportXml(character).SelectSingleNode("//notes")!.InnerText);
+    }
+
+    [Fact]
     public void RatingExpression_EvaluatesFlatNumbersAndRatingFormulasAlike()
     {
         Assert.Equal(0.2, RatingExpression.Evaluate("0.2", "3"));
@@ -494,906 +169,27 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
-    public void RemoveSpell_RemovesOnlyTheMatchingSavedSpell()
-    {
-        CharacterDocument character = LoadXml("<character><spells><spell><name>Acid Stream</name></spell><spell><name>Clout</name></spell></spells></character>");
-
-        Assert.True(character.RemoveSpell("Acid Stream"));
-        Assert.False(character.RemoveSpell("Missing spell"));
-        CharacterSpellData remaining = Assert.Single(character.Spells);
-        Assert.Equal("Clout", remaining.Name);
-    }
-
-    [Fact]
-    public void AddMetamagic_MutatesCharacterAndPersists()
+    public void AddImprovedSensePower_ImprovedSenseFullRating_UsesTheSelectedItemsOwnRating()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddMetamagic("Centering", "SR4", "198");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ImprovedSenseFullRating = true });
 
-        CharacterMetamagicData added = Assert.Single(character.Metamagics);
-        Assert.Equal("Centering", added.Name);
-        Assert.NotEmpty(added.Guid);
-        Assert.Equal("SR4 198", added.SourcePage);
+        Assert.True(character.AddImprovedSensePower("Improved Sense", "1", ".25", "Olfactory Booster"));
 
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Centering", Assert.Single(reloaded.Metamagics).Name);
+        // Olfactory Booster's own <rating> is 6, so the full-rating house rule applies +6 instead of +1.
+        Assert.Equal(6, ImprovementManager.ValueOf(character.Improvements, ImprovementType.Skill, "Perception (Smell)"));
     }
 
-    [Fact]
-    public void RemoveMetamagic_RemovesOnlyTheMatchingEntry()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddMetamagic("Centering", "SR4", "198");
-        character.AddMetamagic("Masking", "SR4", "198");
-        string strGuid = character.Metamagics[0].Guid;
-
-        Assert.True(character.RemoveMetamagic(strGuid));
-        Assert.False(character.RemoveMetamagic(strGuid));
-        CharacterMetamagicData remaining = Assert.Single(character.Metamagics);
-        Assert.Equal("Masking", remaining.Name);
-    }
-
-    [Fact]
-    public void AddAdeptPower_MutatesCharacterAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddAdeptPower("Improved Reflexes", "2", "1.5");
-
-        CharacterPowerData added = Assert.Single(character.AdeptPowers);
-        Assert.Equal("Improved Reflexes", added.Name);
-        Assert.Equal("2", added.Rating);
-        Assert.Equal("3.00", added.TotalPoints);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Improved Reflexes", Assert.Single(reloaded.AdeptPowers).Name);
-    }
-
-    [Fact]
-    public void RemoveAdeptPower_RemovesOnlyTheMatchingPower()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddAdeptPower("Improved Reflexes", "1", "1.5");
-        character.AddAdeptPower("Killing Hands", "1", "0.5");
-
-        Assert.True(character.RemoveAdeptPower("Improved Reflexes"));
-        Assert.False(character.RemoveAdeptPower("Improved Reflexes"));
-        CharacterPowerData remaining = Assert.Single(character.AdeptPowers);
-        Assert.Equal("Killing Hands", remaining.Name);
-    }
-
-    [Fact]
-    public void AddMartialArt_SnapshotsAdvantagesAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddMartialArt("Krav Maga", new[] { "Extra attack", "+1 die of Subduing" }, "AR", "156");
-
-        CharacterMartialArtData added = Assert.Single(character.MartialArts);
-        Assert.Equal("Krav Maga", added.Name);
-        Assert.Equal(new[] { "Extra attack", "+1 die of Subduing" }, added.Advantages);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        CharacterMartialArtData reloadedArt = Assert.Single(reloaded.MartialArts);
-        Assert.Equal(2, reloadedArt.Advantages.Count);
-    }
-
-    [Fact]
-    public void AddMartialArtManeuver_MutatesCharacterAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddMartialArtManeuver("Sweep", "AR", "160");
-
-        CharacterMartialArtManeuverData added = Assert.Single(character.MartialArtManeuvers);
-        Assert.Equal("Sweep", added.Name);
-    }
-
-    [Fact]
-    public void RemoveMartialArt_RemovesOnlyTheMatchingSavedMartialArt()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><martialarts><martialart><name>Krav Maga</name><rating>1</rating></martialart>"
-            + "<martialart><name>Capoeira</name><rating>1</rating></martialart></martialarts></character>");
-
-        Assert.True(character.RemoveMartialArt("Krav Maga"));
-        Assert.False(character.RemoveMartialArt("Missing style"));
-        CharacterMartialArtData remaining = Assert.Single(character.MartialArts);
-        Assert.Equal("Capoeira", remaining.Name);
-    }
-
-    [Fact]
-    public void RemoveMartialArtManeuver_RemovesOnlyTheMatchingSavedManeuver()
-    {
-        CharacterDocument character = LoadXml(
-            "<character><martialartmaneuvers><martialartmaneuver><name>Sweep</name></martialartmaneuver>"
-            + "<martialartmaneuver><name>Constrictor's Crush</name></martialartmaneuver></martialartmaneuvers></character>");
-
-        Assert.True(character.RemoveMartialArtManeuver("Sweep"));
-        Assert.False(character.RemoveMartialArtManeuver("Missing maneuver"));
-        CharacterMartialArtManeuverData remaining = Assert.Single(character.MartialArtManeuvers);
-        Assert.Equal("Constrictor's Crush", remaining.Name);
-    }
-
-    [Fact]
-    public void Mugshot_RoundTripsBase64ThroughSaveAndReload()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        Assert.Equal(string.Empty, character.Mugshot);
-
-        character.Mugshot = "Zm9vYmFy";
-        Assert.Equal("Zm9vYmFy", character.Mugshot);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "test");
-        Assert.Equal("Zm9vYmFy", reloaded.Mugshot);
-
-        character.Mugshot = string.Empty;
-        Assert.Equal(string.Empty, character.Mugshot);
-    }
-
-    [Fact]
-    public void AddExpense_MutatesCharacterAndPersistsSignedHistory()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
-        character.AddExpense("Nuyen", -250, "New fake SIN", new DateTime(2026, 7, 23));
-
-        Assert.Equal(4, character.CareerKarma);
-        Assert.Equal(0, character.CareerNuyen);
-        Assert.Equal("-250", character.NuyenExpenses[0].Amount);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-
-        Assert.Equal("Session reward", reloaded.KarmaExpenses[0].Reason);
-        Assert.Equal("New fake SIN", reloaded.NuyenExpenses[0].Reason);
-    }
-
-    [Fact]
-    public void UpdateExpense_ChangesReasonAmountAndDateForTheMatchingEntry()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
-        character.AddExpense("Karma", 2, "Another entry", new DateTime(2026, 7, 23));
-        string strGuid = character.KarmaExpenses[0].Guid;
-        Assert.NotEmpty(strGuid);
-
-        Assert.True(character.UpdateExpense(strGuid, "Corrected reward", 6, new DateTime(2026, 7, 24)));
-        Assert.False(character.UpdateExpense("missing-guid", "x", 1, DateTime.Now));
-
-        CharacterExpenseData updated = character.KarmaExpenses.Single(e => e.Guid == strGuid);
-        Assert.Equal("Corrected reward", updated.Reason);
-        Assert.Equal("6", updated.Amount);
-        Assert.Equal("24.07.2026", updated.DisplayDate);
-        // The other entry is untouched.
-        Assert.Equal("Another entry", character.KarmaExpenses.Single(e => e.Guid != strGuid).Reason);
-        // Updated entry (6) + the other, untouched entry (2) = 8.
-        Assert.Equal(8, character.CareerKarma);
-    }
-
-    [Fact]
-    public void RemoveExpense_RemovesOnlyTheMatchingEntry()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddExpense("Karma", 4, "Session reward", new DateTime(2026, 7, 22));
-        character.AddExpense("Karma", 2, "Another entry", new DateTime(2026, 7, 23));
-        string strGuid = character.KarmaExpenses[0].Guid;
-
-        Assert.True(character.RemoveExpense(strGuid));
-        Assert.False(character.RemoveExpense(strGuid));
-        CharacterExpenseData remaining = Assert.Single(character.KarmaExpenses);
-        Assert.Equal("Another entry", remaining.Reason);
-    }
-
-    [Fact]
-    public void AddSpirit_MutatesCharacterAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "2");
-
-        CharacterSpiritData spirit = Assert.Single(character.Spirits);
-        Assert.Equal("Fire Spirit", spirit.Name);
-        Assert.Equal("Elemental", spirit.CritterName);
-        Assert.Equal("Spirit", spirit.Type);
-        Assert.Equal("6", spirit.Force);
-        Assert.Equal("2", spirit.Services);
-        Assert.False(spirit.Bound);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("Fire Spirit", Assert.Single(reloaded.Spirits).Name);
-    }
-
-    [Fact]
-    public void RemoveSpirit_RemovesOnlyTheMatchingSpirit()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-        character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "2");
-        character.AddSpirit("Task Sprite", "", "Sprite", "3", "1");
-
-        Assert.True(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
-        Assert.False(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
-        CharacterSpiritData remaining = Assert.Single(character.Spirits);
-        Assert.Equal("Task Sprite", remaining.Name);
-    }
-
-    [Fact]
-    public void Cyberware_And_Bioware_AreSplitByImprovementSource()
-    {
-        CharacterDocument character = LoadFixture();
-
-        Assert.Single(character.Cyberware);
-        Assert.Equal("Wired Reflexes", character.Cyberware[0].Name);
-
-        Assert.Single(character.Bioware);
-        Assert.Equal("Cerebral Booster", character.Bioware[0].Name);
-    }
-
-    [Fact]
-    public void ArmorAndWeapons_ExposeInstalledItemsAsTrees()
-    {
-        var character = LoadXml("<character><name>Runner</name><armors><armor><name>Jacket</name>"
-            + "<armorname>Night Out</armorname><armormods><armormod><name>Fire Resistance</name>"
-            + "</armormod></armormods></armor></armors><weapons><weapon><name>Pistol</name>"
-            + "<accessories><accessory><name>Smartlink</name></accessory></accessories>"
-            + "<weaponmods><weaponmod><name>Gas Vent</name></weaponmod></weaponmods></weapon></weapons></character>");
-
-        Assert.Single(character.Armor);
-        Assert.Equal("Night Out", character.Armor[0].Name);
-        Assert.Single(character.Armor[0].Children);
-        Assert.Equal("Fire Resistance", character.Armor[0].Children[0].Children[0].Name);
-
-        Assert.Single(character.WeaponTrees);
-        Assert.Equal("Pistol", character.WeaponTrees[0].Name);
-        Assert.Equal(new[] { "Smartlink", "Gas Vent" }, character.WeaponTrees[0].Children.Select(item => item.Name));
-    }
-
-    [Fact]
-    public void Weapon_CalculatedCostSumsAccessoriesAndMods()
-    {
-        // Weapon.Save() writes an already-resolved TotalCost (unlike Gear's raw formula), and
-        // accessory/mod cost is likewise pre-resolved - CalculatedCost should still just add them
-        // up correctly since the same Rating-substituting evaluator handles plain numbers too.
-        var character = LoadXml("<character><name>Runner</name><weapons><weapon><name>Pistol</name>"
-            + "<cost>250</cost><avail>4R</avail>"
-            + "<accessories><accessory><name>Smartlink</name><cost>200</cost><avail>2</avail></accessory></accessories>"
-            + "<weaponmods><weaponmod><name>Gas Vent</name><cost>50</cost><avail>0</avail></weaponmod></weaponmods>"
-            + "</weapon></weapons></character>");
-
-        CharacterTreeItemData weapon = character.WeaponTrees.Single();
-        Assert.Equal(500, weapon.CalculatedCost);
-        Assert.Equal("4R", weapon.CalculatedAvail);
-    }
-
-    [Fact]
-    public void KarmaAndNuyenExpenses_AreSplitByType()
-    {
-        CharacterDocument character = LoadFixture();
-
-        Assert.Single(character.KarmaExpenses);
-        Assert.Equal("5", character.KarmaExpenses[0].Amount);
-
-        Assert.Single(character.NuyenExpenses);
-        Assert.Equal("-500", character.NuyenExpenses[0].Amount);
-    }
-
-    [Fact]
-    public void Improvements_AreParsed()
-    {
-        CharacterDocument character = LoadFixture();
-
-        Assert.Equal(7, character.Improvements.Count);
-        Improvement reaBonus = character.Improvements.Single(i => i.ImprovedName == "REA");
-        Assert.Equal(ImprovementType.Attribute, reaBonus.Type);
-        Assert.Equal(ImprovementSource.Cyberware, reaBonus.Source);
-        Assert.Equal(2, reaBonus.Augmented);
-    }
-
-    [Fact]
-    public void Save_PreservesCompactFormattingAcrossARoundTrip()
-    {
-        CharacterDocument character = LoadFixture();
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-
-        // XmlDocument.Save(Stream) (what this used to do) re-indents with wider whitespace and -
-        // worse - expands empty elements like <children /> into <children>\n\t</children>, quietly
-        // bloating every re-saved file. Assert the self-closing form survives a round-trip - the
-        // fixture's innermost gear (no nested children of its own) still has an empty one.
-        string strSaved = Encoding.Unicode.GetString(stream.ToArray());
-        Assert.Contains("<children />", strSaved);
-
-        // The stream must still be usable after Save() returns (callers like
-        // CloudDocumentsDialogViewModel.SerializeActiveCharacter read it back immediately).
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal(character.Name, reloaded.Name);
-    }
-
-    [Fact]
-    public void Attributes_AugmentedValueIncludesAttributeImprovements()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // REA totalvalue 4, plus the fixture's Wired Reflexes +2 REA Improvement, minus 1 from
-        // the fixture's own worn armor pushing ballistic encumbrance to -1 (BOD 4 -> threshold 8;
-        // Actioneer Business Clothes b6 + Form-Fitting Bodysuit b6/2 = 9 total, ceil((9-8)/2) = 1).
-        CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
-        Assert.Equal("4", rea.TotalValue);
-        Assert.Equal(5, rea.Augmented.Value);
-        Assert.Contains("Wired Reflexes", rea.Augmented.Tooltip);
-        Assert.Contains("Rüstungsbehinderung (ballistisch)", rea.Augmented.Tooltip);
-
-        // BOD has no Attribute-type Improvements in the fixture, so Augmented == TotalValue.
-        CharacterAttributeData bod = character.Attributes.Single(a => a.Code == "BOD");
-        Assert.Equal(int.Parse(bod.TotalValue), bod.Augmented.Value);
-    }
-
-    [Fact]
-    public void Attributes_KarmaCostToIncreaseUsesCharacterOptionsKarmaAttribute()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // default.xml's karmaattribute is 5 and alternatemetatypeattributekarma is False, so cost
-        // to raise REA's base Value (4) by one point is (4 + 1) * 5 = 25.
-        CharacterAttributeData rea = character.Attributes.Single(a => a.Code == "REA");
-        Assert.Equal(25, rea.KarmaCostToIncrease);
-    }
-
-    [Fact]
-    public void RaiseAttribute_DeductsKarmaAndLogsExpenseWhenAffordable()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma>"
-            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
-            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
-
-        Assert.True(character.RaiseAttribute("REA"));
-
-        Assert.Equal("5", character.Attributes.Single(a => a.Code == "REA").Value);
-        Assert.Equal("75", character.Karma);
-        Assert.Single(character.KarmaExpenses);
-        Assert.Equal("-25", character.KarmaExpenses[0].Amount);
-    }
-
-    [Fact]
-    public void RaiseAttribute_FailsWithoutMutatingWhenNotEnoughKarma()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>10</karma>"
-            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
-            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
-
-        Assert.False(character.RaiseAttribute("REA"));
-
-        Assert.Equal("4", character.Attributes.Single(a => a.Code == "REA").Value);
-        Assert.Equal("10", character.Karma);
-        Assert.Empty(character.KarmaExpenses);
-    }
-
-    [Fact]
-    public void SetAttributeValue_SetsBaseValueWithoutTouchingKarma()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>10</karma>"
-            + "<attributes><attribute><name>REA</name><value>4</value><totalvalue>4</totalvalue>"
-            + "<metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes></character>");
-
-        Assert.True(character.SetAttributeValue("REA", 6));
-
-        Assert.Equal("6", character.Attributes.Single(a => a.Code == "REA").Value);
-        Assert.Equal("10", character.Karma);
-    }
-
-    private static CharacterDocument LoadCharacterWithSkill(int intRating, bool blnGrouped = false, string strKarma = "100")
-    {
-        return LoadXml("<character><name>Runner</name><karma>" + strKarma + "</karma>"
+    private static CharacterDocument LoadUnlockedFirearmsGroup(string strPistolenRating, string strAutomatikRating)
+        => LoadXml("<character><name>Runner</name><karma>100</karma>"
+            + "<skillgroups><skillgroup><name>Firearms</name><rating>0</rating></skillgroup></skillgroups>"
             + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
-            + "<skillgroup>Firearms</skillgroup><grouped>" + blnGrouped + "</grouped><rating>" + intRating
-            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete>"
-            + "</skill></skills></character>");
-    }
-
-    [Fact]
-    public void RaiseActiveSkill_NewSkillCostsKarmaNewActiveSkill()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 0);
-
-        Assert.True(character.RaiseActiveSkill(0));
-
-        Assert.Equal("1", character.Skills.Single().BaseRating);
-        Assert.Equal("96", character.Karma); // 100 - KarmaNewActiveSkill(4)
-    }
-
-    [Fact]
-    public void RaiseActiveSkill_ImprovingCostsRatingPlusOneTimesKarmaImproveActiveSkill()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
-
-        Assert.True(character.RaiseActiveSkill(0));
-
-        Assert.Equal("4", character.Skills.Single().BaseRating);
-        Assert.Equal("92", character.Karma); // 100 - (3+1)*KarmaImproveActiveSkill(2) = 100-8
-    }
-
-    [Fact]
-    public void RaiseActiveSkill_DoublesCostAboveRatingSix()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 6);
-
-        Assert.True(character.RaiseActiveSkill(0));
-
-        Assert.Equal("7", character.Skills.Single().BaseRating);
-        Assert.Equal("72", character.Karma); // 100 - (6+1)*2*2 = 100-28
-    }
-
-    [Fact]
-    public void RaiseActiveSkill_FailsWhenSkillIsGrouped()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 2, blnGrouped: true);
-
-        Assert.False(character.RaiseActiveSkill(0));
-        Assert.False(character.SetActiveSkillRating(0, 3));
-        Assert.Equal("2", character.Skills.Single().BaseRating);
-    }
-
-    [Fact]
-    public void RaiseSkillGroup_DeductsKarmaAndSyncsGroupedMemberSkills()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name><karma>100</karma>"
-            + "<skillgroups><skillgroup><name>Firearms</name><rating>2</rating></skillgroup></skillgroups>"
-            + "<skills><skill><name>Pistolen</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
-            + "<skillgroup>Firearms</skillgroup><grouped>True</grouped><rating>2</rating><knowledge>False</knowledge>"
-            + "<exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill></skills></character>");
-
-        Assert.True(character.RaiseSkillGroup("Firearms"));
-
-        Assert.Equal("3", character.SkillGroups.Single().Rating);
-        Assert.Equal("3", character.Skills.Single().BaseRating);
-        Assert.Equal("85", character.Karma); // 100 - (2+1)*KarmaImproveSkillGroup(5) = 100-15
-    }
-
-    [Fact]
-    public void AddActiveSkillSpecialization_CostsKarmaSpecializationInCareerMode()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
-
-        Assert.True(character.AddActiveSkillSpecialization(0, "Semi-Automatics"));
-
-        Assert.Equal("Semi-Automatics", character.Skills.Single().Specialization);
-        Assert.Equal("98", character.Karma); // 100 - KarmaSpecialization(2)
-    }
-
-    [Fact]
-    public void SetActiveSkillSpecialization_DoesNotChargeKarma()
-    {
-        CharacterDocument character = LoadCharacterWithSkill(intRating: 3);
-
-        Assert.True(character.SetActiveSkillSpecialization(0, "Semi-Automatics"));
-
-        Assert.Equal("Semi-Automatics", character.Skills.Single().Specialization);
-        Assert.Equal("100", character.Karma);
-    }
-
-    [Fact]
-    public void AddExoticSkill_CreatesNewSkillAtRatingZero()
-    {
-        CharacterDocument character = LoadXml("<character><name>Runner</name></character>");
-
-        character.AddExoticSkill("Exotic Ranged Weapon", "Bow", "Combat Active", "AGI");
-
-        CharacterSkillData skill = character.Skills.Single();
-        Assert.Equal("Exotic Ranged Weapon", skill.Name);
-        Assert.Equal("Bow", skill.Specialization);
-        Assert.True(skill.Exotic);
-        Assert.Equal("0", skill.BaseRating);
-    }
-
-    [Fact]
-    public void Gear_CalculatedCostAndAvailEvaluateRatingFormulasAndSumChildren()
-    {
-        CharacterDocument character = LoadFixture();
-
-        CharacterTreeItemData commlink = character.Gear.Single(g => g.Name == "Custom Commlink");
-        // cost "Rating*100" with Rating 3 -> 300, plus the child's cost 50 * qty 2 = 100 -> 400.
-        Assert.Equal(400, commlink.CalculatedCost);
-        // avail "6R" has no Rating reference, so it evaluates to 6 with the Restricted suffix kept.
-        Assert.Equal("6R", commlink.CalculatedAvail);
-
-        CharacterTreeItemData child = commlink.Children.Single();
-        Assert.Equal(100, child.CalculatedCost);
-        Assert.Equal("2", child.CalculatedAvail);
-    }
-
-    [Fact]
-    public void Condition_ComputesEssenceFromCyberwareAndBioware()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // ESS metatypemax 6, Wired Reflexes (Cyberware) ess 1.5 and Cerebral Booster (Bioware)
-        // ess 0.5: the higher cost (1.5) counts in full, the lower (0.5) at half -> 6 - 1.5 - 0.25.
-        Assert.Equal("4.25", character.Condition.Essence);
-    }
-
-    [Fact]
-    public void Condition_ComputesPhysicalAndStunTrackFromImprovements()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // BOD totalvalue 4 -> ceil(4/2) + 8 = 10, plus the fixture's +1 PhysicalCM improvement.
-        Assert.Equal(11, character.Condition.PhysicalCm.Value);
-        Assert.Contains("Wired Reflexes", character.Condition.PhysicalCm.Tooltip);
-        // WIL totalvalue 3 -> ceil(3/2) + 8 = 10, no StunCM improvements in the fixture.
-        Assert.Equal(10, character.Condition.StunCm.Value);
-    }
-
-    [Fact]
-    public void ArmorEncumbrance_PenalizesOverThreshold_FormFittingCountsHalf()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // Threshold = BOD(4) * 2 = 8. Total ballistic = 6 (Actioneer) + 3 (Form-Fitting 6/2) = 9,
-        // over threshold by 1 -> ceil(1/2) = 1 point of penalty.
-        Assert.Equal(-1, character.ArmorEncumbrance.BallisticPenalty.Value);
-        Assert.Contains("Actioneer", character.ArmorEncumbrance.BallisticPenalty.Tooltip);
-        // Total impact = 4 + 3 (Form-Fitting 6/2) = 7, at/under threshold -> no penalty.
-        Assert.Equal(0, character.ArmorEncumbrance.ImpactPenalty.Value);
-    }
-
-    [Fact]
-    public void ArmorRating_UsesHighestEquippedPiece()
-    {
-        CharacterDocument character = LoadFixture();
-
-        Assert.Equal(6, character.ArmorEncumbrance.BallisticRating.Value);
-        Assert.Equal(6, character.ArmorEncumbrance.ImpactRating.Value);
-        Assert.Contains("Actioneer Business Clothes: 6", character.ArmorEncumbrance.BallisticRating.Tooltip);
-        Assert.Contains("Form-Fitting Bodysuit: 6", character.ArmorEncumbrance.ImpactRating.Tooltip);
-    }
-
-    [Fact]
-    public void SpecialAttributeTests_SumTheirTwoAttributesPlusImprovements()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // WIL(3) + CHA(3) + Sixth Sense(+1) + Combat Sense(+2) - two different-sourced
-        // Improvements stacking on the same stat, which the tooltip must list separately.
-        Assert.Equal(9, character.Composure.Value);
-        Assert.Equal(7, character.JudgeIntentions.Value); // INT(4) + CHA(3)
-        Assert.Equal(7, character.LiftAndCarry.Value); // STR(3) + BOD(4)
-        Assert.Equal(8, character.Memory.Value); // LOG(5) + WIL(3)
-
-        Assert.Contains("Willenskraft: 3", character.Composure.Tooltip);
-        Assert.Contains("Sixth Sense: +1", character.Composure.Tooltip);
-        Assert.Contains("Combat Sense: +2", character.Composure.Tooltip);
-        Assert.Contains("Gesamt: 9", character.Composure.Tooltip);
-    }
-
-    [Fact]
-    public void Initiative_IsIntPlusRea_MinusFixturesWoundModifier()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // The fixture has 1 filled physical CM box -> -((1+2)/3) = -1 wound modifier.
-        Assert.Equal(8, character.Initiative.Base); // INT(4) + REA(4)
-        Assert.Equal(7, character.Initiative.Augmented);
-        Assert.Equal("8 (7)", character.Initiative.Display);
-    }
-
-    [Fact]
-    public void InitiativePasses_DefaultsToOne()
-    {
-        CharacterDocument character = LoadFixture();
-
-        Assert.Equal(1, character.InitiativePasses.Base);
-        Assert.Equal(1, character.InitiativePasses.Augmented);
-        Assert.Equal("1", character.InitiativePasses.Display);
-    }
-
-    [Fact]
-    public void Skill_DicePool_StacksRatingAndPoolAugmentationsFromDifferentSources()
-    {
-        CharacterDocument character = LoadFixture();
-        CharacterSkillData pistolen = character.Skills.Single(s => s.Name == "Pistolen");
-
-        // Base rating 4, Muscle Toner adds +1 to the rating itself (addtorating=True) -> "4 (5)".
-        Assert.Equal("4", pistolen.BaseRating);
-        Assert.Equal("4 (5)", pistolen.Rating);
-
-        // Pool = augmented rating(5) + Smartlink's +2 pool-only bonus + AGI(6) - fixture's -1
-        // wound modifier (1 filled physical CM box) = 12.
-        Assert.Equal("12", pistolen.TotalValue);
-        Assert.Contains("Muscle Toner: +1", pistolen.PoolTooltip);
-        Assert.Contains("Smartlink: +2", pistolen.PoolTooltip);
-    }
-
-    private static string SkillRatingImprovementXml(string strSkillName, string strValue) =>
-        "<improvement><improvementttype>Skill</improvementttype><improvementsource>Quality</improvementsource>"
-        + "<improvedname>" + strSkillName + "</improvedname><addtorating>True</addtorating>"
-        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
-
-    [Fact]
-    public void Skill_DicePool_EnforceMaximumSkillRatingModifierHouseRule_CapsAugmentedRatingAt1Point5x()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "3")
-            + "</attributes><skills><skill><name>Schleichen</name><attribute>AGI</attribute><rating>2</rating>"
-            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
-            + "<improvements>" + SkillRatingImprovementXml("Schleichen", "3") + "</improvements></character>");
-
-        // EnforceMaximumSkillRatingModifier defaults to True (it's SR4's core rule, not really a
-        // house rule) - disable it first to see the uncapped value: augmented 5 + AGI(3) = 8.
-        character.SetCharacterOptionsForTesting(new CharacterOptions { EnforceMaximumSkillRatingModifier = false });
-        CharacterSkillData uncapped = character.Skills.Single(s => s.Name == "Schleichen");
-        Assert.Equal("2 (5)", uncapped.Rating);
-        Assert.Equal("8", uncapped.TotalValue);
-
-        var objOptions = new CharacterOptions { EnforceMaximumSkillRatingModifier = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-
-        // floor(2 * 1.5) = 3 caps the augmented-rating contribution -> pool = 3 + AGI(3) = 6.
-        CharacterSkillData capped = character.Skills.Single(s => s.Name == "Schleichen");
-        Assert.Equal("6", capped.TotalValue);
-        Assert.Contains("Hausregel", capped.PoolTooltip);
-    }
-
-    private static string SkillPoolImprovementXml(string strSkillName, string strValue) =>
-        "<improvement><improvementttype>Skill</improvementttype><improvementsource>Quality</improvementsource>"
-        + "<improvedname>" + strSkillName + "</improvedname><addtorating>False</addtorating>"
-        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
-
-    [Fact]
-    public void Skill_DicePool_CapSkillRatingHouseRule_CapsPoolAgainstNaturalAttributePlusBaseRating()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("AGI", "2")
-            + "</attributes><skills><skill><name>Schleichen</name><attribute>AGI</attribute><rating>1</rating>"
-            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
-            + "<improvements>" + SkillPoolImprovementXml("Schleichen", "25") + "</improvements></character>");
-
-        // Uncapped: rating(1) + pool Improvement(+25) + AGI(2) = 28.
-        CharacterSkillData uncapped = character.Skills.Single(s => s.Name == "Schleichen");
-        Assert.Equal("28", uncapped.TotalValue);
-
-        var objOptions = new CharacterOptions { CapSkillRating = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-
-        // Natural AGI(2) + base Rating(1) = 3, doubled = 6; the house rule floors the cap at 20,
-        // so the pool is capped to 20 even though 6 < 28.
-        CharacterSkillData capped = character.Skills.Single(s => s.Name == "Schleichen");
-        Assert.Equal("20", capped.TotalValue);
-    }
-
-    [Fact]
-    public void Skill_DicePool_RatingZero_DefaultsOffLinkedAttributeMinusOneWhenAllowed()
-    {
-        // "Animal Handling" is <default>Yes</default> in skills.xml.
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("CHA", "4")
-            + "</attributes><skills><skill><name>Animal Handling</name><attribute>CHA</attribute><rating>0</rating>"
-            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills></character>");
-
-        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Animal Handling");
-        // CHA(4) - 1 = 3, no wound modifier in this synthetic character.
-        Assert.Equal("3", skill.TotalValue);
-        Assert.Contains("default", skill.PoolTooltip);
-    }
-
-    [Fact]
-    public void Skill_DicePool_RatingZero_StaysZeroWhenSkillDoesNotAllowDefaulting()
-    {
-        // "Arcana" is <default>No</default> in skills.xml.
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("LOG", "6")
-            + "</attributes><skills><skill><name>Arcana</name><attribute>LOG</attribute><rating>0</rating>"
-            + "<skillcategory>Magisch</skillcategory><knowledge>False</knowledge></skill></skills></character>");
-
-        CharacterSkillData skill = character.Skills.Single(s => s.Name == "Arcana");
-        Assert.Equal("0", skill.TotalValue);
-    }
-
-    [Fact]
-    public void Skill_DicePool_RatingZero_KnowledgeSkillsAlwaysDefault()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("INT", "5")
-            + "</attributes><skills><skill><name>Erfundenes Wissen</name><attribute>INT</attribute><rating>0</rating>"
-            + "<skillcategory>Interest</skillcategory><knowledge>True</knowledge></skill></skills></character>");
-
-        CharacterSkillData skill = character.KnowledgeSkills.Single(s => s.Name == "Erfundenes Wissen");
-        // INT(5) - 1 = 4, since Knowledge Skills can always default regardless of skills.xml.
-        Assert.Equal("4", skill.TotalValue);
-    }
-
-    [Fact]
-    public void Skill_DicePool_RatingZero_SkillDefaultingIncludesModifiersHouseRule_AddsRatingAndPoolBonuses()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("CHA", "4")
-            + "</attributes><skills><skill><name>Animal Handling</name><attribute>CHA</attribute><rating>0</rating>"
-            + "<skillcategory>Physisch</skillcategory><knowledge>False</knowledge></skill></skills>"
-            + "<improvements>" + SkillRatingImprovementXml("Animal Handling", "1")
-            + SkillPoolImprovementXml("Animal Handling", "2") + "</improvements></character>");
-
-        // Without the house rule, Rating/Pool Improvements are ignored while defaulting: CHA(4) - 1 = 3.
-        CharacterSkillData withoutModifiers = character.Skills.Single(s => s.Name == "Animal Handling");
-        Assert.Equal("3", withoutModifiers.TotalValue);
-
-        var objOptions = new CharacterOptions { SkillDefaultingIncludesModifiers = true };
-        character.SetCharacterOptionsForTesting(objOptions);
-
-        // With the house rule: CHA(4) - 1 + 1 (rating) + 2 (pool) = 6.
-        CharacterSkillData withModifiers = character.Skills.Single(s => s.Name == "Animal Handling");
-        Assert.Equal("6", withModifiers.TotalValue);
-    }
-
-    [Fact]
-    public void KnowledgeSkill_DicePool_ComputedTheSameWayAsActiveSkills()
-    {
-        CharacterDocument character = LoadFixture();
-        CharacterSkillData knowledgeSkill = character.KnowledgeSkills.Single(s => s.Name == "Straßenwissen");
-
-        // Straßenwissen: rating 3, attribute INT(4) -> pool 7, no Improvements targeting it,
-        // minus the fixture's -1 wound modifier (1 filled physical CM box) = 6.
-        Assert.Equal("3", knowledgeSkill.BaseRating);
-        Assert.Equal("3", knowledgeSkill.Rating);
-        Assert.Equal("6", knowledgeSkill.TotalValue);
-    }
-
-    [Fact]
-    public void AstralAndMatrixInitiative_ComputeFromIntuition()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // INT(4) * 2 = 8, minus the fixture's -1 wound modifier (1 filled physical CM box).
-        Assert.Equal(8, character.AstralInitiative.Base);
-        Assert.Equal(7, character.AstralInitiative.Augmented);
-
-        // Default non-Technomancer path: just INT(4), no MatrixInitiative Improvements.
-        Assert.Equal(4, character.MatrixInitiative.Base);
-        Assert.Equal(1, character.MatrixInitiativePasses.Base);
-    }
-
-    [Fact]
-    public void CareerKarmaAndNuyen_SumOnlyPositiveNonRefundEntries()
-    {
-        CharacterDocument character = LoadFixture();
-
-        // The fixture's one Karma entry is +5 (earned) -> CareerKarma 5.
-        Assert.Equal(5, character.CareerKarma);
-        // The fixture's one Nuyen entry is -500 (spent, not earned) -> CareerNuyen 0.
-        Assert.Equal(0, character.CareerNuyen);
-    }
-
-    private static string AttributeXml(string strCode, string strValue) =>
-        "<attribute><name>" + strCode + "</name><value>" + strValue + "</value><totalvalue>" + strValue
-        + "</totalvalue><metatypemin>1</metatypemin><metatypemax>6</metatypemax><metatypeaugmax>9</metatypeaugmax></attribute>";
-
-    [Fact]
-    public void MatrixInitiative_TechnomancerPath_UsesIntTimesTwoPlusOne()
-    {
-        var character = LoadXml("<character><name>Tech</name><metatype>Human</metatype>"
-            + "<technomancer>True</technomancer><attributes>" + AttributeXml("INT", "4") + "</attributes></character>");
-
-        Assert.Equal(9, character.MatrixInitiative.Base); // (4 * 2) + 1
-        Assert.Equal(3, character.MatrixInitiativePasses.Base);
-    }
-
-    [Fact]
-    public void MatrixInitiative_AiPath_UsesIntPlusResponse_OverridingEverythingElse()
-    {
-        // Also marked Technomancer to prove the A.I. branch takes priority (matches the legacy
-        // check order: A.I./technocritter/protosapient overrides the Technomancer path too).
-        var character = LoadXml("<character><name>Agent</name><metatype>A.I.</metatype>"
-            + "<technomancer>True</technomancer><response>4</response><attributes>"
-            + AttributeXml("INT", "3") + "</attributes></character>");
-
-        Assert.Equal(7, character.MatrixInitiative.Base); // INT(3) + Response(4)
-        Assert.Equal(3, character.MatrixInitiativePasses.Base);
-    }
-
-    [Fact]
-    public void MatrixInitiative_SpriteUsesSavedIniMetatypeMinimum()
-    {
-        CharacterDocument character = LoadXml("<character><metatype>Courier Sprite</metatype><attributes>"
-            + "<attribute><name>INI</name><totalvalue>1</totalvalue><metatypemin>12</metatypemin></attribute>"
-            + AttributeXml("INT", "7") + "</attributes><physicalcmfilled>3</physicalcmfilled></character>");
-
-        Assert.True(character.IsSprite);
-        Assert.Equal(12, character.MatrixInitiative.Base);
-        Assert.Equal(11, character.MatrixInitiative.Augmented);
-        Assert.Contains("Sprite-Metatype-Initiative: 12", character.MatrixInitiative.Tooltip);
-    }
-
-    [Fact]
-    public void MatrixInitiative_DefaultPath_AddsActiveEquippedCommlinkResponse()
-    {
-        var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
-            + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
-            + "<category>Commlink</category><equipped>True</equipped><active>True</active>"
-            + "<response>5</response></gear></gears></character>");
-
-        Assert.Equal(9, character.MatrixInitiative.Base); // INT(4) + Response(5)
-        Assert.Contains("Kommlink-Antwort: 5", character.MatrixInitiative.Tooltip);
-    }
-
-    [Fact]
-    public void MatrixInitiative_DefaultPath_IgnoresInactiveCommlink()
-    {
-        var character = LoadXml("<character><name>Runner</name><metatype>Human</metatype><attributes>"
-            + AttributeXml("INT", "4") + "</attributes><gears><gear><name>Fancy Commlink</name>"
-            + "<category>Commlink</category><equipped>True</equipped><active>False</active>"
-            + "<response>5</response></gear></gears></character>");
-
-        Assert.Equal(4, character.MatrixInitiative.Base); // Response not counted - commlink isn't active.
-    }
-
-    [Fact]
-    public void Movement_AppliesLandSwimAndFlyImprovements()
-    {
-        CharacterDocument character = LoadXml("<character><movement>10/25,Swim 4/8,Fly 20/40</movement><improvements>"
-            + ImprovementXml("MovementPercent", "10") + ImprovementXml("SwimPercent", "25")
-            + ImprovementXml("FlyPercent", "50") + "</improvements></character>");
-
-        Assert.Equal("11/27", character.WalkMovement);
-        Assert.Equal("5/10", character.SwimMovement);
-        Assert.Equal("30/60", character.FlyMovement);
-    }
-
-    [Fact]
-    public void Movement_FlySpeedCanUseAMultipleOfWalkMovement()
-    {
-        CharacterDocument character = LoadXml("<character><movement>8/20</movement><improvements>"
-            + ImprovementXml("FlySpeed", "-2") + "</improvements></character>");
-
-        Assert.Equal("16/40", character.FlyMovement);
-    }
-
-    [Fact]
-    public void Edge_SpendAndRegain_PersistAcrossSaveReload()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("EDG", "3") + "</attributes></character>");
-        Assert.Equal(3, character.Edge.Remaining);
-        Assert.True(character.SpendEdge());
-        Assert.Equal(2, character.Edge.Remaining);
-        Assert.True(character.RegainEdge());
-        Assert.Equal(3, character.Edge.Remaining);
-    }
-
-    [Fact]
-    public void WoundModifiers_ApplyBothConditionMonitorTracks()
-    {
-        CharacterDocument character = LoadXml("<character><physicalcmfilled>3</physicalcmfilled><stuncmfilled>4</stuncmfilled></character>");
-
-        Assert.Equal(-3, character.WoundModifiers);
-    }
-
-    [Fact]
-    public void ConditionDamage_AdjustmentClampsToMonitorAndPersists()
-    {
-        CharacterDocument character = LoadXml("<character><attributes>" + AttributeXml("BOD", "4")
-            + AttributeXml("WIL", "2") + "</attributes></character>");
-
-        Assert.True(character.AdjustPhysicalDamage(20));
-        Assert.Equal("10", character.Condition.PhysicalDamage);
-        Assert.False(character.AdjustPhysicalDamage(1));
-        Assert.True(character.AdjustPhysicalDamage(-2));
-        Assert.Equal("8", character.Condition.PhysicalDamage);
-        Assert.True(character.AdjustStunDamage(1));
-        Assert.Equal("1", character.Condition.StunDamage);
-
-        using var stream = new MemoryStream();
-        new CharacterFileService().Save(character, stream, "saved.chum");
-        stream.Position = 0;
-        CharacterDocument reloaded = new CharacterFileService().Load(stream, "saved.chum");
-        Assert.Equal("8", reloaded.Condition.PhysicalDamage);
-        Assert.Equal("1", reloaded.Condition.StunDamage);
-    }
+            + "<skillgroup>Firearms</skillgroup><grouped>False</grouped><rating>" + strPistolenRating
+            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill>"
+            + "<skill><name>Automatik</name><attribute>AGI</attribute><skillcategory>Combat Active</skillcategory>"
+            + "<skillgroup>Firearms</skillgroup><grouped>False</grouped><rating>" + strAutomatikRating
+            + "</rating><knowledge>False</knowledge><exotic>False</exotic><spec /><allowdelete>True</allowdelete></skill>"
+            + "</skills></character>");
 
     [Fact]
     public void CalendarWeeks_CanBeAddedEditedAndMoved()
@@ -1410,250 +206,39 @@ public class CharacterFileServiceTests
     }
 
     [Fact]
-    public void Lifestyles_CanBeAddedRemovedAndPersisted()
-    {
-        CharacterDocument character = LoadXml("<character />");
-        character.AddLifestyle("Low", "2000");
-        Assert.Single(character.Lifestyles);
-        Assert.Equal("Low", character.Lifestyles[0].Name);
-        Assert.True(character.RemoveLifestyle("Low"));
-        Assert.Empty(character.Lifestyles);
-    }
-
-    [Fact]
-    public void WeaponEquippedState_CanBeChanged()
-    {
-        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name><category>Pistols</category><equipped>True</equipped></weapon></weapons></character>");
-        Assert.True(character.SetWeaponEquipped("Ares Predator", "Pistols", false));
-        Assert.False(character.WeaponTrees.Single().Equipped);
-    }
-
-    [Fact]
-    public void VehicleDamage_CanBeAdjustedWithoutGoingBelowZero()
-    {
-        CharacterDocument character = LoadXml("<character><vehicles><vehicle><name>Americar</name><category>Cars</category><physicalcmfilled>1</physicalcmfilled></vehicle></vehicles></character>");
-        Assert.True(character.AdjustVehicleDamage("Americar", "Cars", 2));
-        Assert.Equal("3", character.Vehicles.Single().PhysicalCmFilled);
-        Assert.True(character.AdjustVehicleDamage("Americar", "Cars", -5));
-        Assert.Equal("0", character.Vehicles.Single().PhysicalCmFilled);
-    }
-
-    [Fact]
-    public void VehicleMods_CanBeAddedRemovedAndChargeBodyBasedCost()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods />"
-            + "</vehicle></vehicles></character>");
-
-        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R",
-            "Body * 200", "AR", "132"));
-        CharacterTreeItemData mod = Assert.Single(character.Vehicles.Single().Children);
-        Assert.Equal("Anti-Theft", mod.Name);
-        Assert.Equal("Standard", mod.Category);
-        Assert.Equal(4200d, double.Parse(character.Nuyen, System.Globalization.CultureInfo.InvariantCulture));
-        Assert.True(Guid.TryParse(mod.ItemGuid, out Guid modId));
-        Assert.True(character.RemoveVehicleMod(vehicleId, modId));
-        Assert.Empty(character.Vehicles.Single().Children);
-    }
-
-    [Fact]
-    public void VehicleSlots_ComputedFromBodyAndSummedAcrossInstalledMods()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>6</body><mods />"
-            + "</vehicle></vehicles></character>");
-
-        CharacterVehicleData vehicle = character.Vehicles.Single();
-        // Body(6) > 4, so TotalSlots = Body, not the 4-slot floor.
-        Assert.Equal(6, vehicle.TotalSlots);
-        Assert.Equal(0, vehicle.SlotsUsed);
-        Assert.Equal(6, vehicle.SlotsRemaining);
-
-        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "2", "6R", "Body * 200", "AR", "132"));
-        vehicle = character.Vehicles.Single();
-        Assert.Equal(2, vehicle.SlotsUsed);
-        Assert.Equal(4, vehicle.SlotsRemaining);
-    }
-
-    [Fact]
-    public void VehicleSlots_LowBodyVehicleFloorsAtFourSlots()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Dodge Scoot</name><category>Bikes</category><body>2</body><mods />"
-            + "</vehicle></vehicles></character>");
-
-        // Body(2) < 4, so TotalSlots floors at 4 (clsEquipment.cs's Vehicle.Slots).
-        Assert.Equal(4, character.Vehicles.Single().TotalSlots);
-    }
-
-    [Fact]
-    public void AddVehicleMod_RejectsAModThatWouldExceedRemainingSlots()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods />"
-            + "</vehicle></vehicles></character>");
-
-        // TotalSlots = 4 (Body floor). A mod needing 5 slots doesn't fit.
-        Assert.False(character.AddVehicleMod(vehicleId, "Oversized Mod", "Standard", "0", "5", "6R",
-            "Body * 200", "AR", "132"));
-        Assert.Empty(character.Vehicles.Single().Children);
-
-        // But one that exactly fits does, and a second one that would push past the limit is rejected.
-        Assert.True(character.AddVehicleMod(vehicleId, "Anti-Theft", "Standard", "0", "4", "6R",
-            "Body * 200", "AR", "132"));
-        Assert.False(character.AddVehicleMod(vehicleId, "Another Mod", "Standard", "0", "1", "6R",
-            "Body * 200", "AR", "132"));
-        Assert.Single(character.Vehicles.Single().Children);
-    }
-
-    [Fact]
-    public void VehicleMod_IncludedInVehicle_DoesNotCountTowardSlotsUsed()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><body>4</body><mods>"
-            + "<mod><guid>" + Guid.NewGuid() + "</guid><name>Standard Chassis</name><category>Standard</category>"
-            + "<slots>4</slots><rating>0</rating><included>True</included></mod>"
-            + "</mods></vehicle></vehicles></character>");
-
-        CharacterVehicleData vehicle = character.Vehicles.Single();
-        Assert.Equal(0, vehicle.SlotsUsed);
-        Assert.Equal(4, vehicle.SlotsRemaining);
-    }
-
-    [Fact]
-    public void VehicleGear_CanBeAddedAndRemovedWithoutEnteringCharacterGearTree()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><nuyen>5000</nuyen><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><gears />"
-            + "</vehicle></vehicles></character>");
-
-        Assert.True(character.AddVehicleGear(vehicleId, "Vehicle Toolkit", "Tools", "0", "2", "250", "4", "SR4", "320"));
-        CharacterTreeItemData gear = Assert.Single(character.Vehicles.Single().Children);
-        Assert.Equal("Vehicle Toolkit", gear.Name);
-        Assert.Equal("4500", character.Nuyen);
-        Assert.Empty(character.Gear);
-        Assert.True(Guid.TryParse(gear.ItemGuid, out Guid gearId));
-        Assert.True(character.RemoveVehicleGear(vehicleId, gearId));
-        Assert.Empty(character.Vehicles.Single().Children);
-    }
-
-    [Fact]
-    public void VehicleWeapons_CanBeAddedRemovedAndCharged()
-    {
-        Guid vehicleId = Guid.NewGuid();
-        CharacterDocument character = LoadXml("<character><nuyen>10000</nuyen><vehicles><vehicle>"
-            + "<guid>" + vehicleId + "</guid><name>Americar</name><category>Cars</category><weapons />"
-            + "</vehicle></vehicles></character>");
-
-        Assert.True(character.AddVehicleWeapon(vehicleId, "Ares Alpha", "Assault Rifles", "6P", "-1", "SA/BF/FA",
-            "1", "42(c)", "2500", "12F", "SR4", "312"));
-        CharacterTreeItemData weapon = Assert.Single(character.Vehicles.Single().Children);
-        Assert.Equal("Ares Alpha", weapon.Name);
-        Assert.Equal("7500", character.Nuyen);
-        Assert.True(Guid.TryParse(weapon.ItemGuid, out Guid weaponId));
-        Assert.True(character.RemoveVehicleWeapon(vehicleId, weaponId));
-        Assert.Empty(character.Vehicles.Single().Children);
-    }
-
-    [Fact]
-    public void VehicleLocations_CanBeAddedRemovedAndReloaded()
+    public void CalculatedSensor_FallsBackToTheSavedValueWithoutAQualifyingSensorArray()
     {
         Guid vehicleId = Guid.NewGuid();
         CharacterDocument character = LoadXml("<character><vehicles><vehicle><guid>" + vehicleId
-            + "</guid><name>Americar</name><category>Cars</category></vehicle></vehicles></character>");
+            + "</guid><name>Americar</name><category>Cars</category><body>6</body><sensor>2</sensor><mods />"
+            + "</vehicle></vehicles></character>");
 
-        Assert.True(character.AddVehicleLocation(vehicleId, "Kofferraum"));
-        Assert.Contains("Kofferraum", character.Vehicles.Single().Locations);
-        Assert.False(character.AddVehicleLocation(vehicleId, "Kofferraum"));
-        Assert.True(character.RemoveVehicleLocation(vehicleId, "Kofferraum"));
-        Assert.Empty(character.Vehicles.Single().Locations);
+        Assert.Equal(2, character.Vehicles.Single().CalculatedSensor);
     }
 
     [Fact]
-    public void ArmorSets_CanBeCreatedAssignedAndDissolved()
+    public void IsBookEnabled_TrueForEnabledBook_FalseForDisabledBook_TrueForBlank()
     {
-        CharacterDocument character = LoadXml("<character><armors><armor><name>Armor Jacket</name><category>Armor</category><b>8</b><i>6</i></armor></armors></character>");
+        var character = LoadXml("<character><nuyen>1000</nuyen></character>");
+        var objOptions = new CharacterOptions();
+        objOptions.Books.Clear();
+        objOptions.Books.Add("SR4");
+        character.SetCharacterOptionsForTesting(objOptions);
 
-        Assert.True(character.AddArmorSet("Einsatzanzug"));
-        Assert.Contains("Einsatzanzug", character.ArmorSets);
-        Assert.True(character.SetArmorSet("Armor Jacket", "Armor", "Einsatzanzug"));
-        CharacterTreeItemData set = Assert.Single(character.Armor);
-        Assert.Equal("Einsatzanzug", set.Name);
-        Assert.Equal("Armor set", set.Category);
-        Assert.Single(set.Children);
-
-        Assert.True(character.RemoveArmorSet("Einsatzanzug"));
-        CharacterTreeItemData armor = Assert.Single(character.Armor);
-        Assert.Equal("Armor Jacket", armor.Name);
-        Assert.Empty(character.ArmorSets);
+        Assert.True(character.IsBookEnabled("SR4"));
+        Assert.False(character.IsBookEnabled("Arsenal"));
+        Assert.True(character.IsBookEnabled(""));
     }
 
     [Fact]
-    public void WeaponLocations_CanBeCreatedAssignedAndDissolved()
+    public void ConfirmDeleteEnabled_UsesCharacterSettingsProfile()
     {
-        CharacterDocument character = LoadXml("<character><weapons><weapon><name>Ares Predator</name><category>Pistols</category></weapon></weapons></character>");
-        Assert.True(character.AddWeaponLocation("Concealed"));
-        Assert.True(character.SetWeaponLocation("Ares Predator", "Pistols", "Concealed"));
-        CharacterTreeItemData location = Assert.Single(character.WeaponTrees);
-        Assert.Equal("Concealed", location.Name);
-        Assert.Equal("Weapon location", location.Category);
-        Assert.Single(location.Children);
-        Assert.True(character.RemoveWeaponLocation("Concealed"));
-        Assert.Equal("Ares Predator", Assert.Single(character.WeaponTrees).Name);
+        CharacterDocument character = LoadXml("<character />");
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmDelete = false });
+        Assert.False(character.ConfirmDeleteEnabled);
+
+        character.SetCharacterOptionsForTesting(new CharacterOptions { ConfirmDelete = true });
+        Assert.True(character.ConfirmDeleteEnabled);
     }
 
-    private static string ImprovementXml(string strType, string strValue) =>
-        "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
-        + "<val>" + strValue + "</val><enabled>True</enabled></improvement>";
-
-    private static string ImprovementAugXml(string strType, string strAug) =>
-        "<improvement><improvementttype>" + strType + "</improvementttype><improvementsource>Quality</improvementsource>"
-        + "<aug>" + strAug + "</aug><enabled>True</enabled></improvement>";
-
-    [Fact]
-    public void AdeptPowerPoints_PureAdept_UsesFullMagAttribute()
-    {
-        var character = LoadXml("<character><adept>True</adept><magician>False</magician><attributes>"
-            + AttributeXml("MAG", "4") + "</attributes><powers>"
-            + "<power><name>Astral Perception</name><rating>1</rating><pointsperlevel>1</pointsperlevel></power>"
-            + "<power><name>Killing Hands</name><rating>1</rating><pointsperlevel>0.5</pointsperlevel></power>"
-            + "</powers></character>");
-
-        CharacterDerivedValueData points = character.AdeptPowerPoints;
-        // 4 MAG - (1 + 0.5) used = 2.5 remaining, truncated to 2.
-        Assert.Equal(2, points.Value);
-        Assert.Contains("Verbraucht: 1,5", points.Tooltip);
-    }
-
-    [Fact]
-    public void AdeptPowerPoints_MysticAdept_UsesAdeptMagSplitNotFullMag()
-    {
-        var character = LoadXml("<character><adept>True</adept><magician>True</magician>"
-            + "<magsplitadept>3</magsplitadept><magsplitmagician>3</magsplitmagician><attributes>"
-            + AttributeXml("MAG", "6") + "</attributes><powers>"
-            + "<power><name>Astral Perception</name><rating>1</rating><pointsperlevel>1</pointsperlevel></power>"
-            + "</powers></character>");
-
-        CharacterDerivedValueData points = character.AdeptPowerPoints;
-        // Only the 3-point Adept split applies, not the full MAG of 6.
-        Assert.Equal(2, points.Value);
-    }
-
-    [Fact]
-    public void AdeptPowerPoints_AddsAdeptPowerPointsImprovementBonus()
-    {
-        var character = LoadXml("<character><adept>True</adept><magician>False</magician><attributes>"
-            + AttributeXml("MAG", "2") + "</attributes><powers></powers><improvements>"
-            + ImprovementAugXml("AdeptPowerPoints", "2") + "</improvements></character>");
-
-        CharacterDerivedValueData points = character.AdeptPowerPoints;
-        Assert.Equal(4, points.Value);
-        Assert.Contains("Verfügbar: 4", points.Tooltip);
-    }
 }

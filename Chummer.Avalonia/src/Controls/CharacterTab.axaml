@@ -3,55 +3,56 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:sections="clr-namespace:Chummer.NewUI.Controls.CharacterSections"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chummer.NewUI.Controls.CharacterTab">
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,4,270">
 
                 <TabControl Grid.Column="0">
-                    <TabItem Header="Allgemein">
+                    <TabItem Header="{loc:Loc Tab_Common}">
                         <sections:GeneralSectionTab Name="GeneralTab" />
                     </TabItem>
-                    <TabItem Header="Fertigkeiten">
+                    <TabItem Header="{loc:Loc Tab_Skills}">
                         <sections:SkillsSectionTab Name="SkillsTab" />
                     </TabItem>
-                    <TabItem Header="Kampfkünste">
+                    <TabItem Header="{loc:Loc Tab_MartialArts}">
                         <sections:MartialArtsSectionTab Name="MartialArtsTab" />
                     </TabItem>
                     <!-- Adeptenkräfte: conditional tab - Adept characters only -->
-                    <TabItem x:Name="AdeptPowersTabItem" Header="Adeptenkräfte">
+                    <TabItem x:Name="AdeptPowersTabItem" Header="{loc:Loc Tab_Adept}">
                         <sections:AdeptPowersSectionTab Name="AdeptPowersTab" />
                     </TabItem>
                     <!-- Sprüche und Geister: conditional tab - Magician/Adept characters -->
-                    <TabItem x:Name="SpellsTabItem" Header="Sprüche und Geister">
+                    <TabItem x:Name="SpellsTabItem" Header="{loc:Loc Tab_Magician}">
                         <sections:SpellsSectionTab Name="SpellsTab" />
                     </TabItem>
                     <!-- Initiation: conditional tab - Awakened characters only -->
-                    <TabItem x:Name="InitiationTabItem" Header="Initiation">
+                    <TabItem x:Name="InitiationTabItem" Header="{loc:Loc Tab_Initiation}">
                         <sections:InitiationSectionTab Name="InitiationTab" />
                     </TabItem>
-                    <TabItem Header="Cyberware und Bioware">
+                    <TabItem Header="{loc:Loc Tab_Cyberware}">
                         <sections:CyberwareSectionTab Name="CyberwareTab" />
                     </TabItem>
-                    <TabItem Header="Straßenausrüstung">
+                    <TabItem Header="{loc:Loc Tab_StreeGear}">
                         <sections:GearSectionTab Name="GearTab" />
                     </TabItem>
-                    <TabItem Header="Fahrzeuge und Drohnen">
+                    <TabItem Header="{loc:Loc Tab_Vehicles}">
                         <sections:VehiclesSectionTab Name="VehiclesTab" />
                     </TabItem>
-                    <TabItem Header="Charakter-Information">
+                    <TabItem Header="{loc:Loc Tab_CharacterInfo}">
                         <sections:CharacterInfoSectionTab Name="CharacterInfoTab" />
                     </TabItem>
-                    <TabItem Header="Karma und Nuyen">
+                    <TabItem Header="{loc:Loc Tab_Karma}">
                         <sections:KarmaNuyenSectionTab Name="KarmaNuyenTab" />
                     </TabItem>
-                    <TabItem Header="Kalender">
+                    <TabItem Header="{loc:Loc Tab_Calendar}">
                         <sections:CalendarTab x:Name="CalendarTab" />
                     </TabItem>
-                    <TabItem Header="Notizen">
+                    <TabItem Header="{loc:Loc Title_Notes}">
                         <sections:NotesTab x:Name="NotesTab" />
                     </TabItem>
-                    <TabItem Header="Verbessern">
+                    <TabItem Header="{loc:Loc UI_Improve}">
                         <sections:ImprovementsTab x:Name="ImprovementsTab" />
                     </TabItem>
                 </TabControl>

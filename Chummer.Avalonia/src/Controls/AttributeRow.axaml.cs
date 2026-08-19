@@ -42,6 +42,10 @@ public partial class AttributeRow : UserControl
 
     public event EventHandler? RaiseClicked;
 
+    /// <summary>Only meaningful when ShowRemove is true (currently just EDG) - ported from
+    /// frmCareer.cs's cmdBurnEdge_Click.</summary>
+    public event EventHandler? RemoveClicked;
+
     public AttributeRow()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
@@ -116,5 +120,10 @@ public partial class AttributeRow : UserControl
     private void OnRaiseButtonClick(object? sender, RoutedEventArgs e)
     {
         RaiseClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnRemoveButtonClick(object? sender, RoutedEventArgs e)
+    {
+        RemoveClicked?.Invoke(this, EventArgs.Empty);
     }
 }

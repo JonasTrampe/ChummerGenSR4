@@ -1,19 +1,20 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.CalendarTab"
              x:DataType="vm:CalendarSectionViewModel">
     <DockPanel Margin="4">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-            <Button Content="Woche hinzufügen" Click="OnAddWeekClick" />
-            <Button Content="Woche bearbeiten" Click="OnEditWeekClick" />
-            <Button Content="Startdatum ändern" HorizontalAlignment="Right" Click="OnChangeStartClick" />
+            <Button Content="{loc:Loc UI_AddWeek}" Click="OnAddWeekClick" />
+            <Button Content="{loc:Loc Button_EditWeek}" Click="OnEditWeekClick" />
+            <Button Content="{loc:Loc Button_ChangeStartWeek}" HorizontalAlignment="Right" Click="OnChangeStartClick" />
         </StackPanel>
         <Grid ColumnDefinitions="120,*" Margin="0,0,0,4">
-            <TextBlock Grid.Column="0" Classes="gridHeader" Text="Datum" />
-            <TextBlock Grid.Column="1" Classes="gridHeader" Text="Notizen" />
+            <TextBlock Grid.Column="0" Classes="gridHeader" Text="{loc:Loc String_Date}" />
+            <TextBlock Grid.Column="1" Classes="gridHeader" Text="{loc:Loc Tab_Notes}" />
         </Grid>
-        <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek}">
+        <ListBox ItemsSource="{Binding Weeks}" SelectedItem="{Binding SelectedWeek, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:CalendarWeekRowViewModel">
                 <Grid ColumnDefinitions="120,*">

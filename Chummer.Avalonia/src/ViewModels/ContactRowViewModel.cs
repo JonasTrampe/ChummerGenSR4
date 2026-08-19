@@ -1,8 +1,11 @@
+using System;
+using System.IO;
 using Chummer.Core;
 
 namespace Chummer.NewUI.ViewModels;
 
-/// <summary>One editable row of the Allgemein tab's Connections/Feinde lists.</summary>
+/// <summary>One editable row of the Allgemein tab's Connections/Feinde lists (also reused for the
+/// Straßenausrüstung tab's Haustiere und Begleiter list - Pets are just Contact entries).</summary>
 public sealed class ContactRowViewModel : ViewModelBase
 {
     private readonly CharacterDocument _character;
@@ -24,6 +27,7 @@ public sealed class ContactRowViewModel : ViewModelBase
         MatrixResources = contact.MatrixResources;
         GroupRating = contact.GroupRating;
         FileName = contact.FileName;
+        LinkedMetatype = PeekLinkedMetatype(contact.FileName, contact.RelativeFileName);
     }
 
     public string GroupName { get; private set; }
@@ -34,6 +38,40 @@ public sealed class ContactRowViewModel : ViewModelBase
     public string FileName { get; }
     public bool HasLinkedCharacter => !string.IsNullOrWhiteSpace(FileName);
 
+    /// <summary>"&lt;Metatype&gt; (&lt;Metavariant&gt;)" peeked from the linked companion .chum
+    /// file (matches PetControl.cs's lblMetatype, which opens the file just to read this) - empty
+    /// if unlinked, the file can't be found, or it fails to load.</summary>
+    public string LinkedMetatype { get; }
+
+    private static string PeekLinkedMetatype(string strFileName, string strRelativeFileName)
+    {
+        if (string.IsNullOrWhiteSpace(strFileName))
+            return string.Empty;
+
+        string strPath = File.Exists(strFileName) ? strFileName
+            : !string.IsNullOrWhiteSpace(strRelativeFileName)
+                && File.Exists(Path.Combine(AppContext.BaseDirectory, strRelativeFileName))
+                ? Path.Combine(AppContext.BaseDirectory, strRelativeFileName)
+                : string.Empty;
+        if (strPath.Length == 0)
+            return string.Empty;
+
+        try
+        {
+            using var stream = File.OpenRead(strPath);
+            CharacterDocument linked = new CharacterFileService().Load(stream, strPath);
+            return string.IsNullOrWhiteSpace(linked.Metavariant)
+                ? linked.Metatype
+                : linked.Metatype + " (" + linked.Metavariant + ")";
+        }
+        catch
+        {
+            // Matches PetControl.cs's guarded file-exists checks - a missing/corrupt/incompatible
+            // linked file should never take the whole tab down, just show nothing.
+            return string.Empty;
+        }
+    }
+
     private int _intGroupRating;
     /// <summary>Sum of the four Group modifiers - adds to Connection+Loyalty in the Karma/BP
     /// cost formula.</summary>
@@ -43,17 +81,20 @@ public sealed class ContactRowViewModel : ViewModelBase
         private set => SetField(ref _intGroupRating, value);
     }
 
-    public void UpdateGroup(string strGroupName, int intMembership, int intAreaOfInfluence,
+    public bool UpdateGroup(string strGroupName, int intMembership, int intAreaOfInfluence,
         int intMagicalResources, int intMatrixResources)
     {
+        if (!_character.UpdateContactGroup(ContactId, strGroupName, intMembership, intAreaOfInfluence,
+            intMagicalResources, intMatrixResources))
+            return false;
+
         GroupName = strGroupName;
         Membership = intMembership;
         AreaOfInfluence = intAreaOfInfluence;
         MagicalResources = intMagicalResources;
         MatrixResources = intMatrixResources;
         GroupRating = intMembership + intAreaOfInfluence + intMagicalResources + intMatrixResources;
-        _character.UpdateContactGroup(ContactId, strGroupName, intMembership, intAreaOfInfluence,
-            intMagicalResources, intMatrixResources);
+        return true;
     }
 
     public int ContactId { get; }
@@ -65,9 +106,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _strName;
         set
         {
+            string strPrevious = _strName;
             if (!SetField(ref _strName, value))
                 return;
-            _character.UpdateContact(ContactId, value, Connection.ToString(), Loyalty.ToString());
+            if (!_character.UpdateContact(ContactId, value, Connection.ToString(), Loyalty.ToString()))
+                SetField(ref _strName, strPrevious);
         }
     }
 
@@ -77,9 +120,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _intConnection;
         set
         {
+            int intPrevious = _intConnection;
             if (!SetField(ref _intConnection, value))
                 return;
-            _character.UpdateContact(ContactId, Name, value.ToString(), Loyalty.ToString());
+            if (!_character.UpdateContact(ContactId, Name, value.ToString(), Loyalty.ToString()))
+                SetField(ref _intConnection, intPrevious);
         }
     }
 
@@ -89,9 +134,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _intLoyalty;
         set
         {
+            int intPrevious = _intLoyalty;
             if (!SetField(ref _intLoyalty, value))
                 return;
-            _character.UpdateContact(ContactId, Name, Connection.ToString(), value.ToString());
+            if (!_character.UpdateContact(ContactId, Name, Connection.ToString(), value.ToString()))
+                SetField(ref _intLoyalty, intPrevious);
         }
     }
 
@@ -116,9 +163,11 @@ public sealed class ContactRowViewModel : ViewModelBase
         get => _blnFree;
         set
         {
+            bool blnPrevious = _blnFree;
             if (!SetField(ref _blnFree, value))
                 return;
-            _character.SetContactFree(ContactId, value);
+            if (!_character.SetContactFree(ContactId, value))
+                SetField(ref _blnFree, blnPrevious);
         }
     }
 }

@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
@@ -8,17 +9,22 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Verbesserung hinzufügen" />
-                    <Button Content="Verbesserung bearbeiten" />
+                    <Button Content="{loc:Loc Button_AddImproevment}" Click="OnAddImprovementClick"
+                            ToolTip.Tip="{loc:Loc UI_ManualImprovementScopeTooltip}" />
+                    <Button Content="{loc:Loc Button_EditImprovement}" IsEnabled="False"
+                            ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="Löschen" />
-                    <Button Content="Gruppe hinzufügen" />
+                    <Button Content="{loc:Loc String_Delete}" Click="OnDeleteImprovementClick"
+                            IsEnabled="{Binding SelectedImprovement.IsCustom}"
+                            ToolTip.Tip="{loc:Loc UI_OnlyManualImprovementsDeletableTooltip}" />
+                    <Button Content="{loc:Loc Button_AddGroup}" IsEnabled="False"
+                            ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
                 </StackPanel>
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement}">
+            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:ImprovementRowViewModel">
                         <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
@@ -32,7 +38,7 @@
                 <controls:InfoRow Label="Ziel:" Value="{Binding SelectedImprovement.Target}" />
                 <controls:InfoRow Label="Wert:" Value="{Binding SelectedImprovement.Value}" />
                 <controls:InfoRow Label="Quelle:" Value="{Binding SelectedImprovement.Source}" />
-                <CheckBox Content="aktiv" IsChecked="{Binding SelectedImprovement.IsEnabled}" IsEnabled="False" />
+                <CheckBox Content="{loc:Loc Checkbox_Active}" IsChecked="{Binding SelectedImprovement.IsEnabled}" IsEnabled="False" />
             </StackPanel>
         </controls:TreeDetailPane.DetailContent>
     </controls:TreeDetailPane>

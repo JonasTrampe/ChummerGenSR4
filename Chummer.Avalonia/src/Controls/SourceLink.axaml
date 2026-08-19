@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Chummer.NewUI.Controls.SourceLink"
+             x:Name="root">
+    <!-- "Quelle: XX 123" - a Button styled as plain text, clickable to open the sourcebook PDF at
+         that page (PdfLinkService.OpenPdf) once the user has configured a PDF reader and at least
+         one sourcebook path in Optionen. Falls back to a plain TextBlock (not a disabled-looking
+         Button) when nothing's configured yet, so a fresh install doesn't look broken. -->
+    <StackPanel DataContext="{Binding ElementName=root}" Orientation="Horizontal">
+        <Button Click="OnClick" IsVisible="{Binding CanOpen}"
+                Padding="0" MinWidth="0" MinHeight="0"
+                Background="Transparent" BorderThickness="0"
+                Foreground="#1E5FA8" Cursor="Hand">
+            <TextBlock Text="{Binding SourcePage}" TextDecorations="Underline" />
+        </Button>
+        <TextBlock Text="{Binding SourcePage}" IsVisible="{Binding !CanOpen}" />
+    </StackPanel>
+</UserControl>

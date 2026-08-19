@@ -1,17 +1,21 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
+             xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              x:Class="Chummer.NewUI.Controls.GroupRow"
              x:Name="root">
-	<!-- One Fertigkeitsgruppen row: Name | Rating/spinner | [+]. -->
-	<Grid ColumnDefinitions="118,66,26" DataContext="{Binding ElementName=root}" MinHeight="22">
+	<!-- One Fertigkeitsgruppen row: Name | Rating/spinner | [broken?] | [+]. -->
+	<Grid ColumnDefinitions="98,66,20,26" DataContext="{Binding ElementName=root}" MinHeight="22">
 		<TextBlock Grid.Column="0" Classes="rowLabel" Text="{Binding GroupName}" />
 		<TextBlock Grid.Column="1" Classes="rowLabel" HorizontalAlignment="Right" Text="{Binding Rating}"
                    IsVisible="{Binding !IsCreateMode}" />
 		<controls:IntegerSpinner Grid.Column="1" Width="60" HorizontalAlignment="Right"
                                   IsVisible="{Binding IsCreateMode}" Minimum="0" Maximum="4"
                                   Value="{Binding RatingValue, Mode=TwoWay}" />
-		<Button Grid.Column="2" Classes="iconButton" IsVisible="{Binding !IsCreateMode}"
+		<CheckBox Grid.Column="2" IsVisible="{Binding CanToggleBroken}"
+                  IsChecked="{Binding IsBroken, Mode=TwoWay}"
+                  ToolTip.Tip="{loc:Loc Tip_BreakSkillGroup}" />
+		<Button Grid.Column="3" Classes="iconButton" IsVisible="{Binding !IsCreateMode}"
                 Click="OnRaiseButtonClick">
 			<Image Source="avares://Chummer.Avalonia/assets/icons/add.png" Width="16" Height="16" />
 		</Button>

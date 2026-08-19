@@ -26,15 +26,24 @@ public sealed class MartialArtsListItemViewModel
     /// <summary>The saved Martial Art/Maneuver name to pass to RemoveMartialArt(Maneuver) -
     /// empty for headers and advantages.</summary>
     public string Name { get; }
+    public int ItemId { get; }
+    public string Notes { get; }
+
+    /// <summary>"&lt;book&gt; &lt;page&gt;" - only set (non-empty) for MartialArt rows.</summary>
+    public string SourcePage { get; }
 
     public MartialArtsListItemViewModel(string strText, bool blnIsHeader = false, bool blnIsIndented = false,
-        MartialArtsItemKind eKind = MartialArtsItemKind.Header, string strName = "")
+        MartialArtsItemKind eKind = MartialArtsItemKind.Header, string strName = "", string strSourcePage = "",
+        int intItemId = -1, string strNotes = "")
     {
         Text = strText;
         IsHeader = blnIsHeader;
         IndentLeft = blnIsIndented ? 16 : 0;
         Kind = eKind;
         Name = strName;
+        SourcePage = strSourcePage;
+        ItemId = intItemId;
+        Notes = strNotes;
     }
 }
 
@@ -56,7 +65,8 @@ public sealed class MartialArtsSectionViewModel : ViewModelBase
         foreach (CharacterMartialArtData martialArt in character.MartialArts)
         {
             Items.Add(new MartialArtsListItemViewModel(martialArt.Name + " (" + martialArt.Rating + ")",
-                eKind: MartialArtsItemKind.MartialArt, strName: martialArt.Name));
+                eKind: MartialArtsItemKind.MartialArt, strName: martialArt.Name,
+                strSourcePage: martialArt.SourcePage, intItemId: martialArt.MartialArtId, strNotes: martialArt.Notes));
             foreach (string strAdvantage in martialArt.Advantages)
                 Items.Add(new MartialArtsListItemViewModel(strAdvantage, blnIsIndented: true,
                     eKind: MartialArtsItemKind.Advantage));
@@ -65,7 +75,8 @@ public sealed class MartialArtsSectionViewModel : ViewModelBase
         Items.Add(new MartialArtsListItemViewModel("Ausgewählte Manöver", blnIsHeader: true));
         foreach (CharacterMartialArtManeuverData maneuver in character.MartialArtManeuvers)
             Items.Add(new MartialArtsListItemViewModel(maneuver.Name,
-                eKind: MartialArtsItemKind.Maneuver, strName: maneuver.Name));
+                eKind: MartialArtsItemKind.Maneuver, strName: maneuver.Name, intItemId: maneuver.ManeuverId,
+                strNotes: maneuver.Notes));
 
         SelectedItem = null;
     }

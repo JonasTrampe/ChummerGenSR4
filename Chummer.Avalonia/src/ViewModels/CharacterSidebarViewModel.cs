@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Chummer.NewUI.ViewModels;
 
+// Split out into their own files: CreationBudgetCategoryViewModel.cs, CommlinkItemViewModel.cs,
+// ConditionMonitorBoxViewModel.cs.
 public sealed class CharacterSidebarViewModel : ViewModelBase
 {
     private CharacterDocument? _objCharacter;
@@ -64,6 +66,32 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
 
     private bool _blnIsCreateMode;
     public bool IsCreateMode { get => _blnIsCreateMode; set => SetField(ref _blnIsCreateMode, value); }
+
+    private string _strCreationBudgetPoolName = string.Empty;
+    public string CreationBudgetPoolName { get => _strCreationBudgetPoolName; set => SetField(ref _strCreationBudgetPoolName, value); }
+
+    private string _strCreationBudgetStarting = "0";
+    public string CreationBudgetStarting { get => _strCreationBudgetStarting; set => SetField(ref _strCreationBudgetStarting, value); }
+
+    private string _strCreationBudgetSpent = "0";
+    public string CreationBudgetSpent { get => _strCreationBudgetSpent; set => SetField(ref _strCreationBudgetSpent, value); }
+
+    private string _strCreationBudgetRemaining = "0";
+    public string CreationBudgetRemaining { get => _strCreationBudgetRemaining; set => SetField(ref _strCreationBudgetRemaining, value); }
+
+    private bool _blnCreationBudgetOverdrawn;
+    public bool CreationBudgetOverdrawn
+    {
+        get => _blnCreationBudgetOverdrawn;
+        set
+        {
+            if (SetField(ref _blnCreationBudgetOverdrawn, value))
+                OnPropertyChanged(nameof(CreationBudgetRemainingBrush));
+        }
+    }
+    public string CreationBudgetRemainingBrush => CreationBudgetOverdrawn ? "#B00020" : "Black";
+
+    public ObservableCollection<CreationBudgetCategoryViewModel> CreationBudgetCategories { get; } = new();
 
     public ObservableCollection<CommlinkItemViewModel> Commlinks { get; } = new();
 
@@ -126,9 +154,18 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         Edge = character.Edge.Remaining + " von " + character.Edge.Maximum + " verbleibend";
         ReloadCommlinks(character);
         IsCreateMode = !character.Created;
+        ReloadCreationBudget(character);
     }
 
+    public CharacterDocument? Character => _objCharacter;
+
     public void FinalizeCreation() { if (_objCharacter?.FinalizeCreation() == true) LoadCharacter(_objCharacter); }
+
+    public void FinalizeCreation(int intLifestyleNuyenDiceResult)
+    {
+        if (_objCharacter?.FinalizeCreationWithLifestyleNuyenRoll(intLifestyleNuyenDiceResult) == true)
+            LoadCharacter(_objCharacter);
+    }
 
     public void SpendEdge() { if (_objCharacter?.SpendEdge() == true) LoadCharacter(_objCharacter); }
     public void RegainEdge() { if (_objCharacter?.RegainEdge() == true) LoadCharacter(_objCharacter); }
@@ -154,6 +191,31 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         _blnUpdatingCommlinks = false;
     }
 
+    private void ReloadCreationBudget(CharacterDocument character)
+    {
+        CreationBudgetCategories.Clear();
+        if (character.Created)
+        {
+            CreationBudgetPoolName = string.Empty;
+            CreationBudgetStarting = "0";
+            CreationBudgetSpent = "0";
+            CreationBudgetRemaining = "0";
+            CreationBudgetOverdrawn = false;
+            return;
+        }
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+        CreationBudgetPoolName = string.Equals(budget.BuildMethod, "BP", StringComparison.OrdinalIgnoreCase)
+            ? App.LanguageCatalog.GetString("String_BP")
+            : App.LanguageCatalog.GetString("String_Karma");
+        CreationBudgetStarting = budget.Starting.ToString();
+        CreationBudgetSpent = budget.Spent.ToString();
+        CreationBudgetRemaining = budget.Remaining.ToString();
+        CreationBudgetOverdrawn = budget.Remaining < 0;
+        foreach (CharacterCreationBudgetCategoryData category in budget.Categories)
+            CreationBudgetCategories.Add(new CreationBudgetCategoryViewModel(category));
+    }
+
     private static void ReloadConditionMonitor(ObservableCollection<ConditionMonitorBoxViewModel> boxes,
         int intMaximum, string strDamage)
     {
@@ -174,36 +236,4 @@ public sealed class CharacterSidebarViewModel : ViewModelBase
         target.Value = data.Display;
         target.Tooltip = data.Tooltip;
     }
-}
-
-public sealed class CommlinkItemViewModel
-{
-    internal CommlinkItemViewModel(CharacterCommlinkData objData)
-    {
-        Guid = objData.Guid;
-        Name = objData.Name;
-        Response = objData.Response;
-        Equipped = objData.Equipped;
-        Active = objData.Active;
-    }
-
-    public string Guid { get; }
-    public string Name { get; }
-    public int Response { get; }
-    public bool Equipped { get; }
-    public bool Active { get; }
-    public string DisplayName => Equipped ? Name + " (R " + Response + ")" : Name + " (nicht ausgerüstet)";
-}
-
-public sealed class ConditionMonitorBoxViewModel
-{
-    internal ConditionMonitorBoxViewModel(bool blnFilled, int intPosition)
-    {
-        IsFilled = blnFilled;
-        Tooltip = "Kästchen " + intPosition + (blnFilled ? " (Schaden)" : " (frei)");
-    }
-
-    public bool IsFilled { get; }
-    public string Tooltip { get; }
-    public string Background => IsFilled ? "#B64C4C" : "White";
 }

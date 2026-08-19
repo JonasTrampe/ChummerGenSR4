@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Chummer.Core;
 using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Dialogs;
@@ -13,11 +14,13 @@ public partial class GearDialog : Window
     /// fresh dialog instead of treating this as the final pick.</summary>
     public bool ContinueAdding { get; private set; }
 
-    public GearDialog()
+    public GearDialog() : this(null) { }
+
+    public GearDialog(CharacterDocument? character)
     {
         DataContext = ViewModel;
         InitializeComponent();
-        ViewModel.LoadOptions();
+        ViewModel.LoadOptions(character);
     }
 
     private void OnOk(object? sender, RoutedEventArgs e)
