@@ -313,7 +313,12 @@ namespace Chummer.Core
             string strItemTag = blnBioware ? "bioware" : "cyberware";
             XmlNode? objXmlWare = objWareDoc.SelectSingleNode(
                 $"/chummer/{strItemTag}s/{strItemTag}[name = '{strName.Trim()}']");
-            if (objXmlWare == null)
+            // Ported from a normal picker's own filtering (e.g. CyberwareDialogViewModel): a Suite
+            // or PACKS kit is just a pre-selected shortcut for items a normal picker would offer,
+            // so it should skip anything from a sourcebook the character has disabled too - legacy
+            // never did this (frmSelectCyberwareSuite.cs has no such check), but this port applies
+            // the same filter everywhere for consistency.
+            if (objXmlWare == null || !IsBookEnabled(objXmlWare["source"]?.InnerText ?? string.Empty))
                 return;
 
             string strRating = objXmlItem["rating"]?.InnerText ?? "0";

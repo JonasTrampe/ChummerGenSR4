@@ -41,7 +41,7 @@ namespace Chummer.Core
             {
                 string strName = objXmlWeapon["name"]?.InnerText ?? string.Empty;
                 XmlNode? objXmlWeaponNode = objWeaponDoc.SelectSingleNode($"/chummer/weapons/weapon[name = '{strName}']");
-                if (objXmlWeaponNode == null)
+                if (objXmlWeaponNode == null || !IsBookEnabled(objXmlWeaponNode["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 AddWeapon(strName, objXmlWeaponNode["category"]?.InnerText ?? string.Empty,

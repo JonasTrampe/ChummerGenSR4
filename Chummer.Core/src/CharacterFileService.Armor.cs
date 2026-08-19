@@ -27,7 +27,7 @@ namespace Chummer.Core
             {
                 string strName = objXmlArmor["name"]?.InnerText ?? string.Empty;
                 XmlNode? objXmlArmorNode = objArmorDoc.SelectSingleNode($"/chummer/armors/armor[name = '{strName}']");
-                if (objXmlArmorNode == null)
+                if (objXmlArmorNode == null || !IsBookEnabled(objXmlArmorNode["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 AddArmor(strName, objXmlArmorNode["category"]?.InnerText ?? string.Empty,

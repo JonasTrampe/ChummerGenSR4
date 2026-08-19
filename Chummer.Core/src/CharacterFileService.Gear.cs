@@ -520,13 +520,35 @@ namespace Chummer.Core
             if (objXmlQualities == null)
                 return;
 
+            XmlDocument objQualitiesDoc = XmlManager.Instance.Load("qualities.xml");
+
             foreach (XmlNode objXmlQuality in objXmlQualities.SelectNodes("positive/quality")?.Cast<XmlNode>()
                          ?? Enumerable.Empty<XmlNode>())
+            {
+                if (!IsPacksItemBookEnabled(objQualitiesDoc, "qualities/quality", objXmlQuality.InnerText))
+                    continue;
                 AddQuality(objXmlQuality.InnerText, "Positive", objXmlQuality.Attributes?["select"]?.InnerText ?? string.Empty);
+            }
 
             foreach (XmlNode objXmlQuality in objXmlQualities.SelectNodes("negative/quality")?.Cast<XmlNode>()
                          ?? Enumerable.Empty<XmlNode>())
+            {
+                if (!IsPacksItemBookEnabled(objQualitiesDoc, "qualities/quality", objXmlQuality.InnerText))
+                    continue;
                 AddQuality(objXmlQuality.InnerText, "Negative", objXmlQuality.Attributes?["select"]?.InnerText ?? string.Empty);
+            }
+        }
+
+        /// <summary>Shared PACKS-kit/Suite sourcebook filter: resolves the named rules-data item
+        /// under /chummer/{strXPath} and checks its &lt;source&gt; against the character's enabled
+        /// sourcebooks - the same check a normal picker dialog runs, applied here since a kit/Suite
+        /// is just a pre-selected shortcut for items a picker would otherwise offer.</summary>
+        private bool IsPacksItemBookEnabled(XmlDocument objDataDoc, string strXPath, string strName)
+        {
+            if (string.IsNullOrEmpty(strName))
+                return false;
+            XmlNode? objXmlNode = objDataDoc.SelectSingleNode($"/chummer/{strXPath}[name = '{strName.Trim()}']");
+            return objXmlNode != null && IsBookEnabled(objXmlNode["source"]?.InnerText ?? string.Empty);
         }
 
         private void ApplyPacksSkills(XmlNode objXmlKit)
@@ -616,7 +638,7 @@ namespace Chummer.Core
                     continue;
 
                 XmlNode? objXmlSpellNode = objSpellDoc.SelectSingleNode($"/chummer/spells/spell[name = '{strName}']");
-                if (objXmlSpellNode == null)
+                if (objXmlSpellNode == null || !IsBookEnabled(objXmlSpellNode["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 AddSpell(strName, objXmlSpellNode["category"]?.InnerText ?? string.Empty,
@@ -640,7 +662,7 @@ namespace Chummer.Core
             {
                 string strName = objXmlPower["name"]?.InnerText ?? string.Empty;
                 XmlNode? objXmlPowerNode = objPowerDoc.SelectSingleNode($"/chummer/powers/power[name = '{strName}']");
-                if (objXmlPowerNode == null)
+                if (objXmlPowerNode == null || !IsBookEnabled(objXmlPowerNode["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 string strRating = objXmlPower["rating"]?.InnerText ?? "1";
@@ -661,7 +683,7 @@ namespace Chummer.Core
             {
                 string strName = objXmlProgram["name"]?.InnerText ?? string.Empty;
                 XmlNode? objXmlProgramNode = objProgramDoc.SelectSingleNode($"/chummer/programs/program[name = '{strName}']");
-                if (objXmlProgramNode == null)
+                if (objXmlProgramNode == null || !IsBookEnabled(objXmlProgramNode["source"]?.InnerText ?? string.Empty))
                     continue;
 
                 string strSelected = objXmlProgram.Attributes?["select"]?.InnerText ?? string.Empty;
@@ -719,7 +741,7 @@ namespace Chummer.Core
             XmlNode? objXmlGear = string.IsNullOrEmpty(strCategory)
                 ? objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strName.Trim()}']")
                 : objGearDoc.SelectSingleNode($"/chummer/gears/gear[name = '{strName.Trim()}' and category = '{strCategory}']");
-            if (objXmlGear == null)
+            if (objXmlGear == null || !IsBookEnabled(objXmlGear["source"]?.InnerText ?? string.Empty))
                 return;
 
             string strRating = objXmlItem["rating"]?.InnerText ?? "0";

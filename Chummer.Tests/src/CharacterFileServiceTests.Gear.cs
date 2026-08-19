@@ -358,6 +358,22 @@ public partial class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddPacksKit_SkipsItemsFromADisabledSourcebook()
+    {
+        // "Sony Emperor"/"Fake SIN" (real "Emergency Identity" kit contents) are both SR4-sourced -
+        // disabling SR4 should silently skip them, same as a normal Gear picker would.
+        CharacterDocument character = LoadXml("<character><nuyen>100</nuyen></character>");
+        var objOptions = new CharacterOptions();
+        objOptions.Books.Clear();
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        Assert.True(character.AddPacksKit("Emergency Identity", "Gear Kits"));
+
+        Assert.Empty(character.Gear);
+        Assert.Equal("102", character.Nuyen); // Nuyen has no source, so it's unaffected.
+    }
+
+    [Fact]
     public void AddPacksKit_EveryRealKit_AppliesWithoutThrowing()
     {
         // Broad smoke coverage over all ~172 real packs.xml entries (rather than one test per

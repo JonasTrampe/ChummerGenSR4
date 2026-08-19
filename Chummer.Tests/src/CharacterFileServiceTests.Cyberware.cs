@@ -254,6 +254,21 @@ public partial class CharacterFileServiceTests
     }
 
     [Fact]
+    public void AddCyberwareSuite_SkipsPartsFromADisabledSourcebook()
+    {
+        // Every "Aztechnology Topo" part is SR4-sourced - disabling SR4 should skip them all,
+        // same as CharacterDialogViewModel's own picker filtering would.
+        CharacterDocument character = LoadXml("<character></character>");
+        var objOptions = new CharacterOptions();
+        objOptions.Books.Clear();
+        character.SetCharacterOptionsForTesting(objOptions);
+
+        Assert.True(character.AddCyberwareSuite("Aztechnology Topo"));
+
+        Assert.Empty(character.Cyberware);
+    }
+
+    [Fact]
     public void BiowareSuites_RequireTheHouseRuleButCyberwareSuitesDoNot()
     {
         CharacterDocument character = LoadXml("<character></character>");
