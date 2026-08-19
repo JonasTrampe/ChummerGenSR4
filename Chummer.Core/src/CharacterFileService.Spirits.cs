@@ -74,6 +74,12 @@ namespace Chummer.Core
             if (blnEnforceCreationBudget && !IgnoreRules && intCreationCost > intPool)
                 return false;
 
+            // Ported from frmCreate.cs's cmdAddSpirit_Click: at creation, the number of
+            // Spirits/Sprites cannot exceed CHA (career mode has no such cap - frmCareer.cs's own
+            // cmdAddSpirit_Click never checks it).
+            if (blnEnforceCreationBudget && !IgnoreRules && Spirits.Count >= GetAttributeInt("CHA"))
+                return false;
+
             var objRoot = Document.DocumentElement
                 ?? throw new InvalidOperationException("Character document has no root element.");
             var objSpirits = objRoot.SelectSingleNode("spirits");

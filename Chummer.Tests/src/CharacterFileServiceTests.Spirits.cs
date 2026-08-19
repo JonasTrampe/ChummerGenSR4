@@ -37,7 +37,8 @@ public partial class CharacterFileServiceTests
     public void SpiritCreationBudget_ChargesServicesAndRefundsOnRemoval()
     {
         CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
-            + "<startingbuildpoints>4</startingbuildpoints><bp>4</bp><karma>0</karma><spirits /></character>");
+            + "<startingbuildpoints>4</startingbuildpoints><bp>4</bp><karma>0</karma><spirits />"
+            + "<attributes>" + AttributeXml("CHA", "3") + "</attributes></character>");
 
         Assert.True(character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "3"));
         Assert.Equal("1", character.Bp);
@@ -45,6 +46,45 @@ public partial class CharacterFileServiceTests
         Assert.True(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
         Assert.Equal("4", character.Bp);
         Assert.Equal(0, character.CreationBudget.Spent);
+    }
+
+    [Fact]
+    public void AddSpirit_CreationMode_CannotExceedCharismaBoundSpiritCount()
+    {
+        // Ported from frmCreate.cs's cmdAddSpirit_Click: the number of Spirits/Sprites added
+        // during creation cannot exceed CHA.
+        CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>20</startingbuildpoints><bp>20</bp><karma>0</karma><spirits />"
+            + "<attributes>" + AttributeXml("CHA", "2") + "</attributes></character>");
+
+        Assert.True(character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "0"));
+        Assert.True(character.AddSpirit("Air Spirit", "Elemental", "Spirit", "4", "0"));
+        Assert.False(character.AddSpirit("Task Sprite", "", "Sprite", "3", "0"));
+        Assert.Equal(2, character.Spirits.Count);
+    }
+
+    [Fact]
+    public void AddSpirit_CreationMode_IgnoreRulesBypassesTheCharismaCap()
+    {
+        CharacterDocument character = LoadXml("<character><created>False</created><buildmethod>BP</buildmethod>"
+            + "<startingbuildpoints>20</startingbuildpoints><bp>20</bp><karma>0</karma><ignorerules>True</ignorerules>"
+            + "<spirits /><attributes>" + AttributeXml("CHA", "1") + "</attributes></character>");
+
+        Assert.True(character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "0"));
+        Assert.True(character.AddSpirit("Air Spirit", "Elemental", "Spirit", "4", "0"));
+        Assert.Equal(2, character.Spirits.Count);
+    }
+
+    [Fact]
+    public void AddSpirit_CareerMode_NoCharismaCapApplies()
+    {
+        // Ported from frmCareer.cs's cmdAddSpirit_Click: career mode never checks the CHA cap.
+        CharacterDocument character = LoadXml("<character><created>True</created><spirits />"
+            + "<attributes>" + AttributeXml("CHA", "1") + "</attributes></character>");
+
+        Assert.True(character.AddSpirit("Fire Spirit", "Elemental", "Spirit", "6", "0"));
+        Assert.True(character.AddSpirit("Air Spirit", "Elemental", "Spirit", "4", "0"));
+        Assert.Equal(2, character.Spirits.Count);
     }
 
     [Fact]

@@ -6,6 +6,7 @@ Chummer WinForms→Avalonia/Linux port. `PORTING_PLAN.md` is the single source o
 - Full legacy feature parity is the goal, not an MVP subset.
 - Never trim scope to avoid complexity. If a feature needs an underlying subsystem that's missing, build it too — don't skip or simplify it away.
 - When investigating before a change, delegate research to a subagent so findings don't bloat context; synthesize its report yourself before implementing.
+- Subagent prompts must explicitly state "you are a subagent, do not spawn further agents — investigate directly yourself using Grep/Read/Bash and report concrete findings" — subagents have repeatedly deflected research back into another layer of delegation (returning a placeholder like "I'll wait for the agent to finish") instead of doing the work themselves.
 
 ## Verification protocol (every change, no exceptions)
 1. `dotnet build Chummer.Core/Chummer.Core.csproj -v:q` and `dotnet build Chummer.Avalonia/Chummer.Avalonia.csproj -v:q` — expect `0 Fehler`.
