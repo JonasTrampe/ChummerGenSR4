@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.VehiclesSectionTab"
              x:DataType="vm:VehiclesSectionViewModel">
-    <controls:TreeDetailPane TreeWidth="300" ContentMargin="4">
+    <controls:TreeDetailPane ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="{loc:Loc UI_AddVehicle}" Click="OnAddVehicleClick" />
@@ -14,6 +14,11 @@
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <TreeView ItemsSource="{Binding Vehicles}" SelectedItem="{Binding SelectedVehicle, Mode=TwoWay}">
+                <TreeView.Styles>
+                    <Style Selector="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="True" />
+                    </Style>
+                </TreeView.Styles>
                 <TreeView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{loc:Loc Menu_AddModification}" Click="OnAddVehicleModClick" />

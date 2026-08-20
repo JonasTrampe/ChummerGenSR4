@@ -8,39 +8,39 @@
              x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
         <TabItem Header="{loc:Loc Tab_Lifestyle}">
-            <DockPanel Margin="4">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+            <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits
+                 directly above the list, sharing its column width, rather than spanning the tab. -->
+            <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="Auto,*">
+                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
                     <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
                     <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
                 </StackPanel>
-                <Grid ColumnDefinitions="240,4,*">
-                    <ListBox Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
-                        <ListBox.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
-                                <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
-                                <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyLifestyleClick" />
-                                <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteLifestyleClick" />
-                            </ContextMenu>
-                        </ListBox.ContextMenu>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-                    <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
-                        <TextBlock Text="{Binding LifestyleCost}" />
-                        <TextBlock
-                            Text="{loc:Loc UI_LifestyleQualitiesHeader}"
-                            Foreground="#666666" FontStyle="Italic" />
-                        <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-                </Grid>
-            </DockPanel>
+                <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
+                            <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
+                            <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyLifestyleClick" />
+                            <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteLifestyleClick" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="#E4E4E4" />
+                <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="8,0,0,0" Spacing="4">
+                    <TextBlock Text="{Binding LifestyleCost}" />
+                    <TextBlock
+                        Text="{loc:Loc UI_LifestyleQualitiesHeader}"
+                        Foreground="#666666" FontStyle="Italic" />
+                    <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
         </TabItem>
         <TabItem Header="{loc:Loc Tab_Armor}">
-            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
+            <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" />
@@ -52,6 +52,11 @@
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="ArmorTree" ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
+                        <TreeView.Styles>
+                            <Style Selector="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </TreeView.Styles>
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="{loc:Loc Label_Name}" Click="OnRenameArmorClick" />
@@ -127,7 +132,7 @@
         </TabItem>
 
         <TabItem Header="{loc:Loc Tab_Weapons}">
-            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
+            <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" />
@@ -137,6 +142,11 @@
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
+                        <TreeView.Styles>
+                            <Style Selector="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </TreeView.Styles>
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="{loc:Loc UI_AddAccessory}" Click="OnAddWeaponAccessoryClick" />
@@ -218,7 +228,7 @@
         </TabItem>
 
         <TabItem Header="{loc:Loc Tab_Gear}">
-            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
+            <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
@@ -232,6 +242,11 @@
                          matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
                          one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
                     <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
+                        <TreeView.Styles>
+                            <Style Selector="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </TreeView.Styles>
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />

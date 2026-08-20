@@ -27,7 +27,7 @@ public partial class TreeDetailPane : UserControl
     // ColumnDefinition.Width at its CLR default of GridLength(1, Star), which splits 50/50 with
     // the equally-star-sized detail column no matter what TreeWidth is set to.
     public static readonly StyledProperty<GridLength> TreeWidthProperty =
-        AvaloniaProperty.Register<TreeDetailPane, GridLength>(nameof(TreeWidth), new GridLength(90));
+        AvaloniaProperty.Register<TreeDetailPane, GridLength>(nameof(TreeWidth), new GridLength(260));
 
     public static readonly StyledProperty<Thickness> ContentMarginProperty =
         AvaloniaProperty.Register<TreeDetailPane, Thickness>(nameof(ContentMargin), new Thickness(4));

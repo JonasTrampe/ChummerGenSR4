@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:Chummer.NewUI.ViewModels"
              x:Class="Chummer.NewUI.Controls.CharacterSections.ImprovementsTab"
              x:DataType="vm:ImprovementsSectionViewModel">
-    <controls:TreeDetailPane TreeWidth="220" ContentMargin="8">
+    <controls:TreeDetailPane ContentMargin="8">
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
