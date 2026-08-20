@@ -63,9 +63,18 @@ namespace Chummer.Core
         {
             get
             {
+                // Once a character is Created, the whole concept is moot - <bp>/<buildkarma> stay
+                // at their original creation-time value forever (legacy never touches them again),
+                // and everything from that point on is tracked via career-mode Karma expenses
+                // instead (<karma> is what's left, <totalkarma> what's been earned). Computing
+                // Starting-minus-categorized-spend against a career-mode character's <bp> produces
+                // a meaningless (often deeply negative) number, since nothing about "spend" is
+                // being tracked against that pool anymore.
+                if (Created)
+                    return new CharacterCreationBudgetData(BuildMethod, 0, 0, 0, Array.Empty<CharacterCreationBudgetCategoryData>());
+
                 bool blnKarma = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
-                int intRemaining = int.TryParse(blnKarma ? Karma : Bp, out int intRemainingValue) ? intRemainingValue : 0;
-                int intStarting = StartingBuildPoints;
+                bool blnStartingFromNewCharacterFactory = StartingBuildPoints > 0;
                 var lstCategories = new List<CharacterCreationBudgetCategoryData>();
                 CharacterOptions objOptions = GetCharacterOptions();
 
@@ -118,12 +127,20 @@ namespace Chummer.Core
                 AddCategory("Contacts", ContactPointsUsed);
 
                 XmlDocument objQualities = XmlManager.Instance.Load("qualities.xml");
+                // Ported from a bug this method's own real-example-save test coverage caught:
+                // building the lookup as an XPath string literal breaks on any quality name
+                // containing an apostrophe (e.g. "The Warrior's Way") - iterating rule nodes
+                // directly and comparing in C# sidesteps XPath 1.0's lack of a quote-escaping
+                // mechanism entirely.
+                var lstQualityRuleNodes = objQualities.SelectNodes("/chummer/qualities/quality")?.Cast<XmlNode>().ToList()
+                    ?? new List<XmlNode>();
                 int intQualities = 0;
                 foreach (XmlNode objQuality in Document.SelectNodes("/character/qualities/quality")?.Cast<XmlNode>()
                     ?? Enumerable.Empty<XmlNode>())
                 {
                     string strName = GetValue(objQuality, "name", string.Empty);
-                    XmlNode? objRule = objQualities.SelectSingleNode($"/chummer/qualities/quality[name = '{strName}']");
+                    XmlNode? objRule = lstQualityRuleNodes.FirstOrDefault(
+                        n => GetValue(n, "name", string.Empty) == strName);
                     int intBp = ParseInteger(GetValue(objRule, "bp", "0"));
                     intQualities += blnKarma ? intBp * objOptions.KarmaQuality : intBp;
                 }
@@ -151,27 +168,37 @@ namespace Chummer.Core
                 AddCategory("Starting Nuyen", NuyenPoints);
 
                 int intCategorized = lstCategories.Sum(c => c.Cost);
-
-                // <startingbuildpoints> only exists for characters created through
-                // NewCharacterFactory - older/imported save files never had it, leaving it at its
-                // "0" fallback. Treating that literally would compute Spent as a large negative
-                // number (0 - whatever's left) and dump the entire pool into "Other / not yet
-                // categorized". Reconstruct a sensible baseline instead: what's actually
-                // accounted for by the categorized spend plus what's still unspent.
+                int intStarting;
+                int intRemaining;
                 int intSpent;
-                if (intStarting > 0)
+
+                if (blnStartingFromNewCharacterFactory)
                 {
+                    // Created through NewCharacterFactory: <bp>/<karma> are live pools this port's
+                    // own mutators (AddQuality, AddSpell, ...) decrement as things are purchased,
+                    // while <startingbuildpoints> is the separate fixed original total.
+                    intStarting = StartingBuildPoints;
+                    intRemaining = ParseInteger(blnKarma ? Karma : Bp);
                     intSpent = intStarting - intRemaining;
+
+                    int intUncategorized = intSpent - intCategorized;
+                    if (intUncategorized != 0)
+                        lstCategories.Add(new CharacterCreationBudgetCategoryData("Other / not yet categorized", intUncategorized));
                 }
                 else
                 {
+                    // Legacy/imported files never had <startingbuildpoints> - for these, <bp>
+                    // (BP build) or <buildkarma> (Karma build) is itself the fixed original total
+                    // the player chose at creation, not a live-decrementing pool (that's what
+                    // <karma> becomes only once the character enters career mode - a different
+                    // field, "the value that's left", not used for the creation budget at all).
+                    // There's no separate stored "remaining" for these characters, so it's derived
+                    // from what's actually categorized below instead.
+                    intStarting = ParseInteger(blnKarma ? GetValue("/character/buildkarma", "0") : Bp);
                     intSpent = intCategorized;
-                    intStarting = intRemaining + intSpent;
+                    intRemaining = intStarting - intCategorized;
                 }
 
-                int intUncategorized = intSpent - intCategorized;
-                if (intUncategorized != 0)
-                    lstCategories.Add(new CharacterCreationBudgetCategoryData("Other / not yet categorized", intUncategorized));
                 return new CharacterCreationBudgetData(BuildMethod, intStarting, intRemaining, intSpent, lstCategories);
             }
         }
