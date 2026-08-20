@@ -7,10 +7,10 @@
              x:DataType="vm:CyberwareSectionViewModel">
     <controls:TreeDetailPane ContentMargin="4">
         <controls:TreeDetailPane.HeaderContent>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                <Button Content="{loc:Loc Button_AddCyberware}" Click="OnAddCyberwareClick" />
-                <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" />
-            </StackPanel>
+            <WrapPanel Margin="0,4,0,0">
+                <Button Content="{loc:Loc Button_AddCyberware}" Click="OnAddCyberwareClick" Margin="0,0,4,4" />
+                <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" Margin="0,0,4,4" />
+            </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <TreeView Name="CyberwareTree" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">

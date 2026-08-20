@@ -8,14 +8,10 @@
              x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
         <TabItem Header="{loc:Loc Tab_Lifestyle}">
-            <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits
-                 directly above the list, sharing its column width, rather than spanning the tab. -->
-            <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="Auto,*">
-                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                    <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
-                    <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
-                </StackPanel>
-                <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
+            <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits below
+                 the list, sharing its column width, rather than spanning the tab. -->
+            <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="*,Auto">
+                <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
@@ -28,6 +24,10 @@
                         <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+                <WrapPanel Grid.Row="1" Grid.Column="0" Margin="0,4,0,0">
+                    <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" Margin="0,0,4,4" />
+                    <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" Margin="0,0,4,4" />
+                </WrapPanel>
                 <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="#E4E4E4" />
                 <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="8,0,0,0" Spacing="4">
                     <TextBlock Text="{Binding LifestyleCost}" />
@@ -42,13 +42,13 @@
         <TabItem Header="{loc:Loc Tab_Armor}">
             <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" />
-                        <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" />
+                    <WrapPanel Margin="0,4,0,0">
+                        <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" Margin="0,0,4,4" />
+                        <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" Margin="0,0,4,4" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"
-                                  Margin="6,0,0,0" />
-                    </StackPanel>
+                                  Margin="0,0,4,4" />
+                    </WrapPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="ArmorTree" ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
@@ -134,11 +134,11 @@
         <TabItem Header="{loc:Loc Tab_Weapons}">
             <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" />
-                        <Button Content="{loc:Loc Menu_AddNaturalWeapon}" Click="OnAddNaturalWeaponClick" />
-                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" />
-                    </StackPanel>
+                    <WrapPanel Margin="0,4,0,0">
+                        <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" Margin="0,0,4,4" />
+                        <Button Content="{loc:Loc Menu_AddNaturalWeapon}" Click="OnAddNaturalWeaponClick" Margin="0,0,4,4" />
+                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" Margin="0,0,4,4" />
+                    </WrapPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
@@ -230,12 +230,12 @@
         <TabItem Header="{loc:Loc Tab_Gear}">
             <controls:TreeDetailPane ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
-                        <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
-                        <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" />
-                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
-                        <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
-                    </StackPanel>
+                    <WrapPanel Margin="0,4,0,0">
+                        <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" Margin="0,0,4,4" />
+                        <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" Margin="0,0,4,4" />
+                        <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" Margin="0,0,4,4" />
+                        <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="0,0,4,4" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
+                    </WrapPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -

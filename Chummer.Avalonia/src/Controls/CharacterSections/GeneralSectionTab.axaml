@@ -7,10 +7,10 @@
              x:DataType="vm:GeneralSectionViewModel">
     <controls:TreeDetailPane ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
-            <StackPanel Margin="2 0 2 0" Orientation="Horizontal" Spacing="2">
-                <Button Content="{loc:Loc Button_AddQuality}" Click="OnAddQualityClick" />
-                <Button Content="{loc:Loc UI_AddPacksKit}" Click="OnAddPacksKitClick" />
-            </StackPanel>
+            <WrapPanel Margin="2,4,2,0">
+                <Button Content="{loc:Loc Button_AddQuality}" Click="OnAddQualityClick" Margin="0,0,4,4" />
+                <Button Content="{loc:Loc UI_AddPacksKit}" Click="OnAddPacksKitClick" Margin="0,0,4,4" />
+            </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <TreeView ItemsSource="{Binding Qualities}" SelectedItem="{Binding SelectedQualityNode, Mode=TwoWay}">

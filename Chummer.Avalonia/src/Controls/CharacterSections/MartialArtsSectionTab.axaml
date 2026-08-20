@@ -13,12 +13,12 @@
     </UserControl.Styles>
     <controls:TreeDetailPane ContentMargin="2 8 2 4">
         <controls:TreeDetailPane.HeaderContent>
-            <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                <Button Content="{loc:Loc UI_AddMartialArt}" Click="OnAddMartialArtClick" />
-                <Button Content="{loc:Loc UI_AddManeuver}" Click="OnAddManeuverClick" />
-                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" />
-                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
-            </StackPanel>
+            <WrapPanel Margin="0,4,0,0">
+                <Button Content="{loc:Loc UI_AddMartialArt}" Click="OnAddMartialArtClick" Margin="0,0,4,4" />
+                <Button Content="{loc:Loc UI_AddManeuver}" Click="OnAddManeuverClick" Margin="0,0,4,4" />
+                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" Margin="0,0,4,4" />
+                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" Margin="0,0,4,4" />
+            </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
