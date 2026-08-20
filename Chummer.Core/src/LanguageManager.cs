@@ -67,6 +67,24 @@ public sealed class LanguageManager
     public string GetString(string strKey) => _objCatalog.GetString(strKey);
 
     /// <summary>
+    /// Map the OS/environment's current UI culture to one of this app's own language codes
+    /// ("en-us", "de", "fr", "jp" - the only ones with a data/lang/*.xml file), for use as the
+    /// startup default before the user has ever explicitly chosen a language in Options. Falls
+    /// back to "en-us" (GlobalOptions' own base default) for anything unrecognized.
+    /// </summary>
+    public static string DetectOsLanguageCode()
+    {
+        string strTwoLetterCode = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        return strTwoLetterCode switch
+        {
+            "de" => "de",
+            "fr" => "fr",
+            "ja" => "jp",
+            _ => "en-us",
+        };
+    }
+
+    /// <summary>
     /// The .NET culture whose number formatting (decimal separator, digit grouping) matches the
     /// currently selected UI language, for display strings that need locale-correct number
     /// formatting (e.g. "3,5" under German) rather than save-file-facing invariant formatting.

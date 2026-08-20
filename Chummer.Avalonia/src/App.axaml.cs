@@ -15,14 +15,15 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
 
-        // GlobalOptions' own language default ("en-us") is shared with the legacy WinForms app -
-        // this port's Avalonia views default to German placeholder text (matching this fork's
-        // target audience), so without an override, files already converted to the {loc:Loc}
-        // catalog lookup would show English while their still-hardcoded neighbors show German.
-        // Only applies when nothing was ever explicitly persisted for "language", so an existing
-        // saved preference (including an explicit "en-us") is always respected.
+        // GlobalOptions' own language default ("en-us") is shared with the legacy WinForms app,
+        // which never auto-detected a language either - always defaulting to English regardless
+        // of OS locale until the user manually picked one in Options. Match the OS/environment's
+        // language instead on first run, so a German or French system gets a translated UI out of
+        // the box like the platform's other apps do. Only applies when nothing was ever explicitly
+        // persisted for "language", so an existing saved preference (including an explicit
+        // "en-us") is always respected.
         if (string.IsNullOrEmpty(SettingsStore.CurrentUser.CreateSubKey("Software\\Chummer").GetValue("language") as string))
-            GlobalOptions.Instance.Language = "de";
+            GlobalOptions.Instance.Language = LanguageManager.DetectOsLanguageCode();
 
         LanguageCatalog.Load(GlobalOptions.Instance.Language);
     }
