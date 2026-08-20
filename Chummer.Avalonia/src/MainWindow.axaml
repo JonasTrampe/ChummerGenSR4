@@ -33,12 +33,10 @@
                 <MenuItem Header="{loc:Loc UI_RecentFiles}" ItemsSource="{Binding RecentCharacters}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate x:DataType="vm:RecentCharacterEntryViewModel">
-                            <MenuItem Header="{Binding DisplayText}" Click="OnOpenRecentCharacterClick" />
+                            <MenuItem Header="{Binding DisplayText}" IsEnabled="{Binding !IsPlaceholder}"
+                                      Click="OnOpenRecentCharacterClick" />
                         </DataTemplate>
                     </MenuItem.ItemTemplate>
-                    <MenuItem Header="{loc:Loc UI_NoRecentFiles}"
-                              IsEnabled="False"
-                              IsVisible="{Binding HasNoRecentCharacters}" />
                 </MenuItem>
                 <MenuItem Header="{loc:Loc Menu_FileSave}" Click="OnSaveCharacterClick" />
                 <MenuItem Header="{loc:Loc Menu_FileSaveAs}" Click="OnSaveCharacterAsClick" />

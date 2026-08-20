@@ -220,6 +220,13 @@ public sealed class MainWindowViewModel : ViewModelBase
         foreach (string strFilePath in GlobalOptions.Instance.ReadMruList())
             RecentCharacters.Add(new RecentCharacterEntryViewModel(strFilePath, false));
 
+        // Avalonia's MenuItem can't mix ItemsSource with a declared static child MenuItem in
+        // XAML (that silently breaks the binding and leaves the submenu empty regardless of
+        // what's in this collection) - the "no recent files" placeholder has to live in the
+        // bound collection itself instead.
+        if (RecentCharacters.Count == 0)
+            RecentCharacters.Add(RecentCharacterEntryViewModel.CreatePlaceholder(App.LanguageCatalog.GetString("UI_NoRecentFiles")));
+
         OnPropertyChanged(nameof(HasRecentCharacters));
         OnPropertyChanged(nameof(HasNoRecentCharacters));
     }

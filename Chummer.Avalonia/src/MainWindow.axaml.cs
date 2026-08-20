@@ -227,7 +227,7 @@ public partial class MainWindow : Window
 
     private async void OnOpenRecentCharacterClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem { DataContext: RecentCharacterEntryViewModel entry })
+        if (sender is not MenuItem { DataContext: RecentCharacterEntryViewModel entry } || entry.IsPlaceholder)
             return;
 
         try
