@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Chummer.NewUI.Dialogs;
@@ -137,6 +138,12 @@ public partial class GeneralSectionTab
         return picked == true && dialog.SelectedMentor != null
             ? (true, dialog.SelectedMentor.Name, dialog.Choice ?? string.Empty)
             : (false, string.Empty, string.Empty);
+    }
+
+    private void OnQualitiesTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteQualityClick(sender, e);
     }
 
     private async void OnDeleteQualityClick(object? sender, RoutedEventArgs e)

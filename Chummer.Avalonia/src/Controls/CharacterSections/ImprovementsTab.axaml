@@ -10,17 +10,21 @@
             <WrapPanel Margin="0,4,0,0">
                 <Button Content="{loc:Loc Button_AddImproevment}" Click="OnAddImprovementClick"
                         ToolTip.Tip="{loc:Loc UI_ManualImprovementScopeTooltip}" Margin="0,0,4,4" />
-                <Button Content="{loc:Loc Button_EditImprovement}" IsEnabled="False"
-                        ToolTip.Tip="{loc:Loc UI_NotYetPorted}" Margin="0,0,4,4" />
-                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteImprovementClick"
-                        IsEnabled="{Binding SelectedImprovement.IsCustom}"
-                        ToolTip.Tip="{loc:Loc UI_OnlyManualImprovementsDeletableTooltip}" Margin="0,0,4,4" />
-                <Button Content="{loc:Loc Button_AddGroup}" IsEnabled="False"
-                        ToolTip.Tip="{loc:Loc UI_NotYetPorted}" Margin="0,0,4,4" />
             </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement, Mode=TwoWay}">
+            <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement, Mode=TwoWay}" KeyDown="OnListKeyDown">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{loc:Loc Button_EditImprovement}" IsEnabled="False"
+                                  ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
+                        <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteImprovementClick"
+                                  IsEnabled="{Binding SelectedImprovement.IsCustom}"
+                                  ToolTip.Tip="{loc:Loc UI_OnlyManualImprovementsDeletableTooltip}" />
+                        <MenuItem Header="{loc:Loc Button_AddGroup}" IsEnabled="False"
+                                  ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:ImprovementRowViewModel">
                         <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />

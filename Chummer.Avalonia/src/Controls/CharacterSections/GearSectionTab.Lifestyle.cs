@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.NewUI.Dialogs;
 using LifestyleDialog = Chummer.NewUI.Dialogs.LifestyleDialog;
@@ -33,6 +34,12 @@ public partial class GearSectionTab
                 dialog.NegativeQualities);
             ViewModel.LoadCharacter(_character);
         }
+    }
+
+    private void OnLifestyleListKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteLifestyleClick(sender, e);
     }
 
     private async void OnDeleteLifestyleClick(object? sender, RoutedEventArgs e)

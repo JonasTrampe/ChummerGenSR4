@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
@@ -22,6 +23,12 @@ public partial class ImprovementsTab : UserControl
     {
         _character = character;
         ViewModel.LoadCharacter(character);
+    }
+
+    private void OnListKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteImprovementClick(sender, e);
     }
 
     private async void OnAddImprovementClick(object? sender, RoutedEventArgs e)

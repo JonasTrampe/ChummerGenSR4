@@ -11,7 +11,7 @@
             <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits below
                  the list, sharing its column width, rather than spanning the tab. -->
             <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="*,Auto">
-                <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
+                <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}" KeyDown="OnLifestyleListKeyDown">
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
@@ -51,7 +51,7 @@
                     </WrapPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView Name="ArmorTree" ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
+                    <TreeView Name="ArmorTree" ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}" KeyDown="OnArmorTreeKeyDown">
                         <TreeView.Styles>
                             <Style Selector="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="True" />
@@ -141,7 +141,7 @@
                     </WrapPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
-                    <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
+                    <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}" KeyDown="OnWeaponsTreeKeyDown">
                         <TreeView.Styles>
                             <Style Selector="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="True" />
@@ -241,7 +241,7 @@
                     <!-- Drag-and-drop reordering wired up in code-behind (SetUpGearDragDrop) -
                          matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
                          one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
-                    <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
+                    <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}" KeyDown="OnGearTreeKeyDown">
                         <TreeView.Styles>
                             <Style Selector="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="True" />
@@ -353,7 +353,7 @@
                            Foreground="#666666" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding SelectedPet.LinkedMetatype, StringFormat='Metatyp: {0}'}"
                            IsVisible="{Binding SelectedPet.HasLinkedCharacter}" />
-                <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
+                <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}" KeyDown="OnPetsListKeyDown">
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="{loc:Loc MenuItem_OpenCharacter}" Click="OnOpenLinkedPetCharacterClick"

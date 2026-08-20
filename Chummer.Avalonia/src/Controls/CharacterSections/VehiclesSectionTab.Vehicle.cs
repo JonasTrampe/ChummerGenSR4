@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
@@ -46,6 +47,12 @@ public partial class VehiclesSectionTab
     {
         if (_character != null && _character.PasteVehicle())
             ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnVehiclesTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteVehicleClick(sender, e);
     }
 
     private async void OnDeleteVehicleClick(object? sender, RoutedEventArgs e)

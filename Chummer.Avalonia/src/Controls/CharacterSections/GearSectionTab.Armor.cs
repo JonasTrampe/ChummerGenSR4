@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.NewUI.ViewModels;
 using Chummer.NewUI.Dialogs;
@@ -60,6 +61,12 @@ public partial class GearSectionTab
                 && _character.SetArmorChildNotes(armor.ArmorId, itemGuid, dialog.Notes);
         if (saved)
             ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnArmorTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteArmorClick(sender, e);
     }
 
     private async void OnDeleteArmorClick(object? sender, RoutedEventArgs e)

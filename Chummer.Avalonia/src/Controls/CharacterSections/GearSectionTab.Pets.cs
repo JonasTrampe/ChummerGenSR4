@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Chummer.Core;
@@ -16,6 +17,12 @@ public partial class GearSectionTab
             return;
         _character.AddPet("Neues Haustier");
         ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnPetsListKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeletePetClick(sender, e);
     }
 
     private async void OnDeletePetClick(object? sender, RoutedEventArgs e)

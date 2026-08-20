@@ -13,7 +13,7 @@
             </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView ItemsSource="{Binding Vehicles}" SelectedItem="{Binding SelectedVehicle, Mode=TwoWay}">
+            <TreeView ItemsSource="{Binding Vehicles}" SelectedItem="{Binding SelectedVehicle, Mode=TwoWay}" KeyDown="OnVehiclesTreeKeyDown">
                 <TreeView.Styles>
                     <Style Selector="TreeViewItem">
                         <Setter Property="IsExpanded" Value="True" />

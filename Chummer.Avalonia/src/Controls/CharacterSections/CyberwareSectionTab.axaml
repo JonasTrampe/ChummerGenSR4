@@ -13,7 +13,7 @@
             </WrapPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
-            <TreeView Name="CyberwareTree" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
+            <TreeView Name="CyberwareTree" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}" KeyDown="OnCyberwareTreeKeyDown">
                 <TreeView.Styles>
                     <Style Selector="TreeViewItem">
                         <Setter Property="IsExpanded" Value="True" />

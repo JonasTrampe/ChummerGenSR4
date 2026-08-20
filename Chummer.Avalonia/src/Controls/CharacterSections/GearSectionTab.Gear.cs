@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.NewUI.Dialogs;
 using GearDialog = Chummer.NewUI.Dialogs.GearDialog;
@@ -94,6 +95,12 @@ public partial class GearSectionTab
         } while (continueAdding);
 
         ViewModel.LoadCharacter(_character);
+    }
+
+    private void OnGearTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteGearClick(sender, e);
     }
 
     private async void OnDeleteGearClick(object? sender, RoutedEventArgs e)

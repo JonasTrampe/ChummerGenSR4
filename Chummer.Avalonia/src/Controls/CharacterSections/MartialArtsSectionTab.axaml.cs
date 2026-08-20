@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Chummer.Core;
@@ -23,6 +24,12 @@ public partial class MartialArtsSectionTab : UserControl
     {
         _character = character;
         ViewModel.LoadCharacter(character);
+    }
+
+    private void OnListKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteClick(sender, e);
     }
 
     private async void OnDeleteClick(object? sender, RoutedEventArgs e)

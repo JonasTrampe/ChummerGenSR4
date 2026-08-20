@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.NewUI.ViewModels;
 using Chummer.NewUI.Dialogs;
@@ -65,6 +66,12 @@ public partial class GearSectionTab
             && Guid.TryParse(parent.ItemGuid, out Guid guiWeaponId)
             && Guid.TryParse(weapon.ItemGuid, out Guid guiPartId)
             && _character.SetWeaponChildNotes(guiWeaponId, guiPartId, strNotes);
+    }
+
+    private void OnWeaponsTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteWeaponClick(sender, e);
     }
 
     private async void OnDeleteWeaponClick(object? sender, RoutedEventArgs e)

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Chummer.Core;
 using Chummer.NewUI.Dialogs;
@@ -74,6 +75,12 @@ public partial class CyberwareSectionTab
                 strSelectedSkillGroup: strSkillGroup, blnTransgenic: viewModel.IsTransgenic);
             ViewModel.LoadCharacter(_character);
         }
+    }
+
+    private void OnCyberwareTreeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+            OnDeleteClick(sender, e);
     }
 
     private async void OnDeleteClick(object? sender, RoutedEventArgs e)
