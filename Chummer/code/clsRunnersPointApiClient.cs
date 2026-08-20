@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Serilog;
 
 namespace Chummer

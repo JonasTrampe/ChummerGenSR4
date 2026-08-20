@@ -13,8 +13,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Chummer.Core;
+using RunnersPoint.Api;
 
-namespace ChummerCore
+namespace Chummer
 {
     /// <summary>
     ///     Authentication against the RunnersPoint API. Supports two mechanisms:

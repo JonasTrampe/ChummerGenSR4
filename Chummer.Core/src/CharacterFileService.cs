@@ -506,7 +506,8 @@ namespace Chummer.Core
         private string GetValue(string strXPath, string strFallback)
         {
             var objNode = Document.SelectSingleNode(strXPath);
-            return string.IsNullOrEmpty(objNode == null ? null : objNode.InnerText) ? strFallback : objNode.InnerText;
+            string? strValue = objNode?.InnerText;
+            return strValue == null || strValue.Length == 0 ? strFallback : strValue;
         }
 
         private IReadOnlyList<CalendarWeek> ReadCalendar()
@@ -578,10 +579,9 @@ namespace Chummer.Core
             return (int)Math.Floor(intLimbTotal / (double)intLimbCount);
         }
 
-        /// <summary>The rules-data &lt;limbslot&gt; (arm/leg/torso/skull) for a named Cyberlimb -
-        /// not persisted per-item in the save file, so looked up by name the same way other
-        /// rules-only metadata (e.g. FindBonusChild) is resolved on demand.</summary>
-        private CharacterOptions _objCharacterOptionsOverride;
+        /// <summary>Backing field for <see cref="SetCharacterOptionsForTesting"/> - lets tests
+        /// inject a settings profile without needing a real settings/*.xml file on disk.</summary>
+        private CharacterOptions? _objCharacterOptionsOverride;
 
         // Deliberately not cached: house rules/karma-BP costs can change from the Options dialog
         // while a character stays open, and a stale cached CharacterOptions would silently ignore
@@ -676,9 +676,8 @@ namespace Chummer.Core
         private static string GetValue(XmlNode objNode, string strName, string strFallback)
         {
             var objChild = objNode.SelectSingleNode(strName);
-            return string.IsNullOrEmpty(objChild == null ? null : objChild.InnerText)
-                ? strFallback
-                : objChild.InnerText;
+            string? strValue = objChild?.InnerText;
+            return strValue == null || strValue.Length == 0 ? strFallback : strValue;
         }
 
     }

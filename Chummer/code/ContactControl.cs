@@ -116,11 +116,11 @@ namespace Chummer
 			}
 
 			if (!blnUseRelative)
-				GlobalOptions.Instance.MainForm.LoadCharacter(_objContact.FileName, false);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(_objContact.FileName, false);
 			else
 			{
 				string strFile = Path.GetFullPath(_objContact.RelativeFileName);
-				GlobalOptions.Instance.MainForm.LoadCharacter(strFile, false);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(strFile, false);
 			}
 		}
 

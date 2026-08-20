@@ -123,11 +123,11 @@ namespace Chummer
 			}
 
 			if (!blnUseRelative)
-				GlobalOptions.Instance.MainForm.LoadCharacter(_objSpirit.FileName, false);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(_objSpirit.FileName, false);
 			else
 			{
 				string strFile = Path.GetFullPath(_objSpirit.RelativeFileName);
-				GlobalOptions.Instance.MainForm.LoadCharacter(strFile, false);
+					_ = GlobalOptions.Instance.MainForm.LoadCharacter(strFile, false);
 			}
 		}
 
@@ -812,7 +812,7 @@ namespace Chummer
 				tipTooltip.SetToolTip(imgLink, LanguageManager.Instance.GetString("Tip_Sprite_OpenFile"));
 			FileNameChanged(this);
 
-			GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile, true);
+				_ = GlobalOptions.Instance.MainForm.LoadCharacter(strOpenFile, true);
 		}
 
 		/// <summary>

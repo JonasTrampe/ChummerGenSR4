@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.XPath;
 using Chummer.Core;
+using RunnersPoint.Api;
 
 namespace Chummer
 {
@@ -1309,7 +1310,7 @@ namespace Chummer
 					{
 						ToolStripManager.RevertMerge("toolStrip");
 					}
-					catch (Exception exception)
+					catch (Exception)
 					{
 					}
 				}
@@ -1432,14 +1433,14 @@ namespace Chummer
 			{
 				ToolStripManager.RevertMerge("toolStrip");
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 			try
 			{
 				ToolStripManager.Merge(toolStrip, "toolStrip");
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 		}
@@ -1520,6 +1521,11 @@ namespace Chummer
 			}
 
 			frmCreate_Resize(sender, e);
+
+			// Mono can raise SplitterPanel.Resize before a maximized MDI child has its final size and
+			// does not reliably raise it again afterwards. Reapply the skills layout once the initial
+			// layout pass has completed so the dynamically-created controls are not clipped to zero.
+			BeginInvoke((MethodInvoker)LayoutSkillsPanels);
 		}
 
 		private void frmCreate_Resize(object sender, EventArgs e)
@@ -14710,21 +14716,34 @@ namespace Chummer
 		#endregion
 
 		#region Splitter Resize Events
+		private void LayoutSkillsPanels()
+		{
+			panActiveSkills.Height = Math.Max(0, splitSkills.Panel1.ClientSize.Height - panActiveSkills.Top);
+			panSkillGroups.Height = Math.Max(0, splitSkills.Panel1.ClientSize.Height - panSkillGroups.Top);
+			panActiveSkills.Width = Math.Max(0, splitSkills.Panel1.ClientSize.Width - panActiveSkills.Left);
+			panSkillGroups.Width = Math.Max(0, panActiveSkills.Left - 6 - panSkillGroups.Left);
+
+			cmdAddExoticSkill.Left = Math.Max(panActiveSkills.Left,
+				panActiveSkills.Right - cmdAddExoticSkill.Width - 3);
+			cboSkillFilter.Left = Math.Max(3, cmdAddExoticSkill.Left - cboSkillFilter.Width - 6);
+
+			panKnowledgeSkills.Width = Math.Max(0, splitSkills.Panel2.ClientSize.Width - 3);
+			panKnowledgeSkills.Height = Math.Max(0,
+				splitSkills.Panel2.ClientSize.Height - panKnowledgeSkills.Top);
+
+			panActiveSkills.PerformLayout();
+			panSkillGroups.PerformLayout();
+			panKnowledgeSkills.PerformLayout();
+		}
+
 		private void splitSkills_Panel1_Resize(object sender, EventArgs e)
 		{
-			panActiveSkills.Height = splitSkills.Panel1.Height - panActiveSkills.Top;
-			panSkillGroups.Height = splitSkills.Panel1.Height - panSkillGroups.Top;
-			panActiveSkills.Width = splitSkills.Panel1.Width - panActiveSkills.Left;
-			panSkillGroups.Width = panActiveSkills.Left - 6 - panSkillGroups.Left;
-
-			cmdAddExoticSkill.Left = panActiveSkills.Left + panActiveSkills.Width - cmdAddExoticSkill.Width - 3;
-			cboSkillFilter.Left = cmdAddExoticSkill.Left - cboSkillFilter.Width - 6;
+			LayoutSkillsPanels();
 		}
 
 		private void splitSkills_Panel2_Resize(object sender, EventArgs e)
 		{
-			panKnowledgeSkills.Width = splitSkills.Panel2.Width - 3;
-			panKnowledgeSkills.Height = splitSkills.Panel2.Height - panKnowledgeSkills.Top;
+			LayoutSkillsPanels();
 		}
 
 		private void splitContacts_Panel1_Resize(object sender, EventArgs e)
@@ -18067,6 +18086,7 @@ namespace Chummer
 		/// </summary>
 		private async Task<bool> SaveCharacterAs(bool blnEscapeAfterSave = false)
 		{
+			await Task.CompletedTask;
 			bool blnSaved = false;
 
 			// If the Created is checked, make sure the user wants to actually save this character.
@@ -18161,7 +18181,7 @@ namespace Chummer
 			_blnSkipToolStripRevert = true;
 			_objCharacter.Save();
 
-			GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false);
+				_ = GlobalOptions.Instance.MainForm.LoadCharacter(_objCharacter.FileName, false);
 			this.Close();
 		}
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Serilog;
 
 namespace Chummer
@@ -50,7 +51,7 @@ namespace Chummer
 			if (strArgs.GetUpperBound(0) > 0)
 			{
 				if (strArgs[1] != "/debug")
-					LoadCharacter(strArgs[1]);
+						_ = LoadCharacter(strArgs[1]);
 				if (strArgs.Length > 2)
 				{
 					if (strArgs[2] == "/test")

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Serilog;
 
 namespace Chummer

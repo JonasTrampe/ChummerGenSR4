@@ -19,4 +19,5 @@ fi
 # Mono's MSBuild may report MSBuildRuntimeType=Core. Pin the legacy target explicitly so a
 # preceding dotnet restore (which writes net8 assets) can never poison this build.
 "$msbuild_path" "$repo_root/Chummer.Core/Chummer.Core.csproj" /t:Restore /p:TargetFrameworks=net48
-exec "$msbuild_path" "$repo_root/Chummer/Chummer.csproj" "/p:Configuration=$configuration" /p:TargetFrameworks=net48 "$@"
+"$msbuild_path" "$repo_root/RunnersPoint.Api/RunnersPoint.Api.csproj" /t:Restore /p:TargetFrameworks=net48
+exec "$msbuild_path" "$repo_root/Chummer/Chummer.csproj" "/p:Configuration=$configuration" /p:Platform=AnyCPU /p:TargetFrameworks=net48 "$@"

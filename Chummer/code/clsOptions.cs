@@ -54,9 +54,8 @@ namespace Chummer
 		static string CheckAndGetRegistryKeyWithFallback(string baseSubkey, string value, string fallback)
 		{
 			var data = SettingsStore.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
-			if (data != null)
-				return data.ToString();
-			return fallback;
+			string strValue = data == null ? null : data.ToString();
+			return string.IsNullOrEmpty(strValue) ? fallback : strValue;
 		}
 
 		static string NormalizeCloudApiBaseUrl(string value)

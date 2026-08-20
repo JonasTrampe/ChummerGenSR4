@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Serilog;
 
 namespace Chummer

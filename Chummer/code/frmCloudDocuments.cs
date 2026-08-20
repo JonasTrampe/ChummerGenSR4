@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Chummer.Core;
+using RunnersPoint.Api;
 using Serilog;
 
 namespace Chummer
@@ -907,7 +908,7 @@ namespace Chummer
 				UpdateStatus(LanguageManager.Instance.GetString("String_Cloud_Ready"));
 
 				if (this.Owner is frmMain frmMainForm)
-					frmMainForm.LoadCharacter(objDialog.FileName);
+						_ = frmMainForm.LoadCharacter(objDialog.FileName);
 			}
 			catch (Exception ex)
 			{
@@ -1098,7 +1099,6 @@ namespace Chummer
 		/// </summary>
 		private void LayoutActionButtons()
 		{
-			const int intMargin = 12;
 			const int intSpacing = 8;
 			const int intFolderWidth = 220;
 			const int intFolderButtonWidth = (intFolderWidth - (intSpacing * 2)) / 3;

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Chummer.Core;
+namespace Chummer.Core
+{
 
 /// <summary>
 /// Aggregation queries over a character's <see cref="Improvement"/> list, ported from
@@ -159,4 +160,5 @@ public static class ImprovementManager
 
         return lstContributions;
     }
+}
 }

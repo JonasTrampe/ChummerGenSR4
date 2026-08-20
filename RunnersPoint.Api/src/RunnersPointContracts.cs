@@ -82,9 +82,9 @@ namespace RunnersPoint.Api
     public class RunnersPointCapabilities
     {
         public string ApiVersion { get; set; } = "";
-        public List<RunnersPointGameProfile> GameProfiles { get; set; } = [];
-        public List<RunnersPointDocumentTypeCapability> DocumentTypes { get; set; } = [];
-        public List<string> Formats { get; set; } = [];
+        public List<RunnersPointGameProfile> GameProfiles { get; set; } = new();
+        public List<RunnersPointDocumentTypeCapability> DocumentTypes { get; set; } = new();
+        public List<string> Formats { get; set; } = new();
         public long MaxUploadBytes { get; set; }
     }
 
@@ -118,7 +118,7 @@ namespace RunnersPoint.Api
         public string Hash { get; set; } = "";
         public long SizeBytes { get; set; }
         public string ValidationState { get; set; } = "";
-        public List<string> ValidationMessages { get; set; } = [];
+        public List<string> ValidationMessages { get; set; } = new();
         public DateTime CreatedAt { get; set; }
     }
 

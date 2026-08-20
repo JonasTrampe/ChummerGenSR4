@@ -5,7 +5,8 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace Chummer.Core;
+namespace Chummer.Core
+{
 
 // MRUChanged Event Handler.
 public delegate void MruChangedHandler();
@@ -50,7 +51,8 @@ public sealed class GlobalOptions
 	static string CheckAndGetRegistryKeyWithFallback(string baseSubkey, string value, string fallback)
 	{
 		var data = SettingsStore.CurrentUser.CreateSubKey(baseSubkey).GetValue(value);
-		return data.ToString() ?? "";
+		var strValue = data?.ToString();
+		return strValue == null || strValue.Length == 0 ? fallback : strValue;
 	}
 
 	static string NormalizeCloudApiBaseUrl(string value)
@@ -90,6 +92,8 @@ public sealed class GlobalOptions
 	{
 		var list = new List<string>();
 		var objRegistry = SettingsStore.CurrentUser.CreateSubKey(baseSubkey);
+		if (objRegistry == null)
+			return list;
 
 		for (var i = min; i <= max; i++)
 		{
@@ -97,7 +101,7 @@ public sealed class GlobalOptions
 			{
 				var entry = objRegistry.GetValue(baseValue + i);
 				var strEntry = entry?.ToString();
-				if (!string.IsNullOrEmpty(strEntry))
+				if (strEntry != null && strEntry.Length != 0)
 					list.Add(strEntry);
 			}
 			catch
@@ -745,7 +749,7 @@ public partial class CharacterOptions
 	/// registers a handler, this defaults to declining (matching the safer of the dialog's two
 	/// original choices) rather than silently substituting different settings data.
 	/// </summary>
-	public static Func<string, bool> ConfirmUseDefaultSettingsFile { get; set; }
+	public static Func<string, bool>? ConfirmUseDefaultSettingsFile { get; set; }
 
 	/// <summary>
 	/// Set by a failed Load() when the named settings file didn't exist and either there's no
@@ -3209,4 +3213,6 @@ public partial class CharacterOptions
 			_intAvailability = value;
 		}
 	}
+}
+
 }
