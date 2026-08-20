@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -8,22 +9,29 @@ using Chummer.Core;
 
 namespace Chummer.NewUI.Dialogs;
 
-/// <summary>Character-sheet print preview - real Avalonia toolbar controls (proven 100% reliable
-/// via direct C# event handlers) driving a <see cref="UltralightHtmlView"/> for the styled
-/// preview itself. Printing reuses Avalonia.Controls.WebView's NativeWebDialog purely to trigger
-/// the platform's native print dialog (the one thing Ultralight has no equivalent for) - that
-/// mechanism was already proven reliable when driven by a direct button click, it just isn't used
-/// as the visible preview surface anymore since embedding it as a child control failed to render
-/// on this port's target NVIDIA/GBM hardware.</summary>
+/// <summary>Character-sheet print preview - two synced windows rather than one, because the only
+/// engine on this port's target hardware that renders the sheet both correctly *and* interactively
+/// (page-break toggles and any other in-sheet JS controls a sheet template uses) is
+/// Avalonia.Controls.WebView's NativeWebDialog, which can only exist as its own top-level native
+/// window - it can't be embedded as a child control (that failed to render at all on NVIDIA/GBM),
+/// and Ultralight's off-screen bitmap rendering (this dialog's previous approach) has no
+/// interactivity at all. This window is the toolbar (real Avalonia buttons - proven 100% reliable,
+/// unlike the in-page HTML/JS bridges tried and abandoned earlier); a NativeWebDialog positioned
+/// directly below it holds the actual interactive sheet content, moved to follow this window so
+/// the pair reads as one attached unit.</summary>
 public partial class SheetPreviewDialog : Window
 {
     private CharacterDocument? _character;
+    private NativeWebDialog? _contentDialog;
 
     public string SheetHtml { get; private set; } = string.Empty;
 
     public SheetPreviewDialog()
     {
         Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        PositionChanged += (_, _) => RepositionContentDialog();
+        Opened += (_, _) => CreateContentDialogAndRender();
+        Closing += (_, _) => _contentDialog?.Close();
     }
 
     public SheetPreviewDialog(CharacterDocument? character)
@@ -47,14 +55,34 @@ public partial class SheetPreviewDialog : Window
             string.Equals(Path.GetFileNameWithoutExtension(f), GlobalOptions.Instance.DefaultCharacterSheet,
                 StringComparison.OrdinalIgnoreCase)) ?? lstSheets.FirstOrDefault(f => f == "Text-Only.xsl")
             ?? lstSheets.FirstOrDefault();
+    }
 
+    private void CreateContentDialogAndRender()
+    {
+        _contentDialog = new NativeWebDialog { Title = App.LanguageCatalog.GetString("UI_SheetPreviewTitle") };
+        _contentDialog.Show(this);
+        RepositionContentDialog();
         RenderSelectedSheet();
+    }
+
+    /// <summary>Keeps the content window directly below and matching the width of this toolbar
+    /// window, so moving the toolbar (the only window with a title bar/decorations) drags the pair
+    /// together as one visual unit.</summary>
+    private void RepositionContentDialog()
+    {
+        if (_contentDialog == null)
+            return;
+        _contentDialog.Move((int)Position.X, (int)Position.Y + (int)Height);
+        _contentDialog.Resize((int)Width, 560);
     }
 
     private void OnSheetSelectionChanged(object? sender, SelectionChangedEventArgs e) => RenderSelectedSheet();
 
     private void RenderSelectedSheet()
     {
+        if (_contentDialog == null)
+            return;
+
         var selector = this.FindControl<ComboBox>("SheetSelector")!;
         string? strSheetName = selector.SelectedItem as string;
 
@@ -73,7 +101,7 @@ public partial class SheetPreviewDialog : Window
         {
             SheetHtml = CharacterSheetExporter.RenderSheet(_character, strSheetName);
             HideStatus();
-            this.FindControl<UltralightHtmlView>("SheetImage")!.LoadHtml(SheetHtml, (uint)Width - 40);
+            _contentDialog.NavigateToString(SheetHtml);
         }
         catch (Exception ex)
         {
@@ -90,39 +118,36 @@ public partial class SheetPreviewDialog : Window
 
     private void HideStatus() => this.FindControl<TextBlock>("StatusText")!.IsVisible = false;
 
-    /// <summary>Prints via a transient Avalonia.Controls.WebView NativeWebDialog, the same
-    /// mechanism a standalone print-preview dialog already proved capable of both rendering and
-    /// printing to a real printer - it's shown only for the duration of the print action (the OS's
-    /// own native print dialog is itself a separate system window on every platform anyway, so
-    /// this doesn't meaningfully change the "one window" preview experience). When
-    /// PrintToFileFirst is enabled, follows the legacy Wine workaround by navigating to a
-    /// temporary HTML file first instead of an in-memory string.</summary>
+    /// <summary>Prints the sheet already loaded into the content window via its own ShowPrintUI,
+    /// which opens the platform's native print dialog. When PrintToFileFirst is enabled, follows
+    /// the legacy Wine workaround by re-navigating to a temporary HTML file first instead of the
+    /// in-memory string; the file is cleaned up when this dialog closes.</summary>
     private void OnPrintNativeClick(object? sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrEmpty(SheetHtml))
+        if (_contentDialog == null || string.IsNullOrEmpty(SheetHtml))
             return;
 
         try
         {
-            var dialog = new NativeWebDialog { Title = Title };
-            dialog.NavigationCompleted += (_, _) => dialog.ShowPrintUI();
-            string? strTemporaryHtmlPath = null;
             if (GlobalOptions.Instance.PrintToFileFirst)
             {
-                strTemporaryHtmlPath = Path.Combine(Path.GetTempPath(), "chummer-sheet-" + Guid.NewGuid().ToString("N") + ".html");
+                string strTemporaryHtmlPath = Path.Combine(Path.GetTempPath(), "chummer-sheet-" + Guid.NewGuid().ToString("N") + ".html");
                 File.WriteAllText(strTemporaryHtmlPath, SheetHtml);
-                string strPathToDelete = strTemporaryHtmlPath;
-                dialog.Closing += (_, _) =>
+                var dialog = _contentDialog;
+                void OnNavigated(object? s, EventArgs args)
                 {
-                    try { File.Delete(strPathToDelete); }
-                    catch { /* A failed cleanup must not prevent the native dialog from closing. */ }
-                };
-            }
-            dialog.Show(this);
-            if (strTemporaryHtmlPath == null)
-                dialog.NavigateToString(SheetHtml);
-            else
+                    dialog.NavigationCompleted -= OnNavigated;
+                    dialog.ShowPrintUI();
+                    try { File.Delete(strTemporaryHtmlPath); }
+                    catch { /* A failed cleanup must not prevent printing. */ }
+                }
+                dialog.NavigationCompleted += OnNavigated;
                 dialog.Navigate(new Uri(strTemporaryHtmlPath));
+            }
+            else
+            {
+                _contentDialog.ShowPrintUI();
+            }
         }
         catch (Exception ex)
         {

@@ -1,16 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
              xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dialogs="clr-namespace:Chummer.NewUI.Dialogs"
         x:Class="Chummer.NewUI.Dialogs.SheetPreviewDialog"
-        Width="700" Height="640"
+        Width="700" Height="90"
+        CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
         Background="White"
         Title="{loc:Loc UI_SheetPreviewTitle}">
-    <DockPanel Margin="8">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+    <StackPanel Margin="8" Spacing="6">
+        <StackPanel Orientation="Horizontal" Spacing="6">
             <TextBlock Text="{loc:Loc UI_TemplateColon}" VerticalAlignment="Center" />
             <ComboBox Name="SheetSelector" Width="220" SelectionChanged="OnSheetSelectionChanged" />
             <Button Content="{loc:Loc Menu_FilePrint}" Click="OnPrintNativeClick" />
@@ -18,12 +18,6 @@
             <Button Content="{loc:Loc UI_ExportAsPdf}" Click="OnExportPdfClick" />
             <Button Content="{loc:Loc Button_CloudRevisions_Close}" Click="OnClose" />
         </StackPanel>
-        <TextBlock Name="StatusText" DockPanel.Dock="Top" Foreground="Red" TextWrapping="Wrap"
-                    Margin="0,0,0,8" IsVisible="False" />
-        <Border BorderBrush="#D0D0D0" BorderThickness="1">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <dialogs:UltralightHtmlView Name="SheetImage" HorizontalAlignment="Left" VerticalAlignment="Top" />
-            </ScrollViewer>
-        </Border>
-    </DockPanel>
+        <TextBlock Name="StatusText" Foreground="Red" TextWrapping="Wrap" IsVisible="False" />
+    </StackPanel>
 </Window>
