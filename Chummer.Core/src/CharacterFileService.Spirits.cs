@@ -34,9 +34,9 @@ namespace Chummer.Core
                 sb.Append(blnUseMag ? "MAG" : "EDG").Append(": ").Append(intBase);
                 AppendContributions(sb, lstContributions);
                 sb.Append('\n').Append("Verfügbar: ").Append(intTotal);
-                sb.Append('\n').Append("Verbraucht: ").Append(decUsed.ToString(CultureInfo.GetCultureInfo("de-DE")));
+                sb.Append('\n').Append("Verbraucht: ").Append(decUsed.ToString(LanguageManager.CurrentNumberFormatCulture));
                 var decRemaining = intTotal - decUsed;
-                sb.Append('\n').Append("Übrig: ").Append(decRemaining.ToString(CultureInfo.GetCultureInfo("de-DE")));
+                sb.Append('\n').Append("Übrig: ").Append(decRemaining.ToString(LanguageManager.CurrentNumberFormatCulture));
                 return new CharacterDerivedValueData((int)decimal.Truncate(decRemaining), sb.ToString());
             }
         }

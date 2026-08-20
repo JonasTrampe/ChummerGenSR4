@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 
@@ -64,6 +65,39 @@ public sealed class LanguageManager
 
     /// <summary>Retrieve a translated UI string by key.</summary>
     public string GetString(string strKey) => _objCatalog.GetString(strKey);
+
+    /// <summary>
+    /// The .NET culture whose number formatting (decimal separator, digit grouping) matches the
+    /// currently selected UI language, for display strings that need locale-correct number
+    /// formatting (e.g. "3,5" under German) rather than save-file-facing invariant formatting.
+    /// Chummer.Core's own language codes ("de", "fr", "jp") aren't valid BCP-47 culture names, so
+    /// they're mapped to the closest real culture; unrecognized/missing codes fall back to
+    /// invariant rather than throwing.
+    /// </summary>
+    public static CultureInfo CurrentNumberFormatCulture
+    {
+        get
+        {
+            string strCultureName = GlobalOptions.Instance.Language switch
+            {
+                "de" => "de-DE",
+                "fr" => "fr-FR",
+                "jp" => "ja-JP",
+                "en-us" => "en-US",
+                _ => string.Empty,
+            };
+            if (strCultureName == string.Empty)
+                return CultureInfo.InvariantCulture;
+            try
+            {
+                return CultureInfo.GetCultureInfo(strCultureName);
+            }
+            catch (CultureNotFoundException)
+            {
+                return CultureInfo.InvariantCulture;
+            }
+        }
+    }
 
     /// <summary>Check the keys in the selected language file against the English version.</summary>
     public List<string> VerifyStrings(string strLanguage) =>
