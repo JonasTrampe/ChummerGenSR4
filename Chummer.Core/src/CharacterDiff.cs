@@ -162,6 +162,9 @@ namespace Chummer.Core
             AppendPropertyValue(objType, objItem, sbdSignature, "Amount", " ");
             AppendPropertyValue(objType, objItem, sbdSignature, "Reason", " ");
             AppendPropertyValue(objType, objItem, sbdSignature, "TotalValue", " =");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Minimum", " min:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Maximum", " max:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "AugmentedMaximum", " augmax:");
             AppendPropertyValue(objType, objItem, sbdSignature, "BaseRating", " base");
             AppendPropertyValue(objType, objItem, sbdSignature, "Specialization", " spec:");
             AppendPropertyValue(objType, objItem, sbdSignature, "Broken", " broken:");
