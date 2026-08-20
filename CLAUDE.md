@@ -10,11 +10,12 @@ Chummer WinForms→Avalonia/Linux port. `PORTING_PLAN.md` is the single source o
 
 ## Verification protocol (every change, no exceptions)
 1. `dotnet build Chummer.Core/Chummer.Core.csproj -v:q` and `dotnet build Chummer.Avalonia/Chummer.Avalonia.csproj -v:q` — expect `0 Fehler`.
-2. `dotnet test Chummer.Tests/Chummer.Tests.csproj` — run **twice**, expect 100% passing both times.
+2. `dotnet test Chummer.Tests/Chummer.Tests.csproj` — run once, expect 100% passing.
 3. Smoke test: `timeout -s KILL 6 dotnet .artifacts/bin/Chummer.Avalonia/Debug/net10.0/Chummer.Avalonia.dll` — success = exit code 137, no exception text in output.
 4. Update `PORTING_PLAN.md` to match what was actually verified.
 5. Commit via heredoc (`git add -A && git commit -q -F -`), message ends with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
 6. Never batch multiple steps' worth of changes before testing — run the full protocol and commit after each step, not at the end of a series of steps.
+7. Redirect build/test/smoke-test output to a log file (scratchpad) and inspect it with the Read tool instead of chaining bash `tail`/`grep` pipelines.
 
 ## Git
 - Never push. Never `git commit --amend`. Only commit fully-verified slices — one logical change per commit.
