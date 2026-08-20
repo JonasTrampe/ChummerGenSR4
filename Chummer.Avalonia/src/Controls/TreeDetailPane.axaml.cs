@@ -21,8 +21,13 @@ public partial class TreeDetailPane : UserControl
     public static readonly StyledProperty<object?> DetailContentProperty =
         AvaloniaProperty.Register<TreeDetailPane, object?>(nameof(DetailContent));
 
-    public static readonly StyledProperty<double> TreeWidthProperty =
-        AvaloniaProperty.Register<TreeDetailPane, double>(nameof(TreeWidth), 90);
+    // GridLength, not double: ColumnDefinition.Width is a GridLength, and a {Binding} carrying a
+    // double into it needs a runtime type conversion that Avalonia's binding engine doesn't apply
+    // the way its XAML-literal-attribute parser does - the assignment silently no-ops, leaving
+    // ColumnDefinition.Width at its CLR default of GridLength(1, Star), which splits 50/50 with
+    // the equally-star-sized detail column no matter what TreeWidth is set to.
+    public static readonly StyledProperty<GridLength> TreeWidthProperty =
+        AvaloniaProperty.Register<TreeDetailPane, GridLength>(nameof(TreeWidth), new GridLength(90));
 
     public static readonly StyledProperty<Thickness> ContentMarginProperty =
         AvaloniaProperty.Register<TreeDetailPane, Thickness>(nameof(ContentMargin), new Thickness(4));
@@ -50,7 +55,7 @@ public partial class TreeDetailPane : UserControl
         set => SetValue(DetailContentProperty, value);
     }
 
-    public double TreeWidth
+    public GridLength TreeWidth
     {
         get => GetValue(TreeWidthProperty);
         set => SetValue(TreeWidthProperty, value);

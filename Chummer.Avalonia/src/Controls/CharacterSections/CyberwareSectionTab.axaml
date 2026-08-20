@@ -10,18 +10,23 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="{loc:Loc Button_AddCyberware}" Click="OnAddCyberwareClick" />
                 <Button Content="{loc:Loc Button_AddBioware}" Click="OnAddBiowareClick" />
-                <Button Content="{loc:Loc UI_CyberwareSuite}" Click="OnAddCyberwareSuiteClick" />
-                <Button Content="{loc:Loc UI_BiowareSuite}" Click="OnAddBiowareSuiteClick"
-                        IsVisible="{Binding CanAddBiowareSuites}" />
-                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" />
-                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteClick" />
-                <Button Content="{loc:Loc UI_Sell}" Click="OnSellClick" />
-                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyClick" />
-                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <TreeView Name="CyberwareTree" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{loc:Loc UI_CyberwareSuite}" Click="OnAddCyberwareSuiteClick" />
+                        <MenuItem Header="{loc:Loc UI_BiowareSuite}" Click="OnAddBiowareSuiteClick"
+                                  IsVisible="{Binding CanAddBiowareSuites}" />
+                        <Separator />
+                        <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditNotesClick" />
+                        <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteClick" />
+                        <MenuItem Header="{loc:Loc UI_Sell}" Click="OnSellClick" />
+                        <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyClick" />
+                        <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteClick" />
+                    </ContextMenu>
+                </TreeView.ContextMenu>
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />

@@ -9,22 +9,27 @@
         <controls:TreeDetailPane.HeaderContent>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                 <Button Content="{loc:Loc UI_AddVehicle}" Click="OnAddVehicleClick" />
-                <Button Content="{loc:Loc Menu_AddModification}" Click="OnAddVehicleModClick" />
-                <Button Content="{loc:Loc UI_AddVehicleGear}" Click="OnAddVehicleGearClick" />
-                <Button Content="{loc:Loc UI_AddVehicleWeapon}" Click="OnAddVehicleWeaponClick"
-                        ToolTip.Tip="{loc:Loc UI_VehicleWeaponMountTooltip}" />
                 <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddVehicleLocationClick" />
-                <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveVehicleLocationClick" />
-                <Button Content="{loc:Loc Tab_Notes}" Click="OnEditVehicleNotesClick" />
-                <Button Content="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
-                <Button Content="{loc:Loc UI_Sell}" Click="OnSellVehicleClick" />
-                <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyVehicleClick" />
-                <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteVehicleClick" />
-                <Button Content="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />
             </StackPanel>
         </controls:TreeDetailPane.HeaderContent>
         <controls:TreeDetailPane.TreeContent>
             <TreeView ItemsSource="{Binding Vehicles}" SelectedItem="{Binding SelectedVehicle, Mode=TwoWay}">
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{loc:Loc Menu_AddModification}" Click="OnAddVehicleModClick" />
+                        <MenuItem Header="{loc:Loc UI_AddVehicleGear}" Click="OnAddVehicleGearClick" />
+                        <MenuItem Header="{loc:Loc UI_AddVehicleWeapon}" Click="OnAddVehicleWeaponClick"
+                                  ToolTip.Tip="{loc:Loc UI_VehicleWeaponMountTooltip}" />
+                        <Separator />
+                        <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditVehicleNotesClick" />
+                        <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteVehicleClick" />
+                        <MenuItem Header="{loc:Loc UI_Sell}" Click="OnSellVehicleClick" />
+                        <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyVehicleClick" />
+                        <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteVehicleClick" />
+                        <MenuItem Header="{loc:Loc UI_DeleteLocation}" Click="OnRemoveVehicleLocationClick" />
+                        <MenuItem Header="{loc:Loc Button_Reload}" Click="OnReloadVehicleWeaponClick" />
+                    </ContextMenu>
+                </TreeView.ContextMenu>
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />

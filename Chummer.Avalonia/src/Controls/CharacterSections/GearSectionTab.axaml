@@ -8,50 +8,42 @@
              x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
         <TabItem Header="{loc:Loc Tab_Lifestyle}">
-            <Grid ColumnDefinitions="200,4,*" Margin="4">
-                <DockPanel Grid.Column="0">
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
-                        <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
-                        <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
-                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
-                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
-                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyLifestyleClick" />
-                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteLifestyleClick" />
-                    </StackPanel>
-                    <ListBox ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
+            <DockPanel Margin="4">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="2" Margin="0,0,0,4">
+                    <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" />
+                    <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" />
+                </StackPanel>
+                <Grid ColumnDefinitions="240,4,*">
+                    <ListBox Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
+                                <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteLifestyleClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyLifestyleClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteLifestyleClick" />
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </DockPanel>
-                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
-                <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
-                    <TextBlock Text="{Binding LifestyleCost}" />
-                    <TextBlock
-                        Text="{loc:Loc UI_LifestyleQualitiesHeader}"
-                        Foreground="#666666" FontStyle="Italic" />
-                    <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
-                               TextWrapping="Wrap" />
-                </StackPanel>
-            </Grid>
+                    <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+                    <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="4">
+                        <TextBlock Text="{Binding LifestyleCost}" />
+                        <TextBlock
+                            Text="{loc:Loc UI_LifestyleQualitiesHeader}"
+                            Foreground="#666666" FontStyle="Italic" />
+                        <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
         </TabItem>
         <TabItem Header="{loc:Loc Tab_Armor}">
-            <controls:TreeDetailPane TreeWidth="220" ContentMargin="4">
+            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc UI_AddArmor}" Click="OnAddArmorClick" />
-                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameArmorClick" />
-                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditArmorNotesClick" />
-                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
-                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
-                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyArmorClick" />
-                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteArmorClick" />
-                        <Button Content="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
-                        <Button Content="{loc:Loc UI_DeleteMod}" Click="OnDeleteArmorModClick" />
-                        <Button Content="B−" Click="OnArmorBallisticDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
-                        <Button Content="B+" Click="OnArmorBallisticRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
-                        <Button Content="I−" Click="OnArmorImpactDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
-                        <Button Content="I+" Click="OnArmorImpactRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
                         <Button Content="{loc:Loc Button_AddBundle}" Click="OnAddArmorSetClick" />
                         <ComboBox ItemsSource="{Binding ArmorCategories}"
                                   SelectedItem="{Binding SelectedArmorCategory, Mode=TwoWay}"
@@ -60,6 +52,24 @@
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="ArmorTree" ItemsSource="{Binding Armor}" SelectedItem="{Binding SelectedArmor, Mode=TwoWay}">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{loc:Loc Label_Name}" Click="OnRenameArmorClick" />
+                                <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditArmorNotesClick" />
+                                <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteArmorClick" />
+                                <MenuItem Header="{loc:Loc UI_Sell}" Click="OnSellArmorClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyArmorClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteArmorClick" />
+                                <Separator />
+                                <MenuItem Header="{loc:Loc UI_AddMod}" Click="OnAddArmorModClick" />
+                                <MenuItem Header="{loc:Loc UI_DeleteMod}" Click="OnDeleteArmorModClick" />
+                                <Separator IsVisible="{Binding ArmorDegradationEnabled}" />
+                                <MenuItem Header="B−" Click="OnArmorBallisticDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                                <MenuItem Header="B+" Click="OnArmorBallisticRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                                <MenuItem Header="I−" Click="OnArmorImpactDamageClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                                <MenuItem Header="I+" Click="OnArmorImpactRepairClick" IsVisible="{Binding ArmorDegradationEnabled}" />
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding DisplayName}" />
@@ -117,25 +127,30 @@
         </TabItem>
 
         <TabItem Header="{loc:Loc Tab_Weapons}">
-            <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
+            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc Menu_AddWeapon}" Click="OnAddWeaponClick" />
                         <Button Content="{loc:Loc Menu_AddNaturalWeapon}" Click="OnAddNaturalWeaponClick" />
-                        <Button Content="{loc:Loc UI_AddAccessory}" Click="OnAddWeaponAccessoryClick" />
-                        <Button Content="{loc:Loc UI_AddMod}" Click="OnAddWeaponModClick" />
-                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameWeaponClick" />
-                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditWeaponNotesClick" />
-                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
-                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellWeaponClick" />
-                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyWeaponClick" />
-                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteWeaponClick" />
-                        <Button Content="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddWeaponLocationClick" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
                 <controls:TreeDetailPane.TreeContent>
                     <TreeView Name="WeaponsTree" ItemsSource="{Binding Weapons}" SelectedItem="{Binding SelectedWeapon, Mode=TwoWay}">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{loc:Loc UI_AddAccessory}" Click="OnAddWeaponAccessoryClick" />
+                                <MenuItem Header="{loc:Loc UI_AddMod}" Click="OnAddWeaponModClick" />
+                                <Separator />
+                                <MenuItem Header="{loc:Loc Label_Name}" Click="OnRenameWeaponClick" />
+                                <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditWeaponNotesClick" />
+                                <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteWeaponClick" />
+                                <MenuItem Header="{loc:Loc UI_Sell}" Click="OnSellWeaponClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyWeaponClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteWeaponClick" />
+                                <MenuItem Header="{loc:Loc Button_Reload}" Click="OnReloadWeaponClick" />
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding DisplayName}" />
@@ -203,25 +218,12 @@
         </TabItem>
 
         <TabItem Header="{loc:Loc Tab_Gear}">
-            <controls:TreeDetailPane TreeWidth="80" ContentMargin="4">
+            <controls:TreeDetailPane TreeWidth="260" ContentMargin="4">
                 <controls:TreeDetailPane.HeaderContent>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="2">
                         <Button Content="{loc:Loc Button_AddGear}" Click="OnAddGearClick" />
                         <Button Content="{loc:Loc UI_AssembleNexus}" Click="OnAddNexusClick" />
-                        <Button Content="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />
-                        <Button Content="{loc:Loc Label_Name}" Click="OnRenameGearClick" />
-                        <Button Content="{loc:Loc Tab_Notes}" Click="OnEditGearNotesClick" />
-                        <Button Content="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
-                        <Button Content="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
-                        <Button Content="{loc:Loc Menu_EditCopy}" Click="OnCopyGearClick" />
-                        <Button Content="{loc:Loc Menu_EditPaste}" Click="OnPasteGearClick" />
                         <Button Content="{loc:Loc Button_AddLocation}" Click="OnAddGearLocationClick" />
-                        <Button Content="{loc:Loc UI_DeleteLocation}" Click="OnRemoveGearLocationClick" />
-                        <Button Content="{loc:Loc UI_BindFocus}" Click="OnBindFocusClick" />
-                        <Button Content="{loc:Loc UI_UnbindFocus}" Click="OnUnbindFocusClick" />
-                        <Button Content="{loc:Loc UI_CreateStackedFocus}" Click="OnCreateStackedFocusClick" />
-                        <Button Content="{loc:Loc UI_BindStackedFocus}" Click="OnBindStackedFocusClick" />
-                        <Button Content="{loc:Loc UI_UnbindStackedFocus}" Click="OnUnbindStackedFocusClick" />
                         <CheckBox Content="{loc:Loc Checkbox_Commlinks}" Margin="6,0,0,0" IsChecked="{Binding ShowOnlyCommlinks, Mode=TwoWay}" />
                     </StackPanel>
                 </controls:TreeDetailPane.HeaderContent>
@@ -230,6 +232,25 @@
                          matches the real app's gear/cyberware reordering in frmCareer/frmCreate,
                          one of the risk areas flagged in the Linux port plan's Avalonia audit. -->
                     <TreeView Name="AusruestungTree" ItemsSource="{Binding Gear}" SelectedItem="{Binding SelectedGear, Mode=TwoWay}">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{loc:Loc UI_AddAsAccessory}" Click="OnAddChildGearClick" />
+                                <Separator />
+                                <MenuItem Header="{loc:Loc Label_Name}" Click="OnRenameGearClick" />
+                                <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditGearNotesClick" />
+                                <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteGearClick" />
+                                <MenuItem Header="{loc:Loc UI_Sell}" Click="OnSellGearClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditCopy}" Click="OnCopyGearClick" />
+                                <MenuItem Header="{loc:Loc Menu_EditPaste}" Click="OnPasteGearClick" />
+                                <MenuItem Header="{loc:Loc UI_DeleteLocation}" Click="OnRemoveGearLocationClick" />
+                                <Separator />
+                                <MenuItem Header="{loc:Loc UI_BindFocus}" Click="OnBindFocusClick" />
+                                <MenuItem Header="{loc:Loc UI_UnbindFocus}" Click="OnUnbindFocusClick" />
+                                <MenuItem Header="{loc:Loc UI_CreateStackedFocus}" Click="OnCreateStackedFocusClick" />
+                                <MenuItem Header="{loc:Loc UI_BindStackedFocus}" Click="OnBindStackedFocusClick" />
+                                <MenuItem Header="{loc:Loc UI_UnbindStackedFocus}" Click="OnUnbindStackedFocusClick" />
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <TextBlock Text="{Binding DisplayName}" />
@@ -311,11 +332,6 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Button Content="{loc:Loc Button_AddPet}" Click="OnAddPetClick" />
                     <Button Content="{loc:Loc UI_LinkCharacter}" Click="OnLinkPetClick" />
-                    <Button Content="{loc:Loc MenuItem_OpenCharacter}" Click="OnOpenLinkedPetCharacterClick"
-                            IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
-                    <Button Content="{loc:Loc UI_RemoveLink}" Click="OnUnlinkPetClick"
-                            IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
-                    <Button Content="{loc:Loc String_Delete}" Click="OnDeletePetClick" />
                 </StackPanel>
                 <TextBlock Text="{loc:Loc UI_PetsLoadedFromContactsTooltip}" Foreground="#666666" />
                 <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"
@@ -323,6 +339,15 @@
                 <TextBlock Text="{Binding SelectedPet.LinkedMetatype, StringFormat='Metatyp: {0}'}"
                            IsVisible="{Binding SelectedPet.HasLinkedCharacter}" />
                 <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{loc:Loc MenuItem_OpenCharacter}" Click="OnOpenLinkedPetCharacterClick"
+                                      IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
+                            <MenuItem Header="{loc:Loc UI_RemoveLink}" Click="OnUnlinkPetClick"
+                                      IsEnabled="{Binding SelectedPet.HasLinkedCharacter}" />
+                            <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeletePetClick" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ContactRowViewModel">
                             <Grid ColumnDefinitions="180,*,Auto" ColumnSpacing="8" Margin="0,2">
