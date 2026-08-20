@@ -17,6 +17,31 @@ namespace Chummer.Core
             CompareScalar(objResult, "Career Karma", objLocal.CareerKarma.ToString(), objServer.CareerKarma.ToString());
             CompareScalar(objResult, "Nuyen", objLocal.Nuyen, objServer.Nuyen);
             CompareScalar(objResult, "Career Nuyen", objLocal.CareerNuyen.ToString(), objServer.CareerNuyen.ToString());
+            CompareScalar(objResult, "Metatype", objLocal.Metatype, objServer.Metatype);
+            CompareScalar(objResult, "Notes", objLocal.Notes, objServer.Notes);
+            CompareScalar(objResult, "Mugshot", objLocal.Mugshot, objServer.Mugshot);
+
+            CompareInitiative(objResult, "Initiative", objLocal.Initiative, objServer.Initiative);
+            CompareInitiative(objResult, "Initiative Passes", objLocal.InitiativePasses, objServer.InitiativePasses);
+            CompareInitiative(objResult, "Astral Initiative", objLocal.AstralInitiative, objServer.AstralInitiative);
+            CompareInitiative(objResult, "Matrix Initiative", objLocal.MatrixInitiative, objServer.MatrixInitiative);
+            CompareInitiative(objResult, "Matrix Initiative Passes", objLocal.MatrixInitiativePasses, objServer.MatrixInitiativePasses);
+
+            CompareScalar(objResult, "Physical Damage", objLocal.Condition.PhysicalDamage, objServer.Condition.PhysicalDamage);
+            CompareScalar(objResult, "Stun Damage", objLocal.Condition.StunDamage, objServer.Condition.StunDamage);
+            CompareScalar(objResult, "Physical Condition Monitor", objLocal.Condition.PhysicalCm.Value.ToString(),
+                objServer.Condition.PhysicalCm.Value.ToString());
+            CompareScalar(objResult, "Stun Condition Monitor", objLocal.Condition.StunCm.Value.ToString(),
+                objServer.Condition.StunCm.Value.ToString());
+
+            DiffCollection(objResult, "Attributes", objLocal.Attributes, objServer.Attributes);
+            DiffCollection(objResult, "Skill Groups", objLocal.SkillGroups, objServer.SkillGroups);
+            DiffCollection(objResult, "Skills", objLocal.Skills, objServer.Skills);
+            DiffCollection(objResult, "Knowledge Skills", objLocal.KnowledgeSkills, objServer.KnowledgeSkills);
+            DiffCollection(objResult, "Complex Forms", objLocal.ComplexForms, objServer.ComplexForms);
+            DiffCollection(objResult, "Foci", objLocal.Foci, objServer.Foci);
+            DiffCollection(objResult, "Stacked Foci", objLocal.StackedFoci, objServer.StackedFoci);
+            DiffCollection(objResult, "Improvements", objLocal.Improvements, objServer.Improvements);
 
             DiffCollection(objResult, "Qualities", objLocal.Qualities, objServer.Qualities);
             DiffCollection(objResult, "Contacts", objLocal.Contacts, objServer.Contacts);
@@ -48,6 +73,12 @@ namespace Chummer.Core
                 Name = strName,
                 Detail = strLocal + " -> " + strServer
             });
+        }
+
+        private static void CompareInitiative(CharacterDiffResult objResult, string strName,
+            CharacterInitiativeData objLocal, CharacterInitiativeData objServer)
+        {
+            CompareScalar(objResult, strName, objLocal.Display, objServer.Display);
         }
 
         private static void DiffCollection<T>(CharacterDiffResult objResult, string strCollectionName,
@@ -130,6 +161,13 @@ namespace Chummer.Core
             AppendPropertyValue(objType, objItem, sbdSignature, "Months", " M");
             AppendPropertyValue(objType, objItem, sbdSignature, "Amount", " ");
             AppendPropertyValue(objType, objItem, sbdSignature, "Reason", " ");
+            AppendPropertyValue(objType, objItem, sbdSignature, "TotalValue", " =");
+            AppendPropertyValue(objType, objItem, sbdSignature, "BaseRating", " base");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Specialization", " spec:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Broken", " broken:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Bonded", " bonded:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Extra", " ext:");
+            AppendPropertyValue(objType, objItem, sbdSignature, "Value", " val:");
 
             int intChildCount = TotalChildCount(objItem);
             if (intChildCount > 0)
@@ -158,13 +196,20 @@ namespace Chummer.Core
 
         private static string GetDisplayName(object objItem)
         {
+            if (objItem is Improvement objImprovement)
+                return objImprovement.SourceName + " " + objImprovement.ImprovedName;
+
             Type objType = objItem.GetType();
             string? strDisplayName = objType.GetProperty("DisplayName")?.GetValue(objItem, null) as string;
             if (strDisplayName != null && !string.IsNullOrWhiteSpace(strDisplayName))
                 return strDisplayName;
 
             string? strName = objType.GetProperty("Name")?.GetValue(objItem, null) as string;
-            return strName == null || string.IsNullOrWhiteSpace(strName) ? "(unnamed)" : strName;
+            if (strName != null && !string.IsNullOrWhiteSpace(strName))
+                return strName;
+
+            string? strCode = objType.GetProperty("Code")?.GetValue(objItem, null) as string;
+            return strCode == null || string.IsNullOrWhiteSpace(strCode) ? "(unnamed)" : strCode;
         }
 
         private static int TotalChildCount(object objItem)
