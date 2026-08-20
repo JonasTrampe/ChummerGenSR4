@@ -36,24 +36,25 @@
         <controls:TreeDetailPane.DetailContent>
             <ScrollViewer Margin="2 8 2 4">
             <StackPanel Margin="4,0,4,0" Spacing="10">
-                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,90,Auto,220">
-                    <TextBlock Grid.Column="0" Text="{loc:Loc Label_Alias}" VerticalAlignment="Center"
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{loc:Loc Label_Alias}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBox Text="{Binding Alias}" Width="260" HorizontalAlignment="Left" />
+                </StackPanel>
+                <Grid ColumnDefinitions="Auto,Auto,Auto,90,Auto,220" Margin="0,4,0,0">
+                    <TextBlock Grid.Column="0" Text="{loc:Loc Label_Metatype}" VerticalAlignment="Center"
                                Margin="0,0,6,0" />
-                    <TextBox Grid.Column="1" Text="{Binding Alias}" Width="260" HorizontalAlignment="Left" />
-                    <TextBlock Grid.Column="2" Text="{loc:Loc Label_Metatype}" VerticalAlignment="Center"
-                               Margin="20,0,6,0" />
-                    <TextBlock Grid.Column="3" Text="{Binding Metatype}" FontWeight="Bold"
+                    <TextBlock Grid.Column="1" Text="{Binding Metatype}" FontWeight="Bold"
                                VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Text="{loc:Loc Label_Nuyen}" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="2" Text="{loc:Loc Label_Nuyen}" VerticalAlignment="Center"
                                Margin="20,0,6,0" />
-                    <TextBox Grid.Column="5" Text="{Binding Nuyen}" IsVisible="{Binding !IsCreateMode}" />
-                    <controls:IntegerSpinner Grid.Column="5" Width="80" HorizontalAlignment="Left"
+                    <TextBox Grid.Column="3" Text="{Binding Nuyen}" IsVisible="{Binding !IsCreateMode}" />
+                    <controls:IntegerSpinner Grid.Column="3" Width="80" HorizontalAlignment="Left"
                                               IsVisible="{Binding IsCreateMode}" Minimum="0"
                                               Maximum="{Binding NuyenPointsMax}"
                                               Value="{Binding NuyenPoints, Mode=TwoWay}" />
-                    <TextBlock Grid.Column="6" Text="{Binding NuyenEquivalent}" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="4" Text="{Binding NuyenEquivalent}" VerticalAlignment="Center"
                                Margin="6,0,0,0" IsVisible="{Binding !IsCreateMode}" />
-                    <TextBlock Grid.Column="7" Text="{Binding NuyenPerPointLabel}" VerticalAlignment="Center"
+                    <TextBlock Grid.Column="5" Text="{Binding NuyenPerPointLabel}" VerticalAlignment="Center"
                                Margin="6,0,0,0" IsVisible="{Binding IsCreateMode}" Foreground="#666666" />
                 </Grid>
 

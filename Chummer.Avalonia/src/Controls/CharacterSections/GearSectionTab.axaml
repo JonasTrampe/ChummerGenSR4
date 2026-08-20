@@ -8,10 +8,14 @@
              x:DataType="vm:GearSectionViewModel">
     <TabControl Margin="4">
         <TabItem Header="{loc:Loc Tab_Lifestyle}">
-            <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits below
+            <!-- Same layout convention as TreeDetailPane: the header (its own toolbar) sits above
                  the list, sharing its column width, rather than spanning the tab. -->
-            <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="*,Auto">
-                <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}" KeyDown="OnLifestyleListKeyDown">
+            <Grid Margin="4" ColumnDefinitions="260,4,*" RowDefinitions="Auto,*">
+                <WrapPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,4">
+                    <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" Margin="0,0,4,4" />
+                    <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" Margin="0,0,4,4" />
+                </WrapPanel>
+                <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Lifestyles}" SelectedItem="{Binding SelectedLifestyle, Mode=TwoWay}" KeyDown="OnLifestyleListKeyDown">
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="{loc:Loc Tab_Notes}" Click="OnEditLifestyleNotesClick" />
@@ -24,10 +28,6 @@
                         <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <WrapPanel Grid.Row="1" Grid.Column="0" Margin="0,4,0,0">
-                    <Button Content="{loc:Loc Button_AddLifestyle}" Click="OnAddLifestyleClick" Margin="0,0,4,4" />
-                    <Button Content="{loc:Loc UI_CreateAdvancedLifestyle}" Click="OnAddAdvancedLifestyleClick" Margin="0,0,4,4" />
-                </WrapPanel>
                 <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="#E4E4E4" />
                 <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="8,0,0,0" Spacing="4">
                     <TextBlock Text="{Binding LifestyleCost}" />
