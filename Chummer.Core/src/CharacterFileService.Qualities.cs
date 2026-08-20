@@ -406,7 +406,7 @@ namespace Chummer.Core
             int intFreeNegative = ImprovementManager.ValueOf(Improvements, ImprovementType.FreeNegativeQualities);
             if (blnKarmaBuild) intFreeNegative *= objOptions.KarmaQuality;
             int intEnemyCost = Enemies.Where(c => !c.Free).Sum(c =>
-                (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty))
+                (ParseInteger(c.Connection) + c.GroupRating + ParseInteger(c.Loyalty))
                 * (blnKarmaBuild ? objOptions.KarmaContact : objOptions.BpContact));
             return intExistingCost - intEnemyCost - intFreeNegative + intNewCost < (blnKarmaBuild ? -70 : -35);
         }

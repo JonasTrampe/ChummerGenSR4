@@ -217,9 +217,9 @@ namespace Chummer.Core
                 int intRate = blnKarmaBuild ? objOptions.KarmaContact : objOptions.BpContact;
 
                 int intUsed = Contacts.Where(c => !c.Free)
-                    .Sum(c => (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty)) * intRate);
+                    .Sum(c => (ParseInteger(c.Connection) + c.GroupRating + ParseInteger(c.Loyalty)) * intRate);
                 int intRefund = Enemies.Where(c => !c.Free)
-                    .Sum(c => (ParseInt(c.Connection) + c.GroupRating + ParseInt(c.Loyalty)) * intRate);
+                    .Sum(c => (ParseInteger(c.Connection) + c.GroupRating + ParseInteger(c.Loyalty)) * intRate);
                 intUsed -= intRefund;
 
                 if (objOptions.FreeContacts)
@@ -261,10 +261,10 @@ namespace Chummer.Core
                         GetValue(objNode, "notes", string.Empty),
                         GetValue(objNode, "free", "False") == "True",
                         GetValue(objNode, "groupname", string.Empty),
-                        ParseInt(GetValue(objNode, "membership", "0")),
-                        ParseInt(GetValue(objNode, "areaofinfluence", "0")),
-                        ParseInt(GetValue(objNode, "magicalresources", "0")),
-                        ParseInt(GetValue(objNode, "matrixresources", "0")),
+                        ParseInteger(GetValue(objNode, "membership", "0")),
+                        ParseInteger(GetValue(objNode, "areaofinfluence", "0")),
+                        ParseInteger(GetValue(objNode, "magicalresources", "0")),
+                        ParseInteger(GetValue(objNode, "matrixresources", "0")),
                         GetValue(objNode, "file", string.Empty),
                         GetValue(objNode, "relative", string.Empty)));
                 }
@@ -288,9 +288,9 @@ namespace Chummer.Core
                     lstPets.Add(new CharacterContactData(intContactId, GetValue(objNode, "name", string.Empty),
                         GetValue(objNode, "connection", "0"), GetValue(objNode, "loyalty", "0"), false,
                         GetValue(objNode, "notes", string.Empty), GetValue(objNode, "free", "False") == "True",
-                        GetValue(objNode, "groupname", string.Empty), ParseInt(GetValue(objNode, "membership", "0")),
-                        ParseInt(GetValue(objNode, "areaofinfluence", "0")), ParseInt(GetValue(objNode, "magicalresources", "0")),
-                        ParseInt(GetValue(objNode, "matrixresources", "0")),
+                        GetValue(objNode, "groupname", string.Empty), ParseInteger(GetValue(objNode, "membership", "0")),
+                        ParseInteger(GetValue(objNode, "areaofinfluence", "0")), ParseInteger(GetValue(objNode, "magicalresources", "0")),
+                        ParseInteger(GetValue(objNode, "matrixresources", "0")),
                         GetValue(objNode, "file", string.Empty), GetValue(objNode, "relative", string.Empty)));
                 }
                 intContactId++;

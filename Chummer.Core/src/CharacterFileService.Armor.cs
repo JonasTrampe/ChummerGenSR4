@@ -561,8 +561,8 @@ namespace Chummer.Core
         {
             var objOptions = GetCharacterOptions();
             var objNodes = Document.SelectNodes("/character/armors/armor[equipped = 'True']");
-            var dblBod = double.TryParse(GetAttributeValue("BOD"), out var d) ? d : 0;
-            var dblStr = double.TryParse(GetAttributeValue("STR"), out var dStr) ? dStr : 0;
+            var dblBod = double.TryParse(GetAttributeValue("BOD"), NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0;
+            var dblStr = double.TryParse(GetAttributeValue("STR"), NumberStyles.Float, CultureInfo.InvariantCulture, out var dStr) ? dStr : 0;
 
             var intMultiplier = 2;
             var intTotalBallistic = 0;

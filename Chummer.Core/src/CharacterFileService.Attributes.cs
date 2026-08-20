@@ -351,7 +351,7 @@ namespace Chummer.Core
         // needs it.
         private CharacterDerivedValueData ComputePhysicalCm()
         {
-            var dblBod = double.TryParse(GetAttributeValue("BOD"), out var d) ? d : 0;
+            var dblBod = double.TryParse(GetAttributeValue("BOD"), NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0;
             var intBase = (int)Math.Ceiling(dblBod / 2) + 8;
             var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.PhysicalCm);
             var intTotal = intBase + lstContributions.Sum(c => c.Value);
@@ -365,7 +365,7 @@ namespace Chummer.Core
 
         private CharacterDerivedValueData ComputeStunCm()
         {
-            var dblWil = double.TryParse(GetAttributeValue("WIL"), out var d) ? d : 0;
+            var dblWil = double.TryParse(GetAttributeValue("WIL"), NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0;
             var intBase = (int)Math.Ceiling(dblWil / 2) + 8;
             var lstContributions = ImprovementManager.DescribeValueOf(Improvements, ImprovementType.StunCm);
             var intTotal = intBase + lstContributions.Sum(c => c.Value);

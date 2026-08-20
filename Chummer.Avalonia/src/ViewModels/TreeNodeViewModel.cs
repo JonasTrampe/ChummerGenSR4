@@ -237,7 +237,7 @@ public sealed class TreeNodeViewModel
             HasCommlinkStats = item.HasCommlinkStats,
             // Rating-formula cost/avail, evaluated (CalculatedCost includes children, e.g. a
             // Commlink plus its installed Operating System).
-            Cost = string.IsNullOrEmpty(item.Cost) ? string.Empty : item.CalculatedCost.ToString(),
+            Cost = string.IsNullOrEmpty(item.Cost) ? string.Empty : item.CalculatedCost.ToString(CultureInfo.InvariantCulture),
             Avail = item.CalculatedAvail,
             WeaponDicePool = item.WeaponDicePool,
             WeaponDicePoolTooltip = item.WeaponDicePoolTooltip,

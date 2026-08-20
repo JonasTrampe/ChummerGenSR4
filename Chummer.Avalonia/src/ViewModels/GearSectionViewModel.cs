@@ -234,7 +234,7 @@ public sealed class GearSectionViewModel : ViewModelBase
         foreach (CharacterLifestyleData lifestyle in character.Lifestyles)
         {
             Lifestyles.Add(new LifestyleRowViewModel(lifestyle));
-            if (decimal.TryParse(lifestyle.Cost, out var decCost))
+            if (decimal.TryParse(lifestyle.Cost, NumberStyles.Float, CultureInfo.InvariantCulture, out var decCost))
                 decTotalCost += decCost;
         }
 

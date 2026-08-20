@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Chummer.Core;
 using ScottPlot;
 using ScottPlot.Avalonia;
@@ -99,7 +100,7 @@ public sealed class KarmaNuyenSectionViewModel : ViewModelBase
         double dblRunning = 0;
         for (int i = 0; i < lstExpenses.Count; i++)
         {
-            if (decimal.TryParse(lstExpenses[i].Amount, out var decAmount))
+            if (decimal.TryParse(lstExpenses[i].Amount, NumberStyles.Float, CultureInfo.InvariantCulture, out var decAmount))
                 dblRunning += (double)decAmount;
             arrTotals[i + 1] = dblRunning;
         }

@@ -386,7 +386,6 @@ namespace Chummer.Core
             or "Telematics Infrastructure Software" or "Sensor Software"
             || strCategory.StartsWith("Autosofts", StringComparison.Ordinal);
 
-        private static int ParseInt(string strValue) => int.TryParse(strValue, out var intValue) ? intValue : 0;
 
         private static XmlNode? FindSelectSensewareNode(string strPowerName)
         {

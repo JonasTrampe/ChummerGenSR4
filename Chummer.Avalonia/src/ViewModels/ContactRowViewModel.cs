@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using Chummer.Core;
 
@@ -142,7 +143,8 @@ public sealed class ContactRowViewModel : ViewModelBase
         }
     }
 
-    private static int ParseInt(string strValue) => int.TryParse(strValue, out var intValue) ? intValue : 0;
+    private static int ParseInt(string strValue) =>
+        int.TryParse(strValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var intValue) ? intValue : 0;
 
     private string _strNotes = string.Empty;
     public string Notes

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Chummer.Core
 {
@@ -23,7 +24,9 @@ namespace Chummer.Core
         public bool Refund { get; }
 
         public string DisplayDate =>
-            System.DateTime.TryParse(Date, out var datValue) ? datValue.ToString("dd.MM.yyyy") : Date;
+            DateTime.TryParse(Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var datValue)
+                ? datValue.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture)
+                : Date;
     }
 
 }

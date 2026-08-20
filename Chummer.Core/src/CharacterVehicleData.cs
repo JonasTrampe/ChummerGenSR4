@@ -126,7 +126,8 @@ namespace Chummer.Core
             }
         }
 
-        private static int ParseInt(string strValue) => int.TryParse(strValue, out var i) ? i : 0;
+        private static int ParseInt(string strValue) =>
+            int.TryParse(strValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) ? i : 0;
 
         /// <summary>Vehicle Mod bonus nodes are looked up by name from vehicles.xml's own
         /// &lt;mod&gt; rules-data entries - the saved character XML only keeps the mod's Name/
