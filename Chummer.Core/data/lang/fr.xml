@@ -7239,6 +7239,14 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 			<text>Ajouter un kit PACKS</text>
 		</string>
 		<string>
+			<key>UI_QualityFilterPositive</key>
+			<text>Positive</text>
+		</string>
+		<string>
+			<key>UI_QualityFilterNegative</key>
+			<text>Négative</text>
+		</string>
+		<string>
 			<key>UI_MetatypeLimit</key>
 			<text>Limite de métatype</text>
 		</string>
@@ -8077,10 +8085,6 @@ Un saul attribut peut atteindre sa valeur maximum durant la création de personn
 		<string>
 			<key>UI_FailureSuffix</key>
 			<text> - Échoué</text>
-		</string>
-		<string>
-			<key>UI_All</key>
-			<text>Tous</text>
 		</string>
 	</strings>
 </chummer>

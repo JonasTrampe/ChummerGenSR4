@@ -62,10 +62,9 @@ public sealed class ArmorModDialogViewModel : ViewModelBase
             }
 
         Categories.Clear();
-        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(o => o.Category).Where(c => c.Length > 0).Distinct().OrderBy(c => c))
             Categories.Add(category);
-        _selectedCategory = App.LanguageCatalog.GetString("UI_All");
+        _selectedCategory = Categories.Count > 0 ? Categories[0] : string.Empty;
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -74,7 +73,7 @@ public sealed class ArmorModDialogViewModel : ViewModelBase
     {
         ModOptions.Clear();
         IEnumerable<ArmorModOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
+        if (!string.IsNullOrEmpty(SelectedCategory))
             query = query.Where(o => o.Category == SelectedCategory);
         if (!string.IsNullOrWhiteSpace(SearchText))
             query = query.Where(o => o.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));

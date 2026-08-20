@@ -11,6 +11,7 @@ public class ArmorDialogViewModelTests
     {
         var viewModel = new ArmorDialogViewModel();
         viewModel.LoadOptions();
+        viewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
 
         ArmorOptionViewModel clothing = viewModel.ArmorOptions.Single(o => o.Name == "Clothing");
         Assert.True(clothing.IsCostVariable);
@@ -24,6 +25,7 @@ public class ArmorDialogViewModelTests
     {
         var viewModel = new ArmorDialogViewModel();
         viewModel.LoadOptions();
+        viewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
 
         ArmorOptionViewModel jacket = viewModel.ArmorOptions.Single(o => o.Name == "Leather Jacket");
         Assert.False(jacket.IsCostVariable);

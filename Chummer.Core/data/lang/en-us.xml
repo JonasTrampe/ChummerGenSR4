@@ -7391,6 +7391,14 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Add PACKS Kit</text>
 		</string>
 		<string>
+			<key>UI_QualityFilterPositive</key>
+			<text>Positive</text>
+		</string>
+		<string>
+			<key>UI_QualityFilterNegative</key>
+			<text>Negative</text>
+		</string>
+		<string>
 			<key>UI_MetatypeLimit</key>
 			<text>Metatype Limit</text>
 		</string>
@@ -8229,10 +8237,6 @@ Only one attribute may be at its Maximum value during character creation.</text>
 		<string>
 			<key>UI_FailureSuffix</key>
 			<text> - Failed</text>
-		</string>
-		<string>
-			<key>UI_All</key>
-			<text>All</text>
 		</string>
 	</strings>
 </chummer>

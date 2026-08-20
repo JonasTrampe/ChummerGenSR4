@@ -32,6 +32,7 @@ public class CyberwareDialogViewModelTests
     {
         var viewModel = new CyberwareDialogViewModel();
         viewModel.LoadOptions(blnBioware: true, LoadCharacter());
+        viewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
         viewModel.SelectedCyberware = viewModel.CyberwareOptions.Single(o => o.Name == "Cerebral Booster");
         Assert.Equal(3, viewModel.SelectedCyberware.MaxRating);
         viewModel.SelectedCyberware.RatingValue = 2;
@@ -52,6 +53,7 @@ public class CyberwareDialogViewModelTests
     {
         var viewModel = new CyberwareDialogViewModel();
         viewModel.LoadOptions(blnBioware: true, LoadCharacter());
+        viewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
         viewModel.SelectedCyberware = viewModel.CyberwareOptions.Single(o => o.Name == "Cerebral Booster");
         viewModel.SelectedGrade = viewModel.Grades.Single(g => g.Name == "Alphaware");
 
@@ -72,6 +74,7 @@ public class CyberwareDialogViewModelTests
         offCharacter.SetCharacterOptionsForTesting(new CharacterOptions { AllowCyberwareEssDiscounts = false });
         var offViewModel = new CyberwareDialogViewModel();
         offViewModel.LoadOptions(blnBioware: true, offCharacter);
+        offViewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
         offViewModel.SelectedCyberware = offViewModel.CyberwareOptions.Single(o => o.Name == "Cerebral Booster");
         offViewModel.SelectedCyberware.RatingValue = 2;
 
@@ -83,6 +86,7 @@ public class CyberwareDialogViewModelTests
         onCharacter.SetCharacterOptionsForTesting(new CharacterOptions { AllowCyberwareEssDiscounts = true });
         var onViewModel = new CyberwareDialogViewModel();
         onViewModel.LoadOptions(blnBioware: true, onCharacter);
+        onViewModel.SelectedCategory = null; // No "All" option any more - clear to see every category.
         onViewModel.SelectedCyberware = onViewModel.CyberwareOptions.Single(o => o.Name == "Cerebral Booster");
         onViewModel.SelectedCyberware.RatingValue = 2;
 

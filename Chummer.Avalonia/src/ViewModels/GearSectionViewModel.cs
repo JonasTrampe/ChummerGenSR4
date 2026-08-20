@@ -13,7 +13,6 @@ public sealed class GearSectionViewModel : ViewModelBase
     // regardless of the active language.
     private static string NoLocationLabel => App.LanguageCatalog.GetString("UI_NoLocationSelected");
     private static string NoSetLabel => App.LanguageCatalog.GetString("UI_NoSetSelected");
-    private static string AllLabel => App.LanguageCatalog.GetString("UI_All");
 
     private CharacterDocument? _character;
     private List<CharacterTreeItemData> _lstAllArmor = new();
@@ -210,11 +209,10 @@ public sealed class GearSectionViewModel : ViewModelBase
 
         _lstAllArmor = character.Armor.ToList();
         ArmorCategories.Clear();
-        ArmorCategories.Add(AllLabel);
         foreach (string strCategory in _lstAllArmor.Select(a => a.Category).Where(c => !string.IsNullOrEmpty(c))
                      .Distinct().OrderBy(c => c))
             ArmorCategories.Add(strCategory);
-        _strSelectedArmorCategory = AllLabel;
+        _strSelectedArmorCategory = ArmorCategories.Count > 0 ? ArmorCategories[0] : string.Empty;
         OnPropertyChanged(nameof(SelectedArmorCategory));
         ApplyArmorFilter();
 
@@ -252,7 +250,7 @@ public sealed class GearSectionViewModel : ViewModelBase
     {
         Armor.Clear();
         IEnumerable<CharacterTreeItemData> query = _lstAllArmor;
-        if (!string.IsNullOrEmpty(SelectedArmorCategory) && SelectedArmorCategory != AllLabel)
+        if (!string.IsNullOrEmpty(SelectedArmorCategory))
             query = query.Where(a => a.Category == SelectedArmorCategory);
 
         foreach (CharacterTreeItemData item in query)

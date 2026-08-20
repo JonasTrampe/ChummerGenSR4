@@ -64,10 +64,9 @@ public sealed class MentorSpiritDialogViewModel : ViewModelBase
             }
 
         Categories.Clear();
-        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(o => o.Category).Where(c => c.Length > 0).Distinct().OrderBy(c => c))
             Categories.Add(category);
-        _selectedCategory = App.LanguageCatalog.GetString("UI_All");
+        _selectedCategory = Categories.Count > 0 ? Categories[0] : string.Empty;
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -76,7 +75,7 @@ public sealed class MentorSpiritDialogViewModel : ViewModelBase
     {
         MentorOptions.Clear();
         IEnumerable<MentorSpiritOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All"))
+        if (!string.IsNullOrEmpty(SelectedCategory))
             query = query.Where(o => o.Category == SelectedCategory);
         foreach (MentorSpiritOptionViewModel option in query.OrderBy(o => o.Name, StringComparer.Ordinal))
             MentorOptions.Add(option);

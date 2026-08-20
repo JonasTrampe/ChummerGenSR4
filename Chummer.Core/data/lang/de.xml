@@ -7342,6 +7342,14 @@ Stattdessen lokal gespeichert.</text>
 			<text>PACKS-Kit hinzufügen</text>
 		</string>
 		<string>
+			<key>UI_QualityFilterPositive</key>
+			<text>Positive</text>
+		</string>
+		<string>
+			<key>UI_QualityFilterNegative</key>
+			<text>Negative</text>
+		</string>
+		<string>
 			<key>UI_MetatypeLimit</key>
 			<text>Metatyp-Grenze</text>
 		</string>
@@ -8180,10 +8188,6 @@ Stattdessen lokal gespeichert.</text>
 		<string>
 			<key>UI_FailureSuffix</key>
 			<text> - Fehlgeschlagen</text>
-		</string>
-		<string>
-			<key>UI_All</key>
-			<text>Alle</text>
 		</string>
 	</strings>
 </chummer>

@@ -11,11 +11,16 @@
         FontSize="11"
         Background="White"
         Title="{loc:Loc Title_SelectQuality}">
-    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="12">
         <TextBlock Grid.Row="0" Text="{loc:Loc UI_SelectQualityTooltip}"
                    Margin="0,0,0,8" />
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,190">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+            <TextBlock Text="{loc:Loc Label_Type}" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding CategoryFilterOptions}" SelectedItem="{Binding CategoryFilter, Mode=TwoWay}" />
+        </StackPanel>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,190">
             <ListBox Grid.Column="0" ItemsSource="{Binding QualityOptions}" SelectedItem="{Binding SelectedQuality, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:QualityOptionViewModel">
@@ -37,7 +42,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
             <Button Grid.Column="1" Content="{loc:Loc String_Cancel}" Width="80" Margin="0,0,6,0" Click="OnCancel" />
             <Button Grid.Column="2" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />
         </Grid>

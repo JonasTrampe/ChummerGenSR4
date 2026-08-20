@@ -7288,6 +7288,14 @@
 			<text>PACKSキットを追加</text>
 		</string>
 		<string>
+			<key>UI_QualityFilterPositive</key>
+			<text>ポジティブ</text>
+		</string>
+		<string>
+			<key>UI_QualityFilterNegative</key>
+			<text>ネガティブ</text>
+		</string>
+		<string>
 			<key>UI_MetatypeLimit</key>
 			<text>メタタイプ上限</text>
 		</string>
@@ -8126,10 +8134,6 @@
 		<string>
 			<key>UI_FailureSuffix</key>
 			<text> - 失敗</text>
-		</string>
-		<string>
-			<key>UI_All</key>
-			<text>すべて</text>
 		</string>
 	</strings>
 </chummer>

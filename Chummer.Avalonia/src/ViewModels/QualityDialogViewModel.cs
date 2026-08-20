@@ -8,7 +8,19 @@ namespace Chummer.NewUI.ViewModels;
 
 public sealed class QualityDialogViewModel : ViewModelBase
 {
+    // Raw category values on <quality> nodes in qualities.xml - the "Handicap" toggle the data
+    // itself calls "Negative". Kept separate from the localized display strings shown in the
+    // filter ComboBox (same split as GearSectionViewModel's ArmorCategories/AllLabel). No "All"
+    // option - this is a pure Positive/Negative toggle, not a filter with a default unfiltered
+    // state.
+    private static string PositiveLabel => App.LanguageCatalog.GetString("UI_QualityFilterPositive");
+    private static string NegativeLabel => App.LanguageCatalog.GetString("UI_QualityFilterNegative");
+
+    public ObservableCollection<string> CategoryFilterOptions { get; } = new();
+
     public ObservableCollection<QualityOptionViewModel> QualityOptions { get; } = new();
+
+    private readonly List<QualityOptionViewModel> _allQualityOptions = new();
 
     private QualityOptionViewModel? _selectedQuality;
     public QualityOptionViewModel? SelectedQuality
@@ -17,9 +29,25 @@ public sealed class QualityDialogViewModel : ViewModelBase
         set => SetField(ref _selectedQuality, value);
     }
 
+    private string _categoryFilter = PositiveLabel;
+    public string CategoryFilter
+    {
+        get => _categoryFilter;
+        set
+        {
+            if (SetField(ref _categoryFilter, value))
+                ApplyCategoryFilter();
+        }
+    }
+
     public void LoadOptions(CharacterDocument character)
     {
-        QualityOptions.Clear();
+        CategoryFilterOptions.Clear();
+        CategoryFilterOptions.Add(PositiveLabel);
+        CategoryFilterOptions.Add(NegativeLabel);
+        _categoryFilter = PositiveLabel;
+
+        _allQualityOptions.Clear();
         var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (CharacterQualityData quality in character.Qualities)
             existingNames.Add(quality.Name);
@@ -37,8 +65,22 @@ public sealed class QualityDialogViewModel : ViewModelBase
                 continue;
             if (!character.IsBookEnabled(node["source"]?.InnerText ?? string.Empty))
                 continue;
-            QualityOptions.Add(new QualityOptionViewModel(name, category, node["bp"]?.InnerText ?? "0",
+            _allQualityOptions.Add(new QualityOptionViewModel(name, category, node["bp"]?.InnerText ?? "0",
                 node["source"]?.InnerText ?? string.Empty, node["page"]?.InnerText ?? string.Empty));
+        }
+
+        ApplyCategoryFilter();
+    }
+
+    private void ApplyCategoryFilter()
+    {
+        string strWantedCategory = CategoryFilter == NegativeLabel ? "Negative" : "Positive";
+
+        QualityOptions.Clear();
+        foreach (QualityOptionViewModel option in _allQualityOptions)
+        {
+            if (option.Category == strWantedCategory)
+                QualityOptions.Add(option);
         }
     }
 }

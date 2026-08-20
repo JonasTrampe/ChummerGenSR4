@@ -52,10 +52,9 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
                     node["page"]?.InnerText ?? string.Empty, node["limit"]?.InnerText ?? string.Empty));
             }
         Categories.Clear();
-        Categories.Add(App.LanguageCatalog.GetString("UI_All"));
         foreach (string category in _allOptions.Select(option => option.Category).Where(category => category.Length > 0).Distinct().OrderBy(category => category))
             Categories.Add(category);
-        _selectedCategory = App.LanguageCatalog.GetString("UI_All");
+        _selectedCategory = Categories.Count > 0 ? Categories[0] : string.Empty;
         OnPropertyChanged(nameof(SelectedCategory));
         ApplyFilter();
     }
@@ -64,7 +63,7 @@ public sealed class VehicleModDialogViewModel : ViewModelBase
     {
         ModOptions.Clear();
         IEnumerable<VehicleModOptionViewModel> query = _allOptions;
-        if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != App.LanguageCatalog.GetString("UI_All")) query = query.Where(option => option.Category == SelectedCategory);
+        if (!string.IsNullOrEmpty(SelectedCategory)) query = query.Where(option => option.Category == SelectedCategory);
         if (!string.IsNullOrWhiteSpace(SearchText)) query = query.Where(option => option.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (VehicleModOptionViewModel option in query) ModOptions.Add(option);
     }
