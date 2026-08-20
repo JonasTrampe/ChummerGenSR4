@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -89,6 +90,10 @@ namespace Chummer.Core
 		static private readonly List<XmlReference> LstXmlDocuments = new List<XmlReference>();
 		static private readonly object ObjCacheLock = new object();
 
+		// Diagnostic-only call counters, keyed by file name, so a slow-loading report can be
+		// correlated with how many times each data file was re-loaded/re-cloned in one run.
+		static private readonly Dictionary<string, int> DicLoadCallCounts = new Dictionary<string, int>();
+
 		#region Constructor and Instance
 		static XmlManager()
 		{
@@ -118,6 +123,14 @@ namespace Chummer.Core
 		/// <param name="strFileName">Name of the XML file to load.</param>
 		public XmlDocument Load(string strFileName)
 		{
+			var objStopwatch = Stopwatch.StartNew();
+			int intCallCount;
+			lock (ObjCacheLock)
+			{
+				DicLoadCallCounts.TryGetValue(strFileName, out intCallCount);
+				DicLoadCallCounts[strFileName] = ++intCallCount;
+			}
+
 			var strPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data");
 			strPath = Path.Combine(strPath, strFileName);
 			var datDate = File.GetLastWriteTime(strPath);
@@ -323,10 +336,13 @@ namespace Chummer.Core
 				objDoc = objReference.XmlContent;
 			}
 
+			var lngLoadOrCacheHitMs = objStopwatch.ElapsedMilliseconds;
+
 			// A new XmlDocument is created by loading the a copy of the cached one so that we don't stuff custom content into the cached copy
 			// (which we don't want and also results in multiple copies of each custom item).
 			var objReturnDocument = new XmlDocument();
 			objReturnDocument.LoadXml(objDoc.OuterXml);
+			var lngCloneMs = objStopwatch.ElapsedMilliseconds - lngLoadOrCacheHitMs;
 
 			// Load any custom data files the user might have. Do not attempt this if we're loading the Improvements file.
 			if (strFileName != "improvements.xml")
@@ -363,6 +379,16 @@ namespace Chummer.Core
 							objReturnDocument.DocumentElement?.AppendChild(objImported);
 					}
 				}
+			}
+
+			objStopwatch.Stop();
+			if (objStopwatch.ElapsedMilliseconds > 0)
+			{
+				Trace.TraceInformation(
+					"XmlManager.Load({0}) call #{1}: {2} (base: {3}ms, clone: {4}ms, custom scan: {5}ms, total: {6}ms)",
+					strFileName, intCallCount, blnLoadFile ? "cache miss" : "cache hit", lngLoadOrCacheHitMs,
+					lngCloneMs, objStopwatch.ElapsedMilliseconds - lngLoadOrCacheHitMs - lngCloneMs,
+					objStopwatch.ElapsedMilliseconds);
 			}
 
 			return objReturnDocument;

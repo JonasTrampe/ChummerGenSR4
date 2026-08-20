@@ -23,16 +23,20 @@ namespace Chummer.Core
         {
             if (objStream == null) throw new ArgumentNullException(nameof(objStream));
             Trace.TraceInformation("Loading Chummer character from {0}", strSourceName);
+            var objStopwatch = Stopwatch.StartNew();
             try
             {
                 var objDocument = new XmlDocument();
                 objDocument.Load(objStream);
                 if (objDocument.DocumentElement == null || objDocument.DocumentElement.Name != "character")
                     throw new InvalidDataException("The selected file is not a Chummer character document.");
+                var lngXmlParseMs = objStopwatch.ElapsedMilliseconds;
 
                 var objCharacter = new CharacterDocument(objDocument, strSourceName);
-                Trace.TraceInformation("Loaded Chummer character {0} from {1}", objCharacter.DisplayName,
-                    strSourceName);
+                objStopwatch.Stop();
+                Trace.TraceInformation(
+                    "Loaded Chummer character {0} from {1} (XML parse: {2}ms, total: {3}ms)",
+                    objCharacter.DisplayName, strSourceName, lngXmlParseMs, objStopwatch.ElapsedMilliseconds);
                 return objCharacter;
             }
             catch (Exception ex)
