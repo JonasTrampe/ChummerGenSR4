@@ -53,13 +53,16 @@ namespace Chummer.Core
             Trace.TraceInformation("Saving Chummer character {0} to {1}", objCharacter.DisplayName, strTargetName);
             try
             {
-                // Match legacy save formatting (tab indent, UTF-16); CloseOutput=false since
-                // callers read the stream back after Save() returns.
+                // Match legacy save formatting (tab indent, UTF-16, CRLF - XmlWriterSettings
+                // defaults NewLineChars to Environment.NewLine, which is LF on Linux and would
+                // make every re-save of an untouched Windows-authored file diff as "changed").
+                // CloseOutput=false since callers read the stream back after Save() returns.
                 var objSettings = new XmlWriterSettings
                 {
                     Encoding = Encoding.Unicode,
                     Indent = true,
                     IndentChars = "\t",
+                    NewLineChars = "\r\n",
                     CloseOutput = false
                 };
                 using (var objWriter = XmlWriter.Create(objStream, objSettings))
