@@ -45,7 +45,10 @@ public partial class CharacterFileServiceTests
         Assert.False(character.AddSpirit("Task Sprite", "", "Sprite", "3", "2"));
         Assert.True(character.RemoveSpirit("Fire Spirit", "Spirit", "6"));
         Assert.Equal("4", character.Bp);
-        Assert.Equal(0, character.CreationBudget.Spent);
+        // Spent is now the live itemized sum (CreationBudget no longer reads <bp> as a
+        // live-decrementing pool - see CharacterFileService.Expenses.cs), so after the spirit is
+        // fully refunded/removed only the CHA 1->3 attribute purchase remains: (3-1)*10 = 20.
+        Assert.Equal(20, character.CreationBudget.Spent);
     }
 
     [Fact]

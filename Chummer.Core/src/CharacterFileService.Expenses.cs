@@ -167,37 +167,18 @@ namespace Chummer.Core
                 AddCategory("Spirits and sprites", intSpiritCost);
                 AddCategory("Starting Nuyen", NuyenPoints);
 
-                int intCategorized = lstCategories.Sum(c => c.Cost);
-                int intStarting;
-                int intRemaining;
-                int intSpent;
-
-                if (blnStartingFromNewCharacterFactory)
-                {
-                    // Created through NewCharacterFactory: <bp>/<karma> are live pools this port's
-                    // own mutators (AddQuality, AddSpell, ...) decrement as things are purchased,
-                    // while <startingbuildpoints> is the separate fixed original total.
-                    intStarting = StartingBuildPoints;
-                    intRemaining = ParseInteger(blnKarma ? Karma : Bp);
-                    intSpent = intStarting - intRemaining;
-
-                    int intUncategorized = intSpent - intCategorized;
-                    if (intUncategorized != 0)
-                        lstCategories.Add(new CharacterCreationBudgetCategoryData("Other / not yet categorized", intUncategorized));
-                }
-                else
-                {
-                    // Legacy/imported files never had <startingbuildpoints> - for these, <bp>
-                    // (BP build) or <buildkarma> (Karma build) is itself the fixed original total
-                    // the player chose at creation, not a live-decrementing pool (that's what
-                    // <karma> becomes only once the character enters career mode - a different
-                    // field, "the value that's left", not used for the creation budget at all).
-                    // There's no separate stored "remaining" for these characters, so it's derived
-                    // from what's actually categorized below instead.
-                    intStarting = ParseInteger(blnKarma ? GetValue("/character/buildkarma", "0") : Bp);
-                    intSpent = intCategorized;
-                    intRemaining = intStarting - intCategorized;
-                }
+                // Ported from frmCreate.cs's CalculateBP(): the legacy app never decrements
+                // <bp>/<buildkarma> as things are purchased - it always recomputes Remaining as
+                // Starting minus a live sum of every itemized cost. This port's own creation
+                // mutators (AddQuality, AddSpell, ...) match that: they only append XML nodes,
+                // they never touch <bp>/<karma>. <startingbuildpoints>, when present, is just a
+                // more precise record of the original total than <bp>/<buildkarma> - the
+                // Spent/Remaining arithmetic is identical either way.
+                int intSpent = lstCategories.Sum(c => c.Cost);
+                int intStarting = blnStartingFromNewCharacterFactory
+                    ? StartingBuildPoints
+                    : ParseInteger(blnKarma ? GetValue("/character/buildkarma", "0") : Bp);
+                int intRemaining = intStarting - intSpent;
 
                 return new CharacterCreationBudgetData(BuildMethod, intStarting, intRemaining, intSpent, lstCategories);
             }
