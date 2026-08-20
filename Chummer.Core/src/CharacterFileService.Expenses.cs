@@ -66,7 +66,6 @@ namespace Chummer.Core
                 bool blnKarma = string.Equals(BuildMethod, "Karma", StringComparison.OrdinalIgnoreCase);
                 int intRemaining = int.TryParse(blnKarma ? Karma : Bp, out int intRemainingValue) ? intRemainingValue : 0;
                 int intStarting = StartingBuildPoints;
-                int intSpent = intStarting - intRemaining;
                 var lstCategories = new List<CharacterCreationBudgetCategoryData>();
                 CharacterOptions objOptions = GetCharacterOptions();
 
@@ -152,6 +151,24 @@ namespace Chummer.Core
                 AddCategory("Starting Nuyen", NuyenPoints);
 
                 int intCategorized = lstCategories.Sum(c => c.Cost);
+
+                // <startingbuildpoints> only exists for characters created through
+                // NewCharacterFactory - older/imported save files never had it, leaving it at its
+                // "0" fallback. Treating that literally would compute Spent as a large negative
+                // number (0 - whatever's left) and dump the entire pool into "Other / not yet
+                // categorized". Reconstruct a sensible baseline instead: what's actually
+                // accounted for by the categorized spend plus what's still unspent.
+                int intSpent;
+                if (intStarting > 0)
+                {
+                    intSpent = intStarting - intRemaining;
+                }
+                else
+                {
+                    intSpent = intCategorized;
+                    intStarting = intRemaining + intSpent;
+                }
+
                 int intUncategorized = intSpent - intCategorized;
                 if (intUncategorized != 0)
                     lstCategories.Add(new CharacterCreationBudgetCategoryData("Other / not yet categorized", intUncategorized));

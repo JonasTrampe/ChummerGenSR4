@@ -64,6 +64,29 @@ public partial class CharacterFileServiceTests
     }
 
     [Fact]
+    public void CreationBudget_MissingStartingBuildPointsReconstructsASensibleBaselineInstead()
+    {
+        // <startingbuildpoints> only exists for characters created through NewCharacterFactory -
+        // older/imported save files (or ones from before this field existed) leave it at "0".
+        // Taking that literally would compute Spent as a large negative number and dump the
+        // entire remaining pool into "Other / not yet categorized" - this is exactly what the
+        // manually-reported "Pool: GP, Start: 0, Ausgegeben: -400" bug looked like.
+        CharacterDocument character = LoadXml("<character><buildmethod>BP</buildmethod><bp>58</bp>"
+            + "<metatypebp>10</metatypebp><nuyenbp>1</nuyenbp>"
+            + "<attributes><attribute><name>BOD</name><value>3</value><metatypemin>1</metatypemin><metatypemax>6</metatypemax></attribute></attributes>"
+            + "<contacts><contact><type>Contact</type><connection>2</connection><loyalty>1</loyalty><free>False</free></contact></contacts>"
+            + "<skills><skill><rating>2</rating><knowledge>False</knowledge><grouped>False</grouped></skill></skills></character>");
+
+        CharacterCreationBudgetData budget = character.CreationBudget;
+
+        Assert.Equal(0, character.StartingBuildPoints);
+        Assert.Equal(58, budget.Remaining);
+        Assert.Equal(42, budget.Spent); // Reconstructed from categorized spend, not 0 - 58.
+        Assert.Equal(100, budget.Starting); // Reconstructed as Remaining + Spent.
+        Assert.DoesNotContain(budget.Categories, c => c.Name == "Other / not yet categorized");
+    }
+
+    [Fact]
     public void RaiseNuyenCreate_UnrestrictedNuyen_UsesStartingBuildPointsInstead()
     {
         CharacterDocument character = LoadXml(
