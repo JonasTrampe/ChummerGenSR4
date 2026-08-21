@@ -589,16 +589,37 @@ namespace Chummer.Core
         /// inject a settings profile without needing a real settings/*.xml file on disk.</summary>
         private CharacterOptions? _objCharacterOptionsOverride;
 
-        // Deliberately not cached: house rules/karma-BP costs can change from the Options dialog
-        // while a character stays open, and a stale cached CharacterOptions would silently ignore
-        // that (a real bug this fixes - see PORTING_PLAN.md).
+        // Cached per-instance and invalidated by the settings *file's own last-write time* (same
+        // pattern as XmlManager.Load's cache) rather than never cached at all: house rules/karma-BP
+        // costs can still change from the Options dialog while a character stays open, and this
+        // still picks that up (the file's mtime changes when Options.Save() writes it) - but a
+        // full character reload (e.g. after any single skill/skill-group rating change) no longer
+        // re-reads and re-parses the settings XML from disk once per skill on the character.
+        private CharacterOptions? _objCachedCharacterOptions;
+        private string? _strCachedCharacterOptionsFileName;
+        private DateTime _datCachedCharacterOptionsFileWriteTime;
+
+        internal int CharacterOptionsCacheMissCountForTesting;
+
         private CharacterOptions GetCharacterOptions()
         {
             if (_objCharacterOptionsOverride != null)
                 return _objCharacterOptionsOverride;
 
+            string strSettingsFileName = GetValue("/character/settings", "default.xml");
+            string strSettingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", strSettingsFileName);
+            DateTime datWriteTime = File.Exists(strSettingsFilePath) ? File.GetLastWriteTimeUtc(strSettingsFilePath) : DateTime.MinValue;
+
+            if (_objCachedCharacterOptions != null && _strCachedCharacterOptionsFileName == strSettingsFileName
+                && _datCachedCharacterOptionsFileWriteTime == datWriteTime)
+                return _objCachedCharacterOptions;
+
+            CharacterOptionsCacheMissCountForTesting++;
             var objOptions = new CharacterOptions();
-            objOptions.Load(GetValue("/character/settings", "default.xml"));
+            objOptions.Load(strSettingsFileName);
+            _objCachedCharacterOptions = objOptions;
+            _strCachedCharacterOptionsFileName = strSettingsFileName;
+            _datCachedCharacterOptionsFileWriteTime = datWriteTime;
             return objOptions;
         }
 
