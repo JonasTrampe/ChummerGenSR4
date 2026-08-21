@@ -394,7 +394,10 @@ namespace Chummer.Core
         public bool RaiseActiveSkill(int intSkillId)
         {
             XmlNode? objNode = GetActiveSkillNode(intSkillId);
-            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+            // A meta skill (e.g. "Perception (Visual)") always mirrors its base skill's rating and
+            // can't be raised independently - ported from SkillControl.cs hiding the raise control
+            // for IsMeta skills.
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True" || GetValue(objNode, "isMeta", "False") == "True")
                 return false;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -422,7 +425,7 @@ namespace Chummer.Core
         public int? GetActiveSkillKarmaCostToIncrease(int intSkillId)
         {
             XmlNode? objNode = GetActiveSkillNode(intSkillId);
-            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True" || GetValue(objNode, "isMeta", "False") == "True")
                 return null;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -437,7 +440,7 @@ namespace Chummer.Core
         public bool SetActiveSkillRating(int intSkillId, int intRating)
         {
             XmlNode? objNode = GetActiveSkillNode(intSkillId);
-            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True" || GetValue(objNode, "isMeta", "False") == "True")
                 return false;
 
             int intRatingMax = ParseInteger(GetValue(objNode, "ratingmax", "6"));
@@ -465,7 +468,7 @@ namespace Chummer.Core
         public bool RaiseActiveSkillCreate(int intSkillId)
         {
             XmlNode? objNode = GetActiveSkillNode(intSkillId);
-            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True" || GetValue(objNode, "isMeta", "False") == "True")
                 return false;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -504,7 +507,7 @@ namespace Chummer.Core
         public bool LowerActiveSkillCreate(int intSkillId)
         {
             XmlNode? objNode = GetActiveSkillNode(intSkillId);
-            if (objNode == null || GetValue(objNode, "grouped", "False") == "True")
+            if (objNode == null || GetValue(objNode, "grouped", "False") == "True" || GetValue(objNode, "isMeta", "False") == "True")
                 return false;
 
             int intRating = int.TryParse(GetValue(objNode, "rating", "0"), out var r) ? r : 0;
@@ -958,13 +961,26 @@ namespace Chummer.Core
             var lstSkills = new List<CharacterSkillData>();
             var objNodes = Document.SelectNodes("/character/skills/skill");
             if (objNodes == null) return lstSkills;
+
+            // Meta skills (e.g. "Perception (Visual)") mirror their base skill's Rating/
+            // Specialization - ported from SkillControl.cs's UpdateMetas(). Build a name lookup
+            // first so BuildSkillData can resolve a meta skill's base regardless of node order.
+            var dicBaseSkillInfo = new Dictionary<string, (int Rating, string Specialization)>(StringComparer.Ordinal);
+            foreach (XmlNode objNode in objNodes)
+            {
+                if (GetValue(objNode, "knowledge", "False") == "True")
+                    continue;
+                dicBaseSkillInfo[GetValue(objNode, "name", string.Empty)] =
+                    (ParseInteger(GetValue(objNode, "rating", "0")), GetValue(objNode, "spec", string.Empty));
+            }
+
             int intSkillId = 0;
             foreach (XmlNode objNode in objNodes)
             {
                 if (GetValue(objNode, "knowledge", "False") != "True")
                 {
                     lstSkills.Add(BuildSkillData(intSkillId, objNode, GetValue(objNode, "skillgroup", string.Empty),
-                        GetValue(objNode, "grouped", "False") == "True"));
+                        GetValue(objNode, "grouped", "False") == "True", dicBaseSkillInfo));
                 }
 
                 intSkillId++;
@@ -1009,7 +1025,8 @@ namespace Chummer.Core
                 blnKnowledgeSkill: false, skill.SkillGroup, skill.Exotic);
         }
 
-        private CharacterSkillData BuildSkillData(int intSkillId, XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked)
+        private CharacterSkillData BuildSkillData(int intSkillId, XmlNode objNode, string strSkillGroup, bool blnIsGroupLocked,
+            IReadOnlyDictionary<string, (int Rating, string Specialization)>? dicBaseSkillInfo = null)
         {
             string strName = GetValue(objNode, "name", string.Empty);
             string strAttribute = GetValue(objNode, "attribute", string.Empty);
@@ -1020,15 +1037,31 @@ namespace Chummer.Core
             bool blnKnowledge = GetValue(objNode, "knowledge", "False") == "True";
 
             bool blnExotic = GetValue(objNode, "exotic", "False") == "True";
+
+            bool blnIsMeta = GetValue(objNode, "isMeta", "False") == "True";
+            string strMetaBase = GetValue(objNode, "metaBase", string.Empty);
+            string strMetaSpec = GetValue(objNode, "metaSpec", string.Empty);
+            int intMetaRatingModifier = 0;
+            if (blnIsMeta && dicBaseSkillInfo != null && dicBaseSkillInfo.TryGetValue(strMetaBase, out var tupBase))
+            {
+                // Ported from SkillControl.cs's UpdateMetas(): a meta skill always mirrors its base
+                // skill's Rating (never its own stored value), and gets a +2 dice pool bonus when
+                // the base skill's current Specialization text matches this meta skill's MetaSpec.
+                intRating = tupBase.Rating;
+                if (strMetaSpec.Length > 0 && tupBase.Specialization == strMetaSpec)
+                    intMetaRatingModifier = 2;
+            }
+
             // Knowledge/Language Skills can always be used untrained (SR4 65); active Skills can
             // only default if skills.xml says so (exotic Active Skills never allow it).
             bool blnCanDefault = blnKnowledge || (!blnExotic && SkillAllowsDefaulting(strName));
             (string strRatingDisplay, int intPool, string strTooltip) = ComputeSkillDicePool(
-                strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization, blnCanDefault);
+                strName, strSkillGroup, strCategory, strAttribute, intRating, strSpecialization, blnCanDefault,
+                blnIsMeta ? strMetaBase : string.Empty, intMetaRatingModifier);
 
             return new CharacterSkillData(intSkillId, strName, strAttribute, intRating.ToString(), strRatingDisplay,
                 intPool.ToString(), strTooltip, strSpecialization, strCategory, blnIsGroupLocked, blnAllowDelete,
-                blnKnowledge, strSkillGroup, blnExotic);
+                blnKnowledge, strSkillGroup, blnExotic, blnIsMeta, strMetaBase);
         }
 
         /// <summary>Ported from clsUnique.cs's Skill.TotalRating (the dice pool) and
@@ -1045,11 +1078,11 @@ namespace Chummer.Core
         /// </summary>
         private (string RatingDisplay, int Pool, string Tooltip) ComputeSkillDicePool(string strName,
             string strSkillGroup, string strCategory, string strAttribute, int intRating, string strSpecialization,
-            bool blnCanDefault)
+            bool blnCanDefault, string strMetaBaseName = "", int intMetaRatingModifier = 0)
         {
             var objOptions = GetCharacterOptions();
-            var lstRatingContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: true);
-            var lstPoolContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: false);
+            var lstRatingContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: true, strMetaBaseName);
+            var lstPoolContributions = SkillImprovementContributions(strName, strSpecialization, strSkillGroup, strCategory, blnAddToRating: false, strMetaBaseName);
             int intRatingMod = lstRatingContributions.Sum(c => c.Value);
             int intPoolMod = lstPoolContributions.Sum(c => c.Value);
             int intAttributeValue = GetAttributeInt(strAttribute);
@@ -1117,6 +1150,14 @@ namespace Chummer.Core
                 AppendContributions(sb, lstPoolContributions);
             }
 
+            // Ported from clsUnique.cs's Skill.TotalRating: a meta skill's +2 bonus for matching
+            // its base skill's current Specialization, added flat like the legacy return value.
+            if (intMetaRatingModifier != 0)
+            {
+                intPool += intMetaRatingModifier;
+                sb.Append('\n').Append("Meta-Fertigkeit (Spezialisierung stimmt überein): ").Append(FormatSigned(intMetaRatingModifier));
+            }
+
             intPool = Math.Max(0, intPool);
 
             if (intWound != 0)
@@ -1129,7 +1170,8 @@ namespace Chummer.Core
         }
 
         private IReadOnlyList<(string SourceName, int Value)> SkillImprovementContributions(string strName,
-            string strSpecialization, string strSkillGroup, string strCategory, bool blnAddToRating)
+            string strSpecialization, string strSkillGroup, string strCategory, bool blnAddToRating,
+            string strMetaBaseName = "")
         {
             var lstContributions = new List<(string SourceName, int Value)>(
                 ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Skill, strName, blnAddToRating));
@@ -1146,6 +1188,12 @@ namespace Chummer.Core
                 lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SkillGroup, strSkillGroup, blnAddToRating));
             if (!string.IsNullOrEmpty(strCategory))
                 lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.SkillCategory, strCategory, blnAddToRating));
+            // Ported from clsUnique.cs's Improvement-matching checks (e.g. RatingModifiers):
+            // "objImprovement.ImprovedName == _strName || (_isMeta && objImprovement.ImprovedName == MetaBase)"
+            // - a meta skill (e.g. "Perception (Visual)") also picks up bonuses targeted at its
+            // base skill's bare name (e.g. cyberware boosting "Perception").
+            if (!string.IsNullOrEmpty(strMetaBaseName))
+                lstContributions.AddRange(ImprovementManager.DescribeValueOf(Improvements, ImprovementType.Skill, strMetaBaseName, blnAddToRating));
             return lstContributions;
         }
 

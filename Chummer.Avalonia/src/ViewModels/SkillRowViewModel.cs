@@ -61,7 +61,9 @@ public sealed class SkillRowViewModel : ViewModelBase
         _character = character;
         _reload = reload;
         SkillId = skill.SkillId;
-        SkillName = skill.Name;
+        // Visually groups a meta skill under its base skill's name in the flat WrapPanel list -
+        // matches legacy's indented grouping in the career-mode skill panel.
+        SkillName = skill.IsMeta ? "↳ " + skill.Name : skill.Name;
         Attribute = skill.Attribute;
         Category = skill.Category;
         SkillGroup = skill.SkillGroup;
@@ -71,7 +73,10 @@ public sealed class SkillRowViewModel : ViewModelBase
         PoolTooltip = skill.PoolTooltip;
         CanRoll = character.AllowSkillDiceRollingEnabled
             && int.TryParse(skill.TotalValue, out int intPool) && intPool > 0;
-        IsGroupLocked = skill.IsGroupLocked;
+        // Meta skills (e.g. "Perception (Visual)") mirror their base skill's rating and can't be
+        // raised independently - reuse the same "locked, rating isn't yours to edit" treatment
+        // already used for grouped skills rather than adding a parallel disabled-state concept.
+        IsGroupLocked = skill.IsGroupLocked || skill.IsMeta;
         IsCreateMode = !character.Created;
 
         IsLoading = true;

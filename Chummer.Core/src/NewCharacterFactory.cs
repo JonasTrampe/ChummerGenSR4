@@ -608,6 +608,20 @@ namespace Chummer.Core
                 AppendElement(objDocument, objSkill, "allowdelete", "False");
                 AppendElement(objDocument, objSkill, "attribute", GetValue(objSkillNode, "attribute", string.Empty));
                 AppendElement(objDocument, objSkill, "totalvalue", "0");
+
+                // Meta skills (e.g. "Perception (Visual)") mirror a base skill's Rating and get a
+                // +2 bonus when that base skill's Specialization matches - see
+                // CharacterFileService.Skills.cs's BuildSkillData. skills.xml uses camelCase
+                // (isMeta/metaBase/metaSpec) and a lowercase "true"/"false" boolean, unlike this
+                // save format's own "grouped"/"exotic" (lowercase element, capitalized boolean)
+                // convention - normalized here to match.
+                bool blnIsMeta = string.Equals(GetValue(objSkillNode, "isMeta", "false"), "true", StringComparison.OrdinalIgnoreCase);
+                if (blnIsMeta)
+                {
+                    AppendElement(objDocument, objSkill, "isMeta", "True");
+                    AppendElement(objDocument, objSkill, "metaBase", GetValue(objSkillNode, "metaBase", string.Empty));
+                    AppendElement(objDocument, objSkill, "metaSpec", GetValue(objSkillNode, "metaSpec", string.Empty));
+                }
             }
         }
 
