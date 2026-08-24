@@ -109,7 +109,15 @@ namespace Chummer.Core
         // readable name (Core doesn't yet cross-reference that back to the actual gear/power/
         // quality that granted it - see PORTING_PLAN.md) - fall back to a generic label rather
         // than showing a raw GUID in a tooltip.
-        public IReadOnlyList<Improvement> Improvements => ReadImprovements();
+        // Cached per instance and invalidated whenever Changed fires (see the CharacterDocument
+        // constructor) rather than recomputed on every access: ImprovementManager.ValueOf/
+        // AugmentedValueOf/DescribeValueOf is called from ComputeSkillDicePool (once per skill),
+        // per-attribute, and per-item bonus calculations, so a full character reload could hit
+        // this dozens to 100+ times - each access previously re-walked the whole
+        // /character/improvements/improvement XML subtree and rebuilt every Improvement object
+        // from scratch, the same "expensive work redone per call" bug GetCharacterOptions() had.
+        private List<Improvement>? _lstCachedImprovements;
+        public IReadOnlyList<Improvement> Improvements => _lstCachedImprovements ??= ReadImprovements().ToList();
 
         /// <summary>Removes every &lt;improvement&gt; sharing <paramref name="strSourceName"/> whose
         /// improvementsource is "Custom" - ported from frmCareer.cs's cmdDeleteImprovement_Click,

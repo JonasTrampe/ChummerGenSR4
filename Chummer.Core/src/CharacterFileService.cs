@@ -127,6 +127,10 @@ namespace Chummer.Core
         {
             Document = objDocument;
             DisplayName = strDisplayName;
+            // Invalidates the Improvements cache (CharacterFileService.Improvements.cs) on every
+            // mutation - subscribing here catches every Changed?.Invoke() call site rather than
+            // needing each of them to also clear the cache directly.
+            Changed += () => _lstCachedImprovements = null;
         }
 
         internal XmlDocument Document { get; }
