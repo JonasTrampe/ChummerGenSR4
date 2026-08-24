@@ -354,6 +354,8 @@ namespace Chummer.Core
                 AppendElement(objUndoElement, "extra", objUndo.Extra);
                 objExpense.AppendChild(objUndoElement);
             }
+
+            Changed?.Invoke();
         }
 
         /// <summary>Ported from frmCareer.cs's Karma/Nuyen expense edit dialog: Reason and Date are

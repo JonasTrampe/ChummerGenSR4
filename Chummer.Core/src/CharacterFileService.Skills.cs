@@ -498,6 +498,7 @@ namespace Chummer.Core
                 SetChildValue(objNode, "rating", strPreviousRating);
                 return false;
             }
+            Changed?.Invoke();
             return true;
         }
 
@@ -691,6 +692,7 @@ namespace Chummer.Core
                 SyncGroupedSkillRatings(strGroupName, intCurrentRating);
                 return false;
             }
+            Changed?.Invoke();
             return true;
         }
 
@@ -798,6 +800,7 @@ namespace Chummer.Core
                 return false;
 
             SetChildValue(objNode, "spec", strSpecialization);
+            Changed?.Invoke();
             return true;
         }
 
@@ -851,6 +854,7 @@ namespace Chummer.Core
             AppendElement(objSkill, "attribute", strAttribute);
             AppendElement(objSkill, "totalvalue", "0");
             objSkills.AppendChild(objSkill);
+            Changed?.Invoke();
         }
 
         private XmlNode? GetActiveSkillNode(int intSkillId)

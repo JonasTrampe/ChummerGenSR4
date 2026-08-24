@@ -51,6 +51,8 @@ namespace Chummer.Core
                 string strNodeGuid = GetValue(objNode, "guid", string.Empty);
                 SetChildValue(objNode, "active", strNodeGuid == strGuid ? "True" : "False");
             }
+
+            Changed?.Invoke();
         }
 
         public bool AddGear(string strName, string strCategory, string strRating = "0", string strQty = "1",

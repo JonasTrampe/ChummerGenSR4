@@ -514,6 +514,7 @@ namespace Chummer.Core
             if (objNode == null) return false;
             SetChildValue(objNode, "value", intValue.ToString());
             SetChildValue(objNode, "totalvalue", intValue.ToString());
+            Changed?.Invoke();
             return true;
         }
 

@@ -125,6 +125,7 @@ namespace Chummer.Core
                 return false;
 
             SetChildValue(objNode, "notes", strNotes);
+            Changed?.Invoke();
             return true;
         }
 
