@@ -12,9 +12,35 @@ namespace Chummer.Core
 {
     public sealed partial class CharacterDocument
     {
-        public IReadOnlyList<CharacterMartialArtData> MartialArts => ReadMartialArts();
+        private IReadOnlyList<CharacterMartialArtData>? _cachedMartialArts;
+        public IReadOnlyList<CharacterMartialArtData> MartialArts
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedMartialArts short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedMartialArts ??= ReadMartialArts();
+            }
+        }
 
-        public IReadOnlyList<CharacterMartialArtManeuverData> MartialArtManeuvers => ReadMartialArtManeuvers();
+        private IReadOnlyList<CharacterMartialArtManeuverData>? _cachedMartialArtManeuvers;
+        public IReadOnlyList<CharacterMartialArtManeuverData> MartialArtManeuvers
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedMartialArtManeuvers short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedMartialArtManeuvers ??= ReadMartialArtManeuvers();
+            }
+        }
 
         /// <summary>Ported from frmCareer.cs's cmdAddMartialArt_Click: career-mode cost is a flat
         /// 5*KarmaQuality Karma, the same formula a Karma-mode creation purchase uses - legacy

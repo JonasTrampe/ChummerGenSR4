@@ -545,7 +545,20 @@ namespace Chummer.Core
         /// <paramref name="strAp"/>/<paramref name="strMode"/>/<paramref name="strRc"/>/
         /// <paramref name="strAmmo"/> are copied as-is from weapons.xml (no STR-substitution or
         /// underbarrel/accessory bonus math is ported for the damage code).</summary>
-        public IReadOnlyList<CharacterVehicleData> Vehicles => ReadVehicles();
+        private IReadOnlyList<CharacterVehicleData>? _cachedVehicles;
+        public IReadOnlyList<CharacterVehicleData> Vehicles
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedVehicles short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedVehicles ??= ReadVehicles();
+            }
+        }
 
         // Karma and Nuyen history entries are saved into the same <expenses> list and only
         // distinguished by <type> - split here to feed the two separate history lists/charts.

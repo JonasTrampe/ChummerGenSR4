@@ -114,7 +114,20 @@ namespace Chummer.Core
         }
 
         /// <summary>Appends one tooltip line per contribution as "SourceName: +N" (or "-N").</summary>
-        public IReadOnlyList<CharacterAttributeData> Attributes => ReadAttributes();
+        private IReadOnlyList<CharacterAttributeData>? _cachedAttributes;
+        public IReadOnlyList<CharacterAttributeData> Attributes
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedAttributes short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedAttributes ??= ReadAttributes();
+            }
+        }
 
         /// <summary>Raw bonus/modifier records - see Improvement.cs and ImprovementManager.cs for
         /// what these actually drive. Most callers want a derived value (like Condition above)

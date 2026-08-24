@@ -31,7 +31,20 @@ namespace Chummer.Core
             }
         }
 
-        public IReadOnlyList<CharacterMetamagicData> Metamagics => ReadMetamagics();
+        private IReadOnlyList<CharacterMetamagicData>? _cachedMetamagics;
+        public IReadOnlyList<CharacterMetamagicData> Metamagics
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedMetamagics short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedMetamagics ??= ReadMetamagics();
+            }
+        }
 
         /// <summary>A Technomancer's Complex Forms - ported from clsUnique.cs's TechProgram class,
         /// data drawn from programs.xml (see frmSelectProgram.cs).</summary>

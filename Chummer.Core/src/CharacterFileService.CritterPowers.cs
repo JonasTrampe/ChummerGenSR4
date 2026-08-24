@@ -35,7 +35,20 @@ namespace Chummer.Core
             }
         }
 
-        public IReadOnlyList<CharacterCritterPowerData> CritterPowers => ReadCritterPowers();
+        private IReadOnlyList<CharacterCritterPowerData>? _cachedCritterPowers;
+        public IReadOnlyList<CharacterCritterPowerData> CritterPowers
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedCritterPowers short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedCritterPowers ??= ReadCritterPowers();
+            }
+        }
 
         private IReadOnlyList<CharacterCritterPowerData> ReadCritterPowers()
         {

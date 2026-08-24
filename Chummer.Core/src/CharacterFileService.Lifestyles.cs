@@ -12,7 +12,20 @@ namespace Chummer.Core
 {
     public sealed partial class CharacterDocument
     {
-        public IReadOnlyList<CharacterLifestyleData> Lifestyles => ReadLifestyles();
+        private IReadOnlyList<CharacterLifestyleData>? _cachedLifestyles;
+        public IReadOnlyList<CharacterLifestyleData> Lifestyles
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedLifestyles short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedLifestyles ??= ReadLifestyles();
+            }
+        }
 
         /// <summary>Adds a base lifestyle using the character-file shape written by the legacy application.
         /// <paramref name="strDice"/>/<paramref name="strMultiplier"/> are optional (empty for

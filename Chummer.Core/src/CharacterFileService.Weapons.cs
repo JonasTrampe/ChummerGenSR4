@@ -799,14 +799,53 @@ namespace Chummer.Core
         /// <paramref name="strI"/> are the ballistic/impact ratings copied as-is from armor.xml
         /// (including a leading "+" for stacking bonus armor, same as the encumbrance calc already
         /// handles via ParseArmorRating).</summary>
-        public IReadOnlyList<CharacterTreeItemData> Gear => ReadGearTree();
+        private IReadOnlyList<CharacterTreeItemData>? _cachedGear;
+        public IReadOnlyList<CharacterTreeItemData> Gear
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedGear short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedGear ??= ReadGearTree();
+            }
+        }
 
         /// <summary>Named storage locations for root-level Gear (ported from frmCareer.cs's
         /// cmdAddLocation_Click) - existing while empty, same as WeaponLocations.</summary>
-        public IReadOnlyList<CharacterWeaponData> Weapons => ReadWeapons();
+        private IReadOnlyList<CharacterWeaponData>? _cachedWeapons;
+        public IReadOnlyList<CharacterWeaponData> Weapons
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedWeapons short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedWeapons ??= ReadWeapons();
+            }
+        }
 
         /// <summary>Weapons with their installed accessories, modifications, and mounted gear.</summary>
-        public IReadOnlyList<CharacterTreeItemData> WeaponTrees => ReadWeaponTrees();
+        private IReadOnlyList<CharacterTreeItemData>? _cachedWeaponTrees;
+        public IReadOnlyList<CharacterTreeItemData> WeaponTrees
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedWeaponTrees short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedWeaponTrees ??= ReadWeaponTrees();
+            }
+        }
 
         public int GetActiveSkillSpecializationKarmaCost() => GetCharacterOptions().KarmaSpecialization;
 

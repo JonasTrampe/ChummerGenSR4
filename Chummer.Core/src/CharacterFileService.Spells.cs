@@ -330,6 +330,7 @@ namespace Chummer.Core
                     else
                         Bp = (intPool + intCreationRefund).ToString(CultureInfo.InvariantCulture);
                 }
+                Changed?.Invoke();
                 return true;
             }
 
@@ -357,7 +358,20 @@ namespace Chummer.Core
             return objNodes != null && intSpellId < objNodes.Count ? objNodes[intSpellId] : null;
         }
 
-        public IReadOnlyList<CharacterSpellData> Spells => ReadSpells();
+        private IReadOnlyList<CharacterSpellData>? _cachedSpells;
+        public IReadOnlyList<CharacterSpellData> Spells
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedSpells short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedSpells ??= ReadSpells();
+            }
+        }
 
         /// <summary>Maximum Force a summoned Spirit/Sprite may have - ported from frmCareer.cs's/
         /// frmCreate.cs's cmdAddSpirit_Click and DVTooltip's shared branch: a Mystic Adept normally

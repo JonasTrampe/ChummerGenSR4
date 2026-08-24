@@ -12,7 +12,20 @@ namespace Chummer.Core
 {
     public sealed partial class CharacterDocument
     {
-        public IReadOnlyList<CharacterCommlinkData> Commlinks => ReadCommlinks();
+        private IReadOnlyList<CharacterCommlinkData>? _cachedCommlinks;
+        public IReadOnlyList<CharacterCommlinkData> Commlinks
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedCommlinks short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedCommlinks ??= ReadCommlinks();
+            }
+        }
 
         /// <summary>Matrix "System" stat, only meaningful for A.I./technocritter/protosapient
         /// characters (drone/sprite-style characters whose Matrix Initiative uses this instead of
@@ -977,16 +990,55 @@ namespace Chummer.Core
         // Both read through the same ID-assigning walk (see ReadCyberwareOrBiowareTree) so a
         // CyberwareId handed back from either tree's UI always resolves to the same node via
         // GetCyberwareNodeById, matching the Gear tree's GearId/MoveGear pattern.
-        public IReadOnlyList<CharacterSpiritData> Spirits => ReadSpirits();
+        private IReadOnlyList<CharacterSpiritData>? _cachedSpirits;
+        public IReadOnlyList<CharacterSpiritData> Spirits
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedSpirits short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedSpirits ??= ReadSpirits();
+            }
+        }
 
         /// <summary>Saved bonded Foci, joined to their linked Gear by GUID. Focus records are
         /// separate from Gear in the legacy file, so a broken GearId is preserved and surfaced
         /// instead of silently dropping the player's bonded record.</summary>
-        public IReadOnlyList<CharacterFocusData> Foci => ReadFoci();
+        private IReadOnlyList<CharacterFocusData>? _cachedFoci;
+        public IReadOnlyList<CharacterFocusData> Foci
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedFoci short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedFoci ??= ReadFoci();
+            }
+        }
 
         /// <summary>Saved Stacked Foci, retaining their composite Gear identity, bonded state,
         /// and the component-Gear snapshots stored by legacy character files.</summary>
-        public IReadOnlyList<CharacterStackedFocusData> StackedFoci => ReadStackedFoci();
+        private IReadOnlyList<CharacterStackedFocusData>? _cachedStackedFoci;
+        public IReadOnlyList<CharacterStackedFocusData> StackedFoci
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedStackedFoci short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedStackedFoci ??= ReadStackedFoci();
+            }
+        }
 
         /// <summary>Reports whether a Focus Gear can be bonded under the legacy MAG count and
         /// total-Force limits. Cost and bonus application are deliberately handled by the binding

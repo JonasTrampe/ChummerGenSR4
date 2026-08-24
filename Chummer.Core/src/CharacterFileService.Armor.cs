@@ -525,7 +525,20 @@ namespace Chummer.Core
         }
 
         /// <summary>Removes the first saved spell with the supplied name.</summary>
-        public IReadOnlyList<CharacterTreeItemData> Armor => ReadArmorTree();
+        private IReadOnlyList<CharacterTreeItemData>? _cachedArmor;
+        public IReadOnlyList<CharacterTreeItemData> Armor
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedArmor short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedArmor ??= ReadArmorTree();
+            }
+        }
 
         /// <summary>Persisted armor-bundle names, including empty bundles.</summary>
         public IReadOnlyList<string> ArmorSets => (IReadOnlyList<string>?)Document.SelectNodes("/character/armorbundles/armorbundle")?

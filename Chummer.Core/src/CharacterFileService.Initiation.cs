@@ -185,7 +185,20 @@ namespace Chummer.Core
             }
         }
 
-        public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades => ReadInitiationGrades();
+        private IReadOnlyList<CharacterInitiationGradeData>? _cachedInitiationGrades;
+        public IReadOnlyList<CharacterInitiationGradeData> InitiationGrades
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedInitiationGrades short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedInitiationGrades ??= ReadInitiationGrades();
+            }
+        }
 
         /// <summary>Current Initiate (Magician) or Submersion (Technomancer) Grade - the count of
         /// saved InitiationGrades entries.</summary>

@@ -15,7 +15,20 @@ namespace Chummer.Core
         public IReadOnlyList<string> GetAdeptPowerAttributeSelectionOptions(string strName) =>
             ExtractAttributeSelectionOptions(FindBonusChild("powers.xml", "powers", "power", strName, "selectattribute"));
 
-        public IReadOnlyList<CharacterPowerData> AdeptPowers => ReadAdeptPowers();
+        private IReadOnlyList<CharacterPowerData>? _cachedAdeptPowers;
+        public IReadOnlyList<CharacterPowerData> AdeptPowers
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedAdeptPowers short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedAdeptPowers ??= ReadAdeptPowers();
+            }
+        }
 
         /// <summary>Ported from frmSelectPower.cs's cmdOK_Click. Also applies the power's own
         /// rules-data &lt;bonus&gt; block (see <see cref="ApplyBonus"/>) at the power's Rating,

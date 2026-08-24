@@ -17,7 +17,20 @@ namespace Chummer.Core
         public IReadOnlyList<CharacterContactData> Enemies => ReadContacts(blnEnemies: true);
 
         /// <summary>Pets are persisted as Contact entries with <c>type=Pet</c>, matching the legacy app.</summary>
-        public IReadOnlyList<CharacterContactData> Pets => ReadPets();
+        private IReadOnlyList<CharacterContactData>? _cachedPets;
+        public IReadOnlyList<CharacterContactData> Pets
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedPets short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedPets ??= ReadPets();
+            }
+        }
 
         public bool AddContact(string strName, string strConnection, string strLoyalty, bool blnEnemy,
             string strType = "")

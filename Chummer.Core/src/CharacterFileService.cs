@@ -127,10 +127,46 @@ namespace Chummer.Core
         {
             Document = objDocument;
             DisplayName = strDisplayName;
-            // Invalidates the Improvements cache (CharacterFileService.Improvements.cs) on every
-            // mutation - subscribing here catches every Changed?.Invoke() call site rather than
-            // needing each of them to also clear the cache directly.
-            Changed += () => _lstCachedImprovements = null;
+            // Every Read*()-backed collection property (Improvements, Skills, Qualities, Gear,
+            // Attributes, ...) is cached per instance instead of rebuilt from XML on every access -
+            // subscribing here catches every Changed?.Invoke() call site (100+ across
+            // CharacterFileService.*.cs) rather than needing each of them to also clear these
+            // caches directly.
+            Changed += InvalidateReadCaches;
+        }
+
+        /// <summary>Clears every Read*()-backed collection cache - see the constructor's Changed
+        /// subscription. One list here rather than scattering the invalidation across every
+        /// mutator, and easier to audit for completeness than remembering to update N call sites
+        /// whenever a new cached collection is added.</summary>
+        private void InvalidateReadCaches()
+        {
+            _lstCachedImprovements = null;
+            _cachedCritterPowers = null;
+            _cachedMetamagics = null;
+            _cachedAdeptPowers = null;
+            _cachedCalendar = null;
+            _cachedAttributes = null;
+            _cachedCommlinks = null;
+            _cachedSpirits = null;
+            _cachedFoci = null;
+            _cachedStackedFoci = null;
+            _cachedVehicles = null;
+            _cachedPets = null;
+            _cachedMartialArts = null;
+            _cachedMartialArtManeuvers = null;
+            _cachedQualities = null;
+            _cachedLifestyles = null;
+            _cachedInitiationGrades = null;
+            _cachedSpells = null;
+            _cachedArmor = null;
+            _cachedSkillGroups = null;
+            _cachedSkills = null;
+            _cachedKnowledgeSkills = null;
+            _cachedComplexForms = null;
+            _cachedGear = null;
+            _cachedWeapons = null;
+            _cachedWeaponTrees = null;
         }
 
         internal XmlDocument Document { get; }
@@ -231,7 +267,20 @@ namespace Chummer.Core
 
         private static string FormatSigned(int intValue) => intValue >= 0 ? "+" + intValue : intValue.ToString();
 
-        public IReadOnlyList<CalendarWeek> Calendar => ReadCalendar();
+        private IReadOnlyList<CalendarWeek>? _cachedCalendar;
+        public IReadOnlyList<CalendarWeek> Calendar
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedCalendar short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedCalendar ??= ReadCalendar();
+            }
+        }
 
         /// <summary>Adds a calendar week in the same save-file representation as the legacy
         /// calendar. Years are unrestricted; weeks use Shadowrun's 1-52 calendar range.</summary>
@@ -624,6 +673,11 @@ namespace Chummer.Core
             _objCachedCharacterOptions = objOptions;
             _strCachedCharacterOptionsFileName = strSettingsFileName;
             _datCachedCharacterOptionsFileWriteTime = datWriteTime;
+            // Every Read*() cache (Skills, Attributes, ...) bakes in values derived from
+            // CharacterOptions (karma costs, house-rule caps, ...) - a real settings-file change
+            // invalidates this cache via the mtime check above, but without also invalidating
+            // those, they'd keep serving dice pools/costs computed under the OLD options.
+            InvalidateReadCaches();
             return objOptions;
         }
 
@@ -638,7 +692,11 @@ namespace Chummer.Core
 
         /// <summary>Test-only hook to exercise settings-driven behavior (house rules, karma/BP
         /// costs, ...) without needing a real settings/*.xml file on disk.</summary>
-        internal void SetCharacterOptionsForTesting(CharacterOptions objOptions) => _objCharacterOptionsOverride = objOptions;
+        internal void SetCharacterOptionsForTesting(CharacterOptions objOptions)
+        {
+            _objCharacterOptionsOverride = objOptions;
+            InvalidateReadCaches();
+        }
 
         private IReadOnlyList<CharacterTreeItemData> ReadTreeItems(string strXPath, string strChildXPath)
         {

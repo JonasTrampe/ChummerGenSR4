@@ -310,11 +310,50 @@ namespace Chummer.Core
             return dicResult;
         }
 
-        public IReadOnlyList<CharacterSkillGroupData> SkillGroups => ReadSkillGroups();
+        private IReadOnlyList<CharacterSkillGroupData>? _cachedSkillGroups;
+        public IReadOnlyList<CharacterSkillGroupData> SkillGroups
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedSkillGroups short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedSkillGroups ??= ReadSkillGroups();
+            }
+        }
 
-        public IReadOnlyList<CharacterSkillData> Skills => ReadSkills();
+        private IReadOnlyList<CharacterSkillData>? _cachedSkills;
+        public IReadOnlyList<CharacterSkillData> Skills
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedSkills short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedSkills ??= ReadSkills();
+            }
+        }
 
-        public IReadOnlyList<CharacterSkillData> KnowledgeSkills => ReadKnowledgeSkills();
+        private IReadOnlyList<CharacterSkillData>? _cachedKnowledgeSkills;
+        public IReadOnlyList<CharacterSkillData> KnowledgeSkills
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedKnowledgeSkills short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedKnowledgeSkills ??= ReadKnowledgeSkills();
+            }
+        }
 
         public bool AddKnowledgeSkill(string strName, string strCategory)
         {
@@ -922,7 +961,20 @@ namespace Chummer.Core
 
         // Enemies are saved into the same <contacts> list as regular contacts and are only
         // distinguished by <type>Enemy</type> - split here so each gets its own display list.
-        public IReadOnlyList<CharacterComplexFormData> ComplexForms => ReadComplexForms();
+        private IReadOnlyList<CharacterComplexFormData>? _cachedComplexForms;
+        public IReadOnlyList<CharacterComplexFormData> ComplexForms
+        {
+            get
+            {
+                // Forces the (cheap) settings-file freshness check even on a cache
+                // hit below - GetCharacterOptions() invalidates every Read*() cache
+                // when the settings file actually changed, but only as a side effect
+                // of being called, and _cachedComplexForms short-circuits ReadX() (which is where
+                // that call would otherwise happen) once already populated.
+                GetCharacterOptions();
+                return _cachedComplexForms ??= ReadComplexForms();
+            }
+        }
 
         /// <summary>Creation/career Karma cost for buying a Complex Form at a given rating.
         /// Uses the legacy Skillsoft exception and AlternateComplexFormCost spell-cost rule.</summary>
