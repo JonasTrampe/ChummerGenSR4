@@ -164,6 +164,7 @@
                         <CheckBox Content="{loc:Loc Checkbox_Option_EnforceCapacity}" IsChecked="{Binding CurrentOptions.EnforceCapacity, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_EnforceSkillRating" Content="{loc:Loc Checkbox_Options_EnforceSkillRating}" IsChecked="{Binding CurrentOptions.EnforceMaximumSkillRatingModifier, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc UI_KarmaCostSpecialAttributesEssenceLoss}" IsChecked="{Binding CurrentOptions.EssLossReducesMaximumOnly, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_SpecialKarmaCost" Content="{loc:Loc Checkbox_Options_SpecialKarmaCost}" IsChecked="{Binding CurrentOptions.SpecialKarmaCostBasedOnShownValue, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_AutomaticCopyProtection" Content="{loc:Loc Checkbox_Options_AutomaticCopyProtection}" IsChecked="{Binding CurrentOptions.AutomaticCopyProtection, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_AutomaticRegistration" Content="{loc:Loc UI_AutoRegisterSoftwareWithPrograms}" IsChecked="{Binding CurrentOptions.AutomaticRegistration, Mode=TwoWay}" />
                         <CheckBox Content="{loc:Loc UI_CalculateCommlinkProcessorFromPrograms}" IsChecked="{Binding CurrentOptions.CalculateCommlinkResponse, Mode=TwoWay}" />

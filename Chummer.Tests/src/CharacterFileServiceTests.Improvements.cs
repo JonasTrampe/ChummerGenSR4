@@ -13,6 +13,37 @@ namespace Chummer.Tests;
 public partial class CharacterFileServiceTests
 {
     [Fact]
+    public void CharacterDiff_ExposesLocalAndServerValuesForConflictReview()
+    {
+        CharacterDocument local = LoadXml("<character><alias>Local</alias></character>");
+        CharacterDocument server = LoadXml("<character><alias>Server</alias></character>");
+
+        CharacterDiffEntry entry = Assert.Single(CharacterDiff.Compare(local, server).Entries,
+            objEntry => objEntry.Name == "Alias");
+        Assert.Equal("Local", entry.LocalValue);
+        Assert.Equal("Server", entry.ServerValue);
+    }
+
+    [Fact]
+    public void CharacterMerge_CombinesIndependentResourceAndItemChanges()
+    {
+        const string strBase = "<character><karma>100</karma><nuyen>1000</nuyen><skills>"
+            + "<skill><guid>base</guid><name>Base</name><rating>1</rating></skill></skills></character>";
+        CharacterDocument objBase = LoadXml(strBase);
+        CharacterDocument objLocal = LoadXml(strBase.Replace("<karma>100", "<karma>80")
+            .Replace("</skills>", "<skill><guid>local</guid><name>Pistols</name><rating>2</rating></skill></skills>"));
+        CharacterDocument objServer = LoadXml(strBase.Replace("<nuyen>1000", "<nuyen>700")
+            .Replace("</skills>", "<skill><guid>server</guid><name>Etiquette</name><rating>2</rating></skill></skills>"));
+
+        CharacterMergeResult objResult = CharacterMergeService.TryMerge(objBase, objLocal, objServer);
+        Assert.True(objResult.CanMerge);
+        Assert.Equal("80", objResult.MergedCharacter!.Karma);
+        Assert.Equal("700", objResult.MergedCharacter.Nuyen);
+        Assert.Contains(objResult.MergedCharacter.Skills, objSkill => objSkill.Name == "Pistols");
+        Assert.Contains(objResult.MergedCharacter.Skills, objSkill => objSkill.Name == "Etiquette");
+    }
+
+    [Fact]
     public void RemoveCustomImprovement_RemovesOnlyMatchingCustomSourcedEntries()
     {
         CharacterDocument character = LoadXml("<character><name>Runner</name><improvements>"
@@ -34,6 +65,24 @@ public partial class CharacterFileServiceTests
         Assert.Equal("Wired Reflexes", remaining.SourceName);
 
         Assert.False(character.RemoveCustomImprovement("abc-123"));
+    }
+
+    [Fact]
+    public void ReplaceCustomImprovement_RetainsItsGroupAndDoesNotDeleteOnInvalidInput()
+    {
+        CharacterDocument character = LoadFixture();
+        Assert.True(character.AddCustomImprovement(CharacterDocument.CustomImprovementType.Attribute,
+            "GM Bonus", intVal: 2, strSelect: "BOD"));
+        Assert.True(character.SetCustomImprovementGroup("GM Bonus", "House rules"));
+
+        Assert.True(character.ReplaceCustomImprovement("GM Bonus", CharacterDocument.CustomImprovementType.Attribute,
+            "Updated GM Bonus", intVal: 3, strSelect: "BOD"));
+        Improvement replacement = Assert.Single(character.Improvements, obj => obj.SourceName == "Updated GM Bonus");
+        Assert.Equal("House rules", replacement.CustomGroup);
+
+        Assert.False(character.ReplaceCustomImprovement("Updated GM Bonus",
+            CharacterDocument.CustomImprovementType.Attribute, "Broken", intVal: 1));
+        Assert.Contains(character.Improvements, obj => obj.SourceName == "Updated GM Bonus");
     }
 
     [Fact]

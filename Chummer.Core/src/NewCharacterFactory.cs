@@ -214,6 +214,7 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "concept", string.Empty);
             AppendElement(objDocument, objRoot, "notes", string.Empty);
             AppendElement(objDocument, objRoot, "alias", string.Empty);
+            AppendElement(objDocument, objRoot, "lastdate", DateTime.Now.ToString("O", CultureInfo.InvariantCulture));
             AppendElement(objDocument, objRoot, "playername", string.Empty);
             AppendElement(objDocument, objRoot, "karma", "0");
             AppendElement(objDocument, objRoot, "totalkarma", "0");
@@ -438,6 +439,7 @@ namespace Chummer.Core
             AppendElement(objDocument, objRoot, "concept", string.Empty);
             AppendElement(objDocument, objRoot, "notes", string.Empty);
             AppendElement(objDocument, objRoot, "alias", string.Empty);
+            AppendElement(objDocument, objRoot, "lastdate", DateTime.Now.ToString("O", CultureInfo.InvariantCulture));
             AppendElement(objDocument, objRoot, "playername", string.Empty);
             AppendElement(objDocument, objRoot, "karma", blnKarmaBuild ? intRemainingBuildPoints.ToString() : "0");
             AppendElement(objDocument, objRoot, "totalkarma", "0");

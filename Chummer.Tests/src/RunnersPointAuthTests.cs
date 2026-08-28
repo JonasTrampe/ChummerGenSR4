@@ -9,6 +9,7 @@ namespace Chummer.Tests
 	// These tests exercise SetApiToken/GetAccessTokenAsync/Logout, which persist to a fixed file under
 	// %AppData%\ChummerGenSR4\cloudauth.dat. Each test cleans up via Logout() in a finally block so it
 	// doesn't leave a real stored login behind on the machine running the tests.
+	[Collection("RunnersPointAuth")]
 	public class RunnersPointAuthTests
 	{
 		private const string ValidToken = "rp_0123456789abcdef0123456789abcdef01234567";

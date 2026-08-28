@@ -130,7 +130,7 @@ public sealed partial class OptionsDialogViewModel
     {
         SelectedBuildMethod = BuildMethods.FirstOrDefault(x => x.Value == CurrentOptions.BuildMethod) ?? BuildMethods.FirstOrDefault();
         SelectedEssenceDecimals = EssenceDecimals.FirstOrDefault(x => x.Value == CurrentOptions.EssenceDecimals.ToString()) ?? EssenceDecimals.FirstOrDefault();
-        string strLimbKey = CurrentOptions.LimbCount == 6 ? "all" : CurrentOptions.ExcludeLimbSlot == "skull" ? "torso" : "skull";
+        string strLimbKey = CurrentOptions.LimbCount == 6 ? "all" : CurrentOptions.ExcludeLimbSlot == "skull" ? "skull" : "torso";
         SelectedLimbCount = LimbCounts.FirstOrDefault(x => x.Value == strLimbKey) ?? LimbCounts.FirstOrDefault();
         OnPropertyChanged(nameof(CurrentOptions));
     }

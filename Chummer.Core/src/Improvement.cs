@@ -27,10 +27,12 @@ public sealed class Improvement
     public bool Custom { get; }
     public bool AddToRating { get; }
     public bool Enabled { get; }
+    public string CustomGroup { get; }
 
     private Improvement(string strUniqueName, string strImprovedName, string strSourceName, int intMinimum,
         int intMaximum, int intAugmented, int intAugmentedMaximum, int intValue, int intRating,
-        ImprovementType eType, ImprovementSource eSource, bool blnCustom, bool blnAddToRating, bool blnEnabled)
+        ImprovementType eType, ImprovementSource eSource, bool blnCustom, bool blnAddToRating, bool blnEnabled,
+        string strCustomGroup)
     {
         UniqueName = strUniqueName;
         ImprovedName = strImprovedName;
@@ -46,6 +48,7 @@ public sealed class Improvement
         Custom = blnCustom;
         AddToRating = blnAddToRating;
         Enabled = blnEnabled;
+        CustomGroup = strCustomGroup;
     }
 
     /// <summary>Parse one &lt;improvement&gt; node. Unknown/malformed type or source values fall back
@@ -69,7 +72,8 @@ public sealed class Improvement
             eSource,
             GetBool(objNode, "custom"),
             GetBool(objNode, "addtorating"),
-            blnTypeOk && blnSourceOk && GetBool(objNode, "enabled", true));
+            blnTypeOk && blnSourceOk && GetBool(objNode, "enabled", true),
+            GetValue(objNode, "customgroup"));
     }
 
     private static string GetValue(XmlNode objNode, string strName)

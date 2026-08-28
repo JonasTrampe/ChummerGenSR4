@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -173,7 +174,7 @@ public partial class CloudDocumentsDialog
         return blnConfirmed;
     }
 
-    private async Task HandlePushConflictAsync()
+    private async Task HandlePushConflictAsync(bool blnShared = false)
     {
         CharacterDocument? objLocalCharacter = ViewModel.ActiveCharacter;
         if (objLocalCharacter == null || string.IsNullOrEmpty(objLocalCharacter.CloudDocumentId))
@@ -185,8 +186,10 @@ public partial class CloudDocumentsDialog
         CharacterDocument? objServerCharacter = null;
         try
         {
-            Tuple<RunnersPointDocument, string> objCurrent = await ViewModel.GetDocumentAsync(objLocalCharacter.CloudDocumentId);
-            Tuple<byte[], string> objDownload = await ViewModel.DownloadRevisionAsync(objLocalCharacter.CloudDocumentId, objCurrent.Item1.CurrentRevision, false);
+            Tuple<RunnersPointDocument, string> objCurrent = await ViewModel.GetDocumentForRevisionDialogAsync(
+                objLocalCharacter.CloudDocumentId, blnShared);
+            Tuple<byte[], string> objDownload = await ViewModel.DownloadRevisionAsync(
+                objLocalCharacter.CloudDocumentId, objCurrent.Item1.CurrentRevision, blnShared);
             using MemoryStream objStream = new(objDownload.Item1);
             objServerCharacter = _characterFileService.Load(objStream, objDownload.Item2);
         }
@@ -197,25 +200,66 @@ public partial class CloudDocumentsDialog
         }
 
         CharacterDiffResult objDiff = CharacterDiff.Compare(objLocalCharacter, objServerCharacter);
-        int intChoice = await ShowChoiceDialogAsync(
-            T("Title_CloudConflict"),
-            BuildConflictMessage(objDiff),
-            T("Button_CloudConflict_OverwriteServer"),
-            T("Button_CloudConflict_SaveLocallyOnly"),
-            T("Button_CloudConflict_Cancel"));
+        CharacterMergeResult? objMerge = null;
+        if (!string.IsNullOrWhiteSpace(objLocalCharacter.CloudLastKnownRevisionId))
+        {
+            try
+            {
+                Tuple<byte[], string> objBaseDownload = await ViewModel.DownloadRevisionAsync(
+                    objLocalCharacter.CloudDocumentId, objLocalCharacter.CloudLastKnownRevisionId, blnShared);
+                using MemoryStream objBaseStream = new(objBaseDownload.Item1);
+                CharacterDocument objBaseCharacter = _characterFileService.Load(objBaseStream, objBaseDownload.Item2);
+                objMerge = CharacterMergeService.TryMerge(objBaseCharacter, objLocalCharacter, objServerCharacter);
+            }
+            catch
+            {
+                // A missing/expired ancestor should not prevent the normal overwrite/local/cancel
+                // choices from being offered.
+            }
+        }
 
-        if (intChoice == 1)
+        bool blnCanMerge = objMerge?.CanMerge == true;
+        string[] astrChoices = blnCanMerge
+            ? new[] { T("Button_CloudConflict_Merge"), T("Button_CloudConflict_OverwriteServer"),
+                T("Button_CloudConflict_SaveLocallyOnly"), T("Button_CloudConflict_Cancel") }
+            : new[] { T("Button_CloudConflict_OverwriteServer"), T("Button_CloudConflict_SaveLocallyOnly"),
+                T("Button_CloudConflict_Cancel") };
+        int intChoice = await ShowChoiceDialogAsync(T("Title_CloudConflict"),
+            BuildConflictMessage(objDiff, objMerge), astrChoices);
+
+        if (blnCanMerge && intChoice == 0)
+        {
+            try
+            {
+                if (blnShared)
+                    await ViewModel.PushMergedSharedDocumentAsync(objMerge!.MergedCharacter!);
+                else
+                    await ViewModel.PushMergedCharacterAsync(objMerge!.MergedCharacter!);
+            }
+            catch (Exception ex)
+            {
+                await HandleCloudExceptionAsync(ex);
+            }
+            return;
+        }
+
+        int intSaveLocalChoice = blnCanMerge ? 2 : 1;
+        int intCancelChoice = blnCanMerge ? 3 : 2;
+        if (intChoice == intSaveLocalChoice)
         {
             ViewModel.SaveActiveCharacterSnapshot();
             return;
         }
 
-        if (intChoice != 0)
+        if (intChoice == intCancelChoice)
             return;
 
         try
         {
-            await ViewModel.ForcePushCurrentCharacterAsync();
+            if (blnShared)
+                await ViewModel.ForcePushSharedDocumentAsync();
+            else
+                await ViewModel.ForcePushCurrentCharacterAsync();
         }
         catch (Exception ex)
         {
@@ -276,7 +320,7 @@ public partial class CloudDocumentsDialog
         return intChoice;
     }
 
-    private static string BuildConflictMessage(CharacterDiffResult objDiff)
+    private static string BuildConflictMessage(CharacterDiffResult objDiff, CharacterMergeResult? objMerge)
     {
         StringBuilder sb = new();
         sb.AppendLine(T("Label_CloudConflict_Explanation"));
@@ -288,13 +332,21 @@ public partial class CloudDocumentsDialog
         foreach (CharacterDiffEntry objEntry in objDiff.Entries)
         {
             if (!string.IsNullOrWhiteSpace(objEntry.Collection))
-                sb.Append(objEntry.Collection).Append(": ");
+                sb.Append('[').Append(objEntry.Collection).Append("] ");
 
-            sb.Append(objEntry.Change).Append(' ').Append(objEntry.Name);
-            if (!string.IsNullOrWhiteSpace(objEntry.Detail))
-                sb.Append(" — ").Append(objEntry.Detail);
+            sb.Append(objEntry.Name).Append(" (" ).Append(objEntry.Change).AppendLine(")");
+            sb.Append("  ").Append(T("Label_CloudConflict_Local")).Append(' ')
+                .AppendLine(string.IsNullOrEmpty(objEntry.LocalValue) ? "—" : objEntry.LocalValue);
+            sb.Append("  ").Append(T("Label_CloudConflict_Server")).Append(' ')
+                .AppendLine(string.IsNullOrEmpty(objEntry.ServerValue) ? "—" : objEntry.ServerValue);
             sb.AppendLine();
         }
+
+        if (objMerge?.CanMerge == true)
+            sb.AppendLine().Append(T("String_CloudConflict_MergeAvailable").Replace("{0}",
+                objMerge.AutoMergedChanges.ToString(CultureInfo.InvariantCulture))).AppendLine();
+        else if (objMerge != null && objMerge.Conflicts.Count > 0)
+            sb.AppendLine().AppendLine(T("String_CloudConflict_MergeUnavailable"));
 
         return sb.ToString().TrimEnd();
     }

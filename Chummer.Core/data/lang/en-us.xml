@@ -761,8 +761,28 @@
 			<text>No differences were detected between the two revisions.</text>
 		</string>
 		<string>
+			<key>Label_CloudConflict_Local</key>
+			<text>Local:</text>
+		</string>
+		<string>
+			<key>Label_CloudConflict_Server</key>
+			<text>Server:</text>
+		</string>
+		<string>
 			<key>Button_CloudConflict_OverwriteServer</key>
 			<text>Overwrite Server</text>
+		</string>
+		<string>
+			<key>Button_CloudConflict_Merge</key>
+			<text>Merge Changes</text>
+		</string>
+		<string>
+			<key>String_CloudConflict_MergeAvailable</key>
+			<text>A safe data merge is available ({0} independent changes).</text>
+		</string>
+		<string>
+			<key>String_CloudConflict_MergeUnavailable</key>
+			<text>Automatic merge is unavailable because both revisions changed the same data.</text>
 		</string>
 		<string>
 			<key>Button_CloudConflict_SaveLocallyOnly</key>

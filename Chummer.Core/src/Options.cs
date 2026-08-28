@@ -31,6 +31,7 @@ public sealed class GlobalOptions
 	private static string _strCloudApiBaseUrl = "https://runners-point.link/api/v1";
 	private static bool _blnSuppressCloudUnreachableWarning = false;
 	private static bool _blnDatesIncludeTime = true;
+	private static bool _blnUseCurrentDateWhenLastDateIsOlder = true;
 	private static bool _blnPrintToFileFirst = false;
 
 	// Omae Information.
@@ -130,6 +131,15 @@ public sealed class GlobalOptions
 		try
 		{
 			_blnLocalisedUpdatesOnly = Convert.ToBoolean(CheckAndGetRegistryKey("Software\\Chummer", "localisedupdatesonly"));
+		}
+		catch
+		{
+		}
+
+		try
+		{
+			_blnUseCurrentDateWhenLastDateIsOlder = Convert.ToBoolean(
+				CheckAndGetRegistryKey("Software\\Chummer", "usecurrentdatewhenlastdateisolder"));
 		}
 		catch
 		{
@@ -341,6 +351,14 @@ public sealed class GlobalOptions
 		{
 			_blnDatesIncludeTime = value;
 		}
+	}
+
+	/// <summary>When enabled, a saved character timestamp older than the current clock is
+	/// replaced by the current date for calendar/history operations.</summary>
+	public bool UseCurrentDateWhenLastDateIsOlder
+	{
+		get => _blnUseCurrentDateWhenLastDateIsOlder;
+		set => _blnUseCurrentDateWhenLastDateIsOlder = value;
 	}
 
 	/// <summary>

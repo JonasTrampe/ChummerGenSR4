@@ -151,6 +151,54 @@ namespace Chummer.Core
             return blnRemovedAny;
         }
 
+        /// <summary>Replaces a supported manually-created Improvement while retaining its group.
+        /// The source name is also the display name in Core's compact custom-improvement model.</summary>
+        public bool ReplaceCustomImprovement(string strSourceName, CustomImprovementType eType, string strName,
+            int intVal, int intMin = 0, int intMax = 0, int intAug = 0, string strSelect = "",
+            bool blnApplyToRating = false)
+        {
+            if (string.IsNullOrWhiteSpace(strSourceName) || string.IsNullOrWhiteSpace(strName)
+                || !Enum.IsDefined(eType)
+                || ((eType == CustomImprovementType.Attribute || eType == CustomImprovementType.Skill)
+                    && string.IsNullOrWhiteSpace(strSelect)))
+                return false;
+
+            string strGroup = Improvements.FirstOrDefault(objImprovement =>
+                objImprovement.Source == ImprovementSource.Custom && objImprovement.SourceName == strSourceName)
+                ?.CustomGroup ?? string.Empty;
+            if (!RemoveCustomImprovement(strSourceName)
+                || !AddCustomImprovement(eType, strName, intVal, intMin, intMax, intAug, strSelect, blnApplyToRating))
+                return false;
+
+            return SetCustomImprovementGroup(strName, strGroup);
+        }
+
+        /// <summary>Assigns every record belonging to one manually-created Improvement to a named group.</summary>
+        public bool SetCustomImprovementGroup(string strSourceName, string strGroup)
+        {
+            if (string.IsNullOrWhiteSpace(strSourceName))
+                return false;
+
+            XmlNodeList? objNodes = Document.SelectNodes("/character/improvements/improvement");
+            if (objNodes == null)
+                return false;
+
+            bool blnChanged = false;
+            foreach (XmlNode objNode in objNodes)
+            {
+                if (GetValue(objNode, "improvementsource", string.Empty) != "Custom"
+                    || GetValue(objNode, "sourcename", string.Empty) != strSourceName)
+                    continue;
+
+                SetChildValue(objNode, "customgroup", strGroup.Trim());
+                blnChanged = true;
+            }
+
+            if (blnChanged)
+                Changed?.Invoke();
+            return blnChanged;
+        }
+
         /// <summary>A curated subset of frmCreateImprovement.cs's ~50-type improvements.xml
         /// catalog - the types that map onto an <see cref="ImprovementType"/> this port's
         /// <see cref="BonusApplier"/> already parses and that already have a real consuming
@@ -251,6 +299,7 @@ namespace Chummer.Core
             AppendElement(objImprovement, "addtorating", objSpec.AddToRating.ToString());
             AppendElement(objImprovement, "enabled", "True");
             AppendElement(objImprovement, "custom", (eSource == ImprovementSource.Custom).ToString());
+            AppendElement(objImprovement, "customgroup", string.Empty);
             objImprovements.AppendChild(objImprovement);
         }
 

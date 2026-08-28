@@ -128,11 +128,11 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
             {
                 case "torso":
                     CurrentOptions.LimbCount = 5;
-                    CurrentOptions.ExcludeLimbSlot = "skull";
+                    CurrentOptions.ExcludeLimbSlot = "torso";
                     break;
                 case "skull":
                     CurrentOptions.LimbCount = 5;
-                    CurrentOptions.ExcludeLimbSlot = "torso";
+                    CurrentOptions.ExcludeLimbSlot = "skull";
                     break;
                 default:
                     CurrentOptions.LimbCount = 6;

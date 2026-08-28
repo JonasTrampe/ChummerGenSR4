@@ -9,12 +9,12 @@ namespace Chummer.Core
     /// serialized XML, so later mutations cannot alter the captured state.</summary>
     public sealed class CharacterSnapshot
     {
-        internal CharacterSnapshot(string strLabel, string strDisplayName, string strXml)
+        internal CharacterSnapshot(string strLabel, string strDisplayName, string strXml, DateTime datCapturedAt)
         {
             Label = strLabel;
             DisplayName = strDisplayName;
             Xml = strXml;
-            CapturedAtUtc = DateTime.UtcNow;
+            CapturedAtUtc = datCapturedAt.Kind == DateTimeKind.Utc ? datCapturedAt : datCapturedAt.ToUniversalTime();
         }
 
         public string Label { get; }
@@ -42,7 +42,7 @@ namespace Chummer.Core
         {
             if (objCharacter == null) throw new ArgumentNullException(nameof(objCharacter));
             var objSnapshot = new CharacterSnapshot(strLabel ?? string.Empty, objCharacter.DisplayName,
-                objCharacter.Document.OuterXml);
+                objCharacter.Document.OuterXml, objCharacter.EffectiveLastDate);
             _lstSnapshots.Add(objSnapshot);
             if (_lstSnapshots.Count > _intCapacity)
                 _lstSnapshots.RemoveAt(0);

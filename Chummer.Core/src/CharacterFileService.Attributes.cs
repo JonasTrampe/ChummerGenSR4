@@ -207,6 +207,8 @@ namespace Chummer.Core
                 case CustomImprovementType.LifestyleCost:
                     AddChild(objBonus, "lifestylecost", intVal.ToString(CultureInfo.InvariantCulture));
                     break;
+                default:
+                    return false;
             }
 
             ApplyBonus(objBonus, ImprovementSource.Custom, strName.Trim());

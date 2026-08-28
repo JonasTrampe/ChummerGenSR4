@@ -8,6 +8,8 @@ namespace Chummer.Core
         public string Change { get; set; } = "";
         public string Name { get; set; } = "";
         public string Detail { get; set; } = "";
+        public string LocalValue { get; set; } = "";
+        public string ServerValue { get; set; } = "";
     }
 
     public class CharacterDiffResult

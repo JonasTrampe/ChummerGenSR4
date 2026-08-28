@@ -87,6 +87,8 @@ public partial class PrintMultipleDialog : Window
         {
             _strHtml = CharacterSheetExporter.RenderSheet(lstCharacters, "Game Master Summary.xsl");
             OutputText.Text = HtmlToPlainText(_strHtml);
+            var preview = new SheetPreviewDialog(lstCharacters, "Game Master Summary.xsl");
+            await preview.ShowDialog(this);
         }
         catch (Exception ex)
         {

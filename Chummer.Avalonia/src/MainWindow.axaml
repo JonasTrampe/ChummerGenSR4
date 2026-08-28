@@ -28,6 +28,7 @@
         <Menu DockPanel.Dock="Top" Background="White">
             <MenuItem Header="{loc:Loc Menu_Main_File}">
                 <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_NewWindow}" Click="OnNewCharacterClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_NewCritter}" Click="OnNewCritterClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_Open}" Click="OnOpenCharacterClick" />
                 <MenuItem Header="{loc:Loc UI_RecentFiles}" ItemsSource="{Binding RecentCharacters}">
@@ -45,6 +46,7 @@
                 <MenuItem Header="{loc:Loc Menu_Main_PrintMultiple}" Click="OnPrintMultipleClick" />
                 <MenuItem Header="{loc:Loc Menu_FileExport}" Click="OnExportClick" />
                 <Separator />
+                <MenuItem Header="{loc:Loc Menu_Main_CloseAll}" Click="OnCloseAllCharactersClick" />
                 <MenuItem Header="{loc:Loc Menu_FileClose}" Click="OnCloseWindowClick" />
             </MenuItem>
             <MenuItem Header="{loc:Loc Menu_Main_Tools}">
@@ -63,6 +65,11 @@
             </MenuItem>
             <MenuItem Header="{loc:Loc Menu_Main_Help}">
                 <MenuItem Header="{loc:Loc Menu_Main_Update}" Click="OnCheckForUpdatesClick" />
+                <Separator />
+                <MenuItem Header="{loc:Loc Menu_Main_ChummerWiki}" Click="OnChummerWikiClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_RevisionHistory}" Click="OnRevisionHistoryClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_DumpshockThread}" Click="OnDumpshockClick" />
+                <MenuItem Header="{loc:Loc Menu_Main_About}" Click="OnAboutClick" />
             </MenuItem>
         </Menu>
 

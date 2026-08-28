@@ -22,6 +22,7 @@ namespace Chummer.NewUI.Dialogs;
 public partial class SheetPreviewDialog : Window
 {
     private CharacterDocument? _character;
+    private readonly System.Collections.Generic.List<CharacterDocument> _characters = new();
     private NativeWebDialog? _contentDialog;
 
     public string SheetHtml { get; private set; } = string.Empty;
@@ -38,7 +39,24 @@ public partial class SheetPreviewDialog : Window
         : this()
     {
         _character = character;
+        if (character != null)
+            _characters.Add(character);
 
+        ConfigureSheetSelector();
+    }
+
+    /// <summary>Creates an interactive, printable combined sheet, used for the legacy
+    /// Print Multiple / Game Master Summary workflow.</summary>
+    public SheetPreviewDialog(System.Collections.Generic.IEnumerable<CharacterDocument> characters,
+        string strDefaultSheet)
+        : this()
+    {
+        _characters.AddRange(characters);
+        ConfigureSheetSelector(strDefaultSheet);
+    }
+
+    private void ConfigureSheetSelector(string? strDefaultSheet = null)
+    {
         var selector = this.FindControl<ComboBox>("SheetSelector")!;
         string strSheetDir = Path.Combine(AppContext.BaseDirectory, "data", "sheets");
         var lstSheets = Directory.Exists(strSheetDir)
@@ -51,8 +69,9 @@ public partial class SheetPreviewDialog : Window
             : new System.Collections.Generic.List<string?>();
 
         selector.ItemsSource = lstSheets;
+        string strPreferredSheet = strDefaultSheet ?? GlobalOptions.Instance.DefaultCharacterSheet;
         selector.SelectedItem = lstSheets.FirstOrDefault(f =>
-            string.Equals(Path.GetFileNameWithoutExtension(f), GlobalOptions.Instance.DefaultCharacterSheet,
+            string.Equals(Path.GetFileNameWithoutExtension(f), Path.GetFileNameWithoutExtension(strPreferredSheet),
                 StringComparison.OrdinalIgnoreCase)) ?? lstSheets.FirstOrDefault(f => f == "Text-Only.xsl")
             ?? lstSheets.FirstOrDefault();
     }
@@ -86,7 +105,7 @@ public partial class SheetPreviewDialog : Window
         var selector = this.FindControl<ComboBox>("SheetSelector")!;
         string? strSheetName = selector.SelectedItem as string;
 
-        if (_character == null)
+        if (_characters.Count == 0)
         {
             ShowStatus(App.LanguageCatalog.GetString("UI_NoCharacterOpenMessage"));
             return;
@@ -99,7 +118,7 @@ public partial class SheetPreviewDialog : Window
 
         try
         {
-            SheetHtml = CharacterSheetExporter.RenderSheet(_character, strSheetName);
+            SheetHtml = CharacterSheetExporter.RenderSheet(_characters, strSheetName);
             HideStatus();
             _contentDialog.NavigateToString(SheetHtml);
         }

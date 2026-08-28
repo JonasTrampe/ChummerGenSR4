@@ -634,4 +634,59 @@ public partial class MainWindow : Window
     {
         Close();
     }
+
+    private async void OnCloseAllCharactersClick(object? sender, RoutedEventArgs e)
+    {
+        foreach (OpenCharacterTab tab in ViewModel.OpenCharacters.ToArray())
+        {
+            if (!await ConfirmCloseTabAsync(tab))
+                return;
+            ViewModel.CloseCharacter(tab);
+        }
+    }
+
+    private async void OnChummerWikiClick(object? sender, RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this)?.Launcher is { } launcher)
+            await launcher.LaunchUriAsync(new Uri("https://github.com/JonasTrampe/ChummerGenSR4"));
+    }
+
+    private async void OnDumpshockClick(object? sender, RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this)?.Launcher is { } launcher)
+            await launcher.LaunchUriAsync(new Uri("https://github.com/JonasTrampe/ChummerGenSR4/issues"));
+    }
+
+    private async void OnRevisionHistoryClick(object? sender, RoutedEventArgs e)
+    {
+        string strPath = Path.Combine(AppContext.BaseDirectory, "changelog.txt");
+        if (!File.Exists(strPath))
+        {
+            await ShowMessageDialogAsync(T("MessageTitle_FileNotFound"), T("Message_History_FileNotFound"));
+            return;
+        }
+
+        var dialog = new Window
+        {
+            Title = T("Menu_Main_RevisionHistory"),
+            Width = 760,
+            Height = 560,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new TextBox
+            {
+                Text = File.ReadAllText(strPath),
+                IsReadOnly = true,
+                AcceptsReturn = true,
+                TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                Margin = new Thickness(12)
+            }
+        };
+        await dialog.ShowDialog(this);
+    }
+
+    private async void OnAboutClick(object? sender, RoutedEventArgs e)
+    {
+        string strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
+        await ShowMessageDialogAsync(T("Menu_Main_About"), "ChummerGenSR4\nVersion " + strVersion);
+    }
 }

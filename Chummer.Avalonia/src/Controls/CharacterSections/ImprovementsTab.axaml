@@ -16,13 +16,13 @@
             <ListBox ItemsSource="{Binding Improvements}" SelectedItem="{Binding SelectedImprovement, Mode=TwoWay}" KeyDown="OnListKeyDown">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="{loc:Loc Button_EditImprovement}" IsEnabled="False"
-                                  ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
+                        <MenuItem Header="{loc:Loc Button_EditImprovement}" Click="OnEditImprovementClick"
+                                  IsEnabled="{Binding SelectedImprovement.CanEdit}" />
                         <MenuItem Header="{loc:Loc String_Delete}" Click="OnDeleteImprovementClick"
                                   IsEnabled="{Binding SelectedImprovement.IsCustom}"
                                   ToolTip.Tip="{loc:Loc UI_OnlyManualImprovementsDeletableTooltip}" />
-                        <MenuItem Header="{loc:Loc Button_AddGroup}" IsEnabled="False"
-                                  ToolTip.Tip="{loc:Loc UI_NotYetPorted}" />
+                        <MenuItem Header="{loc:Loc Button_AddGroup}" Click="OnAssignGroupClick"
+                                  IsEnabled="{Binding SelectedImprovement.IsCustom}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -38,7 +38,7 @@
                 <controls:InfoRow Label="Ziel:" Value="{Binding SelectedImprovement.Target}" />
                 <controls:InfoRow Label="Wert:" Value="{Binding SelectedImprovement.Value}" />
                 <controls:InfoRow Label="Quelle:" Value="{Binding SelectedImprovement.Source}" />
-                <CheckBox Content="{loc:Loc Checkbox_Active}" IsChecked="{Binding SelectedImprovement.IsEnabled}" IsEnabled="False" />
+                <controls:InfoRow Label="{loc:Loc Label_Group}" Value="{Binding SelectedImprovement.Group}" />
             </StackPanel>
         </controls:TreeDetailPane.DetailContent>
     </controls:TreeDetailPane>

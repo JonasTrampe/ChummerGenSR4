@@ -3,12 +3,11 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Chummer.Core;
+using Chummer.NewUI.ViewModels;
 
 namespace Chummer.NewUI.Dialogs;
 
-/// <summary>Ported from frmCreateImprovement.cs, scoped to the curated
-/// <see cref="CharacterDocument.CustomImprovementType"/> subset this port supports - a type
-/// ComboBox shows/hides the relevant fields, same idea as legacy's own dynamic field visibility.</summary>
+/// <summary>Editor for the manually-created Improvements Core can apply correctly.</summary>
 public partial class CreateImprovementDialog : Window
 {
     private static readonly (CharacterDocument.CustomImprovementType Type, string Label)[] s_types =
@@ -35,12 +34,14 @@ public partial class CreateImprovementDialog : Window
 
     public CreateImprovementDialog() : this(null) { }
 
-    public CreateImprovementDialog(CharacterDocument? character)
+    public CreateImprovementDialog(CharacterDocument? character, ImprovementRowViewModel? objExisting = null)
     {
         _character = character;
         InitializeComponent();
         TypeBox.ItemsSource = s_types.Select(t => t.Label).ToList();
         TypeBox.SelectedIndex = 0;
+        if (objExisting != null)
+            LoadExisting(objExisting);
     }
 
     public CharacterDocument.CustomImprovementType ResultType { get; private set; }
@@ -53,6 +54,55 @@ public partial class CreateImprovementDialog : Window
     public bool ResultApplyToRating { get; private set; }
 
     private CharacterDocument.CustomImprovementType SelectedType => s_types[TypeBox.SelectedIndex].Type;
+
+    private void LoadExisting(ImprovementRowViewModel objExisting)
+    {
+        if (!TryMapType(objExisting, out CharacterDocument.CustomImprovementType eType))
+            return;
+
+        TypeBox.SelectedIndex = System.Array.FindIndex(s_types, objType => objType.Type == eType);
+        NameBox.Text = objExisting.SourceName;
+        ValBox.Value = objExisting.RawValue;
+        MinBox.Value = objExisting.Minimum;
+        MaxBox.Value = objExisting.Maximum;
+        AugBox.Value = objExisting.AugmentedMaximum;
+        ApplyToRatingBox.IsChecked = objExisting.AddToRating;
+        if (SelectBox.IsVisible)
+            SelectBox.SelectedItem = objExisting.Target;
+    }
+
+    public static bool TryMapType(ImprovementRowViewModel objExisting,
+        out CharacterDocument.CustomImprovementType eType)
+    {
+        switch (objExisting.ImprovementType)
+        {
+            case ImprovementType.Attribute: eType = CharacterDocument.CustomImprovementType.Attribute; return true;
+            case ImprovementType.Skill: eType = CharacterDocument.CustomImprovementType.Skill; return true;
+            case ImprovementType.Initiative: eType = CharacterDocument.CustomImprovementType.Initiative; return true;
+            case ImprovementType.MovementPercent: eType = CharacterDocument.CustomImprovementType.MovementPercent; return true;
+            case ImprovementType.Concealability: eType = CharacterDocument.CustomImprovementType.Concealability; return true;
+            case ImprovementType.UnarmedDv: eType = CharacterDocument.CustomImprovementType.UnarmedDv; return true;
+            case ImprovementType.UnarmedAp: eType = CharacterDocument.CustomImprovementType.UnarmedAp; return true;
+            case ImprovementType.Reach: eType = CharacterDocument.CustomImprovementType.Reach; return true;
+            case ImprovementType.LifestyleCost: eType = CharacterDocument.CustomImprovementType.LifestyleCost; return true;
+            case ImprovementType.ConditionMonitor:
+                eType = objExisting.Target.ToLowerInvariant() switch
+                {
+                    "physical" => CharacterDocument.CustomImprovementType.ConditionMonitorPhysical,
+                    "stun" => CharacterDocument.CustomImprovementType.ConditionMonitorStun,
+                    "threshold" => CharacterDocument.CustomImprovementType.ConditionMonitorThreshold,
+                    "thresholdoffset" => CharacterDocument.CustomImprovementType.ConditionMonitorThresholdOffset,
+                    _ => default
+                };
+                return objExisting.Target.Equals("physical", System.StringComparison.OrdinalIgnoreCase)
+                    || objExisting.Target.Equals("stun", System.StringComparison.OrdinalIgnoreCase)
+                    || objExisting.Target.Equals("threshold", System.StringComparison.OrdinalIgnoreCase)
+                    || objExisting.Target.Equals("thresholdoffset", System.StringComparison.OrdinalIgnoreCase);
+            default:
+                eType = default;
+                return false;
+        }
+    }
 
     private void OnTypeChanged(object? sender, SelectionChangedEventArgs e)
     {

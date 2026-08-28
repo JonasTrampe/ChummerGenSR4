@@ -141,6 +141,10 @@ public partial class CloudDocumentsDialog
         {
             await ViewModel.PushSelectedSharedDocumentAsync();
         }
+        catch (RunnersPointApiException ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
+        {
+            await HandlePushConflictAsync(true);
+        }
         catch (Exception ex)
         {
             await HandleCloudExceptionAsync(ex);

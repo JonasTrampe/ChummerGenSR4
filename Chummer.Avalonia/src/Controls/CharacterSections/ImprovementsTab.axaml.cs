@@ -53,4 +53,32 @@ public partial class ImprovementsTab : UserControl
         if (_character.RemoveCustomImprovement(selected.SourceName))
             ViewModel.LoadCharacter(_character);
     }
+
+    private async void OnEditImprovementClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedImprovement is not { IsCustom: true } selected
+            || TopLevel.GetTopLevel(this) is not Window window
+            || !CreateImprovementDialog.TryMapType(selected, out _))
+            return;
+
+        var dialog = new CreateImprovementDialog(_character, selected);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.ReplaceCustomImprovement(selected.SourceName, dialog.ResultType, dialog.ResultName,
+                dialog.ResultVal, dialog.ResultMin, dialog.ResultMax, dialog.ResultAug, dialog.ResultSelect,
+                dialog.ResultApplyToRating))
+            ViewModel.LoadCharacter(_character);
+    }
+
+    private async void OnAssignGroupClick(object? sender, RoutedEventArgs e)
+    {
+        if (_character == null || ViewModel.SelectedImprovement is not { IsCustom: true } selected
+            || TopLevel.GetTopLevel(this) is not Window window)
+            return;
+
+        var dialog = new TextSelectionDialog(App.LanguageCatalog.GetString("Label_Group"), selected.Group,
+            blnAllowEmpty: true);
+        if (await dialog.ShowDialog<bool>(window)
+            && _character.SetCustomImprovementGroup(selected.SourceName, dialog.EnteredText))
+            ViewModel.LoadCharacter(_character);
+    }
 }

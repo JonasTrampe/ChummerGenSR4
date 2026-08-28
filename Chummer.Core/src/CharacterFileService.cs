@@ -53,6 +53,13 @@ namespace Chummer.Core
             Trace.TraceInformation("Saving Chummer character {0} to {1}", objCharacter.DisplayName, strTargetName);
             try
             {
+                // Persist a usable timestamp for calendar/history consumers. Future Shadowrun
+                // dates are intentionally preserved; stale dates are refreshed only when the
+                // user-selected policy allows it.
+                if (objCharacter.LastDate == DateTime.MinValue
+                    || (GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder
+                        && objCharacter.LastDate < DateTime.Now))
+                    objCharacter.LastDate = DateTime.Now;
                 // Match legacy save formatting (tab indent, UTF-16, CRLF - XmlWriterSettings
                 // defaults NewLineChars to Environment.NewLine, which is LF on Linux and would
                 // make every re-save of an untouched Windows-authored file diff as "changed").
@@ -173,6 +180,19 @@ namespace Chummer.Core
         public string DisplayName { get; }
 
         public string Name => GetValue("/character/name", DisplayName);
+
+        /// <summary>Timestamp persisted in the character file for calendar and history operations.</summary>
+        public DateTime LastDate
+        {
+            get => DateTime.TryParse(GetValue("/character/lastdate", string.Empty), CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind, out DateTime datValue) ? datValue : DateTime.MinValue;
+            set => SetRootValue("lastdate", value.ToString("O", CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>Returns the timestamp to use for date-sensitive operations.</summary>
+        public DateTime EffectiveLastDate
+            => GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder && LastDate < DateTime.Now
+                ? DateTime.Now : LastDate;
 
         public string Alias
         {

@@ -57,8 +57,35 @@ namespace Chummer.Core
             DiffCollection(objResult, "Vehicles", objLocal.Vehicles, objServer.Vehicles);
             DiffCollection(objResult, "Karma Expenses", objLocal.KarmaExpenses, objServer.KarmaExpenses);
             DiffCollection(objResult, "Nuyen Expenses", objLocal.NuyenExpenses, objServer.NuyenExpenses);
+            DiffCalendar(objResult, objLocal, objServer);
 
             return objResult;
+        }
+
+        private static void DiffCalendar(CharacterDiffResult objResult, CharacterDocument objLocal,
+            CharacterDocument objServer)
+        {
+            var dicLocal = objLocal.Calendar.ToDictionary(objWeek => (objWeek.Year, objWeek.Week));
+            var dicServer = objServer.Calendar.ToDictionary(objWeek => (objWeek.Year, objWeek.Week));
+            foreach ((int intYear, int intWeek) objDate in dicServer.Keys.Union(dicLocal.Keys)
+                         .OrderBy(objKey => objKey.Year).ThenBy(objKey => objKey.Week))
+            {
+                dicLocal.TryGetValue(objDate, out CalendarWeek? objLocalWeek);
+                dicServer.TryGetValue(objDate, out CalendarWeek? objServerWeek);
+                string strLocal = objLocalWeek?.Notes ?? string.Empty;
+                string strServer = objServerWeek?.Notes ?? string.Empty;
+                if (objLocalWeek != null && objServerWeek != null && strLocal == strServer)
+                    continue;
+                objResult.Entries.Add(new CharacterDiffEntry
+                {
+                    Collection = "Calendar",
+                    Change = objLocalWeek == null ? "Added" : objServerWeek == null ? "Removed" : "Changed",
+                    Name = $"{objDate.Item1}-W{objDate.Item2:00}",
+                    Detail = strLocal + " -> " + strServer,
+                    LocalValue = string.IsNullOrEmpty(strLocal) ? (objLocalWeek == null ? string.Empty : "(week)") : strLocal,
+                    ServerValue = string.IsNullOrEmpty(strServer) ? (objServerWeek == null ? string.Empty : "(week)") : strServer
+                });
+            }
         }
 
         private static void CompareScalar(CharacterDiffResult objResult, string strName, string strLocal, string strServer)
@@ -71,7 +98,9 @@ namespace Chummer.Core
                 Collection = string.Empty,
                 Change = "Changed",
                 Name = strName,
-                Detail = strLocal + " -> " + strServer
+                Detail = strLocal + " -> " + strServer,
+                LocalValue = strLocal,
+                ServerValue = strServer
             });
         }
 
@@ -101,7 +130,9 @@ namespace Chummer.Core
                         Collection = strCollectionName,
                         Change = "Added",
                         Name = strSignature,
-                        Detail = intServer > 1 ? "x" + intServer : string.Empty
+                        Detail = intServer > 1 ? "x" + intServer : string.Empty,
+                        LocalValue = string.Empty,
+                        ServerValue = intServer > 1 ? "x" + intServer : "1"
                     });
                 }
                 else if (intServer == 0)
@@ -111,7 +142,9 @@ namespace Chummer.Core
                         Collection = strCollectionName,
                         Change = "Removed",
                         Name = strSignature,
-                        Detail = intLocal > 1 ? "x" + intLocal : string.Empty
+                        Detail = intLocal > 1 ? "x" + intLocal : string.Empty,
+                        LocalValue = intLocal > 1 ? "x" + intLocal : "1",
+                        ServerValue = string.Empty
                     });
                 }
                 else
@@ -121,7 +154,9 @@ namespace Chummer.Core
                         Collection = strCollectionName,
                         Change = "Changed",
                         Name = strSignature,
-                        Detail = intLocal + " -> " + intServer
+                        Detail = intLocal + " -> " + intServer,
+                        LocalValue = intLocal.ToString(),
+                        ServerValue = intServer.ToString()
                     });
                 }
             }
