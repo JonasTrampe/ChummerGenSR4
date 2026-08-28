@@ -70,6 +70,7 @@
                         <CheckBox Tag="Checkbox_Options_StartupFullscreen" Content="{loc:Loc Checkbox_Options_StartupFullscreen}" IsChecked="{Binding StartupFullscreen, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_SingleDiceRoller" Content="{loc:Loc Checkbox_Options_SingleDiceRoller}" IsChecked="{Binding SingleDiceRoller, Mode=TwoWay}" />
                         <CheckBox Tag="Checkbox_Options_DatesIncludeTime" Content="{loc:Loc Checkbox_Options_DatesIncludeTime}" IsChecked="{Binding DatesIncludeTime, Mode=TwoWay}" />
+                        <CheckBox Tag="Checkbox_Options_UseCurrentDateWhenLastDateIsOlder" Content="{loc:Loc Checkbox_Options_UseCurrentDateWhenLastDateIsOlder}" IsChecked="{Binding UseCurrentDateWhenLastDateIsOlder, Mode=TwoWay}" />
                         <Grid ColumnDefinitions="140,*,100" ColumnSpacing="8">
                             <TextBlock Grid.Column="0" Text="{loc:Loc Label_Options_PDFApplicationPath}" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Text="{Binding PdfAppPath, Mode=TwoWay}" />

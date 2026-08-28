@@ -44,4 +44,19 @@ public partial class CharacterFileServiceTests
             GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder = blnOriginal;
         }
     }
+
+    [Fact]
+    public void CharacterHistory_IsPersistedAndReloadedWithTheCharacterFile()
+    {
+        CharacterDocument objCharacter = LoadXml("<character><name>History runner</name></character>");
+        objCharacter.History.Capture(objCharacter, "Initial");
+
+        using var objStream = new MemoryStream();
+        new CharacterFileService().Save(objCharacter, objStream, "history.chum");
+        objStream.Position = 0;
+        CharacterDocument objReloaded = new CharacterFileService().Load(objStream, "history.chum");
+
+        Assert.Single(objReloaded.History.Snapshots);
+        Assert.Equal("Initial", objReloaded.History.Snapshots[0].Label);
+    }
 }

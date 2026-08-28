@@ -16,7 +16,7 @@ public static class CharacterMergeService
     {
         "attributes", "skillgroups", "skills", "knowledgeskills", "complexforms", "foci",
         "stackedfoci", "improvements", "qualities", "contacts", "spirits", "spells", "powers",
-        "martialarts", "armor", "cyberware", "weapons", "lifestyles", "gears", "vehicles",
+        "martialarts", "armor", "cyberwares", "weapons", "lifestyles", "gears", "vehicles",
         "karmaexpenses", "nuyenexpenses"
     };
 

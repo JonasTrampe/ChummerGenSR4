@@ -194,6 +194,16 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
         }
     }
 
+    public bool UseCurrentDateWhenLastDateIsOlder
+    {
+        get => GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder;
+        set
+        {
+            GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool PrintToFileFirst
     {
         get => GlobalOptions.Instance.PrintToFileFirst;

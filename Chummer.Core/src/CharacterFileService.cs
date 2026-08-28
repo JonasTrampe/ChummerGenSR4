@@ -74,6 +74,9 @@ namespace Chummer.Core
                 };
                 using (var objWriter = XmlWriter.Create(objStream, objSettings))
                 {
+                    XmlElement? objRoot = objCharacter.Document.DocumentElement;
+                    objRoot?.SelectSingleNode("history")?.ParentNode?.RemoveChild(objRoot.SelectSingleNode("history")!);
+                    objCharacter.History.Save(objRoot!);
                     objCharacter.Document.Save(objWriter);
                 }
 
@@ -134,6 +137,8 @@ namespace Chummer.Core
         {
             Document = objDocument;
             DisplayName = strDisplayName;
+            XmlNode? objHistory = objDocument.DocumentElement?.SelectSingleNode("history");
+            History = objHistory == null ? new CharacterHistory() : CharacterHistory.Load(objHistory);
             // Every Read*()-backed collection property (Improvements, Skills, Qualities, Gear,
             // Attributes, ...) is cached per instance instead of rebuilt from XML on every access -
             // subscribing here catches every Changed?.Invoke() call site (100+ across
@@ -178,6 +183,7 @@ namespace Chummer.Core
 
         internal XmlDocument Document { get; }
         public string DisplayName { get; }
+        public CharacterHistory History { get; }
 
         public string Name => GetValue("/character/name", DisplayName);
 

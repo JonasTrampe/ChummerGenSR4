@@ -5907,6 +5907,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Expense dates should include time</text>
 		</string>
 		<string>
+			<key>Checkbox_Options_UseCurrentDateWhenLastDateIsOlder</key>
+			<text>Use today when a character's saved date is in the past</text>
+		</string>
+		<string>
 			<key>Checkbox_Options_MultiplyRestrictedCost</key>
 			<text>Multiply the cost of Restricted items by</text>
 		</string>

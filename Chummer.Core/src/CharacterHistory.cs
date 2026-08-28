@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
 
 namespace Chummer.Core
 {
@@ -41,13 +42,57 @@ namespace Chummer.Core
         public CharacterSnapshot Capture(CharacterDocument objCharacter, string strLabel = "")
         {
             if (objCharacter == null) throw new ArgumentNullException(nameof(objCharacter));
+            var objSnapshotDocument = new XmlDocument();
+            objSnapshotDocument.LoadXml(objCharacter.Document.OuterXml);
+            XmlNode? objPersistedHistory = objSnapshotDocument.DocumentElement?.SelectSingleNode("history");
+            if (objPersistedHistory?.ParentNode != null)
+                objPersistedHistory.ParentNode.RemoveChild(objPersistedHistory);
             var objSnapshot = new CharacterSnapshot(strLabel ?? string.Empty, objCharacter.DisplayName,
-                objCharacter.Document.OuterXml, objCharacter.EffectiveLastDate);
+                objSnapshotDocument.OuterXml, objCharacter.EffectiveLastDate);
             _lstSnapshots.Add(objSnapshot);
             if (_lstSnapshots.Count > _intCapacity)
                 _lstSnapshots.RemoveAt(0);
             return objSnapshot;
         }
+
+        internal void Save(XmlElement objParent)
+        {
+            XmlDocument objDocument = objParent.OwnerDocument!;
+            XmlElement objHistory = objDocument.CreateElement("history");
+            foreach (CharacterSnapshot objSnapshot in _lstSnapshots)
+            {
+                XmlElement objNode = objDocument.CreateElement("snapshot");
+                objNode.SetAttribute("label", objSnapshot.Label);
+                objNode.SetAttribute("displayname", objSnapshot.DisplayName);
+                objNode.SetAttribute("capturedatutc", objSnapshot.CapturedAtUtc.ToString("O"));
+                var objSnapshotDocument = new XmlDocument();
+                objSnapshotDocument.LoadXml(objSnapshot.Xml);
+                objNode.AppendChild(objDocument.ImportNode(objSnapshotDocument.DocumentElement!, true));
+                objHistory.AppendChild(objNode);
+            }
+            objParent.AppendChild(objHistory);
+        }
+
+        internal static CharacterHistory Load(XmlNode objParent, int intCapacity = 20)
+        {
+            var objHistory = new CharacterHistory(intCapacity);
+            XmlNodeList? objSnapshots = objParent.SelectNodes("snapshot");
+            if (objSnapshots == null) return objHistory;
+            foreach (XmlNode objNode in objSnapshots)
+            {
+                XmlNode? objCharacter = objNode.SelectSingleNode("character");
+                if (objCharacter == null) continue;
+                DateTime.TryParse(objNode.Attributes?["capturedatutc"]?.Value, out DateTime datCaptured);
+                objHistory._lstSnapshots.Add(new CharacterSnapshot(
+                    objNode.Attributes?["label"]?.Value ?? string.Empty,
+                    objNode.Attributes?["displayname"]?.Value ?? string.Empty,
+                    objCharacter.OuterXml, datCaptured == default ? DateTime.UtcNow : datCaptured));
+            }
+            while (objHistory._lstSnapshots.Count > intCapacity)
+                objHistory._lstSnapshots.RemoveAt(0);
+            return objHistory;
+        }
+
 
         public CharacterDocument Restore(CharacterSnapshot objSnapshot)
         {

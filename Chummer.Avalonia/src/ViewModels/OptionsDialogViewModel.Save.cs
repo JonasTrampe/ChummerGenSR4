@@ -29,6 +29,7 @@ public sealed partial class OptionsDialogViewModel
         objRegistry.SetValue("defaultsheet", GlobalOptions.Instance.DefaultCharacterSheet);
         objRegistry.SetValue("pdfargumentstyle", GlobalOptions.Instance.PdfArgumentStyle);
         objRegistry.SetValue("datesincludetime", DatesIncludeTime.ToString());
+        objRegistry.SetValue("usecurrentdatewhenlastdateisolder", UseCurrentDateWhenLastDateIsOlder.ToString());
         objRegistry.SetValue("printtofilefirst", PrintToFileFirst.ToString());
         objRegistry.SetValue("pdfapppath", PdfAppPath);
         objRegistry.SetValue("cloudapibaseurl", CloudApiBaseUrl);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
@@ -72,6 +73,8 @@ namespace Chummer
 		private int _intPublicAwareness = 0;
 		private int _intBurntStreetCred = 0;
 		private int _intNuyen = 0;
+		private DateTime _datLastDate = DateTime.MinValue;
+		private string _strHistoryXml = "";
 		private int _intMaxAvail = 12;
 		private decimal _decEssenceAtSpecialStart = 6.0m;
 
@@ -275,6 +278,13 @@ namespace Chummer
 
 			// <settings />
 			objWriter.WriteElementString("settings", _strSettingsFileName);
+			DateTime datWriteDate = _datLastDate;
+			if (datWriteDate == DateTime.MinValue || (GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder && datWriteDate < DateTime.Now))
+				datWriteDate = DateTime.Now;
+			_datLastDate = datWriteDate;
+			objWriter.WriteElementString("lastdate", datWriteDate.ToString("O", CultureInfo.InvariantCulture));
+			if (!string.IsNullOrWhiteSpace(_strHistoryXml))
+				objWriter.WriteRaw(_strHistoryXml);
 
 			// <metatype />
 			objWriter.WriteElementString("metatype", _strMetatype);
@@ -797,6 +807,9 @@ namespace Chummer
 			catch
 			{
 			}
+			DateTime.TryParse(objXmlCharacter["lastdate"]?.InnerText, CultureInfo.InvariantCulture,
+				DateTimeStyles.RoundtripKind, out _datLastDate);
+			_strHistoryXml = objXmlCharacter["history"]?.OuterXml ?? string.Empty;
 
 			// Load the character's settings file.
 			if (!_objOptions.Load(_strSettingsFileName))

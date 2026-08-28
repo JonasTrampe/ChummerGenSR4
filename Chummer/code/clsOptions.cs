@@ -32,7 +32,8 @@ namespace Chummer
 		private static string _strPDFArgumentStyle = "Adobe/Foxit";
 		private static string _strCloudApiBaseUrl = "https://runners-point.link/api/v1";
 		private static bool _blnSuppressCloudUnreachableWarning = false;
-		private static bool _blnDatesIncludeTime = true;
+	private static bool _blnDatesIncludeTime = true;
+	private static bool _blnUseCurrentDateWhenLastDateIsOlder = true;
 		private static bool _blnPrintToFileFirst = false;
 
 		// Omae Information.
@@ -326,7 +327,7 @@ namespace Chummer
 		/// <summary>
 		/// Whether or not dates should include the time.
 		/// </summary>
-		public bool DatesIncludeTime
+	public bool DatesIncludeTime
 		{
 			get
 			{
@@ -750,6 +751,12 @@ namespace Chummer
 
 		}
 		#endregion
+	}
+
+	public bool UseCurrentDateWhenLastDateIsOlder
+	{
+		get => _blnUseCurrentDateWhenLastDateIsOlder;
+		set => _blnUseCurrentDateWhenLastDateIsOlder = value;
 	}
 
 	public class CharacterOptions
