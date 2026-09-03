@@ -6,8 +6,9 @@
           reference assemblies are Windows-only. Mono MSBuild can still build net48 for the
           legacy application, and Windows keeps both targets for the WinForms project.
         -->
-        <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows'))">net48;net8.0</TargetFrameworks>
-        <TargetFramework Condition="'$(MSBuildRuntimeType)' == 'Core' And !$([MSBuild]::IsOSPlatform('Windows'))">net8.0</TargetFramework>
+        <TargetFrameworks Condition="'$(ForceNet48)' != 'true' And ('$(MSBuildRuntimeType)' != 'Core' Or $([MSBuild]::IsOSPlatform('Windows')))">net48;net8.0</TargetFrameworks>
+        <TargetFramework Condition="'$(ForceNet48)' != 'true' And '$(MSBuildRuntimeType)' == 'Core' And !$([MSBuild]::IsOSPlatform('Windows'))">net8.0</TargetFramework>
+        <TargetFramework Condition="'$(ForceNet48)' == 'true'">net48</TargetFramework>
         <LangVersion>latest</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <Nullable>enable</Nullable>
@@ -37,6 +38,8 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="System.Security"/>
         <Reference Include="System.Net.Http"/>
+        <Reference Include="System.Web.Extensions"/>
+        <PackageReference Include="System.Text.Json" Version="10.0.0" />
     </ItemGroup>
 
 </Project>

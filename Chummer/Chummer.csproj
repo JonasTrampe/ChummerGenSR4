@@ -141,10 +141,12 @@
     <ProjectReference Include="..\Chummer.Core\Chummer.Core.csproj">
       <Project>{0A8EA1FE-BF7D-4424-A696-DCE573730831}</Project>
       <Name>Chummer.Core</Name>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
     <ProjectReference Include="..\RunnersPoint.Api\RunnersPoint.Api.csproj">
       <Project>{B1249D53-D3C2-4D56-B93D-ACF54AF85E24}</Project>
       <Name>RunnersPoint.Api</Name>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

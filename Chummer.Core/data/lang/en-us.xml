@@ -5,6 +5,22 @@
 	<strings>
 		<!-- Common Strings -->
 		<string>
+			<key>Menu_Main_History</key>
+			<text>Character History</text>
+		</string>
+		<string>
+			<key>Title_CharacterHistory</key>
+			<text>Character History</text>
+		</string>
+		<string>
+			<key>Message_CharacterHistory_Empty</key>
+			<text>No saved history snapshots are available.</text>
+		</string>
+		<string>
+			<key>Button_CharacterHistory_Restore</key>
+			<text>Restore</text>
+		</string>
+		<string>
 			<key>String_BP</key>
 			<text>BP</text>
 		</string>

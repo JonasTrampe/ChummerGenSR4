@@ -27,7 +27,7 @@ public static class UpdateChecker
         string strTrimmed = strVersion.TrimStart('v', 'V');
         int intSuffixIndex = strTrimmed.IndexOfAny(new[] { '-', '+' });
         if (intSuffixIndex >= 0)
-            strTrimmed = strTrimmed[..intSuffixIndex];
+            strTrimmed = strTrimmed.Substring(0, intSuffixIndex);
 
         try
         {

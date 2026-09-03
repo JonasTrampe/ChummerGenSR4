@@ -127,7 +127,7 @@ namespace Chummer
 		{
 			try
 			{
-				_objCatalog.LoadBase(Path.Combine(Application.StartupPath, "lang"));
+				_objCatalog.Load(Path.Combine(Application.StartupPath, "lang"), "en-us");
 				XmlDocument objEnglishDocument = new XmlDocument();
 				string strFilePath = Path.Combine(Application.StartupPath, "lang");
 				strFilePath = Path.Combine(strFilePath, "en-us.xml");
@@ -166,7 +166,7 @@ namespace Chummer
 					strFilePath = Path.Combine(strFilePath, strLanguage + ".xml");
 					objLanguageDocument.Load(strFilePath);
 					_objXmlDocument.Load(strFilePath);
-					_objCatalog.ApplyLanguage(Path.Combine(Application.StartupPath, "lang"), strLanguage);
+					_objCatalog.Load(Path.Combine(Application.StartupPath, "lang"), strLanguage);
 					foreach (XmlNode objNode in objLanguageDocument.SelectNodes("/chummer/strings/string"))
 					{
 						// Look for the English version of the found string. If it has been found, replace the English contents with the contents from this file.

@@ -354,6 +354,29 @@ public partial class MainWindow : Window
         ViewModel.AddOpenCharacter(character, sourcePath);
     }
 
+    private async void OnHistoryClick(object? sender, RoutedEventArgs e)
+    {
+        CharacterDocument? objCharacter = ViewModel.SelectedOpenCharacter?.Character;
+        if (objCharacter == null || objCharacter.History.Snapshots.Count == 0)
+        {
+            await ShowMessageDialogAsync(T("Title_CharacterHistory"), T("Message_CharacterHistory_Empty"));
+            return;
+        }
+        var objDialog = new Window { Width = 520, Height = 360, Title = T("Title_CharacterHistory"), WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var objList = new ListBox { ItemsSource = objCharacter.History.Snapshots, DisplayMemberBinding = new Avalonia.Data.Binding("Label") };
+        var objRestore = new Button { Content = T("Button_CharacterHistory_Restore"), MinWidth = 100 };
+        var objCancel = new Button { Content = T("String_Cancel"), MinWidth = 100 };
+        objRestore.Click += (_, _) => objDialog.Close(objList.SelectedItem as CharacterSnapshot);
+        objCancel.Click += (_, _) => objDialog.Close(null);
+        var objButtons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 8, Children = { objCancel, objRestore } };
+        var objGrid = new Grid { Margin = new Thickness(12), RowDefinitions = new RowDefinitions("*,Auto"), Children = { objList, objButtons } };
+        Grid.SetRow(objButtons, 1);
+        objDialog.Content = objGrid;
+        CharacterSnapshot? objSnapshot = await objDialog.ShowDialog<CharacterSnapshot?>(this);
+        if (objSnapshot != null)
+            LoadCharacterIntoTabs(objCharacter.History.Restore(objSnapshot));
+    }
+
     private async System.Threading.Tasks.Task LoadCharacterFromPathAsync(string strFilePath)
     {
         if (!await CheckCloudFreshnessAsync(strFilePath))

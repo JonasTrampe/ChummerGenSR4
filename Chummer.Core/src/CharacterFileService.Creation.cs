@@ -67,7 +67,7 @@ namespace Chummer.Core
             SetRootValue("metavariant", objVariant?.Name ?? string.Empty);
             SetRootValue("metatypecategory", objTarget.Category);
             SetRootValue("movement", objTarget.Movement);
-            string[] astrMovement = objTarget.Movement.Split('/', StringSplitOptions.TrimEntries);
+            string[] astrMovement = objTarget.Movement.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Select(strValue => strValue.Trim()).ToArray();
             SetRootValue("movementwalk", astrMovement.Length > 0 ? astrMovement[0] : string.Empty);
             SetRootValue("movementswim", astrMovement.Length > 1 ? astrMovement[1] : string.Empty);
 
@@ -80,7 +80,7 @@ namespace Chummer.Core
                     continue;
                 int intMin = ParseInteger(objRange.Min);
                 int intMax = ParseInteger(objRange.Max);
-                int intValue = Math.Clamp(intMin + dicPurchased[strCode], intMin, intMax);
+                int intValue = Math.Min(intMax, Math.Max(intMin, intMin + dicPurchased[strCode]));
                 SetChildValue(objAttribute, "metatypemin", objRange.Min);
                 SetChildValue(objAttribute, "metatypemax", objRange.Max);
                 SetChildValue(objAttribute, "metatypeaugmax", objRange.Aug);

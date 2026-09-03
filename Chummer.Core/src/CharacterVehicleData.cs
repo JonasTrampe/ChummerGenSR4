@@ -93,7 +93,7 @@ namespace Chummer.Core
                     else
                     {
                         string strCost = objChild.Cost.Replace("Body",
-                            dblBody.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase);
+                            dblBody.ToString(CultureInfo.InvariantCulture));
                         dblTotal += RatingExpression.Evaluate(strCost, objChild.Rating);
                     }
                 }

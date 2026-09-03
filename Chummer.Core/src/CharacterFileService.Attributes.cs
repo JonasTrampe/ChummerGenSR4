@@ -18,7 +18,7 @@ namespace Chummer.Core
                 return false;
 
             int intMag = GetAttributeInt("MAG");
-            int intMagician = Math.Clamp(intMagicianPoints, 0, intMag);
+            int intMagician = Math.Min(intMag, Math.Max(0, intMagicianPoints));
             int intAdept = Math.Max(0, intMag - intMagician - EssencePenalty);
             SetChildValue(Document.DocumentElement!, "magsplitmagician", intMagician.ToString());
             SetChildValue(Document.DocumentElement!, "magsplitadept", intAdept.ToString());
@@ -54,7 +54,7 @@ namespace Chummer.Core
                 int intUsed = Improvements.Where(i => i.Enabled && i.Source == ImprovementSource.EdgeUse
                     && i.Type == ImprovementType.Attribute && i.ImprovedName == "EDG")
                     .Sum(i => i.Augmented * i.Rating);
-                return new CharacterEdgeData(Math.Clamp(intMaximum + intUsed, 0, intMaximum), intMaximum);
+                return new CharacterEdgeData(Math.Min(intMaximum, Math.Max(0, intMaximum + intUsed)), intMaximum);
             }
         }
 

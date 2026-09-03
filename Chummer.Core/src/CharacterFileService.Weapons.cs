@@ -750,7 +750,7 @@ namespace Chummer.Core
             objMods.AppendChild(objMod);
 
             string strWeaponCost = GetValue(objWeapon, "cost", "0");
-            DeductGearCost(strCost.Replace("Weapon Cost", strWeaponCost, StringComparison.OrdinalIgnoreCase),
+            DeductGearCost(strCost.Replace("Weapon Cost", strWeaponCost),
                 strRating, "1", strAvail);
             Changed?.Invoke();
             return true;

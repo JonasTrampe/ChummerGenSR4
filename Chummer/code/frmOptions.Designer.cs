@@ -105,6 +105,7 @@
 			this.cboPDFArgumentStyle = new System.Windows.Forms.ComboBox();
 			this.chkLocalisedUpdatesOnly = new System.Windows.Forms.CheckBox();
 			this.chkDatesIncludeTime = new System.Windows.Forms.CheckBox();
+			this.chkUseCurrentDateWhenLastDateIsOlder = new System.Windows.Forms.CheckBox();
 			this.cmdPDFTest = new System.Windows.Forms.Button();
 			this.nudPDFOffset = new System.Windows.Forms.NumericUpDown();
 			this.lblPDFOffset = new System.Windows.Forms.Label();
@@ -1073,6 +1074,7 @@
 			this.tabGlobal.Controls.Add(this.cboPDFArgumentStyle);
 			this.tabGlobal.Controls.Add(this.chkLocalisedUpdatesOnly);
 			this.tabGlobal.Controls.Add(this.chkDatesIncludeTime);
+			this.tabGlobal.Controls.Add(this.chkUseCurrentDateWhenLastDateIsOlder);
 			this.tabGlobal.Controls.Add(this.cmdPDFTest);
 			this.tabGlobal.Controls.Add(this.nudPDFOffset);
 			this.tabGlobal.Controls.Add(this.lblPDFOffset);
@@ -1142,6 +1144,15 @@
 			this.chkDatesIncludeTime.Tag = "Checkbox_Options_DatesIncludeTime";
 			this.chkDatesIncludeTime.Text = "Expense dates should include time";
 			this.chkDatesIncludeTime.UseVisualStyleBackColor = true;
+			// chkUseCurrentDateWhenLastDateIsOlder
+			this.chkUseCurrentDateWhenLastDateIsOlder.AutoSize = true;
+			this.chkUseCurrentDateWhenLastDateIsOlder.Location = new System.Drawing.Point(9, 222);
+			this.chkUseCurrentDateWhenLastDateIsOlder.Name = "chkUseCurrentDateWhenLastDateIsOlder";
+			this.chkUseCurrentDateWhenLastDateIsOlder.Size = new System.Drawing.Size(280, 17);
+			this.chkUseCurrentDateWhenLastDateIsOlder.TabIndex = 19;
+			this.chkUseCurrentDateWhenLastDateIsOlder.Tag = "Checkbox_Options_UseCurrentDateWhenLastDateIsOlder";
+			this.chkUseCurrentDateWhenLastDateIsOlder.Text = "Use today when saved date is in the past";
+			this.chkUseCurrentDateWhenLastDateIsOlder.UseVisualStyleBackColor = true;
 			// 
 			// cmdPDFTest
 			// 
@@ -3544,6 +3555,7 @@
 		private System.Windows.Forms.Label lblPDFLocation;
 		private System.Windows.Forms.Button cmdPDFTest;
 		private System.Windows.Forms.CheckBox chkDatesIncludeTime;
+		private System.Windows.Forms.CheckBox chkUseCurrentDateWhenLastDateIsOlder;
 		private System.Windows.Forms.CheckBox chkBreakSkillGroupsInCreateMode;
 		private System.Windows.Forms.CheckBox chkExtendAnyDetectionSpell;
 		private System.Windows.Forms.CheckBox chkPrintToFileFirst;

@@ -1139,8 +1139,8 @@ namespace Chummer
 			lblStatus.Text = strText;
 		}
 
-#if DEBUG
 		/// <summary>
+		#if DEBUG
 		/// Debug-build-only: dumps connection state and, if a document is selected, the raw request/
 		/// response detail GetDebugDumpAsync exposes (full headers, both the typed and raw ETag parse,
 		/// the raw body) - the sort of detail that only ever surfaces by looking at the wire format
@@ -1173,6 +1173,10 @@ namespace Chummer
 			Log.Debug("Cloud Documents debug info requested:{NewLine}{Info}", Environment.NewLine, strInfo);
 			MessageBox.Show(strInfo, "Cloud Documents Debug Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
+		#endif
+
+#if !DEBUG
+		private void cmdDebugInfo_Click(object sender, EventArgs e) { }
 #endif
 	}
 }

@@ -281,6 +281,12 @@ namespace Chummer
 		{
 		}
 
+		public bool UseCurrentDateWhenLastDateIsOlder
+		{
+			get { return _blnUseCurrentDateWhenLastDateIsOlder; }
+			set { _blnUseCurrentDateWhenLastDateIsOlder = value; }
+		}
+
 		/// <summary>
 		/// Global instance of the GlobalOptions.
 		/// </summary>
@@ -751,12 +757,6 @@ namespace Chummer
 
 		}
 		#endregion
-	}
-
-	public bool UseCurrentDateWhenLastDateIsOlder
-	{
-		get => _blnUseCurrentDateWhenLastDateIsOlder;
-		set => _blnUseCurrentDateWhenLastDateIsOlder = value;
 	}
 
 	public class CharacterOptions

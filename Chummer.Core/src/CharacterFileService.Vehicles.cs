@@ -532,7 +532,7 @@ namespace Chummer.Core
 
         private void DeductVehicleModCost(string strCost, string strRating, string strBody, string strAvail = "")
         {
-            string strExpression = strCost.Replace("Body", strBody, StringComparison.OrdinalIgnoreCase);
+            string strExpression = strCost.Replace("Body", strBody);
             double dblCost = RatingExpression.Evaluate(strExpression, strRating);
             dblCost = ApplyRestrictedForbiddenCostMultiplier(dblCost, strAvail);
             double dblNuyen = double.TryParse(Nuyen, NumberStyles.Float, CultureInfo.InvariantCulture, out var dblParsed)

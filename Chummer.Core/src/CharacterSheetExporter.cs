@@ -175,24 +175,23 @@ namespace Chummer.Core
         /// isn't found, unlike actually spawning each candidate to see if it errors.</summary>
         public static string? FindHeadlessBrowserExecutable()
         {
-            string strLookupCommand = OperatingSystem.IsWindows() ? "where" : "command";
+            bool blnWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
             foreach (string strName in s_astrHeadlessBrowserNames)
             {
                 try
                 {
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = OperatingSystem.IsWindows() ? "where" : "/bin/sh",
+                        FileName = blnWindows ? "where" : "/bin/sh",
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
                     };
-                    if (OperatingSystem.IsWindows())
-                        psi.ArgumentList.Add(strName);
+                    if (blnWindows)
+                        psi.Arguments = strName;
                     else
                     {
-                        psi.ArgumentList.Add("-c");
-                        psi.ArgumentList.Add($"command -v {strName}");
+                        psi.Arguments = "-c \"command -v " + strName + "\"";
                     }
 
                     using var proc = System.Diagnostics.Process.Start(psi);
@@ -202,7 +201,7 @@ namespace Chummer.Core
                     proc.WaitForExit();
                     if (proc.ExitCode == 0)
                     {
-                        string strPath = strOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault() ?? string.Empty;
+                        string strPath = strOutput.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(strValue => strValue.Trim()).FirstOrDefault() ?? string.Empty;
                         if (!string.IsNullOrEmpty(strPath))
                             return strPath;
                     }
@@ -251,11 +250,8 @@ namespace Chummer.Core
                     RedirectStandardError = true,
                     UseShellExecute = false,
                 };
-                psi.ArgumentList.Add("--headless");
-                psi.ArgumentList.Add("--disable-gpu");
-                psi.ArgumentList.Add($"--print-to-pdf={strOutputPdfPath}");
-                psi.ArgumentList.Add("--no-pdf-header-footer");
-                psi.ArgumentList.Add(new Uri(strTempHtmlPath).AbsoluteUri);
+                psi.Arguments = "--headless --disable-gpu --no-pdf-header-footer --print-to-pdf=\""
+                    + strOutputPdfPath + "\" \"" + new Uri(strTempHtmlPath).AbsoluteUri + "\"";
 
                 using System.Diagnostics.Process? proc = System.Diagnostics.Process.Start(psi);
                 if (proc == null)

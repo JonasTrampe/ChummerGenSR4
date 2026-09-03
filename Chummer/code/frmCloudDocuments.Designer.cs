@@ -463,8 +463,6 @@ namespace Chummer
 		private System.Windows.Forms.Button cmdRenameFolder;
 		private System.Windows.Forms.Button cmdDeleteFolder;
 		private System.Windows.Forms.Label lblStatus;
-#if DEBUG
 		private System.Windows.Forms.Button cmdDebugInfo;
-#endif
 	}
 }

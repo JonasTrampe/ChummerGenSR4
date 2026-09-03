@@ -49,6 +49,7 @@
                 <MenuItem Header="{loc:Loc Menu_Main_CloseAll}" Click="OnCloseAllCharactersClick" />
                 <MenuItem Header="{loc:Loc Menu_FileClose}" Click="OnCloseWindowClick" />
             </MenuItem>
+            <MenuItem Header="{loc:Loc Menu_Main_History}" Click="OnHistoryClick" />
             <MenuItem Header="{loc:Loc Menu_Main_Tools}">
                 <MenuItem Header="{loc:Loc Menu_Main_CloudDocuments}" Click="OnCloudDocumentsClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_DiceRoller}" Click="OnDiceRollerClick" />

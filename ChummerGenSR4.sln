@@ -4,10 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer", "Chummer\Chummer.csproj", "{95279469-5A3E-42E6-993C-6A403586C86E}"
+\tProjectSection(ProjectDependencies) = postProject
+\t\t{0A8EA1FE-BF7D-4424-A696-DCE573730831} = {0A8EA1FE-BF7D-4424-A696-DCE573730831}
+\t\t{B1249D53-D3C2-4D56-B93D-ACF54AF85E24} = {B1249D53-D3C2-4D56-B93D-ACF54AF85E24}
+\tEndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Tests", "Chummer.Tests\Chummer.Tests.csproj", "{19E962B8-6CBC-4A4A-AA17-89E6F54DD83D}"
+\tProjectSection(ProjectDependencies) = postProject
+\t\t{73E8D45B-415D-4C6B-AE96-339619F8EF40} = {73E8D45B-415D-4C6B-AE96-339619F8EF40}
+\tEndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Avalonia", "Chummer.Avalonia\Chummer.Avalonia.csproj", "{73E8D45B-415D-4C6B-AE96-339619F8EF40}"
+\tProjectSection(ProjectDependencies) = postProject
+\t\t{0A8EA1FE-BF7D-4424-A696-DCE573730831} = {0A8EA1FE-BF7D-4424-A696-DCE573730831}
+\t\t{B1249D53-D3C2-4D56-B93D-ACF54AF85E24} = {B1249D53-D3C2-4D56-B93D-ACF54AF85E24}
+\tEndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chummer.Core", "Chummer.Core\Chummer.Core.csproj", "{0A8EA1FE-BF7D-4424-A696-DCE573730831}"
 EndProject

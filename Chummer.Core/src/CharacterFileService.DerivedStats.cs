@@ -91,7 +91,7 @@ namespace Chummer.Core
             int intCurrent = int.TryParse(GetValue("/character/" + strElementName, "0"), out var intValue)
                 ? intValue
                 : 0;
-            int intNewValue = Math.Clamp(intCurrent + intDelta, 0, Math.Max(0, intMaximum));
+            int intNewValue = Math.Min(Math.Max(0, intMaximum), Math.Max(0, intCurrent + intDelta));
             if (intNewValue == intCurrent)
                 return false;
 

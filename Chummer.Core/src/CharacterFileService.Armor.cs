@@ -294,10 +294,8 @@ namespace Chummer.Core
             int intImpactMax = Math.Max(0, ParseInteger(GetValue(objArmor, "i", "0"))
                 + (objArmor.SelectNodes("armormods/armormod")?.Cast<XmlNode>() ?? Enumerable.Empty<XmlNode>())
                 .Where(m => GetValue(m, "equipped", "True") == "True").Sum(m => ParseInteger(GetValue(m, "i", "0"))));
-            int intBallistic = Math.Clamp(ParseInteger(GetValue(objArmor, "ballisticdamage", "0")) + intBallisticDelta,
-                0, intBallisticMax);
-            int intImpact = Math.Clamp(ParseInteger(GetValue(objArmor, "impactdamage", "0")) + intImpactDelta,
-                0, intImpactMax);
+            int intBallistic = Math.Min(intBallisticMax, Math.Max(0, ParseInteger(GetValue(objArmor, "ballisticdamage", "0")) + intBallisticDelta));
+            int intImpact = Math.Min(intImpactMax, Math.Max(0, ParseInteger(GetValue(objArmor, "impactdamage", "0")) + intImpactDelta));
             SetChildValue(objArmor, "ballisticdamage", intBallistic.ToString(CultureInfo.InvariantCulture));
             SetChildValue(objArmor, "impactdamage", intImpact.ToString(CultureInfo.InvariantCulture));
             Changed?.Invoke();
@@ -418,7 +416,7 @@ namespace Chummer.Core
                 string[] astrValues = strCapacity.Substring("FixedValues(".Length,
                     strCapacity.Length - "FixedValues(".Length - 1).Split(',');
                 if (astrValues.Length == 0) return 0;
-                strCapacity = astrValues[Math.Clamp(Math.Max(1, intRating) - 1, 0, astrValues.Length - 1)];
+                strCapacity = astrValues[Math.Min(astrValues.Length - 1, Math.Max(0, Math.Max(1, intRating) - 1))];
             }
             strCapacity = strCapacity.Trim().Trim('[', ']');
             if (int.TryParse(strCapacity, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intValue))

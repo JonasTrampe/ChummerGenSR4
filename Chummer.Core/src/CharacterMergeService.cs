@@ -110,8 +110,11 @@ public static class CharacterMergeService
                 strChosen = strLocal;
             else
             {
-                objResult.Conflicts.Add("Both revisions changed " + strName + " item " + strKey + ".");
-                continue;
+                if (!TryMergeItemXml(strBase, strLocal, strServer, out strChosen))
+                {
+                    objResult.Conflicts.Add("Both revisions changed " + strName + " item " + strKey + ".");
+                    continue;
+                }
             }
             if (strChosen != null)
                 dicMerged[strKey] = strChosen;
@@ -211,6 +214,29 @@ public static class CharacterMergeService
             dicItems[strUniqueKey] = objNode.OuterXml;
         }
         return dicItems;
+    }
+
+    private static bool TryMergeItemXml(string? strBase, string? strLocal, string? strServer, out string? strMerged)
+    {
+        strMerged = null;
+        if (strBase == null || strLocal == null || strServer == null) return false;
+        var objBase = new XmlDocument(); var objLocal = new XmlDocument(); var objServer = new XmlDocument();
+        objBase.LoadXml(strBase); objLocal.LoadXml(strLocal); objServer.LoadXml(strServer);
+        if (objBase.DocumentElement == null || objLocal.DocumentElement == null || objServer.DocumentElement == null) return false;
+        foreach (XmlNode objBaseChild in objBase.DocumentElement.ChildNodes.OfType<XmlNode>().Where(n => n.NodeType == XmlNodeType.Element))
+        {
+            string strName = objBaseChild.Name;
+            string strBaseValue = objBaseChild.InnerText;
+            string strLocalValue = objLocal.DocumentElement[strName]?.InnerText ?? string.Empty;
+            string strServerValue = objServer.DocumentElement[strName]?.InnerText ?? string.Empty;
+            if (strLocalValue != strBaseValue && strServerValue != strBaseValue && strLocalValue != strServerValue)
+                return false;
+            string strValue = strLocalValue == strBaseValue ? strServerValue : strLocalValue;
+            XmlElement? objTarget = objLocal.DocumentElement[strName];
+            if (objTarget != null) objTarget.InnerText = strValue;
+        }
+        strMerged = objLocal.DocumentElement.OuterXml;
+        return true;
     }
 
     private static string LogicalKey(XmlNode objNode)

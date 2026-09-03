@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
@@ -219,6 +220,16 @@ public partial class CloudDocumentsDialog
         }
 
         bool blnCanMerge = objMerge?.CanMerge == true;
+        if (!blnCanMerge && objDiff.HasChanges)
+        {
+            CharacterDocument? objResolved = await ResolveConflictEntriesAsync(objLocalCharacter, objServerCharacter, objDiff);
+            if (objResolved != null)
+            {
+                try { if (blnShared) await ViewModel.PushMergedSharedDocumentAsync(objResolved); else await ViewModel.PushMergedCharacterAsync(objResolved); }
+                catch (Exception ex) { await HandleCloudExceptionAsync(ex); }
+                return;
+            }
+        }
         string[] astrChoices = blnCanMerge
             ? new[] { T("Button_CloudConflict_Merge"), T("Button_CloudConflict_OverwriteServer"),
                 T("Button_CloudConflict_SaveLocallyOnly"), T("Button_CloudConflict_Cancel") }
@@ -265,6 +276,57 @@ public partial class CloudDocumentsDialog
         {
             await HandleCloudExceptionAsync(ex);
         }
+    }
+
+    private async Task<CharacterDocument?> ResolveConflictEntriesAsync(CharacterDocument objLocal,
+        CharacterDocument objServer, CharacterDiffResult objDiff)
+    {
+        var objDialog = new Window { Width = 760, Height = 520, Title = T("Title_CloudConflict"), WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var objChoices = new System.Collections.Generic.List<ComboBox>();
+        var objRows = new StackPanel { Spacing = 6 };
+        foreach (CharacterDiffEntry objEntry in objDiff.Entries)
+        {
+            var objChoice = new ComboBox { ItemsSource = new[] { T("Label_CloudConflict_Local"), T("Label_CloudConflict_Server") }, SelectedIndex = 0, Width = 150 };
+            objChoices.Add(objChoice);
+            objRows.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                { new TextBlock { Text = (objEntry.Collection.Length == 0 ? objEntry.Name : objEntry.Collection + ": " + objEntry.Name), Width = 430 }, objChoice } });
+        }
+        CharacterDocument? objResult = null;
+        var objApply = new Button { Content = T("Button_CloudConflict_Merge"), MinWidth = 130 };
+        var objCancel = new Button { Content = T("String_Cancel"), MinWidth = 100 };
+        objApply.Click += (_, _) => { objResult = ApplyConflictChoices(objLocal, objServer, objDiff, objChoices); objDialog.Close(); };
+        objCancel.Click += (_, _) => objDialog.Close();
+        var objButtons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 8, Children = { objCancel, objApply } };
+        var objGrid = new Grid { Margin = new Thickness(12), RowDefinitions = new RowDefinitions("*,Auto"), Children = { new ScrollViewer { Content = objRows }, objButtons } };
+        Grid.SetRow(objButtons, 1); objDialog.Content = objGrid;
+        await objDialog.ShowDialog(this);
+        return objResult;
+    }
+
+    private CharacterDocument ApplyConflictChoices(CharacterDocument objLocal, CharacterDocument objServer,
+        CharacterDiffResult objDiff, System.Collections.Generic.IReadOnlyList<ComboBox> objChoices)
+    {
+        using var objStream = new MemoryStream();
+        _characterFileService.Save(objLocal, objStream, objLocal.DisplayName); objStream.Position = 0;
+        CharacterDocument objMerged = _characterFileService.Load(objStream, objLocal.DisplayName);
+        for (int i = 0; i < objDiff.Entries.Count; i++)
+        {
+            if (objChoices[i].SelectedIndex != 1) continue;
+            CharacterDiffEntry objEntry = objDiff.Entries[i];
+            if (objEntry.Collection.Length == 0)
+            {
+                string strName = objEntry.Name switch { "Alias" => "alias", "Notes" => "notes", "Mugshot" => "mugshot", "Karma" => "karma", "Nuyen" => "nuyen", _ => string.Empty };
+                if (strName.Length > 0) { XmlElement objRoot = objMerged.RawDocument.DocumentElement!; XmlElement objValue = objRoot[strName] ?? (XmlElement)objRoot.AppendChild(objMerged.RawDocument.CreateElement(strName))!; objValue.InnerText = objServer.RawDocument.SelectSingleNode("/character/" + strName)?.InnerText ?? string.Empty; }
+            }
+            else
+            {
+                string strContainer = objEntry.Collection switch { "Cyberware" => "cyberwares", "Gear" => "gears", "Karma Expenses" => "expenses", "Nuyen Expenses" => "expenses", _ => objEntry.Collection.ToLowerInvariant().Replace(" ", string.Empty) };
+                XmlNode? objServerNode = objServer.RawDocument.SelectSingleNode("/character/" + strContainer);
+                XmlElement? objRoot = objMerged.RawDocument.DocumentElement; XmlNode? objExisting = objRoot?.SelectSingleNode(strContainer);
+                if (objRoot != null && objServerNode != null) { if (objExisting != null) objRoot.RemoveChild(objExisting); objRoot.AppendChild(objMerged.RawDocument.ImportNode(objServerNode, true)); }
+            }
+        }
+        return objMerged;
     }
 
     private async Task<int> ShowChoiceDialogAsync(string strTitle, string strPrompt, params string[] astrButtons)

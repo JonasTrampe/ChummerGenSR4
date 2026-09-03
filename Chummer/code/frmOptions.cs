@@ -160,7 +160,8 @@ namespace Chummer
 			catch
 			{
 			}
-			chkDatesIncludeTime.Checked = blnDatesIncludeTime;
+		chkDatesIncludeTime.Checked = blnDatesIncludeTime;
+		chkUseCurrentDateWhenLastDateIsOlder.Checked = GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder;
 
 			bool blnPrintToFileFirst = false;
 			try
@@ -1729,6 +1730,7 @@ namespace Chummer
 			GlobalOptions.Instance.SingleDiceRoller = chkSingleDiceRoller.Checked;
 			GlobalOptions.Instance.DefaultCharacterSheet = cboXSLT.SelectedValue.ToString();
 			GlobalOptions.Instance.DatesIncludeTime = chkDatesIncludeTime.Checked;
+			GlobalOptions.Instance.UseCurrentDateWhenLastDateIsOlder = chkUseCurrentDateWhenLastDateIsOlder.Checked;
 			GlobalOptions.Instance.PrintToFileFirst = chkPrintToFileFirst.Checked;
 			GlobalOptions.Instance.PDFAppPath = txtPDFAppPath.Text;
 			GlobalOptions.Instance.CloudApiBaseUrl = txtCloudApiBaseUrl.Text;
@@ -1743,6 +1745,7 @@ namespace Chummer
 			objRegistry.SetValue("defaultsheet", cboXSLT.SelectedValue.ToString());
 			objRegistry.SetValue("pdfargumentstyle", cboPDFArgumentStyle.SelectedValue.ToString());
 			objRegistry.SetValue("datesincludetime", chkDatesIncludeTime.Checked.ToString());
+			objRegistry.SetValue("usecurrentdatewhenlastdateisolder", chkUseCurrentDateWhenLastDateIsOlder.Checked.ToString());
 			objRegistry.SetValue("printtofilefirst", chkPrintToFileFirst.Checked.ToString());
 
 			objRegistry.SetValue("pdfapppath", txtPDFAppPath.Text);

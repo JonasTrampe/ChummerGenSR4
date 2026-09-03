@@ -158,7 +158,7 @@ namespace Chummer.Core
             bool blnApplyToRating = false)
         {
             if (string.IsNullOrWhiteSpace(strSourceName) || string.IsNullOrWhiteSpace(strName)
-                || !Enum.IsDefined(eType)
+                || !Enum.IsDefined(typeof(CustomImprovementType), eType)
                 || ((eType == CustomImprovementType.Attribute || eType == CustomImprovementType.Skill)
                     && string.IsNullOrWhiteSpace(strSelect)))
                 return false;

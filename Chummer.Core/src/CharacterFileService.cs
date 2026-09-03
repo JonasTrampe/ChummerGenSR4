@@ -109,7 +109,7 @@ namespace Chummer.Core
             if (string.IsNullOrWhiteSpace(strBaseName))
                 strBaseName = string.IsNullOrWhiteSpace(objCharacter.Alias) ? objCharacter.Name : objCharacter.Alias;
             if (string.IsNullOrWhiteSpace(strBaseName))
-                strBaseName = Guid.NewGuid().ToString("N")[..13];
+                strBaseName = Guid.NewGuid().ToString("N").Substring(0, 13);
 
             string strBackupDirectory = Path.Combine(strDirectory, "backup");
             Directory.CreateDirectory(strBackupDirectory);
@@ -119,7 +119,8 @@ namespace Chummer.Core
             {
                 using (FileStream objStream = File.Create(strTemporaryPath))
                     Save(objCharacter, objStream, Path.GetFileName(strBackupPath));
-                File.Move(strTemporaryPath, strBackupPath, true);
+                if (File.Exists(strBackupPath)) File.Delete(strBackupPath);
+                File.Move(strTemporaryPath, strBackupPath);
                 Trace.TraceInformation("Created pre-career Chummer backup at {0}", strBackupPath);
                 return strBackupPath;
             }
@@ -182,6 +183,7 @@ namespace Chummer.Core
         }
 
         internal XmlDocument Document { get; }
+        public XmlDocument RawDocument => Document;
         public string DisplayName { get; }
         public CharacterHistory History { get; }
 

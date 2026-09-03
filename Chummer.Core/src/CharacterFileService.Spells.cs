@@ -56,7 +56,7 @@ namespace Chummer.Core
             XmlNode? objXmlTradition = objDoc.SelectSingleNode(
                 $"/chummer/traditions/tradition[name = '{strTraditionName}']");
             string strDrain = objXmlTradition?.SelectSingleNode("drain")?.InnerText ?? string.Empty;
-            string[] astrCodes = strDrain.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            string[] astrCodes = strDrain.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries).Select(strValue => strValue.Trim()).ToArray();
             if (astrCodes.Length == 0)
                 return null;
 
@@ -240,7 +240,7 @@ namespace Chummer.Core
         /// <paramref name="intNumberOfEffects"/> only matters for Combat's "elemental" and
         /// Manipulation's "elementaleffect" keys, whose DV multiplies by it (nudNumberOfEffects).</summary>
         public static string ComputeCustomSpellDv(string strCategory, string strType, string strRange, bool blnArea,
-            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlySet<string> setCheckedKeys,
+            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlyCollection<string> setCheckedKeys,
             int intNumberOfEffects)
         {
             int intDv = strType == "M" ? 0 : 1;
@@ -279,7 +279,7 @@ namespace Chummer.Core
         /// text fields, which this port's Spell model doesn't carry for any spell (rules-data ones
         /// don't either) - purely descriptive, not consumed by any calculation.</summary>
         public bool AddCustomSpell(string strName, string strCategory, string strType, string strRange, bool blnArea,
-            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlySet<string> setCheckedKeys,
+            bool blnRestricted, bool blnVeryRestricted, string strDuration, IReadOnlyCollection<string> setCheckedKeys,
             int intNumberOfEffects)
         {
             if (string.IsNullOrWhiteSpace(strName))
