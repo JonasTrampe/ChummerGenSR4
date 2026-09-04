@@ -50,7 +50,11 @@ public partial class App : Application
 
     /// <summary>Swaps the active brush set (App.axaml's Application.Resources merges exactly one
     /// skin dictionary at index 0) so every DynamicResource-bound Setter across the app repaints
-    /// live - no restart needed when the user changes Options -&gt; Appearance -&gt; Skin.</summary>
+    /// live - no restart needed when the user changes Options -&gt; Appearance -&gt; Skin. Also
+    /// flips RequestedThemeVariant so Fluent's own implicit control defaults (Menu/MenuItem text,
+    /// ScrollBar, and anything else App.axaml doesn't explicitly style) resolve against the right
+    /// variant instead of staying Light-computed under Midnight - the cause of the native menu
+    /// bar rendering unreadably dark-on-dark before this.</summary>
     public static void ApplySkin(AppSkin skin)
     {
         var dictionaries = Current!.Resources.MergedDictionaries;
@@ -58,5 +62,8 @@ public partial class App : Application
         {
             Source = new System.Uri(AppSkinSettings.ResourceAvaresPath(skin))
         };
+        Current!.RequestedThemeVariant = skin == AppSkin.Midnight
+            ? Avalonia.Styling.ThemeVariant.Dark
+            : Avalonia.Styling.ThemeVariant.Light;
     }
 }

@@ -2,13 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:Chummer.NewUI.Controls"
              xmlns:conv="clr-namespace:Chummer.NewUI.Converters"
-             x:Class="Chummer.NewUI.App"
-             RequestedThemeVariant="Light">
+             x:Class="Chummer.NewUI.App">
     <!-- Chummer's WinForms UI inherits Windows' modern common-controls visual style
          (UseVisualStyleBackColor=true throughout), so on Windows 10/11 it actually renders
          flat and white/light-grey with a colored underline on the selected tab - NOT the
-         chunky beveled "classic Windows" look. Pinned to Light regardless of OS theme, since
-         the real app doesn't follow dark mode either. -->
+         chunky beveled "classic Windows" look. Never follows the OS theme - App.axaml.cs's
+         ApplySkin sets RequestedThemeVariant explicitly (Light for the default skin, Dark for
+         Midnight) as part of switching skins, so Fluent's own implicit control defaults (Menu/
+         MenuItem text, ScrollBar, and anything else this file doesn't explicitly style) resolve
+         against the right variant instead of silently staying Light-computed - which is what
+         made the native menu bar's text render unreadably dark-on-dark under Midnight before
+         this. Every control this file DOES style explicitly still comes from the DynamicResource
+         brushes in Themes/*.axaml regardless of this variant. -->
 
     <Application.Resources>
         <ResourceDictionary>
