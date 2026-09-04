@@ -11,7 +11,7 @@
         Width="1280" Height="745"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Title="{Binding WindowTitle}">
 
     <!-- v2: matches a fuller set of real reference screenshots. Two things the first pass
@@ -25,7 +25,7 @@
 
     <DockPanel LastChildFill="True">
 
-        <Menu DockPanel.Dock="Top" Background="White">
+        <Menu DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}">
             <MenuItem Header="{loc:Loc Menu_Main_File}">
                 <MenuItem Header="{loc:Loc Menu_Main_NewCharater}" Click="OnNewCharacterClick" />
                 <MenuItem Header="{loc:Loc Menu_Main_NewWindow}" Click="OnNewCharacterClick" />
@@ -74,7 +74,7 @@
             </MenuItem>
         </Menu>
 
-        <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,0,0,1">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Margin="2">
                 <Button Name="NewCharacterButton" Classes="toolbarButton"
                         ToolTip.Tip="{loc:Loc UI_NewCharacterTooltip}"
@@ -96,7 +96,7 @@
             </StackPanel>
         </Border>
 
-        <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" Margin="6,3" Spacing="24">
                 <TextBlock Text="{Binding KarmaStatus}" ToolTip.Tip="{Binding CreationBudgetTooltip}" />
                 <TextBlock Text="{Binding EssenceStatus}" />

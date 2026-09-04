@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Midnight dark skin, approved from the "ledger" comp
+         (.impeccable/mocks/familiar-workbench-midnight-ledger.png, familiar-workbench-comp-round.json).
+         Palette sampled directly off that comp: graphite-navy surfaces, a cyan-teal accent for
+         focus/selection, and amber reserved for warnings - same signal-only-accent rule as the
+         light skin, just on a dark base. Same key set as LightTheme.axaml so App.axaml's
+         DynamicResource bindings need no changes to switch skins. -->
+
+    <!-- Fluent's own accent-driven chrome (e.g. the TabItem selection pipe) follows the
+         comp's cyan-teal accent instead of staying pinned to Windows blue. -->
+    <Color x:Key="SystemAccentColor">#3B9FC4</Color>
+    <Color x:Key="SystemAccentColorLight1">#63B4D2</Color>
+    <Color x:Key="SystemAccentColorLight2">#8AC9DF</Color>
+    <Color x:Key="SystemAccentColorDark1">#2E7E9C</Color>
+    <Color x:Key="SystemAccentColorDark2">#215D74</Color>
+
+    <SolidColorBrush x:Key="SurfaceBrush">#171C22</SolidColorBrush>
+    <SolidColorBrush x:Key="ControlGrayBrush">#1F262E</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderLightBrush">#2A323C</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderFieldBrush">#323B46</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderChromeBrush">#232A33</SolidColorBrush>
+    <SolidColorBrush x:Key="TextPrimaryBrush">#E4E8E8</SolidColorBrush>
+    <SolidColorBrush x:Key="TextMutedBrush">#93A0AC</SolidColorBrush>
+    <SolidColorBrush x:Key="TextErrorBrush">#E5484D</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentBrush">#3B9FC4</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentHoverBrush">#1F323C</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentSelectionBrush">#22343B</SolidColorBrush>
+
+    <!-- Tab strip -->
+    <SolidColorBrush x:Key="TabBackgroundBrush">#1B2129</SolidColorBrush>
+    <SolidColorBrush x:Key="TabSelectedBackgroundBrush">#222A33</SolidColorBrush>
+    <SolidColorBrush x:Key="TabForegroundBrush">#C3CCD2</SolidColorBrush>
+
+    <!-- Grid/tree/checkbox chrome -->
+    <SolidColorBrush x:Key="GridHeaderForegroundBrush">#C3CCD2</SolidColorBrush>
+    <SolidColorBrush x:Key="DisabledForegroundBrush">#5A6470</SolidColorBrush>
+    <SolidColorBrush x:Key="TreeExpanderBorderBrush">#4A5460</SolidColorBrush>
+    <SolidColorBrush x:Key="TreeExpanderBackgroundBrush">#1F262E</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBorderBrush">#4A5460</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBackgroundBrush">#1F262E</SolidColorBrush>
+    <SolidColorBrush x:Key="ConditionMonitorBoxBorderBrush">#4A5460</SolidColorBrush>
+
+    <!-- Skill-row category tints - same accent-tinted-wash approach as light, darkened -->
+    <SolidColorBrush x:Key="SkillHasPoolBrush">#1C2B22</SolidColorBrush>
+    <SolidColorBrush x:Key="SkillGroupLockedBrush">#1B2530</SolidColorBrush>
+    <SolidColorBrush x:Key="WorkbenchSummaryBrush">#1C2B22</SolidColorBrush>
+</ResourceDictionary>

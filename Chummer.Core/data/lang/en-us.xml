@@ -5511,6 +5511,26 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Show inspector</text>
 		</string>
 		<string>
+			<key>Label_Options_AppSkin</key>
+			<text>Color skin:</text>
+		</string>
+		<string>
+			<key>UI_Skin_Light</key>
+			<text>Familiar Workbench (Light)</text>
+		</string>
+		<string>
+			<key>UI_Skin_LightDescription</key>
+			<text>The default light workbench: white surfaces, measured blue interaction feedback, and thin neutral dividers.</text>
+		</string>
+		<string>
+			<key>UI_Skin_Midnight</key>
+			<text>Midnight</text>
+		</string>
+		<string>
+			<key>UI_Skin_MidnightDescription</key>
+			<text>A dark graphite-navy skin with a cyan-teal accent for focus and selection, and amber reserved for warnings.</text>
+		</string>
+		<string>
 			<key>Tab_Options_Character</key>
 			<text>Character and Printing</text>
 		</string>

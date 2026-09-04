@@ -6,7 +6,7 @@
              xmlns:loc="clr-namespace:Chummer.NewUI.Markup"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chummer.NewUI.Controls.CharacterTab">
-        <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="0,1,0,0">
             <Grid x:Name="LayoutRoot" RowDefinitions="Auto,*">
                 <Border x:Name="WorkbenchSummary" Grid.Row="0" IsVisible="False" Classes="workbenchSummary">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -68,7 +68,7 @@
                     </TabItem>
                 </TabControl>
 
-                <GridSplitter x:Name="SidebarSplitter" Grid.Column="1" Background="#E4E4E4" />
+                <GridSplitter x:Name="SidebarSplitter" Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
 
                 <sections:CharacterSidebar Name="Sidebar" Grid.Column="2" />
                 </Grid>

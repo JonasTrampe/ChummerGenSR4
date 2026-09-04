@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- "The Familiar Workbench" light skin (DESIGN.md) - default and fallback for any
+         unrecognised persisted skin value. Keys mirror DESIGN.md's color tokens 1:1 so a
+         future skin only has to redefine this same key set (see MidnightTheme.axaml). -->
+
+    <!-- Windows' actual accent blue (Fluent's own default is purple) - drives FluentTheme's
+         built-in accent-colored chrome (e.g. the TabItem selection pipe), see App.axaml. -->
+    <Color x:Key="SystemAccentColor">#0078D4</Color>
+    <Color x:Key="SystemAccentColorLight1">#429CE3</Color>
+    <Color x:Key="SystemAccentColorLight2">#6CB3EA</Color>
+    <Color x:Key="SystemAccentColorDark1">#005A9E</Color>
+    <Color x:Key="SystemAccentColorDark2">#003D6B</Color>
+
+    <SolidColorBrush x:Key="SurfaceBrush">White</SolidColorBrush>
+    <SolidColorBrush x:Key="ControlGrayBrush">#F5F5F5</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderLightBrush">#D0D0D0</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderFieldBrush">#C0C0C0</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderChromeBrush">#E4E4E4</SolidColorBrush>
+    <SolidColorBrush x:Key="TextPrimaryBrush">#000000</SolidColorBrush>
+    <SolidColorBrush x:Key="TextMutedBrush">#666666</SolidColorBrush>
+    <SolidColorBrush x:Key="TextErrorBrush">#B00020</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentBrush">#0078D4</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentHoverBrush">#E5F1FB</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentSelectionBrush">#CCE4F7</SolidColorBrush>
+
+    <!-- Tab strip -->
+    <SolidColorBrush x:Key="TabBackgroundBrush">#DCDCDC</SolidColorBrush>
+    <SolidColorBrush x:Key="TabSelectedBackgroundBrush">#EEEEEE</SolidColorBrush>
+    <SolidColorBrush x:Key="TabForegroundBrush">#444444</SolidColorBrush>
+
+    <!-- Grid/tree/checkbox chrome -->
+    <SolidColorBrush x:Key="GridHeaderForegroundBrush">#333333</SolidColorBrush>
+    <SolidColorBrush x:Key="DisabledForegroundBrush">#BBBBBB</SolidColorBrush>
+    <SolidColorBrush x:Key="TreeExpanderBorderBrush">#808080</SolidColorBrush>
+    <SolidColorBrush x:Key="TreeExpanderBackgroundBrush">White</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBorderBrush">#5B5B5B</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBackgroundBrush">White</SolidColorBrush>
+    <SolidColorBrush x:Key="ConditionMonitorBoxBorderBrush">#A0A0A0</SolidColorBrush>
+
+    <!-- Skill-row category tints -->
+    <SolidColorBrush x:Key="SkillHasPoolBrush">#F3F8EE</SolidColorBrush>
+    <SolidColorBrush x:Key="SkillGroupLockedBrush">#EEF2F8</SolidColorBrush>
+    <SolidColorBrush x:Key="WorkbenchSummaryBrush">#F3F8EE</SolidColorBrush>
+</ResourceDictionary>

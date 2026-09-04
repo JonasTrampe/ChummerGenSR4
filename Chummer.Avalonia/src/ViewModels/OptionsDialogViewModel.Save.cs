@@ -36,6 +36,7 @@ public sealed partial class OptionsDialogViewModel
         objRegistry.SetValue("cloudapibaseurl", CloudApiBaseUrl);
         objRegistry.SetValue("suppresscloudunreachablewarning", SuppressCloudUnreachableWarning.ToString());
         CharacterLayoutSettings.Save(CharacterLayoutSettings.Parse(SelectedCharacterLayout?.Value));
+        AppSkinSettings.Save(AppSkinSettings.Parse(SelectedAppSkin?.Value));
 
         // Ported from clsCommon.cs's SourcebookInfo load: one registry value per book code,
         // "path|offset" - only written for books that actually have a path configured.

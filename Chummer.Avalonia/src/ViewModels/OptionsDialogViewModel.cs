@@ -19,6 +19,7 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
     private ListItem? _selectedEssenceDecimals;
     private ListItem? _selectedLimbCount;
     private ListItem? _selectedCharacterLayout;
+    private ListItem? _selectedAppSkin;
 
     public ObservableCollection<ListItem> SettingsProfiles { get; } = new();
     public ObservableCollection<ListItem> Languages { get; } = new();
@@ -28,6 +29,7 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
     public ObservableCollection<ListItem> LimbCounts { get; } = new();
     public ObservableCollection<ListItem> PdfArgumentStyles { get; } = new();
     public ObservableCollection<ListItem> CharacterLayouts { get; } = new();
+    public ObservableCollection<ListItem> AppSkins { get; } = new();
     public ObservableCollection<OptionsBookItemViewModel> Sourcebooks { get; } = new();
 
     public CharacterOptions CurrentOptions
@@ -166,6 +168,29 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
         _ => App.LanguageCatalog.GetString("UI_Layout_ClassicDescription")
     };
 
+    // Applied live on selection (not just on Save) so the picker doubles as a preview - a
+    // resource-dictionary swap has no side effects to defer, unlike CharacterLayout which
+    // rearranges an already-loaded character's controls.
+    public ListItem? SelectedAppSkin
+    {
+        get => _selectedAppSkin;
+        set
+        {
+            if (!SetField(ref _selectedAppSkin, value))
+                return;
+
+            OnPropertyChanged(nameof(SelectedAppSkinDescription));
+            if (value?.Value != null)
+                App.ApplySkin(AppSkinSettings.Parse(value.Value));
+        }
+    }
+
+    public string SelectedAppSkinDescription => SelectedAppSkin?.Value switch
+    {
+        "midnight" => App.LanguageCatalog.GetString("UI_Skin_MidnightDescription"),
+        _ => App.LanguageCatalog.GetString("UI_Skin_LightDescription")
+    };
+
     public bool AutomaticUpdate
     {
         get => GlobalOptions.Instance.AutomaticUpdate;
@@ -300,6 +325,14 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
         CharacterLayouts.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Layout_RunnersLedger"), Value = "ledger" });
         SelectedCharacterLayout = CharacterLayouts.FirstOrDefault(item => item.Value == CharacterLayoutSettings.ToStorageValue(CharacterLayoutSettings.Current))
                                   ?? CharacterLayouts[0];
+
+        AppSkins.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Skin_Light"), Value = "light" });
+        AppSkins.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Skin_Midnight"), Value = "midnight" });
+        // Set the backing field directly (not the property) so opening the dialog never re-applies
+        // the already-active skin as a no-op "change" - SelectedAppSkin's setter is reserved for
+        // actual user picks, which is what should trigger the live-preview swap.
+        _selectedAppSkin = AppSkins.FirstOrDefault(item => item.Value == AppSkinSettings.ToStorageValue(AppSkinSettings.Current))
+                           ?? AppSkins[0];
 
         LoadSettingsProfiles();
         LoadLanguages();
