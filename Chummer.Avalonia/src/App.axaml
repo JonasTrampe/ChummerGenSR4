@@ -235,6 +235,12 @@
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Padding" Value="12" />
         </Style>
+        <Style Selector="Border.workbenchSummary">
+            <Setter Property="Background" Value="#F3F8EE" />
+            <Setter Property="BorderBrush" Value="#D8D8D8" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="8,5" />
+        </Style>
         <Style Selector="TextBlock.settingsHeader">
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />

@@ -5463,6 +5463,54 @@ Only one attribute may be at its Maximum value during character creation.</text>
 			<text>Global</text>
 		</string>
 		<string>
+			<key>Tab_Options_Appearance</key>
+			<text>Appearance</text>
+		</string>
+		<string>
+			<key>Label_Options_CharacterLayout</key>
+			<text>Character workspace layout:</text>
+		</string>
+		<string>
+			<key>UI_Layout_AppearanceIntro</key>
+			<text>Choose how character information and editing space are arranged. This changes the Avalonia workspace without changing character data or commands.</text>
+		</string>
+		<string>
+			<key>UI_Layout_Classic</key>
+			<text>Classic</text>
+		</string>
+		<string>
+			<key>UI_Layout_ClassicDescription</key>
+			<text>The familiar compact workspace: editor on the left and character information on the right.</text>
+		</string>
+		<string>
+			<key>UI_Layout_Workbench</key>
+			<text>Familiar Workbench</text>
+		</string>
+		<string>
+			<key>UI_Layout_WorkbenchDescription</key>
+			<text>A wider editor with a character summary strip and a collapsible right-hand inspector for day-to-day character work.</text>
+		</string>
+		<string>
+			<key>UI_Layout_RunnersLedger</key>
+			<text>Runner's Ledger</text>
+		</string>
+		<string>
+			<key>UI_Layout_RunnersLedgerDescription</key>
+			<text>Character information, finances, and condition details stay on the left while the editor takes the broad right-hand workspace.</text>
+		</string>
+		<string>
+			<key>UI_Layout_WorkbenchStatus</key>
+			<text>Career Karma: {0} · Nuyen: {1}¥</text>
+		</string>
+		<string>
+			<key>UI_Layout_HideInspector</key>
+			<text>Hide inspector</text>
+		</string>
+		<string>
+			<key>UI_Layout_ShowInspector</key>
+			<text>Show inspector</text>
+		</string>
+		<string>
 			<key>Tab_Options_Character</key>
 			<text>Character and Printing</text>
 		</string>

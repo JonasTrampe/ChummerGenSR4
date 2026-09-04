@@ -1,5 +1,6 @@
 using System.Linq;
 using Chummer.Core;
+using Chummer.NewUI.Controls;
 
 namespace Chummer.NewUI.ViewModels;
 
@@ -34,6 +35,7 @@ public sealed partial class OptionsDialogViewModel
         objRegistry.SetValue("pdfapppath", PdfAppPath);
         objRegistry.SetValue("cloudapibaseurl", CloudApiBaseUrl);
         objRegistry.SetValue("suppresscloudunreachablewarning", SuppressCloudUnreachableWarning.ToString());
+        CharacterLayoutSettings.Save(CharacterLayoutSettings.Parse(SelectedCharacterLayout?.Value));
 
         // Ported from clsCommon.cs's SourcebookInfo load: one registry value per book code,
         // "path|offset" - only written for books that actually have a path configured.

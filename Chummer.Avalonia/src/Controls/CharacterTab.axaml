@@ -7,9 +7,20 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Chummer.NewUI.Controls.CharacterTab">
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#E4E4E4" BorderThickness="0,1,0,0">
-            <Grid ColumnDefinitions="*,4,270">
+            <Grid x:Name="LayoutRoot" RowDefinitions="Auto,*">
+                <Border x:Name="WorkbenchSummary" Grid.Row="0" IsVisible="False" Classes="workbenchSummary">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <StackPanel Spacing="1">
+                            <TextBlock x:Name="WorkbenchCharacterName" FontWeight="SemiBold" />
+                            <TextBlock x:Name="WorkbenchCharacterStatus" Classes="settingsHint" />
+                        </StackPanel>
+                        <Button x:Name="InspectorToggleButton" Grid.Column="1" Click="OnToggleInspectorClick" />
+                    </Grid>
+                </Border>
 
-                <TabControl Grid.Column="0">
+                <Grid x:Name="ContentLayout" Grid.Row="1" ColumnDefinitions="*,4,270">
+
+                <TabControl x:Name="SectionTabs" Grid.Column="0">
                     <TabItem Header="{loc:Loc Tab_Common}">
                         <sections:GeneralSectionTab Name="GeneralTab" />
                     </TabItem>
@@ -57,9 +68,10 @@
                     </TabItem>
                 </TabControl>
 
-                <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+                <GridSplitter x:Name="SidebarSplitter" Grid.Column="1" Background="#E4E4E4" />
 
                 <sections:CharacterSidebar Name="Sidebar" Grid.Column="2" />
+                </Grid>
             </Grid>
         </Border>
 </UserControl>

@@ -96,6 +96,29 @@
                 </ScrollViewer>
             </TabItem>
 
+            <TabItem Header="{loc:Loc Tab_Options_Appearance}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10" Spacing="10">
+                        <TextBlock Text="{loc:Loc UI_Layout_AppearanceIntro}" TextWrapping="Wrap" />
+                        <Grid ColumnDefinitions="160,260,*" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="{loc:Loc Label_Options_CharacterLayout}" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding CharacterLayouts}"
+                                      SelectedItem="{Binding SelectedCharacterLayout, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <Border Classes="settingsCard">
+                            <TextBlock Text="{Binding SelectedCharacterLayoutDescription}" TextWrapping="Wrap" />
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <TabItem Tag="Tab_Options_Character" Header="{loc:Loc Tab_Options_Character}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">

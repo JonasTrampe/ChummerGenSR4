@@ -10,6 +10,7 @@ using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using Chummer.Core;
 using RunnersPoint.Api;
+using Chummer.NewUI.Controls;
 using Chummer.NewUI.Dialogs;
 using Chummer.NewUI.ViewModels;
 using KarmaGpDialog = Chummer.NewUI.Dialogs.KarmaGpDialog;
@@ -304,7 +305,10 @@ public partial class MainWindow : Window
         // so settings-dependent values (armor encumbrance, karma costs, ...) reflect it immediately
         // instead of only after closing and reopening the character.
         foreach (var tab in ViewModel.OpenCharacters)
+        {
+            tab.Content.ApplyLayout(CharacterLayoutSettings.Current);
             tab.Content.LoadCharacter(tab.Character);
+        }
     }
 
     /// <summary>Ported from frmMain.cs's mnuToolsUpdate_Click - always shows a result, even

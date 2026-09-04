@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Chummer.Core;
+using Chummer.NewUI.Controls;
 
 namespace Chummer.NewUI.ViewModels;
 
@@ -17,6 +18,7 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
     private ListItem? _selectedBuildMethod;
     private ListItem? _selectedEssenceDecimals;
     private ListItem? _selectedLimbCount;
+    private ListItem? _selectedCharacterLayout;
 
     public ObservableCollection<ListItem> SettingsProfiles { get; } = new();
     public ObservableCollection<ListItem> Languages { get; } = new();
@@ -25,6 +27,7 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
     public ObservableCollection<ListItem> EssenceDecimals { get; } = new();
     public ObservableCollection<ListItem> LimbCounts { get; } = new();
     public ObservableCollection<ListItem> PdfArgumentStyles { get; } = new();
+    public ObservableCollection<ListItem> CharacterLayouts { get; } = new();
     public ObservableCollection<OptionsBookItemViewModel> Sourcebooks { get; } = new();
 
     public CharacterOptions CurrentOptions
@@ -143,6 +146,25 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
             OnPropertyChanged(nameof(CurrentOptions));
         }
     }
+
+    public ListItem? SelectedCharacterLayout
+    {
+        get => _selectedCharacterLayout;
+        set
+        {
+            if (!SetField(ref _selectedCharacterLayout, value))
+                return;
+
+            OnPropertyChanged(nameof(SelectedCharacterLayoutDescription));
+        }
+    }
+
+    public string SelectedCharacterLayoutDescription => SelectedCharacterLayout?.Value switch
+    {
+        "workbench" => App.LanguageCatalog.GetString("UI_Layout_WorkbenchDescription"),
+        "ledger" => App.LanguageCatalog.GetString("UI_Layout_RunnersLedgerDescription"),
+        _ => App.LanguageCatalog.GetString("UI_Layout_ClassicDescription")
+    };
 
     public bool AutomaticUpdate
     {
@@ -272,6 +294,12 @@ public sealed partial class OptionsDialogViewModel : ViewModelBase
 
         PdfArgumentStyles.Add(new ListItem { Name = "Adobe/Foxit", Value = "Adobe/Foxit" });
         PdfArgumentStyles.Add(new ListItem { Name = "SumatraPDF", Value = "SumatraPDF" });
+
+        CharacterLayouts.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Layout_Classic"), Value = "classic" });
+        CharacterLayouts.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Layout_Workbench"), Value = "workbench" });
+        CharacterLayouts.Add(new ListItem { Name = App.LanguageCatalog.GetString("UI_Layout_RunnersLedger"), Value = "ledger" });
+        SelectedCharacterLayout = CharacterLayouts.FirstOrDefault(item => item.Value == CharacterLayoutSettings.ToStorageValue(CharacterLayoutSettings.Current))
+                                  ?? CharacterLayouts[0];
 
         LoadSettingsProfiles();
         LoadLanguages();
