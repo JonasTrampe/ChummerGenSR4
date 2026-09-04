@@ -205,6 +205,12 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderFieldBrush}" />
             <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <!-- Fluent's own PlaceholderForeground default is a semi-transparent dark gray tuned
+                 for a light Background - on Midnight's dark Surface that reads as near-invisible
+                 (~1:1 contrast, the "contrast fail" caught in visual QA), since nothing here had
+                 overridden it before. TextMutedBrush already has a verified-legible value in both
+                 skins (used for hint text elsewhere), so reuse it instead of a third gray. -->
+            <Setter Property="PlaceholderForeground" Value="{DynamicResource TextMutedBrush}" />
             <Setter Property="Padding" Value="4,2" />
             <Setter Property="MinHeight" Value="24" />
         </Style>
