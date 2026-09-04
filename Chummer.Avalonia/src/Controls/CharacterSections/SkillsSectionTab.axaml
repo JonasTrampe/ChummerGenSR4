@@ -29,7 +29,7 @@
             </ScrollViewer>
         </DockPanel>
 
-        <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
+        <GridSplitter Grid.Row="0" Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
 
         <DockPanel Grid.Row="0" Grid.Column="2" Margin="2 8 2 4">
             <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,0,0,6">
@@ -72,7 +72,7 @@
 
         <!-- Wissensfertigkeiten: its own full-width strip below groups+actions,
 	     not nested inside the actions column. -->
-        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="{DynamicResource BorderChromeBrush}"
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="8,6,0,0">
             <StackPanel Margin="2 8 2 4">
                 <Grid ColumnDefinitions="*,Auto">

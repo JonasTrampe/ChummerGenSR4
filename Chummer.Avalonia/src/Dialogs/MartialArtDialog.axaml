@@ -8,14 +8,14 @@
         Width="560" Height="480" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc MessageTitle_SelectMartialArtAdvantage}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc MessageTitle_SelectMartialArtAdvantage}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <TextBlock Grid.Row="0" Text="{loc:Loc UI_SelectMartialArtTooltip}" Margin="0,0,0,8" />
         <Grid Grid.Row="1" ColumnDefinitions="*,220">
             <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:MartialArtOptionViewModel">
-                        <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" Margin="4,2" />
+                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource LinkBrush}" Margin="4,2" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

@@ -55,7 +55,7 @@
                     <TextBlock Grid.Column="4" Text="{Binding NuyenEquivalent}" VerticalAlignment="Center"
                                Margin="6,0,0,0" IsVisible="{Binding !IsCreateMode}" />
                     <TextBlock Grid.Column="5" Text="{Binding NuyenPerPointLabel}" VerticalAlignment="Center"
-                               Margin="6,0,0,0" IsVisible="{Binding IsCreateMode}" Foreground="#666666" />
+                               Margin="6,0,0,0" IsVisible="{Binding IsCreateMode}" Foreground="{DynamicResource TextMutedBrush}" />
                 </Grid>
 
                 <StackPanel>
@@ -105,14 +105,14 @@
                 <StackPanel>
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <TextBlock Grid.Column="0" Text="{loc:Loc Label_Contacts}" FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBlock Grid.Column="2" Text="{Binding ContactPointsUsed}" Foreground="#666666" />
+                        <TextBlock Grid.Column="2" Text="{Binding ContactPointsUsed}" Foreground="{DynamicResource TextMutedBrush}" />
                     </Grid>
                     <Button Content="{loc:Loc Button_AddContact}" HorizontalAlignment="Left"
                             Margin="0,0,0,6" Click="OnAddContactClick" />
                     <ItemsControl ItemsSource="{Binding Contacts}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
-                                <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
+                                <Border BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
                                     <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
@@ -145,7 +145,7 @@
                     <ItemsControl ItemsSource="{Binding Enemies}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ContactRowViewModel">
-                                <Border BorderBrush="#E4E4E4" BorderThickness="0,0,0,1" Padding="0,0,0,4"
+                                <Border BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,4"
                                         Margin="0,0,0,4">
                                     <Grid ColumnDefinitions="160,Auto,70,Auto,70,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                         <TextBox Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />

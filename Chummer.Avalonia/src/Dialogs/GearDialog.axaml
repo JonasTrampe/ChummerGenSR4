@@ -28,8 +28,8 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:GearOptionViewModel">
                         <StackPanel Margin="4,2">
-                            <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" />
-                            <TextBlock Text="{Binding CategoryDisplay}" FontSize="10" Foreground="#666666" />
+                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource LinkBrush}" />
+                            <TextBlock Text="{Binding CategoryDisplay}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

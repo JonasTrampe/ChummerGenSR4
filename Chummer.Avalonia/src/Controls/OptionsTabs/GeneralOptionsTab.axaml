@@ -6,7 +6,7 @@
              x:Class="Chummer.NewUI.Controls.OptionsTabs.GeneralOptionsTab"
              x:DataType="vm:OptionsDialogViewModel">
     <Grid Margin="6" ColumnDefinitions="300,*" ColumnSpacing="10">
-        <Border Grid.Column="0" BorderBrush="#D8D8D8" BorderThickness="1">
+        <Border Grid.Column="0" BorderBrush="{DynamicResource BorderChromeBrush}" BorderThickness="1">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Margin="6,6,6,4" Tag="Label_Options_AdditionalBooks" Text="{loc:Loc Label_Options_AdditionalBooks}" />
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"

@@ -5,7 +5,7 @@
         Width="420" Height="260" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc Button_AddExoticSkill}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc Button_AddExoticSkill}">
     <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="110,*">
         <TextBlock Grid.Row="0" Text="{loc:Loc UI_SkillColon}" VerticalAlignment="Center" />
         <TextBox Grid.Row="0" Grid.Column="1" x:Name="NameBox" />
@@ -34,7 +34,7 @@
             <ComboBoxItem Content="{loc:Loc String_AttributeMAGShort}" Tag="MAG" />
             <ComboBoxItem Content="{loc:Loc String_AttributeRESShort}" Tag="RES" />
         </ComboBox>
-        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ErrorText" Foreground="{DynamicResource TextErrorBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
         <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
             <Button Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />

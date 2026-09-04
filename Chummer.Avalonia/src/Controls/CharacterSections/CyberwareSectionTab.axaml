@@ -50,7 +50,7 @@
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedNode.Rating, TargetNullValue=–}" />
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc Checkbox_Transgenic}" Width="80"
                            IsVisible="{Binding SelectedNode.IsTransgenic}" />
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="✓" Foreground="#287A3D"
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="✓" Foreground="{DynamicResource TextSuccessBrush}"
                            IsVisible="{Binding SelectedNode.IsTransgenic}" />
             </Grid>
             <Grid ColumnDefinitions="Auto,*">

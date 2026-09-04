@@ -8,10 +8,10 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Title="{loc:Loc Title_SelectSetting}">
 	<StackPanel Margin="12" Spacing="10">
-		<TextBlock Foreground="#2E6B2E" TextWrapping="Wrap"
+		<TextBlock Foreground="{DynamicResource TextSuccessBrush}" TextWrapping="Wrap"
 		           Text="{loc:Loc UI_SelectSettingsProfileTooltip}" />
 
 		<Grid ColumnDefinitions="Auto,*">

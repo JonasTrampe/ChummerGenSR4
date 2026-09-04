@@ -18,7 +18,7 @@
             <TextBlock Grid.Column="0" Classes="rowLabel" Classes.disabledRow="{Binding IsUnavailable}"
                        Text="{Binding SkillName}" />
             <TextBlock Grid.Column="1" Classes="rowLabel" HorizontalAlignment="Center"
-                       Classes.disabledRow="{Binding IsUnavailable}" Text="{Binding Attribute}" Foreground="#777777" />
+                       Classes.disabledRow="{Binding IsUnavailable}" Text="{Binding Attribute}" Foreground="{DynamicResource TextMutedBrush}" />
             <TextBlock Grid.Column="2" Classes="rowLabel" HorizontalAlignment="Center"
                        IsVisible="{Binding !IsCreateMode}"
                        Classes.disabledRow="{Binding IsUnavailable}" Text="{Binding Rating}" />

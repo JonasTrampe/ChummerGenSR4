@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Chummer.NewUI.Controls.IntegerSpinner"
              x:Name="root">
-    <Border BorderBrush="#C0C0C0"
+    <Border BorderBrush="{DynamicResource BorderFieldBrush}"
             BorderThickness="1"
             CornerRadius="2"
-            Background="White"
+            Background="{DynamicResource SurfaceBrush}"
             Height="28"
             MinHeight="28">
         <Grid ColumnDefinitions="*,16"
@@ -25,12 +25,12 @@
                         Padding="0"
                         Margin="0"
                         BorderThickness="0,0,0,1"
-                        BorderBrush="#D0D0D0"
+                        BorderBrush="{DynamicResource BorderLightBrush}"
                         Background="Transparent"
                         Click="OnIncreaseClick">
                     <Path Width="8" Height="5"
                           Stretch="Fill"
-                          Fill="#333333"
+                          Fill="{DynamicResource GridHeaderForegroundBrush}"
                           Data="M 0 5 L 4 0 L 8 5 Z" />
                 </Button>
                 <Button Grid.Row="1"
@@ -42,7 +42,7 @@
                         Click="OnDecreaseClick">
                     <Path Width="10" Height="6"
                           Stretch="Fill"
-                          Fill="#333333"
+                          Fill="{DynamicResource GridHeaderForegroundBrush}"
                           Data="M 0 0 L 4 5 L 8 0 Z" />
                 </Button>
             </Grid>

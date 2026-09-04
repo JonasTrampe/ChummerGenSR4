@@ -5,7 +5,7 @@
         Width="700" Height="560"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc UI_PrintMultipleCharacters}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc UI_PrintMultipleCharacters}">
     <Grid Margin="12" RowDefinitions="Auto,*,Auto,*,Auto" ColumnDefinitions="220,8,*">
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,4">
             <Button Content="{loc:Loc UI_AddEllipsis}" Click="OnAddClick" />
@@ -19,7 +19,7 @@
 
         <ProgressBar Grid.Row="2" Grid.ColumnSpan="3" x:Name="Progress" Minimum="0" Margin="0,6,0,6" />
 
-        <TextBlock Grid.Row="3" Grid.ColumnSpan="3" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" />
+        <TextBlock Grid.Row="3" Grid.ColumnSpan="3" x:Name="ErrorText" Foreground="{DynamicResource TextErrorBrush}" TextWrapping="Wrap" />
 
         <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
             <Button Content="{loc:Loc UI_ExportAsHtml}" Click="OnExportHtmlClick" />

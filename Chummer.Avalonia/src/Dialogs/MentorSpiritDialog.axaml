@@ -13,7 +13,7 @@
         </Grid>
         <Grid Grid.Row="1" ColumnDefinitions="*,280">
             <ListBox ItemsSource="{Binding MentorOptions}" SelectedItem="{Binding SelectedMentor, Mode=TwoWay}">
-                <ListBox.ItemTemplate><DataTemplate x:DataType="vm:MentorSpiritOptionViewModel"><StackPanel Margin="4,2"><TextBlock Text="{Binding Name}" Foreground="#1E5FA8" /><TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                <ListBox.ItemTemplate><DataTemplate x:DataType="vm:MentorSpiritOptionViewModel"><StackPanel Margin="4,2"><TextBlock Text="{Binding Name}" Foreground="{DynamicResource LinkBrush}" /><TextBlock Text="{Binding Category}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
             </ListBox>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6">
                 <TextBlock Text="{loc:Loc UI_AdvantageColon}" FontWeight="Bold" />

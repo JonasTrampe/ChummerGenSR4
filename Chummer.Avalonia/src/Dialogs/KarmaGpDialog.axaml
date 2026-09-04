@@ -9,12 +9,12 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Title="{loc:Loc Title_SelectBP}">
 	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
 	<Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
 		<TextBlock Grid.Row="0"
-		           Foreground="#2E6B2E"
+		           Foreground="{DynamicResource TextSuccessBrush}"
 		           TextWrapping="Wrap"
 		           MaxWidth="350"
 		           Text="{Binding Description}" />

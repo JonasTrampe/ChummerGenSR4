@@ -25,6 +25,6 @@
         </StackPanel>
         <TextBlock Grid.Column="3" Classes="rowLabel" Text="{Binding Augmented}" />
         <TextBlock Grid.Column="4" Classes="rowLabel" Text="{Binding Range}" />
-        <TextBlock Grid.Column="5" Classes="rowLabel" Text="{Binding Source}" Foreground="#666666" />
+        <TextBlock Grid.Column="5" Classes="rowLabel" Text="{Binding Source}" Foreground="{DynamicResource TextMutedBrush}" />
     </Grid>
 </UserControl>

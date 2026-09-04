@@ -28,12 +28,12 @@
                         <DataTemplate x:DataType="vm:LifestyleRowViewModel"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="#E4E4E4" />
+                <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
                 <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Margin="8,0,0,0" Spacing="4">
                     <TextBlock Text="{Binding LifestyleCost}" />
                     <TextBlock
                         Text="{loc:Loc UI_LifestyleQualitiesHeader}"
-                        Foreground="#666666" FontStyle="Italic" />
+                        Foreground="{DynamicResource TextMutedBrush}" FontStyle="Italic" />
                     <TextBlock Text="{Binding SelectedLifestyle.Notes, StringFormat='Notizen: {0}'}"
                                TextWrapping="Wrap" />
                 </StackPanel>
@@ -125,7 +125,7 @@
                             IsVisible="{Binding IsArmorSetSelected}" Click="OnRemoveArmorSetClick" />
                     <Separator Margin="0,4" />
                     <TextBlock Text="{Binding ArmorRating}" FontWeight="Bold" />
-                    <TextBlock Text="{Binding ArmorEncumbrance}" Foreground="#666666" />
+                    <TextBlock Text="{Binding ArmorEncumbrance}" Foreground="{DynamicResource TextMutedBrush}" />
                     </StackPanel>
                 </controls:TreeDetailPane.DetailContent>
             </controls:TreeDetailPane>
@@ -348,9 +348,9 @@
                     <Button Content="{loc:Loc Button_AddPet}" Click="OnAddPetClick" />
                     <Button Content="{loc:Loc UI_LinkCharacter}" Click="OnLinkPetClick" />
                 </StackPanel>
-                <TextBlock Text="{loc:Loc UI_PetsLoadedFromContactsTooltip}" Foreground="#666666" />
+                <TextBlock Text="{loc:Loc UI_PetsLoadedFromContactsTooltip}" Foreground="{DynamicResource TextMutedBrush}" />
                 <TextBlock Text="{Binding SelectedPet.FileName, TargetNullValue='Kein Begleiter-Charakter verknüpft'}"
-                           Foreground="#666666" TextTrimming="CharacterEllipsis" />
+                           Foreground="{DynamicResource TextMutedBrush}" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding SelectedPet.LinkedMetatype, StringFormat='Metatyp: {0}'}"
                            IsVisible="{Binding SelectedPet.HasLinkedCharacter}" />
                 <ListBox ItemsSource="{Binding Pets}" SelectedItem="{Binding SelectedPet, Mode=TwoWay}" KeyDown="OnPetsListKeyDown">

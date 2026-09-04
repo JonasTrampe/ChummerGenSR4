@@ -46,7 +46,7 @@
         <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,8,0,0">
             <StackPanel Grid.Column="0" Margin="0,0,4,0">
                 <TextBlock Text="{loc:Loc UI_PositiveQualities}" FontWeight="Bold" Margin="0,0,0,4" />
-                <Border BorderBrush="#C8C8C8" BorderThickness="1">
+                <Border BorderBrush="{DynamicResource BorderMediumBrush}" BorderThickness="1">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="220">
                         <ItemsControl ItemsSource="{Binding PositiveQualities}">
                             <ItemsControl.ItemTemplate>
@@ -60,7 +60,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="4,0,0,0">
                 <TextBlock Text="{loc:Loc UI_NegativeQualities}" FontWeight="Bold" Margin="0,0,0,4" />
-                <Border BorderBrush="#C8C8C8" BorderThickness="1">
+                <Border BorderBrush="{DynamicResource BorderMediumBrush}" BorderThickness="1">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="220">
                         <ItemsControl ItemsSource="{Binding NegativeQualities}">
                             <ItemsControl.ItemTemplate>

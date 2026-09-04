@@ -19,14 +19,14 @@
                     <DataTemplate x:DataType="vm:MetamagicRowViewModel">
                         <StackPanel Margin="0,2">
                             <TextBlock Text="{Binding Name}" />
-                            <TextBlock Text="{Binding SourcePage}" FontSize="10" Foreground="#666666" />
+                            <TextBlock Text="{Binding SourcePage}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
 
-        <GridSplitter Grid.Column="1" Background="#E4E4E4" />
+        <GridSplitter Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
 
         <StackPanel Grid.Column="2" Margin="8,0,0,0" Spacing="8" IsVisible="{Binding CanInitiate}">
             <Grid ColumnDefinitions="Auto,40,26,Auto,Auto">

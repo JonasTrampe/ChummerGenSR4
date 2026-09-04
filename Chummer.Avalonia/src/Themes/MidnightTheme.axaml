@@ -20,9 +20,12 @@
     <SolidColorBrush x:Key="BorderLightBrush">#2A323C</SolidColorBrush>
     <SolidColorBrush x:Key="BorderFieldBrush">#323B46</SolidColorBrush>
     <SolidColorBrush x:Key="BorderChromeBrush">#232A33</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderMediumBrush">#3A4552</SolidColorBrush>
     <SolidColorBrush x:Key="TextPrimaryBrush">#E4E8E8</SolidColorBrush>
     <SolidColorBrush x:Key="TextMutedBrush">#93A0AC</SolidColorBrush>
     <SolidColorBrush x:Key="TextErrorBrush">#E5484D</SolidColorBrush>
+    <SolidColorBrush x:Key="TextSuccessBrush">#4CAF6D</SolidColorBrush>
+    <SolidColorBrush x:Key="LinkBrush">#6BB6E8</SolidColorBrush>
     <SolidColorBrush x:Key="AccentBrush">#3B9FC4</SolidColorBrush>
     <SolidColorBrush x:Key="AccentHoverBrush">#1F323C</SolidColorBrush>
     <SolidColorBrush x:Key="AccentSelectionBrush">#22343B</SolidColorBrush>

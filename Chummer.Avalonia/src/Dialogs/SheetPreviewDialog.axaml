@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Title="{loc:Loc UI_SheetPreviewTitle}">
     <StackPanel Margin="8" Spacing="6">
         <StackPanel Orientation="Horizontal" Spacing="6">

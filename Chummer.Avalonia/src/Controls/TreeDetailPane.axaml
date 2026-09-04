@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         <ContentPresenter Grid.Row="0" Grid.Column="0" Content="{Binding HeaderContent, ElementName=root}" Margin="0,0,0,4" />
         <ContentPresenter Grid.Row="1" Grid.Column="0" Content="{Binding TreeContent, ElementName=root}" />
-        <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="#E4E4E4" />
+        <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
         <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Content="{Binding DetailContent, ElementName=root}" />
     </Grid>
 </UserControl>

@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Tag="Title_Options"
         Title="{loc:Loc Title_Options}">
 	<DockPanel Margin="10" LastChildFill="True">

@@ -15,7 +15,7 @@
             <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:WeaponAccessoryOptionViewModel">
-                        <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" Margin="4,2" />
+                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource LinkBrush}" Margin="4,2" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

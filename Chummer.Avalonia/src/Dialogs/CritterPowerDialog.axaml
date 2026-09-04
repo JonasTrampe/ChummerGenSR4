@@ -8,14 +8,14 @@
         Width="500" Height="480" CanResize="True"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc UI_SelectCritterPower}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc UI_SelectCritterPower}">
     <Grid RowDefinitions="Auto,*,Auto" Margin="12">
         <TextBlock Grid.Row="0" Text="{loc:Loc UI_SelectCritterPowerTooltip}" Margin="0,0,0,8" />
         <Grid Grid.Row="1" ColumnDefinitions="*,180">
             <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:CritterPowerOptionViewModel">
-                        <TextBlock Text="{Binding Name}" Foreground="#1E5FA8" Margin="4,2" />
+                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource LinkBrush}" Margin="4,2" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

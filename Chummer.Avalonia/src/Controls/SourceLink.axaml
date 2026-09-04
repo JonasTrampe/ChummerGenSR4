@@ -10,7 +10,7 @@
         <Button Click="OnClick" IsVisible="{Binding CanOpen}"
                 Padding="0" MinWidth="0" MinHeight="0"
                 Background="Transparent" BorderThickness="0"
-                Foreground="#1E5FA8" Cursor="Hand">
+                Foreground="{DynamicResource LinkBrush}" Cursor="Hand">
             <TextBlock Text="{Binding SourcePage}" TextDecorations="Underline" />
         </Button>
         <TextBlock Text="{Binding SourcePage}" IsVisible="{Binding !CanOpen}" />

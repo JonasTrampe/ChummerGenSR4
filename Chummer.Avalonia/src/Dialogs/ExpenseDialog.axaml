@@ -7,7 +7,7 @@
         Width="400" Height="290" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc UI_RecordExpense}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc UI_RecordExpense}">
     <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="80,*">
         <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Prompt}" Margin="0,0,0,12" />
         <TextBlock Grid.Row="1" Text="{loc:Loc Label_Qty}" VerticalAlignment="Center" />
@@ -20,7 +20,7 @@
                    IsVisible="{Binding IncludeTime}" />
         <TimePicker Grid.Row="4" Grid.Column="1" SelectedTime="{Binding SelectedTime}" ClockIdentifier="24HourClock"
                     Margin="0,8,0,0" IsVisible="{Binding IncludeTime}" />
-        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Error}" Foreground="#B00020" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Error}" Foreground="{DynamicResource TextErrorBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
         <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />
             <Button x:Name="OkButton" Content="{loc:Loc UI_Add}" Width="80" Click="OnOk" />

@@ -65,11 +65,11 @@
              this just hosts it, instead of naming the control here and reaching into it from
              code-behind. -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,8,0,0">
-            <Border Grid.Column="0" BorderBrush="#D0D0D0" BorderThickness="1" Margin="0,0,4,0"
+            <Border Grid.Column="0" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" Margin="0,0,4,0"
                     Height="180">
                 <ContentControl Content="{Binding KarmaChart, Mode=OneTime}" />
             </Border>
-            <Border Grid.Column="1" BorderBrush="#D0D0D0" BorderThickness="1" Margin="4,0,0,0"
+            <Border Grid.Column="1" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" Margin="4,0,0,0"
                     Height="180">
                 <ContentControl Content="{Binding NuyenChart, Mode=OneTime}" />
             </Border>

@@ -9,7 +9,7 @@
     <StackPanel Margin="16" Spacing="8">
         <TextBlock Text="{loc:Loc UI_ArmorSetNameColon}" />
         <TextBox Text="{Binding Name, Mode=TwoWay}" PlaceholderText="{loc:Loc UI_ArmorSetNameExample}" />
-        <TextBlock Text="{Binding ErrorMessage}" Foreground="#B00020" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource TextErrorBrush}" TextWrapping="Wrap" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
             <Button Content="{loc:Loc String_Cancel}" Click="OnCancel" />
             <Button Content="{loc:Loc UI_Add}" Click="OnAdd" />

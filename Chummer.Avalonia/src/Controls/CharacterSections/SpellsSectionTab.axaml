@@ -36,7 +36,7 @@
                 </TreeView>
             </DockPanel>
 
-            <GridSplitter Grid.Row="0" Grid.Column="1" Background="#E4E4E4" />
+            <GridSplitter Grid.Row="0" Grid.Column="1" Background="{DynamicResource BorderChromeBrush}" />
 
             <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0,0,0" Spacing="6">
             <controls:InfoRow Label="Kategorie:" Value="{Binding SelectedSpellNode.Category, TargetNullValue=–}" />
@@ -60,7 +60,7 @@
         </StackPanel>
 
         <!-- Geister section spans the full tab width, below the spell tree/detail split -->
-        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="{DynamicResource BorderChromeBrush}"
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <StackPanel>
                 <TextBlock Text="{loc:Loc Label_Spirits}" FontWeight="Bold" Margin="0,0,0,4" />
@@ -81,7 +81,7 @@
         </Border>
 
         <!-- Complex Forms / Critter Powers - both support add/delete via a picker. -->
-        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="#E4E4E4"
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" BorderBrush="{DynamicResource BorderChromeBrush}"
                 BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,6,0,0">
             <Grid ColumnDefinitions="*,*">
                 <StackPanel Grid.Column="0">

@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
         FontSize="11"
-        Background="White"
+        Background="{DynamicResource SurfaceBrush}"
         Title="{loc:Loc Title_Metatype}">
 	<Grid RowDefinitions="*,Auto" Margin="12">
 		<Grid Grid.Row="0" ColumnDefinitions="180,*" ColumnSpacing="12">

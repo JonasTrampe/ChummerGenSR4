@@ -5,7 +5,7 @@
         Width="420" SizeToContent="{loc:Loc UI_Height}" CanResize="False"
         WindowStartupLocation="CenterOwner"
         FontFamily="Microsoft Sans Serif, Tahoma, Segoe UI, sans-serif"
-        FontSize="11" Background="White" Title="{loc:Loc Menu_AddNaturalWeapon}">
+        FontSize="11" Background="{DynamicResource SurfaceBrush}" Title="{loc:Loc Menu_AddNaturalWeapon}">
     <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110,*">
         <TextBlock Grid.Row="0" Text="{loc:Loc Label_Name}" VerticalAlignment="Center" />
         <TextBox Grid.Row="0" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,6" />
@@ -26,7 +26,7 @@
         <TextBlock Grid.Row="4" Text="{loc:Loc Label_Range}" VerticalAlignment="Center" />
         <NumericUpDown Grid.Row="4" Grid.Column="1" x:Name="ReachBox" Minimum="0" Maximum="10" Increment="1" Value="0" FormatString="0" Margin="0,0,0,6" />
 
-        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="ErrorText" Foreground="#B00020" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="ErrorText" Foreground="{DynamicResource TextErrorBrush}" TextWrapping="Wrap" Margin="0,0,0,6" />
 
         <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
             <Button Content="{loc:Loc String_Cancel}" Width="80" Click="OnCancel" />

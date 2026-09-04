@@ -20,7 +20,7 @@
                    Text="{loc:Loc Label_Power_PowerRating}"
                    VerticalAlignment="Center"
                    FontSize="10"
-                   Foreground="#666666" />
+                   Foreground="{DynamicResource TextMutedBrush}" />
         <controls:IntegerSpinner Grid.Column="2"
                                  Width="96"
                                  HorizontalAlignment="Left"
@@ -37,7 +37,7 @@
                    Text="{loc:Loc Label_Power_DiscountedBy}"
                    VerticalAlignment="Center"
                    FontSize="10"
-                   Foreground="#666666" />
+                   Foreground="{DynamicResource TextMutedBrush}" />
         <CheckBox Grid.Column="6"
                   Content="{loc:Loc Checkbox_Power_AdeptWay}"
                   IsChecked="{Binding IsWayOfTheAdept}" />

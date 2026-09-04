@@ -13,7 +13,7 @@
                 <StackPanel Margin="6" Spacing="4">
                     <Button Content="{loc:Loc UI_FinalizeCharacter}" IsVisible="{Binding IsCreateMode}"
                             Click="OnFinalizeCreationClick" Margin="0,0,0,6" />
-                    <Border IsVisible="{Binding IsCreateMode}" BorderBrush="#D6D6D6" BorderThickness="1"
+                    <Border IsVisible="{Binding IsCreateMode}" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1"
                             Padding="6" Margin="0,0,0,6">
                         <StackPanel Spacing="3">
                             <TextBlock Text="Erstellungsbudget" FontWeight="SemiBold" />

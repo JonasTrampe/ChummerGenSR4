@@ -36,7 +36,7 @@
         </Grid>
 
         <Grid Grid.Row="2" ColumnDefinitions="260,*" ColumnSpacing="12">
-            <Border BorderBrush="#D0D0D0" BorderThickness="1" Padding="6">
+            <Border BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" Padding="6">
                 <Grid RowDefinitions="*,Auto">
                     <TreeView x:Name="FoldersTree"
                               ItemsSource="{Binding Folders}"
@@ -57,7 +57,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="1" BorderBrush="#D0D0D0" BorderThickness="1" Padding="6">
+            <Border Grid.Column="1" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" Padding="6">
                 <Grid RowDefinitions="*,Auto,Auto" RowSpacing="8">
                     <Grid RowDefinitions="Auto,*">
                         <Grid ColumnDefinitions="*,120,150,180" Margin="4,0,4,6">
